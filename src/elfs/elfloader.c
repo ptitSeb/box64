@@ -211,6 +211,57 @@ const char* ElfPath(elfheader_t* head)
     return head->path;
 }
 
+static uintptr_t ElfPageStart(uintptr_t addr)
+{
+    return addr & ~(box64_pagesize-1);
+}
+
+static uintptr_t ElfPageEnd(uintptr_t addr, size_t size)
+{
+    return ALIGN(addr + size);
+}
+
+static uint32_t ElfFlagsToProt(uint32_t flags)
+{
+    uint32_t prot = 0;
+    if(flags & PF_R) prot |= PROT_READ;
+    if((flags & PF_W) || box64_unittest_mode) prot |= PROT_WRITE;
+    if(flags & PF_X) prot |= PROT_EXEC;
+    return prot;
+}
+
+static int ElfPhdrNeedsCopyLoad64(elfheader_t* head, int phidx, uintptr_t offs)
+{
+    Elf64_Phdr* e = &head->PHEntries._64[phidx];
+    if(box64_pagesize <= 4096)
+        return 0;
+
+    uintptr_t seg_addr = e->p_paddr + offs;
+    uintptr_t seg_addr_end = seg_addr + e->p_memsz;
+    uintptr_t host_start = ElfPageStart(seg_addr);
+    uintptr_t host_end = ElfPageEnd(seg_addr, e->p_memsz);
+
+    // Partial host-page coverage must be copy-loaded so adjacent PT_LOADs can
+    // share the host page safely while we defer the final protection fixup.
+    if(seg_addr != host_start || seg_addr_end != host_end)
+        return 1;
+
+    for(size_t i = 0; i < head->numPHEntries; ++i) {
+        Elf64_Phdr* other = &head->PHEntries._64[i];
+        if(i == phidx || other->p_type != PT_LOAD || !other->p_flags || !other->p_memsz)
+            continue;
+
+        uintptr_t other_addr = other->p_paddr + offs;
+        uintptr_t other_host_start = ElfPageStart(other_addr);
+        uintptr_t other_host_end = ElfPageEnd(other_addr, other->p_memsz);
+
+        if(other_host_end > host_start && other_host_start < host_end)
+            return 1;
+    }
+
+    return 0;
+}
+
 int AllocLoadElfMemory32(box64context_t* context, elfheader_t* head, int mainbin)
 #ifndef BOX32
 { return 1; }
@@ -300,7 +351,7 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
             head->multiblocks[n].size = e->p_filesz;
             head->multiblocks[n].align = e->p_align;
             // HACK: Mark all the code pages writable in unittest mode because some tests mix code and (writable) data...
-            uint8_t prot = ((e->p_flags & PF_R)?PROT_READ:0)|(((e->p_flags & PF_W) || box64_unittest_mode)?PROT_WRITE:0)|((e->p_flags & PF_X)?PROT_EXEC:0);
+            uint8_t prot = ElfFlagsToProt(e->p_flags);
             // check if alignment is correct
             uintptr_t balign = head->multiblocks[n].align-1;
             if (balign < (box64_pagesize - 1)) balign = box64_pagesize - 1;
@@ -315,6 +366,8 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
             if(!e->p_filesz)
                 try_mmap = 0;
             if(e->p_align<box64_pagesize)
+                try_mmap = 0;
+            if(ElfPhdrNeedsCopyLoad64(head, i, offs))
                 try_mmap = 0;
             if(try_mmap) {
                 printf_dump(log_level, "Mmaping 0x%lx(0x%lx) bytes @%p with prot %x for Elf \"%s\"\n", head->multiblocks[n].size, head->multiblocks[n].asize, (void*)head->multiblocks[n].paddr, prot, head->name);
@@ -426,17 +479,50 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
                 memset(dest+e->p_filesz, 0, e->p_memsz - e->p_filesz);
         }
     }
-    // deferred mprotect: apply final protections after all segments are loaded
-    // this avoids the case where mprotect on a shared host page (e.g. 64KB) strips
-    // PROT_WRITE before a later segment that shares the same page has been read into memory
-    for (int j = 0; j < n; j++) {
-        if(!(head->multiblocks[j].flags & PF_W)) {
-            uintptr_t start = head->multiblocks[j].paddr & ~(box64_pagesize-1);
-            uintptr_t end = ALIGN(head->multiblocks[j].paddr + head->multiblocks[j].asize);
-            for(uintptr_t page = start; page < end; page += box64_pagesize) {
-                uint32_t prot = getProtection(page);
-                if(prot && !(prot & PROT_WRITE))
-                    mprotect((void*)page, box64_pagesize, prot & ~PROT_CUSTOM);
+    if(box64_pagesize > 4096) {
+        uintptr_t min_hostpage = UINTPTR_MAX;
+        uintptr_t max_hostpage = 0;
+        for( int j =0;j<n;j++) {
+            uintptr_t seg_page_start = ElfPageStart(head->multiblocks[j].paddr);
+            uintptr_t seg_page_end = seg_page_start + head->multiblocks[j].asize;
+            if(seg_page_start < min_hostpage)
+                min_hostpage = seg_page_start;
+            if(seg_page_end > max_hostpage)
+                max_hostpage = seg_page_end;
+        }
+        for( uintptr_t page = min_hostpage; page < max_hostpage; page += box64_pagesize) {
+            uint32_t final_prot = 0;
+            int covered = 0;
+            for (int j = 0; j < n; ++j) {
+                uintptr_t seg_page_start = ElfPageStart(head->multiblocks[j].paddr);
+                uintptr_t seg_page_end = seg_page_start + head->multiblocks[j].asize;
+                if(seg_page_end <= page || seg_page_start >= page + box64_pagesize)
+                    continue;
+                uint32_t seg_prot = ElfFlagsToProt(head->multiblocks[j].flags);
+                final_prot |= seg_prot;
+                covered = 1;
+            }
+            if(!covered) continue;
+            setProtection_elf(page, box64_pagesize, final_prot);
+            if(mprotect((void*)page, box64_pagesize, final_prot & ~PROT_CUSTOM) != 0) {
+                printf_log(LOG_INFO, "Warning, mprotect failed on ELF host page %p (%s)\n",
+                    (void*)page, strerror(errno));
+            }
+        }
+
+    } else {
+        // deferred mprotect: apply final protections after all segments are loaded
+        // this avoids the case where mprotect on a shared host page (e.g. 64KB) strips
+        // PROT_WRITE before a later segment that shares the same page has been read into memory
+        for (int j = 0; j < n; j++) {
+            if(!(head->multiblocks[j].flags & PF_W)) {
+                uintptr_t start = head->multiblocks[j].paddr & ~(box64_pagesize-1);
+                uintptr_t end = ALIGN(head->multiblocks[j].paddr + head->multiblocks[j].asize);
+                for(uintptr_t page = start; page < end; page += box64_pagesize) {
+                    uint32_t prot = getProtection(page);
+                    if(prot && !(prot & PROT_WRITE))
+                        mprotect((void*)page, box64_pagesize, prot & ~PROT_CUSTOM);
+                }
             }
         }
     }
