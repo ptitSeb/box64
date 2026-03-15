@@ -10,6 +10,7 @@
 
 typedef struct request_s {
 	string_t *obj_name;
+	string_t *sym_ver;
 	_Bool default_comment;
 	_Bool has_val, ignored;
 	_Bool weak;

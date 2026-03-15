@@ -170,7 +170,7 @@ define add_deptree =
 makedir/$(2).mk: | $$$$(@D)
 	$(call colorize,95,DEP,33,Creating $(3) dependancies)
 	$(SILENCER)set -e; $(1) -MM src/$(3) \
-	 | sed 's,\($$(notdir $$(basename $(3)))\)\.o[ :]*,$$(dir obj/$(OBJDIR)/$(3))\1.o: $$@'"\n"'$$(dir obj/$(OBJDIR)/$(3))\1.o $$@: ,g' >$$@
+	 | sed 's,\($$(notdir $$(basename $(3)))\)\.o[ :]*,$$(dir obj/$(OBJDIR)/$(3))\1.o: $$@'"\n"'$$(dir obj/$(OBJDIR)/$(3))\1.o $$@: ,g; s,src/machine.gen,,g' >$$@
 include makedir/$(2).mk
 endef
 endif
@@ -233,7 +233,6 @@ $(eval $(call compile_wrapperhelper_c,,parse,parse))
 $(eval $(call compile_wrapperhelper_c,,prepare,prepare))
 $(eval $(call compile_wrapperhelper_c,,preproc,preproc))
 $(eval $(call compile_wrapperhelper_c,,vector,vector))
-$(call wrapperhelper_o,,machine,machine) makedir/machine.mk: src/machine.gen src/machine_x86.gen src/machine_x86_64.gen
 $(call wrapperhelper_o,,machine,machine): CFLAGS+= -Wno-unused-macros
 $(call wrapperhelper_o,,generator,generator): CFLAGS+= -fno-analyzer # Too slow
 $(call wrapperhelper_o,,preproc,preproc): CFLAGS+= -fno-analyzer
@@ -246,6 +245,9 @@ src/machine_x86.gen src/machine_x86_64.gen:
 src/machine.gen:
 	$(call colorize,96,GEN,33,Generating $@)
 	$(SILENCER)echo | LC_ALL=C LANG=C $(CC) $(CPPFLAGS) -E -v - 2>&1 | sed ':l; $$ ! { N; b l }; s/.*#include <...> search starts here:\n//; s/End of search list.*//; s/^ /DO_PATH("/; s/\n /")\nDO_PATH("/g; s/\n$$/")/' >$@
+# Always rebuild this file, since system updates may break search paths
+.PHONY: src/machine.gen
+$(call wrapperhelper_o,,machine,machine): src/machine.gen
 
 #$(eval $(call compile_test_cxx,core/number))
 
