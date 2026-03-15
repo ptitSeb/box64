@@ -19,6 +19,8 @@ void prepare_set_line(prepare_t *src, char *filename, size_t lineno); // Takes o
 void prepare_mark_nocomment(prepare_t *src); // Change the state (usually from COMMENT) to NONE
 int pre_next_newline_token(prepare_t *src, string_t *buf); // In a comment append everything until the EOL or EOF to the buffer
 
+preproc_token_t pre_next_string_token_comma(prepare_t *src); // Return everything as a string until EOL, EOF or comma symbol (also eat the comma)
+
 void prepare_cleanup(void); // Frees loginfo filenames
 
 #endif // PREPARE_H

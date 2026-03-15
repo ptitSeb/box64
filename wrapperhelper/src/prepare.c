@@ -268,6 +268,12 @@ preproc_token_t pre_next_token(prepare_t *src, int allow_comments) {
 				.loginfo = c.li,
 				.tokv.c = (char)c.c
 			};
+		} else if (c.c == '@') {
+			return (preproc_token_t){
+				.tokt = PPTOK_AT_SYM,
+				.loginfo = c.li,
+				.tokv.c = (char)c.c
+			};
 		} else {
 			return (preproc_token_t){
 				.tokt = PPTOK_INVALID,
@@ -465,6 +471,13 @@ start_next_token:
 			unget_char(src, c2);
 		}
 	}
+	if (c.c == '@') {
+		return (preproc_token_t){
+			.tokt = PPTOK_AT_SYM,
+			.loginfo = c.li,
+			.tokv.c = (char)c.c
+		};
+	}
 	
 	struct symbs_s const *sym = NULL;
 	for (int i = 0; i < BASE_NSYMS; ++i) {
@@ -571,6 +584,16 @@ int pre_next_newline_token(prepare_t *src, string_t *buf) {
 			return 0;
 		}
 	}
+}
+
+preproc_token_t pre_next_string_token_comma(prepare_t *src) {
+	preproc_token_t ret;
+	ret.tokt = PPTOK_STRING;
+	ret.loginfo = (loginfo_t){ .filename = src->li.filename, .lineno = src->li.lineno, .colno = src->li.colno, .lineno_end = 0, .colno_end = 0 };
+	ret.tokv.sisstr = 0;
+	ret.tokv.sstr = string_new();
+	fill_str(src, ret.tokv.sstr, ',', 0, &ret.loginfo.lineno_end, &ret.loginfo.colno_end);
+	return ret;
 }
 
 void prepare_cleanup(void) {

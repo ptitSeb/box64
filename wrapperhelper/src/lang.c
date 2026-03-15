@@ -43,6 +43,7 @@ preproc_token_t preproc_token_dup(preproc_token_t tok) {
 	case PPTOK_NEWLINE:
 	case PPTOK_BLANK:
 	case PPTOK_START_LINE_COMMENT:
+	case PPTOK_AT_SYM:
 	case PPTOK_EOF:
 		ret.tokv.c = tok.tokv.c;
 		break;
@@ -66,6 +67,7 @@ void preproc_token_del(preproc_token_t *tok) {
 	case PPTOK_NEWLINE:
 	case PPTOK_BLANK:
 	case PPTOK_START_LINE_COMMENT:
+	case PPTOK_AT_SYM:
 	case PPTOK_EOF:
 		break;
 	}
@@ -191,6 +193,9 @@ void preproc_token_print(const preproc_token_t *tok) {
 	case PPTOK_START_LINE_COMMENT:
 		printf("%7s\n", "\e[2;31m( // ) \e[m");
 		break;
+	case PPTOK_AT_SYM:
+		printf("%7s\n", "\e[2;31m( @ )  \e[m");
+		break;
 	case PPTOK_EOF:
 		printf("%7s\n", "EOF");
 		break;
@@ -210,6 +215,7 @@ int preproc_token_isend(const preproc_token_t *tok) {
 	case PPTOK_NEWLINE:
 	case PPTOK_BLANK:
 	case PPTOK_START_LINE_COMMENT:
+	case PPTOK_AT_SYM:
 		return 0;
 	case PPTOK_INVALID:
 	case PPTOK_EOF:

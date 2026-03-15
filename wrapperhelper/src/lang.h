@@ -74,6 +74,7 @@ typedef struct preproc_token_s {
 		PPTOK_NEWLINE,
 		PPTOK_BLANK,
 		PPTOK_START_LINE_COMMENT,
+		PPTOK_AT_SYM,
 		PPTOK_EOF
 	} tokt;
 	loginfo_t loginfo;

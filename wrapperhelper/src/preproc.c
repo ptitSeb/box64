@@ -584,6 +584,7 @@ static VECTOR(preproc) *preproc_solve_macro(loginfo_t *li,
 					case PPTOK_NEWLINE:
 					case PPTOK_BLANK:
 					case PPTOK_START_LINE_COMMENT:
+					case PPTOK_AT_SYM:
 					case PPTOK_EOF: tok2 = (preproc_token_t){.tokt = tok1->tokt, .loginfo = *li, .tokv.c = tok1->tokv.c}; break;
 					case PPTOK_SYM: tok2 = (preproc_token_t){.tokt = tok1->tokt, .loginfo = *li, .tokv.sym = tok1->tokv.sym}; break;
 					case PPTOK_IDENT:
@@ -681,6 +682,7 @@ static VECTOR(preproc) *preproc_solve_macro(loginfo_t *li,
 					case PPTOK_NEWLINE:
 					case PPTOK_BLANK:
 					case PPTOK_START_LINE_COMMENT:
+					case PPTOK_AT_SYM:
 					case PPTOK_EOF: tok2 = (preproc_token_t){.tokt = tok1->tokt, .loginfo = *li, .tokv.c = tok1->tokv.c}; break;
 					case PPTOK_SYM: tok2 = (preproc_token_t){.tokt = tok1->tokt, .loginfo = *li, .tokv.sym = tok1->tokv.sym}; break;
 					case PPTOK_IDENT:
@@ -831,6 +833,7 @@ static VECTOR(preproc) *preproc_do_expand(loginfo_t *li, const khash_t(macros_ma
 		case PPTOK_NEWLINE:
 		case PPTOK_BLANK:
 		case PPTOK_START_LINE_COMMENT:
+		case PPTOK_AT_SYM:
 		case PPTOK_EOF: tok2 = (preproc_token_t){.tokt = tok->tokt, .loginfo = tok->loginfo, .tokv.c = tok->tokv.c}; break;
 		case PPTOK_SYM: tok2 = (preproc_token_t){.tokt = tok->tokt, .loginfo = tok->loginfo, .tokv.sym = tok->tokv.sym}; break;
 		case PPTOK_IDENT:
@@ -945,7 +948,8 @@ static VECTOR(preproc) *preproc_do_expand(loginfo_t *li, const khash_t(macros_ma
 							VECTOR(preproc) *marg = vector_new(preproc);
 							if (!marg) goto gather_args_err_mem;
 							
-							while (depth && (tok2 < vector_end(preproc, toks2) - 1) && (tok2->tokt != PPTOK_EOF) && (tok2->tokt != PPTOK_INVALID)) {
+							while (depth && (tok2 < vector_end(preproc, toks2) - 1) &&
+							       (tok2->tokt != PPTOK_EOF) && (tok2->tokt != PPTOK_AT_SYM) && (tok2->tokt != PPTOK_INVALID)) {
 								++tok2;
 								if ((depth == 1) && (tok2->tokt == PPTOK_SYM) && (tok2->tokv.sym == SYM_COMMA)) {
 									// Possible optimization: emplace NULL if vector_size(marg) == 0
@@ -1018,8 +1022,8 @@ static VECTOR(preproc) *preproc_do_expand(loginfo_t *li, const khash_t(macros_ma
 		}
 			/* FALLTHROUGH */
 		abort_macro:
-		case PPTOK_IDENT_UNEXP:
 		case PPTOK_INVALID:
+		case PPTOK_IDENT_UNEXP:
 		case PPTOK_NUM:
 		case PPTOK_STRING:
 		case PPTOK_INCL:
@@ -1027,6 +1031,7 @@ static VECTOR(preproc) *preproc_do_expand(loginfo_t *li, const khash_t(macros_ma
 		case PPTOK_NEWLINE:
 		case PPTOK_BLANK:
 		case PPTOK_START_LINE_COMMENT:
+		case PPTOK_AT_SYM:
 		case PPTOK_EOF:
 			if (!vector_push(preproc, ret, *tok)) {
 				log_memory("failed to add token to output vector during full macro expansion\n");
@@ -1907,7 +1912,10 @@ check_if_depth:
 			while (1) {
 				preproc_token_t tok = ppsrc_next_token(src);
 			skip_cur_token:
-				if (tok.tokt == PPTOK_INVALID) {
+				if ((tok.tokt == PPTOK_AT_SYM) || (tok.tokt == PPTOK_INVALID)) {
+					if (tok.tokt == PPTOK_AT_SYM) {
+						log_error(&tok.loginfo, "invalid character 0x%02X (@)\n", (unsigned)'@');
+					}
 					src->st = PPST_NONE;
 					proc_token_t ret;
 					ret.tokt = PTOK_INVALID;
@@ -1960,7 +1968,7 @@ check_if_depth:
 							}
 							tok = ppsrc_next_token(src);
 							loginfo_t li = tok.loginfo;
-							while ((tok.tokt != PPTOK_NEWLINE) && (tok.tokt != PPTOK_EOF) && (tok.tokt != PPTOK_INVALID)) {
+							while ((tok.tokt != PPTOK_NEWLINE) && (tok.tokt != PPTOK_EOF) && (tok.tokt != PPTOK_AT_SYM) && (tok.tokt != PPTOK_INVALID)) {
 								li.lineno_end = tok.loginfo.lineno_end ? tok.loginfo.lineno_end : tok.loginfo.lineno;
 								li.colno_end = tok.loginfo.colno_end ? tok.loginfo.colno_end : tok.loginfo.colno;
 								if (!vector_push(preproc, cond, tok)) {
@@ -2019,7 +2027,7 @@ check_if_depth:
 								// EOF has an empty destructor
 								// Note that since we have opened the file, the previous file had ok_depth == cond_depth
 								goto check_next_token;
-							} else /* if (tok.tokt == PPTOK_INVALID) */ {
+							} else /* if ((tok.tokt == PPTOK_AT_SYM) || (tok.tokt == PPTOK_INVALID)) */ {
 								src->st = PPST_NONE;
 								return (proc_token_t){ .tokt = PTOK_INVALID, .tokv.c = tok.tokv.c };
 							}
@@ -2084,7 +2092,7 @@ check_if_depth:
 					
 					log_warning(&tok.loginfo, "Unknown ignored pp command %s, skipping until EOL\n", string_content(tok.tokv.str));
 				preproc_ignore_remaining:
-					while ((tok.tokt != PPTOK_NEWLINE) && (tok.tokt != PPTOK_EOF) && (tok.tokt != PPTOK_INVALID)) {
+					while ((tok.tokt != PPTOK_NEWLINE) && (tok.tokt != PPTOK_EOF) && (tok.tokt != PPTOK_AT_SYM) && (tok.tokt != PPTOK_INVALID)) {
 						preproc_token_del(&tok);
 						tok = ppsrc_next_token(src);
 					}
@@ -2094,7 +2102,7 @@ check_if_depth:
 					goto skip_cur_token;
 					
 				preproc_ignore_remaining_goto:
-					while ((tok.tokt != PPTOK_NEWLINE) && (tok.tokt != PPTOK_EOF) && (tok.tokt != PPTOK_INVALID)) {
+					while ((tok.tokt != PPTOK_NEWLINE) && (tok.tokt != PPTOK_EOF) && (tok.tokt != PPTOK_AT_SYM) && (tok.tokt != PPTOK_INVALID)) {
 						preproc_token_del(&tok);
 						tok = ppsrc_next_token(src);
 					}
@@ -2122,6 +2130,7 @@ start_next_token:
 start_cur_token:
 	switch (tok.tokt) {
 	case PPTOK_INVALID:
+	case PPTOK_AT_SYM:
 		src->st = PPST_NONE;
 		ret.tokt = PTOK_INVALID;
 		ret.loginfo = tok.loginfo;
@@ -2149,7 +2158,7 @@ start_cur_token:
 						if (!margs) goto solve_err_mem;
 						VECTOR(preproc) *marg = vector_new(preproc);
 						if (!marg) goto solve_err_mem;
-						while (need_solve && (tok2.tokt != PPTOK_EOF) && (tok2.tokt != PPTOK_INVALID)) {
+						while (need_solve && (tok2.tokt != PPTOK_EOF) && (tok2.tokt != PPTOK_AT_SYM) && (tok2.tokt != PPTOK_INVALID)) {
 							tok2 = ppsrc_next_token(src);
 							if ((need_solve == 1) && (tok2.tokt == PPTOK_SYM) && (tok2.tokv.sym == SYM_COMMA)) {
 								// Possible optimization: emplace NULL if vector_size(marg) == 0
@@ -2313,7 +2322,7 @@ start_cur_token:
 					is_sys = is_next || !tok.tokv.sisstr;
 					tok = ppsrc_next_token(src); // Token was moved
 					loginfo_t ignored_infos = tok.loginfo; int has_ignored = 0;
-					while ((tok.tokt != PPTOK_NEWLINE) && (tok.tokt != PPTOK_EOF) && (tok.tokt != PPTOK_INVALID)) {
+					while ((tok.tokt != PPTOK_NEWLINE) && (tok.tokt != PPTOK_EOF) && (tok.tokt != PPTOK_AT_SYM) && (tok.tokt != PPTOK_INVALID)) {
 						has_ignored = 1;
 						ignored_infos.lineno_end = tok.loginfo.lineno_end ? tok.loginfo.lineno_end : tok.loginfo.lineno;
 						ignored_infos.colno_end = tok.loginfo.colno_end ? tok.loginfo.colno_end : tok.loginfo.colno;
@@ -2334,7 +2343,7 @@ start_cur_token:
 						ret.tokv.c = '\0';
 						return ret;
 					}
-					while ((tok.tokt != PPTOK_NEWLINE) && (tok.tokt != PPTOK_EOF) && (tok.tokt != PPTOK_INVALID)) {
+					while ((tok.tokt != PPTOK_NEWLINE) && (tok.tokt != PPTOK_EOF) && (tok.tokt != PPTOK_AT_SYM) && (tok.tokt != PPTOK_INVALID)) {
 						if (!vector_push(preproc, incl, tok)) {
 							log_memory("failed to add token to #include tokens vector\n");
 							vector_del(preproc, incl);
@@ -2431,6 +2440,7 @@ start_cur_token:
 							case PPTOK_NEWLINE:
 							case PPTOK_BLANK:
 							case PPTOK_START_LINE_COMMENT:
+							case PPTOK_AT_SYM:
 							case PPTOK_EOF:
 							default:
 								log_error(&li, "TODO: add token type %u to include string\n", tok2->tokt);
@@ -2509,7 +2519,7 @@ start_cur_token:
 						ok = 1;
 					} else {
 						ok = 0;
-						while ((tok.tokt != PPTOK_NEWLINE) && (tok.tokt != PPTOK_EOF) && (tok.tokt != PPTOK_INVALID)) {
+						while ((tok.tokt != PPTOK_NEWLINE) && (tok.tokt != PPTOK_EOF) && (tok.tokt != PPTOK_AT_SYM) && (tok.tokt != PPTOK_INVALID)) {
 							if ((tok.tokt == PPTOK_SYM) && (tok.tokv.sym == SYM_VARIADIC)) {
 								m.has_varargs = 1;
 								int kh_ret;
@@ -2631,7 +2641,7 @@ start_cur_token:
 				int state = 0;
 #define ST_CONCAT 1
 #define ST_STR 2
-				while ((tok.tokt != PPTOK_NEWLINE) && (tok.tokt != PPTOK_EOF) && (tok.tokt != PPTOK_INVALID)) {
+				while ((tok.tokt != PPTOK_NEWLINE) && (tok.tokt != PPTOK_EOF) && (tok.tokt != PPTOK_AT_SYM) && (tok.tokt != PPTOK_INVALID)) {
 					if ((tok.tokt == PPTOK_SYM) && (tok.tokv.sym == SYM_HASH)) {
 						if (state & ST_STR) {
 							log_warning(&tok.loginfo, "duplicated stringify in macro definition (defining %s)\n", string_content(defname));
@@ -2724,7 +2734,7 @@ start_cur_token:
 #undef ST_CONCAT
 #undef ST_STR
 				if (args) argid_map_del(args);
-				if (tok.tokt == PPTOK_INVALID) {
+				if ((tok.tokt == PPTOK_AT_SYM) || (tok.tokt == PPTOK_INVALID)) {
 					// Abort
 					log_error(&tok.loginfo, "unexpected invalid input token\n");
 					string_del(defname);
@@ -2784,7 +2794,7 @@ start_cur_token:
 				}
 				string_t *mname = tok.tokv.str;
 				tok = ppsrc_next_token(src); // Token was moved
-				while ((tok.tokt != PPTOK_NEWLINE) && (tok.tokt != PPTOK_EOF) && (tok.tokt != PPTOK_INVALID)) {
+				while ((tok.tokt != PPTOK_NEWLINE) && (tok.tokt != PPTOK_EOF) && (tok.tokt != PPTOK_AT_SYM) && (tok.tokt != PPTOK_INVALID)) {
 					// TODO: Print warning 'ignored token(s)'
 					preproc_token_del(&tok);
 					tok = ppsrc_next_token(src);
@@ -2805,7 +2815,7 @@ start_cur_token:
 				log_error(&tok.loginfo, "#error command:");
 				string_del(tok.tokv.str);
 				tok = ppsrc_next_token(src);
-				while ((tok.tokt != PPTOK_NEWLINE) && (tok.tokt != PPTOK_EOF) && (tok.tokt != PPTOK_INVALID)) {
+				while ((tok.tokt != PPTOK_NEWLINE) && (tok.tokt != PPTOK_EOF) && (tok.tokt != PPTOK_AT_SYM) && (tok.tokt != PPTOK_INVALID)) {
 					switch (tok.tokt) {
 					case PPTOK_IDENT:
 					case PPTOK_IDENT_UNEXP:
@@ -2824,6 +2834,7 @@ start_cur_token:
 					case PPTOK_NEWLINE:
 					case PPTOK_BLANK:
 					case PPTOK_START_LINE_COMMENT:
+					case PPTOK_AT_SYM:
 					case PPTOK_EOF:
 					default:
 						printf(" <unknown token type %u>", tok.tokt);
@@ -2840,7 +2851,7 @@ start_cur_token:
 			} else if (!strcmp(string_content(tok.tokv.str), "warning")) {
 				log_warning(&tok.loginfo, "#warning command:");
 				tok = ppsrc_next_token(src);
-				while ((tok.tokt != PPTOK_NEWLINE) && (tok.tokt != PPTOK_EOF) && (tok.tokt != PPTOK_INVALID)) {
+				while ((tok.tokt != PPTOK_NEWLINE) && (tok.tokt != PPTOK_EOF) && (tok.tokt != PPTOK_AT_SYM) && (tok.tokt != PPTOK_INVALID)) {
 					switch (tok.tokt) {
 					case PPTOK_IDENT:
 					case PPTOK_IDENT_UNEXP:
@@ -2859,6 +2870,7 @@ start_cur_token:
 					case PPTOK_NEWLINE:
 					case PPTOK_BLANK:
 					case PPTOK_START_LINE_COMMENT:
+					case PPTOK_AT_SYM:
 					case PPTOK_EOF:
 					default:
 						printf(" <unknown token type %u>", tok.tokt);
@@ -2895,11 +2907,11 @@ start_cur_token:
 						goto preproc_hash_err;
 					} else if (!strcmp(string_content(tok.tokv.str), "allow_ints_ext")) {
 						ret.loginfo = tok.loginfo;
-						while ((tok.tokt != PPTOK_NEWLINE) && (tok.tokt != PPTOK_EOF) && (tok.tokt != PPTOK_INVALID)) {
+						while ((tok.tokt != PPTOK_NEWLINE) && (tok.tokt != PPTOK_EOF) && (tok.tokt != PPTOK_AT_SYM) && (tok.tokt != PPTOK_INVALID)) {
 							preproc_token_del(&tok);
 							tok = ppsrc_next_token(src);
 						}
-						if (tok.tokt == PPTOK_INVALID) goto start_cur_token;
+						if ((tok.tokt == PPTOK_AT_SYM) || (tok.tokt == PPTOK_INVALID)) goto start_cur_token;
 						else {
 							ret.tokt = PTOK_PRAGMA;
 							ret.tokv.pragma.typ = PRAGMA_ALLOW_INTS;
@@ -2918,11 +2930,11 @@ start_cur_token:
 						ret.tokv.pragma.typ = PRAGMA_SIMPLE_SU;
 						ret.tokv.pragma.val = tok.tokv.str;
 						tok = ppsrc_next_token(src);
-						while ((tok.tokt != PPTOK_NEWLINE) && (tok.tokt != PPTOK_EOF) && (tok.tokt != PPTOK_INVALID)) {
+						while ((tok.tokt != PPTOK_NEWLINE) && (tok.tokt != PPTOK_EOF) && (tok.tokt != PPTOK_AT_SYM) && (tok.tokt != PPTOK_INVALID)) {
 							preproc_token_del(&tok);
 							tok = ppsrc_next_token(src);
 						}
-						if (tok.tokt == PPTOK_INVALID) {
+						if ((tok.tokt == PPTOK_AT_SYM) || (tok.tokt == PPTOK_INVALID)) {
 							string_del(ret.tokv.pragma.val);
 							goto start_cur_token;
 						} else {
@@ -2958,6 +2970,19 @@ start_cur_token:
 						log_error(&tok.loginfo, "unknown pragma wrappers directive '%s', skipping until EOL\n", string_content(tok.tokv.str));
 						goto preproc_hash_err;
 					}
+				} else if (!strcmp(string_content(tok.tokv.str), "GCC")) {
+					string_del(tok.tokv.str);
+					tok = ppsrc_next_token(src);
+					if ((tok.tokt != PPTOK_IDENT) && (tok.tokt != PPTOK_IDENT_UNEXP)) {
+						log_error(&tok.loginfo, "unknown pragma GCC directive, skipping until EOL\n");
+						goto preproc_hash_err;
+					} else if (!strcmp(string_content(tok.tokv.str), "diagnostic")) {
+						// Silently ignore pragma directive
+						goto preproc_hash_err;
+					} else {
+						log_error(&tok.loginfo, "unknown pragma GCC directive '%s', skipping until EOL\n", string_content(tok.tokv.str));
+						goto preproc_hash_err;
+					}
 				} else {
 					log_error(&tok.loginfo, "unknown pragma directive '%s', skipping until EOL\n", string_content(tok.tokv.str));
 					goto preproc_hash_err;
@@ -2983,7 +3008,7 @@ start_cur_token:
 				}
 				tok = ppsrc_next_token(src);
 				loginfo_t li = tok.loginfo;
-				while ((tok.tokt != PPTOK_NEWLINE) && (tok.tokt != PPTOK_EOF) && (tok.tokt != PPTOK_INVALID)) {
+				while ((tok.tokt != PPTOK_NEWLINE) && (tok.tokt != PPTOK_EOF) && (tok.tokt != PPTOK_AT_SYM) && (tok.tokt != PPTOK_INVALID)) {
 					if (!vector_push(preproc, cond, tok)) {
 						log_memory("failed to add token to #if condition vector\n");
 						vector_del(preproc, cond);
@@ -3199,7 +3224,7 @@ start_cur_token:
 			
 			log_warning(&tok.loginfo, "Unknown preprocessor command %s, skipping until EOL\n", string_content(tok.tokv.str));
 		preproc_hash_err:
-			while ((tok.tokt != PPTOK_NEWLINE) && (tok.tokt != PPTOK_EOF) && (tok.tokt != PPTOK_INVALID)) {
+			while ((tok.tokt != PPTOK_NEWLINE) && (tok.tokt != PPTOK_EOF) && (tok.tokt != PPTOK_AT_SYM) && (tok.tokt != PPTOK_INVALID)) {
 				preproc_token_del(&tok);
 				tok = ppsrc_next_token(src);
 			}
@@ -3207,7 +3232,7 @@ start_cur_token:
 			else goto start_cur_token;
 			
 		preproc_hash_err_goto:
-			while ((tok.tokt != PPTOK_NEWLINE) && (tok.tokt != PPTOK_EOF) && (tok.tokt != PPTOK_INVALID)) {
+			while ((tok.tokt != PPTOK_NEWLINE) && (tok.tokt != PPTOK_EOF) && (tok.tokt != PPTOK_AT_SYM) && (tok.tokt != PPTOK_INVALID)) {
 				preproc_token_del(&tok);
 				tok = ppsrc_next_token(src);
 			}
