@@ -863,6 +863,7 @@
 #() pFEpA
 #() pFiii
 #() pFiiu
+#() pFiif
 #() pFiid
 #() pFiip
 #() pFiuu
@@ -2224,11 +2225,11 @@
 #() pFEpppp
 #() pFEpppV
 #() pFEpppA
-#() pFiiiii
 #() pFiiupi
 #() pFiiupL
 #() pFipipL
 #() pFipipp
+#() pFuiiii
 #() pFuiiiu
 #() pFuiupp
 #() pFuuiip
@@ -3486,7 +3487,7 @@
 #() pFuiiiuuuu
 #() pFuCCCCpWw
 #() pFuupupipp
-#() pFpiiiiiuu
+#() pFpiiuiiuu
 #() pFpipiuiip
 #() pFpuuuuupp
 #() pFpuuuupup
@@ -3781,9 +3782,9 @@
 #() UFbuuuWCCCWp
 #() lFpLppdddddd
 #() pFEiuppppppp
-#() pFEpiiiiiipp
 #() pFEpiipWWupp
 #() pFEpippppppp
+#() pFEpuiiiiipp
 #() pFEpuppupppp
 #() pFpuupuuuuuu
 #() pFpupLLLLLpp
@@ -3827,7 +3828,7 @@
 #() vFppiiiiiiiii
 #() vFppiiiiipiii
 #() vFppiiiiupiii
-#() vFppiiiiddddi
+#() vFppiiiiddddu
 #() vFppiipppiiii
 #() vFppuuiiiiuii
 #() vFppuuppiiiiu
@@ -3897,7 +3898,7 @@
 #() vFpupppppppppp
 #() vFpLiiuuuiupLp
 #() vFppiiiiiiiiuu
-#() vFppiiiiddddii
+#() vFppiiiiddddui
 #() vFppiipppiiiii
 #() vFppuuppuiiiii
 #() vFppuupppiiiiu
@@ -4014,7 +4015,7 @@
 #() pFpppppppppppppppp
 #() pFbuuWWWWWWwwCCCuu
 #() vFuuuuiiiiuuiiiiiii
-#() vFppiiiiddddiiiiiuu
+#() vFppiiiidddduiiiiuu
 #() vFpppuppiipppuUUUpi
 #() vFppppppppppppppLLL
 #() vFpppppppppppppppLL
@@ -4520,7 +4521,7 @@ wrappedgdk3:
 wrappedgdkpixbuf2:
 - iFppppV:
   - gdk_pixbuf_save
-- pFpiiiiiipp:
+- pFpuiiiiipp:
   - gdk_pixbuf_new_from_data
 wrappedgdkx112:
 - vFpp:
