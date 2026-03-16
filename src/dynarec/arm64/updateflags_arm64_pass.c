@@ -898,7 +898,7 @@ SETMARK(d_shrd16);
         BFIw(xFlags, x4, F_OF, 1);
         BFCw(xFlags, F_AF, 1);
     }
-    CBZw(x3, 4+4);
+    CBNZw(x3, 4+4);
     RET(xLR);
     SUBw_U12(x4, x3, 1);
     LSRw_REG(x4, x2, x4);
