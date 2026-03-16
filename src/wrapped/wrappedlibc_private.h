@@ -1216,7 +1216,11 @@ GO(__libc_realloc, pFpL)
 //GOW(__libc_secure_getenv, 
 //GO(__libc_siglongjmp, 
 GOM(__libc_start_main, iFEpippppp)
-//GO(__libc_system, 
+#ifdef STATICBUILD
+// GO(__libc_system, iFp)
+#else
+GO(__libc_system, iFp)
+#endif
 //GO(__libc_thread_freeres, 
 GO(__libc_valloc, pFL)
 //GO(__libc_vfork, 
