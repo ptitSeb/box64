@@ -1800,6 +1800,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         case 0xC7:
             CHECK_FLAGS(emu);
             nextop = F8;
+            GETE8xw(0);
             if (MODREG)
                 switch ((nextop >> 3) & 7) {
                     case 6: /* RDRAND Ed */
@@ -1825,7 +1826,6 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                         return 0;
                 }
             else {
-                GETE8xw(0);
                 switch ((nextop >> 3) & 7) {
                     case 1: /* CMPXCHG8B Eq / CMPXCHG16B Eq */
                         if (rex.w) {
@@ -1857,6 +1857,22 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                                 R_RAX = tmp32u;
                                 R_RDX = tmp32u2;
                             }
+                        }
+                        break;
+                    case 6: /* RDRAND Ed */
+                        RESET_FLAGS(emu);
+                        CLEAR_FLAG(F_OF);
+                        CLEAR_FLAG(F_SF);
+                        CLEAR_FLAG(F_PF);
+                        CLEAR_FLAG(F_ZF);
+                        CLEAR_FLAG(F_AF);
+                        SET_FLAG(F_CF);
+                        if (rex.w)
+                            ED->q[0] = get_random64();
+                        else {
+                            ED->dword[0] = get_random32();
+                            if (MODREG)
+                                ED->dword[1] = 0;
                         }
                         break;
                     default:
