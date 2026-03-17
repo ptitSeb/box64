@@ -37,7 +37,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [X64, RISCV, RK3588, ARM64, ANDROID, TERMUX, LARCH64, PPC64LE, ANDROID_GLIBC, WOW64, ARM64-GCC-8]
+        platform: [X64, RISCV, RK3588, ARM64, ANDROID, TERMUX, LARCH64, PPC64LE, ANDROID_GLIBC, WOW64]
         type: [Release, Trace, StaticBuild, Box32]
         exclude:
           - platform: ANDROID
