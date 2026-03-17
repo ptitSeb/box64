@@ -2658,7 +2658,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else switch((nextop>>3)&7) {
             case 1:
                 if(MODREG) {
-                    INST_NAME("Invalid LOCK");
+                    INST_NAME("Invalid C7");
                     UDF(0);
                     *need_epilog = 1;
                     *ok = 0;
@@ -2710,25 +2710,6 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 BARRIER(BARRIER_FLOAT);
                 GETIP(ip);
                 UDF(0);
-                break;
-            case 6:
-                INST_NAME("RDRAND Ed");
-                SETFLAGS(X_ALL, SF_SET);
-                SET_DFNONE();
-                IFX(X_OF|X_SF|X_ZF|X_PF|X_AF) {
-                    MOV32w(x1, (1<<F_OF)|(1<<F_SF)|(1<<F_ZF)|(1<<F_PF)|(1<<F_AF));
-                    BICw(xFlags, xFlags, x1);
-                }
-                if(cpuext.rndr) {
-                    MRS_rndr(x1);
-                    IFX(X_CF) { CSETw(x3, cNE); }
-                } else {
-                    CALL(rex.w?const_random64:const_random32, x1);
-                    IFX(X_CF) { MOV32w(x3, 1); }
-                }
-                IFX(X_CF) { BFIw(xFlags, x3, F_CF, 1); }
-                addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, NULL, 0, 0);
-                STxw(x1, wback, fixedaddress);
                 break;
             default:
                 DEFAULT;
