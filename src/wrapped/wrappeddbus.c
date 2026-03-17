@@ -409,7 +409,7 @@ EXPORT void my_dbus_timeout_set_data(x64emu_t* emu, void* e, void* p, void* f)
 }
 
 
-EXPORT int32_t my_dbus_connection_set_timeout_functions(x64emu_t* emu, void* c, void* a, void* r, void* t, void* d, void* f)
+EXPORT uint32_t my_dbus_connection_set_timeout_functions(x64emu_t* emu, void* c, void* a, void* r, void* t, void* d, void* f)
 {
     (void)emu;
     return my->dbus_connection_set_timeout_functions(c, 
@@ -419,7 +419,7 @@ EXPORT int32_t my_dbus_connection_set_timeout_functions(x64emu_t* emu, void* c, 
             d, find_DBusFreeFunction_Fct(f));
 }
 
-EXPORT int my_dbus_connection_add_filter(x64emu_t* emu, void* connection, void* fnc, void* data, void* fr)
+EXPORT uint32_t my_dbus_connection_add_filter(x64emu_t* emu, void* connection, void* fnc, void* data, void* fr)
 {
     (void)emu;
     return my->dbus_connection_add_filter(connection, find_DBusHandleMessageFunction_Fct(fnc), data, find_DBusFreeFunction_Fct(fr));
@@ -431,7 +431,7 @@ EXPORT void my_dbus_connection_remove_filter(x64emu_t* emu, void* connection, vo
     my->dbus_connection_remove_filter(connection, find_DBusHandleMessageFunction_Fct(fnc), data);
 }
 
-EXPORT int my_dbus_message_get_args_valist(x64emu_t* emu, void* message, void* e, int arg, x64_va_list_t b)
+EXPORT uint32_t my_dbus_message_get_args_valist(x64emu_t* emu, void* message, void* e, int arg, x64_va_list_t b)
 {
     (void)emu;
     #ifdef CONVERT_VALIST
@@ -442,14 +442,14 @@ EXPORT int my_dbus_message_get_args_valist(x64emu_t* emu, void* message, void* e
     return my->dbus_message_get_args_valist(message, e, arg, VARARGS);
 }
 
-EXPORT int my_dbus_message_get_args(x64emu_t* emu, void* message, void* e, int arg, uint64_t* V)
+EXPORT uint32_t my_dbus_message_get_args(x64emu_t* emu, void* message, void* e, int arg, uint64_t* V)
 {
     (void)emu;
     CREATE_VALIST_FROM_VAARG(V, emu->scratch, 3);
     return my->dbus_message_get_args_valist(message, e, arg, VARARGS);
 }
 
-EXPORT int my_dbus_message_append_args_valist(x64emu_t* emu, void* message, int arg, x64_va_list_t b)
+EXPORT uint32_t my_dbus_message_append_args_valist(x64emu_t* emu, void* message, int arg, x64_va_list_t b)
 {
     (void)emu;
     #ifdef CONVERT_VALIST
@@ -517,26 +517,26 @@ EXPORT int my_dbus_message_append_args_valist(x64emu_t* emu, void* message, int 
     return my->dbus_message_append_args_valist(message, arg, VARARGS);
 }
 
-EXPORT int my_dbus_message_append_args(x64emu_t* emu, void* message, int arg, uint64_t* V)
+EXPORT uint32_t my_dbus_message_append_args(x64emu_t* emu, void* message, int arg, uint64_t* V)
 {
     (void)emu;
     CREATE_VALIST_FROM_VAARG(V, emu->scratch, 2);
     return my->dbus_message_append_args_valist(message, arg, VARARGS);
 }
 
-EXPORT int my_dbus_message_set_data(x64emu_t* emu, void* message, int32_t slot, void* data, void* free_func)
+EXPORT uint32_t my_dbus_message_set_data(x64emu_t* emu, void* message, int32_t slot, void* data, void* free_func)
 {
     (void)emu;
     return my->dbus_message_set_data(message, slot, data, find_DBusFreeFunction_Fct(free_func));
 }
 
-EXPORT int my_dbus_pending_call_set_notify(x64emu_t* emu, void* pending, void* func, void* data, void* free_func)
+EXPORT uint32_t my_dbus_pending_call_set_notify(x64emu_t* emu, void* pending, void* func, void* data, void* free_func)
 {
     (void)emu;
     return my->dbus_pending_call_set_notify(pending, findDBusPendingCallNotifyFunctionFct(func), data, find_DBusFreeFunction_Fct(free_func));
 }
 
-EXPORT int my_dbus_pending_call_set_data(x64emu_t* emu, void* pending, int32_t slot, void* data, void* free_func)
+EXPORT uint32_t my_dbus_pending_call_set_data(x64emu_t* emu, void* pending, int32_t slot, void* data, void* free_func)
 {
     (void)emu;
     return my->dbus_pending_call_set_data(pending, slot, data, find_DBusFreeFunction_Fct(free_func));
@@ -554,7 +554,7 @@ EXPORT void my_dbus_connection_set_dispatch_status_function(x64emu_t* emu, void*
     my->dbus_connection_set_dispatch_status_function(connection, findDBusDispatchStatusFunctionFct(dispatch), data, find_DBusFreeFunction_Fct(free_func));
 }
 
-EXPORT int my_dbus_connection_set_watch_functions(x64emu_t* emu, void* connection, void* add, void* remove, void* toggled, void* data, void* free_func)
+EXPORT uint32_t my_dbus_connection_set_watch_functions(x64emu_t* emu, void* connection, void* add, void* remove, void* toggled, void* data, void* free_func)
 {
     (void)emu;
     return my->dbus_connection_set_watch_functions(connection, findDBusAddWatchFunctionFct(add), findDBusRemoveWatchFunctionFct(remove), findDBusWatchToggledFunctionFct(toggled), data, find_DBusFreeFunction_Fct(free_func));
@@ -570,7 +570,7 @@ typedef struct my_DBusObjectPathVTable_s
    void*    pad4; 
 } my_DBusObjectPathVTable_t;
 
-EXPORT int my_dbus_connection_try_register_object_path(x64emu_t* emu, void* connection, void* path, my_DBusObjectPathVTable_t* vtable, void* data, void* error)
+EXPORT uint32_t my_dbus_connection_try_register_object_path(x64emu_t* emu, void* connection, void* path, my_DBusObjectPathVTable_t* vtable, void* data, void* error)
 {
     (void)emu;
     my_DBusObjectPathVTable_t vt = {0};
@@ -586,7 +586,7 @@ EXPORT int my_dbus_connection_try_register_object_path(x64emu_t* emu, void* conn
     return my->dbus_connection_try_register_object_path(connection, path, vtable?&vt:NULL, data, error);
 }
 
-EXPORT int my_dbus_connection_register_fallback(x64emu_t* emu, void* connection, void* path, my_DBusObjectPathVTable_t* vtable, void* data)
+EXPORT uint32_t my_dbus_connection_register_fallback(x64emu_t* emu, void* connection, void* path, my_DBusObjectPathVTable_t* vtable, void* data)
 {
     (void)emu;
     my_DBusObjectPathVTable_t vt = {0};
@@ -602,7 +602,7 @@ EXPORT int my_dbus_connection_register_fallback(x64emu_t* emu, void* connection,
     return my->dbus_connection_register_fallback(connection, path, vtable?&vt:NULL, data);
 }
 
-EXPORT int my_dbus_connection_register_object_path(x64emu_t* emu, void* connection, void* path, my_DBusObjectPathVTable_t* vtable, void* data)
+EXPORT uint32_t my_dbus_connection_register_object_path(x64emu_t* emu, void* connection, void* path, my_DBusObjectPathVTable_t* vtable, void* data)
 {
     (void)emu;
     my_DBusObjectPathVTable_t vt = {0};
@@ -618,7 +618,7 @@ EXPORT int my_dbus_connection_register_object_path(x64emu_t* emu, void* connecti
     return my->dbus_connection_register_object_path(connection, path, vtable?&vt:NULL, data);
 }
 
-EXPORT int my_dbus_connection_set_data(x64emu_t* emu, void* connection, int slot, void* data, void* free_func)
+EXPORT uint32_t my_dbus_connection_set_data(x64emu_t* emu, void* connection, int slot, void* data, void* free_func)
 {
     (void)emu;
     return my->dbus_connection_set_data(connection, slot, data, find_DBusFreeFunction_Fct(free_func));
@@ -630,7 +630,7 @@ EXPORT void my_dbus_connection_set_wakeup_main_function(x64emu_t* emu, void* con
     my->dbus_connection_set_wakeup_main_function(connection, find_DBusWakeupMainFunction_Fct(wakeup), data, find_DBusFreeFunction_Fct(free_func));
 }
 
-EXPORT int my_dbus_connection_try_register_fallback(x64emu_t* emu, void* connection, void* path, my_DBusObjectPathVTable_t* vtable, void* data, void* error)
+EXPORT uint32_t my_dbus_connection_try_register_fallback(x64emu_t* emu, void* connection, void* path, my_DBusObjectPathVTable_t* vtable, void* data, void* error)
 {
     (void)emu;
     my_DBusObjectPathVTable_t vt = {0};
@@ -646,7 +646,7 @@ EXPORT int my_dbus_connection_try_register_fallback(x64emu_t* emu, void* connect
     return my->dbus_connection_try_register_fallback(connection, path, vtable?&vt:NULL, data, error);
 }
 
-EXPORT int my_dbus_server_set_watch_functions(x64emu_t* emu, void* server, void* add, void* rem, void* toggle, void* data, void* d)
+EXPORT uint32_t my_dbus_server_set_watch_functions(x64emu_t* emu, void* server, void* add, void* rem, void* toggle, void* data, void* d)
 {
     return my->dbus_server_set_watch_functions(server, findDBusAddWatchFunctionFct(add), findDBusRemoveWatchFunctionFct(rem), findDBusWatchToggledFunctionFct(toggle), data, find_DBusFreeFunction_Fct(d));
 }
@@ -656,12 +656,12 @@ EXPORT void my_dbus_server_set_new_connection_function(x64emu_t* emu, void* serv
     my->dbus_server_set_new_connection_function(server, findDBusNewConnectionFunctionFct(f), data, find_DBusFreeFunction_Fct(d));
 }
 
-EXPORT int my_dbus_server_set_timeout_functions(x64emu_t* emu, void* server, void* add, void* rem, void* toggle, void* data, void* d)
+EXPORT uint32_t my_dbus_server_set_timeout_functions(x64emu_t* emu, void* server, void* add, void* rem, void* toggle, void* data, void* d)
 {
     return my->dbus_server_set_timeout_functions(server, find_DBusAddTimeoutFunction_Fct(add), find_DBusRemoveTimeoutFunction_Fct(rem), find_DBusTimeoutToggledFunction_Fct(toggle), data, find_DBusFreeFunction_Fct(d));
 }
 
-EXPORT int my_dbus_server_set_data(x64emu_t* emu, void* server, int slot, void* data, void* d)
+EXPORT uint32_t my_dbus_server_set_data(x64emu_t* emu, void* server, int slot, void* data, void* d)
 {
     return my->dbus_server_set_data(server, slot, data, find_DBusFreeFunction_Fct(d));
 }
