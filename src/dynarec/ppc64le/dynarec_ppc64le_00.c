@@ -64,7 +64,6 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
             INST_NAME("ADD Eb, Gb");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
-            SCRATCH_USAGE(0);
             // Get Gb (source byte register)
             gd = ((nextop & 0x38) >> 3) + (rex.r << 3);
             if (rex.rex) {
@@ -112,7 +111,6 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETGD;
-            SCRATCH_USAGE(0);
             if (MODREG) { // reg <= reg
                 ed = TO_NAT((nextop & 7) + (rex.b << 3));
                 emit_add32(dyn, ninst, rex, ed, gd, x3, x4, x5);
@@ -129,7 +127,6 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
             INST_NAME("ADD Gb, Eb");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
-            SCRATCH_USAGE(0);
             // Get Gb (dest byte register)
             gd = ((nextop & 0x38) >> 3) + (rex.r << 3);
             if (rex.rex) {
@@ -175,7 +172,6 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETGD;
-            SCRATCH_USAGE(0);
             if (MODREG) { // reg <= reg
                 ed = TO_NAT((nextop & 7) + (rex.b << 3));
                 emit_add32(dyn, ninst, rex, gd, ed, x3, x4, x5);
@@ -204,7 +200,6 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
             INST_NAME("OR Eb, Gb");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
-            SCRATCH_USAGE(0);
             // Get Gb (source byte register)
             gd = ((nextop & 0x38) >> 3) + (rex.r << 3);
             if (rex.rex) {
@@ -252,7 +247,6 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETGD;
-            SCRATCH_USAGE(0);
             if (MODREG) { // reg <= reg
                 ed = TO_NAT((nextop & 7) + (rex.b << 3));
                 emit_or32(dyn, ninst, rex, ed, gd, x3, x4);
@@ -269,7 +263,6 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
             INST_NAME("OR Gb, Eb");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
-            SCRATCH_USAGE(0);
             // Get Gb (dest byte register)
             gd = ((nextop & 0x38) >> 3) + (rex.r << 3);
             if (rex.rex) {
@@ -315,7 +308,6 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETGD;
-            SCRATCH_USAGE(0);
             if (MODREG) { // reg <= reg
                 ed = TO_NAT((nextop & 7) + (rex.b << 3));
                 emit_or32(dyn, ninst, rex, gd, ed, x3, x4);
@@ -344,7 +336,6 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
             INST_NAME("SUB Eb, Gb");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
-            SCRATCH_USAGE(0);
             // Get Gb (source byte register)
             gd = ((nextop & 0x38) >> 3) + (rex.r << 3);
             if (rex.rex) {
@@ -392,7 +383,6 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETGD;
-            SCRATCH_USAGE(0);
             if (MODREG) { // reg <= reg
                 ed = TO_NAT((nextop & 7) + (rex.b << 3));
                 emit_sub32(dyn, ninst, rex, ed, gd, x3, x4, x5);
@@ -409,7 +399,6 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
             INST_NAME("SUB Gb, Eb");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
-            SCRATCH_USAGE(0);
             // Get Gb (dest byte register)
             gd = ((nextop & 0x38) >> 3) + (rex.r << 3);
             if (rex.rex) {
@@ -455,7 +444,6 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETGD;
-            SCRATCH_USAGE(0);
             if (MODREG) { // reg <= reg
                 ed = TO_NAT((nextop & 7) + (rex.b << 3));
                 emit_sub32(dyn, ninst, rex, gd, ed, x3, x4, x5);
@@ -484,7 +472,6 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
             INST_NAME("AND Eb, Gb");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
-            SCRATCH_USAGE(0);
             // Get Gb (source byte register)
             gd = ((nextop & 0x38) >> 3) + (rex.r << 3);
             if (rex.rex) {
@@ -532,7 +519,6 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETGD;
-            SCRATCH_USAGE(0);
             if (MODREG) { // reg <= reg
                 ed = TO_NAT((nextop & 7) + (rex.b << 3));
                 emit_and32(dyn, ninst, rex, ed, gd, x3, x4);
@@ -549,7 +535,6 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
             INST_NAME("AND Gb, Eb");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
-            SCRATCH_USAGE(0);
             // Get Gb (dest byte register)
             gd = ((nextop & 0x38) >> 3) + (rex.r << 3);
             if (rex.rex) {
@@ -595,7 +580,6 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETGD;
-            SCRATCH_USAGE(0);
             if (MODREG) { // reg <= reg
                 ed = TO_NAT((nextop & 7) + (rex.b << 3));
                 emit_and32(dyn, ninst, rex, gd, ed, x3, x4);
@@ -624,7 +608,6 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
             INST_NAME("XOR Eb, Gb");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
-            SCRATCH_USAGE(0);
             // Get Gb (source byte register)
             gd = ((nextop & 0x38) >> 3) + (rex.r << 3);
             if (rex.rex) {
@@ -672,7 +655,6 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETGD;
-            SCRATCH_USAGE(0);
             if (MODREG) { // reg <= reg
                 ed = TO_NAT((nextop & 7) + (rex.b << 3));
                 emit_xor32(dyn, ninst, rex, ed, gd, x3, x4);
@@ -689,7 +671,6 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
             INST_NAME("XOR Gb, Eb");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
-            SCRATCH_USAGE(0);
             // Get Gb (dest byte register)
             gd = ((nextop & 0x38) >> 3) + (rex.r << 3);
             if (rex.rex) {
@@ -735,7 +716,6 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETGD;
-            SCRATCH_USAGE(0);
             if (MODREG) { // reg <= reg
                 ed = TO_NAT((nextop & 7) + (rex.b << 3));
                 emit_xor32(dyn, ninst, rex, gd, ed, x3, x4);
