@@ -13,8 +13,13 @@ GOWM(fork, iFEv)
 //GO(_IO_ftrylockfile, 
 //GO(_IO_funlockfile, 
 //GO(__libc_allocate_rtsig, 
+#ifndef STATICBUILD
 GO(__libc_current_sigrtmax, iFv)
 GO(__libc_current_sigrtmin, iFv)
+#else
+//GO(__libc_current_sigrtmax, iFv)
+//GO(__libc_current_sigrtmin, iFv)
+#endif
 GOM(pthread_atfork, iFEppp)
 GOM(__pthread_atfork, iFEppp)
 GOM(pthread_attr_destroy, iFEp)

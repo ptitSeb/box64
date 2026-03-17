@@ -63,8 +63,8 @@ EXPORT void my___pthread_initialize()
 
 #ifdef STATICBUILD
 #include <semaphore.h>
+#include <signal.h>
 #include "libtools/static_threads.h"
-
 extern void* __pthread_getspecific(size_t);
 extern int __pthread_mutex_destroy(void*);
 extern int __pthread_mutex_lock(void*);
@@ -75,7 +75,6 @@ extern int __pthread_rwlock_rdlock(void*);
 extern int __pthread_rwlock_unlock(void*);
 extern int __pthread_rwlock_wrlock(void*);
 extern int __pthread_setspecific(size_t, void*);
-extern int pthread_sigmask(int, void*, void*);
 #endif
 
 #include "wrappedlib_init.h"
