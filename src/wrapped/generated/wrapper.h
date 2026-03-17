@@ -237,7 +237,6 @@ void iFEi(x64emu_t *emu, uintptr_t fnc);
 void iFEu(x64emu_t *emu, uintptr_t fnc);
 void iFEf(x64emu_t *emu, uintptr_t fnc);
 void iFEd(x64emu_t *emu, uintptr_t fnc);
-void iFEL(x64emu_t *emu, uintptr_t fnc);
 void iFEp(x64emu_t *emu, uintptr_t fnc);
 void iFwp(x64emu_t *emu, uintptr_t fnc);
 void iFii(x64emu_t *emu, uintptr_t fnc);
@@ -646,7 +645,6 @@ void iFupf(x64emu_t *emu, uintptr_t fnc);
 void iFupL(x64emu_t *emu, uintptr_t fnc);
 void iFupp(x64emu_t *emu, uintptr_t fnc);
 void iFfff(x64emu_t *emu, uintptr_t fnc);
-void iFLip(x64emu_t *emu, uintptr_t fnc);
 void iFLpi(x64emu_t *emu, uintptr_t fnc);
 void iFLpL(x64emu_t *emu, uintptr_t fnc);
 void iFLpp(x64emu_t *emu, uintptr_t fnc);
@@ -4125,7 +4123,6 @@ void iFipipp(x64emu_t *emu, uintptr_t fnc);
 #endif
 
 #if !defined(NOALIGN)
-void iFELp(x64emu_t *emu, uintptr_t fnc);
 void iFEppu(x64emu_t *emu, uintptr_t fnc);
 void iFEiiip(x64emu_t *emu, uintptr_t fnc);
 void iFEipii(x64emu_t *emu, uintptr_t fnc);

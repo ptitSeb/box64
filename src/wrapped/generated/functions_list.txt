@@ -200,7 +200,6 @@
 #() iFEu
 #() iFEf
 #() iFEd
-#() iFEL
 #() iFEp
 #() iFwp
 #() iFii
@@ -609,7 +608,6 @@
 #() iFupL
 #() iFupp
 #() iFfff
-#() iFLip
 #() iFLpi
 #() iFLpL
 #() iFLpp
@@ -4083,7 +4081,6 @@
 #() vFppppppppppppppppppppppppppppppppppLLLLLL
 #() vFpppppppppppppppppppppppppppppppppppLLLLLL
 #defined(NOALIGN) iFipipp
-#!defined(NOALIGN) iFELp
 #!defined(NOALIGN) iFEppu
 #!defined(NOALIGN) iFEiiip
 #!defined(NOALIGN) iFEipii
@@ -6121,7 +6118,9 @@ wrappedlibpthread:
   - __pthread_register_cancel
   - __pthread_unregister_cancel
   - __pthread_unwind_next
-- iFL:
+- iFv:
+  - fork
+- iFu:
   - pthread_key_delete
 - iFp:
   - __pthread_mutexattr_destroy
@@ -6145,8 +6144,6 @@ wrappedlibpthread:
 - vFpi:
   - _pthread_cleanup_pop
   - _pthread_cleanup_pop_restore
-- iFLp:
-  - pthread_getattr_np
 - iFpi:
   - __pthread_mutexattr_settype
   - pthread_attr_setdetachstate
@@ -6190,6 +6187,7 @@ wrappedlibpthread:
   - pthread_condattr_getclock
   - pthread_condattr_getpshared
   - pthread_getaffinity_np@GLIBC_2.3.3
+  - pthread_getattr_np
   - pthread_key_create
   - pthread_mutex_init
   - pthread_mutexattr_getkind_np
