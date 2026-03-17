@@ -1800,64 +1800,68 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         case 0xC7:
             CHECK_FLAGS(emu);
             nextop = F8;
-            if(MODREG) {
-                return 0;   // register mode is Undefined Instruction
-            }
-            GETE8xw(0);
-            switch((nextop>>3)&7) {
-                case 1:     /* CMPXCHG8B Eq / CMPXCHG16B Eq */
-                    if(rex.w) {
-                        #ifndef TEST_INTERPRETER
-                        if(((uintptr_t)ED)&0xf) {
-                            EmitSignal(emu, X64_SIGSEGV, (void*)R_RIP, 0xbad0); // GPF
+            if (MODREG)
+                switch ((nextop >> 3) & 7) {
+                    case 6: /* RDRAND Ed */
+                        RESET_FLAGS(emu);
+                        CLEAR_FLAG(F_OF);
+                        CLEAR_FLAG(F_SF);
+                        CLEAR_FLAG(F_PF);
+                        CLEAR_FLAG(F_ZF);
+                        CLEAR_FLAG(F_AF);
+                        SET_FLAG(F_CF);
+                        if (rex.w)
+                            ED->q[0] = get_random64();
+                        else {
+                            ED->dword[0] = get_random32();
+                            if (MODREG)
+                                ED->dword[1] = 0;
                         }
-                        #endif
-                        tmp64u = ED->q[0];
-                        tmp64u2= ED->q[1];
-                        if(R_RAX == tmp64u && R_RDX == tmp64u2) {
-                            SET_FLAG(F_ZF);
-                            ED->q[0] = R_RBX;
-                            ED->q[1] = R_RCX;
+                        break;
+                    case 7: /* RDPID Ed */
+                        ED->q[0] = helper_getcpu(emu);
+                        break;
+                    default:
+                        return 0;
+                }
+            else {
+                GETE8xw(0);
+                switch ((nextop >> 3) & 7) {
+                    case 1: /* CMPXCHG8B Eq / CMPXCHG16B Eq */
+                        if (rex.w) {
+                            #ifndef TEST_INTERPRETER
+                            if (((uintptr_t)ED) & 0xf) {
+                                EmitSignal(emu, X64_SIGSEGV, (void*)R_RIP, 0xbad0); // GPF
+                            }
+                            #endif
+                            tmp64u = ED->q[0];
+                            tmp64u2 = ED->q[1];
+                            if (R_RAX == tmp64u && R_RDX == tmp64u2) {
+                                SET_FLAG(F_ZF);
+                                ED->q[0] = R_RBX;
+                                ED->q[1] = R_RCX;
+                            } else {
+                                CLEAR_FLAG(F_ZF);
+                                R_RAX = tmp64u;
+                                R_RDX = tmp64u2;
+                            }
                         } else {
-                            CLEAR_FLAG(F_ZF);
-                            R_RAX = tmp64u;
-                            R_RDX = tmp64u2;
+                            tmp32u = ED->dword[0];
+                            tmp32u2 = ED->dword[1];
+                            if (R_EAX == tmp32u && R_EDX == tmp32u2) {
+                                SET_FLAG(F_ZF);
+                                ED->dword[0] = R_EBX;
+                                ED->dword[1] = R_ECX;
+                            } else {
+                                CLEAR_FLAG(F_ZF);
+                                R_RAX = tmp32u;
+                                R_RDX = tmp32u2;
+                            }
                         }
-                    } else {
-                        tmp32u = ED->dword[0];
-                        tmp32u2= ED->dword[1];
-                        if(R_EAX == tmp32u && R_EDX == tmp32u2) {
-                            SET_FLAG(F_ZF);
-                            ED->dword[0] = R_EBX;
-                            ED->dword[1] = R_ECX;
-                        } else {
-                            CLEAR_FLAG(F_ZF);
-                            R_RAX = tmp32u;
-                            R_RDX = tmp32u2;
-                        }
-                    }
-                    break;
-                case 6:     /* RDRAND Ed */
-                    RESET_FLAGS(emu);
-                    CLEAR_FLAG(F_OF);
-                    CLEAR_FLAG(F_SF);
-                    CLEAR_FLAG(F_PF);
-                    CLEAR_FLAG(F_ZF);
-                    CLEAR_FLAG(F_AF);
-                    SET_FLAG(F_CF);
-                    if(rex.w)
-                        ED->q[0] = get_random64();
-                    else {
-                        ED->dword[0] = get_random32();
-                        if(MODREG)
-                            ED->dword[1] = 0;
-                    }
-                    break;
-                case 7:     /* RDPID Ed */
-                    ED->q[0] = helper_getcpu(emu);
-                    break;
-                default:
-                    return 0;
+                        break;
+                    default:
+                        return 0;
+                }
             }
             break;
         case 0xC8:
