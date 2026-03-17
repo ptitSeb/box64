@@ -20,6 +20,7 @@
 
 const char* libtiff5Name = "libtiff.so.5";
 #define LIBNAME libtiff5
+#define ALTNAME "libtiff.so.6"
 
 #include "generated/wrappedlibtiff5types.h"
 
