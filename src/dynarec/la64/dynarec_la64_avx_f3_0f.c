@@ -211,9 +211,9 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETGYx_empty(v0);
             d0 = fpu_get_scratch(dyn);
             if (cpuext.frecipe) {
-                FRSQRTE_S(d0, v1);
+                FRSQRTE_S(d0, v2);
             } else {
-                FRSQRT_S(d0, v1);
+                FRSQRT_S(d0, v2);
             }
             if (v0 != v1) VOR_V(v0, v1, v1);
             VEXTRINS_W(v0, d0, 0);
@@ -226,9 +226,9 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETGYx_empty(v0);
             d0 = fpu_get_scratch(dyn);
             if (cpuext.frecipe) {
-                FRECIPE_S(d0, v1);
+                FRECIPE_S(d0, v2);
             } else {
-                FRECIP_S(d0, v1);
+                FRECIP_S(d0, v2);
             }
             if (v0 != v1) VOR_V(v0, v1, v1);
             VEXTRINS_W(v0, d0, 0);
