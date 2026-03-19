@@ -121,8 +121,8 @@ uintptr_t dynarec64_DD(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     FTINTRZ_L_D(v2, v1);
                     if (!BOX64ENV(dynarec_fastround)) {
                         MOVFCSR2GR(x5, FCSR2); // get back FPSR to check
-                        MOV32w(x3, (1 << FR_V));
-                        AND(x5, x5, x3);
+                        MOV32w(x6, (1 << FR_V));
+                        AND(x5, x5, x6);
                         BEQZ_MARK(x5);
                         MOV64x(x4, 0x8000000000000000);
                         MOVGR2FR_D(v2, x4);
