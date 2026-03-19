@@ -1352,17 +1352,11 @@ int sse_get_reg(dynarec_la64_t* dyn, int ninst, int s1, int a, int forwrite)
         }
         return dyn->lsx.ssecache[a].reg;
     }
-    int need_vld = 1;
-    // migrate from avx to sse
-    if (dyn->lsx.avxcache[a].v != -1) {
-        avx_reflect_reg_upper128(dyn, ninst, a, forwrite);
-        dyn->lsx.avxcache[a].v = -1;
-        need_vld = 0;
-    }
+    avx_forget_reg(dyn, ninst, a);
     dyn->lsx.ssecache[a].reg = fpu_get_reg_xmm(dyn, forwrite ? LSX_CACHE_XMMW : LSX_CACHE_XMMR, a);
     int ret = dyn->lsx.ssecache[a].reg;
     dyn->lsx.ssecache[a].write = forwrite;
-    if (need_vld) VLD(ret, xEmu, offsetof(x64emu_t, xmm[a])); // skip VLD if migrate from avx
+    VLD(ret, xEmu, offsetof(x64emu_t, xmm[a])); // skip VLD if migrate from avx
     return ret;
 }
 
