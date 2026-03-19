@@ -406,6 +406,7 @@ GO("libandroid-shmem.so", androidshmem)
 
 GO("libc.so.6", libc)
 GO("libm.so.6", libm)
+GO("libmvec.so.1", libmvec)
 GO("libdl.so.2", libdl)
 GO("libpthread.so.0", libpthread)
 GO("libcups.so.2", libcups)
