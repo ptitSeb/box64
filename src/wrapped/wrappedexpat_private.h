@@ -27,7 +27,7 @@ GO(XML_MemRealloc, pFppL)
 GO(XML_Parse, uFppii)
 GO(XML_ParseBuffer, uFpii)
 GO(XML_ParserCreate, pFp)
-GO(XML_ParserCreate_MM, pFpppp) // return a structure
+GOM(XML_ParserCreate_MM, pFEppp) // return a structure
 GO(XML_ParserCreateNS, pFpc)
 GO(XML_ParserFree, vFp)
 GO(XML_ParserReset, CFpp)
