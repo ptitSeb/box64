@@ -511,8 +511,7 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
                 u8 = sse_setround(dyn, ninst, x1, x2);
             } else {
                 MOVFCSR2GR(x4, FCSR3);
-                ORI(x5, x5, round_round[u8 & 3]);
-                SLLI_D(x5, x5, 8);
+                ORI(x5, xZR, ((-(u8 & 3)) & 3) << 8);
                 MOVGR2FCSR(FCSR3, x5);
                 u8 = x4;
             }
