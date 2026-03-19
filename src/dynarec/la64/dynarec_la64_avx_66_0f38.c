@@ -262,7 +262,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
                 GETEYx(v1, 0, 0);
                 GETGYy_empty(v0);
                 d0 = fpu_get_scratch(dyn);
-                /*  
+                /*
                     xvffintl.s.h  convert [h0..h3,h4..h7,h8..h11,h12..h15] to [h0..h3,h8..h11]
                     xvffinth.s.h  convert [h0..h3,h4..h7,h8..h11,h12..h15] to [h4..h7,h12..h15]
                     so user xvpermi.d to reorder input [h0..h3,h4..h7,h8..h11,h12..h15] to [h0..h3,h8..h11,h4..h7,h12..h15]
@@ -278,6 +278,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
         case 0x16:
             INST_NAME("VPERMPS Gx, Vx, Ex");
             nextop = F8;
+            if (!vex.l) UDF();
             GETGY_empty_VYEY_xy(v0, v1, v2, 0);
             XVPERM_W(v0, v2, v1);
             break;
@@ -637,6 +638,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
         case 0x36:
             INST_NAME("VPERMD Gx, Vx, Ex");
             nextop = F8;
+            if (!vex.l) UDF();
             GETGY_empty_VYEY_xy(v0, v1, v2, 0);
             XVPERM_W(v0, v2, v1);
             break;
@@ -719,7 +721,6 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             VSEQ_H(q0, q2, v1);            // get mask(0xffff)
             VFRSTPI_H(q2, q0, 1);          // find first neg(0xffff),insert index to q2
             XVPICKVE_W(v0, q2, 0);
-            YMM_UNMARK_UPPER_ZERO(v0);
             break;
         case 0x45:
             INST_NAME("VPSRLVD/Q Gx, Vx, Ex");
@@ -741,6 +742,10 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
         case 0x46:
             INST_NAME("VPSRAVD Gx, Vx, Ex");
             nextop = F8;
+            if (rex.w) {
+                DEFAULT;
+                return addr;
+            }
             GETGY_empty_VYEY_xy(v0, v1, v2, 0);
             d0 = fpu_get_scratch(dyn);
             VMINIxy(WU, d0, v2, 31);
@@ -1302,7 +1307,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             avx_forget_reg(dyn, ninst, gd);
             MOV32w(x1, gd);
             CALL(const_native_aesimc, -1, x1, 0);
-            GETGYx(q0, 1);  // reget writable for mark zeroup hi-128bits.
+            GETGYx(q0, 1); // reget writable for mark zeroup hi-128bits.
             break;
         case 0xDC:
             INST_NAME("VAESENC Gx, Vx, Ex");

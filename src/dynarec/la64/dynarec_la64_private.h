@@ -43,9 +43,8 @@ typedef union sse_cache_s {
 typedef union avx_cache_s {
     int8_t v;
     struct {
-        uint8_t reg : 5;
-        uint8_t width : 1;
-        uint8_t zero_upper : 1;        
+        uint8_t reg : 6;
+        uint8_t dirty : 1;
         uint8_t write : 1;
     };
 } avx_cache_t;

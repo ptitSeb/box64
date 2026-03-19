@@ -60,7 +60,6 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 GETEYSS(q2, 0, 0);
                 GETGYx_empty(q0);
                 XVPICKVE_W(q0, q2, 0);
-                YMM_UNMARK_UPPER_ZERO(q0);
             }
             break;
         case 0x11:
@@ -121,7 +120,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             if (!BOX64ENV(dynarec_fastround)) {
                 x87_restoreround(dyn, ninst, u8);
             }
-            if(v0 != v1) VOR_V(v0, v1, v1);
+            if (v0 != v1) VOR_V(v0, v1, v1);
             VEXTRINS_W(v0, d1, 0);
             break;
         case 0x2C:
@@ -280,7 +279,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETGYx_empty(v0);
             d1 = fpu_get_scratch(dyn);
             FCVT_D_S(d1, v2);
-            if(v0 != v1) VOR_V(v0, v1, v1);
+            if (v0 != v1) VOR_V(v0, v1, v1);
             VEXTRINS_D(v0, d1, 0);
             break;
         case 0x5B:
@@ -420,7 +419,6 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETEYSD(q1, 0, 0);
             GETGYx_empty(q0);
             XVPICKVE_D(q0, q1, 0);
-            YMM_UNMARK_UPPER_ZERO(q0);
             break;
         case 0x7F:
             INST_NAME("VMOVDQU Ex, Gx");
@@ -476,17 +474,17 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             INST_NAME("VCVTDQ2PD Gx, Ex");
             nextop = F8;
             d0 = fpu_get_scratch(dyn);
-            if(vex.l){
+            if (vex.l) {
                 GETEYx(v1, 0, 0);
                 GETGYy_empty(v0);
-                /*  
+                /*
                     xvffintl.d.w  convert [v0,v1,v2,v3,v4,v5,v6,v7] to [v0,v1,v4,v5]
                     xvffinth.d.w  convert [v0,v1,v2,v3,v4,v5,v6,v7] to [v2,v3,v6,v7]
                     so user xvpermi.d to reorder input [v0v1,v2v3,v4v5,v6v7] to [v0v1,v4v5,v2v3,v6v7]
                 */
                 XVPERMI_D(d0, v1, 0b11011000);
                 XVFFINTL_D_W(v0, d0);
-            }else{
+            } else {
                 GETEYSD(v1, 0, 0);
                 GETGYx_empty(v0);
                 VFFINTL_D_W(v0, v1);

@@ -749,7 +749,7 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             INST_NAME("VBLENDVPS Gx, Vx, Ex, XMMImm8");
             nextop = F8;
             u8 = geted_ib(dyn, addr, ninst, nextop) >> 4;
-            d0 = avx_get_reg(dyn, ninst, x5, u8, 0, LSX_AVX_WIDTH_128);
+            d0 = avx_get_reg(dyn, ninst, x5, u8, 0, vex.l ? LSX_AVX_WIDTH_256 : LSX_AVX_WIDTH_128);
             GETGY_empty_VYEY_xy(v0, v1, v2, 1);
             F8;
             q0 = fpu_get_scratch(dyn);
@@ -760,7 +760,7 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             INST_NAME("VBLENDVPD Gx, Vx, Ex, XMMImm8");
             nextop = F8;
             u8 = geted_ib(dyn, addr, ninst, nextop) >> 4;
-            d0 = avx_get_reg(dyn, ninst, x5, u8, 0, LSX_AVX_WIDTH_128);
+            d0 = avx_get_reg(dyn, ninst, x5, u8, 0, vex.l ? LSX_AVX_WIDTH_256 : LSX_AVX_WIDTH_128);
             GETGY_empty_VYEY_xy(v0, v1, v2, 1);
             F8;
             q0 = fpu_get_scratch(dyn);
@@ -771,7 +771,7 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             INST_NAME("VPBLENDVB Gx, Vx, Ex, XMMImm8");
             nextop = F8;
             u8 = geted_ib(dyn, addr, ninst, nextop) >> 4;
-            d0 = avx_get_reg(dyn, ninst, x5, u8, 0, LSX_AVX_WIDTH_128);
+            d0 = avx_get_reg(dyn, ninst, x5, u8, 0, vex.l ? LSX_AVX_WIDTH_256 : LSX_AVX_WIDTH_128);
             GETGY_empty_VYEY_xy(v0, v1, v2, 1);
             F8;
             q0 = fpu_get_scratch(dyn);

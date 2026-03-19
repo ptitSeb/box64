@@ -482,18 +482,9 @@ uintptr_t dynarec64_AVX_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, in
                     XVXOR_V(q2, q2, q2);
                     for (int i = 0; i < (rex.is32bits ? 8 : 16); ++i) {
                         if (dyn->lsx.avxcache[i].v != -1) {
-                            // avx used register
-                            if (dyn->lsx.avxcache[i].width == LSX_AVX_WIDTH_256) {
-                                // 256 width, fill upper 128bits with zero.
-                                q1 = avx_get_reg(dyn, ninst, x1, i, 1, LSX_AVX_WIDTH_256); // mark reg write (dirty)
-                                XVPERMI_Q(q1, q2, XVPERMI_IMM_4_0(0, 2));
-                            } else {
-                                // 128 width, lazy save.
-                                q1 = avx_get_reg(dyn, ninst, x1, i, 1, LSX_AVX_WIDTH_128); // mark reg write (dirty)
-                                dyn->lsx.avxcache[i].zero_upper = 1;
-                            }
+                            q1 = avx_get_reg(dyn, ninst, x1, i, 1, LSX_AVX_WIDTH_256);
+                            XVPERMI_Q(q1, q2, XVPERMI_IMM_4_0(0, 2));
                         } else {
-                            // SSE register or unused register, store 128bit zero to x64emu_t.ymm[]
                             VST(q2, xEmu, offsetof(x64emu_t, ymm[i]));
                         }
                     }
