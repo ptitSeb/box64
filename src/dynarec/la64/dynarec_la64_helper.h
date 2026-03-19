@@ -416,9 +416,9 @@
         BSTRINS_D(wback, ed, wb2 + 7, wb2); \
     }
 
-#define YMM_UNMARK_UPPER_ZERO(a)             \
-    do {                                     \
-        dyn->lsx.avxcache[a].zero_upper = 0; \
+#define YMM_UNMARK_UPPER_ZERO(a)        \
+    do {                                \
+        dyn->lsx.avxcache[a].dirty = 0; \
     } while (0)
 
 // AVX helpers
@@ -1083,10 +1083,10 @@
         } else if (_delta_ip == 0) {                              \
         } else if (_delta_ip >= -2048 && _delta_ip < 2048) {      \
             ADDI_D(xRIP, xRIP, _delta_ip);                        \
-        } else if (_delta_ip < 0 && _delta_ip >= -0xffffffffL) {   \
+        } else if (_delta_ip < 0 && _delta_ip >= -0xffffffffL) {  \
             MOV32w(scratch, -_delta_ip);                          \
             SUB_D(xRIP, xRIP, scratch);                           \
-        } else if (_delta_ip > 0 && _delta_ip <= 0xffffffffL) {    \
+        } else if (_delta_ip > 0 && _delta_ip <= 0xffffffffL) {   \
             MOV32w(scratch, _delta_ip);                           \
             ADD_D(xRIP, xRIP, scratch);                           \
         } else {                                                  \
@@ -1308,6 +1308,7 @@
 #define avx_reflect_reg          STEPNAME(avx_reflect_reg)
 #define avx_purgecache           STEPNAME(avx_purgecache)
 #define avx_reflect_reg_upper128 STEPNAME(avx_reflect_reg_upper128)
+#define avx_cleancache           STEPNAME(avx_cleancache)
 
 
 #define fpu_pushcache       STEPNAME(fpu_pushcache)
@@ -1527,6 +1528,7 @@ void avx_forget_reg(dynarec_la64_t* dyn, int ninst, int a);
 // Push current value to the cache
 void avx_reflect_reg(dynarec_la64_t* dyn, int ninst, int a);
 void avx_reflect_reg_upper128(dynarec_la64_t* dyn, int ninst, int a, int forwrite);
+void avx_cleancache(dynarec_la64_t* dyn, int ninst);
 
 void CacheTransform(dynarec_la64_t* dyn, int ninst, int cacheupd, int s1, int s2, int s3);
 

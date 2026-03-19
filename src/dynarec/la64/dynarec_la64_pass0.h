@@ -49,7 +49,13 @@
     } while (0)
 
 #define EMIT(A) dyn->native_size += 4
-#define JUMP(A, C)         add_jump(dyn, ninst); add_next(dyn, (uintptr_t)A); SMEND(); dyn->insts[ninst].x64.jmp = A; dyn->insts[ninst].x64.jmp_cond = C; dyn->insts[ninst].x64.jmp_insts = 0
+#define JUMP(A, C)                      \
+    add_jump(dyn, ninst);               \
+    add_next(dyn, (uintptr_t)A);        \
+    SMEND();                            \
+    dyn->insts[ninst].x64.jmp = A;      \
+    dyn->insts[ninst].x64.jmp_cond = C; \
+    dyn->insts[ninst].x64.jmp_insts = 0
 #define BARRIER(A)                                 \
     if (A != BARRIER_MAYBE) {                      \
         fpu_purgecache(dyn, ninst, 0, x1, x2, x3); \
@@ -57,27 +63,31 @@
     } else                                         \
         dyn->insts[ninst].barrier_maybe = 1
 #define SET_HASCALLRET() dyn->insts[ninst].x64.has_callret = 1
-#define NEW_INST                                 \
-    ++dyn->size;                                 \
-    dyn->insts[ninst].x64.addr = ip;             \
-    dyn->lsx.combined1 = dyn->lsx.combined2 = 0; \
-    dyn->lsx.swapped = 0;                        \
-    dyn->lsx.barrier = 0;                        \
-    dyn->insts[ninst].f_entry = dyn->f;          \
+#define NEW_INST                                                                                                 \
+    ++dyn->size;                                                                                                 \
+    dyn->insts[ninst].x64.addr = ip;                                                                             \
+    dyn->lsx.combined1 = dyn->lsx.combined2 = 0;                                                                 \
+    dyn->lsx.swapped = 0;                                                                                        \
+    dyn->lsx.barrier = 0;                                                                                        \
+    dyn->insts[ninst].f_entry = dyn->f;                                                                          \
     if (ninst) { dyn->insts[ninst - 1].x64.size = dyn->insts[ninst].x64.addr - dyn->insts[ninst - 1].x64.addr; } \
     AREFLAGSNEEDED()
 
-#define INST_EPILOG                    \
-    dyn->insts[ninst].f_exit = dyn->f; \
-    dyn->insts[ninst].lsx = dyn->lsx;  \
-    dyn->insts[ninst].x64.has_next = (ok > 0) ? 1 : 0;
+#define INST_EPILOG                                        \
+    do {                                                   \
+        dyn->insts[ninst].f_exit = dyn->f;                 \
+        dyn->insts[ninst].lsx = dyn->lsx;                  \
+        dyn->insts[ninst].x64.has_next = (ok > 0) ? 1 : 0; \
+        avx_cleancache(dyn, ninst);                        \
+    } while (0)
+
 #define INST_NAME(name)
-#define DEFAULT                                                                                                           \
-    --dyn->size;                                                                                                          \
-    *ok = -1;                                                                                                             \
-    if (ninst) { dyn->insts[ninst - 1].x64.size = ip - dyn->insts[ninst - 1].x64.addr; }                                  \
-    if (BOX64ENV(dynarec_log) >= LOG_INFO || dyn->need_dump || BOX64ENV(dynarec_missing) == 1) {                          \
-            dynarec_stopped(dyn->insts[ninst].x64.addr, rex.is32bits);                                                    \
+#define DEFAULT                                                                                  \
+    --dyn->size;                                                                                 \
+    *ok = -1;                                                                                    \
+    if (ninst) { dyn->insts[ninst - 1].x64.size = ip - dyn->insts[ninst - 1].x64.addr; }         \
+    if (BOX64ENV(dynarec_log) >= LOG_INFO || dyn->need_dump || BOX64ENV(dynarec_missing) == 1) { \
+        dynarec_stopped(dyn->insts[ninst].x64.addr, rex.is32bits);                               \
     }
 
 
