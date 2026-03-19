@@ -668,6 +668,7 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedlibice.c"
     "${BOX64_ROOT}/src/wrapped/wrappedliblapack.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibm.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedlibmvec.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibncurses.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibncurses6.c"
     "${BOX64_ROOT}/src/wrapped/wrappedlibncursesw.c"

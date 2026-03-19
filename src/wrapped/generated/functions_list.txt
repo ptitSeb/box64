@@ -5992,6 +5992,10 @@ wrappedlibm:
   - __pow_finite
 - DFDD:
   - __powl_finite
+wrappedlibmvec:
+- vFv:
+  - _ZGVbN2v_cos
+  - _ZGVbN2v_sin
 wrappedlibncurses:
 - pFv:
   - initscr
