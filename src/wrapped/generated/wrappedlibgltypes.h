@@ -12,6 +12,9 @@
 #endif
 
 typedef int32_t (*iFu_t)(uint32_t);
+typedef uint32_t (*uFv_t)(void);
+typedef uint32_t (*uFu_t)(uint32_t);
+typedef void (*vFip_t)(int32_t, void*);
 typedef void* (*pFp_t)(void*);
 typedef void (*vFpp_t)(void*, void*);
 typedef int32_t (*iFpp_t)(void*, void*);
@@ -31,6 +34,10 @@ typedef void (*vFppp_t)(void*, void*, void*);
 	GO(eglDebugMessageControlKHR, iFpp_t) \
 	GO(glProgramCallbackMESA, vFipp_t) \
 	GO(glXSwapIntervalEXT, vFpLi_t) \
-	GO(eglSetBlobCacheFuncsANDROID, vFppp_t)
+	GO(eglSetBlobCacheFuncsANDROID, vFppp_t) \
+	GO(glGetError, uFv_t) \
+	GO(glCheckFramebufferStatus, uFu_t) \
+	GO(glCheckFramebufferStatusEXT, uFu_t) \
+	GO(glStringMarkerGREMEDY, vFip_t)
 
 #endif // __wrappedlibglTYPES_H_
