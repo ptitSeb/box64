@@ -625,7 +625,6 @@ void iFill(x64emu_t *emu, uintptr_t fnc);
 void iFilp(x64emu_t *emu, uintptr_t fnc);
 void iFiLi(x64emu_t *emu, uintptr_t fnc);
 void iFiLp(x64emu_t *emu, uintptr_t fnc);
-void iFiLN(x64emu_t *emu, uintptr_t fnc);
 void iFipi(x64emu_t *emu, uintptr_t fnc);
 void iFipu(x64emu_t *emu, uintptr_t fnc);
 void iFipL(x64emu_t *emu, uintptr_t fnc);
@@ -1198,7 +1197,6 @@ void cFpipp(x64emu_t *emu, uintptr_t fnc);
 void iFEiiu(x64emu_t *emu, uintptr_t fnc);
 void iFEiip(x64emu_t *emu, uintptr_t fnc);
 void iFEiiN(x64emu_t *emu, uintptr_t fnc);
-void iFEiLp(x64emu_t *emu, uintptr_t fnc);
 void iFEipp(x64emu_t *emu, uintptr_t fnc);
 void iFEipV(x64emu_t *emu, uintptr_t fnc);
 void iFEipA(x64emu_t *emu, uintptr_t fnc);
@@ -1737,6 +1735,7 @@ void vFEippp(x64emu_t *emu, uintptr_t fnc);
 void vFEpipV(x64emu_t *emu, uintptr_t fnc);
 void vFEpipA(x64emu_t *emu, uintptr_t fnc);
 void vFEpuup(x64emu_t *emu, uintptr_t fnc);
+void vFEpuuV(x64emu_t *emu, uintptr_t fnc);
 void vFEpuuA(x64emu_t *emu, uintptr_t fnc);
 void vFEpupp(x64emu_t *emu, uintptr_t fnc);
 void vFEpupV(x64emu_t *emu, uintptr_t fnc);
@@ -4073,7 +4072,6 @@ void pFppipppppppppppp(x64emu_t *emu, uintptr_t fnc);
 void pFppupppppppppppp(x64emu_t *emu, uintptr_t fnc);
 void pFppppppppppppppp(x64emu_t *emu, uintptr_t fnc);
 void vFuppppppppppppplp(x64emu_t *emu, uintptr_t fnc);
-void vFpuuppppppppppppp(x64emu_t *emu, uintptr_t fnc);
 void vFpppppppppppLLLLL(x64emu_t *emu, uintptr_t fnc);
 void vFpppppppppppppLLL(x64emu_t *emu, uintptr_t fnc);
 void vFppppppppppppppLL(x64emu_t *emu, uintptr_t fnc);
@@ -4181,6 +4179,14 @@ void iFEiipup(x64emu_t *emu, uintptr_t fnc);
 void iFEpipppL(x64emu_t *emu, uintptr_t fnc);
 void iFiiULippp(x64emu_t *emu, uintptr_t fnc);
 void lFpLpdddddd(x64emu_t *emu, uintptr_t fnc);
+#endif
+
+#if defined(PPC64LE)
+void iFEiLp(x64emu_t *emu, uintptr_t fnc);
+#endif
+
+#if !defined(PPC64LE)
+void iFiLN(x64emu_t *emu, uintptr_t fnc);
 #endif
 
 void vFEv(x64emu_t *emu, uintptr_t fnc);

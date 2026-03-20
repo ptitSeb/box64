@@ -588,7 +588,6 @@
 #() iFilp
 #() iFiLi
 #() iFiLp
-#() iFiLN
 #() iFipi
 #() iFipu
 #() iFipL
@@ -1161,7 +1160,6 @@
 #() iFEiiu
 #() iFEiip
 #() iFEiiN
-#() iFEiLp
 #() iFEipp
 #() iFEipV
 #() iFEipA
@@ -1700,6 +1698,7 @@
 #() vFEpipV
 #() vFEpipA
 #() vFEpuup
+#() vFEpuuV
 #() vFEpuuA
 #() vFEpupp
 #() vFEpupV
@@ -4036,7 +4035,6 @@
 #() pFppupppppppppppp
 #() pFppppppppppppppp
 #() vFuppppppppppppplp
-#() vFpuuppppppppppppp
 #() vFpppppppppppLLLLL
 #() vFpppppppppppppLLL
 #() vFppppppppppppppLL
@@ -4136,6 +4134,8 @@
 #!defined(STATICBUILD) iFEpipppL
 #!defined(STATICBUILD) iFiiULippp
 #!defined(STATICBUILD) lFpLpdddddd
+#defined(PPC64LE) iFEiLp
+#!defined(PPC64LE) iFiLN
 #() vFEv -> vFE
 #() iFEv -> iFE
 #() lFEv -> lFE
@@ -4917,6 +4917,8 @@ wrappedgobject2:
   - g_value_array_sort_with_data
 - pFppV:
   - g_object_connect
+- vFpuuV:
+  - g_signal_emit
 - vFpuuA:
   - g_signal_emit_valist
 - vFpupp:
@@ -5527,6 +5529,8 @@ wrappedlibc:
   - fcntl64
 - iFiuu:
   - fsmount
+- iFiLp:
+  - ioctl
 - iFipu:
   - fspick
 - iFipp:

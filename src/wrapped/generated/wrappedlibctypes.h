@@ -54,8 +54,8 @@ typedef void (*vFppV_t)(void*, void*, ...);
 typedef int32_t (*iFiiu_t)(int32_t, int32_t, uint32_t);
 typedef int32_t (*iFiip_t)(int32_t, int32_t, void*);
 typedef int32_t (*iFiiN_t)(int32_t, int32_t, ...);
-typedef int32_t (*iFiLp_t)(int32_t, uintptr_t, void*);
 typedef int32_t (*iFiuu_t)(int32_t, uint32_t, uint32_t);
+typedef int32_t (*iFiLp_t)(int32_t, uintptr_t, void*);
 typedef int32_t (*iFipu_t)(int32_t, void*, uint32_t);
 typedef int32_t (*iFipp_t)(int32_t, void*, void*);
 typedef int32_t (*iFipV_t)(int32_t, void*, ...);
@@ -242,8 +242,8 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(__fcntl, iFiiN_t) \
 	GO(fcntl, iFiiN_t) \
 	GO(fcntl64, iFiiN_t) \
-	GO(ioctl, iFiLp_t) \
 	GO(fsmount, iFiuu_t) \
+	GO(ioctl, iFiLp_t) \
 	GO(fspick, iFipu_t) \
 	GO(__lxstat, iFipp_t) \
 	GO(__lxstat64, iFipp_t) \

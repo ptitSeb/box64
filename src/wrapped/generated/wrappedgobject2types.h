@@ -29,6 +29,7 @@ typedef void* (*pFLpV_t)(uintptr_t, void*, ...);
 typedef void* (*pFLpA_t)(uintptr_t, void*, va_list);
 typedef void* (*pFppp_t)(void*, void*, void*);
 typedef void* (*pFppV_t)(void*, void*, ...);
+typedef void (*vFpuuV_t)(void*, uint32_t, uint32_t, ...);
 typedef void (*vFpuuA_t)(void*, uint32_t, uint32_t, va_list);
 typedef void (*vFpupp_t)(void*, uint32_t, void*, void*);
 typedef void (*vFpLLp_t)(void*, uintptr_t, uintptr_t, void*);
@@ -76,6 +77,7 @@ typedef uint32_t (*uFpLuppppLuA_t)(void*, uintptr_t, uint32_t, void*, void*, voi
 	GO(g_cclosure_new_swap, pFppp_t) \
 	GO(g_value_array_sort_with_data, pFppp_t) \
 	GO(g_object_connect, pFppV_t) \
+	GO(g_signal_emit, vFpuuV_t) \
 	GO(g_signal_emit_valist, vFpuuA_t) \
 	GO(g_object_set_qdata_full, vFpupp_t) \
 	GO(g_param_spec_set_qdata_full, vFpupp_t) \
