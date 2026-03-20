@@ -783,6 +783,7 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedsmime3.c"
     "${BOX64_ROOT}/src/wrapped/wrappedsmpeg2.c"
     "${BOX64_ROOT}/src/wrapped/wrappedssl3.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedsystemd.c"
     "${BOX64_ROOT}/src/wrapped/wrappedtbbbind.c"
     "${BOX64_ROOT}/src/wrapped/wrappedtbbmalloc.c"
     "${BOX64_ROOT}/src/wrapped/wrappedtbbmallocproxy.c"

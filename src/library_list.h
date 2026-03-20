@@ -295,6 +295,8 @@ GO("libbrotlidec.so", brotlidec)
 GO("libbrotlidec.so.1", brotlidec)
 GO("libzstd.so.1", zstd)
 GO("libzstd.so", zstd)
+GO("libsystemd.so.0", systemd)
+GO("libsystemd.so", systemd)
 
 GO("libc.so", libc)
 GO("libm.so", libm)
