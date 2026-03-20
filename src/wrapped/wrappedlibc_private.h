@@ -861,7 +861,11 @@ DATA(_IO_2_1_stdin_, 224)
 DATA(_IO_2_1_stdout_, 224)
 //GO(_IO_adjust_column, 
 //GO(_IO_adjust_wcolumn, 
+#ifdef PPC64LE
+GOWM(ioctl, iFEiLp)
+#else
 GOW(ioctl, iFiLN)
+#endif
 GO(_IO_default_doallocate, iFS)
 GO(_IO_default_finish, vFSi)
 GO(_IO_default_pbackfail, iFSi)
