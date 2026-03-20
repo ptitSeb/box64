@@ -3,7 +3,7 @@
 #endif
 
 //GO(_fini, 
-//GO(g_module_build_path, pFpp)
+GO(g_module_build_path, pFpp)
 GO(g_module_close, iFp)
 //GO(g_module_error, pFv)
 //GO(g_module_make_resident, vFp)

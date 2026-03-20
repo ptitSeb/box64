@@ -339,7 +339,7 @@ BOX64_EMULATED_LIBS=libSDL2-2.0.so.0:libSDL2_ttf-2.0.so.0
 # Linux Steam configurations
 
 [steam-runtime-launcher-service]
-BOX64_NOGTK=1
+#BOX64_NOGTK=1
 
 [steam-runtime-check-requirements]
 BOX64_EXIT=1

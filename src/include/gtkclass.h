@@ -2373,6 +2373,16 @@ typedef struct my_GstURIHandlerInterface_s {
   int    (* set_uri)            (void* handler, void* uri, void* error);
 } my_GstURIHandlerInterface_t;
 
+typedef struct my_GInitableInterface_s {
+  my_GTypeInterface_t parent;
+  int    (* init) (void* initable, void* cancellable, void*error);
+} my_GInitableInterface_t;
+
+typedef struct my_GAsyncInitableInterface_s {
+  my_GTypeInterface_t parent;
+  void     (* init_async)  (void* initable, int io_priority, void* cancellable, void* callback, void* user_data);
+  int      (* init_finish) (void* initable, void* res, void* error);
+} my_GAsyncInitableInterface_t;
 
 // GTypeValueTable
 typedef struct my_GTypeValueTable_s {
@@ -2516,6 +2526,8 @@ GTKCLASS(GstAudioFilter)            \
 GTKCLASS(GstBufferPool)             \
 GTKCLASS(GstVideoBufferPool)        \
 GTKIFACE(GstURIHandler)             \
+GTKIFACE(GInitable)                 \
+GTKIFACE(GAsyncInitable)            \
 
 #define GTKCLASS(A) void Set##A##ID(size_t id);
 #define GTKIFACE(A) GTKCLASS(A)

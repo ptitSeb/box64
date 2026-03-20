@@ -1699,7 +1699,6 @@
 #() vFEpipV
 #() vFEpipA
 #() vFEpuup
-#() vFEpuuV
 #() vFEpuuA
 #() vFEpupp
 #() vFEpupV
@@ -1817,6 +1816,7 @@
 #() vFpipii
 #() vFpipiu
 #() vFpippi
+#() vFpippp
 #() vFpuiii
 #() vFpuiil
 #() vFpuiip
@@ -4035,6 +4035,7 @@
 #() pFppupppppppppppp
 #() pFppppppppppppppp
 #() vFuppppppppppppplp
+#() vFpuuppppppppppppp
 #() vFpppppppppppLLLLL
 #() vFpppppppppppppLLL
 #() vFppppppppppppppLL
@@ -4915,8 +4916,6 @@ wrappedgobject2:
   - g_value_array_sort_with_data
 - pFppV:
   - g_object_connect
-- vFpuuV:
-  - g_signal_emit
 - vFpuuA:
   - g_signal_emit_valist
 - vFpupp:

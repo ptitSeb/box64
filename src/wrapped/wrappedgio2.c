@@ -43,6 +43,8 @@ typedef struct my_GActionEntry_s
  GO(g_dbus_proxy_get_type, LFv_t)                   \
  GO(g_dbus_object_manager_client_get_type, LFv_t)   \
  GO(g_dbus_interface_skeleton_get_type, LFv_t)      \
+ GO(g_initable_get_type, LFv_t)                     \
+ GO(g_async_initable_get_type, LFv_t)               \
 
 #include "wrappedgio2types.h"
 
@@ -52,7 +54,11 @@ typedef struct my_GActionEntry_s
 GO(0)   \
 GO(1)   \
 GO(2)   \
-GO(3)
+GO(3)   \
+GO(4)   \
+GO(5)   \
+GO(6)   \
+GO(7)   \
 
 // GAsyncReadyCallback
 #define GO(A)   \
@@ -63,7 +69,7 @@ static void my_GAsyncReadyCallback_##A(void* source, void* res, void* data)     
 }
 SUPER()
 #undef GO
-static void* findGAsyncReadyCallbackFct(void* fct)
+void* findGAsyncReadyCallbackFct(void* fct) // also used in gtkclass.c
 {
     if(!fct) return fct;
     if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
@@ -731,7 +737,9 @@ EXPORT void my_g_action_map_add_action_entries(x64emu_t* emu, void* map, my_GAct
     SetGApplicationID(my->g_application_get_type());                            \
     SetGDBusProxyID(my->g_dbus_proxy_get_type());                               \
     SetGDBusObjectManagerClientID(my->g_dbus_object_manager_client_get_type()); \
-    SetGDBusInterfaceSkeletonID(my->g_dbus_interface_skeleton_get_type());
+    SetGDBusInterfaceSkeletonID(my->g_dbus_interface_skeleton_get_type());      \
+    SetGInitableID(my->g_initable_get_type());                                  \
+    SetGAsyncInitableID(my->g_async_initable_get_type());
 
 #define NEEDED_LIBS "libgmodule-2.0.so.0", "libz.so.1"
 

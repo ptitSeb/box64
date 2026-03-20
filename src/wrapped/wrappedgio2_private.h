@@ -1894,3 +1894,4 @@ GO(g_zlib_decompressor_get_file_info, pFp)
 GO(g_zlib_decompressor_get_type, LFv)
 GO(g_zlib_decompressor_new, pFu)
 //GO(_init, 
+GO(dummy_vFpippp, vFpippp)  // needed for gtkclass wrapping of GAsyncInitable Interface
