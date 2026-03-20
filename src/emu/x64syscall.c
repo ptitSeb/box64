@@ -279,6 +279,7 @@ static const scwrap_t syscallwrap[] = {
     [238] = {__NR_set_mempolicy, 3},
     [239] = {__NR_get_mempolicy, 5},
     [247] = {__NR_waitid, 5},
+    [251] = {__NR_ioprio_set, 3},
     #ifdef __NR_inotify_init
     [253] = {__NR_inotify_init, 0},   //0xFD
     #endif
