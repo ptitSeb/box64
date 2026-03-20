@@ -273,6 +273,8 @@
 #() WFpi
 #() WFpp
 #() uFEp
+#() uFEv
+#() uFEu
 #() uFii
 #() uFiu
 #() uFip
@@ -2253,6 +2255,7 @@
 #() pFEpppp
 #() pFEpppV
 #() pFEpppA
+#() pFiiiii
 #() pFiiupi
 #() pFiiupL
 #() pFipipL
