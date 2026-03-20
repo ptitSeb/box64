@@ -1489,14 +1489,9 @@ int avx_get_reg(dynarec_la64_t* dyn, int ninst, int s1, int a, int forwrite, int
     int ret = dyn->lsx.avxcache[a].reg;
     if (forwrite) dyn->lsx.avxcache[a].write = 1;
     dyn->lsx.avxcache[a].dirty = 0;
-    if (width == LSX_AVX_WIDTH_128) {
+    if (width == LSX_AVX_WIDTH_128 && forwrite) {
         VLD(ret, xEmu, offsetof(x64emu_t, xmm[a]));
-        if (forwrite)
-            dyn->lsx.avxcache[a].dirty = 1;
-        else {
-            XVXOR_V(SCRATCH, SCRATCH, SCRATCH);
-            XVPERMI_Q(ret, SCRATCH, XVPERMI_IMM_4_0(0, 2));
-        }
+        dyn->lsx.avxcache[a].dirty = 1;
     } else {
         VLD(ret, xEmu, offsetof(x64emu_t, xmm[a]));
         VLD(SCRATCH, xEmu, offsetof(x64emu_t, ymm[a]));
