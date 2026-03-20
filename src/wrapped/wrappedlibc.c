@@ -836,6 +836,176 @@ int of_unconvert(int a)
 }
 #undef SUPER
 
+
+#ifdef PPC64LE
+// ioctl number translation: x86_64 -> PPC64LE
+// x86_64 _IOC encoding: dir(2 bits, 30-31) | size(14 bits, 16-29) | type(8 bits, 8-15) | nr(8 bits, 0-7)
+// PPC64LE _IOC encoding: dir(3 bits, 29-31) | size(13 bits, 16-28) | type(8 bits, 8-15) | nr(8 bits, 0-7)
+// Direction bits: x86: NONE=0, WRITE=1, READ=2  PPC: NONE=1, READ=2, WRITE=4
+
+// x86_64 _IOC field extraction
+#define X86_IOC_NRBITS    8
+#define X86_IOC_TYPEBITS  8
+#define X86_IOC_SIZEBITS  14
+#define X86_IOC_DIRBITS   2
+#define X86_IOC_NRSHIFT   0
+#define X86_IOC_TYPESHIFT  (X86_IOC_NRSHIFT + X86_IOC_NRBITS)
+#define X86_IOC_SIZESHIFT  (X86_IOC_TYPESHIFT + X86_IOC_TYPEBITS)
+#define X86_IOC_DIRSHIFT   (X86_IOC_SIZESHIFT + X86_IOC_SIZEBITS)
+#define X86_IOC_NRMASK    ((1 << X86_IOC_NRBITS) - 1)
+#define X86_IOC_TYPEMASK  ((1 << X86_IOC_TYPEBITS) - 1)
+#define X86_IOC_SIZEMASK  ((1 << X86_IOC_SIZEBITS) - 1)
+#define X86_IOC_DIRMASK   ((1 << X86_IOC_DIRBITS) - 1)
+#define X86_IOC_DIR(nr)   (((nr) >> X86_IOC_DIRSHIFT) & X86_IOC_DIRMASK)
+#define X86_IOC_TYPE(nr)  (((nr) >> X86_IOC_TYPESHIFT) & X86_IOC_TYPEMASK)
+#define X86_IOC_NR(nr)    (((nr) >> X86_IOC_NRSHIFT) & X86_IOC_NRMASK)
+#define X86_IOC_SIZE(nr)  (((nr) >> X86_IOC_SIZESHIFT) & X86_IOC_SIZEMASK)
+
+// x86_64 direction values
+#define X86_IOC_NONE   0
+#define X86_IOC_WRITE  1
+#define X86_IOC_READ   2
+
+// Old-style x86 terminal/file ioctl values (not _IOC-encoded)
+#define X86_TCGETS           0x5401
+#define X86_TCSETS           0x5402
+#define X86_TCSETSW          0x5403
+#define X86_TCSETSF          0x5404
+#define X86_TCGETA           0x5405
+#define X86_TCSETA           0x5406
+#define X86_TCSETAW          0x5407
+#define X86_TCSETAF          0x5408
+#define X86_TCSBRK           0x5409
+#define X86_TCXONC           0x540A
+#define X86_TCFLSH           0x540B
+#define X86_TIOCEXCL         0x540C
+#define X86_TIOCNXCL         0x540D
+#define X86_TIOCSCTTY        0x540E
+#define X86_TIOCGPGRP        0x540F
+#define X86_TIOCSPGRP        0x5410
+#define X86_TIOCOUTQ         0x5411
+#define X86_TIOCSTI          0x5412
+#define X86_TIOCGWINSZ       0x5413
+#define X86_TIOCSWINSZ       0x5414
+#define X86_TIOCMGET         0x5415
+#define X86_TIOCMBIS         0x5416
+#define X86_TIOCMBIC         0x5417
+#define X86_TIOCMSET         0x5418
+#define X86_TIOCGSOFTCAR     0x5419
+#define X86_TIOCSSOFTCAR     0x541A
+#define X86_FIONREAD         0x541B
+#define X86_TIOCLINUX        0x541C
+#define X86_TIOCCONS         0x541D
+#define X86_TIOCGSERIAL      0x541E
+#define X86_TIOCSSERIAL      0x541F
+#define X86_TIOCPKT          0x5420
+#define X86_FIONBIO          0x5421
+#define X86_TIOCNOTTY        0x5422
+#define X86_TIOCSETD         0x5423
+#define X86_TIOCGETD         0x5424
+#define X86_TCSBRKP          0x5425
+#define X86_TIOCGSID         0x5429
+#define X86_FIONCLEX         0x5450
+#define X86_FIOCLEX          0x5451
+#define X86_FIOASYNC         0x5452
+#define X86_FIOQSIZE         0x5460
+
+#include <sys/ioctl.h>
+#include <termios.h>
+
+unsigned long ioctl_convert(unsigned long x86_req)
+{
+    // Lookup table for old-style x86 terminal/file ioctls
+    switch(x86_req)
+    {
+        case X86_TCGETS:       return TCGETS;
+        case X86_TCSETS:       return TCSETS;
+        case X86_TCSETSW:      return TCSETSW;
+        case X86_TCSETSF:      return TCSETSF;
+        case X86_TCGETA:       return TCGETA;
+        case X86_TCSETA:       return TCSETA;
+        case X86_TCSETAW:      return TCSETAW;
+        case X86_TCSETAF:      return TCSETAF;
+        case X86_TCSBRK:       return TCSBRK;
+        case X86_TCXONC:       return TCXONC;
+        case X86_TCFLSH:       return TCFLSH;
+        case X86_TIOCEXCL:     return TIOCEXCL;
+        case X86_TIOCNXCL:     return TIOCNXCL;
+        case X86_TIOCSCTTY:    return TIOCSCTTY;
+        case X86_TIOCGPGRP:    return TIOCGPGRP;
+        case X86_TIOCSPGRP:    return TIOCSPGRP;
+        case X86_TIOCOUTQ:     return TIOCOUTQ;
+        case X86_TIOCSTI:      return TIOCSTI;
+        case X86_TIOCGWINSZ:   return TIOCGWINSZ;
+        case X86_TIOCSWINSZ:   return TIOCSWINSZ;
+        case X86_TIOCMGET:     return TIOCMGET;
+        case X86_TIOCMBIS:     return TIOCMBIS;
+        case X86_TIOCMBIC:     return TIOCMBIC;
+        case X86_TIOCMSET:     return TIOCMSET;
+        case X86_TIOCGSOFTCAR: return TIOCGSOFTCAR;
+        case X86_TIOCSSOFTCAR: return TIOCSSOFTCAR;
+        case X86_FIONREAD:     return FIONREAD;
+        case X86_TIOCLINUX:    return TIOCLINUX;
+        case X86_TIOCCONS:     return TIOCCONS;
+        case X86_TIOCGSERIAL:  return TIOCGSERIAL;
+        case X86_TIOCSSERIAL:  return TIOCSSERIAL;
+        case X86_TIOCPKT:      return TIOCPKT;
+        case X86_FIONBIO:      return FIONBIO;
+        case X86_TIOCNOTTY:    return TIOCNOTTY;
+        case X86_TIOCSETD:     return TIOCSETD;
+        case X86_TIOCGETD:     return TIOCGETD;
+        case X86_TCSBRKP:      return TCSBRKP;
+        case X86_TIOCGSID:     return TIOCGSID;
+        case X86_FIONCLEX:     return FIONCLEX;
+        case X86_FIOCLEX:      return FIOCLEX;
+        case X86_FIOASYNC:     return FIOASYNC;
+        case X86_FIOQSIZE:     return FIOQSIZE;
+    }
+
+    // For _IOC-encoded ioctls, translate the encoding
+    unsigned long x86_dir  = X86_IOC_DIR(x86_req);
+    unsigned long x86_type = X86_IOC_TYPE(x86_req);
+    unsigned long x86_nr   = X86_IOC_NR(x86_req);
+    unsigned long x86_size = X86_IOC_SIZE(x86_req);
+
+    // If it looks like a small raw number (not _IOC encoded), pass through
+    if(x86_dir == 0 && x86_type == 0) {
+        return x86_req;
+    }
+
+    // Translate x86 direction bits to PPC direction bits
+    unsigned long ppc_dir = 0;
+    if(x86_dir == X86_IOC_NONE) {
+        // x86 NONE=0, but if type!=0 it's a real _IOC_NONE ioctl
+        ppc_dir = 1; // PPC _IOC_NONE = 1
+    } else {
+        if(x86_dir & X86_IOC_READ)  ppc_dir |= 2; // PPC _IOC_READ = 2
+        if(x86_dir & X86_IOC_WRITE) ppc_dir |= 4; // PPC _IOC_WRITE = 4
+    }
+
+    // PPC64LE: size is 13 bits (max 8191)
+    if(x86_size > 8191) {
+        printf_log(LOG_DEBUG, "Warning: ioctl size %lu exceeds PPC64LE 13-bit limit, clamping\n", x86_size);
+        x86_size = 8191;
+    }
+
+    // Recompose as PPC64LE _IOC: dir(3 bits, 29-31) | size(13 bits, 16-28) | type(8, 8-15) | nr(8, 0-7)
+    unsigned long ppc_req = (ppc_dir << 29) | (x86_size << 16) | (x86_type << 8) | x86_nr;
+
+    printf_log(LOG_DEBUG, "ioctl_convert: x86=0x%lx -> ppc=0x%lx (dir %lu->%lu, type 0x%lx, nr 0x%lx, size %lu)\n",
+               x86_req, ppc_req, X86_IOC_DIR(x86_req), ppc_dir, x86_type, x86_nr, x86_size);
+
+    return ppc_req;
+}
+
+EXPORT int my_ioctl(x64emu_t* emu, int fd, unsigned long req, void* arg)
+{
+    (void)emu;
+    unsigned long native_req = ioctl_convert(req);
+    return ioctl(fd, native_req, arg);
+}
+#endif
+
 EXPORT void* my__ZGTtnaX (size_t a) { (void)a; printf("warning _ZGTtnaX called\n"); return NULL; }
 EXPORT void* my__ZGTtnam (size_t a) { (void)a; printf("warning _ZGTtnam called\n"); return NULL; }
 EXPORT void my__ZGTtdlPv (void* a) { (void)a; printf("warning _ZGTtdlPv called\n"); }

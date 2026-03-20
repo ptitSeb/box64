@@ -52,6 +52,9 @@ extern int fchmodat (int __fd, const char *__file, mode_t __mode, int __flag);
 //int32_t my_getrandom(x64emu_t* emu, void* buf, uint32_t buflen, uint32_t flags);
 int of_convert(int flag);
 int32_t my_open(x64emu_t* emu, void* pathname, int32_t flags, uint32_t mode);
+#ifdef PPC64LE
+unsigned long ioctl_convert(unsigned long x86_req);
+#endif
 ssize_t my_readlink(x64emu_t* emu, void* path, void* buf, size_t sz);
 int my_readlinkat(x64emu_t* emu, int fd, void* path, void* buf, size_t bufsize);
 int my_stat(x64emu_t *emu, void* filename, void* buf);
@@ -108,7 +111,9 @@ static const scwrap_t syscallwrap[] = {
     //[13] = {__NR_rt_sigaction, 4},   // wrapped to use my_ version
     [14] = {__NR_rt_sigprocmask, 4},
     [15] = {__NR_rt_sigreturn, 1},
+    #ifndef PPC64LE
     [16] = {__NR_ioctl, 3},
+    #endif
     [17] = {__NR_pread64, 4},
     [18] = {__NR_pwrite64, 4},
     [19] = {__NR_readv, 3},
@@ -579,6 +584,13 @@ void EXPORT x64Syscall_linux(x64emu_t *emu)
             if(S_RAX==-1)
                 S_RAX = -errno;
             break;
+        #ifdef PPC64LE
+        case 16: // sys_ioctl (PPC64LE needs ioctl number translation)
+            S_RAX = ioctl(S_EDI, ioctl_convert(R_RSI), R_RDX);
+            if(S_RAX==-1)
+                S_RAX = -errno;
+            break;
+        #endif
         case 6: // sys_lstat
             S_RAX = my_lstat(emu, (void*)R_RDI, (void*)R_RSI);
             if(S_RAX==-1)
