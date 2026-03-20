@@ -119,4 +119,9 @@ EXPORT uint32_t my_cairo_surface_write_to_png_stream(x64emu_t* emu, void* surf, 
     return my->cairo_surface_write_to_png_stream(surf, find_cairo_write_Fct(f), c);
 }
 
+EXPORT uint32_t my_cairo_pattern_set_user_data(x64emu_t* emu, void* pat, void* key, void* data, void* d)
+{
+    return my->cairo_pattern_set_user_data(pat, key, data, find_destroy_Fct(d));
+}
+
 #include "wrappedlib_init.h"

@@ -4224,6 +4224,7 @@ wrappedcairo:
 - uFppp:
   - cairo_surface_write_to_png_stream
 - iFpppp:
+  - cairo_pattern_set_user_data
   - cairo_set_user_data
   - cairo_surface_set_user_data
 - pFppdd:
