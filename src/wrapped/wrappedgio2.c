@@ -733,6 +733,6 @@ EXPORT void my_g_action_map_add_action_entries(x64emu_t* emu, void* map, my_GAct
     SetGDBusObjectManagerClientID(my->g_dbus_object_manager_client_get_type()); \
     SetGDBusInterfaceSkeletonID(my->g_dbus_interface_skeleton_get_type());
 
-#define NEEDED_LIBS "libgmodule-2.0.so.0", "libz.so.1", "libmount.so.1", "libselinux.so.1"
+#define NEEDED_LIBS "libgmodule-2.0.so.0", "libz.so.1"
 
 #include "wrappedlib_init.h"
