@@ -1044,6 +1044,20 @@ int LoadNeededLibs(elfheader_t* h, lib_t *maplib, int local, int bindnow, int de
         if(tag==DT_RPATH || tag==DT_RUNPATH) {
             char *rpathref = h->DynStrTab+h->delta+(box64_is32bits?h->Dynamic._32[i].d_un.d_val:h->Dynamic._64[i].d_un.d_val);
             char* rpath = rpathref;
+            while(strstr(rpath, "$$ORIGIN")) {
+                char* origin = box_strdup(h->path);
+                char* p = strrchr(origin, '/');
+                if(p) *p = '\0';    // remove file name to have only full path, without last '/'
+                char* tmp = (char*)box_calloc(1, strlen(rpath)-strlen("$$ORIGIN")+strlen(origin)+1);
+                p = strstr(rpath, "$$ORIGIN");
+                memcpy(tmp, rpath, p-rpath);
+                strcat(tmp, origin);
+                strcat(tmp, p+strlen("$$ORIGIN"));
+                if(rpath!=rpathref)
+                    box_free(rpath);
+                rpath = tmp;
+                box_free(origin);
+            }
             while(strstr(rpath, "$ORIGIN")) {
                 char* origin = box_strdup(h->path);
                 char* p = strrchr(origin, '/');
