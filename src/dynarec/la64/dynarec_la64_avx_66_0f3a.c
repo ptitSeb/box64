@@ -508,7 +508,7 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             u8 = F8;
             d0 = fpu_get_scratch(dyn);
             if (u8 & 4) {
-                u8 = sse_setround(dyn, ninst, x1, x2);
+                u8 = sse_setround(dyn, ninst, x4, x5);
             } else {
                 MOVFCSR2GR(x4, FCSR3);
                 ORI(x5, xZR, ((-(u8 & 3)) & 3) << 8);
