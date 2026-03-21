@@ -2710,6 +2710,7 @@ EXPORT int32_t my_execv(x64emu_t* emu, const char* path, char* const argv[])
     printf_log(LOG_DEBUG, "execv(\"%s\", %p) is x64=%d x86=%d script=%d self=%d\n", path, argv, x64, x86, script, self);
     {
         int n = 0;
+        int ret;
         while (argv[n])
             ++n;
         char** newargv = (char**)box_calloc(n + 1, sizeof(char*));
@@ -2750,7 +2751,7 @@ EXPORT int32_t my_execv(x64emu_t* emu, const char* path, char* const argv[])
             newargv[2] = newstr;
         }
     do_exec:
-        int ret = execv(path, (void*)newargv);
+        ret = execv(path, (void*)newargv);
         box_free(newargv);
         return ret;
     }
