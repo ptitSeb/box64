@@ -339,7 +339,10 @@ BOX64_EMULATED_LIBS=libSDL2-2.0.so.0:libSDL2_ttf-2.0.so.0
 # Linux Steam configurations
 
 [steam-runtime-launcher-service]
-#BOX64_NOGTK=1
+BOX64_NOGTK=1
+
+[steam-runtime-launch-client]
+BOX64_NOGTK=1
 
 [steam-runtime-check-requirements]
 BOX64_EXIT=1
@@ -352,6 +355,7 @@ BOX64_DYNAREC_CALLRET=1
 BOX64_DYNAREC_STRONGMEM=2
 BOX64_AVX=0 #there are probably some memory barrier missing on avx opcode as it's more stable without avx
 BOX64_MAXCPU=8  #on machine with large CPU count, steam can be really unstable and this helps a lot
+BOX64_NOGTK=1   #this is for the 64bits version of the client
 
 [steamwebhelper]
 BOX64_DYNAREC_STRONGMEM=1
@@ -375,6 +379,7 @@ BOX64_DYNAREC_STRONGMEM=2
 BOX64_MAXCPU=8
 BOX64_STEAM_VULKAN=1
 BOX64_AVX=0
+BOX64_NOGTK=1
 
 [steamwebhelper]
 BOX64_ARCH=la64
@@ -402,6 +407,7 @@ BOX64_DYNAREC_NOARCH=1
 BOX64_DYNAREC_STRONGMEM=2
 BOX64_MAXCPU=8
 BOX64_STEAM_VULKAN=1
+BOX64_NOGTK=1
 
 [steamwebhelper]
 BOX64_ARCH=rv64

@@ -170,6 +170,41 @@ const char* GetTmpDir() {
     return "/tmp";  // meh...
 }
 
+char* GetSpaceSeparator(char* buff)
+{
+    if(!buff) return NULL;
+    char* p = buff;
+    int inquote = 0;
+    int indoublequote = 0;
+    while(*p) {
+        switch(*p) {
+            case '\"':
+                if(!inquote)
+                    indoublequote = 1 - indoublequote;
+                ++p;
+                break;
+            case '\'':
+                if(!indoublequote)
+                    inquote = 1- inquote;
+                ++p;
+                break;
+            case '\\':
+                if(!inquote)
+                    ++p;
+                ++p;
+                break;
+            case ' ':
+                if(!inquote && !indoublequote)
+                    return p;
+                ++p;
+                break;
+            default:
+                ++p;
+        }
+    }
+    return NULL;
+}
+
 #if defined(RPI) || defined(RK3399) || defined(RK3326)
 void sanitize_mojosetup_gtk_background()
 {

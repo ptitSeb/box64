@@ -1621,7 +1621,7 @@ void myStackAlignGVariantNew(x64emu_t* emu, const char* fmt, uint64_t* st, uint6
 
 #include "my_xcb_defs.h"
 
-#define NXCB 8
+#define NXCB 16
 static my_xcb_connection_t* my_xcb_connects[NXCB] = {0};
 static x64_xcb_connection_t x64_xcb_connects[NXCB] = {0};
 static void* xcb_display[NXCB] = {0};

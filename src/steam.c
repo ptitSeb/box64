@@ -131,6 +131,16 @@ void pressure_vessel(int argc, const char** argv, int nextarg, const char* prog)
         char* p = strrchr(sniper, '/');
         if(p) {
             *p = '\0';
+            if(p) {
+                setenv("BOX64_PRESSURE_ENV_PATH", sniper, 1);
+                // add the folder in the PATH if not already there
+                char* path = getenv("PATH");
+                if(!strstr(path, sniper)) {
+                    char buf[MAX_PATH] = {0};
+                    snprintf(buf, sizeof(buf)-1, "%s:%s", path, sniper);
+                    setenv("PATH", buf, 1);
+                }
+            }
             strcat(sniper, "/../../");
             #ifdef ARM64
             if(!getenv("BOX64_PYTHON3"))

@@ -19,6 +19,9 @@ size_t FileSize(const char* filename);
 // return temp folder (will return /tmp if nothing is correct)
 const char* GetTmpDir(void);
 
+// will return a pointer to the 1st space sparator (so excluding spaces between simple or double quotes or escaped ones). NULL if not found
+char* GetSpaceSeparator(char* buff);
+
 #if defined(RPI) || defined(RK3399) || defined(RK3326)
 void sanitize_mojosetup_gtk_background(void);
 #endif

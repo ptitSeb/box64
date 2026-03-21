@@ -1085,6 +1085,19 @@ int LoadNeededLibs(elfheader_t* h, lib_t *maplib, int local, int bindnow, int de
                     box_free(rpath);
                 rpath = tmp;
                 box_free(origin);
+                if(!FileExist(rpath, 0) && strstr(rpath, "/../../")) {
+                    tmp = (char*)box_calloc(1, strlen(rpath)+1);
+                    strcpy(tmp, rpath);
+                    // check if one "/.." could be removed for the folder to exist
+                    char* p = strstr(tmp, "/../../");
+                    memmove(p, p+3, strlen(p+3)+1);
+                    if(FileExist(tmp, 0)) {
+                        if(rpath!=rpathref)
+                            box_free(rpath);
+                        rpath = tmp;
+                    } else
+                        box_free(tmp);
+                }
             }
             while(strstr(rpath, "${PLATFORM}")) {
                 char* platform = box_strdup("x86_64");
