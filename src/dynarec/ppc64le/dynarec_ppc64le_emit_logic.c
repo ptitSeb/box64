@@ -87,6 +87,42 @@ void emit_xor8c(dynarec_ppc64le_t* dyn, int ninst, int s1, int32_t c, int s3, in
     if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
 }
 
+// emit XOR16 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch, s4 can be same as s2 (and so s2 destroyed)
+void emit_xor16(dynarec_ppc64le_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5)
+{
+    IFX (X_PEND) {
+        SET_DF(s4, d_xor16);
+    } else IFXORNAT (X_ALL) {
+        SET_DFNONE();
+    }
+
+    XOR(s1, s1, s2);
+    BF_EXTRACT(s1, s1, 15, 0);
+
+    IFX (X_PEND) {
+        STH(s1, offsetof(x64emu_t, res), xEmu);
+    }
+
+    CLEAR_FLAGS(s3);
+    IFX (X_ZF | X_SF) {
+        IFX (X_ZF) {
+            CMPDI(s1, 0);
+            BNE(8);
+            ORI(xFlags, xFlags, 1 << F_ZF);
+        }
+        IFX (X_SF) {
+            SRDI(s3, s1, 15);
+            CMPDI(s3, 0);
+            BEQ(8);
+            ORI(xFlags, xFlags, 1 << F_SF);
+        }
+    }
+    IFX (X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
+}
+
 // emit XOR32 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch
 void emit_xor32(dynarec_ppc64le_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4)
 {
@@ -234,6 +270,39 @@ void emit_and8c(dynarec_ppc64le_t* dyn, int ninst, int s1, int32_t c, int s3, in
     if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
 }
 
+// emit AND16 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch
+void emit_and16(dynarec_ppc64le_t* dyn, int ninst, int s1, int s2, int s3, int s4)
+{
+    IFX (X_PEND) {
+        SET_DF(s3, d_tst16);
+    } else IFXORNAT (X_ALL) {
+        SET_DFNONE();
+    }
+
+    AND(s1, s1, s2); // res = s1 & s2
+
+    IFX (X_PEND) {
+        STH(s1, offsetof(x64emu_t, res), xEmu);
+    }
+
+    CLEAR_FLAGS(s3);
+    IFX (X_SF) {
+        SRDI(s3, s1, 15);
+        CMPDI(s3, 0);
+        BEQ(8);
+        ORI(xFlags, xFlags, 1 << F_SF);
+    }
+    IFX (X_ZF) {
+        CMPDI(s1, 0);
+        BNE(8);
+        ORI(xFlags, xFlags, 1 << F_ZF);
+    }
+    IFX (X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
+}
+
 // emit AND32 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch
 void emit_and32(dynarec_ppc64le_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4)
 {
@@ -344,6 +413,40 @@ void emit_or8c(dynarec_ppc64le_t* dyn, int ninst, int s1, int32_t c, int s2, int
 {
     MOV32w(s2, c & 0xff);
     emit_or8(dyn, ninst, s1, s2, s3, s4);
+}
+
+// emit OR16 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch, s4 can be same as s2 (and so s2 destroyed)
+void emit_or16(dynarec_ppc64le_t* dyn, int ninst, int s1, int s2, int s3, int s4)
+{
+    IFX (X_PEND) {
+        SET_DF(s3, d_or16);
+    } else IFXORNAT (X_ALL) {
+        SET_DFNONE();
+    }
+
+    OR(s1, s1, s2);
+    BF_EXTRACT(s1, s1, 15, 0);
+    IFX (X_PEND) {
+        STD(s1, offsetof(x64emu_t, res), xEmu);
+    }
+
+    CLEAR_FLAGS(s3);
+    IFX (X_SF) {
+        SRDI(s3, s1, 15);
+        CMPDI(s3, 0);
+        BEQ(8);
+        ORI(xFlags, xFlags, 1 << F_SF);
+    }
+
+    IFX (X_ZF) {
+        CMPDI(s1, 0);
+        BNE(8);
+        ORI(xFlags, xFlags, 1 << F_ZF);
+    }
+    IFX (X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
 }
 
 // emit OR32 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch

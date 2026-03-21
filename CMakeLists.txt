@@ -1186,6 +1186,7 @@ if(PPC64LE_DYNAREC)
         "${BOX64_ROOT}/src/dynarec/ppc64le/ppc64le_printer.c"
         "${BOX64_ROOT}/src/dynarec/ppc64le/dynarec_ppc64le_jmpnext.c"
         "${BOX64_ROOT}/src/dynarec/ppc64le/dynarec_ppc64le_consts.c"
+        "${BOX64_ROOT}/src/dynarec/ppc64le/updateflags_ppc64le.c"
     )
     set(DYNAREC_ASM
         ${DYNAREC_ASM}
@@ -1196,13 +1197,41 @@ if(PPC64LE_DYNAREC)
     )
 
      set(DYNAREC_PASS
-     "${BOX64_ROOT}/src/dynarec/ppc64le/dynarec_ppc64le_helper.c"
-     "${BOX64_ROOT}/src/dynarec/ppc64le/dynarec_ppc64le_00.c"
-     "${BOX64_ROOT}/src/dynarec/ppc64le/dynarec_ppc64le_66.c"
-     "${BOX64_ROOT}/src/dynarec/ppc64le/dynarec_ppc64le_f0.c"
-     "${BOX64_ROOT}/src/dynarec/ppc64le/dynarec_ppc64le_66f0.c"
-     "${BOX64_ROOT}/src/dynarec/ppc64le/dynarec_ppc64le_emit_math.c"
-     "${BOX64_ROOT}/src/dynarec/ppc64le/dynarec_ppc64le_emit_logic.c"
+    "${BOX64_ROOT}/src/dynarec/ppc64le/dynarec_ppc64le_helper.c"
+    "${BOX64_ROOT}/src/dynarec/ppc64le/dynarec_ppc64le_00.c"
+    "${BOX64_ROOT}/src/dynarec/ppc64le/dynarec_ppc64le_0f.c"
+    "${BOX64_ROOT}/src/dynarec/ppc64le/dynarec_ppc64le_f0.c"
+    "${BOX64_ROOT}/src/dynarec/ppc64le/dynarec_ppc64le_f20f.c"
+    "${BOX64_ROOT}/src/dynarec/ppc64le/dynarec_ppc64le_f30f.c"
+    "${BOX64_ROOT}/src/dynarec/ppc64le/dynarec_ppc64le_66.c"
+    "${BOX64_ROOT}/src/dynarec/ppc64le/dynarec_ppc64le_660f.c"
+    "${BOX64_ROOT}/src/dynarec/ppc64le/dynarec_ppc64le_66f0.c"
+    "${BOX64_ROOT}/src/dynarec/ppc64le/dynarec_ppc64le_66f20f.c"
+    "${BOX64_ROOT}/src/dynarec/ppc64le/dynarec_ppc64le_66f30f.c"
+    "${BOX64_ROOT}/src/dynarec/ppc64le/dynarec_ppc64le_d8.c"
+    "${BOX64_ROOT}/src/dynarec/ppc64le/dynarec_ppc64le_d9.c"
+    "${BOX64_ROOT}/src/dynarec/ppc64le/dynarec_ppc64le_da.c"
+    "${BOX64_ROOT}/src/dynarec/ppc64le/dynarec_ppc64le_db.c"
+    "${BOX64_ROOT}/src/dynarec/ppc64le/dynarec_ppc64le_dc.c"
+    "${BOX64_ROOT}/src/dynarec/ppc64le/dynarec_ppc64le_dd.c"
+    "${BOX64_ROOT}/src/dynarec/ppc64le/dynarec_ppc64le_de.c"
+    "${BOX64_ROOT}/src/dynarec/ppc64le/dynarec_ppc64le_df.c"
+    "${BOX64_ROOT}/src/dynarec/ppc64le/dynarec_ppc64le_avx.c"
+    "${BOX64_ROOT}/src/dynarec/ppc64le/dynarec_ppc64le_avx_0f.c"
+    "${BOX64_ROOT}/src/dynarec/ppc64le/dynarec_ppc64le_avx_0f38.c"
+    "${BOX64_ROOT}/src/dynarec/ppc64le/dynarec_ppc64le_avx_66_0f.c"
+    "${BOX64_ROOT}/src/dynarec/ppc64le/dynarec_ppc64le_avx_66_0f38.c"
+    "${BOX64_ROOT}/src/dynarec/ppc64le/dynarec_ppc64le_avx_66_0f3a.c"
+    "${BOX64_ROOT}/src/dynarec/ppc64le/dynarec_ppc64le_avx_f2_0f.c"
+    "${BOX64_ROOT}/src/dynarec/ppc64le/dynarec_ppc64le_avx_f2_0f38.c"
+    "${BOX64_ROOT}/src/dynarec/ppc64le/dynarec_ppc64le_avx_f2_0f3a.c"
+    "${BOX64_ROOT}/src/dynarec/ppc64le/dynarec_ppc64le_avx_f3_0f.c"
+    "${BOX64_ROOT}/src/dynarec/ppc64le/dynarec_ppc64le_avx_f3_0f38.c"
+    "${BOX64_ROOT}/src/dynarec/ppc64le/dynarec_ppc64le_emit_tests.c"
+    "${BOX64_ROOT}/src/dynarec/ppc64le/dynarec_ppc64le_emit_math.c"
+    "${BOX64_ROOT}/src/dynarec/ppc64le/dynarec_ppc64le_emit_logic.c"
+    "${BOX64_ROOT}/src/dynarec/ppc64le/dynarec_ppc64le_emit_shift.c"
+    "${BOX64_ROOT}/src/dynarec/ppc64le/updateflags_ppc64le_pass.c"
       )
 endif()
 
@@ -1720,6 +1749,13 @@ add_test(Boundary ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
     -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref33.txt
     -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 
+add_test(nan_signbit ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
+    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test34 -D TEST_OUTPUT=tmpfile34.txt
+    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/ref34.txt
+    -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+
+set_tests_properties(nan_signbit PROPERTIES ENVIRONMENT "BOX64_DYNAREC_FASTNAN=0")
+
 #if(NOT CI)
 #    add_test(AppImage ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
 #        -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/test01-x64.AppImage -D TEST_OUTPUT=tmpfileAppImage.txt
@@ -2032,4 +2068,14 @@ if(BOX32)
             -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests32/test23 -D TEST_OUTPUT=tmpfile32_23.txt
             -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests32/ref23.txt
             -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+
+    add_test(NAME gs_segment_32bits COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
+        -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests32/test27 -D TEST_OUTPUT=tmpfile32_27.txt
+        -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests32/ref27.txt
+        -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
+
+    add_test(NAME x87_fld1_32bits COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
+        -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests32/test28 -D TEST_OUTPUT=tmpfile32_28.txt
+        -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests32/ref28.txt
+        -P ${CMAKE_SOURCE_DIR}/runTest.cmake )
 endif()

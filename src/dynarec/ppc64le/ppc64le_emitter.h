@@ -1500,6 +1500,12 @@
 // XX3-form with DM(2) in bits 6-7 of the 8-bit xo field
 #define XXPERMDI(Xt, Xa, Xb, dm) \
     EMIT(XX3_form_gen(60, Xt, Xa, Xb, (10 | (((dm) & 0x3) << 5))))
+// XXPERM — VSX vector permute (POWER9, XX3-form, xo=26)
+// For each byte i: XT[i] = (XA || XT_old)[XB[i] & 0x1F]
+// XB is the control vector; XT is destructive (read as second data source, then overwritten)
+#define XXPERM(Xt, Xa, Xb)    EMIT(XX3_form_gen(60, Xt, Xa, Xb, 26))
+// XXPERMR — VSX vector permute reversed (POWER9, XX3-form, xo=58)
+#define XXPERMR(Xt, Xa, Xb)   EMIT(XX3_form_gen(60, Xt, Xa, Xb, 58))
 
 // XX2-form: OPCD(6) | T(5) | 00000 | B(5) | XO(9) | BX(1) | TX(1)
 #define XX2_form_gen(opcd, t, b, xo) \

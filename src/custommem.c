@@ -3295,28 +3295,54 @@ EXPORT void* box_mmap(void *addr, size_t length, int prot, int flags, int fd, ss
             addr = find47bitBlock(length);
     }
     #endif
-    void* ret = InternalMmap(addr, length, prot, new_flags, fd, offset);
+
+    #ifdef PPC64LE
+    // On ppc64le with 64KB pages, static binaries may expect 4KB memory allocation granularity
+    // If a small allocation is requested, round up to ensure adjacent pages are available
+    size_t actual_length = length;
+    int actual_prot = prot;
+    if(box64_pagesize > 4096 && length < box64_pagesize) {
+        // For small allocations on large-page systems, allocate the full page
+        // to ensure the program can access adjacent 4KB regions as expected
+        if(flags & MAP_ANONYMOUS) {  // any anonymous allocation
+            actual_length = box64_pagesize;
+            // If the original request was PROT_NONE, the static binary might expect
+            // to access the next 4KB region. Map as accessible and mprotect later if needed.
+            if(prot == PROT_NONE) {
+                actual_prot = PROT_READ|PROT_WRITE;
+                printf_dump(LOG_INFO, "PPC64LE: Mapping 0x%zx bytes as RW instead of NONE for static binary compatibility\n", actual_length);
+            } else {
+                printf_dump(LOG_INFO, "PPC64LE: Rounding up mmap from 0x%zx to 0x%zx bytes for static binary compatibility\n", length, actual_length);
+            }
+        }
+    }
+    #else
+    size_t actual_length = length;
+    int actual_prot = prot;
+    #endif
+
+    void* ret = InternalMmap(addr, actual_length, actual_prot, new_flags, fd, offset);
 #if !defined(NOALIGN)
     if((ret!=MAP_FAILED) && (flags&MAP_32BIT) &&
       (((uintptr_t)ret>0xffffffffLL) || ((box64_wine) && ((uintptr_t)ret&0xffff) && (ret!=addr)))) {
         int olderr = errno;
-        InternalMunmap(ret, length);
+        InternalMunmap(ret, actual_length);
         loadProtectionFromMap();    // reload map, because something went wrong previously
-        addr = find31bitBlockNearHint(old_addr, length, 0); // is this the best way?
-        new_flags = (addr && isBlockFree(addr, length) )? (new_flags|MAP_FIXED) : new_flags;
+        addr = find31bitBlockNearHint(old_addr, actual_length, 0); // is this the best way?
+        new_flags = (addr && isBlockFree(addr, actual_length) )? (new_flags|MAP_FIXED) : new_flags;
         if((new_flags&(MAP_FIXED|MAP_FIXED_NOREPLACE))==(MAP_FIXED|MAP_FIXED_NOREPLACE)) new_flags&=~MAP_FIXED_NOREPLACE;
-        ret = InternalMmap(addr, length, prot, new_flags, fd, offset);
+        ret = InternalMmap(addr, actual_length, prot, new_flags, fd, offset);
         if(old_addr && ret!=old_addr && ret!=MAP_FAILED)
             errno = olderr;
     } else if((ret!=MAP_FAILED) && !(flags&MAP_FIXED) && ((box64_wine)) && (addr && (addr!=ret)) &&
              (((uintptr_t)ret>0x7fffffffffffLL) || ((uintptr_t)ret&~0xffff))) {
         int olderr = errno;
-        InternalMunmap(ret, length);
+        InternalMunmap(ret, actual_length);
         loadProtectionFromMap();    // reload map, because something went wrong previously
-        addr = find47bitBlockNearHint(old_addr, length, 0); // is this the best way?
-        new_flags = (addr && isBlockFree(addr, length)) ? (new_flags|MAP_FIXED) : new_flags;
+        addr = find47bitBlockNearHint(old_addr, actual_length, 0); // is this the best way?
+        new_flags = (addr && isBlockFree(addr, actual_length)) ? (new_flags|MAP_FIXED) : new_flags;
         if((new_flags&(MAP_FIXED|MAP_FIXED_NOREPLACE))==(MAP_FIXED|MAP_FIXED_NOREPLACE)) new_flags&=~MAP_FIXED_NOREPLACE;
-        ret = InternalMmap(addr, length, prot, new_flags, fd, offset);
+        ret = InternalMmap(addr, actual_length, prot, new_flags, fd, offset);
         if(old_addr && ret!=old_addr && ret!=MAP_FAILED) {
             errno = olderr;
             if(old_addr>(void*)0x7fffffffff && !have48bits)

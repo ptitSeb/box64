@@ -4,6 +4,7 @@
 // undef to get Close to SSE Float->int conversions
 // #define PRECISE_CVT
 
+#ifndef STEP_PASS
 #if STEP == 0
 #include "dynarec_ppc64le_pass0.h"
 #elif STEP == 1
@@ -13,26 +14,31 @@
 #elif STEP == 3
 #include "dynarec_ppc64le_pass3.h"
 #endif
+#define STEP_PASS
+#endif
 
 #include "debug.h"
 #include "ppc64le_emitter.h"
 #include "../emu/x64primop.h"
 #include "dynarec_ppc64le_consts.h"
 
-// geted() displacement alignment constants.
-// The i12 parameter IS the alignment mask: 0 disables inline displacement,
-// nonzero enables it and specifies the required alignment.
+// Displacement alignment constants for geted() i12 parameter.
+// These are passed as the align_mask directly — geted() uses them to decide
+// whether an inline displacement is valid for the target instruction form.
 //
-// PPC64LE load/store instruction forms have different alignment requirements:
-//   - D-form (LWZ/STW/LBZ/LHZ/LHA/STB/STH): byte-aligned, but we use DS_DISP
-//     because LD/STD (DS-form) require 4-byte alignment and LDxw/SDxw switch
-//     between them at runtime based on rex.w.
-//   - DS-form (LD/STD): 4-byte aligned displacement
-//   - DQ-form (LXV/STXV): 16-byte aligned displacement (low 4 bits silently
-//     truncated by hardware — see ppc64le_emitter.h DQ-form section)
-#define NO_DISP     0       // no inline displacement; always materialize in register
-#define DS_DISP     3       // DS-form: inline if 4-byte aligned and in range
-#define DQ_DISP     15      // DQ-form: inline if 16-byte aligned and in range
+// NO_DISP (0)  — No inline displacement (always use add-to-register path)
+// DS_DISP (3)  — DS-form instructions (LD/STD): displacement must be 4-byte aligned
+// DQ_DISP (15) — DQ-form instructions (LXV/STXV): displacement must be 16-byte aligned
+//
+// WHY THIS EXISTS:
+// PPC64LE DQ-form instructions (LXV/STXV) silently truncate the low 4 bits of
+// the displacement — see the detailed explanation in ppc64le_emitter.h at the
+// DQ-form section. Without DQ_DISP, geted() would accept displacements like
+// 0x24 (4-byte aligned) as valid inline immediates, but LXV would encode them
+// as 0x20, loading from the wrong address with no error.
+#define NO_DISP     0
+#define DS_DISP     3
+#define DQ_DISP     15
 
 #define F8      *(uint8_t*)(addr++)
 #define F8S     *(int8_t*)(addr++)
@@ -50,6 +56,10 @@
 
 // LOCK_* define
 #define LOCK_LOCK (int*)1
+
+// AVX width constants
+#define VMX_AVX_WIDTH_128 0
+#define VMX_AVX_WIDTH_256 1
 
 // ========================================================================
 // Convenience macros for PPC64LE (equivalent to LA64's LDxw, SDxw, etc.)
@@ -198,12 +208,12 @@
             SLDI(Rd, Rs, imm);           \
     } while (0)
 
-// SLADDy: shift-left-and-add (rd = (rj << imm) + rk), conditional 32/64
-// PPC64LE has no fused shift-add, so: if imm==0 then ADD, else SLDI+ADD
+// SLADDy: add-shift-left (rd = (rj << imm) + rk), conditional 32/64
+// PPC64LE has no ALSL_D, so: if imm==0 then ADD, else SLDI+ADD
 // IMPORTANT: When rd==rk, shift into r0 (scratch) first to avoid clobbering rk.
 // This includes the case rd==rj==rk (e.g. LEA rax,[rax+rax*4] => rax = rax*5).
 // r0 is safe in X-form instructions (SLDI, SLWI, ADD) — only D-form base treats r0 as literal 0.
-#define SLADDy(rd, rj, rk, imm)               \
+#define SLADDy(rd, rj, rk, imm)                \
     do {                                       \
         if ((imm) == 0) {                      \
             if (rex.is32bits || rex.is67) {     \
@@ -254,23 +264,26 @@
             ADDI(rd, rj, imm);           \
     } while (0)
 
-// ADDxREGy: add, zero-extending rk to 32-bit first if needed (for seg+reg in 32-bit mode)
+// ADDxREGy: add, sign-extending rk from 32-bit first if needed (for seg+offset in 32-bit mode)
+// Sign-extension (not zero-extension) is needed so that large 32-bit offsets
+// (like 0xFFFFFFF0) wrap correctly when added to the 64-bit segment base,
+// matching ARM64's ADDx_SXTW and RV64's ADDIW idioms.
 #define ADDxREGy(rd, rj, rk, s1)        \
     do {                                 \
         if (rex.is32bits || rex.is67) {  \
-            ZEROUP2(s1, rk);             \
+            SEXT_W(s1, rk);              \
             ADD(rd, rj, s1);             \
         } else                           \
             ADD(rd, rj, rk);             \
     } while (0)
 
-// BF_EXTRACT: extract bits hi:lo from Rs into Ra (zero-extend)
-// Implements via RLDICL(Ra, Rs, (64-lo)%64, 64-(hi-lo+1))
+// BF_EXTRACT equivalent: extract bits hi:lo from Rs into Ra
+// RLDICL(Ra, Rs, (64-lo)%64, 64-(hi-lo+1))
 #define BF_EXTRACT(Ra, Rs, hi, lo) \
     RLDICL(Ra, Rs, (64-(lo))%64, 64-((hi)-(lo)+1))
 
-// BF_INSERT: insert low bits of Rs into Ra at position hi:lo
-// Implements via RLDIMI(Ra, Rs, lo, 63-hi)
+// BF_INSERT equivalent: insert low bits of Rs into Ra at position hi:lo
+// RLDIMI(Ra, Rs, lo, 63-hi)
 // IMPORTANT: When Rs == xZR (r0), r0 is NOT a zero register on PPC64LE.
 // We load 0 into x4 scratch and use that instead.
 #define BF_INSERT(Ra, Rs, hi, lo)                                     \
@@ -287,6 +300,615 @@
 // GETGD    get x64 register in gd
 // ========================================================================
 #define GETGD gd = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3));
+// GETVD    get x64 register in vd
+#define GETVD vd = TO_NAT(vex.v)
+
+// GETGW extract x64 register in gd, that is i
+#define GETGW(i)                                        \
+    gd = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3)); \
+    BF_EXTRACT(i, gd, 15, 0);                           \
+    gd = i;
+
+// GETED can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
+#define GETED(D)                                                                                      \
+    if (MODREG) {                                                                                     \
+        ed = TO_NAT((nextop & 7) + (rex.b << 3));                                                     \
+        wback = 0;                                                                                    \
+    } else {                                                                                          \
+        SMREAD();                                                                                     \
+        addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, DS_DISP, D); \
+        LDxw(x1, wback, fixedaddress);                                                                \
+        ed = x1;                                                                                      \
+    }
+
+#define GETEDz(D)                                                                               \
+    if (MODREG) {                                                                               \
+        ed = TO_NAT((nextop & 7) + (rex.b << 3));                                               \
+        wback = 0;                                                                              \
+    } else {                                                                                    \
+        SMREAD();                                                                               \
+        addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, DS_DISP, D); \
+        LDz(x1, wback, fixedaddress);                                                           \
+        ed = x1;                                                                                \
+    }
+
+// GETEDH can use hint for wback and ret for ed. wback is 0 if ed is xEAX..xEDI
+#define GETEDH(hint, ret, D)                                                                       \
+    if (MODREG) {                                                                                  \
+        ed = TO_NAT((nextop & 7) + (rex.b << 3));                                                  \
+        wback = 0;                                                                                 \
+    } else {                                                                                       \
+        SMREAD();                                                                                  \
+        addr = geted(dyn, addr, ninst, nextop, &wback, hint, ret, &fixedaddress, rex, NULL, DS_DISP, D); \
+        ed = ret;                                                                                  \
+        LDxw(ed, wback, fixedaddress);                                                             \
+    }
+#define GETEDW(hint, ret, D)                                                                       \
+    if (MODREG) {                                                                                  \
+        ed = TO_NAT((nextop & 7) + (rex.b << 3));                                                  \
+        MV(ret, ed);                                                                               \
+        wback = 0;                                                                                 \
+    } else {                                                                                       \
+        SMREAD();                                                                                  \
+        addr = geted(dyn, addr, ninst, nextop, &wback, hint, ret, &fixedaddress, rex, NULL, NO_DISP, D); \
+        ed = ret;                                                                                  \
+        LDxw(ed, wback, fixedaddress);                                                             \
+    }
+// GETEWW will use i for ed, and can use w for wback.
+#define GETEWW(w, i, D)                                                                       \
+    if (MODREG) {                                                                             \
+        wback = TO_NAT((nextop & 7) + (rex.b << 3));                                          \
+        BF_EXTRACT(i, wback, 15, 0);                                                          \
+        ed = i;                                                                               \
+        wb1 = 0;                                                                              \
+    } else {                                                                                  \
+        SMREAD();                                                                             \
+        addr = geted(dyn, addr, ninst, nextop, &wback, w, i, &fixedaddress, rex, NULL, DS_DISP, D); \
+        LHZ(i, fixedaddress, wback);                                                          \
+        ed = i;                                                                               \
+        wb1 = 1;                                                                              \
+    }
+// GETEW will use i for ed, and can use r3 for wback.
+#define GETEW(i, D) GETEWW(x3, i, D)
+
+#define GETGWEW(i, j, D)                                    \
+    GETEW(j, D);                                            \
+    if (MODREG) {                                           \
+        gd = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3)); \
+        if (gd == wback)                                    \
+            gd = ed;                                        \
+        else {                                              \
+            GETGW(i);                                       \
+        }                                                   \
+    } else {                                                \
+        GETGW(i);                                           \
+    }
+
+// GETSED can use r1 for ed, and r2 for wback. ed will be sign extended!
+#define GETSED(D)                                                                               \
+    if (MODREG) {                                                                               \
+        ed = TO_NAT((nextop & 7) + (rex.b << 3));                                               \
+        wback = 0;                                                                              \
+        if (!rex.w) {                                                                           \
+            EXTSW(x1, ed);                                                                      \
+            ed = x1;                                                                            \
+        }                                                                                       \
+    } else {                                                                                    \
+        SMREAD();                                                                               \
+        addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, DS_DISP, D); \
+        if (rex.w)                                                                              \
+            LD(x1, fixedaddress, wback);                                                        \
+        else                                                                                    \
+            LWA(x1, fixedaddress, wback);                                                       \
+        ed = x1;                                                                                \
+    }
+
+// FAKEED like GETED, but doesn't get anything
+#define FAKEED                                    \
+    if (MODREG) {                                 \
+        ed = TO_NAT((nextop & 7) + (rex.b << 3)); \
+        wback = 0;                                \
+    } else {                                      \
+        addr = fakeed(dyn, addr, ninst, nextop);  \
+    }
+
+// GETGW extract x64 register in gd, that is i, Signed extended
+#define GETSGW(i)                                       \
+    gd = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3)); \
+    EXTSH(i, gd);                                        \
+    gd = i;
+
+// Write back ed in wback (if wback not 0)
+#define WBACK                              \
+    if (wback) {                           \
+        SDxw(ed, wback, fixedaddress);     \
+        SMWRITE();                         \
+    }
+
+#define WBACKO(O)                \
+    if (wback) {                 \
+        if (rex.is32bits) {      \
+            ADDz(O, wback, O);   \
+            STW(ed, 0, O);       \
+        } else {                 \
+            SDXxw(ed, wback, O); \
+        }                        \
+        SMWRITE2();              \
+    }
+
+// GETSEW will use i for ed, and can use r3 for wback. This is the Signed version
+#define GETSEW(i, D)                                                                           \
+    if (MODREG) {                                                                              \
+        wback = TO_NAT((nextop & 7) + (rex.b << 3));                                           \
+        EXTSH(i, wback);                                                                       \
+        ed = i;                                                                                \
+        wb1 = 0;                                                                               \
+    } else {                                                                                   \
+        SMREAD();                                                                              \
+        addr = geted(dyn, addr, ninst, nextop, &wback, x3, i, &fixedaddress, rex, NULL, DS_DISP, D); \
+        LHA(i, fixedaddress, wback);                                                           \
+        ed = i;                                                                                \
+        wb1 = 1;                                                                               \
+    }
+// Write w back to original register / memory (w needs to be 16bits only!)
+#define EWBACKW(w)                    \
+    if (wb1) {                        \
+        STH(w, fixedaddress, wback);  \
+        SMWRITE();                    \
+    } else {                          \
+        BF_INSERT(wback, w, 15, 0);   \
+    }
+// Write ed back to original register / memory
+#define EWBACK EWBACKW(ed)
+
+// Write back gd in correct register
+#define GWBACK BF_INSERT((TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3))), gd, 15, 0);
+
+// GETEB will use i for ed, and can use r3 for wback.
+#define GETEB(i, D)                                                                             \
+    if (MODREG) {                                                                               \
+        if (rex.rex) {                                                                          \
+            wback = TO_NAT((nextop & 7) + (rex.b << 3));                                        \
+            wb2 = 0;                                                                            \
+        } else {                                                                                \
+            wback = (nextop & 7);                                                               \
+            wb2 = (wback >> 2) * 8;                                                             \
+            wback = TO_NAT((wback & 3));                                                        \
+        }                                                                                       \
+        BF_EXTRACT(i, wback, wb2 + 7, wb2);                                                     \
+        wb1 = 0;                                                                                \
+        ed = i;                                                                                 \
+    } else {                                                                                    \
+        SMREAD();                                                                               \
+        addr = geted(dyn, addr, ninst, nextop, &wback, x3, x2, &fixedaddress, rex, NULL, DS_DISP, D); \
+        LBZ(i, fixedaddress, wback);                                                            \
+        wb1 = 1;                                                                                \
+        ed = i;                                                                                 \
+    }
+// GETSEB sign extend EB, will use i for ed, and can use r3 for wback.
+#define GETSEB(i, D)                                                                            \
+    if (MODREG) {                                                                               \
+        if (rex.rex) {                                                                          \
+            wback = TO_NAT((nextop & 7) + (rex.b << 3));                                        \
+            wb2 = 0;                                                                            \
+        } else {                                                                                \
+            wback = (nextop & 7);                                                               \
+            wb2 = (wback >> 2) * 8;                                                             \
+            wback = TO_NAT(wback & 3);                                                          \
+        }                                                                                       \
+        if (wb2) {                                                                              \
+            SRDI(i, wback, wb2);                                                                \
+            EXTSB(i, i);                                                                        \
+        } else {                                                                                \
+            EXTSB(i, wback);                                                                    \
+        }                                                                                       \
+        wb1 = 0;                                                                                \
+        ed = i;                                                                                 \
+    } else {                                                                                    \
+        SMREAD();                                                                               \
+        addr = geted(dyn, addr, ninst, nextop, &wback, x3, x2, &fixedaddress, rex, NULL, DS_DISP, D); \
+        LBZ(i, fixedaddress, wback);                                                            \
+        EXTSB(i, i);                                                                            \
+        wb1 = 1;                                                                                \
+        ed = i;                                                                                 \
+    }
+// GETEB32 will use i for ed, and can use r3 for wback.
+#define GETEB32(i, D)                                                                             \
+    if (MODREG) {                                                                                 \
+        if (rex.rex) {                                                                            \
+            wback = TO_NAT((nextop & 7) + (rex.b << 3));                                          \
+            wb2 = 0;                                                                              \
+        } else {                                                                                  \
+            wback = (nextop & 7);                                                                 \
+            wb2 = (wback >> 2) * 8;                                                               \
+            wback = TO_NAT(wback & 3);                                                            \
+        }                                                                                         \
+        BF_EXTRACT(i, wback, wb2 + 7, wb2);                                                       \
+        wb1 = 0;                                                                                  \
+        ed = i;                                                                                   \
+    } else {                                                                                      \
+        SMREAD();                                                                                 \
+        addr = geted32(dyn, addr, ninst, nextop, &wback, x3, x2, &fixedaddress, rex, NULL, DS_DISP, D); \
+        LBZ(i, fixedaddress, wback);                                                              \
+        wb1 = 1;                                                                                  \
+        ed = i;                                                                                   \
+    }
+
+// GETGB will use i for gd
+#define GETGB(i)                                             \
+    if (rex.rex) {                                           \
+        gb1 = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3)); \
+        gb2 = 0;                                             \
+    } else {                                                 \
+        gd = (nextop & 0x38) >> 3;                           \
+        gb2 = ((gd & 4) << 1);                               \
+        gb1 = TO_NAT((gd & 3));                              \
+    }                                                        \
+    gd = i;                                                  \
+    BF_EXTRACT(gd, gb1, gb2 + 7, gb2);
+
+#define GETGBEB(i, j, D)                                         \
+    GETEB(j, D);                                                 \
+    if (MODREG) {                                                \
+        if (rex.rex) {                                           \
+            gb1 = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3)); \
+            gb2 = 0;                                             \
+        } else {                                                 \
+            gd = (nextop & 0x38) >> 3;                           \
+            gb2 = ((gd & 4) << 1);                               \
+            gb1 = TO_NAT((gd & 3));                              \
+        }                                                        \
+        if (gb1 == wback && gb2 == wb2)                          \
+            gd = ed;                                             \
+        else {                                                   \
+            GETGB(i);                                            \
+        }                                                        \
+    } else {                                                     \
+        GETGB(i);                                                \
+    }
+
+// Get GX as a quad (might use x1)
+#define GETGX(a, w)                             \
+    gd = ((nextop & 0x38) >> 3) + (rex.r << 3); \
+    a = sse_get_reg(dyn, ninst, x1, gd, w)
+
+
+#define GETGX_empty(a)                          \
+    gd = ((nextop & 0x38) >> 3) + (rex.r << 3); \
+    a = sse_get_reg_empty(dyn, ninst, x1, gd)
+
+// Get EX as a quad, (x1 is used)
+#define GETEX(a, w, D)                                                                       \
+    if (MODREG) {                                                                            \
+        a = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), w);                     \
+    } else {                                                                                 \
+        SMREAD();                                                                            \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x3, x2, &fixedaddress, rex, NULL, DQ_DISP, D); \
+        a = fpu_get_scratch(dyn);                                                            \
+        LXV(VSXREG(a), fixedaddress, ed);                                                    \
+    }
+
+// Put Back EX if it was a memory and not an emm register
+#define PUTEX(a)                            \
+    if (!MODREG) {                          \
+        STXV(VSXREG(a), fixedaddress, ed);  \
+        SMWRITE2();                         \
+    }
+
+// Get Ex as a double, not a quad (warning, x1 get used, x2 might too)
+#define GETEXSD(a, w, D)                                                                     \
+    if (MODREG) {                                                                            \
+        a = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), w);                     \
+    } else {                                                                                 \
+        SMREAD(); /* TODO */                                                                 \
+        a = fpu_get_scratch(dyn);                                                            \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, DS_DISP, D); \
+        LD(x4, fixedaddress, ed);                                                            \
+        MTVSRD(VSXREG(a), x4);                                                              \
+    }
+
+// Get Ex as 64bits, not a quad (warning, x1 get used, x2 might too)
+#define GETEX64(a, w, D) GETEXSD(a, w, D)
+
+// Get Ex as a single, not a quad (warning, x1 get used)
+#define GETEXSS(a, w, D)                                                                     \
+    if (MODREG) {                                                                            \
+        a = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), w);                     \
+    } else {                                                                                 \
+        SMREAD();                                                                            \
+        a = fpu_get_scratch(dyn);                                                            \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, DS_DISP, D); \
+        LWZ(x4, fixedaddress, ed);                                                           \
+        SLDI(x4, x4, 32);                                                                   \
+        MTVSRD(VSXREG(a), x4);                                                              \
+        XSCVSPDPN(VSXREG(a), VSXREG(a));                                                    \
+    }
+
+// Get Ex as 32bits, not a quad (warning, x1 get used)
+#define GETEX32(a, w, D) GETEXSS(a, w, D)
+
+// Get Ex as 16bits, not a quad (warning, x1 get used)
+#define GETEX16(a, w, D)                                                                     \
+    if (MODREG) {                                                                            \
+        a = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), w);                     \
+    } else {                                                                                 \
+        SMREAD();                                                                            \
+        a = fpu_get_scratch(dyn);                                                            \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, DS_DISP, D); \
+        LHZ(x2, fixedaddress, ed);                                                           \
+        /* TODO: move x2 to FPU reg a */                                                     \
+    }
+
+// Get GM, might use x1, x2 and x3
+#define GETGM(a)                 \
+    gd = ((nextop & 0x38) >> 3); \
+    a = mmx_get_reg(dyn, ninst, x1, x2, x3, gd)
+
+// Get EM, might use x1, x2 and x3
+#define GETEM(a, D)                                                                          \
+    if (MODREG) {                                                                            \
+        a = mmx_get_reg(dyn, ninst, x1, x2, x3, (nextop & 7));                               \
+    } else {                                                                                 \
+        SMREAD();                                                                            \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, DS_DISP, D); \
+        a = fpu_get_scratch(dyn);                                                            \
+        LD(x3, fixedaddress, ed);                                                            \
+        MTVSRDD(VSXREG(a), xZR, x3);                                                        \
+    }
+
+// Put Back Em if it was a memory and not an emm register
+#define PUTEM(a)                                 \
+    if (!MODREG) {                               \
+        MFVSRLD(x3, VSXREG(a));                  \
+        STD(x3, fixedaddress, ed);               \
+        SMWRITE2();                              \
+    }
+
+// Write gb (gd) back to original register / memory, using s1 as scratch
+#define GBBACK() BF_INSERT(gb1, gd, gb2 + 7, gb2);
+
+// Generic get GD, but reg value in gd (R_RAX is not added)
+#define GETG gd = ((nextop & 0x38) >> 3) + (rex.r << 3)
+
+// Write eb (ed) back to original register / memory, using s1 as scratch
+#define EBBACK()                            \
+    if (wb1) {                              \
+        STB(ed, fixedaddress, wback);       \
+        SMWRITE();                          \
+    } else {                                \
+        BF_INSERT(wback, ed, wb2 + 7, wb2); \
+    }
+
+#define YMM_UNMARK_UPPER_ZERO(a)           \
+    do {                                   \
+        dyn->v.avxcache[a].zero_upper = 0; \
+    } while (0)
+
+// AVX helpers
+// Get VX (might use x1)
+#define GETVYx(a, w) \
+    a = avx_get_reg(dyn, ninst, x1, vex.v, w, VMX_AVX_WIDTH_128)
+
+#define GETVYy(a, w) \
+    a = avx_get_reg(dyn, ninst, x1, vex.v, w, VMX_AVX_WIDTH_256)
+
+// Get an empty VX (use x1)
+#define GETVYx_empty(a) \
+    a = avx_get_reg_empty(dyn, ninst, x1, vex.v, VMX_AVX_WIDTH_128)
+
+#define GETVYy_empty(a) \
+    a = avx_get_reg_empty(dyn, ninst, x1, vex.v, VMX_AVX_WIDTH_256)
+
+// Get GX as a quad (might use x1)
+#define GETGYx(a, w)                            \
+    gd = ((nextop & 0x38) >> 3) + (rex.r << 3); \
+    a = avx_get_reg(dyn, ninst, x1, gd, w, VMX_AVX_WIDTH_128)
+
+#define GETGYy(a, w)                            \
+    gd = ((nextop & 0x38) >> 3) + (rex.r << 3); \
+    a = avx_get_reg(dyn, ninst, x1, gd, w, VMX_AVX_WIDTH_256)
+
+#define GETGYx_empty(a)                         \
+    gd = ((nextop & 0x38) >> 3) + (rex.r << 3); \
+    a = avx_get_reg_empty(dyn, ninst, x1, gd, VMX_AVX_WIDTH_128)
+
+#define GETGYy_empty(a)                         \
+    gd = ((nextop & 0x38) >> 3) + (rex.r << 3); \
+    a = avx_get_reg_empty(dyn, ninst, x1, gd, VMX_AVX_WIDTH_256)
+
+// Get EY as a quad, (x1 is used)
+#define GETEYx(a, w, D)                                                                      \
+    if (MODREG) {                                                                            \
+        a = avx_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), w, VMX_AVX_WIDTH_128);  \
+    } else {                                                                                 \
+        SMREAD();                                                                            \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, DQ_DISP, D); \
+        a = fpu_get_scratch(dyn);                                                            \
+        LXV(VSXREG(a), fixedaddress, ed);                                                    \
+    }
+
+#define GETEYy(a, w, D)                                                                      \
+    if (MODREG) {                                                                            \
+        a = avx_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), w, VMX_AVX_WIDTH_256);  \
+    } else {                                                                                 \
+        SMREAD();                                                                            \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, DQ_DISP, D); \
+        a = fpu_get_scratch(dyn);                                                            \
+        /* lower 128 bits; upper 128 must be loaded inline by each 256-bit opcode */            \
+        LXV(VSXREG(a), fixedaddress, ed);                                                    \
+    }
+
+#define GETEYx_empty(a, D)                                                                     \
+    if (MODREG) {                                                                              \
+        a = avx_get_reg_empty(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), VMX_AVX_WIDTH_128); \
+    } else {                                                                                   \
+        SMREAD();                                                                              \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, DQ_DISP, D);   \
+        a = fpu_get_scratch(dyn);                                                              \
+    }
+
+#define GETEYy_empty(a, D)                                                                     \
+    if (MODREG) {                                                                              \
+        a = avx_get_reg_empty(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), VMX_AVX_WIDTH_256); \
+    } else {                                                                                   \
+        SMREAD();                                                                              \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, DQ_DISP, D);   \
+        a = fpu_get_scratch(dyn);                                                              \
+    }
+
+// Get EY as 32bits, (x1 is used)
+#define GETEYSS(a, w, D)                                                                     \
+    if (MODREG) {                                                                            \
+        a = avx_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), w, VMX_AVX_WIDTH_128);  \
+    } else {                                                                                 \
+        SMREAD();                                                                            \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, DS_DISP, D); \
+        a = fpu_get_scratch(dyn);                                                            \
+        LWZ(x4, fixedaddress, ed);                                                           \
+        SLDI(x4, x4, 32);                                                                   \
+        MTVSRD(VSXREG(a), x4);                                                              \
+        XSCVSPDPN(VSXREG(a), VSXREG(a));                                                    \
+    }
+
+#define PUTEYSS(a)                                     \
+    if (!MODREG) {                                     \
+        MFVSRLD(x4, VSXREG(a));                        \
+        STW(x4, fixedaddress, ed);                     \
+        SMWRITE2();                                    \
+    }
+
+// Get EY as 64bits, (x1 is used)
+#define GETEYSD(a, w, D)                                                                     \
+    if (MODREG) {                                                                            \
+        a = avx_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), w, VMX_AVX_WIDTH_128);  \
+    } else {                                                                                 \
+        SMREAD();                                                                            \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, DS_DISP, D); \
+        a = fpu_get_scratch(dyn);                                                            \
+        LD(x4, fixedaddress, ed);                                                            \
+        MTVSRD(VSXREG(a), x4);                                                              \
+    }
+
+#define PUTEYSD(a)                                     \
+    if (!MODREG) {                                     \
+        MFVSRLD(x4, VSXREG(a));                        \
+        STD(x4, fixedaddress, ed);                     \
+        SMWRITE2();                                    \
+    }
+
+#define GETGYxy(a, w) \
+    if (vex.l) {      \
+        GETGYy(a, w); \
+    } else {          \
+        GETGYx(a, w); \
+    }
+
+#define GETGYxy_empty(a) \
+    if (vex.l) {         \
+        GETGYy_empty(a); \
+    } else {             \
+        GETGYx_empty(a); \
+    }
+
+#define GETVYxy(a, w) \
+    if (vex.l) {      \
+        GETVYy(a, w); \
+    } else {          \
+        GETVYx(a, w); \
+    }
+
+#define GETVYxy_empty(a) \
+    if (vex.l) {         \
+        GETVYy_empty(a); \
+    } else {             \
+        GETVYx_empty(a); \
+    }
+
+#define GETEYxy(a, w, D) \
+    if (vex.l) {         \
+        GETEYy(a, w, D); \
+    } else {             \
+        GETEYx(a, w, D); \
+    }
+
+#define GETEYxy_empty(a, D) \
+    if (vex.l) {            \
+        GETEYy_empty(a, D); \
+    } else {                \
+        GETEYx_empty(a, D); \
+    }
+
+// Put Back EY if it was a memory and not an emm register
+#define PUTEYy(a)                   \
+    if (!MODREG) {                  \
+        /* lower 128 bits; upper 128 must be stored inline by each 256-bit opcode */   \
+        STXV(VSXREG(a), fixedaddress, ed);  \
+        SMWRITE2();                 \
+    }
+
+#define PUTEYx(a)                   \
+    if (!MODREG) {                  \
+        STXV(VSXREG(a), fixedaddress, ed);  \
+        SMWRITE2();                 \
+    }
+
+#define PUTEYxy(a) \
+    if (vex.l) {   \
+        PUTEYy(a); \
+    } else {       \
+        PUTEYx(a); \
+    }
+
+// Get empty GY, and non-written VY and EY
+#define GETGY_empty_VYEY_xy(gx, vx, ex, D) \
+    GETVYxy(vx, 0);                        \
+    GETEYxy(ex, 0, D);                     \
+    GETGYxy_empty(gx);
+
+// Get empty GY, and non-written EY
+#define GETGY_empty_EY_xy(gx, ex, D) \
+    GETEYxy(ex, 0, D);               \
+    GETGYxy_empty(gx);
+
+// Get writable GY, and non-written VY and EY
+#define GETGY_VYEY_xy(gx, vx, ex, D) \
+    GETVYxy(vx, 0);                  \
+    GETEYxy(ex, 0, D);               \
+    GETGYxy(gx, 1);
+
+// Get writable GY, and non-written EY
+#define GETGY_EY_xy(gx, ex, D) \
+    GETEYxy(ex, 0, D);         \
+    GETGYxy(gx, 1);
+
+// Get writable EY, and non-written VY and GY
+#define GETEY_VYGY_xy(ex, vx, gx, D) \
+    GETVYxy(vx, 0);                  \
+    GETGYxy(gx, 0);                  \
+    GETEYxy(ex, 1, D);
+
+// Get writable EY, and non-written GY
+#define GETEY_GY_xy(ex, gx, D) \
+    GETGYxy(gx, 0);            \
+    GETEYxy(ex, 1, D);
+
+// Get writable GYx, and non-written VYx, EYSD or EYSS, for FMA SD/SS insts.
+#define GETGYx_VYx_EYxw(gx, vx, ex, D) \
+    GETVYx(vx, 0);                     \
+    if (rex.w) {                       \
+        GETEYSD(ex, 0, D)              \
+    } else {                           \
+        GETEYSS(ex, 0, D);             \
+    }                                  \
+    GETGYx(gx, 1);
+
+// Get direction with size Z and based of F_DF flag, on register r ready for load/store fetching
+// using s as scratch.
+#define GETDIR(r, s, Z)            \
+    MOV32w(r, Z); /* mask=1<<10 */ \
+    ANDId(s, xFlags, 1 << F_DF);   \
+    BEQ(4 + 4);                    \
+    NEG(r, r);
 
 // GETED can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
 #define GETED(D)                                                                                      \
@@ -719,11 +1341,13 @@
 // READFLAGS / SETFLAGS / GRABFLAGS
 // ========================================================================
 #ifndef READFLAGS
-#define READFLAGS(A)                           \
-    if ((A) != X_PEND                          \
-        && (dyn->f == status_unk)) {           \
-        CALL_(const_updateflags, -1, 0, 0, 0); \
-        dyn->f = status_none;                  \
+#define READFLAGS(A)                                \
+    if ((A) != X_PEND                               \
+        && (dyn->f == status_unk)) {                \
+        TABLE64C(x6, const_updateflags_ppc64le);    \
+        MTCTR(x6);                                  \
+        BCTRL();                                    \
+        dyn->f = status_none;                       \
     }
 #endif
 
@@ -760,7 +1384,9 @@
 #define GRABFLAGS(A)                                             \
     if ((A) != X_PEND                                            \
         && ((dyn->f == status_unk) || (dyn->f == status_set))) { \
-        CALL_(const_updateflags, -1, 0, 0, 0);                   \
+        TABLE64C(x6, const_updateflags_ppc64le);                 \
+        MTCTR(x6);                                               \
+        BCTRL();                                                 \
         dyn->f = status_none;                                    \
     }
 
@@ -908,6 +1534,8 @@
 #endif
 
 #define native_pass STEPNAME(native_pass)
+
+#define updateflags_pass STEPNAME(updateflags_pass)
 
 #define dynarec64_00          STEPNAME(dynarec64_00)
 #define dynarec64_0F          STEPNAME(dynarec64_0F)
@@ -1415,6 +2043,93 @@ uintptr_t dynarec64_DF(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
 #endif
 
 // ========================================================================
+// GOCOND — conditional jump/set/cmov dispatch
+// ========================================================================
+// PPC64LE adaptation: SRLI_D → SRDI, ANDI → ANDId (which sets CR0)
+// ANDId always sets CR0, so we can branch on it directly.
+// But for the GO() macro pattern, we keep using BxxZ_gen / CBNZ etc.
+// as the GO() caller provides the branch decision.
+#define GOCOND(B, T1, T2)                                                                                    \
+    case B + 0x0:                                                                                            \
+        INST_NAME(T1 "O " T2);                                                                               \
+        GO(ANDId(tmp1, xFlags, 1 << F_OF), EQZ, NEZ, _, _, X_OF, X64_JMP_JO);                                \
+        break;                                                                                               \
+    case B + 0x1:                                                                                            \
+        INST_NAME(T1 "NO " T2);                                                                              \
+        GO(ANDId(tmp1, xFlags, 1 << F_OF), NEZ, EQZ, _, _, X_OF, X64_JMP_JNO);                               \
+        break;                                                                                               \
+    case B + 0x2:                                                                                            \
+        INST_NAME(T1 "C " T2);                                                                               \
+        GO(ANDId(tmp1, xFlags, 1 << F_CF), EQZ, NEZ, GEU, LTU, X_CF, X64_JMP_JC);                            \
+        break;                                                                                               \
+    case B + 0x3:                                                                                            \
+        INST_NAME(T1 "NC " T2);                                                                              \
+        GO(ANDId(tmp1, xFlags, 1 << F_CF), NEZ, EQZ, LTU, GEU, X_CF, X64_JMP_JNC);                           \
+        break;                                                                                               \
+    case B + 0x4:                                                                                            \
+        INST_NAME(T1 "Z " T2);                                                                               \
+        GO(ANDId(tmp1, xFlags, 1 << F_ZF), EQZ, NEZ, NE, EQ, X_ZF, X64_JMP_JZ);                              \
+        break;                                                                                               \
+    case B + 0x5:                                                                                            \
+        INST_NAME(T1 "NZ " T2);                                                                              \
+        GO(ANDId(tmp1, xFlags, 1 << F_ZF), NEZ, EQZ, EQ, NE, X_ZF, X64_JMP_JNZ);                             \
+        break;                                                                                               \
+    case B + 0x6:                                                                                            \
+        INST_NAME(T1 "BE " T2);                                                                              \
+        GO(ANDId(tmp1, xFlags, (1 << F_CF) | (1 << F_ZF)), EQZ, NEZ, GTU, LEU, X_CF | X_ZF, X64_JMP_JBE);    \
+        break;                                                                                               \
+    case B + 0x7:                                                                                            \
+        INST_NAME(T1 "NBE " T2);                                                                             \
+        GO(ANDId(tmp1, xFlags, (1 << F_CF) | (1 << F_ZF)), NEZ, EQZ, LEU, GTU, X_CF | X_ZF, X64_JMP_JNBE);   \
+        break;                                                                                               \
+    case B + 0x8:                                                                                            \
+        INST_NAME(T1 "S " T2);                                                                               \
+        GO(ANDId(tmp1, xFlags, 1 << F_SF), EQZ, NEZ, GE, LT, X_SF, X64_JMP_JS);                              \
+        break;                                                                                               \
+    case B + 0x9:                                                                                            \
+        INST_NAME(T1 "NS " T2);                                                                              \
+        GO(ANDId(tmp1, xFlags, 1 << F_SF), NEZ, EQZ, LT, GE, X_SF, X64_JMP_JNS);                             \
+        break;                                                                                               \
+    case B + 0xA:                                                                                            \
+        INST_NAME(T1 "P " T2);                                                                               \
+        GO(ANDId(tmp1, xFlags, 1 << F_PF), EQZ, NEZ, _, _, X_PF, X64_JMP_JP);                                \
+        break;                                                                                               \
+    case B + 0xB:                                                                                            \
+        INST_NAME(T1 "NP " T2);                                                                              \
+        GO(ANDId(tmp1, xFlags, 1 << F_PF), NEZ, EQZ, _, _, X_PF, X64_JMP_JNP);                               \
+        break;                                                                                               \
+    case B + 0xC:                                                                                            \
+        INST_NAME(T1 "L " T2);                                                                               \
+        GO(SRDI(tmp1, xFlags, F_OF - F_SF);                                                                  \
+            XOR(tmp1, tmp1, xFlags);                                                                         \
+            ANDId(tmp1, tmp1, 1 << F_SF), EQZ, NEZ, GE, LT, X_SF | X_OF, X64_JMP_JL);                        \
+        break;                                                                                               \
+    case B + 0xD:                                                                                            \
+        INST_NAME(T1 "GE " T2);                                                                              \
+        GO(SRDI(tmp1, xFlags, F_OF - F_SF);                                                                  \
+            XOR(tmp1, tmp1, xFlags);                                                                         \
+            ANDId(tmp1, tmp1, 1 << F_SF), NEZ, EQZ, LT, GE, X_SF | X_OF, X64_JMP_JGE);                       \
+        break;                                                                                               \
+    case B + 0xE:                                                                                            \
+        INST_NAME(T1 "LE " T2);                                                                              \
+        GO(SRDI(tmp1, xFlags, F_OF - F_SF);                                                                  \
+            XOR(tmp1, tmp1, xFlags);                                                                         \
+            ANDId(tmp1, tmp1, 1 << F_SF);                                                                    \
+            ANDId(tmp3, xFlags, 1 << F_ZF);                                                                  \
+            OR(tmp1, tmp1, tmp3);                                                                            \
+            ANDId(tmp1, tmp1, (1 << F_SF) | (1 << F_ZF)), EQZ, NEZ, GT, LE, X_SF | X_OF | X_ZF, X64_JMP_JLE); \
+        break;                                                                                               \
+    case B + 0xF:                                                                                            \
+        INST_NAME(T1 "G " T2);                                                                               \
+        GO(SRDI(tmp1, xFlags, F_OF - F_SF);                                                                  \
+            XOR(tmp1, tmp1, xFlags);                                                                         \
+            ANDId(tmp1, tmp1, 1 << F_SF);                                                                    \
+            ANDId(tmp3, xFlags, 1 << F_ZF);                                                                  \
+            OR(tmp1, tmp1, tmp3);                                                                            \
+            ANDId(tmp1, tmp1, (1 << F_SF) | (1 << F_ZF)), NEZ, EQZ, LE, GT, X_SF | X_OF | X_ZF, X64_JMP_JG);  \
+        break
+
+// ========================================================================
 // Native flag fusion macros for PPC64LE
 // ========================================================================
 // PPC64LE needs separate compare + branch instructions (unlike LA64 which
@@ -1786,97 +2501,6 @@ uintptr_t dynarec64_DF(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
             opcode = F8;                           \
         }
 
-// PPC64LE has no LBT — RESTORE_EFLAGS / SPILL_EFLAGS are empty
-#define RESTORE_EFLAGS(s)
-#define SPILL_EFLAGS()
-
-// ========================================================================
-// GOCOND — conditional jump/set/cmov dispatch
-// ========================================================================
-// PPC64LE adaptation: SRLI_D → SRDI, ANDI → ANDId (which sets CR0)
-// ANDId always sets CR0, so we can branch on it directly.
-// But for the GO() macro pattern, we keep using BxxZ_gen / CBNZ etc.
-// as the GO() caller provides the branch decision.
-#define GOCOND(B, T1, T2)                                                                                    \
-    case B + 0x0:                                                                                            \
-        INST_NAME(T1 "O " T2);                                                                               \
-        GO(ANDId(tmp1, xFlags, 1 << F_OF), EQZ, NEZ, _, _, X_OF, X64_JMP_JO);                                \
-        break;                                                                                               \
-    case B + 0x1:                                                                                            \
-        INST_NAME(T1 "NO " T2);                                                                              \
-        GO(ANDId(tmp1, xFlags, 1 << F_OF), NEZ, EQZ, _, _, X_OF, X64_JMP_JNO);                               \
-        break;                                                                                               \
-    case B + 0x2:                                                                                            \
-        INST_NAME(T1 "C " T2);                                                                               \
-        GO(ANDId(tmp1, xFlags, 1 << F_CF), EQZ, NEZ, GEU, LTU, X_CF, X64_JMP_JC);                            \
-        break;                                                                                               \
-    case B + 0x3:                                                                                            \
-        INST_NAME(T1 "NC " T2);                                                                              \
-        GO(ANDId(tmp1, xFlags, 1 << F_CF), NEZ, EQZ, LTU, GEU, X_CF, X64_JMP_JNC);                           \
-        break;                                                                                               \
-    case B + 0x4:                                                                                            \
-        INST_NAME(T1 "Z " T2);                                                                               \
-        GO(ANDId(tmp1, xFlags, 1 << F_ZF), EQZ, NEZ, NE, EQ, X_ZF, X64_JMP_JZ);                              \
-        break;                                                                                               \
-    case B + 0x5:                                                                                            \
-        INST_NAME(T1 "NZ " T2);                                                                              \
-        GO(ANDId(tmp1, xFlags, 1 << F_ZF), NEZ, EQZ, EQ, NE, X_ZF, X64_JMP_JNZ);                             \
-        break;                                                                                               \
-    case B + 0x6:                                                                                            \
-        INST_NAME(T1 "BE " T2);                                                                              \
-        GO(ANDId(tmp1, xFlags, (1 << F_CF) | (1 << F_ZF)), EQZ, NEZ, GTU, LEU, X_CF | X_ZF, X64_JMP_JBE);    \
-        break;                                                                                               \
-    case B + 0x7:                                                                                            \
-        INST_NAME(T1 "NBE " T2);                                                                             \
-        GO(ANDId(tmp1, xFlags, (1 << F_CF) | (1 << F_ZF)), NEZ, EQZ, LEU, GTU, X_CF | X_ZF, X64_JMP_JNBE);   \
-        break;                                                                                               \
-    case B + 0x8:                                                                                            \
-        INST_NAME(T1 "S " T2);                                                                               \
-        GO(ANDId(tmp1, xFlags, 1 << F_SF), EQZ, NEZ, GE, LT, X_SF, X64_JMP_JS);                              \
-        break;                                                                                               \
-    case B + 0x9:                                                                                            \
-        INST_NAME(T1 "NS " T2);                                                                              \
-        GO(ANDId(tmp1, xFlags, 1 << F_SF), NEZ, EQZ, LT, GE, X_SF, X64_JMP_JNS);                             \
-        break;                                                                                               \
-    case B + 0xA:                                                                                            \
-        INST_NAME(T1 "P " T2);                                                                               \
-        GO(ANDId(tmp1, xFlags, 1 << F_PF), EQZ, NEZ, _, _, X_PF, X64_JMP_JP);                                \
-        break;                                                                                               \
-    case B + 0xB:                                                                                            \
-        INST_NAME(T1 "NP " T2);                                                                              \
-        GO(ANDId(tmp1, xFlags, 1 << F_PF), NEZ, EQZ, _, _, X_PF, X64_JMP_JNP);                               \
-        break;                                                                                               \
-    case B + 0xC:                                                                                            \
-        INST_NAME(T1 "L " T2);                                                                               \
-        GO(SRDI(tmp1, xFlags, F_OF - F_SF);                                                                  \
-            XOR(tmp1, tmp1, xFlags);                                                                         \
-            ANDId(tmp1, tmp1, 1 << F_SF), EQZ, NEZ, GE, LT, X_SF | X_OF, X64_JMP_JL);                        \
-        break;                                                                                               \
-    case B + 0xD:                                                                                            \
-        INST_NAME(T1 "GE " T2);                                                                              \
-        GO(SRDI(tmp1, xFlags, F_OF - F_SF);                                                                  \
-            XOR(tmp1, tmp1, xFlags);                                                                         \
-            ANDId(tmp1, tmp1, 1 << F_SF), NEZ, EQZ, LT, GE, X_SF | X_OF, X64_JMP_JGE);                       \
-        break;                                                                                               \
-    case B + 0xE:                                                                                            \
-        INST_NAME(T1 "LE " T2);                                                                              \
-        GO(SRDI(tmp1, xFlags, F_OF - F_SF);                                                                  \
-            XOR(tmp1, tmp1, xFlags);                                                                         \
-            ANDId(tmp1, tmp1, 1 << F_SF);                                                                    \
-            ANDId(tmp3, xFlags, 1 << F_ZF);                                                                  \
-            OR(tmp1, tmp1, tmp3);                                                                            \
-            ANDId(tmp1, tmp1, (1 << F_SF) | (1 << F_ZF)), EQZ, NEZ, GT, LE, X_SF | X_OF | X_ZF, X64_JMP_JLE); \
-        break;                                                                                               \
-    case B + 0xF:                                                                                            \
-        INST_NAME(T1 "G " T2);                                                                               \
-        GO(SRDI(tmp1, xFlags, F_OF - F_SF);                                                                  \
-            XOR(tmp1, tmp1, xFlags);                                                                         \
-            ANDId(tmp1, tmp1, 1 << F_SF);                                                                    \
-            ANDId(tmp3, xFlags, 1 << F_ZF);                                                                  \
-            OR(tmp1, tmp1, tmp3);                                                                            \
-            ANDId(tmp1, tmp1, (1 << F_SF) | (1 << F_ZF)), NEZ, EQZ, LE, GT, X_SF | X_OF | X_ZF, X64_JMP_JG);  \
-        break
-
 // ========================================================================
 // FCOM — set x87 Status Word C0/C2/C3 from FP comparison
 // ========================================================================
@@ -1971,6 +2595,10 @@ uintptr_t dynarec64_DF(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
 
 #define FCOMIS(v1, v2, s1, s2) FCOMI(S, v1, v2, s1, s2)
 #define FCOMID(v1, v2, s1, s2) FCOMI(D, v1, v2, s1, s2)
+
+// PPC64LE has no LBT — RESTORE_EFLAGS / SPILL_EFLAGS are empty
+#define RESTORE_EFLAGS(s)
+#define SPILL_EFLAGS()
 
 // SNEZ: Set if Not Equal to Zero — dst = (src != 0) ? 1 : 0
 // Uses SUBFIC+SUBFE+NEG sequence: carry-based detection
@@ -2109,6 +2737,10 @@ uintptr_t dynarec64_DF(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
         LWSYNC();                                            \
     } while (0)
 
+#ifndef SCRATCH_USAGE
+#define SCRATCH_USAGE(usage)
+#endif
+
 // ========================================================================
 // REVBxw — byte-reverse (BSWAP) for 32 or 64 bits
 // ========================================================================
@@ -2127,9 +2759,5 @@ uintptr_t dynarec64_DF(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
             ZEROUP(Rd);                                   \
         }                                                 \
     } while (0)
-
-#ifndef SCRATCH_USAGE
-#define SCRATCH_USAGE(usage)
-#endif
 
 #endif //__DYNAREC_PPC64LE_HELPER_H__

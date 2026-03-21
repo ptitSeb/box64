@@ -64,6 +64,51 @@ x64_stack_t* sigstack_getstack() {
     return (x64_stack_t*)pthread_getspecific(sigstack_key);
 }
 
+// Native alternate signal stack for box64's own signal handlers (SIGSEGV, etc.)
+// This ensures signals can be delivered even when the emulated program overflows its stack.
+static pthread_key_t native_altstack_key;
+static pthread_once_t native_altstack_key_once = PTHREAD_ONCE_INIT;
+
+static void native_altstack_destroy(void* p) {
+    if(p) {
+        // Disable the alt stack before freeing
+        stack_t disable = {0};
+        disable.ss_flags = SS_DISABLE;
+        sigaltstack(&disable, NULL);
+        box_free(p);
+    }
+}
+
+static void native_altstack_key_alloc() {
+    pthread_key_create(&native_altstack_key, native_altstack_destroy);
+}
+
+void setupNativeAltStack(void)
+{
+    pthread_once(&native_altstack_key_once, native_altstack_key_alloc);
+    // Check if this thread already has an alt stack set up
+    if(pthread_getspecific(native_altstack_key))
+        return;
+    // Use SIGSTKSZ or 64KB, whichever is larger, for the alt stack
+    size_t sz = (SIGSTKSZ > 65536) ? SIGSTKSZ : 65536;
+    void* mem = box_calloc(1, sz);
+    if(!mem) {
+        printf_log(LOG_INFO, "Warning: failed to allocate native signal alternate stack for thread %04d\n", GetTID());
+        return;
+    }
+    stack_t ss = {0};
+    ss.ss_sp = mem;
+    ss.ss_size = sz;
+    ss.ss_flags = 0;
+    if(sigaltstack(&ss, NULL) != 0) {
+        printf_log(LOG_INFO, "Warning: sigaltstack failed for thread %04d: %s\n", GetTID(), strerror(errno));
+        box_free(mem);
+        return;
+    }
+    pthread_setspecific(native_altstack_key, mem);
+    printf_log(LOG_DEBUG, "Native signal alt stack set up for thread %04d (%p, size=%zu)\n", GetTID(), mem, sz);
+}
+
 #ifndef DYNAREC
 dynablock_t* FindDynablockFromNativeAddress(void* addr) {return NULL;}
 uintptr_t getX64Address(dynablock_t* db, uintptr_t pc) {return 0;}
@@ -1690,17 +1735,19 @@ void init_signal_helper(box64context_t* context)
     for(int i=0; i<=MAX_SIGNAL; ++i) {
         context->signals[i] = 0;    // SIG_DFL
     }
+    // Set up native alternate signal stack for the main thread
+    setupNativeAltStack();
     struct sigaction action = {0};
-    action.sa_flags = SA_SIGINFO | SA_RESTART | SA_NODEFER;
+    action.sa_flags = SA_SIGINFO | SA_RESTART | SA_NODEFER | SA_ONSTACK;
     action.sa_sigaction = my_box64signalhandler;
     sigaction(SIGSEGV, &action, NULL);
-    action.sa_flags = SA_SIGINFO | SA_RESTART | SA_NODEFER;
+    action.sa_flags = SA_SIGINFO | SA_RESTART | SA_NODEFER | SA_ONSTACK;
     action.sa_sigaction = my_box64signalhandler;
     sigaction(SIGBUS, &action, NULL);
-    action.sa_flags = SA_SIGINFO | SA_RESTART | SA_NODEFER;
+    action.sa_flags = SA_SIGINFO | SA_RESTART | SA_NODEFER | SA_ONSTACK;
     action.sa_sigaction = my_box64signalhandler;
     sigaction(SIGILL, &action, NULL);
-    action.sa_flags = SA_SIGINFO | SA_RESTART | SA_NODEFER;
+    action.sa_flags = SA_SIGINFO | SA_RESTART | SA_NODEFER | SA_ONSTACK;
     action.sa_sigaction = my_box64signalhandler;
     sigaction(SIGABRT, &action, NULL);
 

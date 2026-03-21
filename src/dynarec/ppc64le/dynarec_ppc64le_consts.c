@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <string.h>
 
 #include "dynarec_ppc64le_consts.h"
 #include "debug.h"
@@ -20,6 +21,16 @@
 #include "x64test.h"
 #include "dynarec/dynarec_next.h"
 #include "random.h"
+
+void* create_updateflags();
+
+static const int8_t mask_shift8[] = { -7, -6, -5, -4, -3, -2, -1, 0 };
+static const int8_t mask_string8[] = { 7, 6, 5, 4, 3, 2, 1, 0 };
+static const int8_t mask_string16[] = { 15, 14, 13, 12, 11, 10, 9, 8 };
+static const float addsubps[4] = {-1.f, 1.f, -1.f, 1.f};
+static const double addsubpd[2] = {-1., 1.};
+static const float subaddps[4] = {1.f, -1.f, 1.f, -1.f};
+static const double subaddpd[2] = {1., -1.};
 
 
 #ifndef HAVE_TRACE
@@ -60,16 +71,16 @@ uintptr_t getConst(ppc64le_consts_t which)
         case const_native_pclmul: return (uintptr_t)native_pclmul;
         case const_native_pclmul_x: return (uintptr_t)native_pclmul_x;
         case const_native_pclmul_y: return (uintptr_t)native_pclmul_y;
-        case const_direct_f2xm1: return (uintptr_t)direct_f2xm1;
-        case const_direct_fyl2x: return (uintptr_t)direct_fyl2x;
-        case const_direct_fyl2xp1: return (uintptr_t)direct_fyl2xp1;
+        case const_native_f2xm1: return (uintptr_t)native_f2xm1;
+        case const_native_fyl2x: return (uintptr_t)native_fyl2x;
+        case const_native_fyl2xp1: return (uintptr_t)native_fyl2xp1;
         case const_native_fxtract: return (uintptr_t)native_fxtract;
-        case const_direct_ftan: return (uintptr_t)direct_ftan;
-        case const_direct_fpatan: return (uintptr_t)direct_fpatan;
-        case const_direct_fcos: return (uintptr_t)direct_fcos;
-        case const_direct_fsin: return (uintptr_t)direct_fsin;
+        case const_native_ftan: return (uintptr_t)native_ftan;
+        case const_native_fpatan: return (uintptr_t)native_fpatan;
+        case const_native_fcos: return (uintptr_t)native_fcos;
+        case const_native_fsin: return (uintptr_t)native_fsin;
         case const_native_fsincos: return (uintptr_t)native_fsincos;
-        case const_direct_fscale: return (uintptr_t)direct_fscale;
+        case const_native_fscale: return (uintptr_t)native_fscale;
         case const_native_fprem: return (uintptr_t)native_fprem;
         case const_native_fprem1: return (uintptr_t)native_fprem1;
         case const_native_fld: return (uintptr_t)native_fld;
@@ -113,6 +124,7 @@ uintptr_t getConst(ppc64le_consts_t which)
         case const_fpu_fbld: return (uintptr_t)fpu_fbld;
         case const_fpu_fbst: return (uintptr_t)fpu_fbst;
         case const_updateflags: return (uintptr_t)UpdateFlags;
+        case const_updateflags_ppc64le: return (uintptr_t)create_updateflags();
         case const_sse42_compare_string_explicit_len: return (uintptr_t)sse42_compare_string_explicit_len;
         case const_sse42_compare_string_implicit_len: return (uintptr_t)sse42_compare_string_implicit_len;
         case const_x64test_step: return (uintptr_t)x64test_step;
@@ -122,6 +134,13 @@ uintptr_t getConst(ppc64le_consts_t which)
         case const_jmptbl48: return getJumpTable48();
         case const_jmptbl64: return getJumpTable64();
         case const_context: return (uintptr_t)my_context;
+        case const_8b_m7_m6_m5_m4_m3_m2_m1_0: return (uintptr_t)&mask_shift8;
+        case const_8b_7_6_5_4_3_2_1_0: return (uintptr_t)&mask_string8;
+        case const_8b_15_14_13_12_11_10_9_8: return (uintptr_t)&mask_string16;
+        case const_4f_m1_1_m1_1: return (uintptr_t)&addsubps;
+        case const_4f_1_m1_1_m1: return (uintptr_t)&subaddps;
+        case const_2d_m1_1: return (uintptr_t)&addsubpd;
+        case const_2d_1_m1: return (uintptr_t)&subaddpd;
 
         case const_last: dynarec_log(LOG_NONE, "Warning, const last used\n");
             return 0;

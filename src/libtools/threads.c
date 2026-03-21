@@ -12,6 +12,7 @@
 #include "debug.h"
 #include "box64context.h"
 #include "threads.h"
+#include "signals.h"
 #include "emu/x64emu_private.h"
 #include "x64emu.h"
 #include "box64stack.h"
@@ -254,6 +255,8 @@ void thread_set_emu(x64emu_t* emu)
 	add_thread((void*)et->self, et);
 	#endif
 	pthread_setspecific(thread_key, et);
+	// Ensure this thread has a native signal alternate stack
+	setupNativeAltStack();
 }
 
 x64emu_t* thread_get_emu()
@@ -291,6 +294,9 @@ void thread_set_et(emuthread_t* et)
 	add_thread((void*)(et?et->self:pthread_self()), et);
 	#endif
 	pthread_setspecific(thread_key, et);
+	// Ensure this thread has a native signal alternate stack
+	if(et)
+		setupNativeAltStack();
 }
 
 static void* pthread_routine(void* p)
@@ -306,6 +312,8 @@ static void* pthread_routine(void* p)
 		}
 	}
 	pthread_setspecific(thread_key, p);
+	// setup native signal alternate stack for this thread
+	setupNativeAltStack();
 	// call the function
 	emuthread_t *et = (emuthread_t*)p;
 	et->emu->type = EMUTYPE_MAIN;

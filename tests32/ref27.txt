@@ -1,0 +1,7 @@
+gs:[0] = 0xdeadbeef
+gs:[16] = 0xcafebabe
+gs:[256] = 0x12345678
+gs:[512] write/read = 0xabcd1234
+gs:moffs write/read = 0x55aa55aa
+gs:moffs read = 0x99887766
+GS segment tests passed
