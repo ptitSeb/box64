@@ -2708,7 +2708,53 @@ EXPORT int32_t my_execv(x64emu_t* emu, const char* path, char* const argv[])
     int x86 = my_context->box86path?FileIsX86ELF(path):0;
     int script = (my_context->bashpath && FileIsShell(path))?1:0;
     printf_log(LOG_DEBUG, "execv(\"%s\", %p) is x64=%d x86=%d script=%d self=%d\n", path, argv, x64, x86, script, self);
-    #if 1
+    {
+        int n = 0;
+        while (argv[n])
+            ++n;
+        char** newargv = (char**)box_calloc(n + 1, sizeof(char*));
+        for (int i = 0; i <= n; ++i)
+            newargv[i] = argv[i];
+        if (n == 3 && !strcmp(newargv[0], "sh") && !strcmp(newargv[1], "-c") && strstr(newargv[2], "steamwebhelper.sh")) {
+            // For some reason, Steam UI on RISC-V/LoongArch does not have hardware accel.
+            // To workaround this, we insert `--enable-features=Vulkan` to the exec of steamwebhelper to force Vulkan.
+            // For cases where there is an existing `--enable-features=` string:
+            static const char* vulkanstr1 = "Vulkan,";
+            static const char* searchstr1 = "--enable-features=";
+            // For cases where there is no existing `--enable-features=` string:
+            static const char* vulkanstr2 = "--enable-features=Vulkan ";
+            static const char* searchstr2 = "--disable-features=";
+
+            size_t bufsize = strlen(newargv[2]) + strlen(vulkanstr1);
+            char* pos = strstr(newargv[2], searchstr1);
+            if (!pos) {
+                size_t bufsize = strlen(newargv[2]) + strlen(vulkanstr2);
+                pos = strstr(newargv[2], searchstr2);
+                if (!pos) goto do_exec;
+
+                char* newstr = (char*)box_calloc(bufsize + 1, 1);
+                size_t insertat = pos - newargv[2];
+                strncpy(newstr, newargv[2], insertat);
+                newstr[insertat] = '\0';
+                strcat(newstr, vulkanstr2);
+                strcat(newstr, newargv[2] + insertat);
+                newargv[2] = newstr;
+                goto do_exec;
+            }
+            char* newstr = (char*)box_calloc(bufsize + 1, 1);
+            size_t insertat = pos - newargv[2] + strlen(searchstr1);
+            strncpy(newstr, newargv[2], insertat);
+            newstr[insertat] = '\0';
+            strcat(newstr, vulkanstr1);
+            strcat(newstr, newargv[2] + insertat);
+            newargv[2] = newstr;
+        }
+    do_exec:
+        int ret = execv(path, (void*)newargv);
+        box_free(newargv);
+        return ret;
+    }
+#if 1
     if (x64 || x86 || script || self) {
         int skip_first = 0;
         if(strlen(path)>=strlen("wine64-preloader") && strcmp(path+strlen(path)-strlen("wine64-preloader"), "wine64-preloader")==0)
@@ -2743,7 +2789,7 @@ EXPORT int32_t my_execv(x64emu_t* emu, const char* path, char* const argv[])
         box_free(newargv);
         return ret;
     }
-    #endif
+#endif
     return execv(path, argv);
 }
 
