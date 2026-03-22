@@ -135,6 +135,11 @@ static void atfork_child_box64context(void)
 {
     // (re)init mutex if it was lock before the fork
     init_mutexes(my_context);
+    #ifdef DYNAREC
+    // Cancel FillBlock if needed
+    void CancelBlock64(int need_lock);
+    CancelBlock64(0);
+    #endif
 }
 
 int box64_cycle_log_initialized = 0;
