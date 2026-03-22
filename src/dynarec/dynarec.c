@@ -14,11 +14,11 @@
 #include "emu/x64run_private.h"
 #include "x64trace.h"
 #include "threads.h"
+#include "alternate.h"
 #ifdef DYNAREC
 #include "dynablock.h"
 #include "dynablock_private.h"
 #include "bridge.h"
-#include "alternate.h"
 #include "dynarec_next.h"
 #include "custommem.h"
 #include "x64test.h"
@@ -154,6 +154,7 @@ void DynaCall(x64emu_t* emu, uintptr_t addr)
     }
 }
 
+#ifdef DYNAREC
 static dynablock_t* fastDBGetBlock(x64emu_t* emu, uintptr_t addr, int create, int is32bits)
 {
     dynablock_t* ret = getDBnoTest(R_RIP);
@@ -161,6 +162,7 @@ static dynablock_t* fastDBGetBlock(x64emu_t* emu, uintptr_t addr, int create, in
         ret = DBGetBlock(emu, R_RIP, 1, is32bits);
     return ret;
 }
+#endif
 
 void EmuRun(x64emu_t* emu, int use_dynarec)
 {
