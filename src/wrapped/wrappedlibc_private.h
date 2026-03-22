@@ -757,7 +757,7 @@ GO(getwchar, uFv)
 GO(getwchar_unlocked, uFv)
 GOW(getwc_unlocked, uFS)
 GO(getwd, pFp)
-//GO(__getwd_chk, 
+GO(__getwd_chk, pFpL)
 GO(getxattr, lFpppL)
 GOM(glob, iFEpipp)
 GOM(glob64, iFEpipp)
