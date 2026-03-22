@@ -237,16 +237,14 @@ void dynablock_leave_runtime(dynablock_t* db)
     return NULL if block is not found / cannot be created. 
     Don't create if create==0
 */
-static dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, uintptr_t filladdr, int create, int need_lock, int is32bits, int is_new)
+static dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, int create, int need_lock, int is32bits, int is_new)
 {
-    if (hasAlternate((void*)filladdr))
-        return NULL;
     const uint32_t req_prot = (box64_pagesize==4096)?(PROT_EXEC|PROT_READ):PROT_READ;
     if(BOX64ENV(nodynarec_delay) && (addr>=BOX64ENV(nodynarec_start)) && (addr<BOX64ENV(nodynarec_end)))
         return NULL;
     dynablock_t* block = getDB(addr);
     if(block || !create) {
-        if(block && getNeedTest(addr) && (getProtection(addr)&req_prot)!=req_prot)
+        if(block && getNeedTest(addr) && (getProtection(block->x64_readaddr)&req_prot)!=req_prot)
             block = NULL;
         return block;
     }
@@ -279,29 +277,21 @@ static dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, uintptr_t 
         }
         block = getDB(addr);    // just in case
         if(block) {
-            if(block && getNeedTest(addr) && (getProtection_fast(addr)&req_prot)!=req_prot)
+            if(block && getNeedTest(addr) && (getProtection_fast(block->x64_readaddr)&req_prot)!=req_prot)
                 block = NULL;
             mutex_unlock(&my_context->mutex_dyndump);
             pthread_sigmask(SIG_SETMASK, &old_sig, NULL);
             return block;
         }
     }
-#ifndef _WIN32
-    if((getProtection_fast(filladdr)&req_prot)!=req_prot) {// cannot be run, get out of the Dynarec
-        if(need_lock)
-            mutex_unlock(&my_context->mutex_dyndump);
-        pthread_sigmask(SIG_SETMASK, &old_sig, NULL);
-        return NULL;
-    }
-#endif
-    block = FillBlock64(filladdr, (addr==filladdr)?0:1, is32bits, MAX_INSTS, is_new);
+    block = FillBlock64(addr, is32bits, MAX_INSTS, is_new);
     if(!block) {
         dynarec_log(LOG_DEBUG, "Fillblock of block %p for %p returned an error\n", block, (void*)addr);
     }
     // check size
     if(block) {
         // fill-in jumptable
-        if(!addJumpTableIfDefault64(block->x64_addr, (block->dirty || block->always_test)?block->jmpnext:block->block)) {
+        if(!addJumpTableIfDefault64((void*)addr, (block->dirty || block->always_test)?block->jmpnext:block->block)) {
             FreeDynablock(block, 0, 0);
             block = getDB(addr);
             MarkDynablock(block);   // just in case...
@@ -349,7 +339,7 @@ dynablock_t* DBSwapInvalid(x64emu_t* emu, dynablock_t* db, uintptr_t addr, int i
         old->previous = NULL;
     }
     // start again... (will create a new block)
-    db = internalDBGetBlock(emu, addr, addr, 1, 0, is32bits, 0);
+    db = internalDBGetBlock(emu, addr, 1, 0, is32bits, 0);
     if(db) {
         if(db->previous)
             FreeInvalidDynablock(db->previous, 0);
@@ -387,15 +377,15 @@ dynablock_t* DBGetBlock(x64emu_t* emu, uintptr_t addr, int create, int is32bits)
     int is_inhotpage = isInHotPage(addr);
     if(is_inhotpage && !BOX64ENV(dynarec_dirty))
         return NULL;
-    dynablock_t *db = internalDBGetBlock(emu, addr, addr, create, 1, is32bits, 1);
+    dynablock_t *db = internalDBGetBlock(emu, addr, create, 1, is32bits, 1);
     if(db && db->done && db->block && getNeedTest(addr)) {
         //if (db->always_test) SchedYield(); // just calm down...
-        uint32_t hash = X31_hash_code(db->x64_addr, db->x64_size);
+        uint32_t hash = X31_hash_code((void*)db->x64_readaddr, db->x64_size);
         mutex_lock(&my_context->mutex_dyndump)?1:0;
         if(hash!=db->hash) {
             if(is_inhotpage && db->previous) {
                 // check alternate
-                if(db->previous && !db->dirty && X31_hash_code(db->previous->x64_addr, db->previous->x64_size)==db->previous->hash) {
+                if(db->previous && !db->dirty && X31_hash_code((void*)db->previous->x64_readaddr, db->previous->x64_size)==db->previous->hash) {
                     db = DBSwitchPrevious(emu, db, addr, 0);
                     mutex_unlock(&my_context->mutex_dyndump);
                     return db;
@@ -437,47 +427,6 @@ dynablock_t* DBGetBlock(x64emu_t* emu, uintptr_t addr, int create, int is32bits)
                             else
                                 db->sep[i].active = 0;
                         }
-                }
-            }
-        }
-        mutex_unlock(&my_context->mutex_dyndump);
-    } 
-    if(!db || !db->block || !db->done)
-        emu->test.test = 0;
-    return db;
-}
-
-dynablock_t* DBAlternateBlock(x64emu_t* emu, uintptr_t addr, uintptr_t filladdr, int is32bits)
-{
-    dynarec_log(LOG_DEBUG, "Creating AlternateBlock at %p for %p%s\n", (void*)addr, (void*)filladdr, is32bits?" 32bits":"");
-    int create = 1;
-    dynablock_t *db = internalDBGetBlock(emu, addr, filladdr, create, 1, is32bits, 1);
-    if(db && db->done && db->block && (db->dirty || getNeedTest(filladdr))) {
-        if (db->always_test) SchedYield(); // just calm down...
-        mutex_lock(&my_context->mutex_dyndump);
-        uint32_t hash = X31_hash_code(db->x64_addr, db->x64_size);
-        if(hash!=db->hash) {
-            db = DBSwapInvalid(emu, db, addr, is32bits, 0);
-        } else {
-            if(db->always_test)
-                protectDB((uintptr_t)db->x64_addr, db->x64_size);
-            else {
-                #ifdef ARCH_NOP
-                if(db->callret_size) {
-                    // mark all callrets to UDF
-                    for(int i=0; i<db->callret_size; ++i)
-                        *(uint32_t*)(db->block+db->callrets[i].offs) = ARCH_NOP;
-                    ClearCache(db->block, db->size);
-                }
-                #endif
-                protectDBJumpTable((uintptr_t)db->x64_addr, db->x64_size, db->block, db->jmpnext);
-                for(int i=0; i<db->sep_size; ++i) {
-                    uint32_t x64_offs = db->sep[i].x64_offs;
-                    uint32_t nat_offs = db->sep[i].nat_offs;
-                    if(addJumpTableIfDefault64(db->x64_addr+x64_offs, (db->always_test)?db->jmpnext:(db->block+nat_offs)))
-                        db->sep[i].active = 1;
-                    else
-                        db->sep[i].active = 0;
                 }
             }
         }

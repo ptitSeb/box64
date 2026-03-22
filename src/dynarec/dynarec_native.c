@@ -18,6 +18,7 @@
 #include "x64trace.h"
 #include "dynablock.h"
 #include "dynablock_private.h"
+#include "alternate.h"
 
 #include "dynarec_native.h"
 #include "dynarec_arch.h"
@@ -402,6 +403,7 @@ dynablock_t* CreateEmptyBlock(uintptr_t addr, int is32bits, int is_new) {
     memset(block, 0, sizeof(dynablock_t));
     // fill the block
     block->x64_addr = (void*)addr;
+    block->x64_readaddr = addr;
     block->isize = 0;
     block->done = 0;
     block->size = sz;
@@ -417,7 +419,7 @@ dynablock_t* CreateEmptyBlock(uintptr_t addr, int is32bits, int is_new) {
     return block;
 }
 
-dynablock_t* FillBlock64(uintptr_t addr, int alternate, int is32bits, int inst_max, int is_new) {
+dynablock_t* FillBlock64(uintptr_t addr, int is32bits, int inst_max, int is_new) {
     /*
         A Block must have this layout:
 
@@ -432,15 +434,32 @@ dynablock_t* FillBlock64(uintptr_t addr, int alternate, int is32bits, int inst_m
         C ..    C+sz    : arch: arch specific info (likes flags info) per inst (can be absent)
 
     */
+    const uint32_t req_prot = (box64_pagesize==4096)?(PROT_EXEC|PROT_READ):PROT_READ;
+    uintptr_t old_addr = addr;
+    #ifdef HAVE_ALTJUMP
+    uintptr_t altjump = getAlternateJump((void*)addr, is32bits);
+    if(altjump) {
+        dynarec_log(LOG_INFO, "Building a Dynablock for %p with an alternate content at %p\n", (void*)addr, (void*)altjump);
+        addr = altjump;
+    }
+    #else
+    uintptr_t altjump = 0;
+    #endif 
     if(addr>=BOX64ENV(nodynarec_start) && addr<BOX64ENV(nodynarec_end)) {
         dynarec_log(LOG_INFO, "Create empty block in no-dynarec zone\n");
-        return BOX64ENV(nodynarec_delay)?NULL:CreateEmptyBlock(addr, is32bits, is_new);
+        return BOX64ENV(nodynarec_delay)?NULL:CreateEmptyBlock(old_addr, is32bits, is_new);
     }
     int is_inhotpage = checkInHotPage(addr);
     if(is_inhotpage && !BOX64ENV(dynarec_dirty)) {
         dynarec_log(LOG_DEBUG, "Not creating dynablock at %p as in a HotPage\n", (void*)addr);
         return NULL;
     }
+#ifndef _WIN32
+    if((getProtection_fast(addr)&req_prot)!=req_prot) {// cannot be run, get out of the Dynarec
+        dynarec_log(LOG_DEBUG, "Not creating dynablock at %p because EXEC protection is missing\n", (void*)addr);
+        return NULL;
+    }
+#endif
     if(current_helper) {
         if(current_helper==redundant_helper) {
             dynarec_log(LOG_INFO, "%04d|Warning: previous FillBlock did not cleaned up correctly (helper=%p, x64addr=%p, db=%p)\n", GetTID(), current_helper, (void*)((dynarec_native_t*)current_helper)->start, ((dynarec_native_t*)current_helper)->dynablock);
@@ -525,10 +544,10 @@ dynablock_t* FillBlock64(uintptr_t addr, int alternate, int is32bits, int inst_m
             return NULL;
         case BUILD_ABORT_EMPTY:
             CancelBlock64(0);
-            return CreateEmptyBlock(addr, is32bits, is_new);
+            return CreateEmptyBlock(old_addr, is32bits, is_new);
         case BUILD_PASS0:
             // pass 0, addresses, x64 jump addresses, overall size of the block
-            end = native_pass0(&helper, addr, alternate, is32bits, inst_max);
+            end = native_pass0(&helper, addr, altjump?1:0, is32bits, inst_max);
             if(helper.abort) {
                 if(helper.size<2) {
                     if(dyn->need_dump || BOX64ENV(dynarec_log))dynarec_log(LOG_NONE, "Abort dynablock on pass0\n");
@@ -660,7 +679,7 @@ dynablock_t* FillBlock64(uintptr_t addr, int alternate, int is32bits, int inst_m
                 // NULL block after removing dead code, how is that possible?
                 dynarec_log(LOG_INFO, "Warning, null-sized dynarec block after trimming dead code (%p)\n", (void*)addr);
                 CancelBlock64(0);
-                return CreateEmptyBlock(addr, is32bits, is_new);
+                return CreateEmptyBlock(old_addr, is32bits, is_new);
             }
             UPDATE_SPECIFICS(&helper);
             // check for still valid close loop
@@ -680,7 +699,7 @@ dynablock_t* FillBlock64(uintptr_t addr, int alternate, int is32bits, int inst_m
             ResetTable64(&helper);
             helper.reloc_size = 0;
             // pass 1, float optimizations, first pass for flags
-            native_pass1(&helper, addr, alternate, is32bits, inst_max);
+            native_pass1(&helper, addr, altjump?1:0, is32bits, inst_max);
             if(helper.abort) {
                 if(dyn->need_dump || BOX64ENV(dynarec_log))dynarec_log(LOG_NONE, "Abort dynablock on pass1\n");
                 state = BUILD_ABORT_NULL;
@@ -698,7 +717,7 @@ dynablock_t* FillBlock64(uintptr_t addr, int alternate, int is32bits, int inst_m
             helper.reloc_size = 0;
             // pass 2, instruction size
             helper.callrets = static_callrets;
-            native_pass2(&helper, addr, alternate, is32bits, inst_max);
+            native_pass2(&helper, addr, altjump?1:0, is32bits, inst_max);
             if(helper.abort) {
                 if(dyn->need_dump || BOX64ENV(dynarec_log))dynarec_log(LOG_NONE, "Abort dynablock on pass2\n");
                 state = BUILD_ABORT_NULL;
@@ -721,7 +740,7 @@ dynablock_t* FillBlock64(uintptr_t addr, int alternate, int is32bits, int inst_m
                 --imax;
                 if(dyn->need_dump || BOX64ENV(dynarec_log))dynarec_log(LOG_NONE, "Dynablock oversized, with %zu (max=%zd), recomputing cutting at %d from %d\n", native_size, MAXBLOCK_SIZE, imax, helper.size);
                 CancelBlock64(0);
-                return FillBlock64(addr, alternate, is32bits, imax, is_new);
+                return FillBlock64(old_addr, is32bits, imax, is_new);
             }
             insts_rsize = (helper.insts_size+2)*sizeof(instsize_t);
             insts_rsize = (insts_rsize+7)&~7;   // round the size...
@@ -734,7 +753,7 @@ dynablock_t* FillBlock64(uintptr_t addr, int alternate, int is32bits, int inst_m
             dynablock_align = (sz&7)?(8 -(sz&7)):0;    // align dynablock
             sz += dynablock_align + sizeof(dynablock_t) + reloc_size;
             //           dynablock_t*     block (arm insts)            table64               jmpnext code       instsize     arch         callrets         sep  dynablock           relocs
-            actual_p = (void*)AllocDynarecMap(addr, sz, is_new);
+            actual_p = (void*)AllocDynarecMap(old_addr, sz, is_new);
             if(actual_p==NULL) {
                 dynarec_log(LOG_INFO, "AllocDynarecMap(%p, %zu) failed, canceling block\n", (void*)addr, sz);
                 state = BUILD_ABORT_NULL;
@@ -753,6 +772,7 @@ dynablock_t* FillBlock64(uintptr_t addr, int alternate, int is32bits, int inst_m
             void* relocs = helper.need_reloc?(block+1):NULL;
             // fill the block
             block->x64_addr = (void*)addr;
+            block->x64_readaddr = addr;
             block->isize = 0;
             block->actual_block = actual_p;
             helper.relocs = relocs;
@@ -790,7 +810,7 @@ dynablock_t* FillBlock64(uintptr_t addr, int alternate, int is32bits, int inst_m
             ResetTable64(&helper); // reset table64 (but not the cap)
             helper.insts_size = 0;  // reset
             helper.reloc_size = 0;
-            native_pass3(&helper, addr, alternate, is32bits, inst_max);
+            native_pass3(&helper, addr, altjump?1:0, is32bits, inst_max);
             if(helper.abort) {
                 if(dyn->need_dump || BOX64ENV(dynarec_log))dynarec_log(LOG_NONE, "Abort dynablock on pass3\n");
                 state = BUILD_ABORT_NULL;
@@ -848,10 +868,10 @@ dynablock_t* FillBlock64(uintptr_t addr, int alternate, int is32bits, int inst_m
                 #endif
             }
             ClearCache(actual_p+sizeof(void*), native_size);   // need to clear the cache before execution...
-            block->hash = X31_hash_code(block->x64_addr, block->x64_size);
+            block->hash = X31_hash_code((void*)block->x64_readaddr, block->x64_size);
             // Check if something changed, to abort if it is
             if((helper.abort || (block->hash != hash))) {
-                dynarec_log(LOG_DEBUG, "Warning, a block changed while being processed hash(%p:%ld)=%x/%x\n", block->x64_addr, block->x64_size, block->hash, hash);
+                dynarec_log(LOG_DEBUG, "Warning, a block changed while being processed hash(%p:%ld)=%x/%x\n", block->x64_readaddr, block->x64_size, block->hash, hash);
                 state = BUILD_ABORT_NULL;
                 continue;
             }
@@ -904,6 +924,7 @@ dynablock_t* FillBlock64(uintptr_t addr, int alternate, int is32bits, int inst_m
         }
         #endif
     }
+    if(altjump) block->x64_addr = (void*)old_addr; // set the not-alt addr if a shadow jump was used
     redundant_helper = current_helper = NULL;
     //block->done = 1;
     return block;

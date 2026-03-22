@@ -43,25 +43,25 @@ typedef struct bridge_s {
     kh_bridgemap_t  *bridgemap;
 } bridge_t;
 
-brick_t* NewBrick(void* old)
+brick_t* NewBrick(void* old, int is32bits)
 {
     brick_t* ret = (brick_t*)box_calloc(1, sizeof(brick_t));
     static void* load_addr_32bits = NULL;
-    if(box64_is32bits)
+    if(is32bits)
         old = load_addr_32bits;
     else {
         if(old)
             old = old + NBRICK * sizeof(onebridge_t);
     }
-    void* ptr = box_mmap(old, NBRICK * sizeof(onebridge_t), PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | ((!box64_is32bits && box64_wine)?0:0x40) | MAP_ANONYMOUS, -1, 0); // 0x40 is MAP_32BIT
+    void* ptr = box_mmap(old, NBRICK * sizeof(onebridge_t), PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | ((!is32bits && box64_wine)?0:0x40) | MAP_ANONYMOUS, -1, 0); // 0x40 is MAP_32BIT
     if(ptr == MAP_FAILED)
-        ptr = box_mmap(NULL, NBRICK * sizeof(onebridge_t), PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | ((!box64_is32bits && box64_wine)?0:0x40) | MAP_ANONYMOUS, -1, 0);
+        ptr = box_mmap(NULL, NBRICK * sizeof(onebridge_t), PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | ((!is32bits && box64_wine)?0:0x40) | MAP_ANONYMOUS, -1, 0);
     if(ptr == MAP_FAILED) {
         printf_log(LOG_NONE, "Warning, cannot allocate 0x%lx aligned bytes for bridge, will probably crash later\n", NBRICK*sizeof(onebridge_t));
     }
     setProtection_box((uintptr_t)ptr, NBRICK * sizeof(onebridge_t), PROT_READ | PROT_WRITE | PROT_EXEC | PROT_NOPROT);
     dynarec_log(LOG_INFO, "New Bridge brick at %p (size 0x%zx)\n", ptr, NBRICK*sizeof(onebridge_t));
-    if(box64_is32bits) load_addr_32bits = ptr + NBRICK*sizeof(onebridge_t);
+    if(is32bits) load_addr_32bits = ptr + NBRICK*sizeof(onebridge_t);
     ret->b = ptr;
     return ret;
 }
@@ -76,7 +76,7 @@ bridge_t *NewBridge()
     void* load_addr = NULL;
     if((!box64_is32bits && box64_wine && my_context->exit_bridge))  // a first bridge is create for system use, before box64_is32bits can be computed, so use exit_bridge to detect that
         load_addr = (void*)0x700000000000LL;
-    b->head = NewBrick(load_addr);
+    b->head = NewBrick(load_addr, box64_is32bits);
     b->last = b->head;
     b->bridgemap = kh_init(bridgemap);
 
@@ -110,7 +110,7 @@ uintptr_t AddBridge2(bridge_t* bridge, wrapper_t w, void* fnc, void* fnc2, int N
     mutex_lock(&my_context->mutex_bridge);
     b = bridge->last;
     if(b->sz == (int)NBRICK) {
-        b->next = NewBrick(b->b);
+        b->next = NewBrick(b->b, box64_is32bits);
         b = b->next;
         bridge->last = b;
     }
@@ -206,6 +206,34 @@ uintptr_t AddAutomaticBridgeAlt(bridge_t* bridge, wrapper_t w, void* fnc, void* 
     return ret;
 }
 
+uintptr_t AddAltJump(bridge_t* bridge, uintptr_t addr, uintptr_t jump_to_addr)
+{
+    brick_t *b = NULL;
+    int sz = -1;
+    int ret;
+
+    mutex_lock(&my_context->mutex_bridge);
+    b = bridge->last;
+    if(b->sz == (int)NBRICK) {
+        b->next = NewBrick(b->b, 1);
+        b = b->next;
+        bridge->last = b;
+    }
+    sz = b->sz++;
+    mutex_unlock(&my_context->mutex_bridge);
+
+    // 64bit && 32bit jumps
+    b->b[sz].FF = 0xFF;
+    b->b[sz]._25 = 0x25;
+    b->b[sz].offset6 = 6;
+    b->b[sz].FF_2 = 0xFF;
+    b->b[sz]._25_2 = 0x25;
+    b->b[sz].delta = (uintptr_t)&b->b[sz].jmpaddr;
+    b->b[sz].jmpaddr = jump_to_addr;
+    dynarec_log(LOG_INFO, "Added AltJump for %p to %p at %p\n", (void*)addr, (void*)jump_to_addr, &b->b[sz]);
+    return (uintptr_t)&b->b[sz];
+}
+
 void* GetNativeOrAlt(void* fnc, void* alt)
 {
     if(!fnc) return NULL;
@@ -257,7 +285,7 @@ uintptr_t AddVSyscall(bridge_t* bridge, int num)
     mutex_lock(&my_context->mutex_bridge);
     b = bridge->last;
     if(b->sz == (int)NBRICK) {
-        b->next = NewBrick(b->b);
+        b->next = NewBrick(b->b, box64_is32bits);
         b = b->next;
         bridge->last = b;
     }

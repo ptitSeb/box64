@@ -26,6 +26,7 @@ typedef struct dynablock_s {
     void*           x64_addr;
     uintptr_t       x64_size;
     size_t          native_size;
+    uintptr_t       x64_readaddr;   // in case an alternate address is in effect, it can be different than x64_addr
     uint32_t        prefixsize; // size in byte of the prefix of the block
     int             size;
     uint32_t        hash;

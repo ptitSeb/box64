@@ -32,5 +32,5 @@ void fini_bridge_helper(void);
 
 // Is what pointed at addr a native call? And if yes, to what function?
 int isNativeCallInternal(uintptr_t addr, int is32bits, uintptr_t* calladdress, uint16_t* retn);
-
+uintptr_t AddAltJump(bridge_t* bridge, uintptr_t addr, uintptr_t jump_to_addr);
 #endif //__BRIDGE_H_

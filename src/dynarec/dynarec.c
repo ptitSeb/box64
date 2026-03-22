@@ -33,38 +33,34 @@ void* LinkNext(x64emu_t* emu, uintptr_t addr, void* x2, uintptr_t* x3)
 {
     int is32bits = (R_CS == 0x23);
     if(!running32bits && is32bits) running32bits=1;
-    #ifdef HAVE_TRACE
+    #ifndef HAVE_ALTJUMP
+    // inefficient way to handle alternate without ALTJUMP
     uintptr_t new_addr = (uintptr_t)getAlternate((void*)addr);
+    if(new_addr!=addr) {
+        *x3 = new_addr;
+        addr = new_addr;
+    }
+    #endif
+    #ifdef HAVE_TRACE
     if(!addr) {
         dynablock_t* db = FindDynablockFromNativeAddress(x2-4);
         printf_log(LOG_INFO, "Warning, jumping to NULL address from %p (db=%p, x64addr=%p/%s)\n", x2-4, db, db?(void*)getX64Address(db, (uintptr_t)x2-4):NULL, db?getAddrFunctionName(getX64Address(db, (uintptr_t)x2-4)):"(nil)");
-    } else if(new_addr<0x10000) {
+    } else if(addr<0x10000) {
         dynablock_t* db = FindDynablockFromNativeAddress(x2-4);
-        printf_log(LOG_INFO, "Warning, jumping to low address %p->%p from %p (db=%p, x64addr=%p/%s)\n", (void*)new_addr, (void*)addr, x2-4, db, db?(void*)getX64Address(db, (uintptr_t)x2-4):NULL, db?getAddrFunctionName(getX64Address(db, (uintptr_t)x2-4)):"(nil)");
+        printf_log(LOG_INFO, "Warning, jumping to low address %p from %p (db=%p, x64addr=%p/%s)\n", (void*)addr, x2-4, db, db?(void*)getX64Address(db, (uintptr_t)x2-4):NULL, db?getAddrFunctionName(getX64Address(db, (uintptr_t)x2-4)):"(nil)");
     #ifdef BOX32
     } else if(emu->segs[_CS]==0x23 && addr>0x100000000LL) {
         dynablock_t* db = FindDynablockFromNativeAddress(x2-4);
         printf_log(LOG_INFO, "Warning, jumping to high address %p from %p (db=%p, x64addr=%p/%s)\n", (void*)addr, x2-4, db, db?(void*)getX64Address(db, (uintptr_t)x2-4):NULL, db?getAddrFunctionName(getX64Address(db, (uintptr_t)x2-4)):"(nil)");
     #endif
-    } else if(!memExist(new_addr)) {
+    } else if(!memExist(addr)) {
         dynablock_t* db = FindDynablockFromNativeAddress(x2-4);
-        printf_log(LOG_INFO, "Warning, jumping to an unmapped address %p->%p from %p (db=%p, x64addr=%p/%s)\n", (void*)new_addr, (void*)addr, x2-4, db, db?(void*)getX64Address(db, (uintptr_t)x2-4):NULL, db?getAddrFunctionName(getX64Address(db, (uintptr_t)x2-4)):"(nil)");
+        printf_log(LOG_INFO, "Warning, jumping to an unmapped address %p from %p (db=%p, x64addr=%p/%s)\n", (void*)addr, x2-4, db, db?(void*)getX64Address(db, (uintptr_t)x2-4):NULL, db?getAddrFunctionName(getX64Address(db, (uintptr_t)x2-4)):"(nil)");
     }
-    #else   //HAVE_TRACE
-    uintptr_t new_addr = addr;
     #endif
     void * jblock;
     dynablock_t* block = NULL;
-    uintptr_t old_addr = addr;
-    if(hasAlternate((void*)addr)) {
-        printf_log(LOG_DEBUG, "Jmp address has alternate: %p\n", (void*)addr);
-        addr = (uintptr_t)getAlternate((void*)addr);    // set new address
-        R_RIP = addr;   // but also new RIP!
-        *x3 = addr; // and the RIP in x27 register
-        printf_log(LOG_DEBUG, " -> %p\n", (void*)addr);
-        block = DBAlternateBlock(emu, old_addr, addr, is32bits);
-    } else
-        block = DBGetBlock(emu, addr, 1, is32bits);
+    block = DBGetBlock(emu, addr, 1, is32bits);
     if(!block) {
         #ifdef HAVE_TRACE
         if(LOG_INFO<=BOX64ENV(dynarec_log)) {
@@ -94,14 +90,14 @@ void* LinkNext(x64emu_t* emu, uintptr_t addr, void* x2, uintptr_t* x3)
         // null block, but done: go to epilog, no linker here
         return native_epilog;
     }
-    if(block->sep_size && (uintptr_t)block->x64_addr!=old_addr) {
+    if(block->sep_size && (uintptr_t)block->x64_addr!=addr) {
         jblock = NULL;
         for(int i=0; i<block->sep_size && !jblock; ++i) {
-            if(old_addr==(uintptr_t)block->x64_addr + block->sep[i].x64_offs)
+            if(addr==(uintptr_t)block->x64_addr + block->sep[i].x64_offs)
                 jblock = block->block + block->sep[i].nat_offs;
         }
         if(!jblock) {
-            printf_log(LOG_NONE, "Warning, cannot find Secondary Entry Point %p in dynablock %p\n", new_addr, block);
+            printf_log(LOG_NONE, "Warning, cannot find Secondary Entry Point %p in dynablock %p\n", addr, block);
             return native_epilog;
         }
     }
@@ -158,6 +154,14 @@ void DynaCall(x64emu_t* emu, uintptr_t addr)
     }
 }
 
+static dynablock_t* fastDBGetBlock(x64emu_t* emu, uintptr_t addr, int create, int is32bits)
+{
+    dynablock_t* ret = getDBnoTest(R_RIP);
+    if(!ret)
+        ret = DBGetBlock(emu, R_RIP, 1, is32bits);
+    return ret;
+}
+
 void EmuRun(x64emu_t* emu, int use_dynarec)
 {
     // prepare setjump for signal handling
@@ -195,7 +199,7 @@ void EmuRun(x64emu_t* emu, int use_dynarec)
         }
         if(emu->flags.need_jmpbuf)
             emu->flags.need_jmpbuf = 0;
-
+        R_RIP = (uintptr_t)getAlternate((void*)R_RIP);
 #ifdef DYNAREC
         if(!BOX64ENV(dynarec) || !use_dynarec)
 #endif
@@ -218,7 +222,7 @@ void EmuRun(x64emu_t* emu, int use_dynarec)
                     running32bits = 1;
                 }
             }
-            dynablock_t* block = (skip || ACCESS_FLAG(F_TF))?NULL:DBGetBlock(emu, R_RIP, 1, is32bits);
+            dynablock_t* block = (skip || ACCESS_FLAG(F_TF))?NULL:fastDBGetBlock(emu, R_RIP, 1, is32bits);
             if(!block || !block->block || !block->done || ACCESS_FLAG(F_TF)) {
                 skip = 0;
                 // no block, of block doesn't have DynaRec content (yet, temp is not null)

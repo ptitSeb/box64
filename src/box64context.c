@@ -186,6 +186,12 @@ box64context_t *NewBox64Context(int argc)
     context->local_maplib = NewLibrarian(context);
     context->versym = NewDictionnary();
     context->system = NewBridge();
+    #ifdef DYNAREC
+    int old_is32bits = box64_is32bits;
+    box64_is32bits = 1;
+    context->alternates = NewBridge();  // this needs to be in 32bits address space
+    box64_is32bits = old_is32bits;
+    #endif
     // Cannot use Bridge name as the map is not initialized yet
     // create vsyscall
     context->vsyscall = AddBridge(context->system, vFEv, box64_is32bits?x86Syscall:x64Syscall, 0, NULL);
@@ -357,6 +363,9 @@ void FreeBox64Context(box64context_t** context)
     box_free(ctx->pythonpath);
 
     FreeBridge(&ctx->system);
+    #ifdef DYNAREC
+    FreeBridge(&ctx->alternates);
+    #endif
 
     #ifndef STATICBUILD
     freeGLProcWrapper(ctx);

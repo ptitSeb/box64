@@ -2173,6 +2173,16 @@ int getNeedTest(uintptr_t addr)
     return 0;
 }
 
+dynablock_t* getDBnoTest(uintptr_t addr)
+{
+    void* jblock = NULL;
+    dynablock_t* db = getDBBlock(addr, &jblock);
+    if(!db) return NULL;
+    if(jblock==db->jmpnext) return NULL;
+    return db;
+}
+
+
 uintptr_t getJumpAddress64(uintptr_t addr)
 {
     uintptr_t idx3, idx2, idx1, idx0;
@@ -2726,7 +2736,7 @@ void refreshProtection(uintptr_t addr)
 
 void allocProtection(uintptr_t addr, size_t size, uint32_t prot)
 {
-    dynarec_log(LOG_DEBUG, "allocProtection %p:%p 0x%x\n", (void*)addr, (void*)(addr+size-1), prot);
+    dynarec_log(LOG_DEBUG, "allocProtection %p:%p 0x%x", (void*)addr, (void*)(addr+size-1), prot);
     size = ALIGN(size);
     addr &= ~(box64_pagesize-1);
     LOCK_PROT();
@@ -2734,8 +2744,11 @@ void allocProtection(uintptr_t addr, size_t size, uint32_t prot)
     uintptr_t endb; 
     int there = rb_get_end(mapallmem, addr, &val, &endb);
     // block is here or absent, no half-block handled..
-    if(!there)
+    if(!there) {
+        dynarec_log_prefix(0, LOG_DEBUG, " added\n");
         rb_set(mapallmem, addr, addr+size, MEM_EXTERNAL);
+    } else
+        dynarec_log_prefix(0, LOG_DEBUG, " ignored\n");
     UNLOCK_PROT();
     // don't need to add precise tracking probably
 }
