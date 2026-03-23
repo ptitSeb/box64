@@ -404,7 +404,7 @@ static int loadEmulatedLib(const char* libname, library_t *lib, box64context_t* 
     return 0;
 }
 
-static void initEmulatedLib(const char* path, library_t *lib, box64context_t* context, elfheader_t* verneeded)
+static void initEmulatedLib(const char* path, library_t *lib, box64context_t* context, elfheader_t* verneeded, path_collection_t* rpath)
 {
     char libname[MAX_PATH];
     strcpy(libname, path);
@@ -412,7 +412,17 @@ static void initEmulatedLib(const char* path, library_t *lib, box64context_t* co
     if(found)
         if(loadEmulatedLib(libname, lib, context, verneeded))
             return;
-    if(!strchr(path, '/'))
+    if(!strchr(path, '/')) {
+        if(rpath) {
+            for(int i=0; i<rpath->size; ++i)
+            {
+                strcpy(libname, rpath->paths[i]);
+                strcat(libname, path);
+                if(box64_is32bits?FileIsX86ELF(libname):FileIsX64ELF(libname))
+                    if(loadEmulatedLib(libname, lib, context, verneeded))
+                        return;
+            }
+        }
         for(int i=0; i<context->box64_ld_lib.size; ++i)
         {
             strcpy(libname, context->box64_ld_lib.paths[i]);
@@ -428,6 +438,7 @@ static void initEmulatedLib(const char* path, library_t *lib, box64context_t* co
                 if(loadEmulatedLib(libname, lib, context, verneeded))
                     return;            
         }
+    }
 }
 
 static void initDummyLib(library_t *lib)
@@ -479,7 +490,7 @@ static lib_brick_t* cur_brick = NULL;
 static size_t cur_lib = 0;
 static size_t lib_cap = 0;
 
-library_t *NewLibrary(const char* path, box64context_t* context, elfheader_t* verneeded)
+library_t *NewLibrary(const char* path, box64context_t* context, elfheader_t* verneeded, path_collection_t* rpath)
 {
     printf_dlsym_dump(LOG_DEBUG, "Trying to load \"%s\"\n", path);
     //library_t *lib = (library_t*)box_calloc(1, sizeof(library_t));
@@ -547,7 +558,7 @@ library_t *NewLibrary(const char* path, box64context_t* context, elfheader_t* ve
         initWrappedLib(lib, context);
     // then look for a native one
     if(lib->type==LIB_UNNKNOW)
-        initEmulatedLib(path, lib, context, verneeded);
+        initEmulatedLib(path, lib, context, verneeded, rpath);
     // still not loaded but notwrapped indicated: use wrapped...
     if(lib->type==LIB_UNNKNOW && notwrapped && !precise)
         initWrappedLib(lib, context);
@@ -1297,6 +1308,10 @@ void free_neededlib(needed_libs_t* needed)
     needed->libs = NULL;
     needed->names = NULL;
     needed->cap = needed->size = 0;
+    if(needed->rpath) {
+        FreeCollection(needed->rpath);
+        box_free(needed->rpath);
+    }
     box_free(needed);
 }
 void add1_neededlib(needed_libs_t* needed)

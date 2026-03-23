@@ -1038,6 +1038,7 @@ int LoadNeededLibs(elfheader_t* h, lib_t *maplib, int local, int bindnow, int de
     if(h->needed)   // already done
         return 0;
     DumpDynamicRPath(h);
+    path_collection_t* rpathlist = NULL;
     // update RPATH first
     for (size_t i=0; i<h->numDynamic; ++i) {
         int tag = box64_is32bits?h->Dynamic._32[i].d_tag:h->Dynamic._64[i].d_tag;
@@ -1117,7 +1118,13 @@ int LoadNeededLibs(elfheader_t* h, lib_t *maplib, int local, int bindnow, int de
                 printf_log(LOG_INFO, "Warning, RPATH with $ variable not supported yet (%s)\n", rpath);
             } else {
                 printf_log(LOG_DEBUG, "Prepending path \"%s\" to BOX64_LD_LIBRARY_PATH\n", rpath);
-                PrependList(&box64->box64_ld_lib, rpath, 1);
+                if(h == box64->elfs[0])
+                    PrependList(&box64->box64_ld_lib, rpath, 1);
+                else {
+                    if(!rpathlist)
+                        rpathlist = box_calloc(1, sizeof(path_collection_t));
+                    PrependList(rpathlist, rpath, 1);
+                }
             }
             if(rpath!=rpathref)
                 box_free(rpath);
@@ -1138,6 +1145,7 @@ int LoadNeededLibs(elfheader_t* h, lib_t *maplib, int local, int bindnow, int de
         ++cnt;
     #endif
     h->needed = new_neededlib(cnt);
+    h->needed->rpath = rpathlist;
     if(h == my_context->elfs[0])
         my_context->neededlibs = h->needed;
     int j=0;

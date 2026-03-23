@@ -223,7 +223,7 @@ static int AddNeededLib_add(lib_t** maplib, int local, needed_libs_t* needed, in
         return 0;
     }
     // load a new one
-    needed->libs[n] = lib = NewLibrary(path, box64, verneeded);
+    needed->libs[n] = lib = NewLibrary(path, box64, verneeded, needed->rpath);
     if(!lib) {
         printf_dump(LOG_DEBUG, "Faillure to create lib => fail\n");
         return 1;   //Error

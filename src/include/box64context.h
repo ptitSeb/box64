@@ -74,6 +74,7 @@ typedef struct needed_libs_s {
     int         init_size;
     char**      names;
     library_t** libs;
+    path_collection_t* rpath;
     int         nb_done;
 } needed_libs_t;
 
