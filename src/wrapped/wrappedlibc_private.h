@@ -757,7 +757,11 @@ GO(getwchar, uFv)
 GO(getwchar_unlocked, uFv)
 GOW(getwc_unlocked, uFS)
 GO(getwd, pFp)
+#ifdef STATICBUILD
+// GO(__getwd_chk,
+#else
 GO(__getwd_chk, pFpL)
+#endif
 GO(getxattr, lFpppL)
 GOM(glob, iFEpipp)
 GOM(glob64, iFEpipp)
