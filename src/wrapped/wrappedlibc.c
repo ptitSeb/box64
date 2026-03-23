@@ -2982,15 +2982,30 @@ EXPORT int32_t my_execvpe(x64emu_t* emu, const char* path, char* argv[], char* c
             // it's a "/bin/sh -c XXX" type of command line, with XXXX being the whole command line...
             // because XXXX can contains things like "VAR=something" type of definition, getting the program to be launched can be tricky
             char* prog = NULL;
-            char* old_prog = NULL;
-            char buff[MAX_PATH] = {0};
-            char client[MAX_PATH] = {0};
+            char buff[MAX_PATH*3] = {0};
+            char buffsrlc[MAX_PATH*3] = {0};
             char* multiarg2 = NULL;
             int n = 0;
             while(argv[n]) ++n;
             if(FileExist(argv[2], IS_FILE))
                 prog = argv[2];
             else {
+                #define SRLC "/usr/bin/steam-runtime-launch-client"
+                if(strstr(argv[2], SRLC) && !FileExist(SRLC, IS_FILE)) {
+                    char* runtime = getenv("BOX64_PRESSURE_ENV_PATH");
+                    char* srlc = strstr(argv[2], SRLC);
+                    if(runtime && ((srlc==argv[2]) || (*(srlc-1)==' '))) {
+                        strncpy(buffsrlc, argv[2], sizeof(buffsrlc)-1);
+                        *strstr(buffsrlc, SRLC) = '\0';
+                        strncat(buffsrlc, runtime, sizeof(buffsrlc)-1);
+                        strncat(buffsrlc, "/steam-runtime-launch-client", sizeof(buffsrlc)-1);
+                        strncat(buffsrlc, srlc+strlen(SRLC), sizeof(buffsrlc)-1);
+                        argv[2] = buffsrlc;
+                        printf_log(LOG_DEBUG, "Changed path of %s\n", SRLC);
+                    } else 
+                        printf_log(LOG_INFO, "Warning, trying to launch " SRLC " without BOX64_PRESSURE_ENV_PATH set\n");
+                }
+                #undef SRLC
                 strncpy(buff, argv[2], sizeof(buff)-1);
                 char* p = GetSpaceSeparator(buff);
                 char* prev = buff;
@@ -3004,7 +3019,7 @@ EXPORT int32_t my_execvpe(x64emu_t* emu, const char* path, char* argv[], char* c
                         *p = '\0';
                         prog = prev;
                         prev = next;
-                        if(!strlen(prog)) {
+                        if(!strlen(prog) || !strcmp(prog, "mangohud")) {
                             //nope, nothing found, rollback
                             prog = NULL;
                             multiarg2 = NULL;
@@ -3017,17 +3032,6 @@ EXPORT int32_t my_execvpe(x64emu_t* emu, const char* path, char* argv[], char* c
                     p = GetSpaceSeparator(next);
                 }
             }
-            if(prog && multiarg2 && !strcmp(prog, "/usr/bin/steam-runtime-launch-client") && !FileExist(prog, IS_FILE)) {
-                char* runtime = getenv("BOX64_PRESSURE_ENV_PATH");
-                if(runtime) {
-                    old_prog = prog;
-                    strcpy(client, runtime);
-                    strcat(client, "/steam-runtime-launch-client");
-                    prog = client;
-                    printf_log(LOG_DEBUG, "Will use \"%s\" instead\n", prog);
-                } else 
-                    printf_log(LOG_INFO, "Warning, trying to launch /usr/bin/steam-runtime-launch-client without BOX64_PRESSURE_ENV_PATH set\n");
-            }
             // should check if start with '/' and resolve else
             if(prog && FileExist(prog, IS_FILE)) {
                 x64 = FileIsX64ELF(prog);
@@ -3039,9 +3043,8 @@ EXPORT int32_t my_execvpe(x64emu_t* emu, const char* path, char* argv[], char* c
                 // rebuild argv[2]
                 if(multiarg2) {
                     // get the front stuffs first
-                    if(!old_prog) old_prog = prog;
-                    strcpy(buff2, argv[2]);
-                    *strstr(buff2, old_prog) = '\0';
+                    strncpy(buff2, argv[2], sizeof(buff2)-1);
+                    *strstr(buff2, prog) = '\0';
                     strncat(buff2, " ", sizeof(buff2)-1);
                     strncat(buff2, x86?emu->context->box86path:emu->context->box64path, sizeof(buff2)-1);
                     strncat(buff2, " ", sizeof(buff2)-1);
