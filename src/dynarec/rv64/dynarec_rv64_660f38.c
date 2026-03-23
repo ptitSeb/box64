@@ -26,7 +26,7 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
     (void)ip;
     (void)need_epilog;
 
-    uint8_t nextop, u8, s8;
+    uint8_t nextop, u8, s8, tmp8u;
     int32_t i32;
     uint8_t gd, ed;
     uint8_t wback, wb1, wb2, gback;
@@ -851,15 +851,22 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     FLTD(x4, v1, d1);
                     BNEZ(x4, 8);
                     B_MARK_nocond;
+                    FMVXD(x3, d0);
                     if (u8 & 4) {
-                        u8 = sse_setround(dyn, ninst, x4, x5);
+                        tmp8u = sse_setround(dyn, ninst, x4, x5);
                         FCVTLD(x5, d0, RD_DYN);
                         FCVTDL(d0, x5, RD_RTZ);
-                        x87_restoreround(dyn, ninst, u8);
+                        x87_restoreround(dyn, ninst, tmp8u);
                     } else {
                         FCVTLD(x5, d0, round_round[u8 & 3]);
                         FCVTDL(d0, x5, RD_RTZ);
                     }
+                    SEQZ(x4, x5);
+                    SLLI(x4, x4, 63);
+                    AND(x3, x3, x4);
+                    FMVXD(x4, d0);
+                    OR(x4, x4, x3);
+                    FMVDX(d0, x4);
                     MARK;
                     FSD(d0, gback, gdoffset + 0);
 
@@ -873,15 +880,22 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     FLTD(x4, v1, d1);
                     BNEZ(x4, 8);
                     B_MARK2_nocond;
+                    FMVXD(x3, d0);
                     if (u8 & 4) {
-                        u8 = sse_setround(dyn, ninst, x4, x5);
+                        tmp8u = sse_setround(dyn, ninst, x4, x5);
                         FCVTLD(x5, d0, RD_DYN);
                         FCVTDL(d0, x5, RD_RTZ);
-                        x87_restoreround(dyn, ninst, u8);
+                        x87_restoreround(dyn, ninst, tmp8u);
                     } else {
                         FCVTLD(x5, d0, round_round[u8 & 3]);
                         FCVTDL(d0, x5, RD_RTZ);
                     }
+                    SEQZ(x4, x5);
+                    SLLI(x4, x4, 63);
+                    AND(x3, x3, x4);
+                    FMVXD(x4, d0);
+                    OR(x4, x4, x3);
+                    FMVDX(d0, x4);
                     MARK2;
                     FSD(d0, gback, gdoffset + 8);
                     break;
@@ -906,15 +920,22 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     if (v0 != d0) FMVS(v0, d0);
                     B_NEXT_nocond;
                     MARK2;
+                    FMVXW(x3, d0);
                     if (u8 & 4) {
-                        u8 = sse_setround(dyn, ninst, x4, x2);
+                        tmp8u = sse_setround(dyn, ninst, x4, x2);
                         FCVTWS(x5, d0, RD_DYN);
                         FCVTSW(v0, x5, RD_RTZ);
-                        x87_restoreround(dyn, ninst, u8);
+                        x87_restoreround(dyn, ninst, tmp8u);
                     } else {
                         FCVTWS(x5, d0, round_round[u8 & 3]);
                         FCVTSW(v0, x5, RD_RTZ);
                     }
+                    SEQZ(x4, x5);
+                    SLLI(x4, x4, 31);
+                    AND(x3, x3, x4);
+                    FMVXW(x4, v0);
+                    OR(x4, x4, x3);
+                    FMVWX(v0, x4);
                     break;
                 case 0x0B:
                     INST_NAME("ROUNDSD Gx, Ex, Ib");
@@ -937,15 +958,22 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     if (v0 != d0) FMVD(v0, d0);
                     B_NEXT_nocond;
                     MARK2;
+                    FMVXD(x3, d0);
                     if (u8 & 4) {
-                        u8 = sse_setround(dyn, ninst, x4, x2);
+                        tmp8u = sse_setround(dyn, ninst, x4, x2);
                         FCVTLD(x5, d0, RD_DYN);
                         FCVTDL(v0, x5, RD_RTZ);
-                        x87_restoreround(dyn, ninst, u8);
+                        x87_restoreround(dyn, ninst, tmp8u);
                     } else {
                         FCVTLD(x5, d0, round_round[u8 & 3]);
                         FCVTDL(v0, x5, RD_RTZ);
                     }
+                    SEQZ(x4, x5);
+                    SLLI(x4, x4, 63);
+                    AND(x3, x3, x4);
+                    FMVXD(x4, v0);
+                    OR(x4, x4, x3);
+                    FMVDX(v0, x4);
                     break;
                 case 0x0C:
                     INST_NAME("BLENDPS Gx, Ex, Ib");
