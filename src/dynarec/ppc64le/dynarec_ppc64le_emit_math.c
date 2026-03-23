@@ -489,3 +489,376 @@ void emit_sub32c(dynarec_ppc64le_t* dyn, int ninst, rex_t rex, int s1, int64_t c
     }
     if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
 }
+
+// emit SBB8 instruction, from s1, s2, store result in s1 using s3, s4 and s5 as scratch
+void emit_sbb8(dynarec_ppc64le_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5)
+{
+    IFX (X_PEND) {
+        STB(s1, offsetof(x64emu_t, op1), xEmu);
+        STB(s2, offsetof(x64emu_t, op2), xEmu);
+        SET_DF(s3, d_sbb8);
+    } else IFXORNAT (X_ALL) {
+        SET_DFNONE();
+    }
+
+    IFX (X_AF | X_CF | X_OF) {
+        // for later flag calculation
+        NOT(s5, s1);
+    }
+
+    SUB(s1, s1, s2);
+    ANDId(s3, xFlags, 1 << F_CF);
+    SUB(s1, s1, s3);
+
+    CLEAR_FLAGS(s3);
+    IFX (X_PEND) {
+        // d_sbb8 will use 16bits result to check for CF
+        STH(s1, offsetof(x64emu_t, res), xEmu);
+    }
+    ANDId(s1, s1, 0xff);
+
+    CALC_SUB_FLAGS(s5, s2, s1, s3, s4, 8);
+    IFX (X_SF) {
+        SRDI(s3, s1, 7);
+        CMPDI(s3, 0);
+        BEQ(8);
+        ORI(xFlags, xFlags, 1 << F_SF);
+    }
+    IFX (X_ZF) {
+        CMPDI(s1, 0);
+        BNE(8);
+        ORI(xFlags, xFlags, 1 << F_ZF);
+    }
+    IFX (X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
+}
+
+// emit SBB8 instruction, from s1, constant c, store result in s1 using s3, s4, s5 and s6 as scratch
+void emit_sbb8c(dynarec_ppc64le_t* dyn, int ninst, int s1, int32_t c, int s3, int s4, int s5, int s6)
+{
+    MOV32w(s6, c & 0xff);
+    emit_sbb8(dyn, ninst, s1, s6, s3, s4, s5);
+}
+
+// emit SBB16 instruction, from s1, s2, store result in s1 using s3, s4 and s5 as scratch
+void emit_sbb16(dynarec_ppc64le_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5)
+{
+    IFX (X_PEND) {
+        STH(s1, offsetof(x64emu_t, op1), xEmu);
+        STH(s2, offsetof(x64emu_t, op2), xEmu);
+        SET_DF(s3, d_sbb16);
+    } else IFXORNAT (X_ALL) {
+        SET_DFNONE();
+    }
+
+    IFX (X_AF | X_CF | X_OF) {
+        // for later flag calculation
+        NOT(s5, s1);
+    }
+
+    SUB(s1, s1, s2);
+    ANDId(s3, xFlags, 1 << F_CF);
+    SUB(s1, s1, s3);
+
+    CLEAR_FLAGS(s3);
+    IFX (X_PEND) {
+        // d_sbb16 will use 32bits result to check for CF
+        STW(s1, offsetof(x64emu_t, res), xEmu);
+    }
+    // Check SF: shift left 48, check sign, shift back
+    SLDI(s1, s1, 48);
+    IFX (X_SF) {
+        CMPDI(s1, 0);
+        BGE(8);
+        ORI(xFlags, xFlags, 1 << F_SF);
+    }
+    SRDI(s1, s1, 48);
+
+    CALC_SUB_FLAGS(s5, s2, s1, s3, s4, 16);
+    IFX (X_ZF) {
+        CMPDI(s1, 0);
+        BNE(8);
+        ORI(xFlags, xFlags, 1 << F_ZF);
+    }
+    IFX (X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
+}
+
+// emit SBB32 instruction, from s1, s2, store result in s1 using s3, s4 and s5 as scratch
+void emit_sbb32(dynarec_ppc64le_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5)
+{
+    IFX (X_PEND) {
+        SDxw(s1, xEmu, offsetof(x64emu_t, op1));
+        SDxw(s2, xEmu, offsetof(x64emu_t, op2));
+        SET_DF(s3, rex.w ? d_sbb64 : d_sbb32);
+    } else IFXORNAT (X_ALL) {
+        SET_DFNONE();
+    }
+
+    IFX (X_AF | X_CF | X_OF) {
+        // for later flag calculation
+        NOT(s5, s1);
+    }
+
+    SUBxw(s1, s1, s2);
+    ANDId(s3, xFlags, 1 << F_CF);
+    SUBxw(s1, s1, s3);
+
+    CLEAR_FLAGS(s3);
+    IFX (X_SF) {
+        SRDI(s3, s1, rex.w ? 63 : 31);
+        CMPDI(s3, 0);
+        BEQ(8);
+        ORI(xFlags, xFlags, 1 << F_SF);
+    }
+    if (!rex.w) ZEROUP(s1);
+    IFX (X_PEND) {
+        SDxw(s1, xEmu, offsetof(x64emu_t, res));
+    }
+    CALC_SUB_FLAGS(s5, s2, s1, s3, s4, rex.w ? 64 : 32);
+    IFX (X_ZF) {
+        CMPDI(s1, 0);
+        BNE(8);
+        ORI(xFlags, xFlags, 1 << F_ZF);
+    }
+    IFX (X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
+}
+
+// emit ADC8 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch
+void emit_adc8(dynarec_ppc64le_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5)
+{
+    IFX (X_PEND) {
+        STB(s1, offsetof(x64emu_t, op1), xEmu);
+        STB(s2, offsetof(x64emu_t, op2), xEmu);
+        SET_DF(s3, d_adc8);
+    } else IFXORNAT (X_ALL) {
+        SET_DFNONE();
+    }
+
+    IFX (X_AF | X_OF) {
+        OR(s4, s1, s2);  // s4 = op1 | op2
+        AND(s5, s1, s2); // s5 = op1 & op2
+    }
+
+    ADD(s1, s1, s2);
+    ANDId(s3, xFlags, 1 << F_CF);
+    ADD(s1, s1, s3);
+
+    CLEAR_FLAGS(s3);
+    IFX (X_PEND) {
+        // d_adc8 will use 16bits result to check for CF
+        STH(s1, offsetof(x64emu_t, res), xEmu);
+    }
+    IFX (X_AF | X_OF) {
+        ANDC(s3, s4, s1); // s3 = ~res & (op1 | op2)
+        OR(s3, s3, s5);   // cc = (~res & (op1 | op2)) | (op1 & op2)
+        IFX (X_AF) {
+            ANDId(s4, s3, 0x08); // AF: cc & 0x08
+            CMPDI(s4, 0);
+            BEQ(8);
+            ORI(xFlags, xFlags, 1 << F_AF);
+        }
+        IFX (X_OF) {
+            SRDI(s3, s3, 6);
+            SRDI(s4, s3, 1);
+            XOR(s3, s3, s4);
+            ANDId(s3, s3, 1); // OF: xor of two MSB's of cc
+            BF_INSERT(xFlags, s3, F_OF, F_OF);
+        }
+    }
+    IFX (X_CF) {
+        SRDI(s3, s1, 8);
+        CMPDI(s3, 0);
+        BEQ(8);
+        ORI(xFlags, xFlags, 1 << F_CF);
+    }
+
+    ANDId(s1, s1, 0xff);
+
+    IFX (X_ZF) {
+        CMPDI(s1, 0);
+        BNE(8);
+        ORI(xFlags, xFlags, 1 << F_ZF);
+    }
+    IFX (X_SF) {
+        SRDI(s3, s1, 7);
+        CMPDI(s3, 0);
+        BEQ(8);
+        ORI(xFlags, xFlags, 1 << F_SF);
+    }
+    IFX (X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
+}
+
+// emit ADC8 instruction, from s1, const c, store result in s1 using s3, s4, s5 and s6 as scratch
+void emit_adc8c(dynarec_ppc64le_t* dyn, int ninst, int s1, int32_t c, int s3, int s4, int s5, int s6)
+{
+    MOV32w(s5, c & 0xff);
+    emit_adc8(dyn, ninst, s1, s5, s3, s4, s6);
+}
+
+// emit ADC16 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch
+void emit_adc16(dynarec_ppc64le_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5)
+{
+    IFX (X_PEND) {
+        STH(s1, offsetof(x64emu_t, op1), xEmu);
+        STH(s2, offsetof(x64emu_t, op2), xEmu);
+        SET_DF(s3, d_adc16);
+    } else IFXORNAT (X_ALL) {
+        SET_DFNONE();
+    }
+
+    IFX (X_AF | X_OF) {
+        OR(s4, s1, s2);  // s4 = op1 | op2
+        AND(s5, s1, s2); // s5 = op1 & op2
+    }
+
+    ADD(s1, s1, s2);
+    ANDId(s3, xFlags, 1 << F_CF);
+    ADD(s1, s1, s3);
+
+    CLEAR_FLAGS(s3);
+    IFX (X_PEND) {
+        // d_adc16 will use 32bits result to check for CF
+        STW(s1, offsetof(x64emu_t, res), xEmu);
+    }
+    IFX (X_AF | X_OF) {
+        ANDC(s3, s4, s1); // s3 = ~res & (op1 | op2)
+        OR(s3, s3, s5);   // cc = (~res & (op1 | op2)) | (op1 & op2)
+        IFX (X_AF) {
+            ANDId(s4, s3, 0x08); // AF: cc & 0x08
+            CMPDI(s4, 0);
+            BEQ(8);
+            ORI(xFlags, xFlags, 1 << F_AF);
+        }
+        IFX (X_OF) {
+            SRDI(s3, s3, 14);
+            SRDI(s4, s3, 1);
+            XOR(s3, s3, s4);
+            ANDId(s3, s3, 1); // OF: xor of two MSB's of cc
+            BF_INSERT(xFlags, s3, F_OF, F_OF);
+        }
+    }
+    IFX (X_CF) {
+        SRDI(s3, s1, 16);
+        CMPDI(s3, 0);
+        BEQ(8);
+        ORI(xFlags, xFlags, 1 << F_CF);
+    }
+
+    BF_EXTRACT(s1, s1, 15, 0);
+
+    IFX (X_ZF) {
+        CMPDI(s1, 0);
+        BNE(8);
+        ORI(xFlags, xFlags, 1 << F_ZF);
+    }
+    IFX (X_SF) {
+        SRDI(s3, s1, 15);
+        CMPDI(s3, 0);
+        BEQ(8);
+        ORI(xFlags, xFlags, 1 << F_SF);
+    }
+    IFX (X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
+}
+
+// emit ADC32 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch
+void emit_adc32(dynarec_ppc64le_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5, int s6)
+{
+    IFX (X_PEND) {
+        SDxw(s1, xEmu, offsetof(x64emu_t, op1));
+        SDxw(s2, xEmu, offsetof(x64emu_t, op2));
+        SET_DF(s3, rex.w ? d_adc64 : d_adc32b);
+    } else IFXORNAT (X_ALL) {
+        SET_DFNONE();
+    }
+
+    IFX (X_CF) {
+        if (rex.w) {
+            ZEROUP2(s5, s1);
+            ZEROUP2(s4, s2);
+            ADD(s5, s5, s4); // lo
+            ANDId(s3, xFlags, 1);
+            ADD(s5, s5, s3); // add carry
+            SRDI(s3, s1, 0x20);
+            SRDI(s4, s2, 0x20);
+            ADD(s4, s4, s3);
+            SRDI(s5, s5, 0x20);
+            ADD(s5, s5, s4); // hi
+            SRADI(s6, s5, 0x20);
+        } else {
+            ZEROUP2(s3, s1);
+            ZEROUP2(s4, s2);
+            ADD(s5, s3, s4);
+            ANDId(s3, xFlags, 1);
+            ADD(s5, s5, s3); // add carry
+            SRDI(s6, s5, 0x20);
+        }
+    }
+    IFX (X_AF | X_OF) {
+        OR(s4, s1, s2);  // s4 = op1 | op2
+        AND(s5, s1, s2); // s5 = op1 & op2
+    }
+
+    ADDxw(s1, s1, s2);
+    ANDId(s3, xFlags, 1 << F_CF);
+    ADDxw(s1, s1, s3);
+
+    IFX (X_PEND) {
+        SDxw(s1, xEmu, offsetof(x64emu_t, res));
+    }
+
+    CLEAR_FLAGS(s3);
+    IFX (X_CF) {
+        CMPDI(s6, 0);
+        BEQ(8);
+        ORI(xFlags, xFlags, 1 << F_CF);
+    }
+    IFX (X_AF | X_OF) {
+        ANDC(s3, s4, s1); // s3 = ~res & (op1 | op2)
+        OR(s3, s3, s5);   // cc = (~res & (op1 | op2)) | (op1 & op2)
+        IFX (X_AF) {
+            ANDId(s4, s3, 0x08); // AF: cc & 0x08
+            CMPDI(s4, 0);
+            BEQ(8);
+            ORI(xFlags, xFlags, 1 << F_AF);
+        }
+        IFX (X_OF) {
+            SRDI(s3, s3, rex.w ? 62 : 30);
+            SRDI(s4, s3, 1);
+            XOR(s3, s3, s4);
+            ANDId(s3, s3, 1); // OF: xor of two MSB's of cc
+            BF_INSERT(xFlags, s3, F_OF, F_OF);
+        }
+    }
+    IFX (X_SF) {
+        SRDI(s3, s1, rex.w ? 63 : 31);
+        CMPDI(s3, 0);
+        BEQ(8);
+        ORI(xFlags, xFlags, 1 << F_SF);
+    }
+    if (!rex.w) {
+        ZEROUP(s1);
+    }
+    IFX (X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+    IFX (X_ZF) {
+        CMPDI(s1, 0);
+        BNE(8);
+        ORI(xFlags, xFlags, 1 << F_ZF);
+    }
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
+}
