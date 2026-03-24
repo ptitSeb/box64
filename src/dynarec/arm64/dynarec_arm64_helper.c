@@ -1516,12 +1516,15 @@ int sse_get_reg(dynarec_arm_t* dyn, int ninst, int s1, int a, int forwrite)
 // get neon register for a SSE reg, but don't try to synch it if it needed to be created
 int sse_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int a)
 {
-    dyn->n.xmm_used |= 1<<a;
     if(dyn->n.ssecache[a].v!=-1) {
         dyn->n.ssecache[a].write = 1;
         dyn->n.neoncache[dyn->n.ssecache[a].reg].t = NEON_CACHE_XMMW;
+        if(!(dyn->n.xmm_used&(1<<a)))   // if it's not used in this opcode, then it's not needed from there
+            dyn->n.xmm_unneeded |= 1<<a;
+        dyn->n.xmm_used |= 1<<a;
         return dyn->n.ssecache[a].reg;
     }
+    dyn->n.xmm_used |= 1<<a;
     dyn->n.xmm_unneeded |= 1<<a;
     dyn->n.ssecache[a].reg = fpu_get_reg_xmm(dyn, NEON_CACHE_XMMW, a);
     dyn->n.ssecache[a].write = 1; // it will be write...
@@ -1729,6 +1732,8 @@ int ymm_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int a, int k1, int 
         if((dyn->n.neoncache[i].t==NEON_CACHE_YMMR || dyn->n.neoncache[i].t==NEON_CACHE_YMMW) && dyn->n.neoncache[i].n==a) {
             dyn->n.neoncache[i].t = NEON_CACHE_YMMW;
             dyn->ymm_zero&=~(1<<a);
+            if(!(dyn->n.ymm_used&=(1<<a)))
+                dyn->n.ymm_unneeded |= 1<<a;
             dyn->n.ymm_used|=(1<<a);
             #if STEP == 0
             dyn->insts[ninst].ymm0_sub |= (1<<a);
@@ -1737,6 +1742,7 @@ int ymm_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int a, int k1, int 
         }
     // nope, grab a new one
     dyn->n.ymm_unneeded |= 1<<a;
+    dyn->n.ymm_used|=(1<<a);
     int ret =  fpu_get_reg_ymm(dyn, ninst, NEON_CACHE_YMMW, a, k1, k2, k3);
     if(dyn->ymm_zero&(1<<a))
         dyn->ymm_zero&=~(1<<a);
