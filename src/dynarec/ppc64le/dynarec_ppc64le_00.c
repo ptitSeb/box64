@@ -33,9 +33,11 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
 {
     uint8_t nextop, opcode;
     uint8_t gd, ed, tmp1, tmp2, tmp3;
+    int8_t i8;
     uint8_t gb1, gb2, eb1, eb2;
     uint8_t wback, wb1, wb2;
     uint8_t u8;
+    uint16_t u16;
     uint32_t u32;
     uint64_t u64;
     int64_t j64;
@@ -44,6 +46,7 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
     int64_t i64, fixedaddress;
     int32_t tmp;
     int lock;
+    int cacheupd = 0;
     MAYUSE(tmp1);
     MAYUSE(tmp2);
     MAYUSE(tmp3);
@@ -57,6 +60,9 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
     MAYUSE(tmp);
     MAYUSE(lock);
     MAYUSE(wb1);
+    MAYUSE(i8);
+    MAYUSE(u16);
+    MAYUSE(cacheupd);
 
     opcode = F8;
 
@@ -512,6 +518,44 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
             gd = TO_NAT((opcode & 0x07) + (rex.b << 3));
             POP1z(gd);
             break;
+#define GO(GETFLAGS, NO, YES, NATNO, NATYES, F, I)                                          \
+    READFLAGS_FUSION(F, x1, x2, x3, x4, x5);                                                \
+    i8 = F8S;                                                                               \
+    JUMP(addr + i8, 1);                                                                     \
+    if (!dyn->insts[ninst].nat_flags_fusion) {                                              \
+        GETFLAGS;                                                                           \
+    }                                                                                       \
+    if (dyn->insts[ninst].x64.jmp_insts == -1 || CHECK_CACHE()) {                           \
+        /* out of block */                                                                  \
+        i32 = dyn->insts[ninst].epilog - (dyn->native_size);                                \
+        if (dyn->insts[ninst].nat_flags_fusion) {                                           \
+            NATIVEJUMP_safe(NATNO, i32);                                                    \
+        } else {                                                                            \
+            B##NO##_safe(tmp1, i32);                                                        \
+        }                                                                                   \
+        if (dyn->insts[ninst].x64.jmp_insts == -1) {                                        \
+            if (!(dyn->insts[ninst].x64.barrier & BARRIER_FLOAT))                           \
+                fpu_purgecache(dyn, ninst, 1, tmp1, tmp2, tmp3);                            \
+            jump_to_next(dyn, addr + i8, 0, ninst, rex.is32bits);                           \
+        } else {                                                                            \
+            CacheTransform(dyn, ninst, cacheupd, tmp1, tmp2, tmp3);                         \
+            i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address - (dyn->native_size); \
+            B(i32);                                                                         \
+        }                                                                                   \
+    } else {                                                                                \
+        /* inside the block */                                                              \
+        i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address - (dyn->native_size);     \
+        if (dyn->insts[ninst].nat_flags_fusion) {                                           \
+            NATIVEJUMP_safe(NATYES, i32);                                                   \
+        } else {                                                                            \
+            B##YES##_safe(tmp1, i32);                                                       \
+        }                                                                                   \
+    }
+
+            GOCOND(0x70, "J", "ib");
+#undef GO
+
+
         case 0x82:
             if (!rex.is32bits) {
                 INST_NAME("Invalid 82");
@@ -968,6 +1012,36 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
                 ZEROUP(xRDX);
             }
             break;
+        case 0xC2:
+            INST_NAME("RETN");
+            if (BOX64DRENV(dynarec_safeflags)) {
+                READFLAGS(X_PEND); // lets play safe here too
+            }
+            BARRIER(BARRIER_FLOAT);
+            u16 = F16;
+            POP1z(xRIP);
+            if (u16 < 2048) {
+                ADDIz(xRSP, xRSP, u16);
+            } else {
+                MOV32w(x1, u16);
+                ADDz(xRSP, xRSP, x1);
+            }
+            ret_to_next(dyn, ip, ninst, rex);
+            *need_epilog = 0;
+            *ok = 0;
+            break;
+        case 0xC3:
+            INST_NAME("RET");
+            if (BOX64DRENV(dynarec_safeflags)) {
+                READFLAGS(X_PEND); // so instead, force the deferred flags, so it's not too slow, and flags are not lost
+            }
+            BARRIER(BARRIER_FLOAT);
+            POP1z(xRIP);
+            ret_to_next(dyn, ip, ninst, rex);
+            *need_epilog = 0;
+            *ok = 0;
+            break;
+
         case 0xC6:
             INST_NAME("MOV Eb, Ib");
             nextop = F8;
@@ -1015,6 +1089,186 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
             MVz(xRSP, xRBP);
             POP1z(xRBP);
             break;
+        case 0xE8:
+            INST_NAME("CALL Id");
+            i32 = F32S;
+            if (addr + i32 == 0) {
+#if STEP == 3
+                printf_log(LOG_INFO, "Warning, CALL to 0x0 at %p (%p)\n", (void*)addr, (void*)(addr - 1));
+#endif
+            }
+#if STEP < 2
+            if (!rex.is32bits && !dyn->need_reloc && IsNativeCall(addr + i32, rex.is32bits, &dyn->insts[ninst].natcall, &dyn->insts[ninst].retn))
+                tmp = dyn->insts[ninst].pass2choice = 3;
+            else
+                tmp = dyn->insts[ninst].pass2choice = i32 ? 0 : 1;
+#else
+            tmp = dyn->insts[ninst].pass2choice;
+#endif
+            switch (tmp) {
+                case 3:
+                    SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags to "dont'care" state
+                    SKIPTEST(x1);
+                    BARRIER(BARRIER_FULL);
+                    if (dyn->last_ip && ((addr - dyn->last_ip < 0x800) || (dyn->last_ip - addr < 0x800))) {
+                        ADDI(x2, xRIP, addr - dyn->last_ip);
+                    } else {
+                        if (dyn->need_reloc) {
+                            TABLE64(x2, addr);
+                        } else {
+                            MOV64x(x2, addr);
+                        }
+                    }
+                    PUSH1(x2);
+                    MESSAGE(LOG_DUMP, "Native Call to %s (retn=%d)\n", GetNativeName(GetNativeFnc(dyn->insts[ninst].natcall - 1), 1), dyn->insts[ninst].retn);
+                    // calling a native function
+                    sse_purge07cache(dyn, ninst, x3);
+                    if ((BOX64ENV(log) < 2 && !BOX64ENV(rolling_log)) && dyn->insts[ninst].natcall) {
+                        // Partially support isSimpleWrapper
+                        tmp = isSimpleWrapper(*(wrapper_t*)(dyn->insts[ninst].natcall + 2));
+                    } else
+                        tmp = 0;
+                    if (tmp < 0 || (tmp & 15) > 1)
+                        tmp = 0; // TODO: removed when FP is in place
+                    if (dyn->insts[ninst].natcall && isRetX87Wrapper(*(wrapper_t*)(dyn->insts[ninst].natcall + 2)))
+                        // return value will be on the stack, so the stack depth needs to be updated
+                        x87_purgecache(dyn, ninst, 0, x3, x1, x4);
+                    if ((BOX64ENV(log) < 2 && !BOX64ENV(rolling_log)) && dyn->insts[ninst].natcall && tmp) {
+                        call_n(dyn, ninst, (void*)(dyn->insts[ninst].natcall + 2 + 8), tmp);
+                        SMWRITE2();
+                        POP1(xRIP); // pop the return address
+                        dyn->last_ip = addr;
+                    } else {
+                        GETIP_(dyn->insts[ninst].natcall, x7); // read the 0xCC already
+                        STORE_XEMU_CALL();
+                        ADDI(x1, xEmu, (uint32_t)offsetof(x64emu_t, ip)); // setup addr as &emu->ip
+                        CALL_S(const_int3, -1, x1);
+                        SMWRITE2();
+                        LOAD_XEMU_CALL();
+                        MOV64x(x3, dyn->insts[ninst].natcall);
+                        ADDI(x3, x3, 2 + 8 + 8);
+                        BNE_MARK(xRIP, x3); // Not the expected address, exit dynarec block
+                        POP1(xRIP);         // pop the return address
+                        if (dyn->insts[ninst].retn) {
+                            if (dyn->insts[ninst].retn < 0x800) {
+                                ADDI(xRSP, xRSP, dyn->insts[ninst].retn);
+                            } else {
+                                MOV64x(x3, dyn->insts[ninst].retn);
+                                ADD(xRSP, xRSP, x3);
+                            }
+                        }
+                        LWZ(x1, offsetof(x64emu_t, quit), xEmu);
+                        CBZ_NEXT(x1);
+                        MARK;
+                        LOAD_XEMU_REM();
+                        jump_to_epilog_fast(dyn, 0, xRIP, ninst);
+                        dyn->last_ip = addr;
+                    }
+                    break;
+                case 1:
+                    // this is call to next step, so just push the return address to the stack
+                    if (dyn->need_reloc) {
+                        TABLE64(x2, addr);
+                    } else {
+                        MOV64x(x2, addr);
+                    }
+                    PUSH1z(x2);
+                    break;
+                default:
+                    if ((BOX64DRENV(dynarec_safeflags) > 1) || (ninst && dyn->insts[ninst - 1].x64.set_flags)) {
+                        READFLAGS(X_PEND); // that's suspicious
+                    } else {
+                        SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags to "dont'care" state
+                    }
+                    // regular call
+                    if (dyn->need_reloc) {
+                        TABLE64(x2, addr);
+                    } else {
+                        MOV64x(x2, addr);
+                    }
+                    BARRIER(BARRIER_FLOAT);
+                    PUSH1z(x2);
+                    if (BOX64DRENV(dynarec_callret)) {
+                        SET_HASCALLRET();
+                        // Push shadow return address {native_addr, x86_addr}
+                        if (addr < (dyn->start + dyn->isize)) {
+                            // return address is within this block
+                            j64 = (dyn->insts) ? (dyn->insts[ninst].epilog - (dyn->native_size)) : 0;
+                            BCL(20, 31, 4);        // LR = addr of next instruction
+                            MFLR(x4);              // x4 = LR
+                            ADDI(x4, x4, j64 - 4); // x4 = native epilog addr
+                            MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64 >> 2);
+                        } else {
+                            // return address is outside this block — point to MARK landing pad
+                            j64 = (dyn->insts) ? (GETMARK - (dyn->native_size)) : 0;
+                            BCL(20, 31, 4);        // LR = addr of next instruction
+                            MFLR(x4);              // x4 = LR
+                            ADDI(x4, x4, j64 - 4); // x4 = native MARK addr
+                            MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64 >> 2);
+                        }
+                        ADDI(xSP, xSP, -16);
+                        STD(x4, 0, xSP); // native return addr
+                        STD(x2, 8, xSP); // x86 return addr
+                    } else {
+                        *ok = 0;
+                        *need_epilog = 0;
+                    }
+                    if (rex.is32bits)
+                        j64 = (uint32_t)(addr + i32);
+                    else
+                        j64 = addr + i32;
+                    jump_to_next(dyn, j64, 0, ninst, rex.is32bits);
+                    if (BOX64DRENV(dynarec_callret) && addr >= (dyn->start + dyn->isize)) {
+                        // return address is outside this block — emit landing pad
+                        MARK;
+                        j64 = getJumpTableAddress64(addr);
+                        if (dyn->need_reloc) {
+                            AddRelocTable64JmpTbl(dyn, ninst, addr, STEP);
+                            TABLE64_(x4, j64);
+                        } else {
+                            MOV64x(x4, j64);
+                        }
+                        LD(x4, 0, x4);
+                        MTCTR(x4);
+                        BCTR();
+                    }
+                    break;
+            }
+            break;
+        case 0xE9:
+        case 0xEB:
+            BARRIER(BARRIER_MAYBE);
+            if (opcode == 0xE9) {
+                INST_NAME("JMP Id");
+                i32 = F32S;
+            } else {
+                INST_NAME("JMP Ib");
+                i32 = F8S;
+            }
+            if (rex.is32bits)
+                j64 = (uint32_t)(addr + i32);
+            else
+                j64 = addr + i32;
+            JUMP((uintptr_t)getAlternate((void*)j64), 0);
+            if (dyn->insts[ninst].x64.jmp_insts == -1) {
+                // out of the block
+                BARRIER(BARRIER_FLOAT);
+                jump_to_next(dyn, (uintptr_t)getAlternate((void*)j64), 0, ninst, rex.is32bits);
+            } else {
+                // inside the block
+                CacheTransform(dyn, ninst, CHECK_CACHE(), x1, x2, x3);
+                tmp = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address - (dyn->native_size);
+                MESSAGE(1, "Jump to %d / 0x%x\n", tmp, tmp);
+                if (tmp == 4) {
+                    NOP();
+                } else {
+                    B(tmp);
+                }
+            }
+            *need_epilog = 0;
+            *ok = 0;
+            break;
+
         default:
             DEFAULT;
     }
