@@ -582,7 +582,7 @@ void EmuCall(x64emu_t* emu, uintptr_t addr)
     emu->df = d_none;
     if(emu->flags.quitonlongjmp)
         emu->flags.need_jmpbuf = 1;
-    EmuRun(emu, 0);
+    EmuRun(emu, 0, 0);
     emu->quit = 0;  // reset Quit flags...
     emu->df = d_none;
     if(emu->flags.quitonlongjmp && emu->flags.longjmp) {

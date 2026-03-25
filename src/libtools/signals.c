@@ -133,7 +133,7 @@ uint64_t RunFunctionHandler(x64emu_t* emu, int* exit, int dynarec, x64_ucontext_
     R_CS = 0x33;
 
     if(dynarec)
-        DynaCall(emu, fnc);
+        DynaCall(emu, fnc, 0);
     else
         EmuCall(emu, fnc);
 

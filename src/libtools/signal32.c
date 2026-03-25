@@ -401,7 +401,7 @@ uint32_t RunFunctionHandler32(int* exit, int dynarec, i386_ucontext_t* sigcontex
     R_CS = 0x23;
 
     if(dynarec)
-        DynaCall(emu, fnc);
+        DynaCall(emu, fnc, 0);
     else
         EmuCall(emu, fnc);
 

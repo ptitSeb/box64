@@ -106,7 +106,7 @@ void* LinkNext(x64emu_t* emu, uintptr_t addr, void* x2, uintptr_t* x3)
 }
 #endif
 
-void DynaCall(x64emu_t* emu, uintptr_t addr)
+void DynaCall(x64emu_t* emu, uintptr_t addr, int no_alt)
 {
     uint64_t old_rsp = R_RSP;
     uint64_t old_rbx = R_RBX;
@@ -131,7 +131,7 @@ void DynaCall(x64emu_t* emu, uintptr_t addr)
     emu->df = d_none;
     if(emu->flags.quitonlongjmp)
         emu->flags.need_jmpbuf = 1;
-    EmuRun(emu, 1);
+    EmuRun(emu, 1, no_alt);
     emu->quit = 0;  // reset Quit flags...
     emu->df = d_none;
     if(emu->flags.quitonlongjmp && emu->flags.longjmp) {
@@ -164,7 +164,7 @@ static dynablock_t* fastDBGetBlock(x64emu_t* emu, uintptr_t addr, int create, in
 }
 #endif
 
-void EmuRun(x64emu_t* emu, int use_dynarec)
+void EmuRun(x64emu_t* emu, int use_dynarec, int no_alt)
 {
     // prepare setjump for signal handling
     JUMPBUFF jmpbuf[1] = {0};
@@ -201,7 +201,10 @@ void EmuRun(x64emu_t* emu, int use_dynarec)
         }
         if(emu->flags.need_jmpbuf)
             emu->flags.need_jmpbuf = 0;
-        R_RIP = (uintptr_t)getAlternate((void*)R_RIP);
+        if(no_alt)
+            no_alt = 0;
+        else
+            R_RIP = (uintptr_t)getAlternate((void*)R_RIP);
 #ifdef DYNAREC
         if(!BOX64ENV(dynarec) || !use_dynarec)
 #endif
@@ -278,5 +281,5 @@ void EmuRun(x64emu_t* emu, int use_dynarec)
 
 void DynaRun(x64emu_t *emu)
 {
-    EmuRun(emu, 1);
+    EmuRun(emu, 1, 0);
 }

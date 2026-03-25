@@ -784,7 +784,7 @@ int EXPORT my_pthread_once(x64emu_t* emu, int* once, void* cb)
 		R_RBP = R_RSP;      // mov rbp, rsp
 		R_RSP &= ~63LL;
 
-		DynaCall(emu, (uintptr_t)cb);  // using DynaCall, speedup wine 7.21 initialisation
+		DynaCall(emu, (uintptr_t)cb, 0);  // using DynaCall, speedup wine 7.21 initialisation
 
 		R_RSP = R_RBP;          // mov rsp, rbp
 		R_RBP = Pop64(emu);     // pop rbp

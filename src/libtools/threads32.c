@@ -436,7 +436,7 @@ int EXPORT my32_pthread_once(x64emu_t* emu, int* once, void* cb)
         R_EBP = R_ESP;       // mov rbp, rsp
         R_ESP -= 0x200;
         R_ESP &= ~63LL;
-        DynaCall(emu, (uintptr_t)cb);
+        DynaCall(emu, (uintptr_t)cb, 0);
         R_ESP = R_EBP;          // mov rsp, rbp
         R_EBP = Pop32(emu);     // pop rbp
         *once = 1;
