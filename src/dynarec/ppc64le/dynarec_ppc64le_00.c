@@ -518,6 +518,125 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
             gd = TO_NAT((opcode & 0x07) + (rex.b << 3));
             POP1z(gd);
             break;
+        case 0x68:
+            INST_NAME("PUSH Id");
+            i64 = F32S;
+            if (PK(0) == 0xC3) {
+                MESSAGE(LOG_DUMP, "PUSH then RET, using indirect\n");
+                TABLE64(x3, addr - 4);
+                LWA(x1, 0, x3);
+                PUSH1z(x1);
+            } else {
+                MOV64z(x3, i64);
+                PUSH1z(x3);
+                SMWRITE();
+            }
+            break;
+        case 0x69:
+            INST_NAME("IMUL Gd, Ed, Id");
+            SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
+            nextop = F8;
+            GETGD;
+            GETED(4);
+            i64 = F32S;
+            MOV64xw(x4, i64);
+            CLEAR_FLAGS(x3);
+            if (rex.w) {
+                UFLAG_IF {
+                    MULHD(x3, ed, x4);
+                    MULLD(gd, ed, x4);
+                    SET_DFNONE();
+                    IFX (X_CF | X_OF) {
+                        SRADI(x4, gd, 63);
+                        XOR(x3, x3, x4);
+                        SNEZ(x3, x3);
+                        IFX (X_CF) BF_INSERT(xFlags, x3, F_CF, F_CF);
+                        IFX (X_OF) BF_INSERT(xFlags, x3, F_OF, F_OF);
+                    }
+                } else {
+                    MULLD(gd, ed, x4);
+                }
+            } else {
+                UFLAG_IF {
+                    EXTSW(x3, ed);
+                    MULLD(x5, x3, x4);
+                    SRDI(x3, x5, 32);
+                    EXTSW(gd, x5);
+                    SET_DFNONE();
+                    IFX (X_CF | X_OF) {
+                        XOR(x3, gd, x5);
+                        SNEZ(x3, x3);
+                        IFX (X_CF) BF_INSERT(xFlags, x3, F_CF, F_CF);
+                        IFX (X_OF) BF_INSERT(xFlags, x3, F_OF, F_OF);
+                    }
+                } else {
+                    MULLW(gd, ed, x4);
+                }
+                ZEROUP(gd);
+            }
+            IFX (X_SF) {
+                SRDI(x3, gd, rex.w ? 63 : 31);
+                BF_INSERT(xFlags, x3, F_SF, F_SF);
+            }
+            IFX (X_PF) emit_pf(dyn, ninst, gd, x3, x4);
+            IFX (X_ALL) SPILL_EFLAGS();
+            break;
+        case 0x6A:
+            INST_NAME("PUSH Ib");
+            i64 = F8S;
+            MOV64z(x3, i64);
+            PUSH1z(x3);
+            SMWRITE();
+            break;
+        case 0x6B:
+            INST_NAME("IMUL Gd, Ed, Ib");
+            SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
+            nextop = F8;
+            GETGD;
+            GETED(1);
+            i64 = F8S;
+            MOV64x(x4, i64);
+            CLEAR_FLAGS(x3);
+            if (rex.w) {
+                UFLAG_IF {
+                    MULHD(x3, ed, x4);
+                    MULLD(gd, ed, x4);
+                    SET_DFNONE();
+                    IFX (X_CF | X_OF) {
+                        SRADI(x4, gd, 63);
+                        XOR(x3, x3, x4);
+                        SNEZ(x3, x3);
+                        IFX (X_CF) BF_INSERT(xFlags, x3, F_CF, F_CF);
+                        IFX (X_OF) BF_INSERT(xFlags, x3, F_OF, F_OF);
+                    }
+                } else {
+                    MULLD(gd, ed, x4);
+                }
+            } else {
+                UFLAG_IF {
+                    EXTSW(x3, ed);
+                    MULLD(x5, x3, x4);
+                    SRDI(x3, x5, 32);
+                    EXTSW(gd, x5);
+                    SET_DFNONE();
+                    IFX (X_CF | X_OF) {
+                        XOR(x3, gd, x5);
+                        SNEZ(x3, x3);
+                        IFX (X_CF) BF_INSERT(xFlags, x3, F_CF, F_CF);
+                        IFX (X_OF) BF_INSERT(xFlags, x3, F_OF, F_OF);
+                    }
+                } else {
+                    MULLW(gd, ed, x4);
+                }
+                ZEROUP(gd);
+            }
+            IFX (X_SF) {
+                SRDI(x3, gd, rex.w ? 63 : 31);
+                BF_INSERT(xFlags, x3, F_SF, F_SF);
+            }
+            IFX (X_PF) emit_pf(dyn, ninst, gd, x3, x4);
+            IFX (X_ALL) SPILL_EFLAGS();
+            break;
 #define GO(GETFLAGS, NO, YES, NATNO, NATYES, F, I)                                          \
     READFLAGS_FUSION(F, x1, x2, x3, x4, x5);                                                \
     i8 = F8S;                                                                               \
@@ -789,6 +908,57 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
             GETGD;
             GETED(0);
             emit_test32(dyn, ninst, rex, ed, gd, x3, x4, x5);
+            break;
+        case 0x86:
+            INST_NAME("(LOCK) XCHG Eb, Gb");
+            nextop = F8;
+            if (MODREG) {
+                GETGB(x1);
+                GETEB(x2, 0);
+                // swap gd and ed using bit-field insert
+                BF_INSERT(wback, gd, wb2 + 7, wb2);
+                BF_INSERT(gb1, ed, gb2 + 7, gb2);
+            } else {
+                GETGB(x1);
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, x2, &fixedaddress, rex, LOCK_LOCK, NO_DISP, 0);
+                // XCHG with memory is always atomic on x86, even without LOCK prefix
+                // Use LBARX/STBCXd for byte-level LL/SC
+                LWSYNC();
+                MARKLOCK;
+                LBARX(x4, 0, wback);
+                STBCXd(gd, 0, wback);
+                BNE_MARKLOCK_CR0;
+                LWSYNC();
+                // x4 = old byte from memory, store into Gb
+                BF_INSERT(gb1, x4, gb2 + 7, gb2);
+            }
+            break;
+        case 0x87:
+            INST_NAME("(LOCK) XCHG Ed, Gd");
+            nextop = F8;
+            if (MODREG) {
+                GETGD;
+                GETED(0);
+                MVxw(x1, gd);
+                MVxw(gd, ed);
+                MVxw(ed, x1);
+            } else {
+                GETGD;
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, NO_DISP, 0);
+                // XCHG with memory is always atomic on x86, even without LOCK prefix
+                LWSYNC();
+                MARKLOCK;
+                if (rex.w) {
+                    LDARX(x1, 0, wback);
+                    STDCXd(gd, 0, wback);
+                } else {
+                    LWARX(x1, 0, wback);
+                    STWCXd(gd, 0, wback);
+                }
+                BNE_MARKLOCK_CR0;
+                LWSYNC();
+                MVxw(gd, x1);
+            }
             break;
         case 0x88:
             INST_NAME("MOV Eb, Gb");
