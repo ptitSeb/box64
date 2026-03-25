@@ -881,8 +881,12 @@ static void*     ogg_page_body_copy = NULL;
 
 static int my_ogg_sync_pageout_32(void* oy, void* og)
 {
-    // Call the original emulated ogg_sync_pageout
+    // Suppress the alternate for the duration of the call to avoid
+    // infinite recursion: RunFunctionFmt -> EmuRun -> getAlternate
+    // would redirect back to this hook without suppression.
+    suppressAlternate((void*)real_ogg_sync_pageout_32);
     int ret = (int)RunFunctionFmt(real_ogg_sync_pageout_32, "pp", oy, og);
+    unsuppressAlternate((void*)real_ogg_sync_pageout_32);
 
     if(ret > 0 && og) {
         // ogg_sync_pageout succeeded — og now has pointers into oy->data

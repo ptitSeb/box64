@@ -11,6 +11,8 @@ void* getAlternate(void* addr);
 void addAlternate(void* addr, void* alt);
 void addCheckAlternate(void* addr, void* alt);
 void cleanAlternate(void);
+void suppressAlternate(void* addr);
+void unsuppressAlternate(void* addr);
 #ifdef HAVE_ALTJUMP
 uintptr_t getAlternateJump(void* addr, int is32bits);
 #endif

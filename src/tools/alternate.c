@@ -20,8 +20,16 @@ typedef struct {
 KHASH_MAP_INIT_INT64(alternate, my_alternate_t)
 static kh_alternate_t *my_alternates = NULL;
 
+// Per-address suppression: when set, getAlternate/hasAlternate/getAlternateJump
+// will return "no alternate" for this specific address.  Used by hooks that need
+// to call through to the original emulated function via RunFunctionFmt without
+// triggering infinite recursion (EmuRun applies getAlternate every iteration).
+static uintptr_t alternate_suppress = 0;
+
 int hasAlternate(void* addr) {
     if(!my_alternates)
+        return 0;
+    if((uintptr_t)addr == alternate_suppress)
         return 0;
     khint_t k = kh_get(alternate, my_alternates, (uintptr_t)addr);
     if(k==kh_end(my_alternates))
@@ -31,6 +39,8 @@ int hasAlternate(void* addr) {
 
 void* getAlternate(void* addr) {
     if(!my_alternates)
+        return addr;
+    if((uintptr_t)addr == alternate_suppress)
         return addr;
     khint_t k = kh_get(alternate, my_alternates, (uintptr_t)addr);
     if(k!=kh_end(my_alternates))
@@ -53,6 +63,15 @@ void addAlternate(void* addr, void* alt) {
     #endif
 }
 
+void suppressAlternate(void* addr) {
+    alternate_suppress = (uintptr_t)addr;
+}
+
+void unsuppressAlternate(void* addr) {
+    (void)addr;
+    alternate_suppress = 0;
+}
+
 void addCheckAlternate(void* addr, void* alt) {
     if(!hasAlternate(addr))
         addAlternate(addr, alt);
@@ -69,6 +88,8 @@ void cleanAlternate() {
 #include "bridge_private.h"
 uintptr_t getAlternateJump(void* addr, int is32bits) {
     if(!my_alternates)
+        return 0;
+    if((uintptr_t)addr == alternate_suppress)
         return 0;
     khint_t k = kh_get(alternate, my_alternates, (uintptr_t)addr);
     if(k!=kh_end(my_alternates)) {
