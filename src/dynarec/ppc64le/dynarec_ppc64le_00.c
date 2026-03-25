@@ -1012,6 +1012,257 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
                 ZEROUP(xRDX);
             }
             break;
+        case 0xC0:
+            nextop = F8;
+            switch ((nextop >> 3) & 7) {
+                case 0:
+                    INST_NAME("ROL Eb, Ib");
+                    u8 = geted_ib(dyn, addr, ninst, nextop) & 0x1f;
+                    if (u8) {
+                        SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
+                        GETEB(x1, 1);
+                        u8 = F8 & 0x1f;
+                        emit_rol8c(dyn, ninst, ed, u8, x4, x5, x6);
+                        EBBACK();
+                    } else {
+                        FAKEED;
+                        F8;
+                    }
+                    break;
+                case 1:
+                    INST_NAME("ROR Eb, Ib");
+                    u8 = geted_ib(dyn, addr, ninst, nextop) & 0x1f;
+                    if (u8) {
+                        SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
+                        GETEB(x1, 1);
+                        u8 = F8 & 0x1f;
+                        emit_ror8c(dyn, ninst, x1, u8, x4, x5);
+                        EBBACK();
+                    } else {
+                        FAKEED;
+                        F8;
+                    }
+                    break;
+                case 2:
+                    INST_NAME("RCL Eb, Ib");
+                    u8 = geted_ib(dyn, addr, ninst, nextop) & 0x1f;
+                    if (u8) {
+                        READFLAGS(X_CF);
+                        SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
+                        GETEB(x1, 1);
+                        u8 = F8 & 0x1f;
+                        emit_rcl8c(dyn, ninst, x1, u8, x4, x5);
+                        EBBACK();
+                    } else {
+                        FAKEED;
+                        F8;
+                    }
+                    break;
+                case 3:
+                    INST_NAME("RCR Eb, Ib");
+                    u8 = geted_ib(dyn, addr, ninst, nextop) & 0x1f;
+                    if (u8) {
+                        READFLAGS(X_CF);
+                        SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
+                        GETEB(x1, 1);
+                        u8 = F8 & 0x1f;
+                        emit_rcr8c(dyn, ninst, x1, u8, x4, x5);
+                        EBBACK();
+                    } else {
+                        FAKEED;
+                        F8;
+                    }
+                    break;
+                case 4:
+                case 6:
+                    INST_NAME("SHL Eb, Ib");
+                    u8 = geted_ib(dyn, addr, ninst, nextop) & 0x1f;
+                    if (u8) {
+                        SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+                        GETEB(x1, 1);
+                        u8 = (F8) & 0x1f;
+                        emit_shl8c(dyn, ninst, ed, u8, x4, x5);
+                        EBBACK();
+                    } else {
+                        FAKEED;
+                        F8;
+                    }
+                    break;
+                case 5:
+                    INST_NAME("SHR Eb, Ib");
+                    u8 = geted_ib(dyn, addr, ninst, nextop) & 0x1f;
+                    if (u8) {
+                        SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+                        GETEB(x1, 1);
+                        u8 = (F8) & 0x1f;
+                        emit_shr8c(dyn, ninst, ed, u8, x4, x5);
+                        EBBACK();
+                    } else {
+                        FAKEED;
+                        F8;
+                    }
+                    break;
+                case 7:
+                    INST_NAME("SAR Eb, Ib");
+                    u8 = geted_ib(dyn, addr, ninst, nextop) & 0x1f;
+                    if (u8) {
+                        SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+                        GETSEB(x1, 1);
+                        u8 = (F8) & 0x1f;
+                        emit_sar8c(dyn, ninst, ed, u8, x4, x5);
+                        EBBACK();
+                    } else {
+                        FAKEED;
+                        F8;
+                    }
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
+        case 0xC1:
+            nextop = F8;
+            switch ((nextop >> 3) & 7) {
+                case 0:
+                    INST_NAME("ROL Ed, Ib");
+                    u8 = geted_ib(dyn, addr, ninst, nextop) & (0x1f + (rex.w * 0x20));
+                    if (u8) {
+                        SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
+                        GETED(1);
+                        u8 = (F8) & (rex.w ? 0x3f : 0x1f);
+                        emit_rol32c(dyn, ninst, rex, ed, u8, x3, x4);
+                        WBACK;
+                    } else {
+                        if (MODREG && !rex.w && !rex.is32bits) {
+                            GETED(1);
+                            ZEROUP(ed);
+                        } else {
+                            FAKEED;
+                        }
+                        F8;
+                    }
+                    break;
+                case 1:
+                    INST_NAME("ROR Ed, Ib");
+                    u8 = geted_ib(dyn, addr, ninst, nextop) & (0x1f + (rex.w * 0x20));
+                    if (u8) {
+                        SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
+                        GETED(1);
+                        u8 = (F8) & (rex.w ? 0x3f : 0x1f);
+                        emit_ror32c(dyn, ninst, rex, ed, u8, x3, x4);
+                        WBACK;
+                    } else {
+                        if (MODREG && !rex.w && !rex.is32bits) {
+                            GETED(1);
+                            ZEROUP(ed);
+                        } else {
+                            FAKEED;
+                        }
+                        F8;
+                    }
+                    break;
+                case 2:
+                    INST_NAME("RCL Ed, Ib");
+                    u8 = geted_ib(dyn, addr, ninst, nextop) & (0x1f + (rex.w * 0x20));
+                    if (u8) {
+                        READFLAGS(X_CF);
+                        SETFLAGS(X_CF | X_OF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
+                        GETED(1);
+                        u8 = (F8) & (rex.w ? 0x3f : 0x1f);
+                        emit_rcl32c(dyn, ninst, rex, ed, u8, x3, x4, x5);
+                        WBACK;
+                    } else {
+                        if (MODREG && !rex.w && !rex.is32bits) {
+                            GETED(1);
+                            ZEROUP(ed);
+                        } else {
+                            FAKEED;
+                        }
+                        F8;
+                    }
+                    break;
+                case 3:
+                    INST_NAME("RCR Ed, Ib");
+                    u8 = geted_ib(dyn, addr, ninst, nextop) & (0x1f + (rex.w * 0x20));
+                    if (u8) {
+                        READFLAGS(X_CF);
+                        SETFLAGS(X_CF | X_OF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
+                        GETED(1);
+                        u8 = (F8) & (rex.w ? 0x3f : 0x1f);
+                        emit_rcr32c(dyn, ninst, rex, ed, u8, x3, x4, x5);
+                        WBACK;
+                    } else {
+                        if (MODREG && !rex.w && !rex.is32bits) {
+                            GETED(1);
+                            ZEROUP(ed);
+                        } else {
+                            FAKEED;
+                        }
+                        F8;
+                    }
+                    break;
+                case 4:
+                case 6:
+                    INST_NAME("SHL Ed, Ib");
+                    u8 = geted_ib(dyn, addr, ninst, nextop) & (0x1f + (rex.w * 0x20));
+                    if (u8) {
+                        SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+                        GETED(1);
+                        u8 = (F8) & (rex.w ? 0x3f : 0x1f);
+                        emit_shl32c(dyn, ninst, rex, ed, u8, x3, x4, x5);
+                        WBACK;
+                    } else {
+                        if (MODREG && !rex.w && !rex.is32bits) {
+                            GETED(1);
+                            ZEROUP(ed);
+                        } else {
+                            FAKEED;
+                        }
+                        F8;
+                    }
+                    break;
+                case 5:
+                    INST_NAME("SHR Ed, Ib");
+                    u8 = geted_ib(dyn, addr, ninst, nextop) & (0x1f + (rex.w * 0x20));
+                    if (u8) {
+                        SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+                        GETED(1);
+                        u8 = (F8) & (rex.w ? 0x3f : 0x1f);
+                        emit_shr32c(dyn, ninst, rex, ed, u8, x3, x4);
+                        WBACK;
+                    } else {
+                        if (MODREG && !rex.w && !rex.is32bits) {
+                            GETED(1);
+                            ZEROUP(ed);
+                        } else {
+                            FAKEED;
+                        }
+                        F8;
+                    }
+                    break;
+                case 7:
+                    INST_NAME("SAR Ed, Ib");
+                    u8 = geted_ib(dyn, addr, ninst, nextop) & (0x1f + (rex.w * 0x20));
+                    if (u8) {
+                        SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
+                        GETED(1);
+                        u8 = (F8) & (rex.w ? 0x3f : 0x1f);
+                        emit_sar32c(dyn, ninst, rex, ed, u8, x3, x4);
+                        WBACK;
+                    } else {
+                        if (MODREG && !rex.w && !rex.is32bits) {
+                            GETED(1);
+                            ZEROUP(ed);
+                        } else {
+                            FAKEED;
+                        }
+                        F8;
+                    }
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
         case 0xC2:
             INST_NAME("RETN");
             if (BOX64DRENV(dynarec_safeflags)) {
@@ -1269,6 +1520,376 @@ uintptr_t dynarec64_00(dynarec_ppc64le_t* dyn, uintptr_t addr, uintptr_t ip, int
             *ok = 0;
             break;
 
+        case 0xD0:
+            nextop = F8;
+            switch ((nextop >> 3) & 7) {
+                case 0:
+                    INST_NAME("ROL Eb, 1");
+                    GETEB(x1, 0);
+                    SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
+                    emit_rol8c(dyn, ninst, ed, 1, x4, x5, x6);
+                    EBBACK();
+                    break;
+                case 1:
+                    INST_NAME("ROR Eb, 1");
+                    SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
+                    GETEB(x1, 0);
+                    emit_ror8c(dyn, ninst, ed, 1, x4, x5);
+                    EBBACK();
+                    break;
+                case 2:
+                    INST_NAME("RCL Eb, 1");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
+                    GETEB(x1, 0);
+                    emit_rcl8c(dyn, ninst, ed, 1, x4, x5);
+                    EBBACK();
+                    break;
+                case 3:
+                    INST_NAME("RCR Eb, 1");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
+                    GETEB(x1, 0);
+                    emit_rcr8c(dyn, ninst, ed, 1, x4, x5);
+                    EBBACK();
+                    break;
+                case 4:
+                case 6:
+                    INST_NAME("SHL Eb, 1");
+                    GETEB(x1, 0);
+                    MOV32w(x2, 1);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
+                    emit_shl8(dyn, ninst, x1, x2, x5, x4, x6);
+                    EBBACK();
+                    break;
+                case 5:
+                    INST_NAME("SHR Eb, 1");
+                    GETEB(x1, 0);
+                    MOV32w(x2, 1);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
+                    emit_shr8(dyn, ninst, x1, x2, x5, x4, x6);
+                    EBBACK();
+                    break;
+                case 7:
+                    INST_NAME("SAR Eb, 1");
+                    GETSEB(x1, 0);
+                    MOV32w(x2, 1);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
+                    emit_sar8(dyn, ninst, x1, x2, x5, x4, x6);
+                    EBBACK();
+                    break;
+            }
+            break;
+        case 0xD1:
+            nextop = F8;
+            switch ((nextop >> 3) & 7) {
+                case 0:
+                    INST_NAME("ROL Ed, 1");
+                    SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
+                    GETED(0);
+                    emit_rol32c(dyn, ninst, rex, ed, 1, x3, x4);
+                    WBACK;
+                    break;
+                case 1:
+                    INST_NAME("ROR Ed, 1");
+                    SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
+                    GETED(0);
+                    emit_ror32c(dyn, ninst, rex, ed, 1, x3, x4);
+                    WBACK;
+                    break;
+                case 2:
+                    INST_NAME("RCL Ed, 1");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
+                    GETED(0);
+                    emit_rcl32c(dyn, ninst, rex, ed, 1, x3, x4, x5);
+                    WBACK;
+                    break;
+                case 3:
+                    INST_NAME("RCR Ed, 1");
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
+                    GETED(0);
+                    emit_rcr32c(dyn, ninst, rex, ed, 1, x3, x4, x5);
+                    WBACK;
+                    break;
+                case 4:
+                case 6:
+                    INST_NAME("SHL Ed, 1");
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
+                    GETED(0);
+                    emit_shl32c(dyn, ninst, rex, ed, 1, x3, x4, x5);
+                    WBACK;
+                    break;
+                case 5:
+                    INST_NAME("SHR Ed, 1");
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
+                    GETED(0);
+                    emit_shr32c(dyn, ninst, rex, ed, 1, x3, x4);
+                    WBACK;
+                    break;
+                case 7:
+                    INST_NAME("SAR Ed, 1");
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
+                    GETED(0);
+                    emit_sar32c(dyn, ninst, rex, ed, 1, x3, x4);
+                    WBACK;
+                    break;
+            }
+            break;
+        case 0xD2:
+            nextop = F8;
+            switch ((nextop >> 3) & 7) {
+                case 0:
+                    INST_NAME("ROL Eb, CL");
+                    GETEB(x1, 0);
+                    if (BOX64DRENV(dynarec_safeflags) > 1) {
+                        READFLAGS(X_OF | X_CF);
+                    }
+                    SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
+                    UFLAG_IF {
+                        ANDI(x2, xRCX, 0x1f);
+                        CBZ_NEXT(x2);
+                    }
+                    ANDI(x2, xRCX, 7);
+                    emit_rol8(dyn, ninst, ed, x2, x4, x5);
+                    EBBACK();
+                    break;
+                case 1:
+                    INST_NAME("ROR Eb, CL");
+                    GETEB(x1, 0);
+                    if (BOX64DRENV(dynarec_safeflags) > 1) {
+                        READFLAGS(X_OF | X_CF);
+                    }
+                    SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
+                    UFLAG_IF {
+                        ANDI(x2, xRCX, 0x1f);
+                        CBZ_NEXT(x2);
+                    }
+                    ANDI(x2, xRCX, 7);
+                    emit_ror8(dyn, ninst, ed, x2, x4, x5);
+                    EBBACK();
+                    break;
+                case 2:
+                    INST_NAME("RCL Eb, CL");
+                    GETEB(x1, 0);
+                    if (BOX64DRENV(dynarec_safeflags) > 1) {
+                        READFLAGS(X_OF | X_CF);
+                    } else {
+                        READFLAGS(X_CF);
+                    }
+                    SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
+                    ANDI(x2, xRCX, 0x1f);
+                    CBZ_NEXT(x2);
+                    emit_rcl8(dyn, ninst, ed, x2, x4, x5, x6);
+                    EBBACK();
+                    break;
+                case 3:
+                    INST_NAME("RCR Eb, CL");
+                    GETEB(x1, 0);
+                    if (BOX64DRENV(dynarec_safeflags) > 1) {
+                        READFLAGS(X_OF | X_CF);
+                    } else {
+                        READFLAGS(X_CF);
+                    }
+                    SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
+                    ANDI(x2, xRCX, 0x1f);
+                    CBZ_NEXT(x2);
+                    emit_rcr8(dyn, ninst, ed, x2, x4, x5, x6);
+                    EBBACK();
+                    break;
+                case 4:
+                case 6:
+                    INST_NAME("SHL Eb, CL");
+                    GETEB(x1, 0);
+                    ANDI(x2, xRCX, 0x1F);
+                    CBZ_NEXT(x2);
+                    if (BOX64DRENV(dynarec_safeflags) > 1) {
+                        READFLAGS(X_ALL);
+                        SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_FUSION);
+                    } else
+                        SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+                    emit_shl8(dyn, ninst, x1, x2, x5, x4, x6);
+                    EBBACK();
+                    break;
+                case 5:
+                    INST_NAME("SHR Eb, CL");
+                    GETEB(x1, 0);
+                    ANDI(x2, xRCX, 0x1F);
+                    CBZ_NEXT(x2);
+                    if (BOX64DRENV(dynarec_safeflags) > 1) {
+                        READFLAGS(X_ALL);
+                        SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_FUSION);
+                    } else
+                        SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+                    emit_shr8(dyn, ninst, x1, x2, x5, x4, x6);
+                    EBBACK();
+                    break;
+                case 7:
+                    INST_NAME("SAR Eb, CL");
+                    GETSEB(x1, 0);
+                    ANDI(x2, xRCX, 0x1f);
+                    CBZ_NEXT(x2);
+                    if (BOX64DRENV(dynarec_safeflags) > 1) {
+                        READFLAGS(X_ALL);
+                        SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_FUSION);
+                    } else
+                        SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+                    emit_sar8(dyn, ninst, x1, x2, x5, x4, x6);
+                    EBBACK();
+                    break;
+            }
+            break;
+        case 0xD3:
+            nextop = F8;
+            switch ((nextop >> 3) & 7) {
+                case 0:
+                    INST_NAME("ROL Ed, CL");
+                    if (BOX64DRENV(dynarec_safeflags) > 1) {
+                        READFLAGS(X_OF | X_CF);
+                    }
+                    SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
+                    GETED(0);
+                    ANDI(x6, xRCX, rex.w ? 0x3f : 0x1f);
+                    if (!rex.w && !rex.is32bits && MODREG) ZEROUP(ed);
+                    CBZ_NEXT(x6);
+                    emit_rol32(dyn, ninst, rex, ed, x6, x3, x4);
+                    WBACK;
+                    break;
+                case 1:
+                    INST_NAME("ROR Ed, CL");
+                    if (BOX64DRENV(dynarec_safeflags) > 1) {
+                        READFLAGS(X_OF | X_CF);
+                    }
+                    SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
+                    GETED(0);
+                    ANDI(x6, xRCX, rex.w ? 0x3f : 0x1f);
+                    if (!rex.w && !rex.is32bits && MODREG) ZEROUP(ed);
+                    CBZ_NEXT(x6);
+                    emit_ror32(dyn, ninst, rex, ed, x6, x3, x4);
+                    WBACK;
+                    break;
+                case 2:
+                    INST_NAME("RCL Ed, CL");
+                    if (BOX64DRENV(dynarec_safeflags) > 1) {
+                        READFLAGS(X_OF | X_CF);
+                    } else {
+                        READFLAGS(X_CF);
+                    }
+                    SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
+                    ANDI(x3, xRCX, rex.w ? 63 : 31);
+                    GETED(0);
+                    UFLAG_IF {
+                        if (!rex.w && !rex.is32bits && MODREG) { ZEROUP(ed); }
+                    }
+                    CBZ_NEXT(x3);
+                    emit_rcl32(dyn, ninst, rex, ed, x3, x5, x4, x6);
+                    WBACK;
+                    break;
+                case 3:
+                    INST_NAME("RCR Ed, CL");
+                    if (BOX64DRENV(dynarec_safeflags) > 1) {
+                        READFLAGS(X_OF | X_CF);
+                    } else {
+                        READFLAGS(X_CF);
+                    }
+                    SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
+                    if (rex.w) {
+                        ANDI(x3, xRCX, 0x3f);
+                    } else {
+                        ANDI(x3, xRCX, 0x1f);
+                    }
+                    GETED(0);
+                    UFLAG_IF {
+                        if (!rex.w && !rex.is32bits && MODREG) { ZEROUP(ed); }
+                    }
+                    CBZ_NEXT(x3);
+                    emit_rcr32(dyn, ninst, rex, ed, x3, x5, x4, x6);
+                    WBACK;
+                    break;
+                case 4:
+                case 6:
+                    INST_NAME("SHL Ed, CL");
+                    if (BOX64DRENV(dynarec_safeflags) > 1) {
+                        READFLAGS(X_ALL);
+                        SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_FUSION);
+                    } else
+                        SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+                    if (!dyn->insts[ninst].x64.gen_flags) {
+                        GETED(0);
+                        // x86 SHL masks shift count: 0x3F for 64-bit, 0x1F for 32-bit
+                        // PPC64LE sld/slw zero the result when shift >= 64/32, so we must mask first
+                        ANDI(x3, xRCX, rex.w ? 0x3f : 0x1f);
+                        if (rex.w)
+                            SLD(ed, ed, x3);
+                        else
+                            SLW(ed, ed, x3);
+                        if (dyn->insts[ninst].nat_flags_fusion) {
+                            if (!rex.w) ZEROUP(ed);
+                            NAT_FLAGS_OPS(ed, xZR, x5, xZR);
+                        } else if (!rex.w && MODREG) {
+                            ZEROUP(ed);
+                        }
+                        WBACK;
+                        break;
+                    }
+                    ANDI(x3, xRCX, rex.w ? 0x3f : 0x1f);
+                    GETED(0);
+                    if (!rex.w && !rex.is32bits && MODREG) ZEROUP(ed);
+                    CBZ_NEXT(x3);
+                    emit_shl32(dyn, ninst, rex, ed, x3, x5, x4, x6);
+                    WBACK;
+                    break;
+                case 5:
+                    INST_NAME("SHR Ed, CL");
+                    if (BOX64DRENV(dynarec_safeflags) > 1) {
+                        READFLAGS(X_ALL);
+                        SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_FUSION);
+                    } else
+                        SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+                    if (!dyn->insts[ninst].x64.gen_flags) {
+                        GETED(0);
+                        // x86 SHR masks shift count: 0x3F for 64-bit, 0x1F for 32-bit
+                        // PPC64LE srd/srw zero the result when shift >= 64/32, so we must mask first
+                        ANDI(x3, xRCX, rex.w ? 0x3f : 0x1f);
+                        if (rex.w)
+                            SRD(ed, ed, x3);
+                        else
+                            SRW(ed, ed, x3);
+                        if (dyn->insts[ninst].nat_flags_fusion) {
+                            if (!rex.w) ZEROUP(ed);
+                            NAT_FLAGS_OPS(ed, xZR, x5, xZR);
+                        } else if (!rex.w && MODREG) {
+                            ZEROUP(ed);
+                        }
+                        WBACK;
+                        break;
+                    }
+                    ANDI(x3, xRCX, rex.w ? 0x3f : 0x1f);
+                    GETED(0);
+                    if (!rex.w && !rex.is32bits && MODREG) ZEROUP(ed);
+                    CBZ_NEXT(x3);
+                    emit_shr32(dyn, ninst, rex, ed, x3, x5, x4);
+                    WBACK;
+                    break;
+                case 7:
+                    INST_NAME("SAR Ed, CL");
+                    if (BOX64DRENV(dynarec_safeflags) > 1) {
+                        READFLAGS(X_ALL);
+                        SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_FUSION);
+                    } else
+                        SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+                    ANDI(x3, xRCX, rex.w ? 0x3f : 0x1f);
+                    GETED(0);
+                    if (!rex.w && !rex.is32bits && MODREG) { ZEROUP(ed); }
+                    CBZ_NEXT(x3);
+                    emit_sar32(dyn, ninst, rex, ed, x3, x5, x4);
+                    WBACK;
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
         default:
             DEFAULT;
     }
