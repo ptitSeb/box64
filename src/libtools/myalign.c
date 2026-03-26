@@ -1750,9 +1750,10 @@ void register_xcb_display(void* d, void* xcb)
 void unregister_xcb_display(void* d)
 {
     for(int i=0; i<NXCB; ++i)
-        if(&xcb_display[i] == d) {
+        if(xcb_display[i] == d) {
             my_xcb_connects[i] = NULL;
             memset(&x64_xcb_connects[i], 0, sizeof(x64_xcb_connection_t));
+            xcb_display[i] = NULL;
             return;
         }
 }
