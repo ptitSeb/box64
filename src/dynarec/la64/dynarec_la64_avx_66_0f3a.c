@@ -530,7 +530,15 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
         case 0x20:
             INST_NAME("VPINSRB Gx, Vx, ED, Ib");
             nextop = F8;
-            GETEB(x5, 1);
+            if (MODREG) {
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                wback = 0;
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, 1);
+                LD_B(x1, wback, fixedaddress);
+                ed = x1;
+            }
             GETVYx(v1, 0);
             GETGYx_empty(v0);
             u8 = F8;
