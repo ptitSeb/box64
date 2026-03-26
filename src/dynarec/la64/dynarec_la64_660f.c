@@ -654,7 +654,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     INST_NAME("PCMPEQQ Gx, Ex"); // SSE4 opcode!
                     nextop = F8;
                     GETEX(q1, 0, 0);
-                    GETGX_empty(q0);
+                    GETGX(q0, 1);
                     VSEQ_D(q0, q0, q1);
                     break;
                 case 0x2A:
@@ -931,13 +931,13 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     SETFLAGS(X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION);
                     GETED(0);
                     GETGD;
-                    if(cpuext.lbt) {
-                        X64_GET_EFLAGS(x3, X_CF);   // CF pos is 0, no need SLLI
+                    if (cpuext.lbt) {
+                        X64_GET_EFLAGS(x3, X_CF); // CF pos is 0, no need SLLI
                     } else {
                         BSTRPICK_D(x3, xFlags, F_CF, F_CF);
                     }
-                    IFX(X_CF) {
-                        if(rex.w) {
+                    IFX (X_CF) {
+                        if (rex.w) {
                             ADD_D(x4, gd, ed);
                             SLTU(x5, x4, gd);
                             ADD_D(gd, x4, x3);
@@ -952,7 +952,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             SLTU(x6, gd, x4);
                         }
                         OR(x5, x5, x6);
-                        if(cpuext.lbt) {
+                        if (cpuext.lbt) {
                             X64_SET_EFLAGS(x5, X_CF);
                         } else {
                             BSTRINS_D(xFlags, x5, F_CF, F_CF);
@@ -1446,7 +1446,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
     READFLAGS(F);                                                                            \
     tmp1 = x1;                                                                               \
     tmp3 = x3;                                                                               \
-    if (cpuext.lbt) {                                                                          \
+    if (cpuext.lbt) {                                                                        \
         X64_SETJ(x1, I);                                                                     \
     } else {                                                                                 \
         GETFLAGS;                                                                            \
@@ -1460,7 +1460,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         LD_HU(x4, ed, fixedaddress);                                                         \
         ed = x4;                                                                             \
     }                                                                                        \
-    if (cpuext.lbt)                                                                            \
+    if (cpuext.lbt)                                                                          \
         BEQZ(x1, 4 + 4);                                                                     \
     else                                                                                     \
         B##NO(x1, 4 + 4);                                                                    \
@@ -2659,7 +2659,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0xCF:
             INST_NAME("BSWAP Reg");
             gd = TO_NAT((opcode & 7) + (rex.b << 3));
-            if(rex.w){
+            if (rex.w) {
                 REVB_D(gd, gd);
             } else {
                 // undefined behaviour
