@@ -1207,7 +1207,6 @@ int x87_get_current_cache(dynarec_la64_t* dyn, int ninst, int st, int t)
 #endif
             return i;
         }
-        assert(dyn->lsx.x87cache[i] < 8);
     }
     return -1;
 }
@@ -1252,7 +1251,7 @@ int x87_get_lsxcache(dynarec_la64_t* dyn, int ninst, int s1, int s2, int st)
                 || dyn->lsx.lsxcache[ii].t == LSX_CACHE_ST_I64)
             && dyn->lsx.lsxcache[ii].n == st)
             return ii;
-    assert(0);
+    dynarec_log(LOG_NONE, "Warning: x87_get_lsxcache didn't find cache for ninst=%d\n", ninst);
     return -1;
 }
 int x87_get_st(dynarec_la64_t* dyn, int ninst, int s1, int s2, int a, int t)
