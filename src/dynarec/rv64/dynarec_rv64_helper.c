@@ -1097,7 +1097,6 @@ int x87_get_current_cache(dynarec_rv64_t* dyn, int ninst, int st, int t)
 #endif
             return i;
         }
-        assert(dyn->e.x87cache[i] < 8);
     }
     return -1;
 }
@@ -1144,7 +1143,7 @@ int x87_get_extcache(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int st)
                 || dyn->e.extcache[ii].t == EXT_CACHE_ST_I64)
             && dyn->e.extcache[ii].n == st)
             return ii;
-    assert(0);
+    dynarec_log(LOG_NONE, "Warning: x87_get_extcache didn't find cache for ninst=%d\n", ninst);
     return -1;
 }
 int x87_get_st(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int a, int t)
