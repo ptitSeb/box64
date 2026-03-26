@@ -352,7 +352,9 @@ static const scwrap_t syscallwrap[] = {
     #ifdef __NR_fchmodat4
     [434] = {__NR_fchmodat4, 4},
     #endif
+    #ifdef __NR_close_range
     [436] = {__NR_close_range, 3},
+    #endif
     #ifdef __NR_faccessat2
     [439] = {__NR_faccessat2, 4},
     #endif
