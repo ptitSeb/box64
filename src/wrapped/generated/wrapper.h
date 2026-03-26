@@ -2794,6 +2794,7 @@ void uFpupupu(x64emu_t *emu, uintptr_t fnc);
 void uFpupupp(x64emu_t *emu, uintptr_t fnc);
 void uFpupppp(x64emu_t *emu, uintptr_t fnc);
 void uFppiiii(x64emu_t *emu, uintptr_t fnc);
+void uFppiuup(x64emu_t *emu, uintptr_t fnc);
 void uFppCCCC(x64emu_t *emu, uintptr_t fnc);
 void uFppuuup(x64emu_t *emu, uintptr_t fnc);
 void uFppuupu(x64emu_t *emu, uintptr_t fnc);

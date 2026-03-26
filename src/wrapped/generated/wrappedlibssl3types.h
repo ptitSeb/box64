@@ -47,6 +47,7 @@ typedef int32_t (*iFlpppp_t)(intptr_t, void*, void*, void*, void*);
 	GO(SSL_CTX_set_verify, vFpip_t) \
 	GO(SSL_set_verify, vFpip_t) \
 	GO(SSL_CTX_set_alpn_select_cb, vFppp_t) \
+	GO(SSL_CTX_set_cert_cb, vFppp_t) \
 	GO(SSL_CTX_set_cert_verify_callback, vFppp_t) \
 	GO(SSL_CTX_set_next_proto_select_cb, vFppp_t) \
 	GO(SSL_CTX_callback_ctrl, lFpip_t) \
