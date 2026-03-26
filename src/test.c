@@ -15,6 +15,8 @@
 #include "json.h"
 #include "elfloader.h"
 #include "x64emu.h"
+#include "emu/x64emu_private.h"
+#include "emu/x87emu_private.h"
 #include "box64cpu.h"
 #include "box64cpu_util.h"
 #include "x64trace.h"
@@ -28,11 +30,13 @@ extern FILE* ftrace;
 
 uint64_t regs[16] = { 0 };
 uint64_t ymmregs[16][4] = { { 0 } };
+uint64_t mmregs[8] = { 0 };
 uint64_t flags = 0;
 
 bool check_regs[16] = { 0 };
 bool check_xmmregs[16] = { 0 };
 bool check_ymmregs[16] = { 0 };
+bool check_mmregs[8] = { 0 };
 bool check_flags = false;
 
 int cputype = 0;
@@ -201,6 +205,29 @@ static void loadTest(const char** filepath, const char* include_path)
     REG(XMM13);
     REG(XMM14);
     REG(XMM15);
+#undef REG
+
+    i = 0;
+
+#define REG(name)                                                                   \
+    if (regdata && regdata->type == json_type_object) {                             \
+        struct json_value_s* r##name = json_find(regdata->payload, #name);          \
+        if (r##name && r##name->type == json_type_string) {                         \
+            struct json_string_s* string = (struct json_string_s*)r##name->payload; \
+            mmregs[i] = fromstr(string->string);                                    \
+            check_mmregs[i] = true;                                                 \
+        }                                                                           \
+        i++;                                                                        \
+    }
+
+    REG(MM0);
+    REG(MM1);
+    REG(MM2);
+    REG(MM3);
+    REG(MM4);
+    REG(MM5);
+    REG(MM6);
+    REG(MM7);
 #undef REG
 
     if (regdata && regdata->type == json_type_object) {
@@ -421,6 +448,20 @@ int unittest(int argc, const char** argv)
 
     x64emu_t* emu = NewX64Emu(my_context, my_context->ep,
         (uintptr_t)my_context->stack, my_context->stacksz, 0);
+
+    bool have_mmregs = false;
+    for (int i = 0; i < 8; ++i) {
+        if (!check_mmregs[i])
+            continue;
+        emu->mmx[i].q = mmregs[i];
+        emu->x87[i].q = mmregs[i];
+        have_mmregs = true;
+    }
+    if (have_mmregs) {
+        emu->top = 0;
+        emu->fpu_stack = 8;
+        emu->fpu_tags = 0;
+    }
 
     ResetFlags(emu);
     SetRIP(emu, my_context->ep);
