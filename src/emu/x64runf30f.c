@@ -362,6 +362,13 @@ uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr, int* step)
         memcpy(EX, GX, 16);    // unaligned...
         break;
 
+    case 0xAD:  // ignore F3 prefix
+        #ifdef TEST_INTERPRETER 
+        return Test0F(test, rex, addr-1, step);
+        #else
+        return Run0F(emu, rex, addr-1, step);
+        #endif
+
     case 0xAE:
         nextop = F8;
         switch((nextop>>3)&7) {
