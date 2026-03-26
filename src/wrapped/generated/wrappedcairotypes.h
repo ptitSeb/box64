@@ -20,7 +20,10 @@ typedef int32_t (*iFpppLpp_t)(void*, void*, void*, uintptr_t, void*, void*);
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(cairo_xcb_device_get_connection, pFp_t) \
 	GO(cairo_surface_write_to_png_stream, uFppp_t) \
+	GO(cairo_device_set_user_data, iFpppp_t) \
+	GO(cairo_font_face_set_user_data, iFpppp_t) \
 	GO(cairo_pattern_set_user_data, iFpppp_t) \
+	GO(cairo_scaled_font_set_user_data, iFpppp_t) \
 	GO(cairo_set_user_data, iFpppp_t) \
 	GO(cairo_surface_set_user_data, iFpppp_t) \
 	GO(cairo_pdf_surface_create_for_stream, pFppdd_t) \

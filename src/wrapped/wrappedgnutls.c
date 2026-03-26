@@ -108,11 +108,13 @@ static void* find_timeout_Fct(void* fct)
 }
 
 // gnutls_certificate_retrieve_function
-#define GO(A)   \
+#define GO(A)                                                                                               \
 static uintptr_t my_gnutls_certificate_retrieve_function_fct_##A = 0;                                       \
-static int my_gnutls_certificate_retrieve_function_##A(void* a, int b, void* c, int d, void* e)             \
-{                                                                                                           \
-    return (int)RunFunctionFmt(my_gnutls_certificate_retrieve_function_fct_##A, "pipip", a, b, c, d, e);    \
+static int my_gnutls_certificate_retrieve_function_##A(void* sess, void* rdn, int nreqs, void* algos,      \
+    int nalgos, void* retr)                                                                                  \
+{                                                                                                            \
+    return (int)RunFunctionFmt(my_gnutls_certificate_retrieve_function_fct_##A, "ppipip", sess, rdn,       \
+        nreqs, algos, nalgos, retr);                                                                         \
 }
 SUPER()
 #undef GO

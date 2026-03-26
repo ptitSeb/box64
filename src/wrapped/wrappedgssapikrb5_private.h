@@ -159,7 +159,7 @@ GO(gss_wrap, uFppiuppp)
 //GO(gss_wrap_aead, 
 GO(gss_wrap_iov, uFppiuppi)
 //GO(gss_wrap_iov_length, 
-//GO(gss_wrap_size_limit, 
+GO(gss_wrap_size_limit, uFppiuup)
 //DATAB(krb5_gss_dbg_client_expcreds, 
 //GO(krb5_gss_register_acceptor_identity, 
 //GO(krb5_gss_use_kdc_context, 
