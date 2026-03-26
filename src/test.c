@@ -39,7 +39,7 @@ int cputype = 0;
 
 const char* regname[] = { "RAX", "RCX", "RDX", "RBX", "RSP", "RBP", "RSI", "RDI", "R8", "R9", "R10", "R11", "R12", "R13", "R14", "R15" };
 
-#define MAX_MEMORY_REGIONS 32
+#define MAX_MEMORY_REGIONS   32
 #define MAX_MEMORY_DATA      32
 #define MAX_MEMORY_DATA_SIZE 4096
 
@@ -62,7 +62,7 @@ static inline uint64_t fromstr(const char* str)
 
 static struct json_value_s* json_find(struct json_object_s* object, const char* key)
 {
-    struct json_object_element_s *element = object->start;
+    struct json_object_element_s* element = object->start;
     while (element) {
         if (strcmp(element->name->string, key) == 0) {
             return element->value;
@@ -95,10 +95,15 @@ static void loadTest(const char** filepath, const char* include_path)
     }
 
     // read file line by line
-    char line[4096];
-    char json[8192] = { 0 };
+    char* line = NULL;
+    size_t line_capacity = 0;
+    char* json = calloc(4096, 1);
+    size_t json_capacity = 1;
+    size_t json_length = 0;
     bool in_config = false;
-    while (fgets(line, sizeof(line), file)) {
+
+    ssize_t line_length = 0;
+    while ((line_length = getline(&line, &line_capacity, file)) != -1) {
         if (!strcmp(line, "%ifdef CONFIG\n")) {
             in_config = true;
             continue;
@@ -107,12 +112,27 @@ static void loadTest(const char** filepath, const char* include_path)
             break;
         }
         if (in_config) {
-            strncat(json, line, sizeof(json) - strlen(json) - 1);
+            size_t chunk_length = (size_t)line_length;
+            size_t needed = json_length + chunk_length + 1;
+            if (needed > json_capacity) {
+                size_t new_capacity = json_capacity;
+                while (new_capacity < needed)
+                    new_capacity *= 2;
+
+                json = realloc(json, new_capacity);
+                json_capacity = new_capacity;
+            }
+
+            memcpy(json + json_length, line, chunk_length);
+            json_length += chunk_length;
+            json[json_length] = '\0';
         }
     }
 
+    free(line);
     fclose(file);
-    struct json_value_s *config = json_parse(json, strlen(json));
+    struct json_value_s* config = json_parse(json, json_length);
+    free(json);
     if (!config || config->type != json_type_object) {
         printf_log(LOG_NONE, "Failed to parse JSON configuration.\n");
         exit(1);
