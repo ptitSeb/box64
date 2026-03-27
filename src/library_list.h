@@ -299,6 +299,7 @@ GO("libsystemd.so.0", systemd)
 GO("libsystemd.so", systemd)
 GO("libproxy.so.1", proxy)
 GO("libproxy.so", proxy)
+GO("libssh.so.4", ssh4)
 
 GO("libc.so", libc)
 GO("libm.so", libm)

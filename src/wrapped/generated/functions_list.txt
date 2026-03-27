@@ -1348,6 +1348,7 @@
 #() iFppul
 #() iFppuL
 #() iFppup
+#() iFppUi
 #() iFppUU
 #() iFppUp
 #() iFppdi
@@ -2062,6 +2063,7 @@
 #() iFppIII
 #() iFppWpp
 #() iFppuwp
+#() iFppuii
 #() iFppuip
 #() iFppuuu
 #() iFppuuf
@@ -2077,6 +2079,7 @@
 #() iFpplii
 #() iFppllp
 #() iFpplpp
+#() iFppLii
 #() iFppLiL
 #() iFppLup
 #() iFppLLi
@@ -2654,6 +2657,7 @@
 #() iFppiiii
 #() iFppiiip
 #() iFppiipi
+#() iFppiipL
 #() iFppiipp
 #() iFppiuii
 #() iFppiupp
@@ -2702,6 +2706,7 @@
 #() iFpppipu
 #() iFpppipp
 #() iFpppuii
+#() iFpppuip
 #() iFpppuuu
 #() iFpppuup
 #() iFpppuLp
@@ -7162,6 +7167,7 @@ wrappedsmpeg2:
 - pFppii:
   - SMPEG_new_rwops
 wrappedsoftokn3:
+wrappedssh4:
 wrappedssl3:
 wrappedsystemd:
 wrappedtbbbind:
