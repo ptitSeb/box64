@@ -297,6 +297,8 @@ GO("libzstd.so.1", zstd)
 GO("libzstd.so", zstd)
 GO("libsystemd.so.0", systemd)
 GO("libsystemd.so", systemd)
+GO("libproxy.so.1", proxy)
+GO("libproxy.so", proxy)
 
 GO("libc.so", libc)
 GO("libm.so", libm)

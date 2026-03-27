@@ -6700,6 +6700,7 @@ wrappedpng16:
 - pFppppppp:
   - png_create_read_struct_2
   - png_create_write_struct_2
+wrappedproxy:
 wrappedpsl5:
 wrappedpulse:
 - vFp:
