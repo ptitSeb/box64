@@ -1732,7 +1732,7 @@ int ymm_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int a, int k1, int 
         if((dyn->n.neoncache[i].t==NEON_CACHE_YMMR || dyn->n.neoncache[i].t==NEON_CACHE_YMMW) && dyn->n.neoncache[i].n==a) {
             dyn->n.neoncache[i].t = NEON_CACHE_YMMW;
             dyn->ymm_zero&=~(1<<a);
-            if(!(dyn->n.ymm_used&=(1<<a)))
+            if(!(dyn->n.ymm_used&(1<<a)))
                 dyn->n.ymm_unneeded |= 1<<a;
             dyn->n.ymm_used|=(1<<a);
             #if STEP == 0
@@ -2625,8 +2625,10 @@ int fpu_get_reg_ymm(dynarec_arm_t* dyn, int ninst, int t, int ymm, int k1, int k
             return i;
         }
         // check if free or should be purge before...
-        if(dyn->n.neoncache[i].t==NEON_CACHE_YMMW)
+        if(dyn->n.neoncache[i].t==NEON_CACHE_YMMW) {
+            dyn->n.ymm_used|=(1<<dyn->n.neoncache[i].n);    // mark as used, to avoid it being mark as unneeded
             VSTR128_U12(i, xEmu, offsetof(x64emu_t, ymm[dyn->n.neoncache[i].n]));
+        }
         dyn->n.neoncache[i].t=t;
         dyn->n.neoncache[i].n=ymm;
         return i;
@@ -2672,6 +2674,7 @@ int fpu_get_reg_ymm(dynarec_arm_t* dyn, int ninst, int t, int ymm, int k1, int k
             // should a test be done to check if ymm is already in the purge list?
             if(!is_ymm_to_keep(dyn, i+j, k1, k2, k3)) {
                 // Save the reg and recycle it
+                dyn->n.ymm_used|=(1<<dyn->n.neoncache[i+j].n);
                 VSTR128_U12(i+j, xEmu, offsetof(x64emu_t, ymm[dyn->n.neoncache[i+j].n]));
                 dyn->n.neoncache[i+j].v = 0;
                 int ret = internal_mark_ymm(dyn, t, ymm, i+j);
@@ -2684,6 +2687,7 @@ int fpu_get_reg_ymm(dynarec_arm_t* dyn, int ninst, int t, int ymm, int k1, int k
         if(!dyn->n.fpuused[i+j]) {
             // should a test be done to check if ymm is already in the purge list?
             if((dyn->n.neoncache[i+j].t==NEON_CACHE_YMMW) && !is_ymm_to_keep(dyn, i+j, k1, k2, k3)) {
+                dyn->n.ymm_used|=(1<<dyn->n.neoncache[i+j].n);
                 VSTR128_U12(i+j, xEmu, offsetof(x64emu_t, ymm[dyn->n.neoncache[i+j].n]));
                 dyn->n.neoncache[i+j].v = 0;
                 int ret = internal_mark_ymm(dyn, t, ymm, i+j);

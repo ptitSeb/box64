@@ -859,11 +859,11 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
             }
         length += sprintf(buf + length, ")%s", (dyn->need_dump > 1) ? "\e[0;32m" : "");
     }
-    if (dyn->insts[ninst].n.xmm_used || dyn->insts[ninst].n.xmm_unneeded) {
-        length += sprintf(buf + length, " xmmUsed=%04x/unneeded=%04x", dyn->insts[ninst].n.xmm_used, dyn->insts[ninst].n.xmm_unneeded);
+    if (dyn->insts[ninst].n.xmm_used || dyn->insts[ninst].n.xmm_unneeded || dyn->insts[ninst].n.xmm_needed) {
+        length += sprintf(buf + length, " xmmUsed=%04x/needed=%04x/unneeded=%04x", dyn->insts[ninst].n.xmm_used, dyn->insts[ninst].n.xmm_needed, dyn->insts[ninst].n.xmm_unneeded);
     }
-    if (dyn->insts[ninst].n.ymm_used || dyn->insts[ninst].n.ymm_unneeded) {
-        length += sprintf(buf + length, " ymmUsed=%04x/unneeded=%04x", dyn->insts[ninst].n.ymm_used, dyn->insts[ninst].n.ymm_unneeded);
+    if (dyn->insts[ninst].n.ymm_used || dyn->insts[ninst].n.ymm_unneeded || dyn->insts[ninst].n.ymm_needed) {
+        length += sprintf(buf + length, " ymmUsed=%04x/needed=%04x/unneeded=%04x", dyn->insts[ninst].n.ymm_used, dyn->insts[ninst].n.ymm_needed, dyn->insts[ninst].n.ymm_unneeded);
     }
     if (dyn->ymm_zero || dyn->insts[ninst].ymm0_add || dyn->insts[ninst].ymm0_sub || dyn->insts[ninst].ymm0_out) {
         length += sprintf(buf + length, " ymm0=(%04x/%04x+%04x-%04x=%04x)", dyn->ymm_zero, dyn->insts[ninst].ymm0_in, dyn->insts[ninst].ymm0_add, dyn->insts[ninst].ymm0_sub, dyn->insts[ninst].ymm0_out);
@@ -1222,22 +1222,61 @@ static uint32_t getXYMMMask(dynarec_arm_t* dyn, int ninst)
     return ret;
 }
 
-static void propagateXYMMUneeded(dynarec_arm_t* dyn, int ninst, uint16_t mask_x, uint16_t mask_y)
+static void propagateXYMMNeeded(dynarec_arm_t* dyn, int ninst, uint16_t mask_x, uint16_t mask_y)
 {
-    if(!ninst) return;
-    ninst = getNominalPred(dyn, ninst);
     while(ninst>=0) {
-        mask_x &= ~dyn->insts[ninst].n.xmm_used;
-        mask_y &= ~dyn->insts[ninst].n.ymm_used;
-        if(!mask_x && !mask_y) return; // used, value is needed
-        if(dyn->insts[ninst].x64.barrier&BARRIER_FLOAT) return; // barrier, value is needed
+        // removed unneeded regs
         mask_x &= ~dyn->insts[ninst].n.xmm_unneeded;
         mask_y &= ~dyn->insts[ninst].n.ymm_unneeded;
-        if(!mask_x && !mask_y) return; // already handled
-        if(dyn->insts[ninst].x64.jmp) return;   // stop when a jump is detected, that gets too complicated
-        dyn->insts[ninst].n.xmm_unneeded |= mask_x; // flags
-        dyn->insts[ninst].n.ymm_unneeded |= mask_y; // flags
-        ninst = getNominalPred(dyn, ninst); // continue
+        // removed already needed from mask
+        mask_x &= ~dyn->insts[ninst].n.xmm_needed;
+        mask_y &= ~dyn->insts[ninst].n.ymm_needed;
+        // already handled
+        if(!mask_x && !mask_y) return;
+        // added the unneeded value
+        dyn->insts[ninst].n.xmm_needed |= mask_x;
+        dyn->insts[ninst].n.ymm_needed |= mask_y;
+        for(int i=1; i<dyn->insts[ninst].pred_sz; ++i) {
+            int j = dyn->insts[ninst].pred[i];
+            // barrier or callret, value is needed
+            if(!(dyn->insts[j].x64.barrier&BARRIER_FLOAT)
+              && !(dyn->insts[j].x64.has_callret))
+                propagateXYMMNeeded(dyn, j, mask_x, mask_y);
+        }
+        if(dyn->insts[ninst].pred_sz)
+            ninst = dyn->insts[ninst].pred[0];
+        else
+            ninst = -1;
+        if(ninst>=0)
+            if((dyn->insts[ninst].x64.barrier&BARRIER_FLOAT)
+              || (dyn->insts[ninst].x64.has_callret))
+                return;
+    }
+}
+
+static void propagateXYMMUneeded(dynarec_arm_t* dyn, int ninst, uint16_t mask_x, uint16_t mask_y)
+{
+    while(ninst>=0) {
+        // removed needed regs
+        mask_x &= ~dyn->insts[ninst].n.xmm_needed;
+        mask_y &= ~dyn->insts[ninst].n.ymm_needed;
+        // removed already unneeded from mask
+        mask_x &= ~dyn->insts[ninst].n.xmm_unneeded;
+        mask_y &= ~dyn->insts[ninst].n.ymm_unneeded;
+        // already handled
+        if(!mask_x && !mask_y) return;
+        // barrier or callret, value is needed
+        if(dyn->insts[ninst].x64.barrier&BARRIER_FLOAT) return;
+        if(dyn->insts[ninst].x64.has_callret) return;
+        // added the unneeded value
+        dyn->insts[ninst].n.xmm_unneeded |= mask_x;
+        dyn->insts[ninst].n.ymm_unneeded |= mask_y;
+        for(int i=1; i<dyn->insts[ninst].pred_sz; ++i)
+            propagateXYMMUneeded(dyn, dyn->insts[ninst].pred[i], mask_x, mask_y);
+        if(dyn->insts[ninst].pred_sz)
+            ninst = dyn->insts[ninst].pred[0];
+        else
+            ninst = -1;
     }
 }
 
@@ -1245,9 +1284,22 @@ void updateUneeded(dynarec_arm_t* dyn)
 {
     if(!dyn->use_xmm && !dyn->use_ymm)
         return;
-    for(int ninst=0; ninst<dyn->size; ++ninst) {
-        if(dyn->insts[ninst].n.xmm_unneeded || dyn->insts[ninst].n.ymm_unneeded)
-            propagateXYMMUneeded(dyn, ninst, dyn->insts[ninst].n.xmm_unneeded, dyn->insts[ninst].n.ymm_unneeded);
+    // first propagate the needed regs: those which are used and are not unneeded
+    for(int ninst=dyn->size-1; ninst>=0; --ninst) {
+        uint16_t xmm_needed = dyn->insts[ninst].n.xmm_used&~dyn->insts[ninst].n.xmm_unneeded;
+        uint16_t ymm_needed = dyn->insts[ninst].n.ymm_used&~dyn->insts[ninst].n.ymm_unneeded;
+        if(xmm_needed || ymm_needed)
+            propagateXYMMNeeded(dyn, ninst, xmm_needed, ymm_needed);
+        if(dyn->insts[ninst].x64.barrier&BARRIER_FLOAT)
+            propagateXYMMNeeded(dyn, ninst, dyn->use_xmm?0xffff:0, dyn->use_ymm?0xffff:0);
+
+    }
+    // then proagate the unneeded one: those which are not needed (not used anymore and will be overwritten)
+    for(int ninst=dyn->size-1; ninst>=0; --ninst) {
+        if(dyn->insts[ninst].n.xmm_unneeded || dyn->insts[ninst].n.ymm_unneeded) {
+            for(int i=0; i<dyn->insts[ninst].pred_sz; ++i)
+                propagateXYMMUneeded(dyn, dyn->insts[ninst].pred[i], dyn->insts[ninst].n.xmm_unneeded, dyn->insts[ninst].n.ymm_unneeded);
+        }
         if(dyn->insts[ninst].df_notneeded)
             propagate_nodf(dyn, ninst);
     }
