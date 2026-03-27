@@ -15,4 +15,9 @@
 const char* proxyName = "libproxy.so.1";
 #define LIBNAME proxy
 
+#define PRE_INIT \
+    if (BOX64ENV(nogtk)) return -2;
+
+#define NEEDED_LIBS "libgobject-2.0.so.0"
+
 #include "wrappedlib_init.h"
