@@ -366,6 +366,7 @@ uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr, int* step)
     case 0xA5:
     case 0xAC:
     case 0xAD:
+    case 0xAF:
     case 0xBA:
     case 0xC1:
         #ifdef TEST_INTERPRETER 

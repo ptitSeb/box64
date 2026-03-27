@@ -386,6 +386,7 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
     case 0xA5:
     case 0xAC:
     case 0xAD:
+    case 0xAF:
     case 0xB7:
     case 0xBA:
     case 0xBC:  // this one is still BSR, not TZCNT
