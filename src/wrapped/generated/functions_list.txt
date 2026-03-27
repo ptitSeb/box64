@@ -7143,6 +7143,11 @@ wrappedselinux:
   - selinux_get_callback
 - vFip:
   - selinux_set_callback
+wrappedsmbclient:
+- vFpp:
+  - smbc_setFunctionAuthDataWithContext
+- iFpi:
+  - smbc_init
 wrappedsmime3:
 - iFpp:
   - SEC_PKCS12DecoderValidateBags
