@@ -362,7 +362,12 @@ uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr, int* step)
         memcpy(EX, GX, 16);    // unaligned...
         break;
 
-    case 0xAD:  // ignore F3 prefix
+    case 0xA4:  // ignore F3 prefix
+    case 0xA5:
+    case 0xAC:
+    case 0xAD:
+    case 0xBA:
+    case 0xC1:
         #ifdef TEST_INTERPRETER 
         return Test0F(test, rex, addr-1, step);
         #else
@@ -419,14 +424,6 @@ uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr, int* step)
         CLEAR_FLAG(F_PF);
         CONDITIONAL_SET_FLAG(GD->q[0]==0, F_ZF);
         break;
-
-    case 0xA5:  // ignore F3 prefix
-    case 0xBA:
-        #ifdef TEST_INTERPRETER 
-        return Test0F(test, rex, addr-1, step);
-        #else
-        return Run0F(emu, rex, addr-1, step);
-        #endif
 
     case 0xBC:  /* TZCNT Ed,Gd */
         CHECK_FLAGS(emu);
