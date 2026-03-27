@@ -606,7 +606,7 @@ uint16_t cvtf32_16(uint32_t v, uint8_t rounding)
     } else if(in.exponant==0b11111111) {
         // nan and infinites
         ret.exponant = 0b11111;
-        ret.fraction = in.fraction;
+        ret.fraction = in.fraction >> 13;
         if(in.fraction && !ret.fraction)
             ret.fraction = 0b1000000000;
         return ret.u16;
