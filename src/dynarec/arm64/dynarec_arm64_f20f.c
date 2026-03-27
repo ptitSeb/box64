@@ -207,6 +207,10 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     if(cpuext.crc32) {
                         CRC32Cxw(gd, gd, ed);
                     } else {
+                        if (ed == gd) {
+                            MOVxw_REG(x1, ed);
+                            ed = x1;
+                        }
                         MOV32w(x2, 0x82f63b78);
                         for(int j=0; j<4*(1+rex.w); ++j) {
                             UBFXxw(x3, ed, 8*j, 8);
