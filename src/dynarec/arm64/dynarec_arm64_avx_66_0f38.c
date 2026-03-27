@@ -684,7 +684,9 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             GETVX(v2, 0);
             GETGX_empty(v0);
             q0 = fpu_get_scratch(dyn, ninst);
-            VSSHRQ_32(q0, v2, 31);
+            VSHRQ_32(q0, v2, 31);   // move sign bit to lower
+            SQXTN_16(q0, q0);   // reduce to 16bits for easier extraction
+            VMOVQDto(x4, q0, 0);    // extract the mask as 16bits slices instead of 32bits
             if (MODREG) {
                 DEFAULT;
                 return addr;
@@ -692,21 +694,17 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                 VEORQ(v0, v0, v0);
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
-                VMOVSto(x4, q0, 0);
-                CBZw(x4, 4+1*4);
+                TBZ(x4, 0*16, 4+1*4);
                 VLD1_32(v0, 0, ed);
                 ADDx_U12(x3, ed, 4);
                 ed = x3;
-                VMOVSto(x4, q0, 1);
-                CBZw(x4, 4+1*4);
+                TBZ(x4, 1*16, 4+1*4);
                 VLD1_32(v0, 1, ed);
                 ADDx_U12(ed, ed, 4);
-                VMOVSto(x4, q0, 2);
-                CBZw(x4, 4+1*4);
+                TBZ(x4, 2*16, 4+1*4);
                 VLD1_32(v0, 2, ed);
                 ADDx_U12(ed, ed, 4);
-                VMOVSto(x4, q0, 3);
-                CBZw(x4, 4+1*4);
+                TBZ(x4, 3*16, 4+1*4);
                 VLD1_32(v0, 3, ed);
                 if(vex.l)
                     ADDx_U12(ed, ed, 4);
@@ -714,22 +712,20 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             if(vex.l) {
                 v2 = ymm_get_reg(dyn, ninst, x1, vex.v, 0, gd, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1);
                 v0 = ymm_get_reg_empty(dyn, ninst, x1, gd, vex.v, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1);
-                VSSHRQ_32(q0, v2, 31);
+                VSHRQ_32(q0, v2, 31);   // move sign bit to lower
+                SQXTN_16(q0, q0);   // reduce to 16bits for easier extraction
+                VMOVQDto(x4, q0, 0);    // extract the mask as 16bits slices instead of 32bits
                 VEORQ(v0, v0, v0);
-                VMOVSto(x4, q0, 0);
-                CBZw(x4, 4+1*4);
+                TBZ(x4, 0*16, 4+1*4);
                 VLD1_32(v0, 0, ed);
                 ADDx_U12(ed, ed, 4);
-                VMOVSto(x4, q0, 1);
-                CBZw(x4, 4+1*4);
+                TBZ(x4, 1*16, 4+1*4);
                 VLD1_32(v0, 1, ed);
                 ADDx_U12(ed, ed, 4);
-                VMOVSto(x4, q0, 2);
-                CBZw(x4, 4+1*4);
+                TBZ(x4, 2*16, 4+1*4);
                 VLD1_32(v0, 2, ed);
                 ADDx_U12(ed, ed, 4);
-                VMOVSto(x4, q0, 3);
-                CBZw(x4, 4+1*4);
+                TBZ(x4, 3*16, 4+1*4);
                 VLD1_32(v0, 3, ed);
             } else YMM0(gd);
             break;
@@ -740,7 +736,9 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             GETGX_empty(v0);
             q0 = fpu_get_scratch(dyn, ninst);
             // create mask
-            VSSHRQ_64(q0, v2, 63);
+            VSHRQ_64(q0, v2, 63);
+            SQXTN_32(q0, q0);
+            VMOVQDto(x4, q0, 0);
             VEORQ(v0, v0, v0);
             if (MODREG) {
                 DEFAULT;
@@ -748,13 +746,11 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             } else {
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
-                VMOVQDto(x4, q0, 0);
-                CBZx(x4, 4+1*4);
+                TBZ(x4, 0*32, 4+1*4);
                 VLD1_64(v0, 0, ed);
                 ADDx_U12(x3, ed, 8);
                 ed = x3;
-                VMOVQDto(x4, q0, 1);
-                CBZx(x4, 4+1*4);
+                TBZ(x4, 1*32, 4+1*4);
                 VLD1_64(v0, 1, ed);
                 if(vex.l)
                     ADDx_U12(ed, ed, 8);
@@ -762,14 +758,14 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             if(vex.l) {
                 v2 = ymm_get_reg(dyn, ninst, x1, vex.v, 0, gd, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1);
                 v0 = ymm_get_reg_empty(dyn, ninst, x1, gd, vex.v, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1);
-                VSSHRQ_64(q0, v2, 63);
-                VEORQ(v0, v0, v0);
+                VSHRQ_64(q0, v2, 63);
+                SQXTN_32(q0, q0);
                 VMOVQDto(x4, q0, 0);
-                CBZx(x4, 4+1*4);
+                VEORQ(v0, v0, v0);
+                TBZ(x4, 0*32, 4+1*4);
                 VLD1_64(v0, 0, ed);
                 ADDx_U12(ed, ed, 8);
-                VMOVQDto(x4, q0, 1);
-                CBZx(x4, 4+1*4);
+                TBZ(x4, 1*32, 4+1*4);
                 VLD1_64(v0, 1, ed);
             } else YMM0(gd);
             break;
@@ -779,7 +775,9 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             q0 = fpu_get_scratch(dyn, ninst);
             GETVX(v2, 0);
             GETGX(v0, 0);
-            VSSHRQ_32(q0, v2, 31);
+            VSHRQ_32(q0, v2, 31);   // move sign bit to lower
+            SQXTN_16(q0, q0);   // reduce to 16bits for easier extraction
+            VMOVQDto(x4, q0, 0);    // extract the mask as 16bits slices instead of 32bits
             if(MODREG) {
                 DEFAULT;
                 return addr;
@@ -787,21 +785,17 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                 addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                 // check if mask as anything, else skip the whole read/write to avoid a SEGFAULT.
                 // TODO: let a segfault trigger and check if the mask is null instead and ignore the segfault / actually triger: needs to implement SSE reg tracking first!
-                VMOVSto(x4, q0, 0);
-                CBZw(x4, 4+1*4);
+                TBZ(x4, 0*16, 4+1*4);
                 VST1_32(v0, 0, ed);
                 ADDx_U12(x3, ed, 4);
                 ed = x3;
-                VMOVSto(x4, q0, 1);
-                CBZw(x4, 4+1*4);
+                TBZ(x4, 1*16, 4+1*4);
                 VST1_32(v0, 1, ed);
                 ADDx_U12(ed, ed, 4);
-                VMOVSto(x4, q0, 2);
-                CBZw(x4, 4+1*4);
+                TBZ(x4, 2*16, 4+1*4);
                 VST1_32(v0, 2, ed);
                 ADDx_U12(ed, ed, 4);
-                VMOVSto(x4, q0, 3);
-                CBZw(x4, 4+1*4);
+                TBZ(x4, 3*16, 4+1*4);
                 VST1_32(v0, 3, ed);
                 if(vex.l)
                     ADDx_U12(ed, ed, 4);
@@ -810,21 +804,19 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             if(vex.l && !is_avx_zero(dyn, ninst, vex.v)) {
                 v2 = ymm_get_reg(dyn, ninst, x1, vex.v, 0, gd, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1);
                 v0 = ymm_get_reg(dyn, ninst, x1, gd, 0, vex.v, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1);
-                VSSHRQ_32(q0, v2, 31);
-                VMOVSto(x4, q0, 0);
-                CBZw(x4, 4+1*4);
+                VSHRQ_32(q0, v2, 31);   // move sign bit to lower
+                SQXTN_16(q0, q0);   // reduce to 16bits for easier extraction
+                VMOVQDto(x4, q0, 0);    // extract the mask as 16bits slices instead of 32bits
+                TBZ(x4, 0*16, 4+1*4);
                 VST1_32(v0, 0, ed);
                 ADDx_U12(ed, ed, 4);
-                VMOVSto(x4, q0, 1);
-                CBZw(x4, 4+1*4);
+                TBZ(x4, 1*16, 4+1*4);
                 VST1_32(v0, 1, ed);
                 ADDx_U12(ed, ed, 4);
-                VMOVSto(x4, q0, 2);
-                CBZw(x4, 4+1*4);
+                TBZ(x4, 2*16, 4+1*4);
                 VST1_32(v0, 2, ed);
                 ADDx_U12(ed, ed, 4);
-                VMOVSto(x4, q0, 3);
-                CBZw(x4, 4+1*4);
+                TBZ(x4, 3*16, 4+1*4);
                 VST1_32(v0, 3, ed);
             }
             SMWRITE2();
@@ -835,7 +827,9 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             q0 = fpu_get_scratch(dyn, ninst);
             GETVX(v2, 0);
             GETGX(v0, 0);
-            VSSHRQ_64(q0, v2, 63);
+            VSHRQ_64(q0, v2, 63);
+            SQXTN_32(q0, q0);
+            VMOVQDto(x4, q0, 0);
             if(MODREG) {
                 DEFAULT;
                 return addr;
@@ -845,13 +839,11 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                 v1 = fpu_get_scratch(dyn, ninst);
                 // check if mask as anything, else skip the whole read/write to avoid a SEGFAULT.
                 // TODO: let a segfault trigger and check if the mask is null instead and ignore the segfault / actually triger: needs to implement SSE reg tracking first!
-                VMOVQDto(x4, q0, 0);
-                CBZx(x4, 4+1*4);
+                TBZ(x4, 0*32, 4+1*4);
                 VST1_64(v0, 0, ed);
                 ADDx_U12(x3, ed, 8);
                 ed = x3;
-                VMOVQDto(x4, q0, 1);
-                CBZx(x4, 4+1*4);
+                TBZ(x4, 1*32, 4+1*4);
                 VST1_64(v0, 1, ed);
                 if(vex.l)
                     ADDx_U12(ed, ed, 8);
@@ -860,13 +852,13 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             if(vex.l && !is_avx_zero(dyn, ninst, vex.v)) {
                 v2 = ymm_get_reg(dyn, ninst, x1, vex.v, 0, gd, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1);
                 v0 = ymm_get_reg(dyn, ninst, x1, gd, 0, vex.v, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1);
-                VSSHRQ_64(q0, v2, 63);
+                VSHRQ_64(q0, v2, 63);
+                SQXTN_32(q0, q0);
                 VMOVQDto(x4, q0, 0);
-                CBZx(x4, 4+1*4);
+                TBZ(x4, 0*32, 4+1*4);
                 VST1_64(v0, 0, ed);
                 ADDx_U12(ed, ed, 8);
-                VMOVQDto(x4, q0, 1);
-                CBZx(x4, 4+1*4);
+                TBZ(x4, 1*32, 4+1*4);
                 VST1_64(v0, 1, ed);
             }
             SMWRITE2();
