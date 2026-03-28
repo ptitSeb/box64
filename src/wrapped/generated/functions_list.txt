@@ -4494,6 +4494,8 @@ wrappedexpat:
   - XML_SetElementHandler
   - XML_SetNamespaceDeclHandler
   - XML_SetUnknownEncodingHandler
+- pFppp:
+  - XML_ParserCreate_MM
 wrappedfaudio:
 - vFpp:
   - FAudio_UnregisterForCallbacks

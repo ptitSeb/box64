@@ -13,6 +13,7 @@
 
 typedef void (*vFpp_t)(void*, void*);
 typedef void (*vFppp_t)(void*, void*, void*);
+typedef void* (*pFppp_t)(void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(XML_SetAttlistDeclHandler, vFpp_t) \
@@ -41,6 +42,7 @@ typedef void (*vFppp_t)(void*, void*, void*);
 	GO(XML_SetDoctypeDeclHandler, vFppp_t) \
 	GO(XML_SetElementHandler, vFppp_t) \
 	GO(XML_SetNamespaceDeclHandler, vFppp_t) \
-	GO(XML_SetUnknownEncodingHandler, vFppp_t)
+	GO(XML_SetUnknownEncodingHandler, vFppp_t) \
+	GO(XML_ParserCreate_MM, pFppp_t)
 
 #endif // __wrappedexpatTYPES_H_

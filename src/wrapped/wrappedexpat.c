@@ -561,6 +561,72 @@ static void* find_SkippedEntity_Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for expat SkippedEntity callback\n");
     return NULL;
 }
+// MallocFcn ...
+#define GO(A)                                                      \
+static uintptr_t my_MallocFcn_fct_##A = 0;                         \
+static void* my_MallocFcn_##A(size_t size)                         \
+{                                                                  \
+    return (void*)RunFunctionFmt(my_MallocFcn_fct_##A, "L", size); \
+}
+SUPER()
+#undef GO
+static void* find_MallocFcn_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_MallocFcn_fct_##A == (uintptr_t)fct) return my_MallocFcn_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_MallocFcn_fct_##A == 0) {my_MallocFcn_fct_##A = (uintptr_t)fct; return my_MallocFcn_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for expat MallocFcn callback\n");
+    return NULL;
+}
+// ReallocFcn ...
+#define GO(A)                                                             \
+static uintptr_t my_ReallocFcn_fct_##A = 0;                               \
+static void* my_ReallocFcn_##A(void* ptr, size_t size)                    \
+{                                                                         \
+    return (void*)RunFunctionFmt(my_ReallocFcn_fct_##A, "pL", ptr, size); \
+}
+SUPER()
+#undef GO
+static void* find_ReallocFcn_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_ReallocFcn_fct_##A == (uintptr_t)fct) return my_ReallocFcn_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_ReallocFcn_fct_##A == 0) {my_ReallocFcn_fct_##A = (uintptr_t)fct; return my_ReallocFcn_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for expat ReallocFcn callback\n");
+    return NULL;
+}
+// FreeFcn ...
+#define GO(A)                                     \
+static uintptr_t my_FreeFcn_fct_##A = 0;          \
+static void my_FreeFcn_##A(void* ptr)             \
+{                                                 \
+    RunFunctionFmt(my_FreeFcn_fct_##A, "p", ptr); \
+}
+SUPER()
+#undef GO
+static void* find_FreeFcn_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_FreeFcn_fct_##A == (uintptr_t)fct) return my_FreeFcn_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_FreeFcn_fct_##A == 0) {my_FreeFcn_fct_##A = (uintptr_t)fct; return my_FreeFcn_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for expat FreeFcn callback\n");
+    return NULL;
+}
 #undef SUPER
 
 EXPORT void my_XML_SetElementHandler(x64emu_t* emu, void* p, void* start, void* end)
@@ -696,6 +762,26 @@ EXPORT void my_XML_SetCdataSectionHandler(x64emu_t* emu, void* p, void* s, void*
 EXPORT void my_XML_SetDoctypeDeclHandler(x64emu_t* emu, void* p, void* s, void* e)
 {
     my->XML_SetDoctypeDeclHandler(p, find_StartDoctypeDecl_Fct(s), find_EndDoctypeDecl_Fct(e));
+}
+
+typedef struct {
+   void *(*malloc_fcn)(size_t size);
+   void *(*realloc_fcn)(void *ptr, size_t size);
+   void (*free_fcn)(void *ptr);
+} my_XML_Memory_Handling_Suite;
+
+EXPORT void my_XML_ParserCreate_MM(x64emu_t* emu, void* encoding, void* memsuite, void* namespaceSeparator)
+{
+    if(memsuite) {
+        my_XML_Memory_Handling_Suite* memsuite_p = (my_XML_Memory_Handling_Suite*)memsuite;
+        my_XML_Memory_Handling_Suite my_memsuite;
+        my_memsuite.malloc_fcn = find_MallocFcn_Fct(memsuite_p->malloc_fcn);
+        my_memsuite.realloc_fcn = find_ReallocFcn_Fct(memsuite_p->realloc_fcn);
+        my_memsuite.free_fcn = find_FreeFcn_Fct(memsuite_p->free_fcn);
+        my->XML_ParserCreate_MM(encoding, &my_memsuite, namespaceSeparator);
+    } else {
+        my->XML_ParserCreate_MM(encoding, NULL, namespaceSeparator);
+    }
 }
 
 #include "wrappedlib_init.h"
