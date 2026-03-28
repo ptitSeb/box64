@@ -841,6 +841,12 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             v1 = fpu_get_scratch(dyn, ninst);
                         } else
                             v1 = q1;
+                        if(q0==d0) {
+                            // move away q0 as it would be overwritten else
+                            int tmp = fpu_get_scratch(dyn, ninst);
+                            VMOVQ(tmp, d0);
+                            d0 = tmp;
+                        }
                         VREV64Q_32(q0, q0);
                         if(q0==q1) {
                             VMOVQ(v1, q0);
