@@ -489,9 +489,10 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         if(opcode==0x81) i16 = F16S; else i16 = F8S;
                         i64 = convert_bitmask_w(i16);
                         if(cpuext.atomics) {
+                            MOV32w(x5, i16);
                             UFLAG_IF {
                                 LDEORALH(x5, x1, wback);
-                                emit_xor16c(dyn, ninst, x1, i16, x3, x4);
+                                emit_xor16(dyn, ninst, x1, x5, x3, x4);
                             } else {
                                 STEORLH(x5, wback);
                             }
