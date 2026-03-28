@@ -320,11 +320,11 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         SETFLAGS(X_ALL, SF_SET_PENDING);
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, (opcode==0x81)?2:1);
                         if(opcode==0x81) i16 = F16S; else i16 = F8S;
-                        if(!i64) {MOV32w(x5, i16);}
                         if(cpuext.atomics) {
+                            MOV32w(x5, i16);
                             UFLAG_IF {
                                 LDSETALH(x5, x1, wback);
-                                emit_or16c(dyn, ninst, x1, i16, x3, x4);
+                                emit_or16(dyn, ninst, x1, x5, x3, x4);
                             } else {
                                 STSETLH(x5, wback);
                             }
