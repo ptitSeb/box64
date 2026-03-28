@@ -1853,13 +1853,14 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             nextop = F8;
             GETEX(0);
             GETGX; GETVX; GETGY;
-            if(EX->q[0]>15)
+            tmp64u = EX->q[0];
+            if(tmp64u>15)
                 GX->u128 = 0;
             else
-                {tmp8u=EX->ub[0]; for (int i=0; i<8; ++i) GX->uw[i] = VX->uw[i]<<tmp8u;}
+                {tmp8u=tmp64u; for (int i=0; i<8; ++i) GX->uw[i] = VX->uw[i]<<tmp8u;}
             if(vex.l) {
                 GETVY;
-                if(EX->q[0]>15)
+                if(tmp64u>15)
                     GY->u128 = 0;
                 else
                     {for (int i=0; i<8; ++i) GY->uw[i] = VY->uw[i]<<tmp8u;}
@@ -1870,13 +1871,14 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             nextop = F8;
             GETEX(0);
             GETGX; GETVX; GETGY;
-            if(EX->q[0]>31)
+            tmp64u = EX->q[0];
+            if(tmp64u>31)
                 GX->u128 = 0;
             else
-                {tmp8u=EX->ub[0]; for (int i=0; i<4; ++i) GX->ud[i] = VX->ud[i]<<tmp8u;}
+                {tmp8u=tmp64u; for (int i=0; i<4; ++i) GX->ud[i] = VX->ud[i]<<tmp8u;}
             if(vex.l) {
                 GETVY;
-                if(EX->q[0]>31)
+                if(tmp64u>31)
                     GY->u128 = 0;
                 else
                     {for (int i=0; i<4; ++i) GY->ud[i] = VY->ud[i]<<tmp8u;}
@@ -1887,13 +1889,14 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             nextop = F8;
             GETEX(0);
             GETGX; GETVX; GETGY;
-            if(EX->q[0]>63)
+            tmp64u = EX->q[0];
+            if(tmp64u>63)
                 GX->u128 = 0;
             else
-                {tmp8u=EX->ub[0]; for (int i=0; i<2; ++i) GX->q[i] = VX->q[i]<<tmp8u;}
+                {tmp8u=tmp64u; for (int i=0; i<2; ++i) GX->q[i] = VX->q[i]<<tmp8u;}
             if(vex.l) {
                 GETVY;
-                if(EX->q[0]>63)
+                if(tmp64u>63)
                     GY->u128 = 0;
                 else
                     {for (int i=0; i<2; ++i) GY->q[i] = VY->q[i]<<tmp8u;}
