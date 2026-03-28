@@ -283,11 +283,7 @@ uintptr_t dynarec64_AVX_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, i
             if (BOX64DRENV(dynarec_safeflags)) {
                 // those are UD flags
                 IFX(X_AF) BFCw(xFlags, F_AF, 1);
-                if(BOX64ENV(cputype)) {
-                    IFX(X_PF) BFCw(xFlags, F_PF, 1);
-                } else {
-                    IFX(X_PF) emit_pf(dyn, ninst, vd, x3);
-                }
+                IFX(X_PF) BFCw(xFlags, F_PF, 1);
             }
             break;
 
