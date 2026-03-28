@@ -94,6 +94,9 @@ uintptr_t dynarec64_AVX_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, i
                     BFIw(xFlags, x1, F_SF, 1);
                 }   
             }
+            // UD flags
+            IFX(X_AF) BFCw(xFlags, F_AF, 1);
+            IFX(X_PF) BFCw(xFlags, F_PF, 1);
             break;
         case 0xF3:
             nextop = F8;
