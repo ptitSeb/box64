@@ -170,11 +170,7 @@ uintptr_t RunAVX_0F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             CLEAR_FLAG(F_OF);
             // UD flags
             CLEAR_FLAG(F_AF);
-            if(BOX64ENV(cputype)) {
-                CLEAR_FLAG(F_PF);
-            } else {
-                CONDITIONAL_SET_FLAG(PARITY(VD->byte[0] & 0xff), F_PF);
-            }
+            CLEAR_FLAG(F_PF);
             break;
 
         case 0xF7:  /* BEXTR Gd, Ed, Vd */
