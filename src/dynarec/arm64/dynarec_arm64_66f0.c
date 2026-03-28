@@ -455,7 +455,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                             MARKLOCK;
                             LDAXRH(x1, wback);
                             SUBw_REG(x4, x1, x5);
-                            STLXRH(x3, x1, wback);
+                            STLXRH(x3, x4, wback);
                             CBNZx_MARKLOCK(x3);
                         }
                         if(!ALIGNED_ATOMICH) {
