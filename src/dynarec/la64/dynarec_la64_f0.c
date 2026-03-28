@@ -994,7 +994,10 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         MV(x3, wback);
                         BSTRINS_D(x3, xZR, 1, 0);
                         ADDI_D(x1, xZR, u8);
-                        SLL_D(x1, x1, x2);
+                        SLL_W(x4, x1, x2);
+                        ADDI_D(x5, xZR, 0xFF);
+                        SLL_W(x5, x5, x2);
+                        ORN(x1, x4, x5);
                         AMAND_DB_W(x4, x1, x3);
                         IFXORNAT (X_ALL | X_PEND) {
                             SRL_D(x1, x4, x2);
