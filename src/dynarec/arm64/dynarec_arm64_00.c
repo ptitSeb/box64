@@ -991,10 +991,10 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 	            GETEW(x1, 0);
 	            GETGW(x2);
 	            // Extract RPL (low 2 bits)
-	            UBFXw(x3, ed, 0, 2);
+	            UBFXw(x6, ed, 0, 2);
 	            UBFXw(x4, gd, 0, 2);
 	            // need_update = (dst_rpl < src_rpl)
-	            CMPSw_REG(x3, x4);
+	            CMPSw_REG(x6, x4);
 	            CSETw(x5, cLT);
 	            // ZF = need_update
 	            BFIw(xFlags, x5, F_ZF, 1);
