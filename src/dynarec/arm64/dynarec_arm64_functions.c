@@ -1500,6 +1500,7 @@ int is_avx_zero_unset(dynarec_arm_t* dyn, int ninst, int reg)
 
 void avx_mark_zero_reset(dynarec_arm_t* dyn, int ninst)
 {
+    dyn->use_ymm = 1;
     dyn->ymm_zero = 0;
 }
 
