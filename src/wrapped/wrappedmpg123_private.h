@@ -87,7 +87,7 @@ GO(mpg123_position, iFpllpppp)
 GO(mpg123_position_64, iFpIIpppp)
 GO(mpg123_rates, vFpp)
 GO(mpg123_read, iFppLp)
-//GOM(mpg123_reader64, iFEpppp)
+GOM(mpg123_reader64, iFEpppp)
 GO(mpg123_replace_buffer, iFppL)
 //GOM(mpg123_replace_reader, iFEppp)
 //GO(mpg123_replace_reader_64, 

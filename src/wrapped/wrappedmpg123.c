@@ -101,6 +101,28 @@ static void* find_cleanup_Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for mpg123 cleanup callback\n");
     return NULL;
 }
+// r_read64 ...
+#define GO(A)   \
+static uintptr_t my_r_read64_fct_##A = 0;                                       \
+static ssize_t my_r_read64_##A(void* a, void* b, size_t c, void* d)             \
+{                                                                               \
+    return (ssize_t)RunFunctionFmt(my_r_read64_fct_##A, "ppLp", a, b, c, d);    \
+}
+SUPER()
+#undef GO
+static void* find_r_read64_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_r_read64_fct_##A == (uintptr_t)fct) return my_r_read64_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_r_read64_fct_##A == 0) {my_r_read64_fct_##A = (uintptr_t)fct; return my_r_read64_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for mpg123 r_read64 callback\n");
+    return NULL;
+}
 
 #undef SUPER
 
@@ -112,6 +134,11 @@ EXPORT int my_mpg123_replace_reader_handle(x64emu_t* emu, void* mh, void* r_read
 EXPORT int my_mpg123_replace_reader_handle_64(x64emu_t* emu, void* mh, void* r_read, void* r_lseek, void* cleanup)
 {
     return my->mpg123_replace_reader_handle_64(mh, find_r_read_Fct(r_read), find_r_lseek_Fct(r_lseek), find_cleanup_Fct(cleanup));
+}
+
+EXPORT int my_mpg123_reader64(x64emu_t* emu, void* mh, void* r_read, void* r_lseek, void* cleanup)
+{
+    return my->mpg123_reader64(mh, find_r_read64_Fct(r_read), find_r_lseek_Fct(r_lseek), find_cleanup_Fct(cleanup));
 }
 
 #include "wrappedlib_init.h"

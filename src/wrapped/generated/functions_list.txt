@@ -6649,6 +6649,7 @@ wrappedlzma:
   - lzma_stream_buffer_decode
 wrappedmpg123:
 - iFpppp:
+  - mpg123_reader64
   - mpg123_replace_reader_handle
   - mpg123_replace_reader_handle_64
 wrappednotify:
