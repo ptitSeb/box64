@@ -271,6 +271,7 @@
 #() CFpL
 #() CFpp
 #() WFpi
+#() WFpW
 #() WFpp
 #() uFEp
 #() uFii
@@ -320,6 +321,7 @@
 #() fFfp
 #() fFpi
 #() fFpu
+#() fFpf
 #() fFpL
 #() fFpp
 #() fFbu
@@ -381,6 +383,7 @@
 #() pFWW
 #() pFui
 #() pFuu
+#() pFud
 #() pFul
 #() pFuL
 #() pFup
@@ -927,6 +930,7 @@
 #() pFpui
 #() pFpuu
 #() pFpuf
+#() pFpud
 #() pFpul
 #() pFpuL
 #() pFpup
@@ -1368,6 +1372,7 @@
 #() iFpppC
 #() iFpppu
 #() iFpppU
+#() iFpppd
 #() iFpppL
 #() iFpppp
 #() iFpONN
@@ -1493,6 +1498,7 @@
 #() UFbuuW
 #() UFbuuu
 #() UFbuup
+#() dFppdd
 #() dFpppp
 #() lFEipV
 #() lFEpip
@@ -2036,6 +2042,7 @@
 #() iFpUiip
 #() iFpffff
 #() iFpffpp
+#() iFpdddd
 #() iFplupp
 #() iFplluu
 #() iFpLiup
@@ -2202,6 +2209,7 @@
 #() fFlplpl
 #() fFppppL
 #() dFlplpl
+#() dFppddd
 #() dFppppL
 #() lFEippL
 #() lFEuipp
@@ -2769,8 +2777,10 @@
 #() uFpuuupp
 #() uFpuuppp
 #() uFpuUppp
+#() uFpupuup
 #() uFpupupu
 #() uFpupupp
+#() uFpupppu
 #() uFpupppp
 #() uFppiiii
 #() uFppiuup
@@ -2881,6 +2891,7 @@
 #() pFpuuuup
 #() pFpuuupu
 #() pFpupuui
+#() pFpupuuu
 #() pFpupuup
 #() pFpuppip
 #() pFpupppp
@@ -3253,6 +3264,7 @@
 #() pFWpppppp
 #() pFuuuiiip
 #() pFuupupup
+#() pFudddduu
 #() pFfiiiiid
 #() pFduuulul
 #() pFpiiiiid
@@ -3285,6 +3297,7 @@
 #() pFppipLpp
 #() pFppuipii
 #() pFppuippp
+#() pFppuuuuu
 #() pFppuuupu
 #() pFppuuupp
 #() pFppuLLip
@@ -3541,7 +3554,9 @@
 #() pFpipiuiip
 #() pFpuuuuupp
 #() pFpuuuupup
+#() pFpudddduu
 #() pFpuLdiiLi
+#() pFpupupuuu
 #() pFpupLLLpp
 #() pFpupppppp
 #() pFplpppppp
@@ -3632,6 +3647,7 @@
 #() vFpplpppppi
 #() vFpppiiiiii
 #() vFpppiiiipp
+#() vFpppuuuuuu
 #() vFpppUupppU
 #() vFpppffffff
 #() vFppppiiiii
@@ -3725,6 +3741,7 @@
 #() pFpiiiiuuuu
 #() pFpLpLLipui
 #() pFpLppLLiLi
+#() pFppupupuuu
 #() pFppupppppp
 #() pFpppiiiiii
 #() pFpppuipppp
@@ -3925,6 +3942,7 @@
 #() pFEppiiLpppip
 #() pFEppuiipuuii
 #() pFEpppppppppp
+#() pFpupppppuuuu
 #() pFpppppppuipp
 #() pFppppppppppp
 #() iWEpuipuppppp
@@ -5344,6 +5362,8 @@ wrappedlber:
 - iFppip:
   - ber_sockbuf_add_io
 wrappedlcms2:
+- vFpp:
+  - cmsSetLogErrorHandlerTHR
 wrappedldapr:
 - iFpppppupp:
   - ldap_sasl_interactive_bind_s

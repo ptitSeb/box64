@@ -11,7 +11,9 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef void (*vFpp_t)(void*, void*);
 
-#define SUPER() ADDED_FUNCTIONS()
+#define SUPER() ADDED_FUNCTIONS() \
+	GO(cmsSetLogErrorHandlerTHR, vFpp_t)
 
 #endif // __wrappedlcms2TYPES_H_

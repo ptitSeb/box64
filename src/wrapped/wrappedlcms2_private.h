@@ -1,213 +1,213 @@
 #if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
-#error Meh....
+#error Meh...
 #endif
 
 //GO(_cms15Fixed16toDouble, 
 //GO(_cms8Fixed8toDouble, 
-//GO(cmsAdaptToIlluminant, 
+GO(cmsAdaptToIlluminant, iFpppp)
 //GO(_cmsAdjustEndianess16, 
 //GO(_cmsAdjustEndianess32, 
 //GO(_cmsAdjustEndianess64, 
-//GO(cmsAllocNamedColorList, 
-//GO(cmsAllocProfileSequenceDescription, 
-//GO(cmsAppendNamedColor, 
-//GO(cmsBFDdeltaE, 
-//GO(cmsBuildGamma, 
-//GO(cmsBuildParametricToneCurve, 
-//GO(cmsBuildSegmentedToneCurve, 
-//GO(cmsBuildTabulatedToneCurve16, 
-//GO(cmsBuildTabulatedToneCurveFloat, 
+GO(cmsAllocNamedColorList, pFpuupp)
+GO(cmsAllocProfileSequenceDescription, pFpu)
+GO(cmsAppendNamedColor, iFpppp)
+GO(cmsBFDdeltaE, dFpp)
+GO(cmsBuildGamma, pFpd)
+GO(cmsBuildParametricToneCurve, pFpip)
+GO(cmsBuildSegmentedToneCurve, pFpup)
+GO(cmsBuildTabulatedToneCurve16, pFpup)
+GO(cmsBuildTabulatedToneCurveFloat, pFpup)
 //GO(_cmsCalloc, 
-//GO(cmsChangeBuffersFormat, 
+GO(cmsChangeBuffersFormat, iFpuu)
 GO(cmsChannelsOf, uFu)
-//GO(cmsCIE2000DeltaE, 
-//GO(cmsCIE94DeltaE, 
-//GO(cmsCIECAM02Done, 
-//GO(cmsCIECAM02Forward, 
-//GO(cmsCIECAM02Init, 
-//GO(cmsCIECAM02Reverse, 
-//GO(cmsCloseIOhandler, 
+GO(cmsCIE2000DeltaE, dFppddd)
+GO(cmsCIE94DeltaE, dFpp)
+GO(cmsCIECAM02Done, vFp)
+GO(cmsCIECAM02Forward, vFppp)
+GO(cmsCIECAM02Init, pFpp)
+GO(cmsCIECAM02Reverse, vFppp)
+GO(cmsCloseIOhandler, iFp)
 GO(cmsCloseProfile, iFp)
-//GO(cmsCMCdeltaE, 
+GO(cmsCMCdeltaE, dFppdd)
 //GO(_cmsComputeInterpParams, 
-//GO(cmsCreateBCHSWabstractProfile, 
-//GO(cmsCreateBCHSWabstractProfileTHR, 
-//GO(cmsCreateContext, 
-//GO(cmsCreateExtendedTransform, 
-//GO(cmsCreateGrayProfile, 
-//GO(cmsCreateGrayProfileTHR, 
-//GO(cmsCreateInkLimitingDeviceLink, 
-//GO(cmsCreateInkLimitingDeviceLinkTHR, 
-//GO(cmsCreateLab2Profile, 
-//GO(cmsCreateLab2ProfileTHR, 
-//GO(cmsCreateLab4Profile, 
-//GO(cmsCreateLab4ProfileTHR, 
-//GO(cmsCreateLinearizationDeviceLink, 
-//GO(cmsCreateLinearizationDeviceLinkTHR, 
-//GO(cmsCreateMultiprofileTransform, 
-//GO(cmsCreateMultiprofileTransformTHR, 
+GO(cmsCreateBCHSWabstractProfile, pFudddduu)
+GO(cmsCreateBCHSWabstractProfileTHR, pFpudddduu)
+GO(cmsCreateContext, pFpp)
+GO(cmsCreateExtendedTransform, pFpupppppuuuu)
+GO(cmsCreateGrayProfile, pFpp)
+GO(cmsCreateGrayProfileTHR, pFppp)
+GO(cmsCreateInkLimitingDeviceLink, pFud)
+GO(cmsCreateInkLimitingDeviceLinkTHR, pFpud)
+GO(cmsCreateLab2Profile, pFp)
+GO(cmsCreateLab2ProfileTHR, pFpp)
+GO(cmsCreateLab4Profile, pFp)
+GO(cmsCreateLab4ProfileTHR, pFpp)
+GO(cmsCreateLinearizationDeviceLink, pFup)
+GO(cmsCreateLinearizationDeviceLinkTHR, pFpup)
+GO(cmsCreateMultiprofileTransform, pFpuuuuu)
+GO(cmsCreateMultiprofileTransformTHR, pFppuuuuu)
 //GO(_cmsCreateMutex, 
-//GO(cmsCreateNULLProfile, 
-//GO(cmsCreateNULLProfileTHR, 
-//GO(cmsCreateProfilePlaceholder, 
-//GO(cmsCreateProofingTransform, 
-//GO(cmsCreateProofingTransformTHR, 
-//GO(cmsCreateRGBProfile, 
-//GO(cmsCreateRGBProfileTHR, 
-GO(cmsCreate_sRGBProfile, pFp)
-//GO(cmsCreate_sRGBProfileTHR, 
-GO(cmsCreateTransform, pFppupuuu)
-//GO(cmsCreateTransformTHR, 
-//GO(cmsCreateXYZProfile, 
-//GO(cmsCreateXYZProfileTHR, 
-//GO(cmsD50_xyY, 
-//GO(cmsD50_XYZ, 
+GO(cmsCreateNULLProfile, pFv)
+GO(cmsCreateNULLProfileTHR, pFp)
+GO(cmsCreateProfilePlaceholder, pFp)
+GO(cmsCreateProofingTransform, pFpupupuuu)
+GO(cmsCreateProofingTransformTHR, pFppupupuuu)
+GO(cmsCreateRGBProfile, pFppp)
+GO(cmsCreateRGBProfileTHR, pFpppp)
+GO(cmsCreate_sRGBProfile, pFv)
+GO(cmsCreate_sRGBProfileTHR, pFp)
+GO(cmsCreateTransform, pFpupuuu)
+GO(cmsCreateTransformTHR, pFppupuuu)
+GO(cmsCreateXYZProfile, pFv)
+GO(cmsCreateXYZProfileTHR, pFp)
+GO(cmsD50_xyY, pFv)
+GO(cmsD50_XYZ, pFv)
 //GO(_cmsDecodeDateTimeNumber, 
 //GO(_cmsDefaultICCintents, 
-//GO(cmsDeleteContext, 
+GO(cmsDeleteContext, vFp)
 GO(cmsDeleteTransform, vFp)
-//GO(cmsDeltaE, 
-//GO(cmsDesaturateLab, 
+GO(cmsDeltaE, dFpp)
+GO(cmsDesaturateLab, iFpdddd)
 //GO(_cmsDestroyMutex, 
-//GO(cmsDetectBlackPoint, 
-//GO(cmsDetectDestinationBlackPoint, 
-//GO(cmsDetectTAC, 
-//GO(cmsDictAddEntry, 
-//GO(cmsDictAlloc, 
-//GO(cmsDictDup, 
-//GO(cmsDictFree, 
-//GO(cmsDictGetEntryList, 
-//GO(cmsDictNextEntry, 
+GO(cmsDetectBlackPoint, iFppuu)
+GO(cmsDetectDestinationBlackPoint, iFppuu)
+GO(cmsDetectTAC, dFp)
+GO(cmsDictAddEntry, iFppppp)
+GO(cmsDictAlloc, pFp)
+GO(cmsDictDup, pFp)
+GO(cmsDictFree, vFp)
+GO(cmsDictGetEntryList, pFp)
+GO(cmsDictNextEntry, pFp)
 GO(cmsDoTransform, vFpppu)
-//GO(cmsDoTransformLineStride, 
-GO(cmsDoTransformStride, vFpppii)
+GO(cmsDoTransformLineStride, vFpppuuuuuu)
+GO(cmsDoTransformStride, vFpppuu)
 //GO(_cmsDoubleTo15Fixed16, 
 //GO(_cmsDoubleTo8Fixed8, 
-//GO(cmsDupContext, 
+GO(cmsDupContext, pFpp)
 //GO(_cmsDupMem, 
-//GO(cmsDupNamedColorList, 
-//GO(cmsDupProfileSequenceDescription, 
-//GO(cmsDupToneCurve, 
+GO(cmsDupNamedColorList, pFp)
+GO(cmsDupProfileSequenceDescription, pFp)
+GO(cmsDupToneCurve, pFp)
 //GO(_cmsEncodeDateTimeNumber, 
-//GO(cmsEstimateGamma, 
-//GO(cmsEvalToneCurve16, 
-//GO(cmsEvalToneCurveFloat, 
-//GO(cmsfilelength, 
+GO(cmsEstimateGamma, dFpd)
+GO(cmsEvalToneCurve16, WFpW)
+GO(cmsEvalToneCurveFloat, fFpf)
+GO(cmsfilelength, lFS)
 //GO(_cmsFloat2Half, 
-//GO(cmsFloat2LabEncoded, 
-//GO(cmsFloat2LabEncodedV2, 
-//GO(cmsFloat2XYZEncoded, 
-//GO(cmsFormatterForColorspaceOfProfile, 
-//GO(cmsFormatterForPCSOfProfile, 
+GO(cmsFloat2LabEncoded, vFpp)
+GO(cmsFloat2LabEncodedV2, vFpp)
+GO(cmsFloat2XYZEncoded, vFpp)
+GO(cmsFormatterForColorspaceOfProfile, uFpui)
+GO(cmsFormatterForPCSOfProfile, uFpui)
 //GO(_cmsFree, 
 //GO(_cmsFreeInterpParams, 
-//GO(cmsFreeNamedColorList, 
-//GO(cmsFreeProfileSequenceDescription, 
-//GO(cmsFreeToneCurve, 
-//GO(cmsFreeToneCurveTriple, 
-//GO(cmsGBDAlloc, 
-//GO(cmsGBDFree, 
-//GO(cmsGDBAddPoint, 
-//GO(cmsGDBCheckPoint, 
-//GO(cmsGDBCompute, 
-//GO(cmsGetAlarmCodes, 
-//GO(cmsGetAlarmCodesTHR, 
-GO(cmsGetColorSpace, iFp)
-//GO(cmsGetContextUserData, 
-//GO(cmsGetDeviceClass, 
-//GO(cmsGetEncodedCMMversion, 
-//GO(cmsGetEncodedICCversion, 
+GO(cmsFreeNamedColorList, vFp)
+GO(cmsFreeProfileSequenceDescription, vFp)
+GO(cmsFreeToneCurve, vFp)
+GO(cmsFreeToneCurveTriple, vFp)
+GO(cmsGBDAlloc, pFp)
+GO(cmsGBDFree, vFp)
+GO(cmsGDBAddPoint, iFpp)
+GO(cmsGDBCheckPoint, iFpp)
+GO(cmsGDBCompute, iFpu)
+GO(cmsGetAlarmCodes, vFp)
+GO(cmsGetAlarmCodesTHR, vFpp)
+GO(cmsGetColorSpace, uFp)
+GO(cmsGetContextUserData, pFp)
+GO(cmsGetDeviceClass, uFp)
+GO(cmsGetEncodedCMMversion, iFv)
+GO(cmsGetEncodedICCversion, uFp)
 //GO(_cmsGetFormatter, 
-//GO(cmsGetHeaderAttributes, 
-//GO(cmsGetHeaderCreationDateTime, 
-//GO(cmsGetHeaderCreator, 
-//GO(cmsGetHeaderFlags, 
-//GO(cmsGetHeaderManufacturer, 
-//GO(cmsGetHeaderModel, 
-//GO(cmsGetHeaderProfileID, 
-//GO(cmsGetHeaderRenderingIntent, 
-//GO(cmsGetNamedColorList, 
-//GO(cmsGetPCS, 
-//GO(cmsGetPipelineContextID, 
-//GO(cmsGetPostScriptColorResource, 
-//GO(cmsGetPostScriptCRD, 
-//GO(cmsGetPostScriptCSA, 
-//GO(cmsGetProfileContextID, 
-//GO(cmsGetProfileInfo, 
-//GO(cmsGetProfileInfoASCII, 
-//GO(cmsGetProfileIOhandler, 
-//GO(cmsGetProfileVersion, 
-//GO(cmsGetSupportedIntents, 
-//GO(cmsGetSupportedIntentsTHR, 
-//GO(cmsGetTagCount, 
-//GO(cmsGetTagSignature, 
-//GO(cmsGetToneCurveEstimatedTable, 
-//GO(cmsGetToneCurveEstimatedTableEntries, 
-//GO(cmsGetToneCurveParametricType, 
-//GO(cmsGetToneCurveParams, 
-//GO(cmsGetTransformContextID, 
+GO(cmsGetHeaderAttributes, vFpp)
+GO(cmsGetHeaderCreationDateTime, iFpp)
+GO(cmsGetHeaderCreator, uFp)
+GO(cmsGetHeaderFlags, uFp)
+GO(cmsGetHeaderManufacturer, uFp)
+GO(cmsGetHeaderModel, uFp)
+GO(cmsGetHeaderProfileID, vFpp)
+GO(cmsGetHeaderRenderingIntent, uFp)
+GO(cmsGetNamedColorList, pFp)
+GO(cmsGetPCS, uFp)
+GO(cmsGetPipelineContextID, pFp)
+GO(cmsGetPostScriptColorResource, uFpupuup)
+GO(cmsGetPostScriptCRD, uFppuupu)
+GO(cmsGetPostScriptCSA, uFppuupu)
+GO(cmsGetProfileContextID, pFp)
+GO(cmsGetProfileInfo, uFpupppu)
+GO(cmsGetProfileInfoASCII, uFpupppu)
+GO(cmsGetProfileIOhandler, pFp)
+GO(cmsGetProfileVersion, dFp)
+GO(cmsGetSupportedIntents, uFupp)
+GO(cmsGetSupportedIntentsTHR, uFpupp)
+GO(cmsGetTagCount, iFp)
+GO(cmsGetTagSignature, uFpu)
+GO(cmsGetToneCurveEstimatedTable, pFp)
+GO(cmsGetToneCurveEstimatedTableEntries, uFp)
+GO(cmsGetToneCurveParametricType, iFp)
+GO(cmsGetToneCurveParams, pFp)
+GO(cmsGetTransformContextID, pFp)
 //GO(_cmsGetTransformFlags, 
 //GO(_cmsGetTransformFormatters16, 
 //GO(_cmsGetTransformFormattersFloat, 
-//GO(cmsGetTransformInputFormat, 
-//GO(cmsGetTransformOutputFormat, 
+GO(cmsGetTransformInputFormat, uFp)
+GO(cmsGetTransformOutputFormat, uFp)
 //GO(_cmsGetTransformUserData, 
 //GO(_cmsHalf2Float, 
-//GO(_cmsICCcolorSpace, 
+GO(_cmsICCcolorSpace, uFi)
 //GO(_cmsIOPrintf, 
-//GO(cmsIsCLUT, 
-//GO(cmsIsIntentSupported, 
-//GO(cmsIsMatrixShaper, 
-//GO(cmsIsTag, 
-//GO(cmsIsToneCurveDescending, 
-//GO(cmsIsToneCurveLinear, 
-//GO(cmsIsToneCurveMonotonic, 
-//GO(cmsIsToneCurveMultisegment, 
-//GO(cmsIT8Alloc, 
-//GO(cmsIT8DefineDblFormat, 
-//GO(cmsIT8EnumDataFormat, 
-//GO(cmsIT8EnumProperties, 
-//GO(cmsIT8EnumPropertyMulti, 
-//GO(cmsIT8FindDataFormat, 
-//GO(cmsIT8Free, 
-//GO(cmsIT8GetData, 
-//GO(cmsIT8GetDataDbl, 
-//GO(cmsIT8GetDataRowCol, 
-//GO(cmsIT8GetDataRowColDbl, 
-//GO(cmsIT8GetPatchByName, 
-//GO(cmsIT8GetPatchName, 
-//GO(cmsIT8GetProperty, 
-//GO(cmsIT8GetPropertyDbl, 
-//GO(cmsIT8GetPropertyMulti, 
-//GO(cmsIT8GetSheetType, 
-//GO(cmsIT8LoadFromFile, 
-//GO(cmsIT8LoadFromMem, 
-//GO(cmsIT8SaveToFile, 
-//GO(cmsIT8SaveToMem, 
-//GO(cmsIT8SetComment, 
-//GO(cmsIT8SetData, 
-//GO(cmsIT8SetDataDbl, 
-//GO(cmsIT8SetDataFormat, 
-//GO(cmsIT8SetDataRowCol, 
-//GO(cmsIT8SetDataRowColDbl, 
-//GO(cmsIT8SetIndexColumn, 
-//GO(cmsIT8SetPropertyDbl, 
-//GO(cmsIT8SetPropertyHex, 
-//GO(cmsIT8SetPropertyMulti, 
-//GO(cmsIT8SetPropertyStr, 
-//GO(cmsIT8SetPropertyUncooked, 
-//GO(cmsIT8SetSheetType, 
-//GO(cmsIT8SetTable, 
-//GO(cmsIT8SetTableByLabel, 
-//GO(cmsIT8TableCount, 
-//GO(cmsJoinToneCurve, 
-//GO(cmsLab2LCh, 
-//GO(cmsLab2XYZ, 
-//GO(cmsLabEncoded2Float, 
-//GO(cmsLabEncoded2FloatV2, 
-//GO(cmsLCh2Lab, 
-//GO(_cmsLCMScolorSpace, 
-//GO(cmsLinkTag, 
+GO(cmsIsCLUT, iFpuu)
+GO(cmsIsIntentSupported, iFpuu)
+GO(cmsIsMatrixShaper, iFp)
+GO(cmsIsTag, iFpu)
+GO(cmsIsToneCurveDescending, iFp)
+GO(cmsIsToneCurveLinear, iFp)
+GO(cmsIsToneCurveMonotonic, iFp)
+GO(cmsIsToneCurveMultisegment, iFp)
+GO(cmsIT8Alloc, pFp)
+GO(cmsIT8DefineDblFormat, vFpp)
+GO(cmsIT8EnumDataFormat, iFpp)
+GO(cmsIT8EnumProperties, uFpp)
+GO(cmsIT8EnumPropertyMulti, uFppp)
+GO(cmsIT8FindDataFormat, iFpp)
+GO(cmsIT8Free, vFp)
+GO(cmsIT8GetData, pFppp)
+GO(cmsIT8GetDataDbl, dFppp)
+GO(cmsIT8GetDataRowCol, pFpii)
+GO(cmsIT8GetDataRowColDbl, dFpii)
+GO(cmsIT8GetPatchByName, iFpp)
+GO(cmsIT8GetPatchName, pFpip)
+GO(cmsIT8GetProperty, pFpp)
+GO(cmsIT8GetPropertyDbl, dFpp)
+GO(cmsIT8GetPropertyMulti, pFppp)
+GO(cmsIT8GetSheetType, pFp)
+GO(cmsIT8LoadFromFile, pFpp)
+GO(cmsIT8LoadFromMem, pFppu)
+GO(cmsIT8SaveToFile, iFpp)
+GO(cmsIT8SaveToMem, iFppp)
+GO(cmsIT8SetComment, iFpp)
+GO(cmsIT8SetData, iFpppp)
+GO(cmsIT8SetDataDbl, iFpppd)
+GO(cmsIT8SetDataFormat, iFpip)
+GO(cmsIT8SetDataRowCol, iFpiip)
+GO(cmsIT8SetDataRowColDbl, iFpiid)
+GO(cmsIT8SetIndexColumn, iFpp)
+GO(cmsIT8SetPropertyDbl, iFppd)
+GO(cmsIT8SetPropertyHex, iFppu)
+GO(cmsIT8SetPropertyMulti, iFpppp)
+GO(cmsIT8SetPropertyStr, iFppp)
+GO(cmsIT8SetPropertyUncooked, iFppp)
+GO(cmsIT8SetSheetType, iFpp)
+GO(cmsIT8SetTable, iFpu)
+GO(cmsIT8SetTableByLabel, iFpppp)
+GO(cmsIT8TableCount, uFp)
+GO(cmsJoinToneCurve, pFpppu)
+GO(cmsLab2LCh, vFpp)
+GO(cmsLab2XYZ, vFppp)
+GO(cmsLabEncoded2Float, vFpp)
+GO(cmsLabEncoded2FloatV2, vFpp)
+GO(cmsLCh2Lab, vFpp)
+GO(_cmsLCMScolorSpace, iFu)
+GO(cmsLinkTag, iFpuu)
 //GO(_cmsLockMutex, 
 //GO(_cmsMalloc, 
 //GO(_cmsMallocZero, 
@@ -219,53 +219,53 @@ GO(cmsGetColorSpace, iFp)
 //GO(_cmsMAT3solve, 
 //GO(cmsMD5add, 
 //GO(cmsMD5alloc, 
-//GO(cmsMD5computeID, 
+GO(cmsMD5computeID, iFp)
 //GO(cmsMD5finish, 
-//GO(cmsMLUalloc, 
-//GO(cmsMLUdup, 
-//GO(cmsMLUfree, 
-//GO(cmsMLUgetASCII, 
-//GO(cmsMLUgetTranslation, 
-//GO(cmsMLUgetWide, 
-//GO(cmsMLUsetASCII, 
-//GO(cmsMLUsetWide, 
-//GO(cmsMLUtranslationsCodes, 
-//GO(cmsMLUtranslationsCount, 
-//GO(cmsNamedColorCount, 
-//GO(cmsNamedColorIndex, 
-//GO(cmsNamedColorInfo, 
-//GO(cmsOpenIOhandlerFromFile, 
-//GO(cmsOpenIOhandlerFromMem, 
-//GO(cmsOpenIOhandlerFromNULL, 
-//GO(cmsOpenIOhandlerFromStream, 
+GO(cmsMLUalloc, pFpu)
+GO(cmsMLUdup, pFp)
+GO(cmsMLUfree, vFp)
+GO(cmsMLUgetASCII, uFppppu)
+GO(cmsMLUgetTranslation, iFppppp)
+GO(cmsMLUgetWide, uFppppu)
+GO(cmsMLUsetASCII, iFpppp)
+GO(cmsMLUsetWide, iFpppp)
+GO(cmsMLUtranslationsCodes, iFpupp)
+GO(cmsMLUtranslationsCount, uFp)
+GO(cmsNamedColorCount, uFp)
+GO(cmsNamedColorIndex, iFpp)
+GO(cmsNamedColorInfo, iFpuppppp)
+GO(cmsOpenIOhandlerFromFile, pFppp)
+GO(cmsOpenIOhandlerFromMem, pFppup)
+GO(cmsOpenIOhandlerFromNULL, pFp)
+GO(cmsOpenIOhandlerFromStream, pFpS)
 GO(cmsOpenProfileFromFile, pFpp)
-//GO(cmsOpenProfileFromFileTHR, 
-//GO(cmsOpenProfileFromIOhandler2THR, 
-//GO(cmsOpenProfileFromIOhandlerTHR, 
+GO(cmsOpenProfileFromFileTHR, pFppp)
+GO(cmsOpenProfileFromIOhandler2THR, pFppi)
+GO(cmsOpenProfileFromIOhandlerTHR, pFpp)
 GO(cmsOpenProfileFromMem, pFpu)
-//GO(cmsOpenProfileFromMemTHR, 
-//GO(cmsOpenProfileFromStream, 
-//GO(cmsOpenProfileFromStreamTHR, 
+GO(cmsOpenProfileFromMemTHR, pFppu)
+GO(cmsOpenProfileFromStream, pFSp)
+GO(cmsOpenProfileFromStreamTHR, pFpSp)
 //GO(_cmsOptimizePipeline, 
-//GO(cmsPipelineAlloc, 
-//GO(cmsPipelineCat, 
-//GO(cmsPipelineCheckAndRetreiveStages, 
-//GO(cmsPipelineDup, 
-//GO(cmsPipelineEval16, 
-//GO(cmsPipelineEvalFloat, 
-//GO(cmsPipelineEvalReverseFloat, 
-//GO(cmsPipelineFree, 
-//GO(cmsPipelineGetPtrToFirstStage, 
-//GO(cmsPipelineGetPtrToLastStage, 
-//GO(cmsPipelineInputChannels, 
-//GO(cmsPipelineInsertStage, 
-//GO(cmsPipelineOutputChannels, 
+GO(cmsPipelineAlloc, pFpuu)
+GO(cmsPipelineCat, iFpp)
+//GOM(cmsPipelineCheckAndRetreiveStages, iFEpuV)
+GO(cmsPipelineDup, pFp)
+GO(cmsPipelineEval16, vFppp)
+GO(cmsPipelineEvalFloat, vFppp)
+GO(cmsPipelineEvalReverseFloat, iFpppp)
+GO(cmsPipelineFree, vFp)
+GO(cmsPipelineGetPtrToFirstStage, pFp)
+GO(cmsPipelineGetPtrToLastStage, pFp)
+GO(cmsPipelineInputChannels, uFp)
+GO(cmsPipelineInsertStage, iFpup)
+GO(cmsPipelineOutputChannels, uFp)
 //GO(_cmsPipelineSetOptimizationParameters, 
-//GO(cmsPipelineSetSaveAs8bitsFlag, 
-//GO(cmsPipelineStageCount, 
-//GO(cmsPipelineUnlinkStage, 
-//GO(cmsPlugin, 
-//GO(cmsPluginTHR, 
+GO(cmsPipelineSetSaveAs8bitsFlag, iFpi)
+GO(cmsPipelineStageCount, uFp)
+GO(cmsPipelineUnlinkStage, vFpup)
+GO(cmsPlugin, iFp)
+GO(cmsPluginTHR, iFpp)
 //GO(_cmsQuantizeVal, 
 //GO(_cmsRead15Fixed16Number, 
 //GO(_cmsReadAlignment, 
@@ -273,8 +273,8 @@ GO(cmsOpenProfileFromMem, pFpu)
 //GO(_cmsReadFloat32Number, 
 //GO(_cmsReadInputLUT, 
 //GO(_cmsReadOutputLUT, 
-//GO(cmsReadRawTag, 
-//GO(cmsReadTag, 
+GO(cmsReadRawTag, uFpupu)
+GO(cmsReadTag, pFpu)
 //GO(_cmsReadTypeBase, 
 //GO(_cmsReadUInt16Array, 
 //GO(_cmsReadUInt16Number, 
@@ -284,77 +284,77 @@ GO(cmsOpenProfileFromMem, pFpu)
 //GO(_cmsReadXYZNumber, 
 //GO(_cmsRealloc, 
 //GO(_cmsReasonableGridpointsByColorspace, 
-//GO(cmsReverseToneCurve, 
-//GO(cmsReverseToneCurveEx, 
-//GO(cmsSaveProfileToFile, 
-//GO(cmsSaveProfileToIOhandler, 
-//GO(cmsSaveProfileToMem, 
-//GO(cmsSaveProfileToStream, 
-//GO(cmsSetAdaptationState, 
-//GO(cmsSetAdaptationStateTHR, 
-//GO(cmsSetAlarmCodes, 
-//GO(cmsSetAlarmCodesTHR, 
-//GO(cmsSetColorSpace, 
-//GO(cmsSetDeviceClass, 
-//GO(cmsSetEncodedICCversion, 
-//GO(cmsSetHeaderAttributes, 
-//GO(cmsSetHeaderFlags, 
-//GO(cmsSetHeaderManufacturer, 
-//GO(cmsSetHeaderModel, 
-//GO(cmsSetHeaderProfileID, 
-//GO(cmsSetHeaderRenderingIntent, 
-//GO(cmsSetLogErrorHandler, 
-//GO(cmsSetLogErrorHandlerTHR, 
-//GO(cmsSetPCS, 
-//GO(cmsSetProfileVersion, 
+GO(cmsReverseToneCurve, pFp)
+GO(cmsReverseToneCurveEx, pFup)
+GO(cmsSaveProfileToFile, iFpp)
+GO(cmsSaveProfileToIOhandler, uFpp)
+GO(cmsSaveProfileToMem, iFppp)
+GO(cmsSaveProfileToStream, iFpS)
+GO(cmsSetAdaptationState, dFd)
+GO(cmsSetAdaptationStateTHR, dFpd)
+GO(cmsSetAlarmCodes, vFp)
+GO(cmsSetAlarmCodesTHR, vFpp)
+GO(cmsSetColorSpace, vFpu)
+GO(cmsSetDeviceClass, vFpu)
+GO(cmsSetEncodedICCversion, vFpu)
+GO(cmsSetHeaderAttributes, vFpL)
+GO(cmsSetHeaderFlags, vFpu)
+GO(cmsSetHeaderManufacturer, vFpu)
+GO(cmsSetHeaderModel, vFpu)
+GO(cmsSetHeaderProfileID, vFpp)
+GO(cmsSetHeaderRenderingIntent, vFpu)
+//GOM(cmsSetLogErrorHandler, vFEp)
+GOM(cmsSetLogErrorHandlerTHR, vFEpp)
+GO(cmsSetPCS, vFpu)
+GO(cmsSetProfileVersion, vFpd)
 //GO(_cmsSetTransformUserData, 
 //GO(cmsSignalError, 
-//GO(cmsSliceSpace16, 
-//GO(cmsSliceSpaceFloat, 
-//GO(cmsSmoothToneCurve, 
-//GO(cmsStageAllocCLut16bit, 
-//GO(cmsStageAllocCLut16bitGranular, 
-//GO(cmsStageAllocCLutFloat, 
-//GO(cmsStageAllocCLutFloatGranular, 
-//GO(cmsStageAllocIdentity, 
+//GOM(cmsSliceSpace16, iFEuppp)
+//GOM(cmsSliceSpaceFloat, iFEuppp)
+GO(cmsSmoothToneCurve, iFpd)
+GO(cmsStageAllocCLut16bit, pFpuuup)
+GO(cmsStageAllocCLut16bitGranular, pFppuup)
+GO(cmsStageAllocCLutFloat, pFpuuup)
+GO(cmsStageAllocCLutFloatGranular, pFppuup)
+GO(cmsStageAllocIdentity, pFpu)
 //GO(_cmsStageAllocIdentityCLut, 
 //GO(_cmsStageAllocIdentityCurves, 
 //GO(_cmsStageAllocLab2XYZ, 
 //GO(_cmsStageAllocLabV2ToV4, 
 //GO(_cmsStageAllocLabV4ToV2, 
-//GO(cmsStageAllocMatrix, 
+GO(cmsStageAllocMatrix, pFpuupp)
 //GO(_cmsStageAllocNamedColor, 
 //GO(_cmsStageAllocPlaceholder, 
-//GO(cmsStageAllocToneCurves, 
+GO(cmsStageAllocToneCurves, pFpup)
 //GO(_cmsStageAllocXYZ2Lab, 
-//GO(cmsStageData, 
-//GO(cmsStageDup, 
-//GO(cmsStageFree, 
-//GO(cmsStageInputChannels, 
-//GO(cmsStageNext, 
-//GO(cmsStageOutputChannels, 
-//GO(cmsStageSampleCLut16bit, 
-//GO(cmsStageSampleCLutFloat, 
-//GO(cmsStageType, 
-//GO(cmsstrcasecmp, 
-//GO(cmsTagLinkedTo, 
-//GO(cmsTempFromWhitePoint, 
-//GO(cmsTransform2DeviceLink, 
+GO(cmsStageData, pFp)
+GO(cmsStageDup, pFp)
+GO(cmsStageFree, vFp)
+GO(cmsStageInputChannels, uFp)
+GO(cmsStageNext, pFp)
+GO(cmsStageOutputChannels, uFp)
+//GOM(cmsStageSampleCLut16bit, iFEpppu)
+//GOM(cmsStageSampleCLutFloat, iFEpppu)
+GO(cmsStageType, uFp)
+GO(cmsstrcasecmp, iFpp)
+GO(cmsTagLinkedTo, uFpu)
+GO(cmsTempFromWhitePoint, iFpp)
+GO(cmsTransform2DeviceLink, pFpdu)
 //GO(_cmsUnlockMutex, 
-//GO(cmsUnregisterPlugins, 
-//GO(cmsUnregisterPluginsTHR, 
+GO(cmsUnregisterPlugins, vFv)
+GO(cmsUnregisterPluginsTHR, vFp)
 //GO(_cmsVEC3cross, 
 //GO(_cmsVEC3distance, 
 //GO(_cmsVEC3dot, 
 //GO(_cmsVEC3init, 
 //GO(_cmsVEC3length, 
 //GO(_cmsVEC3minus, 
-//GO(cmsWhitePointFromTemp, 
+GO(cmsWhitePointFromTemp, iFpd)
 //GO(_cmsWrite15Fixed16Number, 
 //GO(_cmsWriteAlignment, 
 //GO(_cmsWriteFloat32Number, 
-//GO(cmsWriteRawTag, 
-//GO(cmsWriteTag, 
+GO(cmsWriteRawTag, iFpupu)
+GO(cmsWriteTag, iFpup)
 //GO(_cmsWriteTypeBase, 
 //GO(_cmsWriteUInt16Array, 
 //GO(_cmsWriteUInt16Number, 
@@ -362,7 +362,7 @@ GO(cmsOpenProfileFromMem, pFpu)
 //GO(_cmsWriteUInt64Number, 
 //GO(_cmsWriteUInt8Number, 
 //GO(_cmsWriteXYZNumber, 
-//GO(cmsxyY2XYZ, 
-//GO(cmsXYZ2Lab, 
-//GO(cmsXYZ2xyY, 
-//GO(cmsXYZEncoded2Float, 
+GO(cmsxyY2XYZ, vFpp)
+GO(cmsXYZ2Lab, vFppp)
+GO(cmsXYZ2xyY, vFpp)
+GO(cmsXYZEncoded2Float, vFpp)
