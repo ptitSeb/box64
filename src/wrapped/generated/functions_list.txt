@@ -759,6 +759,7 @@
 #() uFpff
 #() uFpli
 #() uFplu
+#() uFpLi
 #() uFpLu
 #() uFpLL
 #() uFpLp
@@ -1401,7 +1402,9 @@
 #() uFEppp
 #() uFiiii
 #() uFiiuu
+#() uFiipp
 #() uFifff
+#() uFippp
 #() uFuipi
 #() uFuuuu
 #() uFuupp
@@ -1422,7 +1425,9 @@
 #() uFLpUp
 #() uFLppp
 #() uFpiii
+#() uFpiiu
 #() uFpiip
+#() uFpiup
 #() uFpipi
 #() uFpipu
 #() uFpipL
@@ -1530,6 +1535,7 @@
 #() LFippp
 #() LFuipL
 #() LFpipl
+#() LFpipL
 #() LFpCii
 #() LFpupL
 #() LFplLL
@@ -1616,7 +1622,6 @@
 #() pFpipi
 #() pFpipu
 #() pFpipd
-#() pFpipL
 #() pFpipp
 #() pFpCip
 #() pFpCuu
@@ -2124,8 +2129,8 @@
 #() uFiuuuu
 #() uFiuppi
 #() uFipupp
-#() uFipLpp
 #() uFuiiii
+#() uFupLpp
 #() uFULCLL
 #() uFULWLL
 #() uFULuLL
@@ -2143,6 +2148,7 @@
 #() uFpuupu
 #() uFpuupp
 #() uFpupuu
+#() uFpupLp
 #() uFpuppp
 #() uFpULuU
 #() uFpUppp
@@ -2163,6 +2169,7 @@
 #() uFppLLu
 #() uFppLLp
 #() uFppLpu
+#() uFppLpL
 #() uFppLpp
 #() uFpppip
 #() uFpppuu
@@ -3690,6 +3697,7 @@
 #() uFEpppufppp
 #() uFuulpiuiuf
 #() uFpuupuppuu
+#() uFpLiipLLLp
 #() uFppLpLuppp
 #() uFppppppppp
 #() UFbCuWCCuuu
@@ -4001,6 +4009,7 @@
 #() iFppppppLLLLupp
 #() iFppppppppppppp
 #() uFippuuuulllipp
+#() uFpiipupLpLpLpL
 #() uFpppppuupppppp
 #() UFbCuuwwWWWWuup
 #() LFEpLiiuuuiupLp
