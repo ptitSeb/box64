@@ -30,7 +30,7 @@ GO(vpx_codec_decode, iFppupl)
 GO(vpx_codec_get_frame, pFpp)
 //GOM(vpx_codec_register_put_frame_cb, iFEppp)    // callback
 //GOM(vpx_codec_register_put_slice_cb, iFEppp)     // callback
-//GOM(vpx_codec_set_frame_buffer_functions, iFEpppp)    // callbacks
+GOM(vpx_codec_set_frame_buffer_functions, iFEpppp)
 
 // Encoder functions
 GO(vpx_codec_enc_init_ver, iFpppli)

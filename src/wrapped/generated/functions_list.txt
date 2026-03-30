@@ -6468,6 +6468,8 @@ wrappedlibvdpau:
   - vdp_device_create_x11
 wrappedlibvorbis:
 wrappedlibvpx:
+- iFpppp:
+  - vpx_codec_set_frame_buffer_functions
 wrappedlibx11:
 - vFp:
   - XcmsFreeCCC
