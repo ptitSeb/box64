@@ -36,12 +36,21 @@ typedef void* (*pFpppppppp_t)(void*, void*, void*, void*, void*, void*, void*, v
 	GO(CRYPTO_set_id_callback, vFp_t) \
 	GO(CRYPTO_set_locking_callback, vFp_t) \
 	GO(OSSL_PARAM_construct_end, vFp_t) \
+	GO(BIO_meth_get_callback_ctrl, pFp_t) \
+	GO(BIO_meth_get_create, pFp_t) \
+	GO(BIO_meth_get_ctrl, pFp_t) \
+	GO(BIO_meth_get_destroy, pFp_t) \
+	GO(BIO_meth_get_gets, pFp_t) \
+	GO(BIO_meth_get_puts, pFp_t) \
+	GO(BIO_meth_get_read, pFp_t) \
+	GO(BIO_meth_get_write, pFp_t) \
 	GO(OPENSSL_sk_new, pFp_t) \
 	GO(X509V3_EXT_get, pFp_t) \
 	GO(ERR_print_errors_cb, vFpp_t) \
 	GO(OPENSSL_sk_pop_free, vFpp_t) \
 	GO(X509_STORE_CTX_set_verify_cb, vFpp_t) \
 	GO(X509_STORE_set_verify_cb, vFpp_t) \
+	GO(BIO_meth_set_callback_ctrl, iFpp_t) \
 	GO(BIO_meth_set_gets, iFpp_t) \
 	GO(UI_method_set_closer, iFpp_t) \
 	GO(UI_method_set_opener, iFpp_t) \

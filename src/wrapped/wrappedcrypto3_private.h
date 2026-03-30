@@ -317,6 +317,15 @@ GO(BIO_indent, iFpii)
 GO(BIO_int_ctrl, lFpili)
 GO(BIO_method_name, pFp)
 GO(BIO_method_type, iFp)
+GOM(BIO_meth_get_callback_ctrl, pFp)    // might need GOM as they return a callback
+GOM(BIO_meth_get_create, pFp)   // might need GOM as they return a callback
+GOM(BIO_meth_get_ctrl, pFp) // might need GOM as they return a callback
+GOM(BIO_meth_get_destroy, pFp)  // might need GOM as they return a callback
+GOM(BIO_meth_get_gets, pFp) // might need GOM as they return a callback
+GOM(BIO_meth_get_puts, pFp) // might need GOM as they return a callback
+GOM(BIO_meth_get_read, pFp) // might need GOM as they return a callback
+GOM(BIO_meth_get_write, pFp)    // might need GOM as they return a callback
+GOM(BIO_meth_set_callback_ctrl, iFEpp)
 GOM(BIO_meth_set_gets, iFEpp)
 GO(BIO_new, pFp)
 GO(BIO_new_accept, pFp)
@@ -465,7 +474,7 @@ GO(BN_GF2m_poly2arr, iFppi)
 GO(BN_hex2bn, iFpp)
 //GO(BN_init, 
 GO(BN_is_bit_set, iFpi)
-//GOM(BN_is_prime, iFEpippp)  // third argument is a callback
+//GOM(BN_is_prime, iFEpippp)
 GO(BN_is_prime_ex, iFpipp)
 //GOM(BN_is_prime_fasttest, iFEpipppi)
 GO(BN_is_prime_fasttest_ex, iFpipip)
@@ -824,7 +833,7 @@ GO(CRYPTO_add_lock, iFpiipi)
 //GO(CRYPTO_cfb128_1_encrypt, 
 //GO(CRYPTO_cfb128_8_encrypt, 
 //GO(CRYPTO_cfb128_encrypt, 
-GO(CRYPTO_clear_free, vFvLpi)
+GO(CRYPTO_clear_free, vFpLpi)
 GO(CRYPTO_cleanup_all_ex_data, vFv)
 //GO(CRYPTO_ctr128_encrypt, 
 //GO(CRYPTO_ctr128_encrypt_ctr32, 
@@ -1191,7 +1200,7 @@ GO(DH_set0_pqg, iFpppp)
 //GO(DH_set_ex_data, 
 //GO(DH_set_method, 
 GO(DH_size, iFp)
-// GO(DH_up_ref,
+//GO(DH_up_ref, 
 GO(DIRECTORYSTRING_free, vFp)
 GO(DIRECTORYSTRING_new, pFv)
 GO(DISPLAYTEXT_free, vFp)
@@ -1231,7 +1240,7 @@ GO(DSA_set0_pqg, iFppp)
 //GO(DSA_set_default_method, 
 //GO(DSA_set_ex_data, 
 //GO(DSA_set_method, 
-GO(DSA_SIG_free, vFp) 
+GO(DSA_SIG_free, vFp)
 GO(DSA_sign, iFipippp)
 GO(DSA_SIG_new, pFv)
 GO(DSA_SIG_get0, vFppp)
@@ -1617,7 +1626,7 @@ GO(ENGINE_register_RSA, iFp)
 //GO(ENGINE_register_STORE, 
 GO(ENGINE_remove, iFp)
 //GO(engine_set_all_null, 
-//GOM(ENGINE_set_ciphers, iFEpp)   //typedef int (*ENGINE_CIPHERS_PTR)(ENGINE *e, const EVP_CIPHER **impl, const int **nids, int nid)
+//GOM(ENGINE_set_ciphers, iFEpp)
 //GOM(ENGINE_set_cmd_defns, iFEpp)
 //GO(ENGINE_set_ctrl_function, 
 GO(ENGINE_set_default, iFpu)
@@ -2747,7 +2756,7 @@ GO(OPENSSL_issetugid, iFv)
 //GO(OPENSSL_load_builtin_modules, 
 //GO(OPENSSL_memcmp, 
 GO(OPENSSL_no_config, vFv)
-// GO(OPENSSL_rdtsc,
+//GO(OPENSSL_rdtsc, 
 GOM(OPENSSL_sk_deep_copy, pFEppp)
 GO(OPENSSL_sk_find, iFpp)
 GO(OPENSSL_sk_free, vFp)
@@ -3718,10 +3727,10 @@ GO(X509_LOOKUP_ctrl, iFpiplp)
 GO(X509_LOOKUP_file, pFv)
 //GO(X509_LOOKUP_free, 
 GO(X509_LOOKUP_hash_dir, pFv)
-// GO(X509_LOOKUP_init,
-// GO(X509_LOOKUP_new,
-// GO(X509_LOOKUP_shutdown,
-// GO(X509_NAME_add_entry,
+//GO(X509_LOOKUP_init, 
+//GO(X509_LOOKUP_new, 
+//GO(X509_LOOKUP_shutdown, 
+//GO(X509_NAME_add_entry, 
 GO(X509_NAME_add_entry_by_NID, iFpiipiii)
 //GO(X509_NAME_add_entry_by_OBJ, 
 GO(X509_NAME_add_entry_by_txt, iFppipiii)
@@ -3825,7 +3834,7 @@ GO(X509_REQ_free, vFp)
 //GO(X509_REQ_get_attr_by_OBJ, 
 //GO(X509_REQ_get_attr_count, 
 //GO(X509_REQ_get_extension_nids, 
-//GO(X509_REQ_get_extensions,
+//GO(X509_REQ_get_extensions, 
 GO(X509_REQ_get_pubkey, pFp)
 GO(X509_REQ_get_subject_name, pFp)
 GO(X509_REQ_get_X509_PUBKEY, pFp)

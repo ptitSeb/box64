@@ -497,7 +497,6 @@
 #() vFllp
 #() vFlpp
 #() vFLup
-#() vFLpi
 #() vFLpL
 #() vFLpp
 #() vFpcu
@@ -4162,7 +4161,6 @@
 #() iFEv -> iFE
 #() lFEv -> lFE
 #() pFEv -> pFE
-#() vFvLpi -> vFLpi
 #() iFEvpp -> iFEpp
 #() pFEppv -> pFEpp
 #() iFEpvpp -> iFEppp
@@ -4315,6 +4313,14 @@ wrappedcrypto3:
   - CRYPTO_set_locking_callback
   - OSSL_PARAM_construct_end
 - pFp:
+  - BIO_meth_get_callback_ctrl
+  - BIO_meth_get_create
+  - BIO_meth_get_ctrl
+  - BIO_meth_get_destroy
+  - BIO_meth_get_gets
+  - BIO_meth_get_puts
+  - BIO_meth_get_read
+  - BIO_meth_get_write
   - OPENSSL_sk_new
   - X509V3_EXT_get
 - vFpp:
@@ -4323,6 +4329,7 @@ wrappedcrypto3:
   - X509_STORE_CTX_set_verify_cb
   - X509_STORE_set_verify_cb
 - iFpp:
+  - BIO_meth_set_callback_ctrl
   - BIO_meth_set_gets
   - UI_method_set_closer
   - UI_method_set_opener

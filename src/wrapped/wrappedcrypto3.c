@@ -246,6 +246,30 @@ static void* find_BIO_meth_set_gets_Fct(void* fct)
     return NULL;
 }
 
+// callback_ctrl
+#define GO(A)   \
+static uintptr_t my3_callback_ctrl_fct_##A = 0;                             \
+static long my3_callback_ctrl_##A(void* a, int b, void* c)                  \
+{                                                                           \
+    return (long)RunFunctionFmt(my3_callback_ctrl_fct_##A, "pip", a, b, c); \
+}
+SUPER()
+#undef GO
+static void* find_callback_ctrl_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my3_callback_ctrl_fct_##A == (uintptr_t)fct) return my3_callback_ctrl_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my3_callback_ctrl_fct_##A == 0) {my3_callback_ctrl_fct_##A = (uintptr_t)fct; return my3_callback_ctrl_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libcrypto3 callback_ctrl callback\n");
+    return NULL;
+}
+
 // rsakeygen
 #define GO(A)                                              \
 static uintptr_t my3_rsakeygen_fct_##A = 0;                \
@@ -964,6 +988,11 @@ EXPORT void* my3_X509V3_EXT_get(x64emu_t* emu, void* x)
 EXPORT int my3_ECDH_compute_key(x64emu_t* emu, void* out, size_t outlen, void* pub_key, void* ecdh, void* kdf)
 {
     return my->ECDH_compute_key(out, outlen, pub_key, ecdh, find_ECDH_KDF_Fct(kdf));
+}
+
+EXPORT int my3_BIO_meth_set_callback_ctrl(x64emu_t* emu, void* biom, void* cb)
+{
+    return my->BIO_meth_set_callback_ctrl(biom, find_callback_ctrl_Fct(cb));
 }
 
 #define ALTMY my3_
