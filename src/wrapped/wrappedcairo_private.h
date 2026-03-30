@@ -344,6 +344,8 @@ GO(cairo_svg_surface_create, pFpdd)
 //GO(cairo_svg_surface_create_for_stream, 
 GO(cairo_svg_surface_restrict_to_version, vFpu)
 GO(cairo_svg_version_to_string, pFu)
+GO(cairo_tag_begin, vFppp)
+GO(cairo_tag_end, vFpp)
 GO(cairo_text_cluster_allocate, pFi)
 GO(cairo_text_cluster_free, vFp)
 GO(cairo_text_extents, vFppp)
