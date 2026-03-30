@@ -856,6 +856,7 @@ uint8_t geted_ib(dynarec_native_t* dyn, uintptr_t addr, int ninst, uint8_t nexto
 }
 #undef F8
 
+#if defined(ARM64) || defined(LA64) || defined(PPC64LE)
 static void propagate_dfneeded_internal(dynarec_native_t* dyn, int ninst)
 {
     while(ninst>=0) {
@@ -907,6 +908,7 @@ void propagate_nodf(dynarec_native_t* dyn)
             propagate_nodf_internal(dyn, ninst);
     }
 }
+#endif
 
 void x64disas_add_register_mapping_annotations(char* buf, const char* disas, const register_mapping_t* mappings, size_t mappings_sz)
 {
