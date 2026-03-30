@@ -786,13 +786,13 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
     }
 
     static char buf[4096];
-    int length = sprintf(buf, "barrier=%d state=%d/%s(%s->%s)/%d, set=%X/%X, use=%X, need=%X/%X, sm=%d(%d/%d/%d)",
+    int length = sprintf(buf, "barrier=%d state=%d/%s(%s->%s)/%c, set=%X/%X, use=%X, need=%X/%X, sm=%d(%d/%d/%d)",
         dyn->insts[ninst].x64.barrier,
         dyn->insts[ninst].x64.state_flags,
         df_status[dyn->f],
         df_status[dyn->insts[ninst].f_entry],
         df_status[dyn->insts[ninst].f_exit],
-        dyn->insts[ninst].df_notneeded,
+        dyn->insts[ninst].df_needed?'N':(dyn->insts[ninst].df_notneeded?'U':'-'),
         dyn->insts[ninst].x64.set_flags,
         dyn->insts[ninst].x64.gen_flags,
         dyn->insts[ninst].x64.use_flags,
@@ -1282,6 +1282,8 @@ static void propagateXYMMUneeded(dynarec_arm_t* dyn, int ninst, uint16_t mask_x,
 
 void updateUneeded(dynarec_arm_t* dyn)
 {
+    propagate_nodf(dyn);
+
     if(!dyn->use_xmm && !dyn->use_ymm)
         return;
     // first propagate the needed regs: those which are used and are not unneeded
@@ -1303,8 +1305,6 @@ void updateUneeded(dynarec_arm_t* dyn)
             for(int i=0; i<dyn->insts[ninst].pred_sz; ++i)
                 propagateXYMMUneeded(dyn, dyn->insts[ninst].pred[i], dyn->insts[ninst].n.xmm_unneeded, dyn->insts[ninst].n.ymm_unneeded);
         }
-        if(dyn->insts[ninst].df_notneeded)
-            propagate_nodf(dyn, ninst);
     }
     // try to add some preload of XYMM on jump were it would make sense
     for(int ninst=0; ninst<dyn->size; ++ninst)

@@ -137,6 +137,7 @@ typedef struct instruction_arm64_s {
     unsigned            normal_carry:1;
     unsigned            normal_carry_before:1;
     unsigned            invert_carry:1; // this opcode force an inverted carry
+    unsigned            df_needed:1;
     unsigned            df_notneeded:1;
     unsigned            unaligned:1;    // this opcode can be re-generated for unaligned special case
     unsigned            x87precision:1; // this opcode can handle x87pc
