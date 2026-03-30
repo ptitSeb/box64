@@ -730,6 +730,11 @@ EXPORT void my_g_action_map_add_action_entries(x64emu_t* emu, void* map, my_GAct
     my->g_action_map_add_action_entries(map, entries_, n, data);
 }
 
+EXPORT void* my_g_memory_input_stream_new_from_data(x64emu_t* emu, void* data, ssize_t len, void* f)
+{
+    return my->g_memory_input_stream_new_from_data(data, len, findGDestroyNotifyFct(f));
+}
+
 #define PRE_INIT \
     if (BOX64ENV(nogtk)) return -2;
 

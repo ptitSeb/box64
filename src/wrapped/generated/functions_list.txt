@@ -1569,6 +1569,7 @@
 #() pFEpip
 #() pFEpiV
 #() pFEpCL
+#() pFEplp
 #() pFEppi
 #() pFEppu
 #() pFEppp
@@ -4607,6 +4608,8 @@ wrappedgio2:
   - g_simple_async_result_set_op_res_gpointer
   - g_task_return_pointer
   - g_task_set_task_data
+- pFplp:
+  - g_memory_input_stream_new_from_data
 - vFippp:
   - g_bus_get
 - vFppip:
