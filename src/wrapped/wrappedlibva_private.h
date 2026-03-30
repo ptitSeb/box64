@@ -1,93 +1,94 @@
 #if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
-#error meh!
+#error Meh...
 #endif
 
 GO(vaAcquireBufferHandle, iFpup)
-//GO(vaAssociateSubpicture, 
-//GO(vaAttachProtectedSession, 
-GO(vaBeginPicture, iFpup)
+GO(vaAssociateSubpicture, iFpupiwwWWwwWWu)
+GO(vaAttachProtectedSession, iFpuu)
+GO(vaBeginPicture, iFpuu)
 //GO(vaBufferInfo, 
-//GO(vaBufferSetNumElements, 
+GO(vaBufferSetNumElements, iFpuu)
 //GO(vaBufferTypeStr, 
 GO(vaConfigAttribTypeStr, pFu)
 //GO(vaCopy, 
-GO(vaCreateBuffer, iFpuiuupp)
-//GO(vaCreateBuffer2, 
-GO(vaCreateConfig, iFpiipip)
-GO(vaCreateContext, iFppiiipip)
+GO(vaCreateBuffer, iFpuuuupp)
+GO(vaCreateBuffer2, iFpuuuuppp)
+GO(vaCreateConfig, iFpiupip)
+GO(vaCreateContext, iFpuiiipip)
 GO(vaCreateImage, iFppiip)
-//GO(vaCreateMFContext, 
-//GO(vaCreateProtectedSession, 
-//GO(vaCreateSubpicture, 
-//GO(vaCreateSurfaces@VA_API_0.32.0, 
+GO(vaCreateMFContext, iFpp)
+GO(vaCreateProtectedSession, iFpup)
+GO(vaCreateSubpicture, iFpup)
+//GOM(vaCreateSurfaces@VA_API_0.32.0, iFEpuuupupu)
 GO(vaCreateSurfaces, iFpuuupupu)
-//GO(vaDeassociateSubpicture, 
-GO(vaDeriveImage, iFppp)
+GO(vaDeassociateSubpicture, iFpupi)
+GO(vaDeriveImage, iFpup)
 GO(vaDestroyBuffer, iFpu)
-GO(vaDestroyConfig, iFpp)
+GO(vaDestroyConfig, iFpu)
 GO(vaDestroyContext, iFpu)
-GO(vaDestroyImage, iFpp)
-//GO(vaDestroyProtectedSession, 
-//GO(vaDestroySubpicture, 
+GO(vaDestroyImage, iFpu)
+GO(vaDestroyProtectedSession, iFpu)
+GO(vaDestroySubpicture, iFpu)
 GO(vaDestroySurfaces, iFppi)
-//GO(vaDetachProtectedSession, 
+GO(vaDetachProtectedSession, iFpu)
 GO(vaDisplayIsValid, iFp)
 GO(vaEndPicture, iFpu)
 GO(vaEntrypointStr, pFi)
 //GO(va_errorMessage, 
 GO(vaErrorStr, pFi)
-GO(vaExportSurfaceHandle, iFppuup)
-GO(vaGetConfigAttributes, iFpiipi)
-//GO(vaGetDisplayAttributes, 
-GO(vaGetImage, iFppiiuup)
-//GO(vaGetLibFunc, 
+GO(vaExportSurfaceHandle, iFpuuup)
+GO(vaGetConfigAttributes, iFpiupi)
+GO(vaGetDisplayAttributes, iFppi)
+GO(vaGetImage, iFpuiiuuu)
+//GOM(vaGetLibFunc, pFEpp)
 //GO(va_infoMessage, 
 GO(vaInitialize, iFppp)
 //GO(vaLockSurface, 
 GO(vaMapBuffer, iFpup)
+GO(vaMapBuffer2, iFpupu)
 GO(vaMaxNumConfigAttributes, iFp)
-//GO(vaMaxNumDisplayAttributes, 
+GO(vaMaxNumDisplayAttributes, iFp)
 GO(vaMaxNumEntrypoints, iFp)
 GO(vaMaxNumImageFormats, iFp)
 GO(vaMaxNumProfiles, iFp)
 GO(vaMaxNumSubpictureFormats, iFp)
-//GO(vaMFAddContext, 
-//GO(vaMFReleaseContext, 
-//GO(vaMFSubmit, 
+GO(vaMFAddContext, iFpuu)
+GO(vaMFReleaseContext, iFpuu)
+GO(vaMFSubmit, iFpupi)
 //GO(va_newDisplayContext, 
 //GO(va_newDriverContext, 
 //GO(va_parseConfig, 
 GO(vaProfileStr, pFu)
-//GO(vaProtectedSessionExecute, 
-GO(vaPutImage, iFpppiiuuiiuu)
-GO(vaQueryConfigAttributes, iFpppppp)
+GO(vaProtectedSessionExecute, iFpuu)
+GO(vaPutImage, iFpuuiiuuiiuu)
+GO(vaQueryConfigAttributes, iFpupppp)
 GO(vaQueryConfigEntrypoints, iFpipp)
 GO(vaQueryConfigProfiles, iFppp)
-//GO(vaQueryDisplayAttributes, 
+GO(vaQueryDisplayAttributes, iFppp)
 GO(vaQueryImageFormats, iFppp)
-GO(vaQueryProcessingRate, iFpppp)
+GO(vaQueryProcessingRate, iFpupp)
 GO(vaQuerySubpictureFormats, iFpppp)
-GO(vaQuerySurfaceAttributes, iFpppp)
-GO(vaQuerySurfaceError, iFpppp)
-GO(vaQuerySurfaceStatus, iFppp)
+GO(vaQuerySurfaceAttributes, iFpupp)
+GO(vaQuerySurfaceError, iFpuip)
+GO(vaQuerySurfaceStatus, iFpup)
 GO(vaQueryVendorString, pFp)
-//GO(vaQueryVideoProcFilterCaps, 
-//GO(vaQueryVideoProcFilters, 
+GO(vaQueryVideoProcFilterCaps, iFpuupp)
+GO(vaQueryVideoProcFilters, iFpupp)
 GO(vaQueryVideoProcPipelineCaps, iFpupup)
 GO(vaReleaseBufferHandle, iFpu)
 GO(vaRenderPicture, iFpupi)
-//GO(vaSetDisplayAttributes, 
+GO(vaSetDisplayAttributes, iFppi)
 GO(vaSetDriverName, iFpp)
 GOM(vaSetErrorCallback, pFEppp)
-//GO(vaSetImagePalette, 
+GO(vaSetImagePalette, iFpup)
 GOM(vaSetInfoCallback, pFEppp)
-//GO(vaSetSubpictureChromakey, 
-//GO(vaSetSubpictureGlobalAlpha, 
-//GO(vaSetSubpictureImage, 
+GO(vaSetSubpictureChromakey, iFpuuuu)
+GO(vaSetSubpictureGlobalAlpha, iFpuf)
+GO(vaSetSubpictureImage, iFpuu)
 //GO(vaStatusStr, 
-//GO(vaSyncBuffer, 
-GO(vaSyncSurface, iFpp)
-GO(vaSyncSurface2, iFppU)
+GO(vaSyncBuffer, iFpuU)
+GO(vaSyncSurface, iFpu)
+GO(vaSyncSurface2, iFpuU)
 GO(vaTerminate, iFp)
 //DATAB(va_trace_flag, 
 //GO(va_TracePutSurface, 
