@@ -1288,10 +1288,13 @@ void updateUneeded(dynarec_arm_t* dyn)
     for(int ninst=dyn->size-1; ninst>=0; --ninst) {
         uint16_t xmm_needed = dyn->insts[ninst].n.xmm_used&~dyn->insts[ninst].n.xmm_unneeded;
         uint16_t ymm_needed = dyn->insts[ninst].n.ymm_used&~dyn->insts[ninst].n.ymm_unneeded;
+        if((dyn->insts[ninst].x64.barrier&BARRIER_FLOAT) || (dyn->insts[ninst].x64.jmp && (dyn->insts[ninst].x64.jmp_insts==-1)))
+        {
+            if(dyn->use_xmm) xmm_needed = 0xffff;
+            if(dyn->use_ymm) ymm_needed = 0xffff;
+        }
         if(xmm_needed || ymm_needed)
             propagateXYMMNeeded(dyn, ninst, xmm_needed, ymm_needed);
-        if(dyn->insts[ninst].x64.barrier&BARRIER_FLOAT)
-            propagateXYMMNeeded(dyn, ninst, dyn->use_xmm?0xffff:0, dyn->use_ymm?0xffff:0);
 
     }
     // then proagate the unneeded one: those which are not needed (not used anymore and will be overwritten)
