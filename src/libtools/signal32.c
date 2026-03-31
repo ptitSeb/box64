@@ -621,6 +621,13 @@ int my_sigactionhandler_oldcode_32(x64emu_t* emu, int32_t sig, int simple, sigin
                 sigcontext->uc_mcontext.gregs[I386_TRAPNO] = 14;
                 if(!mmapped) info2->si_code = 1;
                 info2->si_errno = 0;
+            } else if (info->si_errno==0xb09d) {
+                // bound exception
+                sigcontext->uc_mcontext.gregs[I386_ERR] = 0;
+                sigcontext->uc_mcontext.gregs[I386_TRAPNO] = 5;
+                info2->si_errno = 0;
+                info2->si_code = 128;
+                info2->_sifields._sigfault.__si_addr = 0;
             }else {
                 sigcontext->uc_mcontext.gregs[I386_ERR] = 0x14|((sysmapped && !(real_prot&PROT_READ))?0:1);
                 sigcontext->uc_mcontext.gregs[I386_TRAPNO] = 14;
