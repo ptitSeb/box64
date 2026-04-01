@@ -2408,10 +2408,12 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             nextop = F8;
             GETED(0);
             GETGD;
+            MOV32w(x1, 0);      // PF uses 0 when the source is zero
             TSTxw_REG(ed, ed);
             B_MARK(cEQ);
             RBITxw(x1, ed);   // reverse
-            CLZxw(gd, x1);    // x2 gets leading 0 == BSF
+            CLZxw(x1, x1);    // x1 gets leading 0 == BSF
+            MOVxw_REG(gd, x1);
             MARK;
             IFX(X_ZF) {
                 IFNATIVE(NF_EQ) {} else {
@@ -2424,7 +2426,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 IFX(X_AF) BFCw(xFlags, F_AF, 1);
                 IFX(X_SF) BFCw(xFlags, F_SF, 1);
                 IFX(X_OF) BFCw(xFlags, F_OF, 1);
-                IFX(X_PF) emit_pf(dyn, ninst, gd, x2);
+                IFX(X_PF) emit_pf(dyn, ninst, x1, x2);
             }
             break;
         case 0xBD:
@@ -2438,11 +2440,13 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             nextop = F8;
             GETED(0);
             GETGD;
+            MOV32w(x1, 0);      // PF uses 0 when the source is zero
             TSTxw_REG(ed, ed);
             B_MARK(cEQ);
-            CLZxw(gd, ed);    // x2 gets leading 0
-            SUBxw_U12(gd, gd, rex.w?63:31);
-            NEGxw_REG(gd, gd);   // complement
+            CLZxw(x1, ed);    // x1 gets leading 0
+            SUBxw_U12(x1, x1, rex.w?63:31);
+            NEGxw_REG(x1, x1);   // complement
+            MOVxw_REG(gd, x1);
             MARK;
             IFX(X_ZF) {
                 IFNATIVE(NF_EQ) {} else {
@@ -2455,7 +2459,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 IFX(X_AF) BFCw(xFlags, F_AF, 1);
                 IFX(X_SF) BFCw(xFlags, F_SF, 1);
                 IFX(X_OF) BFCw(xFlags, F_OF, 1);
-                IFX(X_PF) emit_pf(dyn, ninst, gd, x2);
+                IFX(X_PF) emit_pf(dyn, ninst, x1, x2);
             }
             break;
         case 0xBE:
