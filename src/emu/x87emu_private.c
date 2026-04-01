@@ -613,55 +613,81 @@ uint16_t cvtf32_16(uint32_t v, uint8_t rounding)
     } else {
         // regular numbers
         int e = in.exponant - 127;
-        uint16_t f = (in.fraction>>13)|0b10000000000;   // add back implicit msb
-        uint16_t r = in.fraction&0b1111111111111;
-        switch(rounding) {
-            case 0: // nearest even
-                if(r>=0b1000000000000)
-                    ++f;
-                break;
-            case 1: // round down
-                f += r?ret.sign:0;
-                break;
-            case 2: // round up
-                f += r?(1-ret.sign):0;
-                break;
-            case 3: // truncate
-                break;
-        }
-        if(f>0b11111111111) {   // implicit msb included
-            ++e;
-            f>>=1;
-        }
-        // remove implicit msb
-        if(f) {
-            while(!(f&0b10000000000)) {
-                f<<=1;
-                --e;
-            }
-        }
-        // there is no msb to remove, as it's implicit and was not added back before
-        if(!f) e = -15;
-        else if(e<-14) { 
-            // flush to zero
-            f >>= (-15-e);
-            e = -15;
-            if((rounding==1 && ret.sign) || ((rounding==2) && !ret.sign)) 
-                f = 1; // rounding artifact
-        }
-        else if(e>15) { 
-            if((rounding==1 && !in.sign) || (rounding==2 && in.sign) || (rounding==3)) {
-                // Clamp to max
-                f=0b1111111111;
-                e = 15;
+        if(e < -14) {
+            // result is a half-precision denormal (or zero)
+            int shift = -14 - e;
+            uint32_t mantissa = (1u << 23) | in.fraction;
+            // total right shift to align 24-bit mantissa into 10-bit fraction
+            int total_shift = 13 + shift;
+            uint16_t fraction;
+            int guard, sticky;
+            if(total_shift >= 25) {
+                fraction = 0;
+                guard = 0;
+                sticky = 1; // mantissa always nonzero (has implicit bit)
             } else {
-                // overflow to inifity
-                f=0;
-                e = 16;
+                fraction = (mantissa >> total_shift) & 0x3FF;
+                guard = (mantissa >> (total_shift - 1)) & 1;
+                sticky = (total_shift >= 2) ? ((mantissa & ((1u << (total_shift - 1)) - 1)) ? 1 : 0) : 0;
             }
-        } else f&=0b1111111111; // remove implicit msb (bit 11)
-        ret.fraction = f;
-        ret.exponant = e+15;
+            switch(rounding) {
+                case 0: // nearest even
+                    if(guard && (sticky || (fraction & 1)))
+                        ++fraction;
+                    break;
+                case 1: // round down
+                    if((guard || sticky) && ret.sign)
+                        ++fraction;
+                    break;
+                case 2: // round up
+                    if((guard || sticky) && !ret.sign)
+                        ++fraction;
+                    break;
+                case 3: // truncate
+                    break;
+            }
+            if(fraction >= 0x400) {
+                // rounding promoted denormal to smallest normal
+                ret.fraction = 0;
+                ret.exponant = 1;
+            } else {
+                ret.fraction = fraction;
+                ret.exponant = 0;
+            }
+        } else {
+            // normal result (e >= -14)
+            uint16_t f = (in.fraction>>13)|0b10000000000;
+            uint16_t r = in.fraction&0b1111111111111;
+            switch(rounding) {
+                case 0: // nearest even
+                    if(r > 0b1000000000000 || (r == 0b1000000000000 && (f & 1)))
+                        ++f;
+                    break;
+                case 1: // round down
+                    f += r?ret.sign:0;
+                    break;
+                case 2: // round up
+                    f += r?(1-ret.sign):0;
+                    break;
+                case 3: // truncate
+                    break;
+            }
+            if(f>0b11111111111) {
+                ++e;
+                f>>=1;
+            }
+            if(e>15) {
+                if((rounding==1 && !in.sign) || (rounding==2 && in.sign) || (rounding==3)) {
+                    f=0b1111111111;
+                    e = 15;
+                } else {
+                    f=0;
+                    e = 16;
+                }
+            } else f&=0b1111111111;
+            ret.fraction = f;
+            ret.exponant = e+15;
+        }
     }
 
     return ret.u16;
