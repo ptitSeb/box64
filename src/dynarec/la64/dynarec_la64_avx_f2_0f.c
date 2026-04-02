@@ -445,21 +445,23 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             u8 = sse_setround(dyn, ninst, x1, x2);
             d0 = fpu_get_scratch(dyn);
             if (vex.l) {
-                XVXOR_V(d0, d0, d0);
-                XVFTINT_W_D(v0, d0, v1); // v0 [lo0, lo1, --, --, hi0, hi1, --, -- ]
                 if (!BOX64ENV(dynarec_fastround)) {
                     q0 = fpu_get_scratch(dyn);
                     q1 = fpu_get_scratch(dyn);
                     q2 = fpu_get_scratch(dyn);
                     d1 = fpu_get_scratch(dyn);
                     XVFTINT_L_D(q2, v1);
+                    XVFCMP_D(d1, v1, v1, cUN); // get NaN mask
+                }
+                XVXOR_V(d0, d0, d0);
+                XVFTINT_W_D(v0, d0, v1); // v0 [lo0, lo1, --, --, hi0, hi1, --, -- ]
+                if (!BOX64ENV(dynarec_fastround)) {
                     XVLDI(q0, 0b1001110000000); // broadcast 0x80000000 to all
                     MOV32w(x5, 0x7FFFFFFF);
                     BSTRPICK_D(x5, x5, 31, 0);
                     XVREPLGR2VR_D(q1, x5);
-                    XVFCMP_D(d0, v1, v1, cUN); // get Nan mask
-                    XVSLT_D(d1, q1, q2);       // get +inf mask
-                    XVOR_V(d0, d1, d0);
+                    XVSLT_D(d0, q1, q2);    // get +inf mask
+                    XVOR_V(d0, d0, d1);     // combine with NaN mask
                     XVSRLNI_W_D(d0, d0, 0); // [A,B,C,D] => [a,b,--,--,c,d,--,--]
                     XVBITSEL_V(v0, v0, q0, d0);
                 }
