@@ -30,6 +30,7 @@ typedef struct arch_flags_s
     uint8_t vf:1;
     uint8_t cf:1;
     uint8_t inv_cf:1;
+    uint8_t pf_v:1;
 } arch_flags_t;
 
 #define X87_ST_D 0
@@ -96,6 +97,7 @@ static int arch_build(dynarec_arm_t* dyn, int ninst, arch_build_t* arch, int noa
         arch->flags_.cf = flags&NF_CF;
         if(arch->flags_.cf)
             arch->flags_.inv_cf = !dyn->insts[ninst].normal_carry;
+        arch->flags_.pf_v = flags&NF_PF_V;
     }
     // opcode can handle unaligned
     arch->unaligned = dyn->insts[ninst].unaligned;
@@ -321,6 +323,9 @@ void adjust_arch(dynablock_t* db, x64emu_t* emu, ucontext_t* p, uintptr_t x64pc)
             } else {
                 CONDITIONAL_SET_FLAG(p->uc_mcontext.pstate&(1<<NZCV_C), F_CF);
             }
+        }
+        if(flags->pf_v) {
+            CONDITIONAL_SET_FLAG(p->uc_mcontext.pstate&(1<<NZCV_V), F_PF);
         }
     }
     struct fpsimd_context *fpsimd = NULL;

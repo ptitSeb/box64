@@ -2337,6 +2337,10 @@ static void nativeFlagsTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2)
         CSETw(s1, cVS);
         BFIw(xFlags, s1, F_OF, 1);
     }
+    if((flags_before&NF_PF_V) && (flags_x86&NF_PF_V)) {
+        CSETw(s1, cVS);
+        BFIw(xFlags, s1, F_PF, 1);
+    }
     if((flags_before&NF_CF) && (flags_x86&NF_CF)) {
         if(nc_before) // might need to invert carry
             CSETw(s1, cCS);
@@ -2360,6 +2364,11 @@ static void nativeFlagsTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2)
     if(!(flags_before&NF_VF) && (flags_after&NF_VF)) {
         GO_MRS(s2);
         UBFXw(s1, xFlags, F_OF, 1);
+        BFIx(s2, s1, NZCV_V, 1);
+    }
+    if(!(flags_before&NF_PF_V) && (flags_after&NF_PF_V)) {
+        GO_MRS(s2);
+        UBFXw(s1, xFlags, F_PF, 1);
         BFIx(s2, s1, NZCV_V, 1);
     }
     if(!(flags_before&NF_CF) && (flags_after&NF_CF)) {
@@ -2786,4 +2795,76 @@ void doLeaveBlock(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)
         CBNZw(s3, -3*4);
     }
     MESSAGE(LOG_INFO, "-------- doLeave\n");
+}
+
+void emit_fcomi(dynarec_arm_t* dyn, int ninst, int s1, int s2, int isfloat, int d1, int d2)
+{
+    IFX(X_OF|X_AF|X_SF) {
+        MOV32w(s2, 0b100011010101);
+        BICw_REG(xFlags, xFlags, s2);
+    }
+    IFX(X_CF|X_PF|X_ZF) {
+        int nonative = 0;
+        int needCZ = 0;
+        if(isfloat)
+            FCMPS(d1, d2);
+        else
+            FCMPD(d1, d2);
+        IFX(X_ZF) {
+            IFNATIVE(NF_EQ) {
+                // add ZF if VS is set
+                needCZ = 1;
+            } else {
+                nonative = 1;
+            }
+        }
+        IFX(X_CF) {
+            IFNATIVE(NF_CF) {
+                // no need to add CF if VS, because it's a reverse carry (so already "un"set)
+                GEN_INVERTED_CARRY();
+                needCZ = 1;
+            } else {
+                nonative = 1;
+            }
+        }
+        IFX(X_PF) {
+            IFNATIVE(NF_PF_V) {
+            } else {
+                nonative = 1;
+            }
+        }
+        if(needCZ) {
+            #if 1
+            // retest is VF is clear, set NZCV to 0101 if VF is set, to match x86 behaviour (also, inversed Carry)
+            // probably faster like that then the conditionnal jump + reading / reseting the flags
+            if(isfloat)
+                FCCMPS(d1, d2, 0b0101, cVC);
+            else
+                FCCMPD(d1, d2, 0b0101, cVC);
+            #else
+            if(cpuext.flagm) {
+                Bcond(cVC, 4+2*4);
+                MOV32w(s1, 0b0100); //new flags
+                RMIF(s1, 0, 0b0110);    // ZC flags only
+            } else {
+                Bcond(cVC, 4+3*4);
+                MRS_nzcv(s1);
+                EORx_mask(s1, s1, 1, 0b100011, 0b000001);  // mask = (1<<NZCV_Z)|(1<<NZCV_C) == 0x60000000
+                MSR_nzcv(s1);
+            }
+            #endif
+        }
+        if(nonative) {
+            MOV32w(s2, 0b01000101);
+            IFX(X_OF|X_AF|X_SF) {} else {BICw_REG(xFlags, xFlags, s2);}
+            CSETw(s1, cMI); /* 1 if less than, 0 else */
+            /*s2 already set */     /* unordered */
+            CSELw(s1, s2, s1, cVS);
+            MOV32w(s2, 0b01000000); /* zero */
+            CSELw(s1, s2, s1, cEQ);
+            /* greater than leave 0 */
+            ORRw_REG(xFlags, xFlags, s1);
+        }
+    }
+    SET_DFNONE();
 }

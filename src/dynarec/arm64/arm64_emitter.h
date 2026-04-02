@@ -1221,6 +1221,11 @@ int convert_bitmask(uint64_t bitmask);
 #define FCMPS_0(Sn)                FEMIT(FCMP_scalar(0b00, Sn, 0, 0b01))
 #define FCMPD_0(Dn)                FEMIT(FCMP_scalar(0b01, Dn, 0, 0b01))
 
+// CCMP . CMP if cond is pass, else use nzcv as new flags
+#define FCCMP_scalar(type, Rm, cond, Rn, op, nzcv)  (0b00011110<<24 | (type)<<22 | 1<<21 | (Rm)<<16 | ((cond)<<12 | 0b01<<10 | (Rn)<<5 | (op)<<4 | (nzcv)))
+#define FCCMPS(Sn, Sm, nzcv, cond) FEMIT(FCCMP_scalar(0b00, Sm, cond, Sn, 0, nzcv))
+#define FCCMPD(Dn, Dm, nzcv, cond) FEMIT(FCCMP_scalar(0b01, Dm, cond, Dn, 0, nzcv))
+
 // CVT
 #define FCVT_scalar(sf, type, rmode, opcode, Rn, Rd)    ((sf)<<31 | 0b11110<<24 | (type)<<22 | 1<<21 | (rmode)<<19 | (opcode)<<16 | (Rn)<<5 | (Rd))
 // Floating-point Convert to Signed integer, rounding to nearest with ties to Away

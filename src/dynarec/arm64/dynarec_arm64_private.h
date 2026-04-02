@@ -14,6 +14,7 @@ typedef struct box64env_s box64env_t;
 #define NF_SF   (1<<1)
 #define NF_VF   (1<<2)
 #define NF_CF   (1<<3)
+#define NF_PF_V (1<<4)
 
 // Nothing happens to the native flags
 #define NAT_FLAG_OP_NONE        0

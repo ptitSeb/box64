@@ -999,16 +999,11 @@ uint8_t flag2native(uint8_t flags)
     if(flags&X_SF) ret|=NF_SF;
     if(flags&X_OF) ret|=NF_VF;
     if(flags&X_CF) ret|=NF_CF;
+    if(flags&X_PF) ret|=NF_PF_V;    // but no opcode can generate both NF_VF & NF_PF_V at the same time!
     #else
     // no native flags on rv64 or la64
     #endif
     return ret;
-}
-
-int flagIsNative(uint8_t flags)
-{
-    if(flags&(X_AF|X_PF)) return 0;
-    return 1;
 }
 
 static uint8_t getNativeFlagsUsed(dynarec_arm_t* dyn, int start, uint8_t flags)
