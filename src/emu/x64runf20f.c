@@ -187,7 +187,7 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                     nextop = F8;
                     _GETED(0);
                     GETGD;
-                    tmp64u = ED->q[0];
+                    tmp64u = rex.w ? ED->q[0] : ED->dword[0];
                     for(int j=0; j<4*(rex.w+1); ++j) {
                         GD->dword[0] ^= (tmp64u >> (j * 8)) & 0xff;
                         for (int i = 0; i < 8; i++) {
