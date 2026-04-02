@@ -228,7 +228,7 @@ uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr, int* step)
         if (EX->f[0]<0)
             GX->f[0] = -NAN;
         else if (isnanf(EX->f[0]))
-            GX->f[0] = EX->f[0];
+            GX->ud[0] = EX->ud[0] | 0x00400000;
         else
             GX->f[0] = sqrtf(EX->f[0]);
         break;
@@ -241,7 +241,7 @@ uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr, int* step)
         else if (EX->f[0]<0)
             GX->f[0] = -NAN;
         else if (isnan(EX->f[0]))
-            GX->f[0] = EX->f[0];
+            GX->ud[0] = EX->ud[0] | 0x00400000;
         else if (isinf(EX->f[0]))
             GX->f[0] = 0.0;
         else
@@ -251,27 +251,25 @@ uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr, int* step)
         nextop = F8;
         GETEX(0);
         GETGX;
-        NAN_PROPAGATION(GX->f[0], EX->f[0], break);
-        GX->f[0] = 1.0f/EX->f[0];
+        if(isnanf(EX->f[0])) GX->ud[0] = EX->ud[0] | 0x00400000;
+        else { GX->f[0] = 1.0f/EX->f[0]; if(isnanf(GX->f[0])) GX->ud[0] |= 0x80000000; }
         break;
 
     case 0x58:  /* ADDSS Gx, Ex */
         nextop = F8;
         GETEX(0);
         GETGX;
-        MARK_NAN_F_2(GX, EX);
-        NAN_PROPAGATION(GX->f[0], EX->f[0], break);
-        GX->f[0] += EX->f[0];
-        CHECK_NAN_F(GX);
+        if(isnanf(GX->f[0])) GX->ud[0] |= 0x00400000;
+        else if(isnanf(EX->f[0])) GX->ud[0] = EX->ud[0] | 0x00400000;
+        else { GX->f[0] += EX->f[0]; if(isnanf(GX->f[0])) GX->ud[0] |= 0x80000000; }
         break;
     case 0x59:  /* MULSS Gx, Ex */
         nextop = F8;
         GETEX(0);
         GETGX;
-        MARK_NAN_F_2(GX, EX);
-        NAN_PROPAGATION(GX->f[0], EX->f[0], break);
-        GX->f[0] *= EX->f[0];
-        CHECK_NAN_F(GX);
+        if(isnanf(GX->f[0])) GX->ud[0] |= 0x00400000;
+        else if(isnanf(EX->f[0])) GX->ud[0] = EX->ud[0] | 0x00400000;
+        else { GX->f[0] *= EX->f[0]; if(isnanf(GX->f[0])) GX->ud[0] |= 0x80000000; }
         break;
     case 0x5A:  /* CVTSS2SD Gx, Ex */
         nextop = F8;
@@ -299,8 +297,9 @@ uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr, int* step)
         nextop = F8;
         GETEX(0);
         GETGX;
-        NAN_PROPAGATION(GX->f[0], EX->f[0], break);
-        GX->f[0] -= EX->f[0];
+        if(isnanf(GX->f[0])) GX->ud[0] |= 0x00400000;
+        else if(isnanf(EX->f[0])) GX->ud[0] = EX->ud[0] | 0x00400000;
+        else { GX->f[0] -= EX->f[0]; if(isnanf(GX->f[0])) GX->ud[0] |= 0x80000000; }
         break;
     case 0x5D:  /* MINSS Gx, Ex */
         nextop = F8;
@@ -313,10 +312,9 @@ uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr, int* step)
         nextop = F8;
         GETEX(0);
         GETGX;
-        MARK_NAN_F_2(GX, EX);
-        NAN_PROPAGATION(GX->f[0], EX->f[0], break);
-        GX->f[0] /= EX->f[0];
-        CHECK_NAN_F(GX);
+        if(isnanf(GX->f[0])) GX->ud[0] |= 0x00400000;
+        else if(isnanf(EX->f[0])) GX->ud[0] = EX->ud[0] | 0x00400000;
+        else { GX->f[0] /= EX->f[0]; if(isnanf(GX->f[0])) GX->ud[0] |= 0x80000000; }
         break;
     case 0x5F:  /* MAXSS Gx, Ex */
         nextop = F8;

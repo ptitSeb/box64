@@ -770,7 +770,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             GETGX;
             for(int i=0; i<4; ++i)
                 if (isnan(EX->f[i]))
-                    GX->f[i] = EX->f[i];
+                    GX->ud[i] = EX->ud[i] | 0x00400000;
                 else
                     GX->f[i] = (EX->f[i] < 0) ? (-NAN) : sqrtf(EX->f[i]);
             break;
@@ -784,7 +784,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                 else if (EX->f[i]<0)
                     GX->f[i] = -NAN;
                 else if (isnan(EX->f[i]))
-                    GX->f[i] = EX->f[i];
+                    GX->ud[i] = EX->ud[i] | 0x00400000;
                 else if (isinf(EX->f[i]))
                     GX->f[i] = 0.0;
                 else
@@ -832,9 +832,14 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             GETEX(0);
             GETGX;
             for(int i=0; i<4; ++i) {
-                maskps[i] = isnanf(GX->f[i]) || isnanf(EX->f[i]);
-                GX->f[i] += EX->f[i];
-                if(isnanf(GX->f[i]) && !maskps[i]) GX->ud[i] |= 0x80000000;
+                if(isnanf(GX->f[i])) {
+                    GX->ud[i] |= 0x00400000;
+                } else if(isnanf(EX->f[i])) {
+                    GX->ud[i] = EX->ud[i] | 0x00400000;
+                } else {
+                    GX->f[i] += EX->f[i];
+                    if(isnanf(GX->f[i])) GX->ud[i] |= 0x80000000;
+                }
             }
             break;
         case 0x59:                      /* MULPS Gx, Ex */
@@ -842,9 +847,14 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             GETEX(0);
             GETGX;
             for(int i=0; i<4; ++i) {
-                maskps[i] = isnanf(GX->f[i]) || isnanf(EX->f[i]);
-                GX->f[i] *= EX->f[i];
-                if(isnanf(GX->f[i]) && !maskps[i]) GX->ud[i] |= 0x80000000;
+                if(isnanf(GX->f[i])) {
+                    GX->ud[i] |= 0x00400000;
+                } else if(isnanf(EX->f[i])) {
+                    GX->ud[i] = EX->ud[i] | 0x00400000;
+                } else {
+                    GX->f[i] *= EX->f[i];
+                    if(isnanf(GX->f[i])) GX->ud[i] |= 0x80000000;
+                }
             }
             break;
         case 0x5A:                      /* CVTPS2PD Gx, Ex */
@@ -868,9 +878,14 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             GETEX(0);
             GETGX;
             for(int i=0; i<4; ++i) {
-                maskps[i] = isnanf(GX->f[i]) || isnanf(EX->f[i]);
-                GX->f[i] -= EX->f[i];
-                if(isnanf(GX->f[i]) && !maskps[i]) GX->ud[i] |= 0x80000000;
+                if(isnanf(GX->f[i])) {
+                    GX->ud[i] |= 0x00400000;
+                } else if(isnanf(EX->f[i])) {
+                    GX->ud[i] = EX->ud[i] | 0x00400000;
+                } else {
+                    GX->f[i] -= EX->f[i];
+                    if(isnanf(GX->f[i])) GX->ud[i] |= 0x80000000;
+                }
             }
             break;
         case 0x5D:                      /* MINPS Gx, Ex */
@@ -887,9 +902,14 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             GETEX(0);
             GETGX;
             for(int i=0; i<4; ++i) {
-                maskps[i] = isnanf(GX->f[i]) || isnanf(EX->f[i]);
-                GX->f[i] /= EX->f[i];
-                if(isnanf(GX->f[i]) && !maskps[i]) GX->ud[i] |= 0x80000000;
+                if(isnanf(GX->f[i])) {
+                    GX->ud[i] |= 0x00400000;
+                } else if(isnanf(EX->f[i])) {
+                    GX->ud[i] = EX->ud[i] | 0x00400000;
+                } else {
+                    GX->f[i] /= EX->f[i];
+                    if(isnanf(GX->f[i])) GX->ud[i] |= 0x80000000;
+                }
             }
             break;
         case 0x5F:                      /* MAXPS Gx, Ex */

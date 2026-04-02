@@ -1292,10 +1292,10 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         GETEX(0);
         GETGX;
         for (int i=0; i<2; ++i) {
-            if(EX->d[i]<0.0)            // on x86, default nan are negative
-                GX->d[i] = -NAN;        // but input NAN are not touched (so sqrt(+nan) -> +nan)
+            if(EX->d[i]<0.0)
+                GX->d[i] = -NAN;
             else if(isnan(EX->d[i]))
-                GX->d[i] = EX->d[i];
+                GX->q[i] = EX->q[i] | 0x0008000000000000ULL;
             else
                 GX->d[i] = sqrt(EX->d[i]);
         }
@@ -1333,21 +1333,31 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         nextop = F8;
         GETEX(0);
         GETGX;
-        MARK_NAN_VD_2(GX, EX);
-        for(int i=0; i<2; ++i) {
-            GX->d[i] += EX->d[i];
+        for (int i=0; i<2; ++i) {
+            if(isnan(GX->d[i])) {
+                GX->q[i] |= 0x0008000000000000ULL;
+            } else if(isnan(EX->d[i])) {
+                GX->q[i] = EX->q[i] | 0x0008000000000000ULL;
+            } else {
+                GX->d[i] += EX->d[i];
+                if(isnan(GX->d[i])) GX->q[i] |= 0x8000000000000000ULL;
+            }
         }
-        CHECK_NAN_VD(GX);
         break;
     case 0x59:                      /* MULPD Gx, Ex */
         nextop = F8;
         GETEX(0);
         GETGX;
-        MARK_NAN_VD_2(GX, EX);
-        for(int i=0; i<2; ++i) {
-            GX->d[i] *= EX->d[i];
+        for (int i=0; i<2; ++i) {
+            if(isnan(GX->d[i])) {
+                GX->q[i] |= 0x0008000000000000ULL;
+            } else if(isnan(EX->d[i])) {
+                GX->q[i] = EX->q[i] | 0x0008000000000000ULL;
+            } else {
+                GX->d[i] *= EX->d[i];
+                if(isnan(GX->d[i])) GX->q[i] |= 0x8000000000000000ULL;
+            }
         }
-        CHECK_NAN_VD(GX);
         break;
     case 0x5A:                      /* CVTPD2PS Gx, Ex */
         nextop = F8;
@@ -1394,11 +1404,16 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         nextop = F8;
         GETEX(0);
         GETGX;
-        MARK_NAN_VD_2(GX, EX);
-        for(int i=0; i<2; ++i) {
-            GX->d[i] -= EX->d[i];
+        for (int i=0; i<2; ++i) {
+            if(isnan(GX->d[i])) {
+                GX->q[i] |= 0x0008000000000000ULL;
+            } else if(isnan(EX->d[i])) {
+                GX->q[i] = EX->q[i] | 0x0008000000000000ULL;
+            } else {
+                GX->d[i] -= EX->d[i];
+                if(isnan(GX->d[i])) GX->q[i] |= 0x8000000000000000ULL;
+            }
         }
-        CHECK_NAN_VD(GX);
         break;
     case 0x5D:                      /* MINPD Gx, Ex */
         nextop = F8;
@@ -1414,10 +1429,14 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         GETEX(0);
         GETGX;
         for (int i=0; i<2; ++i) {
-            is_nan = isnan(GX->d[i]) || isnan(EX->d[i]);
-            GX->d[i] /= EX->d[i];
-            if(!is_nan && isnan(GX->d[i]))
-                GX->d[i] = -NAN;
+            if(isnan(GX->d[i])) {
+                GX->q[i] |= 0x0008000000000000ULL;
+            } else if(isnan(EX->d[i])) {
+                GX->q[i] = EX->q[i] | 0x0008000000000000ULL;
+            } else {
+                GX->d[i] /= EX->d[i];
+                if(isnan(GX->d[i])) GX->q[i] |= 0x8000000000000000ULL;
+            }
         }
         break;
     case 0x5F:                      /* MAXPD Gx, Ex */
@@ -1738,34 +1757,50 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         nextop = F8;
         GETEX(0);
         GETGX;
-        is_nan = isnan(GX->d[0]) || isnan(GX->d[1]);
-        GX->d[0] += GX->d[1];
-        if(!is_nan && isnan(GX->d[0]))
-            GX->d[0] = -NAN;
-        if(EX==GX) {
-            GX->d[1] = GX->d[0];
+        if(isnan(GX->d[0])) {
+            GX->q[0] |= 0x0008000000000000ULL;
+        } else if(isnan(GX->d[1])) {
+            GX->q[0] = GX->q[1] | 0x0008000000000000ULL;
         } else {
-            is_nan = isnan(EX->d[0]) || isnan(EX->d[1]);
-            GX->d[1] = EX->d[0] + EX->d[1];
-            if(!is_nan && isnan(GX->d[1]))
-                GX->d[1] = -NAN;
+            GX->d[0] += GX->d[1];
+            if(isnan(GX->d[0])) GX->q[0] |= 0x8000000000000000ULL;
+        }
+        if(EX==GX) {
+            GX->q[1] = GX->q[0];
+        } else {
+            if(isnan(EX->d[0])) {
+                GX->q[1] = EX->q[0] | 0x0008000000000000ULL;
+            } else if(isnan(EX->d[1])) {
+                GX->q[1] = EX->q[1] | 0x0008000000000000ULL;
+            } else {
+                GX->d[1] = EX->d[0] + EX->d[1];
+                if(isnan(GX->d[1])) GX->q[1] |= 0x8000000000000000ULL;
+            }
         }
         break;
     case 0x7D:  /* HSUBPD Gx, Ex */
         nextop = F8;
         GETEX(0);
         GETGX;
-        is_nan = isnan(GX->d[0]) || isnan(GX->d[1]);
-        GX->d[0] -= GX->d[1];
-        if(!is_nan && isnan(GX->d[0]))
-            GX->d[0] = -NAN;
-        if(EX==GX) {
-            GX->d[1] = GX->d[0];
+        if(isnan(GX->d[0])) {
+            GX->q[0] |= 0x0008000000000000ULL;
+        } else if(isnan(GX->d[1])) {
+            GX->q[0] = GX->q[1] | 0x0008000000000000ULL;
         } else {
-            is_nan = isnan(EX->d[0]) || isnan(EX->d[1]);
-            GX->d[1] = EX->d[0] - EX->d[1];
-            if(!is_nan && isnan(GX->d[1]))
-                GX->d[1] = -NAN;
+            GX->d[0] -= GX->d[1];
+            if(isnan(GX->d[0])) GX->q[0] |= 0x8000000000000000ULL;
+        }
+        if(EX==GX) {
+            GX->q[1] = GX->q[0];
+        } else {
+            if(isnan(EX->d[0])) {
+                GX->q[1] = EX->q[0] | 0x0008000000000000ULL;
+            } else if(isnan(EX->d[1])) {
+                GX->q[1] = EX->q[1] | 0x0008000000000000ULL;
+            } else {
+                GX->d[1] = EX->d[0] - EX->d[1];
+                if(isnan(GX->d[1])) GX->q[1] |= 0x8000000000000000ULL;
+            }
         }
         break;
     case 0x7E:                      /* MOVD Ed, Gx */
@@ -2284,10 +2319,11 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         nextop = F8;
         GETEX(0);
         GETGX;
-        MARK_NAN_VD_2(GX, EX);
-        GX->d[0] -= EX->d[0];
-        GX->d[1] += EX->d[1];
-        CHECK_NAN_VD(GX);
+        for(int i=0; i<2; ++i) {
+            if(isnan(GX->d[i])) GX->q[i] |= 0x0008000000000000ULL;
+            else if(isnan(EX->d[i])) GX->q[i] = EX->q[i] | 0x0008000000000000ULL;
+            else { if(i==0) GX->d[0] -= EX->d[0]; else GX->d[1] += EX->d[1]; if(isnan(GX->d[i])) GX->q[i] |= 0x8000000000000000ULL; }
+        }
         break;
     case 0xD1:  /* PSRLW Gx, Ex */
         nextop = F8;

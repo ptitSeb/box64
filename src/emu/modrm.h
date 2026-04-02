@@ -90,30 +90,6 @@
 
 #define MODREG  ((nextop&0xC0)==0xC0)
 
-#if defined(__riscv)
-#define NAN_PROPAGATION(dest, src, break_or_continue) \
-    if (isnan(dest)) {                                \
-        break_or_continue;                            \
-    } else if (isnan(src)) {                          \
-        (dest) = (src);                               \
-        break_or_continue;                            \
-    }
-#else
-#define NAN_PROPAGATION(dest, src, break_or_continue)
-#endif
-
-#define MARK_NAN_VF_2(A, B) for(int idx=0; idx<4; ++idx) mask_nan[idx] = isnanf(A->f[idx]) || isnanf(B->f[idx])
-#define CHECK_NAN_VF(A) for(int idx=0; idx<4; ++idx) if(isnanf(A->f[idx])) { if(!mask_nan[idx]) A->f[idx] = -NAN; else A->ud[idx] |= 0x00400000; }
-
-#define MARK_NAN_VD_2(A, B) for(int idx=0; idx<2; ++idx) mask_nan[idx] = isnan(A->d[idx]) || isnan(B->d[idx])
-#define CHECK_NAN_VD(A) for(int idx=0; idx<2; ++idx) if(isnan(A->d[idx])) { if(!mask_nan[idx]) A->d[idx] = -NAN; else A->q[idx] |= 0x0008000000000000ULL; }
-
-#define MARK_NAN_F_2(A, B) is_nan = isnanf(A->f[0]) || isnanf(B->f[0])
-#define CHECK_NAN_F(A) if(isnanf(A->f[0])) { if(!is_nan) A->f[0] = -NAN; else A->ud[0] |= 0x00400000; }
-
-#define MARK_NAN_D_2(A, B) is_nan = isnan(A->d[0]) || isnan(B->d[0])
-#define CHECK_NAN_D(A) if(isnan(A->d[0])) { if(!is_nan) A->d[0] = -NAN; else A->q[0] |= 0x0008000000000000ULL; }
-
 #define GOCOND(BASE, PREFIX, COND, NOTCOND, POST)\
     case BASE+0x0:                              \
         PREFIX                                  \

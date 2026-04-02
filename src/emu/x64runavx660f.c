@@ -237,8 +237,10 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETEX(0);
             GETGX; GETGY;
             for (int i=0; i<2; ++i) {
-                if(EX->d[i]<0.0)        // on x86, default nan are negative
-                    GX->d[i] = -NAN;    // but input NAN are not touched (so sqrt(+nan) -> +nan)
+                if(EX->d[i]<0.0)
+                    GX->d[i] = -NAN;
+                else if(isnan(EX->d[i]))
+                    GX->q[i] = EX->q[i] | 0x0008000000000000ULL;
                 else
                     GX->d[i] = sqrt(EX->d[i]);
             }
@@ -247,6 +249,8 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 for (int i=0; i<2; ++i) {
                     if(EY->d[i]<0.0)
                         GY->d[i] = -NAN;
+                    else if(isnan(EY->d[i]))
+                        GY->q[i] = EY->q[i] | 0x0008000000000000ULL;
                     else
                         GY->d[i] = sqrt(EY->d[i]);
                 }
@@ -319,20 +323,30 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETEX(0);
             GETGX;
             GETVX;
-            MARK_NAN_VD_2(VX, EX);
-            for(int i=0; i<2; ++i) {
-                GX->d[i] = VX->d[i] + EX->d[i];
+            for (int i=0; i<2; ++i) {
+                if(isnan(VX->d[i])) {
+                    GX->q[i] = VX->q[i] | 0x0008000000000000ULL;
+                } else if(isnan(EX->d[i])) {
+                    GX->q[i] = EX->q[i] | 0x0008000000000000ULL;
+                } else {
+                    GX->d[i] = VX->d[i] + EX->d[i];
+                    if(isnan(GX->d[i])) GX->q[i] |= 0x8000000000000000ULL;
+                }
             }
-            CHECK_NAN_VD(GX);
             GETGY;
             if(vex.l) {
                 GETEY;
                 GETVY;
-                MARK_NAN_VD_2(VY, EY);
-                for(int i=0; i<2; ++i) {
-                    GY->d[i] = VY->d[i] + EY->d[i];
+                for (int i=0; i<2; ++i) {
+                    if(isnan(VY->d[i])) {
+                        GY->q[i] = VY->q[i] | 0x0008000000000000ULL;
+                    } else if(isnan(EY->d[i])) {
+                        GY->q[i] = EY->q[i] | 0x0008000000000000ULL;
+                    } else {
+                        GY->d[i] = VY->d[i] + EY->d[i];
+                        if(isnan(GY->d[i])) GY->q[i] |= 0x8000000000000000ULL;
+                    }
                 }
-                CHECK_NAN_VD(GY);
             } else {
                 GY->u128 = 0;
             }
@@ -343,19 +357,29 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGX;
             GETVX;
             GETGY;
-            MARK_NAN_VD_2(VX, EX);
-            for(int i=0; i<2; ++i) {
-                GX->d[i] = VX->d[i] * EX->d[i];
+            for (int i=0; i<2; ++i) {
+                if(isnan(VX->d[i])) {
+                    GX->q[i] = VX->q[i] | 0x0008000000000000ULL;
+                } else if(isnan(EX->d[i])) {
+                    GX->q[i] = EX->q[i] | 0x0008000000000000ULL;
+                } else {
+                    GX->d[i] = VX->d[i] * EX->d[i];
+                    if(isnan(GX->d[i])) GX->q[i] |= 0x8000000000000000ULL;
+                }
             }
-            CHECK_NAN_VD(GX);
             if(vex.l) {
                 GETEY;
                 GETVY;
-                MARK_NAN_VD_2(VY, EY);
-                for(int i=0; i<2; ++i) {
-                    GY->d[i] = VY->d[i] * EY->d[i];
+                for (int i=0; i<2; ++i) {
+                    if(isnan(VY->d[i])) {
+                        GY->q[i] = VY->q[i] | 0x0008000000000000ULL;
+                    } else if(isnan(EY->d[i])) {
+                        GY->q[i] = EY->q[i] | 0x0008000000000000ULL;
+                    } else {
+                        GY->d[i] = VY->d[i] * EY->d[i];
+                        if(isnan(GY->d[i])) GY->q[i] |= 0x8000000000000000ULL;
+                    }
                 }
-                CHECK_NAN_VD(GY);
             } else
                 GY->u128 = 0;
             break;
@@ -445,18 +469,30 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETEX(0);
             GETGX;
             GETVX;
-            MARK_NAN_VD_2(VX, EX);
-            GX->d[0] = VX->d[0] - EX->d[0];
-            GX->d[1] = VX->d[1] - EX->d[1];
-            CHECK_NAN_VD(GX);
+            for (int i=0; i<2; ++i) {
+                if(isnan(VX->d[i])) {
+                    GX->q[i] = VX->q[i] | 0x0008000000000000ULL;
+                } else if(isnan(EX->d[i])) {
+                    GX->q[i] = EX->q[i] | 0x0008000000000000ULL;
+                } else {
+                    GX->d[i] = VX->d[i] - EX->d[i];
+                    if(isnan(GX->d[i])) GX->q[i] |= 0x8000000000000000ULL;
+                }
+            }
             GETGY;
             if(vex.l) {
                 GETEY;
                 GETVY;
-                MARK_NAN_VD_2(VY, EY);
-                GY->d[0] = VY->d[0] - EY->d[0];
-                GY->d[1] = VY->d[1] - EY->d[1];
-                CHECK_NAN_VD(GY);
+                for (int i=0; i<2; ++i) {
+                    if(isnan(VY->d[i])) {
+                        GY->q[i] = VY->q[i] | 0x0008000000000000ULL;
+                    } else if(isnan(EY->d[i])) {
+                        GY->q[i] = EY->q[i] | 0x0008000000000000ULL;
+                    } else {
+                        GY->d[i] = VY->d[i] - EY->d[i];
+                        if(isnan(GY->d[i])) GY->q[i] |= 0x8000000000000000ULL;
+                    }
+                }
             } else {
                 GY->u128 = 0;
             }
@@ -489,19 +525,29 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGX;
             GETVX;
             GETGY;
-            MARK_NAN_VD_2(VX, EX);
             for (int i=0; i<2; ++i) {
-                GX->d[i] = VX->d[i] / EX->d[i];
+                if(isnan(VX->d[i])) {
+                    GX->q[i] = VX->q[i] | 0x0008000000000000ULL;
+                } else if(isnan(EX->d[i])) {
+                    GX->q[i] = EX->q[i] | 0x0008000000000000ULL;
+                } else {
+                    GX->d[i] = VX->d[i] / EX->d[i];
+                    if(isnan(GX->d[i])) GX->q[i] |= 0x8000000000000000ULL;
+                }
             }
-            CHECK_NAN_VD(GX);
             if(vex.l) {
                 GETEY;
                 GETVY;
-                MARK_NAN_VD_2(VY, EY);
                 for (int i=0; i<2; ++i) {
-                    GY->d[i] = VY->d[i] / EY->d[i];
+                    if(isnan(VY->d[i])) {
+                        GY->q[i] = VY->q[i] | 0x0008000000000000ULL;
+                    } else if(isnan(EY->d[i])) {
+                        GY->q[i] = EY->q[i] | 0x0008000000000000ULL;
+                    } else {
+                        GY->d[i] = VY->d[i] / EY->d[i];
+                        if(isnan(GY->d[i])) GY->q[i] |= 0x8000000000000000ULL;
+                    }
                 }
-                CHECK_NAN_VD(GY);
             } else
                 GY->u128 = 0;
             break;
@@ -1086,17 +1132,25 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 eax1 = *EX;
                 EX = &eax1;
             }
-            is_nan = isnan(VX->d[0]) || isnan(VX->d[1]);
-            GX->d[0] = VX->d[0] + VX->d[1];
-            if(!is_nan && isnan(GX->d[0]))
-                GX->d[0] = -NAN;
-            if(EX==VX) {
-                GX->d[1] = GX->d[0];
+            if(isnan(VX->d[0])) {
+                GX->q[0] = VX->q[0] | 0x0008000000000000ULL;
+            } else if(isnan(VX->d[1])) {
+                GX->q[0] = VX->q[1] | 0x0008000000000000ULL;
             } else {
-                is_nan = isnan(EX->d[0]) || isnan(EX->d[1]);
-                GX->d[1] = EX->d[0] + EX->d[1];
-                if(!is_nan && isnan(GX->d[1]))
-                    GX->d[1] = -NAN;
+                GX->d[0] = VX->d[0] + VX->d[1];
+                if(isnan(GX->d[0])) GX->q[0] |= 0x8000000000000000ULL;
+            }
+            if(EX==VX) {
+                GX->q[1] = GX->q[0];
+            } else {
+                if(isnan(EX->d[0])) {
+                    GX->q[1] = EX->q[0] | 0x0008000000000000ULL;
+                } else if(isnan(EX->d[1])) {
+                    GX->q[1] = EX->q[1] | 0x0008000000000000ULL;
+                } else {
+                    GX->d[1] = EX->d[0] + EX->d[1];
+                    if(isnan(GX->d[1])) GX->q[1] |= 0x8000000000000000ULL;
+                }
             }
             if(vex.l) {
                 if(GY==EY) {
@@ -1104,17 +1158,25 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                     EY = &eay1;
                 }
                 GETVY;
-                is_nan = isnan(VY->d[0]) || isnan(VY->d[1]);
-                GY->d[0] = VY->d[0] + VY->d[1];
-                if(!is_nan && isnan(GY->d[0]))
-                    GY->d[0] = -NAN;
-                if(EY==VY) {
-                    GY->d[1] = GY->d[0];
+                if(isnan(VY->d[0])) {
+                    GY->q[0] = VY->q[0] | 0x0008000000000000ULL;
+                } else if(isnan(VY->d[1])) {
+                    GY->q[0] = VY->q[1] | 0x0008000000000000ULL;
                 } else {
-                    is_nan = isnan(EY->d[0]) || isnan(EY->d[1]);
-                    GY->d[1] = EY->d[0] + EY->d[1];
-                    if(!is_nan && isnan(GY->d[1]))
-                        GY->d[1] = -NAN;
+                    GY->d[0] = VY->d[0] + VY->d[1];
+                    if(isnan(GY->d[0])) GY->q[0] |= 0x8000000000000000ULL;
+                }
+                if(EY==VY) {
+                    GY->q[1] = GY->q[0];
+                } else {
+                    if(isnan(EY->d[0])) {
+                        GY->q[1] = EY->q[0] | 0x0008000000000000ULL;
+                    } else if(isnan(EY->d[1])) {
+                        GY->q[1] = EY->q[1] | 0x0008000000000000ULL;
+                    } else {
+                        GY->d[1] = EY->d[0] + EY->d[1];
+                        if(isnan(GY->d[1])) GY->q[1] |= 0x8000000000000000ULL;
+                    }
                 }
             } else
                 GY->u128 = 0;
@@ -1130,17 +1192,25 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 eax1 = *EX;
                 EX = &eax1;
             }
-            is_nan = isnan(VX->d[0]) || isnan(VX->d[1]);
-            GX->d[0] = VX->d[0] - VX->d[1];
-            if(!is_nan && isnan(GX->d[0]))
-                GX->d[0] = -NAN;
-            if(EX==VX) {
-                GX->d[1] = GX->d[0];
+            if(isnan(VX->d[0])) {
+                GX->q[0] = VX->q[0] | 0x0008000000000000ULL;
+            } else if(isnan(VX->d[1])) {
+                GX->q[0] = VX->q[1] | 0x0008000000000000ULL;
             } else {
-                is_nan = isnan(EX->d[0]) || isnan(EX->d[1]);
-                GX->d[1] = EX->d[0] - EX->d[1];
-                if(!is_nan && isnan(GX->d[1]))
-                    GX->d[1] = -NAN;
+                GX->d[0] = VX->d[0] - VX->d[1];
+                if(isnan(GX->d[0])) GX->q[0] |= 0x8000000000000000ULL;
+            }
+            if(EX==VX) {
+                GX->q[1] = GX->q[0];
+            } else {
+                if(isnan(EX->d[0])) {
+                    GX->q[1] = EX->q[0] | 0x0008000000000000ULL;
+                } else if(isnan(EX->d[1])) {
+                    GX->q[1] = EX->q[1] | 0x0008000000000000ULL;
+                } else {
+                    GX->d[1] = EX->d[0] - EX->d[1];
+                    if(isnan(GX->d[1])) GX->q[1] |= 0x8000000000000000ULL;
+                }
             }
             if(vex.l) {
                 if(GY==EY) {
@@ -1148,17 +1218,25 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                     EY = &eay1;
                 }
                 GETVY;
-                is_nan = isnan(VY->d[0]) || isnan(VY->d[1]);
-                GY->d[0] = VY->d[0] - VY->d[1];
-                if(!is_nan && isnan(GY->d[0]))
-                    GY->d[0] = -NAN;
-                if(EY==VY) {
-                    GY->d[1] = GY->d[0];
+                if(isnan(VY->d[0])) {
+                    GY->q[0] = VY->q[0] | 0x0008000000000000ULL;
+                } else if(isnan(VY->d[1])) {
+                    GY->q[0] = VY->q[1] | 0x0008000000000000ULL;
                 } else {
-                    is_nan = isnan(EY->d[0]) || isnan(EY->d[1]);
-                    GY->d[1] = EY->d[0] - EY->d[1];
-                    if(!is_nan && isnan(GY->d[1]))
-                        GY->d[1] = -NAN;
+                    GY->d[0] = VY->d[0] - VY->d[1];
+                    if(isnan(GY->d[0])) GY->q[0] |= 0x8000000000000000ULL;
+                }
+                if(EY==VY) {
+                    GY->q[1] = GY->q[0];
+                } else {
+                    if(isnan(EY->d[0])) {
+                        GY->q[1] = EY->q[0] | 0x0008000000000000ULL;
+                    } else if(isnan(EY->d[1])) {
+                        GY->q[1] = EY->q[1] | 0x0008000000000000ULL;
+                    } else {
+                        GY->d[1] = EY->d[0] - EY->d[1];
+                        if(isnan(GY->d[1])) GY->q[1] |= 0x8000000000000000ULL;
+                    }
                 }
             } else
                 GY->u128 = 0;
@@ -1297,17 +1375,19 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGX;
             GETVX;
             GETGY;
-            MARK_NAN_VD_2(VX, EX);
-            GX->d[0] = VX->d[0] - EX->d[0];
-            GX->d[1] = VX->d[1] + EX->d[1];
-            CHECK_NAN_VD(GX);
+            for(int i=0; i<2; ++i) {
+                if(isnan(VX->d[i])) { GX->q[i] = VX->q[i] | 0x0008000000000000ULL; }
+                else if(isnan(EX->d[i])) { GX->q[i] = EX->q[i] | 0x0008000000000000ULL; }
+                else { if(i==0) GX->d[0] = VX->d[0] - EX->d[0]; else GX->d[1] = VX->d[1] + EX->d[1]; if(isnan(GX->d[i])) GX->q[i] |= 0x8000000000000000ULL; }
+            }
             if(vex.l) {
                 GETEY;
                 GETVY;
-                MARK_NAN_VD_2(VY, EY);
-                GY->d[0] = VY->d[0] - EY->d[0];
-                GY->d[1] = VY->d[1] + EY->d[1];
-                CHECK_NAN_VD(GY);
+                for(int i=0; i<2; ++i) {
+                    if(isnan(VY->d[i])) { GY->q[i] = VY->q[i] | 0x0008000000000000ULL; }
+                    else if(isnan(EY->d[i])) { GY->q[i] = EY->q[i] | 0x0008000000000000ULL; }
+                    else { if(i==0) GY->d[0] = VY->d[0] - EY->d[0]; else GY->d[1] = VY->d[1] + EY->d[1]; if(isnan(GY->d[i])) GY->q[i] |= 0x8000000000000000ULL; }
+                }
             } else
                 GY->u128 = 0;
             break;
