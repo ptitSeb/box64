@@ -2405,12 +2405,18 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             nextop = F8;
             GETED(0);
             GETGD;
-            MOV32w(x3, 0);      // PF uses 0 when the source is zero
+            if (BOX64DRENV(dynarec_safeflags) && !BOX64ENV(cputype)) {
+                IFX(X_PF)
+                    MOV32w(x3, 0);      // PF uses 0 when the source is zero
+            }
             TSTxw_REG(ed, ed);
             B_MARK(cEQ);
-            RBITxw(x3, ed);   // reverse
-            CLZxw(x3, x3);    // x3 gets leading 0 == BSF
-            MOVxw_REG(gd, x3);
+            RBITxw(gd, ed);   // reverse
+            CLZxw(gd, gd);    // gd gets leading 0 == BSF
+            if (BOX64DRENV(dynarec_safeflags) && !BOX64ENV(cputype)) {
+                IFX(X_PF)
+                    MOVxw_REG(x3, gd);
+            }
             MARK;
             IFX(X_ZF) {
                 IFNATIVE(NF_EQ) {} else {
@@ -2437,13 +2443,19 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             nextop = F8;
             GETED(0);
             GETGD;
-            MOV32w(x3, 0);      // PF uses 0 when the source is zero
+            if (BOX64DRENV(dynarec_safeflags) && !BOX64ENV(cputype)) {
+                IFX(X_PF)
+                    MOV32w(x3, 0);      // PF uses 0 when the source is zero
+            }
             TSTxw_REG(ed, ed);
             B_MARK(cEQ);
-            CLZxw(x3, ed);    // x3 gets leading 0
-            SUBxw_U12(x3, x3, rex.w?63:31);
-            NEGxw_REG(x3, x3);   // complement
-            MOVxw_REG(gd, x3);
+            CLZxw(gd, ed);    // gd gets leading 0
+            SUBxw_U12(gd, gd, rex.w?63:31);
+            NEGxw_REG(gd, gd);   // complement
+            if (BOX64DRENV(dynarec_safeflags) && !BOX64ENV(cputype)) {
+                IFX(X_PF)
+                    MOVxw_REG(x3, gd);
+            }
             MARK;
             IFX(X_ZF) {
                 IFNATIVE(NF_EQ) {} else {
