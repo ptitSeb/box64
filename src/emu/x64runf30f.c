@@ -362,13 +362,19 @@ uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr, int* step)
         memcpy(EX, GX, 16);    // unaligned...
         break;
 
-    case 0xA4:  // ignore F3 prefix
+    case 0xA3:  // ignore F3 prefix
+    case 0xA4:
     case 0xA5:
     case 0xAC:
     case 0xAD:
     case 0xAF:
+    case 0xB3:
+    case 0xB7:
     case 0xBA:
+    case 0xBB:
+    case 0xBF:
     case 0xC1:
+    case 0xCD:
         #ifdef TEST_INTERPRETER 
         return Test0F(test, rex, addr-1, step);
         #else
