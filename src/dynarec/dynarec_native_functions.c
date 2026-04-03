@@ -862,9 +862,9 @@ static void propagate_dfneeded_internal(dynarec_native_t* dyn, int ninst)
     while(ninst>=0) {
         if(dyn->insts[ninst].df_needed)
             return; // already flagged
-        if(dyn->insts[ninst].x64.gen_flags || (dyn->insts[ninst].x64.use_flags&X_PEND))
-            return; // flags are use, we can stop propagate there
         dyn->insts[ninst].df_needed = 1;
+        if(dyn->insts[ninst].x64.gen_flags || (dyn->insts[ninst].x64.use_flags&X_PEND) || (dyn->insts[ninst].x64.need_before))
+            return; // flags are use, we can stop propagate there
         if(!dyn->insts[ninst].pred_sz)
             return;
         for(int i=1; i<dyn->insts[ninst].pred_sz; ++i)
