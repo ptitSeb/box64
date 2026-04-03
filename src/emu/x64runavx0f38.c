@@ -152,6 +152,7 @@ uintptr_t RunAVX_0F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
         case 0xF5:  /* BZHI Gd, Ed, Vd */
             nextop = F8;
             if(vex.l) EmitSignal(emu, X64_SIGILL, (void*)R_RIP, 0);
+            ResetFlags(emu);
             GETGD;
             GETED(0);
             GETVD;
