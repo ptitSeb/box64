@@ -75,7 +75,11 @@ uintptr_t RunAVX_0F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             CLEAR_FLAG(F_CF);
             CLEAR_FLAG(F_OF);
             CLEAR_FLAG(F_AF);   // Undef
-            CLEAR_FLAG(F_PF);   // Undef
+            if (BOX64ENV(cputype)) {
+                CLEAR_FLAG(F_PF);
+            } else {
+                CONDITIONAL_SET_FLAG(PARITY(GD->byte[0] & 0xff), F_PF);
+            }
             break;
         case 0xF3:
             nextop = F8;
