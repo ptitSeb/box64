@@ -242,13 +242,20 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             d0 = fpu_get_scratch(dyn);
             FADD_S(d0, v1, v2);
             if (!BOX64ENV(dynarec_fastnan)) {
+                d1 = fpu_get_scratch(dyn);
                 FCMP_S(fcc0, v1, v2, cUN);
                 BCNEZ_MARK(fcc0);
                 FCMP_S(fcc1, d0, d0, cOR);
                 BCNEZ_MARK(fcc1);
                 FNEG_S(d0, d0);
+                MARK;
+                MOVFR2GR_D(x4, v1);
+                MOV32w(x5, 0x00400000);
+                OR(x4, x4, x5);
+                MOVGR2FR_D(d1, x4);
+                FCMP_S(fcc0, v1, v1, cUN);
+                FSEL(d0, d0, d1, fcc0);
             }
-            MARK;
             if (v0 != v1) VOR_V(v0, v1, v1);
             VEXTRINS_W(v0, d0, 0);
             break;
@@ -266,8 +273,15 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 FCMP_S(fcc1, d0, d0, cOR);
                 BCNEZ_MARK(fcc1);
                 FNEG_S(d0, d0);
+                MARK;
+                d1 = fpu_get_scratch(dyn);
+                MOVFR2GR_D(x4, v1);
+                MOV32w(x5, 0x00400000);
+                OR(x4, x4, x5);
+                MOVGR2FR_D(d1, x4);
+                FCMP_S(fcc0, v1, v1, cUN);
+                FSEL(d0, d0, d1, fcc0);
             }
-            MARK;
             if (v0 != v1) VOR_V(v0, v1, v1);
             VEXTRINS_W(v0, d0, 0);
             break;
@@ -325,13 +339,20 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             d0 = fpu_get_scratch(dyn);
             FSUB_S(d0, v1, v2);
             if (!BOX64ENV(dynarec_fastnan)) {
+                d1 = fpu_get_scratch(dyn);
                 FCMP_S(fcc0, v1, v2, cUN);
                 BCNEZ_MARK(fcc0);
                 FCMP_S(fcc1, d0, d0, cOR);
                 BCNEZ_MARK(fcc1);
                 FNEG_S(d0, d0);
+                MARK;
+                MOVFR2GR_D(x4, v1);
+                MOV32w(x5, 0x00400000);
+                OR(x4, x4, x5);
+                MOVGR2FR_D(d1, x4);
+                FCMP_S(fcc0, v1, v1, cUN);
+                FSEL(d0, d0, d1, fcc0);
             }
-            MARK;
             if (v0 != v1) VOR_V(v0, v1, v1);
             VEXTRINS_W(v0, d0, 0);
             break;
@@ -356,13 +377,20 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             d0 = fpu_get_scratch(dyn);
             FDIV_S(d0, v1, v2);
             if (!BOX64ENV(dynarec_fastnan)) {
+                d1 = fpu_get_scratch(dyn);
                 FCMP_S(fcc0, v1, v2, cUN);
                 BCNEZ_MARK(fcc0);
                 FCMP_S(fcc1, d0, d0, cOR);
                 BCNEZ_MARK(fcc1);
                 FNEG_S(d0, d0);
+                MARK;
+                MOVFR2GR_D(x4, v1);
+                MOV32w(x5, 0x00400000);
+                OR(x4, x4, x5);
+                MOVGR2FR_D(d1, x4);
+                FCMP_S(fcc0, v1, v1, cUN);
+                FSEL(d0, d0, d1, fcc0);
             }
-            MARK;
             if (v0 != v1) VOR_V(v0, v1, v1);
             VEXTRINS_W(v0, d0, 0);
             break;

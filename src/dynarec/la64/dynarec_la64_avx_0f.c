@@ -354,14 +354,21 @@ uintptr_t dynarec64_AVX_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, in
             if (!BOX64ENV(dynarec_fastnan)) {
                 d0 = fpu_get_scratch(dyn);
                 d1 = fpu_get_scratch(dyn);
+                q0 = fpu_get_scratch(dyn);
+                q1 = fpu_get_scratch(dyn);
                 VFCMPxy(S, d0, v1, v2, cUN);
+                VFCMPxy(S, q0, v1, v1, cUN);
+                VLDIxy(q1, (0b010 << 9) | 0b0000000100);
+                VSLLIxy(W, q1, q1, 20);
+                VOR_Vxy(q1, v1, q1);
             }
             VFADDxy(S, v0, v1, v2);
             if (!BOX64ENV(dynarec_fastnan)) {
+                VBITSEL_Vxy(v0, v0, q1, q0);
                 VFCMPxy(S, d1, v0, v0, cUN);
                 VANDN_Vxy(d0, d0, d1);
                 VLDIxy(d1, (0b010 << 9) | 0b1111111100);
-                VSLLIxy(W, d1, d1, 20); // broadcast 0xFFC00000
+                VSLLIxy(W, d1, d1, 20);
                 VBITSEL_Vxy(v0, v0, d1, d0);
             }
             break;
@@ -372,14 +379,21 @@ uintptr_t dynarec64_AVX_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, in
             if (!BOX64ENV(dynarec_fastnan)) {
                 d0 = fpu_get_scratch(dyn);
                 d1 = fpu_get_scratch(dyn);
+                q0 = fpu_get_scratch(dyn);
+                q1 = fpu_get_scratch(dyn);
                 VFCMPxy(S, d0, v1, v2, cUN);
+                VFCMPxy(S, q0, v1, v1, cUN);
+                VLDIxy(q1, (0b010 << 9) | 0b0000000100);
+                VSLLIxy(W, q1, q1, 20);
+                VOR_Vxy(q1, v1, q1);
             }
             VFMULxy(S, v0, v1, v2);
             if (!BOX64ENV(dynarec_fastnan)) {
+                VBITSEL_Vxy(v0, v0, q1, q0);
                 VFCMPxy(S, d1, v0, v0, cUN);
                 VANDN_Vxy(d0, d0, d1);
                 VLDIxy(d1, (0b010 << 9) | 0b1111111100);
-                VSLLIxy(W, d1, d1, 20); // broadcast 0xFFC00000
+                VSLLIxy(W, d1, d1, 20);
                 VBITSEL_Vxy(v0, v0, d1, d0);
             }
             break;
@@ -425,14 +439,21 @@ uintptr_t dynarec64_AVX_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, in
             if (!BOX64ENV(dynarec_fastnan)) {
                 d0 = fpu_get_scratch(dyn);
                 d1 = fpu_get_scratch(dyn);
+                q0 = fpu_get_scratch(dyn);
+                q1 = fpu_get_scratch(dyn);
                 VFCMPxy(S, d0, v1, v2, cUN);
+                VFCMPxy(S, q0, v1, v1, cUN);
+                VLDIxy(q1, (0b010 << 9) | 0b0000000100);
+                VSLLIxy(W, q1, q1, 20);
+                VOR_Vxy(q1, v1, q1);
             }
             VFSUBxy(S, v0, v1, v2);
             if (!BOX64ENV(dynarec_fastnan)) {
+                VBITSEL_Vxy(v0, v0, q1, q0);
                 VFCMPxy(S, d1, v0, v0, cUN);
                 VANDN_Vxy(d0, d0, d1);
                 VLDIxy(d1, (0b010 << 9) | 0b1111111100);
-                VSLLIxy(W, d1, d1, 20); // broadcast 0xFFC00000
+                VSLLIxy(W, d1, d1, 20);
                 VBITSEL_Vxy(v0, v0, d1, d0);
             }
             break;
@@ -452,14 +473,21 @@ uintptr_t dynarec64_AVX_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, in
             if (!BOX64ENV(dynarec_fastnan)) {
                 d0 = fpu_get_scratch(dyn);
                 d1 = fpu_get_scratch(dyn);
+                q0 = fpu_get_scratch(dyn);
+                q1 = fpu_get_scratch(dyn);
                 VFCMPxy(S, d0, v1, v2, cUN);
+                VFCMPxy(S, q0, v1, v1, cUN);
+                VLDIxy(q1, (0b010 << 9) | 0b0000000100);
+                VSLLIxy(W, q1, q1, 20);
+                VOR_Vxy(q1, v1, q1);
             }
             VFDIVxy(S, v0, v1, v2);
             if (!BOX64ENV(dynarec_fastnan)) {
+                VBITSEL_Vxy(v0, v0, q1, q0);
                 VFCMPxy(S, d1, v0, v0, cUN);
                 VANDN_Vxy(d0, d0, d1);
                 VLDIxy(d1, (0b010 << 9) | 0b1111111100);
-                VSLLIxy(W, d1, d1, 20); // broadcast 0xFFC00000
+                VSLLIxy(W, d1, d1, 20);
                 VBITSEL_Vxy(v0, v0, d1, d0);
             }
             break;
