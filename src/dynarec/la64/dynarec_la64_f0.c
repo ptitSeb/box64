@@ -1526,7 +1526,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             if (cpuext.lamcas) {
                                 LD_WU(x1, wback, 0);
                                 SUB_W(x4, xZR, x1);
-                                MV(x6, x1);
+                                SEXT_W(x6, x1);
                                 AMCAS_DB_W(x1, x4, wback);
                                 BNE(x6, x1, -4 * 3);
                             } else {
