@@ -427,6 +427,7 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
     case 0xBA:
     case 0xBB:
     case 0xBC:  // this one is still BSR, not TZCNT
+    case 0xBD:  // and this one is still BSF, not LZCNT
     case 0xC1:
     case 0xCD:
         #ifdef TEST_INTERPRETER 
