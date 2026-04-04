@@ -499,6 +499,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0xBA:
         case 0xBB:
         case 0xBC:  // this one is still BSR, not TZCNT
+        case 0xBD:  // and this one is still BSF, not LZCNT
         case 0xC1:
         case 0xCD:
             return dynarec64_0F(dyn, addr-1, ip, ninst, rex, ok, need_epilog);
