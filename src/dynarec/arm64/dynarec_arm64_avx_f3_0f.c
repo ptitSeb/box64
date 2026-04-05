@@ -282,6 +282,11 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                 VBIC(q0, q1, q0);      // forget it in any input was a NAN already
                 VSHL_32(q0, q0, 31);     // only keep the sign bit
                 VORR(q2, q2, q0);      // NAN -> -NAN
+                FCMEQS(q1, v2, v2);    // 0 if src1 was NaN
+                MOV32w(x5, 0x00400000);
+                VMOVQSfrom(q0, 0, x5);
+                VORR(q0, v2, q0); // QNaN(src1)
+                VBIF(q2, q0, q1); // where src1 was NaN, use QNaN(src1)
             } else {
                 FADDS(q2, v1, v2);  // the high part of the vector is erased...
             }
@@ -308,6 +313,11 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                 VBIC(q0, q1, q0);      // forget it in any input was a NAN already
                 VSHL_32(q0, q0, 31);     // only keep the sign bit
                 VORR(q2, q2, q0);      // NAN -> -NAN
+                FCMEQS(q1, v2, v2);    // 0 if src1 was NaN
+                MOV32w(x5, 0x00400000);
+                VMOVQSfrom(q0, 0, x5);
+                VORR(q0, v2, q0); // QNaN(src1)
+                VBIF(q2, q0, q1); // where src1 was NaN, use QNaN(src1)
             } else {
                 FMULS(q2, v1, v2);  // the high part of the vector is erased...
             }
@@ -382,6 +392,11 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                 VBIC(q0, q1, q0);      // forget it in any input was a NAN already
                 VSHL_32(q0, q0, 31);     // only keep the sign bit
                 VORR(q2, q2, q0);      // NAN -> -NAN
+                FCMEQS(q1, v2, v2);    // 0 if src1 was NaN
+                MOV32w(x5, 0x00400000);
+                VMOVQSfrom(q0, 0, x5);
+                VORR(q0, v2, q0); // QNaN(src1)
+                VBIF(q2, q0, q1); // where src1 was NaN, use QNaN(src1)
             } else {
                 FSUBS(q2, v2, v1);  // the high part of the vector is erased...
             }
@@ -422,6 +437,11 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                 VBIC(q0, q1, q0);      // forget it in any input was a NAN already
                 VSHL_32(q0, q0, 31);     // only keep the sign bit
                 VORR(q2, q2, q0);      // NAN -> -NAN
+                FCMEQS(q1, v2, v2);    // 0 if src1 was NaN
+                MOV32w(x5, 0x00400000);
+                VMOVQSfrom(q0, 0, x5);
+                VORR(q0, v2, q0); // QNaN(src1)
+                VBIF(q2, q0, q1); // where src1 was NaN, use QNaN(src1)
             } else {
                 FDIVS(q2, v2, v1);  // the high part of the vector is erased...
             }

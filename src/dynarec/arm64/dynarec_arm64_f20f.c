@@ -31,14 +31,15 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
     uint64_t u64, j64;
     int32_t i32, i32_;
     int cacheupd = 0;
-    int v0, v1;
-    int q0, q1;
-    int d0, d1;
+    int v0, v1, v2;
+    int q0, q1, q2;
+    int d0, d1, d2;
     int64_t fixedaddress;
     int unscaled;
 
     MAYUSE(d0);
     MAYUSE(d1);
+    MAYUSE(d2);
     MAYUSE(q0);
     MAYUSE(q1);
     MAYUSE(v0);
@@ -261,6 +262,8 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             if(!BOX64ENV(dynarec_fastnan)) {
                 v0 = fpu_get_scratch(dyn, ninst);
                 q0 = fpu_get_scratch(dyn, ninst);
+                v2 = fpu_get_scratch(dyn, ninst);
+                FMOVD(v2, d1); // save src1
                 // check if any input value was NAN
                 FMAXD(v0, d0, d1);    // propagate NAN
                 FCMEQD(v0, v0, v0);    // 0 if NAN, 1 if not NAN
@@ -269,6 +272,11 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 VBIC(q0, v0, q0);      // forget it in any input was a NAN already
                 SHL_64(q0, q0, 63);     // only keep the sign bit
                 VORR(v1, v1, q0);      // NAN -> -NAN
+                FCMEQD(v0, v2, v2);    // 0 if src1 was NaN
+                MOV64x(x5, 0x0008000000000000ULL);
+                VMOVQDfrom(q0, 0, x5);
+                VORR(v2, v2, q0); // quiet any SNaN in src1
+                VBIF(v1, v2, v0); // where src1 was NaN, use QNaN(src1)
             } else {
                 FADDD(v1, d1, d0);  // the high part of the vector is erased...
             }
@@ -283,6 +291,8 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             if(!BOX64ENV(dynarec_fastnan)) {
                 v0 = fpu_get_scratch(dyn, ninst);
                 q0 = fpu_get_scratch(dyn, ninst);
+                v2 = fpu_get_scratch(dyn, ninst);
+                FMOVD(v2, d1); // save src1
                 // check if any input value was NAN
                 FMAXD(v0, d0, d1);    // propagate NAN
                 FCMEQD(v0, v0, v0);    // 0 if NAN, 1 if not NAN
@@ -291,6 +301,11 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 VBIC(q0, v0, q0);      // forget it in any input was a NAN already
                 SHL_64(q0, q0, 63);     // only keep the sign bit
                 VORR(v1, v1, q0);      // NAN -> -NAN
+                FCMEQD(v0, v2, v2);    // 0 if src1 was NaN
+                MOV64x(x5, 0x0008000000000000ULL);
+                VMOVQDfrom(q0, 0, x5);
+                VORR(v2, v2, q0); // quiet any SNaN in src1
+                VBIF(v1, v2, v0); // where src1 was NaN, use QNaN(src1)
             } else {
                 FMULD(v1, d1, d0);
             }
@@ -321,6 +336,8 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             if(!BOX64ENV(dynarec_fastnan)) {
                 v0 = fpu_get_scratch(dyn, ninst);
                 q0 = fpu_get_scratch(dyn, ninst);
+                v2 = fpu_get_scratch(dyn, ninst);
+                FMOVD(v2, d1); // save src1
                 // check if any input value was NAN
                 FMAXD(v0, d0, d1);    // propagate NAN
                 FCMEQD(v0, v0, v0);    // 0 if NAN, 1 if not NAN
@@ -329,6 +346,11 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 VBIC(q0, v0, q0);      // forget it in any input was a NAN already
                 SHL_64(q0, q0, 63);     // only keep the sign bit
                 VORR(v1, v1, q0);      // NAN -> -NAN
+                FCMEQD(v0, v2, v2);    // 0 if src1 was NaN
+                MOV64x(x5, 0x0008000000000000ULL);
+                VMOVQDfrom(q0, 0, x5);
+                VORR(v2, v2, q0); // quiet any SNaN in src1
+                VBIF(v1, v2, v0); // where src1 was NaN, use QNaN(src1)
             } else {
                 FSUBD(v1, d1, d0);
             }
@@ -353,6 +375,8 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             if(!BOX64ENV(dynarec_fastnan)) {
                 d0 = fpu_get_scratch(dyn, ninst);
                 q0 = fpu_get_scratch(dyn, ninst);
+                v2 = fpu_get_scratch(dyn, ninst);
+                FMOVD(v2, v0); // save src1
                 // check if any input value was NAN
                 FMAXD(d0, v0, v1);      // propagate NAN
                 FCMEQD(d0, d0, d0);     // 0 if NAN, 1 if not NAN
@@ -361,6 +385,11 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 VBIC(q0, d0, q0);       // forget it in any input was a NAN already
                 SHL_64(q0, q0, 63);     // only keep the sign bit
                 VORR(d1, d1, q0);       // NAN -> -NAN
+                FCMEQD(d0, v2, v2);     // 0 if src1 was NaN
+                MOV64x(x5, 0x0008000000000000ULL);
+                VMOVQDfrom(q0, 0, x5);
+                VORR(v2, v2, q0); // quiet any SNaN in src1
+                VBIF(d1, v2, d0); // where src1 was NaN, use QNaN(src1)
             } else {
                 FDIVD(d1, v0, v1);
             }
@@ -418,16 +447,25 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             if(!BOX64ENV(dynarec_fastnan)) {
                 v0 = fpu_get_scratch(dyn, ninst);
                 v1 = fpu_get_scratch(dyn, ninst);
-                // check if any input value was NAN
-                VFMAXPQS(v0, q1, q0);    // propagate NAN
-                VFCMEQQS(v0, v0, v0);    // 0 if NAN, 1 if not NAN
+                d0 = fpu_get_scratch(dyn, ninst);
+                d1 = fpu_get_scratch(dyn, ninst);
+                VUZP1Q_32(d1, q1, q0); // d1 = {q1[0], q1[2], q0[0], q0[2]}
+                VFCMEQQS(v0, q1, q1);  // per-element non-NaN mask for Gx
+                VFCMEQQS(d0, q0, q0);  // per-element non-NaN mask for Ex
+                VUZP1Q_32(v1, v0, d0); // even elements of pairs
+                VUZP2Q_32(v0, v0, d0); // odd elements of pairs
+                VANDQ(v0, v1, v0);     // v0 = both non-NaN per pair
             }
             VFADDPQS(q1, q1, q0);
             if(!BOX64ENV(dynarec_fastnan)) {
-                VFCMEQQS(v1, q1, q1);    // 0 => out is NAN
-                VBICQ(v1, v0, v1);      // forget it in any input was a NAN already
-                VSHLQ_32(v1, v1, 31);   // only keep the sign bit
-                VORRQ(q1, q1, v1);      // NAN -> -NAN
+                VFCMEQQS(v1, d1, d1);      // v1 = 0xFFFFFFFF where src1 non-NaN, 0 where NaN
+                MOVIQ_32_lsl(d0, 0x40, 2); // d0 = 0x00400000 in all lanes (QNaN bit)
+                VORRQ(d0, d1, d0);         // d0 = QNaN(src1) = src1 | 0x00400000
+                VBIFQ(q1, d0, v1);         // where src1 was NaN (v1=0): q1 = d0 (QNaN(src1))
+                VFCMEQQS(v1, q1, q1);      // 0 => out is NAN
+                VBICQ(v1, v0, v1);         // forget it in any input was a NAN already
+                VSHLQ_32(v1, v1, 31);      // only keep the sign bit
+                VORRQ(q1, q1, v1);         // NAN -> -NAN
             }
             break;
         case 0x7D:
@@ -436,20 +474,27 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETGX(v0, 1);
             GETEX(v1, 0, 0);
             d0 = fpu_get_scratch(dyn, ninst);
-            VUZP1Q_32(d0, v0, v1);
-            VUZP2Q_32(v0, v0, v1);
+            VUZP1Q_32(d0, v0, v1); // d0 = src1 (even elements: first of each pair)
+            VUZP2Q_32(v0, v0, v1); // v0 = src2 (odd elements: second of each pair)
             if(!BOX64ENV(dynarec_fastnan)) {
                 d1 = fpu_get_scratch(dyn, ninst);
-                // check if any input value was NAN
-                VFMAXQS(d1, d0, v0);    // propagate NAN
-                VFCMEQQS(d1, d1, d1);    // 0 if NAN, 1 if not NAN
+                d2 = fpu_get_scratch(dyn, ninst);
+                q0 = fpu_get_scratch(dyn, ninst);
+                VMOVQ(q0, d0);        // save src1 for NaN priority
+                VFCMEQQS(d1, d0, d0); // even elements non-NaN
+                VFCMEQQS(d2, v0, v0); // odd elements non-NaN
+                VANDQ(d1, d1, d2);    // d1 = both non-NaN per pair
             }
             VFSUBQS(v0, d0, v0);
             if(!BOX64ENV(dynarec_fastnan)) {
-                VFCMEQQS(d0, v0, v0);    // 0 => out is NAN
-                VBICQ(d1, d1, d0);      // forget it in any input was a NAN already
-                VSHLQ_32(d1, d1, 31);   // only keep the sign bit
-                VORRQ(v0, v0, d1);      // NAN -> -NAN
+                VFCMEQQS(d2, q0, q0);      // d2 = src1 non-NaN mask
+                MOVIQ_32_lsl(d0, 0x40, 2); // d0 = 0x00400000 (QNaN bit)
+                VORRQ(d0, q0, d0);         // d0 = QNaN(src1)
+                VBIFQ(v0, d0, d2);         // where src1 NaN: replace with QNaN(src1)
+                VFCMEQQS(d0, v0, v0);      // 0 => out is NAN
+                VBICQ(d1, d1, d0);         // forget it in any input was a NAN already
+                VSHLQ_32(d1, d1, 31);      // only keep the sign bit
+                VORRQ(v0, v0, d1);         // NAN -> -NAN
             }
             break;
 
@@ -543,9 +588,27 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETGX(v0, 1);
             GETEX(v1, 0, 0);
             q0 = fpu_get_scratch(dyn, ninst);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                q1 = fpu_get_scratch(dyn, ninst);
+                v2 = fpu_get_scratch(dyn, ninst);
+                VMOVQ(v2, v0); // save src1
+                VFCMEQQS(q0, v0, v0);
+                VFCMEQQS(q1, v1, v1);
+                VANDQ(q1, q0, q1); // q1 = both non-NaN
+            }
             TABLE64C(x2, const_4f_m1_1_m1_1);
             VLDR128_U12(q0, x2, 0);
             VFMLAQS(v0, v1, q0);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                VFCMEQQS(q0, v0, v0);      // 0 where result is NaN
+                VBICQ(q0, q1, q0);         // both non-NaN but result NaN
+                VSHLQ_32(q0, q0, 31);      // sign bit only
+                VORRQ(v0, v0, q0);         // force -NaN
+                VFCMEQQS(q0, v2, v2);      // 0 if src1 was NaN
+                MOVIQ_32_lsl(q1, 0x40, 2); // QNaN bit 0x00400000
+                VORRQ(v2, v2, q1);         // quiet any SNaN
+                VBIFQ(v0, v2, q0);         // where src1 NaN: use QNaN(src1)
+            }
             break;
 
         case 0xD6:
