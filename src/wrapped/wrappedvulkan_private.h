@@ -1112,6 +1112,15 @@ GO(vkGetSwapchainTimeDomainPropertiesEXT, iFpppp)
 GO(vkGetSwapchainTimingPropertiesEXT, iFpppp)
 GO(vkSetSwapchainPresentTimingQueueSizeEXT, iFppu)
 
+// VK_ARM_shader_instrumentation
+GO(vkClearShaderInstrumentationMetricsARM, vFpp)
+GO(vkCmdBeginShaderInstrumentationARM, vFpp)
+GO(vkCmdEndShaderInstrumentationARM, vFp)
+GOM(vkCreateShaderInstrumentationARM, iFEpppp)
+GOM(vkDestroyShaderInstrumentationARM, vFEppp)
+GO(vkEnumeratePhysicalDeviceShaderInstrumentationMetricsARM, iFppp)
+GO(vkGetShaderInstrumentationValuesARM, iFppppp)
+
 // Layer stuffs
 GO(vk_icdNegotiateLoaderICDInterfaceVersion, iFp) // Warning: failed to confirm
 //GO(vkNegotiateLoaderLayerInterfaceVersion, iFp)

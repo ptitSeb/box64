@@ -69,6 +69,7 @@ typedef int32_t (*iFpppuppp_t)(void*, void*, void*, uint32_t, void*, void*, void
 	GO(vkDestroySamplerYcbcrConversionKHR, vFppp_t) \
 	GO(vkDestroySemaphore, vFppp_t) \
 	GO(vkDestroyShaderEXT, vFppp_t) \
+	GO(vkDestroyShaderInstrumentationARM, vFppp_t) \
 	GO(vkDestroyShaderModule, vFppp_t) \
 	GO(vkDestroySurfaceKHR, vFppp_t) \
 	GO(vkDestroySwapchainKHR, vFppp_t) \
@@ -125,6 +126,7 @@ typedef int32_t (*iFpppuppp_t)(void*, void*, void*, uint32_t, void*, void*, void
 	GO(vkCreateSamplerYcbcrConversion, iFpppp_t) \
 	GO(vkCreateSamplerYcbcrConversionKHR, iFpppp_t) \
 	GO(vkCreateSemaphore, iFpppp_t) \
+	GO(vkCreateShaderInstrumentationARM, iFpppp_t) \
 	GO(vkCreateShaderModule, iFpppp_t) \
 	GO(vkCreateSwapchainKHR, iFpppp_t) \
 	GO(vkCreateTensorARM, iFpppp_t) \

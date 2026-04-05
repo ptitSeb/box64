@@ -7357,6 +7357,7 @@ wrappedvulkan:
   - vkDestroySamplerYcbcrConversionKHR
   - vkDestroySemaphore
   - vkDestroyShaderEXT
+  - vkDestroyShaderInstrumentationARM
   - vkDestroyShaderModule
   - vkDestroySurfaceKHR
   - vkDestroySwapchainKHR
@@ -7415,6 +7416,7 @@ wrappedvulkan:
   - vkCreateSamplerYcbcrConversion
   - vkCreateSamplerYcbcrConversionKHR
   - vkCreateSemaphore
+  - vkCreateShaderInstrumentationARM
   - vkCreateShaderModule
   - vkCreateSwapchainKHR
   - vkCreateTensorARM

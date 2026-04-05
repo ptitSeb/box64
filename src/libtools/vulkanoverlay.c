@@ -628,6 +628,7 @@ CREATE(vkCreateDebugReportCallbackEXT)  // needs better wrapping because of Debu
 CREATE(vkCreateDebugUtilsMessengerEXT)  // Needs better wrapping?
 CREATE(vkRegisterDeviceEventEXT)
 CREATE(vkCreateWin32SurfaceKHR)
+CREATE(vkCreateShaderInstrumentationARM)
 #undef CREATE
 #undef GO
 // DESTROY64
@@ -699,6 +700,7 @@ DESTROY(vkDestroyPipelineBinaryKHR)
 DESTROY(vkDestroyTensorARM)
 DESTROY(vkDestroyTensorViewARM)
 DESTROY(vkDestroyDataGraphPipelineSessionARM)
+DESTROY(vkDestroyShaderInstrumentationARM)
 
 #undef DESTROY
 #undef GO

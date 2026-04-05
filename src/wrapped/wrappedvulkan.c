@@ -881,3 +881,6 @@ EXPORT int my_vkCreateDataGraphPipelinesARM(x64emu_t* emu, void* device, void* d
 DESTROY(vkDestroyDataGraphPipelineSessionARM)
 
 CREATE(vkCreateWin32SurfaceKHR)
+
+CREATE(vkCreateShaderInstrumentationARM)
+DESTROY(vkDestroyShaderInstrumentationARM)
