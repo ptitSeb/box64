@@ -504,12 +504,11 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     VFCVTZSS(q0, q0);
                 } else {
                     MRS_fpsr(x5);
-                    BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
-                    MSR_fpsr(x5);
                     ORRw_mask(x2, xZR, 1, 0);    //0x80000000
                     d0 = fpu_get_scratch(dyn, ninst);
                     for (int i=0; i<2; ++i) {
                         BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
+                        MSR_fpsr(x5);
                         if (i) {
                             VMOVeS(d0, 0, v1, i);
                             FRINTZS(d0, d0);
@@ -542,12 +541,11 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     VFCVTZSS(q0, q0);
                 } else {
                     MRS_fpsr(x5);
-                    BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
-                    MSR_fpsr(x5);
                     ORRw_mask(x2, xZR, 1, 0);    //0x80000000
                     d0 = fpu_get_scratch(dyn, ninst);
                     for (int i=0; i<2; ++i) {
                         BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
+                        MSR_fpsr(x5);
                         if (i) {
                             VMOVeS(d0, 0, v1, i);
                             FRINTIS(d0, d0);
