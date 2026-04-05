@@ -581,9 +581,11 @@ uint32_t cvtf16_32(uint16_t v)
             ret.exponant = 126 - s;
             ret.fraction = in.fraction << s;
         }
-    } else if(in.exponant==0b11111)
+    } else if(in.exponant==0b11111) {
         ret.exponant = 0b11111111;
-    else {
+        if(in.fraction)
+            ret.fraction |= (1 << 22);  // SNaN -> QNaN
+    } else {
         int e = in.exponant - 15;
         ret.exponant = e + 127;
     }
