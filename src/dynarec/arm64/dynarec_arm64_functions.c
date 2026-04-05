@@ -1466,6 +1466,7 @@ void updateYmm0s(dynarec_arm_t* dyn, int ninst, int max_ninst_reached)
             }
         } else if (can_incr) {
             // We always have ninst == max_ninst_reached when can_incr == 1
+            dyn->insts[ninst].ymm0_out = dyn->insts[ninst].ymm0_add & ~dyn->insts[ninst].ymm0_sub;
             ++max_ninst_reached;
         } else {
             // We didn't update anything, we can leave
@@ -1479,6 +1480,7 @@ void updateYmm0s(dynarec_arm_t* dyn, int ninst, int max_ninst_reached)
 // AVX helpers
 void avx_mark_zero(dynarec_arm_t* dyn, int ninst, int reg)
 {
+    dyn->use_ymm = 1;
     dyn->ymm_zero |= (1<<reg);
 }
 
