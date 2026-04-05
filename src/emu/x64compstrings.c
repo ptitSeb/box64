@@ -53,10 +53,14 @@ uint32_t sse42_compare_string_explicit_len(x64emu_t* emu, sse_regs_t* mem, int l
 {
     // get number of packed byte/word
     int n_packed = (imm8&1)?8:16;
-    if(lreg<0) lreg = -lreg;
-    if(lmem<0) lmem = -lmem;
-    if(lreg>n_packed) lreg = n_packed;
-    if(lmem>n_packed) lmem = n_packed;
+    if (lreg<-n_packed || lreg>n_packed)
+        lreg = n_packed;
+    else if (lreg<0)
+        lreg = -lreg;
+    if (lmem<-n_packed || lmem>n_packed)
+        lmem = n_packed;
+    else if (lmem<0)
+        lmem = -lmem;
     // aggregate to intres1
     uint32_t intres1 = 0;
     switch((imm8>>2)&3) {
