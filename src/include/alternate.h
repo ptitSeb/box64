@@ -13,5 +13,8 @@ void addCheckAlternate(void* addr, void* alt);
 void cleanAlternate(void);
 #ifdef HAVE_ALTJUMP
 uintptr_t getAlternateJump(void* addr, int is32bits);
+// will return MAP_FAIL (void*)-1LL if there no alternate at addr
+void* getAlternateData(void* addr);
+void setAlternateData(void* addr, void* data);
 #endif
 #endif //__ALTERNATE_H__

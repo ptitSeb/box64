@@ -419,7 +419,7 @@ dynablock_t* CreateEmptyBlock(uintptr_t addr, int is32bits, int is_new) {
     return block;
 }
 
-dynablock_t* FillBlock64(uintptr_t addr, int is32bits, int inst_max, int is_new) {
+dynablock_t* FillBlock64(uintptr_t addr, int is32bits, int inst_max, int is_new, int noalt) {
     /*
         A Block must have this layout:
 
@@ -437,7 +437,7 @@ dynablock_t* FillBlock64(uintptr_t addr, int is32bits, int inst_max, int is_new)
     const uint32_t req_prot = (box64_pagesize==4096)?(PROT_EXEC|PROT_READ):PROT_READ;
     uintptr_t old_addr = addr;
     #ifdef HAVE_ALTJUMP
-    uintptr_t altjump = getAlternateJump((void*)addr, is32bits);
+    uintptr_t altjump = noalt?0:getAlternateJump((void*)addr, is32bits);
     if(altjump) {
         dynarec_log(LOG_INFO, "Building a Dynablock for %p with an alternate content at %p\n", (void*)addr, (void*)altjump);
         addr = altjump;
@@ -740,7 +740,7 @@ dynablock_t* FillBlock64(uintptr_t addr, int is32bits, int inst_max, int is_new)
                 --imax;
                 if(dyn->need_dump || BOX64ENV(dynarec_log))dynarec_log(LOG_NONE, "Dynablock oversized, with %zu (max=%zd), recomputing cutting at %d from %d\n", native_size, MAXBLOCK_SIZE, imax, helper.size);
                 CancelBlock64(0);
-                return FillBlock64(old_addr, is32bits, imax, is_new);
+                return FillBlock64(old_addr, is32bits, imax, is_new, noalt);
             }
             insts_rsize = (helper.insts_size+2)*sizeof(instsize_t);
             insts_rsize = (insts_rsize+7)&~7;   // round the size...

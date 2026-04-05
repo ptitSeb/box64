@@ -233,6 +233,45 @@ void dynablock_leave_runtime(dynablock_t* db)
     __atomic_fetch_sub(&db->in_used, 1, __ATOMIC_ACQ_REL);
 }
 
+dynablock_t* CreateDBnoAlt(x64emu_t* emu, uintptr_t addr, int is32bits)
+{
+    #ifndef WIN32
+    static int critical_filled = 0;
+    static sigset_t critical_prot = {0};
+    sigset_t old_sig = {0};
+    if(!critical_filled) {
+        critical_filled = 1;
+        sigfillset(&critical_prot);
+        sigdelset(&critical_prot, SIGSEGV);
+        sigdelset(&critical_prot, SIGILL);
+        sigdelset(&critical_prot, SIGBUS);
+        sigdelset(&critical_prot, SIGINT);
+        sigdelset(&critical_prot, SIGABRT);
+        sigdelset(&critical_prot, SIGFPE);
+    }
+    #endif
+
+    pthread_sigmask(SIG_BLOCK, &critical_prot, &old_sig);
+
+    if(BOX64ENV(dynarec_wait)) {
+        mutex_lock(&my_context->mutex_dyndump);
+    } else {
+        if(mutex_trylock(&my_context->mutex_dyndump)) {   // FillBlock not available for now
+            pthread_sigmask(SIG_SETMASK, &old_sig, NULL);
+            return NULL;
+        }
+    }
+
+    dynarec_log(LOG_DEBUG, "Will call Fillblock64 for Alt %p\n", (void*)addr);
+    dynablock_t* block = FillBlock64(addr, is32bits, MAX_INSTS, 0, 1);
+
+    mutex_unlock(&my_context->mutex_dyndump);
+
+    pthread_sigmask(SIG_SETMASK, &old_sig, NULL);
+
+    return block;
+}
+
 /* 
     return NULL if block is not found / cannot be created. 
     Don't create if create==0
@@ -284,7 +323,7 @@ static dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, int create
             return block;
         }
     }
-    block = FillBlock64(addr, is32bits, MAX_INSTS, is_new);
+    block = FillBlock64(addr, is32bits, MAX_INSTS, is_new, 0);
     if(!block) {
         dynarec_log(LOG_DEBUG, "Fillblock of block %p for %p returned an error\n", block, (void*)addr);
     }

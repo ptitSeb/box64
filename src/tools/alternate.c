@@ -15,6 +15,7 @@ typedef struct {
     void* addr;
     #ifdef HAVE_ALTJUMP
     uintptr_t jump;
+    void* data;
     #endif
 } my_alternate_t;
 KHASH_MAP_INIT_INT64(alternate, my_alternate_t)
@@ -78,4 +79,24 @@ uintptr_t getAlternateJump(void* addr, int is32bits) {
     }
     return 0;
 }
+void* getAlternateData(void* addr)
+{
+    if(!my_alternates)
+        return (void*)-1LL;
+    khint_t k = kh_get(alternate, my_alternates, (uintptr_t)addr);
+    if(k!=kh_end(my_alternates)) {
+        return kh_value(my_alternates, k).data;
+    }
+    return (void*)-1LL;
+}
+void setAlternateData(void* addr, void* data)
+{
+    if(!my_alternates)
+        return;
+    khint_t k = kh_get(alternate, my_alternates, (uintptr_t)addr);
+    if(k!=kh_end(my_alternates)) {
+        kh_value(my_alternates, k).data = data;
+    }
+}
+
 #endif

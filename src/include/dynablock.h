@@ -30,5 +30,6 @@ uintptr_t getX64Address(dynablock_t* db, uintptr_t native_addr);
 int getX64AddressInst(dynablock_t* db, uintptr_t x64pc);
 uintptr_t getX64InstAddress(dynablock_t* db, int inst);
 
+dynablock_t* CreateDBnoAlt(x64emu_t* emu, uintptr_t addr, int is32bits);
 
 #endif //__DYNABLOCK_H_
