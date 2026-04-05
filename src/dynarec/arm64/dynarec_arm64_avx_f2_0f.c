@@ -240,7 +240,7 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                 q1 = fpu_get_scratch(dyn, ninst);
                 q0 = fpu_get_scratch(dyn, ninst);
                 // check if any input value was NAN
-                FMAXD(q1, v0, v1);    // propagate NAN
+                FMAXD(q1, v2, v1);    // propagate NAN
                 FCMEQD(q1, q1, q1);    // 0 if NAN, 1 if not NAN
                 FADDD(q2, v1, v2);  // the high part of the vector is erased...
                 FCMEQD(q0, q2, q2);    // 0 => out is NAN
@@ -266,7 +266,7 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                 q1 = fpu_get_scratch(dyn, ninst);
                 q0 = fpu_get_scratch(dyn, ninst);
                 // check if any input value was NAN
-                FMAXD(q1, v0, v1);    // propagate NAN
+                FMAXD(q1, v2, v1);    // propagate NAN
                 FCMEQD(q1, q1, q1);    // 0 if NAN, 1 if not NAN
                 FMULD(q2, v1, v2);  // the high part of the vector is erased...
                 FCMEQD(q0, q2, q2);    // 0 => out is NAN
@@ -312,7 +312,7 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                 q1 = fpu_get_scratch(dyn, ninst);
                 q0 = fpu_get_scratch(dyn, ninst);
                 // check if any input value was NAN
-                FMAXD(q1, v0, v1);    // propagate NAN
+                FMAXD(q1, v2, v1);    // propagate NAN
                 FCMEQD(q1, q1, q1);    // 0 if NAN, 1 if not NAN
                 FSUBD(q2, v2, v1);  // the high part of the vector is erased...
                 FCMEQD(q0, q2, q2);    // 0 => out is NAN
@@ -353,7 +353,7 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                 q1 = fpu_get_scratch(dyn, ninst);
                 q0 = fpu_get_scratch(dyn, ninst);
                 // check if any input value was NAN
-                FMAXD(q1, v0, v1);    // propagate NAN
+                FMAXD(q1, v2, v1);    // propagate NAN
                 FCMEQD(q1, q1, q1);    // 0 if NAN, 1 if not NAN
                 FDIVD(q2, v2, v1);  // the high part of the vector is erased...
                 FCMEQD(q0, q2, q2);    // 0 => out is NAN
