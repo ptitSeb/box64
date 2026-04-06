@@ -37,6 +37,7 @@ extern uint32_t arm64_x31_hash(void* p, uint32_t len);
 #define ARCH_CRC(A, B)  if(cpuext.crc32) return arm64_crc(A, B); else return arm64_x31_hash(A, B)
 extern void* create_updateflags();
 #define ARCH_UPDATEFLAGS()      create_updateflags()
+#define ADDITIONNAL_CHECKS()    additionnal_checks(dyn, ninst);
 
 #define ARCH_NOP    0b11010101000000110010000000011111
 #define ARCH_UDF    0xcafe
@@ -72,6 +73,7 @@ extern void* create_updateflags();
 extern uint32_t la64_crc(void* p, uint32_t len);
 #define ARCH_CRC(A, B)       return la64_crc(A, B)
 #define JMPNEXT_SIZE    (4*sizeof(void*))
+#define ADDITIONNAL_CHECKS()
 
 #elif defined(RV64)
 
@@ -105,6 +107,7 @@ extern uint32_t la64_crc(void* p, uint32_t len);
 #define STOP_NATIVE_FLAGS(A, B) {}
 #define ARCH_UNALIGNED(A, B) arch_unaligned(A, B)
 #define JMPNEXT_SIZE    (4*sizeof(void*))
+#define ADDITIONNAL_CHECKS()
 
 #elif defined(PPC64LE)
 
@@ -143,6 +146,7 @@ extern uint32_t ppc64le_fast_hash(void* p, uint32_t len);
 // PPC64LE CreateJmpNext needs 5 instructions (20 bytes) for PC-relative load + branch,
 // so the jmpnext area needs 5 void* slots (40 bytes) instead of the default 4 (32 bytes).
 #define JMPNEXT_SIZE    (5*sizeof(void*))
+#define ADDITIONNAL_CHECKS()
 
 #else
 #error Unsupported platform

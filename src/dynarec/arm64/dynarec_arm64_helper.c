@@ -2321,7 +2321,7 @@ static void nativeFlagsTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2)
         flags_after = dyn->insts[jmp].before_nat_flags;
         nc_after = dyn->insts[jmp].normal_carry_before;
     }
-    uint8_t flags_x86 = flag2native(dyn->insts[jmp].x64.need_before);
+    uint8_t flags_x86 = flag2native(dyn->insts[jmp].x64.need_before, (dyn->insts[jmp].before_nat_flags&NF_PF_V)?1:0);
     flags_x86 &= ~flags_after;
     MESSAGE(LOG_DUMP, "\tNative Flags transform ---- ninst=%d -> %d %hhx -> %hhx/%hhx\n", ninst, jmp, flags_before, flags_after, flags_x86);
     // flags present in before and missing in after
@@ -2400,6 +2400,47 @@ void CacheTransform(dynarec_arm_t* dyn, int ninst, int cacheupd) {
         fpuCacheTransform(dyn, ninst, x1, x2, x3);
     if(cacheupd&4)
         nativeFlagsTransform(dyn, ninst, x1, x2);
+}
+
+void additionnal_checks(dynarec_arm_t* dyn, int ninst)
+{
+    int s1 = x1;
+    // check if a opcode generate partial flags that may clober existing native flags and see need to be "moved" to xFlags
+    if(dyn->insts[ninst].nat_flags_op || dyn->insts[ninst].nat_flags_op_before) {
+        uint8_t nat_flags = dyn->insts[ninst].need_nat_flags; // that's the native flags that will be generated
+        uint8_t nat_flags_gen = dyn->insts[ninst].set_nat_flags;
+        //TODO: does it need to fetch previous state with getPred?
+        uint8_t nat_flags_before = dyn->insts[ninst].before_nat_flags; //flags before the opcode, but it's only there when opcode also consume natflags
+        uint8_t nat_flags_flush = nat_flags_before&~nat_flags_gen;  // flags present before bu not after the operation and so that needs to be spared
+        if(nat_flags_before && nat_flags_flush) {
+            // some flags disapear, and need to be saved
+            MESSAGE(LOG_DUMP, "\tPurging native flags %hhx\n", nat_flags_flush);
+            uint8_t nc_before = dyn->insts[ninst].normal_carry;
+            if(nat_flags_flush&NF_EQ) {
+                CSETw(s1, cEQ);
+                BFIw(xFlags, s1, F_ZF, 1);
+            }
+            if(nat_flags_flush&NF_SF) {
+                CSETw(s1, cMI);
+                BFIw(xFlags, s1, F_SF, 1);
+            }
+            if(nat_flags_flush&NF_VF) {
+                CSETw(s1, cVS);
+                BFIw(xFlags, s1, F_OF, 1);
+            }
+            if(nat_flags_flush&NF_PF_V) {
+                CSETw(s1, cVS);
+                BFIw(xFlags, s1, F_PF, 1);
+            }
+            if(nat_flags_flush&NF_CF) {
+                if(nc_before) // might need to invert carry
+                    CSETw(s1, cCS);
+                else
+                    CSETw(s1, cCC);
+                BFIw(xFlags, s1, F_CF, 1);
+            }
+        }
+    }
 }
 
 void fpu_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)

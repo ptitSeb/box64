@@ -1335,6 +1335,7 @@
 #define avx_purge_ymm   STEPNAME(avx_purge_ymm)
 
 #define CacheTransform       STEPNAME(CacheTransform)
+#define additionnal_checks   STEPNAME(additionnal_checks)
 
 #define arm64_move32        STEPNAME(arm64_move32)
 #define arm64_move64        STEPNAME(arm64_move64)
@@ -1501,6 +1502,7 @@ int sse_setround(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
 void avx_purge_ymm(dynarec_arm_t* dyn, int ninst, uint16_t mask, int s1);
 
 void CacheTransform(dynarec_arm_t* dyn, int ninst, int cacheupd);
+void additionnal_checks(dynarec_arm_t* dyn, int ninst);
 
 void arm64_move32(dynarec_arm_t* dyn, int ninst, int reg, uint32_t val);
 void arm64_move64(dynarec_arm_t* dyn, int ninst, int reg, uint64_t val);
