@@ -792,6 +792,8 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                 }
                             }
                             MARK3;
+                            if(!ALIGNED_ATOMICxw && rex.w && BOX64DRENV(dynarec_safeflags)>1)
+                                FORCE_DFNONE();
                             UFLAG_IF {
                                 IFNATIVE(NF_EQ) {} else {BFIw(xFlags, x1, F_ZF, 1);}
                             }
