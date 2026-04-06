@@ -14,7 +14,7 @@
 
 #define MESSAGE(A, ...)                                                   \
     do {                                                                  \
-        if (dyn->need_dump) dynarec_log(LOG_NONE, __VA_ARGS__); \
+        if (dyn->need_dump) dynarec_log_prefix(0, LOG_NONE, __VA_ARGS__); \
     } while (0)
 #define ENDPREFIX   dyn->insts[ninst].size2 = 0
 #define NEW_INST        \
