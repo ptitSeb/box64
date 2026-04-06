@@ -724,13 +724,14 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                 MOVx_REG(x4, xRBX);
                                 MOVx_REG(x5, xRCX);
                                 CASPALxw(x2, x4, wback);
+                                // preserve upper bits of EAX/EDX if equal, per CMPXCHG8B semantics
+                                CMPSxw_REG(x2, xRAX);
+                                CCMPxw(x3, xRDX, 0, cEQ);
+                                CSELx(xRAX, xRAX, x2, cEQ);
+                                CSELx(xRDX, xRDX, x3, cEQ);
                                 UFLAG_IF {
-                                    CMPSxw_REG(x2, xRAX);
-                                    CCMPxw(x3, xRDX, 0, cEQ);
                                     IFNATIVE(NF_EQ) {} else {CSETw(x1, cEQ);}
                                 }
-                                MOVx_REG(xRAX, x2);
-                                MOVx_REG(xRDX, x3);
                                 if(!ALIGNED_ATOMICxw) {
                                     B_MARK3_nocond;
                                 }
