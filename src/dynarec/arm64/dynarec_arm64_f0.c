@@ -821,11 +821,16 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 SETFLAGS(X_ALL, SF_SET_PENDING);
                 GETGB(x2);
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
+                MOVx_REG(x6, xFlags);
+                MRS_nzcv(x87pc);
                 MARKLOCK;
+                MOVx_REG(xFlags, x6);
+                MSR_nzcv(x87pc);
                 LDAXRB(x1, wback);
                 emit_adc8(dyn, ninst, x1, x2, x4, x5);
                 STLXRB(x4, x1, wback);
                 CBNZx_MARKLOCK(x4);
+                NATIVE_RESTORE_X87PC();
             }
             break;
         case 0x11:
@@ -841,11 +846,16 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 SETFLAGS(X_ALL, SF_SET_PENDING);
                 GETGD;
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
+                MOVx_REG(x6, xFlags);
+                MRS_nzcv(x87pc);
                 MARKLOCK;
+                MOVx_REG(xFlags, x6);
+                MSR_nzcv(x87pc);
                 LDAXRxw(x1, wback);
                 emit_adc32(dyn, ninst, rex, x1, gd, x4, x5);
                 STLXRxw(x4, x1, wback);
                 CBNZx_MARKLOCK(x4);
+                NATIVE_RESTORE_X87PC();
             }
             break;
         case 0x20:
@@ -1096,11 +1106,16 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         addr = geted(dyn, addr, ninst, nextop, &wback, x5, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 1);
                         u8 = F8;
                         wb1 = 1;
+                        MOVx_REG(x6, xFlags);
+                        MRS_nzcv(x87pc);
                         MARKLOCK;
+                        MOVx_REG(xFlags, x6);
+                        MSR_nzcv(x87pc);
                         LDAXRB(x1, wback);
                         emit_adc8c(dyn, ninst, x1, u8, x2, x4, x3);
                         STLXRB(x3, x1, wback);
                         CBNZx_MARKLOCK(x3);
+                        NATIVE_RESTORE_X87PC();
                     }
                     break;
                 case 3: //SBB
@@ -1116,11 +1131,16 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         addr = geted(dyn, addr, ninst, nextop, &wback, x5, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 1);
                         u8 = F8;
                         wb1 = 1;
+                        MOVx_REG(x6, xFlags);
+                        MRS_nzcv(x87pc);
                         MARKLOCK;
+                        MOVx_REG(xFlags, x6);
+                        MSR_nzcv(x87pc);
                         LDAXRB(x1, wback);
                         emit_sbb8c(dyn, ninst, x1, u8, x2, x4, x3);
                         STLXRB(x3, x1, wback);
                         CBNZx_MARKLOCK(x3);
+                        NATIVE_RESTORE_X87PC();
                     }
                     break;
                 case 4: //AND
@@ -1348,11 +1368,16 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, (opcode==0x81)?4:1);
                         if(opcode==0x81) i64 = F32S; else i64 = F8S;
                         MOV64xw(x5, i64);
+                        MOVx_REG(x6, xFlags);
+                        MRS_nzcv(x87pc);
                         MARKLOCK;
+                        MOVx_REG(xFlags, x6);
+                        MSR_nzcv(x87pc);
                         LDAXRxw(x1, wback);
                         emit_adc32(dyn, ninst, rex, x1, x5, x3, x4);
                         STLXRxw(x3, x1, wback);
                         CBNZx_MARKLOCK(x3);
+                        NATIVE_RESTORE_X87PC();
                     }
                     break;
                 case 3: //SBB
@@ -1368,11 +1393,16 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, (opcode==0x81)?4:1);
                         if(opcode==0x81) i64 = F32S; else i64 = F8S;
                         MOV64xw(x5, i64);
+                        MOVx_REG(x6, xFlags);
+                        MRS_nzcv(x87pc);
                         MARKLOCK;
+                        MOVx_REG(xFlags, x6);
+                        MSR_nzcv(x87pc);
                         LDAXRxw(x1, wback);
                         emit_sbb32(dyn, ninst, rex, x1, x5, x3, x4);
                         STLXRxw(x3, x1, wback);
                         CBNZx_MARKLOCK(x3);
+                        NATIVE_RESTORE_X87PC();
                     }
                     break;
                 case 4: //AND
