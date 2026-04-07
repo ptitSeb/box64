@@ -2460,9 +2460,8 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if (ed != gd)
                 MV(x7, ed);
             emit_add32(dyn, ninst, rex, ed, gd, x4, x5, x6);
-            if (ed != gd)
-                MVxw(gd, x7);
             WBACK;
+            if (ed != gd) MVxw(gd, x7);
             break;
         case 0xC2:
             INST_NAME("CMPPS Gx, Ex, Ib");

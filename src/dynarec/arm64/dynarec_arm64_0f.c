@@ -2527,7 +2527,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
         case 0xC0:
-            INST_NAME("XADD Gb, Eb");
+            INST_NAME("XADD Eb, Gb");
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
             GETGB(x1);
@@ -2538,16 +2538,15 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             EBBACK; // eb gets x1 (sum)
             break;
         case 0xC1:
-            INST_NAME("XADD Gd, Ed");
+            INST_NAME("XADD Ed, Gd");
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
             GETGD;
             GETED(0);
             MOVxw_REG(x3, ed);
-            MOVxw_REG(ed, gd);
-            MOVxw_REG(gd, x3);
             emit_add32(dyn, ninst, rex, ed, gd, x4, x5);
             WBACK;
+            MOVxw_REG(gd, x3);
             break;
         case 0xC2:
             INST_NAME("CMPPS Gx, Ex, Ib");

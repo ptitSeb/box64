@@ -2918,7 +2918,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
 
         case 0xC1:
             if(rex.w) return dynarec64_00(dyn, addr-1, ip, ninst, rex, ok, need_epilog);
-            INST_NAME("XADD Gw, Ew");
+            INST_NAME("XADD Ew, Gw");
             SETFLAGS(X_ALL, SF_SET_PENDING);
             nextop = F8;
             GETGW(x1);
