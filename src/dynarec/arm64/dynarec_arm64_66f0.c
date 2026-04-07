@@ -210,11 +210,16 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 SETFLAGS(X_ALL, SF_SET_PENDING);
                 GETGW(x5);
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
+                MOVx_REG(x6, xFlags);
+                MRS_nzcv(x87pc);
                 MARKLOCK;
+                MOVx_REG(xFlags, x6);
+                MSR_nzcv(x87pc);
                 LDAXRH(x1, wback);
                 emit_adc16(dyn, ninst, x1, x5, x3, x4);
                 STLXRH(x3, x1, wback);
                 CBNZx_MARKLOCK(x3);
+                NATIVE_RESTORE_X87PC();
             }
             break;
 
@@ -356,11 +361,16 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, (opcode==0x81)?2:1);
                         if(opcode==0x81) i16 = F16S; else i16 = F8S;
                         MOV32w(x5, (uint16_t)i16);
+                        MOVx_REG(x6, xFlags);
+                        MRS_nzcv(x87pc);
                         MARKLOCK;
+                        MOVx_REG(xFlags, x6);
+                        MSR_nzcv(x87pc);
                         LDAXRH(x1, wback);
                         emit_adc16(dyn, ninst, x1, x5, x3, x4);
                         STLXRH(x3, x1, wback);
                         CBNZx_MARKLOCK(x3);
+                        NATIVE_RESTORE_X87PC();
                     }
                     break;
                 case 3: //SBB
@@ -376,11 +386,16 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, (opcode==0x81)?2:1);
                         if(opcode==0x81) i16 = F16S; else i16 = F8S;
                         MOV32w(x5, (uint16_t)i16);
+                        MOVx_REG(x6, xFlags);
+                        MRS_nzcv(x87pc);
                         MARKLOCK;
+                        MOVx_REG(xFlags, x6);
+                        MSR_nzcv(x87pc);
                         LDAXRH(x1, wback);
                         emit_sbb16(dyn, ninst, x1, x5, x3, x4);
                         STLXRH(x3, x1, wback);
                         CBNZx_MARKLOCK(x3);
+                        NATIVE_RESTORE_X87PC();
                     }
                     break;
                 case 4: //AND
