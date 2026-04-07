@@ -54,7 +54,7 @@
             dyn->sep[dyn->sep_size].nat_offs =  dyn->native_size;               \
             ++dyn->sep_size;                                                    \
         }                                                                       \
-        if(BOX64DRENV(dynarec_callret)>1) {                                     \
+        if((A) && (BOX64DRENV(dynarec_callret)>1) && !dyn->always_test) {       \
             dyn->callrets[dyn->callret_size].type = 0;                          \
             dyn->callrets[dyn->callret_size++].offs = dyn->native_size;         \
             EMIT(ARCH_NOP);                                                     \

@@ -1077,6 +1077,10 @@
     dyn->doublepop = 0;
 #define ARCH_RESET()
 
+#define PREFLAGNEEDED()                                                     \
+    if(dyn->always_test && ninst && dyn->insts[ninst].sep)                  \
+        checkCRC(dyn, ninst);
+
 #if STEP < 2
 #define GETIP(A) MOV64x(xRIP, A)
 #define GETIP_(A) MOV64x(xRIP, A)
@@ -1320,6 +1324,7 @@
 #define doPreload         STEPNAME(doPreload)
 #define doEnterBlock      STEPNAME(doEnterBlock)
 #define doLeaveBlock      STEPNAME(doLeaveBlock)
+#define checkCRC          STEPNAME(checkCRC)
 
 #define fpu_pushcache   STEPNAME(fpu_pushcache)
 #define fpu_popcache    STEPNAME(fpu_popcache)
@@ -1595,6 +1600,8 @@ void doPreload(dynarec_arm_t* dyn, int ninst);
 void doEnterBlock(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
 // Leave a block (atomic decrement of in_used)
 void doLeaveBlock(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3);
+// in case of allways_test, this insert a check of crc of the dynablock (and exit to ArmNext if wrong)
+void checkCRC(dynarec_arm_t* dyn, int ninst);
 
 uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
 uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);

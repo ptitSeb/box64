@@ -127,6 +127,8 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         if(!ninst) {
             if(dyn->have_purge)
                 doEnterBlock(dyn, 0, x1, x2, x3);
+            if(dyn->always_test)
+                checkCRC(dyn, 0);
             if(dyn->insts[0].preload_xmmymm)
                 doPreload(dyn, 0);
             ENDPREFIX;

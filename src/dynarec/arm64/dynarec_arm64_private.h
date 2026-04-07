@@ -126,7 +126,8 @@ typedef struct instruction_arm64_s {
     uint8_t             will_read:1;     // [strongmem] will read from memory
     uint8_t             last_write:1;    // [strongmem] the last write in a SEQ
     uint8_t             lock:1;          // [strongmem] lock semantic
-    uint8_t             wfe:1;        // opcode uses sevl + wfe
+    uint8_t             wfe:1;           // opcode uses sevl + wfe
+    uint8_t             sep:1;           // opcode is a secondary entry point
     uint8_t             set_nat_flags;  // 0 or combinaison of native flags define
     uint8_t             use_nat_flags;  // 0 or combinaison of native flags define
     uint8_t             use_nat_flags_before;  // 0 or combinaison of native flags define

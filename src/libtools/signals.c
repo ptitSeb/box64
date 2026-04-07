@@ -800,8 +800,8 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
                 // check if block is still valid
                 int is_hotpage = checkInHotPage(x64pc);
                 uint32_t hash = (db->gone || is_hotpage)?0:X31_hash_code(db->x64_addr, db->x64_size);
-                if(!db->gone && !is_hotpage && hash==db->hash) {
-                    dynarec_log(LOG_INFO, "Dynablock (%p, x64addr=%p, always_test=%d) is clean, %s continuing at %p (%p)!\n", db, db->x64_addr, db->always_test, type_callret?"self-loop":"ret from callret", (void*)x64pc, (void*)addr);
+                if(!db->gone && (!is_hotpage || db->autocrc) && hash==db->hash) {
+                    dynarec_log(LOG_INFO, "Dynablock (%p, x64addr=%p, always_test=%d, autocrc=%d) is clean, %s continuing at %p (%p)!\n", db, db->x64_addr, db->always_test, db->autocrc, type_callret?"self-loop":"ret from callret", (void*)x64pc, (void*)addr);
                     // it's good! go next opcode
                     CONTEXT_PC(p)+=4;
                     if(db->always_test)

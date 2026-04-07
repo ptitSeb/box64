@@ -8,6 +8,7 @@ uint32_t X31_hash_code(void* addr, int len);
 void FreeDynablock(dynablock_t* db, int need_lock, int need_remove);
 void MarkDynablock(dynablock_t* db);
 void MarkRangeDynablock(dynablock_t* db, uintptr_t addr, uintptr_t size);
+void MarkCRCRangeDynablock(dynablock_t* db, uintptr_t addr, uintptr_t size);
 int FreeRangeDynablock(dynablock_t* db, uintptr_t addr, uintptr_t size);
 void FreeInvalidDynablock(dynablock_t* db, int need_lock);
 dynablock_t* InvalidDynablock(dynablock_t* db, int need_lock);

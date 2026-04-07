@@ -207,7 +207,12 @@
 #define SMDMB() DMB_ISH()
 #endif
 
+#ifndef PREFLAGSNEEDED
+#define PREFLAGSNEEDED()
+#endif
+
 #define AREFLAGSNEEDED()    \
+    PREFLAGSNEEDED()        \
     if((dyn->insts[ninst].x64.need_before&~X_PEND) && (!ninst || dyn->insts[ninst-1].x64.has_callret)) {    \
         READFLAGS(dyn->insts[ninst].x64.need_before&~X_PEND);                                               \
     }                                                                                                       \

@@ -84,6 +84,9 @@ uintptr_t getConst(arm64_consts_t which)
         case const_native_fstp: return (uintptr_t)native_fstp;
         case const_native_frstor: return (uintptr_t)native_frstor;
         case const_native_next: return (uintptr_t)native_next;
+        case const_native_next_invalidate: return (uintptr_t)arm64_next_invalid;
+        case const_native_crc32: return (uintptr_t)arm64_crc;
+        case const_native_x31: return (uintptr_t)arm64_x31_hash;
         case const_int3: return (uintptr_t)EmuInt3;
         case const_x86syscall: return (uintptr_t)EmuX86Syscall;
         case const_x64syscall: return (uintptr_t)EmuX64Syscall;

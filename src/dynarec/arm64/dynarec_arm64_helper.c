@@ -2909,3 +2909,25 @@ void emit_fcomi(dynarec_arm_t* dyn, int ninst, int s1, int s2, int isfloat, int 
     }
     SET_DFNONE();
 }
+
+void checkCRC(dynarec_arm_t* dyn, int ninst)
+{
+    // grab the dynablock address in x5, as this on will not be erased by crc functions
+    int delta = -(dyn->native_size + sizeof(void*));
+    LDRx_literal(x5, delta);
+    // move away xEMU to X6, should be safe there
+    MOVx_REG(x6, xEmu);
+    // prepare and call the crc function
+    TABLE64C(x3, cpuext.crc32?const_native_crc32:const_native_x31);
+    LDRx_U12(xEmu, x5, offsetof(dynablock_t, x64_addr));
+    LDRw_U12(x1, x5, offsetof(dynablock_t, x64_size));
+    BLR(x3);
+    // done, move away result and restore xEmu
+    MOVw_REG(x1, xEmu);
+    MOVx_REG(xEmu, x6);
+    LDRw_U12(x2, x5, offsetof(dynablock_t, hash));
+    SUBw_REG(x1, x1, x2);
+    CBZw(x1, 4+2*4);
+    TABLE64C(x3, const_native_next_invalidate);
+    BLR(x3);
+}

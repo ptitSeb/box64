@@ -38,6 +38,8 @@ extern uint32_t arm64_x31_hash(void* p, uint32_t len);
 extern void* create_updateflags();
 #define ARCH_UPDATEFLAGS()      create_updateflags()
 #define ADDITIONNAL_CHECKS()    additionnal_checks(dyn, ninst);
+#define ARCH_CRC_INLINE
+extern void arm64_next_invalid();
 
 #define ARCH_NOP    0b11010101000000110010000000011111
 #define ARCH_UDF    0xcafe

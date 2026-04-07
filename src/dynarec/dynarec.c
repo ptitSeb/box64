@@ -104,6 +104,31 @@ void* LinkNext(x64emu_t* emu, uintptr_t addr, void* x2, uintptr_t* x3)
     //dynablock_t *father = block->father?block->father:block;
     return jblock;
 }
+void* LinkNextInvalid(x64emu_t* emu, uintptr_t addr, void* x2, uintptr_t* x3)
+{
+    // like LinkNext, but invalid the db found first
+    int is32bits = (R_CS == 0x23);
+    dynablock_t* db = getDB(addr);
+    if(db) {
+        if(db->previous && !db->dirty && X31_hash_code(db->previous->x64_addr, db->previous->x64_size)==db->previous->hash)
+            db = DBSwitchPrevious(emu, db, addr, 1);
+        else
+            db = DBSwapInvalid(emu, db, addr, is32bits, 1);
+        if(db && db->done && db->block) {
+            void* jblock = db->block;
+            if(db->sep_size && (uintptr_t)db->x64_addr!=addr) {
+                jblock = NULL; // not sure how this would happens here, but lets put the case it starts on SEP anyway
+                for(int i=0; i<db->sep_size && !jblock; ++i) {
+                    if(addr==(uintptr_t)db->x64_addr + db->sep[i].x64_offs)
+                        jblock = db->block + db->sep[i].nat_offs;
+                }
+            }
+            if(jblock)
+                return jblock;
+        }
+    }
+    return LinkNext(emu, addr, x2, x3);
+}
 #endif
 
 void DynaCall(x64emu_t* emu, uintptr_t addr, int no_alt)

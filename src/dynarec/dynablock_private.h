@@ -35,6 +35,8 @@ typedef struct dynablock_s {
     uint8_t         dirty;      // if need to be tested as soon as it's created
     uint8_t         always_test:2;
     uint8_t         is32bits:1;
+    uint8_t         autocrc:1;
+    uint8_t         to_delete:1;
     int             callret_size;   // size of the array
     int             isize;
     int             arch_size;  // size of of arch dependant infos
