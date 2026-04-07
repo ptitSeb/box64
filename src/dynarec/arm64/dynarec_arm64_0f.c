@@ -2543,10 +2543,10 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             nextop = F8;
             GETGD;
             GETED(0);
-            MOVxw_REG(x3, ed);
+            if (ed != gd) MOVx_REG(x3, ed);
             emit_add32(dyn, ninst, rex, ed, gd, x4, x5);
             WBACK;
-            MOVxw_REG(gd, x3);
+            if (ed != gd) MOVxw_REG(gd, x3);
             break;
         case 0xC2:
             INST_NAME("CMPPS Gx, Ex, Ib");
