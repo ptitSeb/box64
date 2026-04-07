@@ -4541,7 +4541,10 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             ADR_S20(x4, j64);
                             MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64>>2);
                         } else {
-                            j64 = (dyn->insts)?(GETMARK-(dyn->native_size)):0;
+                            if(BOX64DRENV(dynarec_callret)>1)
+                                j64 = CALLRET_GETRET();
+                            else
+                                j64 = (dyn->insts)?(GETMARK-(dyn->native_size)):0;
                             ADR_S20(x4, j64);
                             MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64>>2);
                         }
@@ -4596,7 +4599,10 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                 ADR_S20(x4, j64);
                                 MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64>>2);
                             } else {
-                                j64 = (dyn->insts)?(GETMARK-(dyn->native_size)):0;
+                                if(BOX64DRENV(dynarec_callret)>1)
+                                    j64 = CALLRET_GETRET();
+                                else
+                                    j64 = (dyn->insts)?(GETMARK-(dyn->native_size)):0;
                                 ADR_S20(x4, j64);
                                 MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64>>2);
                             }
