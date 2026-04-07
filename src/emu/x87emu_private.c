@@ -609,8 +609,8 @@ uint16_t cvtf32_16(uint32_t v, uint8_t rounding)
         // nan and infinites
         ret.exponant = 0b11111;
         ret.fraction = in.fraction >> 13;
-        if(in.fraction && !ret.fraction)
-            ret.fraction = 0b1000000000;
+        if(in.fraction)
+            ret.fraction |= 0b1000000000; // SNaN -> QNaN
         return ret.u16;
     } else {
         // regular numbers
