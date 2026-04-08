@@ -65,7 +65,7 @@
     } while (0)
 #define CALLRET_RET(A)                                                          \
     do {                                                                        \
-        if((A) && ISSEP() && BOX64DRENV(dynarec_callret)) {                     \
+        if((A) && ISSEP() && BOX64DRENV(dynarec_callret) && !dyn->always_test) {\
             MESSAGE(LOG_DUMP, "   Dynablock*\n");                               \
             dyn->block += sizeof(void*);                                        \
             dyn->native_size+=sizeof(void*);                                    \

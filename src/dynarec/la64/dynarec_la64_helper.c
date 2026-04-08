@@ -2280,3 +2280,24 @@ void la64_move64(dynarec_la64_t* dyn, int ninst, int reg, int64_t val)
     }
     LU52I_D(reg, reg, (val >> 52) & 0xfff);
 }
+
+
+void checkCRC(dynarec_la64_t* dyn, int ninst)
+{
+    // la64_crc_autocrc will use x1-x5 instead of A0-A4 to avoind having to move around the regs
+    // grab the dynablock address in x6, as this on will not be erased by crc functions
+    int delta = -(dyn->native_size + sizeof(void*));
+    PCADDU12I(x6, SPLIT20(delta));
+    LD_D(x6, x6, SPLIT12(delta));
+    // prepare and call the crc function
+    TABLE64C(x3, const_la64_crc_autocrc);
+    LD_D(x1, x6, offsetof(dynablock_t, x64_addr));
+    LD_WU(x2, x6, offsetof(dynablock_t, x64_size));
+    JIRL(xRA, x3, 0x0);
+    // done, result in x1, load the stored hash (sign extended, as the crc will also be sign extended)
+    LD_W(x2, x6, offsetof(dynablock_t, hash));
+    // compare computed crc with stored one, jump to continue is equal
+    BEQ(x1, x2, 4+3*4); // TABLE64C generates 2 opcodes...
+    TABLE64C(x3, const_native_next_invalid);
+    JIRL(xRA, x3, 0x0);
+}

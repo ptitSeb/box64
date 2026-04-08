@@ -73,6 +73,7 @@ extern void arm64_next_invalid();
 #define STOP_NATIVE_FLAGS(A, B) {}
 #define ARCH_UNALIGNED(A, B) 0
 extern uint32_t la64_crc(void* p, uint32_t len);
+extern void la64_crc_autocrc(); // same as la64_crc, but not using regular ABI
 #define ARCH_CRC(A, B)       return la64_crc(A, B)
 
 #define ARCH_NOP    (0b0000001101<<22)
@@ -80,6 +81,8 @@ extern uint32_t la64_crc(void* p, uint32_t len);
 
 #define JMPNEXT_SIZE    (4*sizeof(void*))
 #define ADDITIONNAL_CHECKS()
+#define ARCH_CRC_INLINE
+extern void la64_next_invalid();
 
 #elif defined(RV64)
 

@@ -3390,10 +3390,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             ADDI_D(x4, x4, j64 & 0xfff);
                             MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64 >> 2);
                         } else {
-                            if(BOX64DRENV(dynarec_callret)>1)
-                                j64 = CALLRET_GETRET();
-                            else
-                                j64 = (dyn->insts) ? (GETMARK - (dyn->native_size)) : 0;
+                            j64 = (dyn->insts) ? (GETMARK - (dyn->native_size)) : 0;
                             PCADDU12I(x4, ((j64 + 0x800) >> 12) & 0xfffff);
                             ADDI_D(x4, x4, j64 & 0xfff);
                             MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64 >> 2);
@@ -4034,10 +4031,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             ADDI_D(x4, x4, j64 & 0xfff);
                             MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64 >> 2);
                         } else {
-                            if(BOX64DRENV(dynarec_callret)>1)
-                                j64 = CALLRET_GETRET();
-                            else
-                                j64 = (dyn->insts) ? (GETMARK - (dyn->native_size)) : 0;
+                            j64 = (dyn->insts) ? (GETMARK - (dyn->native_size)) : 0;
                             PCADDU12I(x4, ((j64 + 0x800) >> 12) & 0xfffff);
                             ADDI_D(x4, x4, j64 & 0xfff);
                             MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64 >> 2);

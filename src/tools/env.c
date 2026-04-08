@@ -908,7 +908,7 @@ done:
 #elif defined(RV64)
 #define ARCH_VERSION SET_VERSION(0, 0, 4)
 #elif defined(LA64)
-#define ARCH_VERSION SET_VERSION(0, 0, 6)
+#define ARCH_VERSION SET_VERSION(0, 0, 7)
 #elif defined(PPC64LE)
 #define ARCH_VERSION SET_VERSION(0, 0, 1)
 #else

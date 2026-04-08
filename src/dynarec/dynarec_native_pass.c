@@ -133,6 +133,11 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
                 doPreload(dyn, 0);
             ENDPREFIX;
         }
+        #elif defined(LA64)
+        if(!ninst) {
+            if(dyn->always_test)
+                checkCRC(dyn, 0);
+        }
         #endif
         fpu_propagate_stack(dyn, ninst);
         if (reset_n!=-1) {

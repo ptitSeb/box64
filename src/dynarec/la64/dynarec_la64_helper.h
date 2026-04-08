@@ -1075,6 +1075,11 @@
 
 #define ARCH_RESET()
 
+#undef PREFLAGSNEEDED
+#define PREFLAGSNEEDED()                                                                                        \
+    if(dyn->always_test && ninst && (dyn->insts[ninst].sep || (ninst && dyn->insts[ninst-1].x64.has_callret)))  \
+        checkCRC(dyn, ninst);
+
 #if STEP < 2
 #define GETIP(A, scratch)
 #define GETIP_(A, scratch)
@@ -1319,7 +1324,6 @@
 #define avx_reflect_reg_upper128 STEPNAME(avx_reflect_reg_upper128)
 #define avx_cleancache           STEPNAME(avx_cleancache)
 
-
 #define fpu_pushcache       STEPNAME(fpu_pushcache)
 #define fpu_popcache        STEPNAME(fpu_popcache)
 #define fpu_reset_cache     STEPNAME(fpu_reset_cache)
@@ -1328,6 +1332,8 @@
 #define mmx_purgecache      STEPNAME(mmx_purgecache)
 #define fpu_reflectcache    STEPNAME(fpu_reflectcache)
 #define fpu_unreflectcache  STEPNAME(fpu_unreflectcache)
+
+#define checkCRC          STEPNAME(checkCRC)
 
 #define CacheTransform STEPNAME(CacheTransform)
 #define la64_move64    STEPNAME(la64_move64)
@@ -1538,6 +1544,9 @@ void avx_forget_reg(dynarec_la64_t* dyn, int ninst, int a);
 void avx_reflect_reg(dynarec_la64_t* dyn, int ninst, int a);
 void avx_reflect_reg_upper128(dynarec_la64_t* dyn, int ninst, int a, int forwrite);
 void avx_cleancache(dynarec_la64_t* dyn, int ninst);
+
+// in case of always_test, this insert a check of crc of the dynablock (and exit to ArmNext if wrong)
+void checkCRC(dynarec_la64_t* dyn, int ninst);
 
 void CacheTransform(dynarec_la64_t* dyn, int ninst, int cacheupd, int s1, int s2, int s3);
 
