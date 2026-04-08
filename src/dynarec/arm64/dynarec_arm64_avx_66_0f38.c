@@ -801,7 +801,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                     ADDx_U12(ed, ed, 4);
             }
 
-            if(vex.l && !is_avx_zero(dyn, ninst, vex.v)) {
+            if(vex.l) {
                 v2 = ymm_get_reg(dyn, ninst, x1, vex.v, 0, gd, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1);
                 v0 = ymm_get_reg(dyn, ninst, x1, gd, 0, vex.v, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1);
                 VSHRQ_32(q0, v2, 31);   // move sign bit to lower
@@ -849,7 +849,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                     ADDx_U12(ed, ed, 8);
             }
 
-            if(vex.l && !is_avx_zero(dyn, ninst, vex.v)) {
+            if(vex.l) {
                 v2 = ymm_get_reg(dyn, ninst, x1, vex.v, 0, gd, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1);
                 v0 = ymm_get_reg(dyn, ninst, x1, gd, 0, vex.v, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1);
                 VSHRQ_64(q0, v2, 63);
