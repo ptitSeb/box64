@@ -704,6 +704,9 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             SETFLAGS(X_ZF, SF_SUBSET);
                             addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
                             if(!ALIGNED_ATOMICxw) {
+                                // commit df before branch, CALL_S in GPF path has FORCE_DFNONE
+                                if(rex.w && BOX64DRENV(dynarec_safeflags)>1)
+                                    CHECK_DFNONE(0);
                                 if(cpuext.uscat) {
                                     if(rex.w) {
                                         TSTx_mask(wback, 1, 0, 3);
@@ -792,8 +795,6 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                 }
                             }
                             MARK3;
-                            if(!ALIGNED_ATOMICxw && rex.w && BOX64DRENV(dynarec_safeflags)>1)
-                                FORCE_DFNONE();
                             UFLAG_IF {
                                 IFNATIVE(NF_EQ) {} else {BFIw(xFlags, x1, F_ZF, 1);}
                             }
