@@ -1077,7 +1077,8 @@
     dyn->doublepop = 0;
 #define ARCH_RESET()
 
-#define PREFLAGNEEDED()                                                     \
+#undef PREFLAGSNEEDED
+#define PREFLAGSNEEDED()                                                     \
     if(dyn->always_test && ninst && dyn->insts[ninst].sep)                  \
         checkCRC(dyn, ninst);
 
