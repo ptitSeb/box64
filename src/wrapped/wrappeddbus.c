@@ -22,6 +22,12 @@
 const char* dbusName = "libdbus-1.so.3";
 #define LIBNAME dbus
 
+typedef void*(*pFppp_t) (void*, void*, void*);
+
+#define ADDED_FUNCTIONS()   \
+    GO(dbus_message_new_error, pFppp_t)
+
+
 #include "generated/wrappeddbustypes.h"
 
 #include "wrappercallback.h"
@@ -670,5 +676,17 @@ EXPORT void my_dbus_connection_set_unix_user_function(x64emu_t* emu, void* conn,
 {
     my->dbus_connection_set_unix_user_function(conn, find_DBusAllowUnixUserFunction_Fct(f), data, find_DBusFreeFunction_Fct(fr));
 }
+
+EXPORT void* my_dbus_message_new_error_printf(x64emu_t* emu, void* to, void* name, void* fmt, uint64_t* b)
+{
+    myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 1);
+    PREPARE_VALIST;
+    char* buff = NULL;
+    vasprintf(&buff, (char*)fmt, VARARGS);
+    void* ret = my->dbus_message_new_error(to, name, buff);
+    free(buff);
+    return ret;
+}
+
 
 #include "wrappedlib_init.h"

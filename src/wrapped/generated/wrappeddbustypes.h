@@ -19,6 +19,7 @@ typedef uint32_t (*uFpipp_t)(void*, int32_t, void*, void*);
 typedef uint32_t (*uFppiV_t)(void*, void*, int32_t, ...);
 typedef uint32_t (*uFppiA_t)(void*, void*, int32_t, va_list);
 typedef uint32_t (*uFpppp_t)(void*, void*, void*, void*);
+typedef void* (*pFpppV_t)(void*, void*, void*, ...);
 typedef uint32_t (*uFppppp_t)(void*, void*, void*, void*, void*);
 typedef uint32_t (*uFpppppp_t)(void*, void*, void*, void*, void*, void*);
 
@@ -42,6 +43,7 @@ typedef uint32_t (*uFpppppp_t)(void*, void*, void*, void*, void*, void*);
 	GO(dbus_connection_register_fallback, uFpppp_t) \
 	GO(dbus_connection_register_object_path, uFpppp_t) \
 	GO(dbus_pending_call_set_notify, uFpppp_t) \
+	GO(dbus_message_new_error_printf, pFpppV_t) \
 	GO(dbus_connection_try_register_fallback, uFppppp_t) \
 	GO(dbus_connection_try_register_object_path, uFppppp_t) \
 	GO(dbus_connection_set_timeout_functions, uFpppppp_t) \

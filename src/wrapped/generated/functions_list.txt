@@ -4473,6 +4473,8 @@ wrappeddbus:
   - dbus_connection_register_fallback
   - dbus_connection_register_object_path
   - dbus_pending_call_set_notify
+- pFpppV:
+  - dbus_message_new_error_printf
 - uFppppp:
   - dbus_connection_try_register_fallback
   - dbus_connection_try_register_object_path
