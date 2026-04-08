@@ -9,7 +9,7 @@ GO(g_module_close, iFp)
 //GO(g_module_make_resident, vFp)
 //GO(g_module_name, pFp)
 GO(g_module_open_full, pFpip)
-//GO(g_module_open, pFpu)
+GO(g_module_open, pFpu)
 GO(g_module_supported, iFv)
 GO(g_module_symbol, iFppp)
 //GO(_init, 
