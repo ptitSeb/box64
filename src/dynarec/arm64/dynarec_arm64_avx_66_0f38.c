@@ -818,6 +818,9 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                 ADDx_U12(ed, ed, 4);
                 TBZ(x4, 3*16, 4+1*4);
                 VST1_32(v0, 3, ed);
+            } else if (vex.l) { // keep avx ymm zero tracking consistent
+                v2 = ymm_get_reg(dyn, ninst, x1, vex.v, 0, gd, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1);
+                v0 = ymm_get_reg(dyn, ninst, x1, gd, 0, vex.v, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1);
             }
             SMWRITE2();
             break;
@@ -860,6 +863,9 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                 ADDx_U12(ed, ed, 8);
                 TBZ(x4, 1*32, 4+1*4);
                 VST1_64(v0, 1, ed);
+            } else if (vex.l) { // keep avx ymm zero tracking consistent
+                v2 = ymm_get_reg(dyn, ninst, x1, vex.v, 0, gd, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1);
+                v0 = ymm_get_reg(dyn, ninst, x1, gd, 0, vex.v, (MODREG)?((nextop&7)+(rex.b<<3)):-1, -1);
             }
             SMWRITE2();
             break;
