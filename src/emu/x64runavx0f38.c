@@ -205,8 +205,7 @@ uintptr_t RunAVX_0F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                     GD->dword[0] = (ED->dword[0]>>tmp32u)&tmp64u;
                 else
                     GD->dword[0] = 0;
-                if(MODREG)
-                    GD->dword[1] = 0;
+                GD->dword[1] = 0;
             }
             ResetFlags(emu);
             CONDITIONAL_SET_FLAG(rex.w?(GD->q[0]==0):(GD->dword[0]==0), F_ZF);

@@ -202,7 +202,7 @@ uintptr_t dynarec64_AVX_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, 
             break;
 
         case 0xF7:
-            INST_NAME("BEXTR Gd, Vd, Ed");
+            INST_NAME("BEXTR Gd, Ed, Vd");
             nextop = F8;
             SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
             GETGD;
