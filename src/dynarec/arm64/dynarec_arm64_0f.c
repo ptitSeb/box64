@@ -2713,6 +2713,8 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                     if(rex.w && BOX64DRENV(dynarec_safeflags)>1) {
                         // unaligned memory cause a GPF
+                        // commit df before branch, CALL_S in GPF path has FORCE_DFNONE
+                        CHECK_DFNONE(0);
                         TSTx_mask(wback, 1, 0, 3);
                         B_MARK2(cEQ);   // alligned, continue...
                         STORE_XEMU_CALL(xRIP);

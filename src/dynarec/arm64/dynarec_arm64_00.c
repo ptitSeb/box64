@@ -2936,6 +2936,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     LDRx_REG(x3, x1, x2);
                     //LDRx_U12(x3, x1, offsetof(box64context_t, signals[X64_SIGTRAP]));
                     CMPSx_U12(x3, 0);
+                    // commit df before branch, CALL_S in int3 path has FORCE_DFNONE
+                    CHECK_DFNONE(0);
                     B_MARK(cEQ);
                     GETIP(addr);  // update RIP
                     STORE_XEMU_CALL(xRIP);
