@@ -74,6 +74,10 @@ extern void arm64_next_invalid();
 #define ARCH_UNALIGNED(A, B) 0
 extern uint32_t la64_crc(void* p, uint32_t len);
 #define ARCH_CRC(A, B)       return la64_crc(A, B)
+
+#define ARCH_NOP    (0b0000001101<<22)
+#define ARCH_UDF    0b1010100
+
 #define JMPNEXT_SIZE    (4*sizeof(void*))
 #define ADDITIONNAL_CHECKS()
 

@@ -16,6 +16,7 @@
 #include "callback.h"
 #include "bridge.h"
 #include "emu/x64run_private.h"
+#include "../dynablock_private.h"
 #include "x64trace.h"
 #include "dynarec_native.h"
 #include "custommem.h"
@@ -3381,12 +3382,18 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         // Push actual return address
                         if (addr < (dyn->start + dyn->isize)) {
                             // there is a next...
-                            j64 = (dyn->insts) ? (dyn->insts[ninst].epilog - (dyn->native_size)) : 0;
+                            if(BOX64DRENV(dynarec_callret)>1)
+                                j64 = CALLRET_GETRET();
+                            else
+                                j64 = (dyn->insts) ? (dyn->insts[ninst].epilog - (dyn->native_size)) : 0;
                             PCADDU12I(x4, ((j64 + 0x800) >> 12) & 0xfffff);
                             ADDI_D(x4, x4, j64 & 0xfff);
                             MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64 >> 2);
                         } else {
-                            j64 = (dyn->insts) ? (GETMARK - (dyn->native_size)) : 0;
+                            if(BOX64DRENV(dynarec_callret)>1)
+                                j64 = CALLRET_GETRET();
+                            else
+                                j64 = (dyn->insts) ? (GETMARK - (dyn->native_size)) : 0;
                             PCADDU12I(x4, ((j64 + 0x800) >> 12) & 0xfffff);
                             ADDI_D(x4, x4, j64 & 0xfff);
                             MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64 >> 2);
@@ -3403,6 +3410,8 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     else
                         j64 = addr + i32;
                     jump_to_next(dyn, j64, 0, ninst, rex.is32bits);
+                    int can_continue = (addr < (dyn->start + dyn->isize));
+                    CALLRET_RET(can_continue);
                     if (BOX64DRENV(dynarec_callret) && addr >= (dyn->start + dyn->isize)) {
                         // jumps out of current dynablock...
                         MARK;
@@ -3416,6 +3425,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         LD_D(x4, x4, 0);
                         BR(x4);
                     }
+                    CLEARIP();
                     break;
             }
             break;
@@ -4016,12 +4026,18 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         // Push actual return address
                         if (addr < (dyn->start + dyn->isize)) {
                             // there is a next
-                            j64 = (dyn->insts) ? (dyn->insts[ninst].epilog - (dyn->native_size)) : 0;
+                            if(BOX64DRENV(dynarec_callret)>1)
+                                j64 = CALLRET_GETRET();
+                            else
+                                j64 = (dyn->insts) ? (dyn->insts[ninst].epilog - (dyn->native_size)) : 0;
                             PCADDU12I(x4, ((j64 + 0x800) >> 12) & 0xfffff);
                             ADDI_D(x4, x4, j64 & 0xfff);
                             MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64 >> 2);
                         } else {
-                            j64 = (dyn->insts) ? (GETMARK - (dyn->native_size)) : 0;
+                            if(BOX64DRENV(dynarec_callret)>1)
+                                j64 = CALLRET_GETRET();
+                            else
+                                j64 = (dyn->insts) ? (GETMARK - (dyn->native_size)) : 0;
                             PCADDU12I(x4, ((j64 + 0x800) >> 12) & 0xfffff);
                             ADDI_D(x4, x4, j64 & 0xfff);
                             MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64 >> 2);
@@ -4032,6 +4048,8 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     }
                     PUSH1z(xRIP);
                     jump_to_next(dyn, 0, ed, ninst, rex.is32bits);
+                    int can_continue = (addr < (dyn->start + dyn->isize));
+                    CALLRET_RET(can_continue);
                     if (BOX64DRENV(dynarec_callret) && addr >= (dyn->start + dyn->isize)) {
                         // jumps out of current dynablock...
                         MARK;
@@ -4041,6 +4059,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         LD_D(x4, x4, 0);
                         BR(x4);
                     }
+                    CLEARIP();
                     break;
                 case 3: // CALL FAR Ed
                     if (MODREG) {
@@ -4063,17 +4082,24 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             *ok = 0;
                         }
                         GETIP_(addr, x7);
+                        int can_continue = (addr < (dyn->start + dyn->isize));
                         if (BOX64DRENV(dynarec_callret)) {
                             SET_HASCALLRET();
                             // Push actual return address. Note that CS will not be tested, but that should be ok?
-                            if (addr < (dyn->start + dyn->isize)) {
+                            if (can_continue) {
                                 // there is a next...
-                                j64 = (dyn->insts) ? (dyn->insts[ninst].epilog - (dyn->native_size)) : 0;
+                                if(BOX64DRENV(dynarec_callret)>1)
+                                    j64 = CALLRET_GETRET();
+                                else
+                                    j64 = (dyn->insts) ? (dyn->insts[ninst].epilog - (dyn->native_size)) : 0;
                                 PCADDU12I(x4, ((j64 + 0x800) >> 12) & 0xfffff);
                                 ADDI_D(x4, x4, j64 & 0xfff);
                                 MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64 >> 2);
                             } else {
-                                j64 = (dyn->insts) ? (GETMARK - (dyn->native_size)) : 0;
+                                if(BOX64DRENV(dynarec_callret)>1)
+                                    j64 = CALLRET_GETRET();
+                                else
+                                    j64 = (dyn->insts) ? (GETMARK - (dyn->native_size)) : 0;
                                 PCADDU12I(x4, ((j64 + 0x800) >> 12) & 0xfffff);
                                 ADDI_D(x4, x4, j64 & 0xfff);
                                 MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64 >> 2);
@@ -4091,6 +4117,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         }
                         ST_H(x3, xEmu, offsetof(x64emu_t, segs[_CS]));
                         jump_to_next(dyn, 0, ed, ninst, rex.is32bits);
+                        CALLRET_RET(can_continue);
                         if (BOX64DRENV(dynarec_callret) && addr >= (dyn->start + dyn->isize)) {
                             // jumps out of current dynablock...
                             MARK;

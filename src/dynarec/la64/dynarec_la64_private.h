@@ -112,6 +112,7 @@ typedef struct instruction_la64_s {
     uint8_t             lock:1;          // [strongmem] lock semantic
     uint8_t             df_needed:1;
     uint8_t             df_notneeded:1;
+    uint8_t             sep:1;           // opcode is a secondary entry point
     uint8_t             nat_flags_fusion:1;
     uint8_t             nat_flags_nofusion:1;
     uint8_t             nat_flags_carry:1;
