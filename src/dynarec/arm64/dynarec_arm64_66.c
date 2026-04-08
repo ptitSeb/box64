@@ -1612,6 +1612,8 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     UXTHw(x2, xRAX);
                     BFIw(x2, xRDX, 16, 16);
                     if(BOX64ENV(dynarec_div0)) {
+                        // commit df before branch, CALL_S in div0 path has FORCE_DFNONE
+                        CHECK_DFNONE(0);
                         CBNZw_MARK3(ed);
                         MARK2;
                         GETIP_(ip);
@@ -1651,6 +1653,8 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     GETSEW(x1, 0);
                     if(BOX64ENV(dynarec_div0)) {
+                        // commit df before branch, CALL_S in div0 path has FORCE_DFNONE
+                        CHECK_DFNONE(0);
                         CBNZw_MARK3(ed);
                         MARK2;
                         GETIP_(ip);
