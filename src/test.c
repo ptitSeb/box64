@@ -90,19 +90,15 @@ static void json_fill_array(struct json_array_s* array, uint64_t* values)
     }
 }
 
-static void loadTest(const char** filepath, const char* include_path)
+static struct json_value_s* extractTestConfig(const char* filepath)
 {
-    FILE* file = fopen(*filepath, "r");
-    if (!file) {
-        printf_log(LOG_NONE, "Failed to open test file: %s\n", *filepath);
-        exit(1);
-    }
+    FILE* file = fopen(filepath, "r");
+    if (!file) return NULL;
 
-    // read file line by line
     char* line = NULL;
     size_t line_capacity = 0;
     char* json = calloc(4096, 1);
-    size_t json_capacity = 1;
+    size_t json_capacity = 4096;
     size_t json_length = 0;
     bool in_config = false;
 
@@ -119,14 +115,10 @@ static void loadTest(const char** filepath, const char* include_path)
             size_t chunk_length = (size_t)line_length;
             size_t needed = json_length + chunk_length + 1;
             if (needed > json_capacity) {
-                size_t new_capacity = json_capacity;
-                while (new_capacity < needed)
-                    new_capacity *= 2;
-
-                json = realloc(json, new_capacity);
-                json_capacity = new_capacity;
+                while (json_capacity < needed)
+                    json_capacity *= 2;
+                json = realloc(json, json_capacity);
             }
-
             memcpy(json + json_length, line, chunk_length);
             json_length += chunk_length;
             json[json_length] = '\0';
@@ -137,6 +129,35 @@ static void loadTest(const char** filepath, const char* include_path)
     fclose(file);
     struct json_value_s* config = json_parse(json, json_length);
     free(json);
+    return config;
+}
+
+static void applyTestVariables(const char* filepath)
+{
+    struct json_value_s* config = extractTestConfig(filepath);
+    if (!config || config->type != json_type_object) {
+        free(config);
+        return;
+    }
+
+    struct json_value_s* vars = json_find(config->payload, "Variables");
+    if (vars && vars->type == json_type_object) {
+        struct json_object_s* object = (struct json_object_s*)vars->payload;
+        struct json_object_element_s* element = object->start;
+        while (element) {
+            if (element->value->type == json_type_string) {
+                struct json_string_s* value = (struct json_string_s*)element->value->payload;
+                setenv(element->name->string, value->string, 1);
+            }
+            element = element->next;
+        }
+    }
+    free(config);
+}
+
+static void loadTest(const char** filepath, const char* include_path)
+{
+    struct json_value_s* config = extractTestConfig(*filepath);
     if (!config || config->type != json_type_object) {
         printf_log(LOG_NONE, "Failed to parse JSON configuration.\n");
         exit(1);
@@ -395,6 +416,7 @@ int unittest(int argc, const char** argv)
         include_path = argv[4];
     }
 
+    applyTestVariables(argv[2]);
     box64_pagesize = sysconf(_SC_PAGESIZE);
     LoadEnvVariables();
     InitializeSystemInfo();
