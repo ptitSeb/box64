@@ -132,27 +132,99 @@ static struct json_value_s* extractTestConfig(const char* filepath)
     return config;
 }
 
-static void applyTestVariables(const char* filepath)
+#define MAX_TEST_VARS           32
+#define MAX_TEST_VAR_VALUES     16
+
+struct test_var_combos {
+    int num_vars;
+    char* names[MAX_TEST_VARS];
+    int num_values[MAX_TEST_VARS];
+    char* values[MAX_TEST_VARS][MAX_TEST_VAR_VALUES];
+    int total_combos;
+};
+
+static struct test_var_combos getTestVariableCombos(const char* filepath)
 {
+    struct test_var_combos combos = { 0 };
+    combos.total_combos = 1;
+
     struct json_value_s* config = extractTestConfig(filepath);
     if (!config || config->type != json_type_object) {
         free(config);
-        return;
+        return combos;
     }
 
     struct json_value_s* vars = json_find(config->payload, "Variables");
     if (vars && vars->type == json_type_object) {
         struct json_object_s* object = (struct json_object_s*)vars->payload;
         struct json_object_element_s* element = object->start;
-        while (element) {
+        while (element && combos.num_vars < MAX_TEST_VARS) {
+            int v = combos.num_vars;
+            combos.names[v] = strdup(element->name->string);
             if (element->value->type == json_type_string) {
                 struct json_string_s* value = (struct json_string_s*)element->value->payload;
-                setenv(element->name->string, value->string, 1);
+                combos.values[v][0] = strdup(value->string);
+                combos.num_values[v] = 1;
+            } else if (element->value->type == json_type_array) {
+                struct json_array_s* array = (struct json_array_s*)element->value->payload;
+                struct json_array_element_s* arr_elem = array->start;
+                int vi = 0;
+                while (arr_elem && vi < MAX_TEST_VAR_VALUES) {
+                    if (arr_elem->value->type == json_type_string) {
+                        struct json_string_s* val = (struct json_string_s*)arr_elem->value->payload;
+                        combos.values[v][vi] = strdup(val->string);
+                        vi++;
+                    }
+                    arr_elem = arr_elem->next;
+                }
+                combos.num_values[v] = vi;
+            }
+            if (combos.num_values[v] > 0) {
+                combos.total_combos *= combos.num_values[v];
+                combos.num_vars++;
+            } else {
+                free(combos.names[v]);
             }
             element = element->next;
         }
     }
+
     free(config);
+    return combos;
+}
+
+static void applyTestVarCombo(struct test_var_combos* combos, int combo_index)
+{
+    int stride = 1;
+    for (int v = combos->num_vars - 1; v >= 0; v--) {
+        int value_index = (combo_index / stride) % combos->num_values[v];
+        setenv(combos->names[v], combos->values[v][value_index], 1);
+        stride *= combos->num_values[v];
+    }
+}
+
+static void printTestVarCombo(struct test_var_combos* combos, int combo_index)
+{
+    int indices[MAX_TEST_VARS];
+    int stride = 1;
+    for (int v = combos->num_vars - 1; v >= 0; v--) {
+        indices[v] = (combo_index / stride) % combos->num_values[v];
+        stride *= combos->num_values[v];
+    }
+    fprintf(stdout, "\033[44;37m[BOX64] Running combination %d/%d:", combo_index + 1, combos->total_combos);
+    for (int v = 0; v < combos->num_vars; v++)
+        fprintf(stdout, " %s=%s", combos->names[v], combos->values[v][indices[v]]);
+    fprintf(stdout, "\033[0m\n");
+    fflush(stdout);
+}
+
+static void freeTestVarCombos(struct test_var_combos* combos)
+{
+    for (int v = 0; v < combos->num_vars; v++) {
+        free(combos->names[v]);
+        for (int i = 0; i < combos->num_values[v]; i++)
+            free(combos->values[v][i]);
+    }
 }
 
 static void loadTest(const char** filepath, const char* include_path)
@@ -404,19 +476,8 @@ static void setupZydis(box64context_t* context)
 #endif
 }
 
-int unittest(int argc, const char** argv)
+static int runSingleTest(int argc, const char** argv, const char* include_path)
 {
-    if (argc < 3 || (strcmp(argv[1], "--test") && strcmp(argv[1], "-t"))) {
-        printf_log(LOG_NONE, "Usage: %s -t <filepath> [-i <include>]\n", argv[0]);
-        return 0;
-    }
-
-    const char* include_path = NULL;
-    if (argc > 4 && (!strcmp(argv[3], "-i") || !strcmp(argv[3], "--include"))) {
-        include_path = argv[4];
-    }
-
-    applyTestVariables(argv[2]);
     box64_pagesize = sysconf(_SC_PAGESIZE);
     LoadEnvVariables();
     InitializeSystemInfo();
@@ -526,6 +587,53 @@ int unittest(int argc, const char** argv)
     else
         printf_log(LOG_NONE, "Failed with %d errors\n", retcode);
 
-
     return retcode;
+}
+
+int unittest(int argc, const char** argv)
+{
+    if (argc < 3 || (strcmp(argv[1], "--test") && strcmp(argv[1], "-t"))) {
+        fprintf(stdout, "Usage: %s -t <filepath> [-i <include>]\n", argv[0]);
+        return 0;
+    }
+
+    const char* include_path = NULL;
+    if (argc > 4 && (!strcmp(argv[3], "-i") || !strcmp(argv[3], "--include"))) {
+        include_path = argv[4];
+    }
+
+    struct test_var_combos combos = getTestVariableCombos(argv[2]);
+
+    int retcode = 0;
+    for (int c = 0; c < combos.total_combos; c++) {
+        if (combos.total_combos > 1)
+            printTestVarCombo(&combos, c);
+        pid_t pid = fork();
+        if (pid == 0) {
+            applyTestVarCombo(&combos, c);
+            freeTestVarCombos(&combos);
+            _exit(runSingleTest(argc, argv, include_path));
+        } else if (pid > 0) {
+            int status;
+            waitpid(pid, &status, 0);
+            if (WIFEXITED(status)) {
+                if (WEXITSTATUS(status) != 0) retcode++;
+            } else {
+                retcode++;
+            }
+        } else {
+            fprintf(stderr, "fork() failed\n");
+            retcode++;
+        }
+    }
+
+    if (combos.total_combos > 1) {
+        if (retcode == 0)
+            fprintf(stdout, "[BOX64] All %d combinations passed\n", combos.total_combos);
+        else
+            fprintf(stdout, "[BOX64] %d out of %d combinations failed\n", retcode, combos.total_combos);
+    }
+
+    freeTestVarCombos(&combos);
+    return retcode ? 1 : 0;
 }
