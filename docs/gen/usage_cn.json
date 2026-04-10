@@ -356,6 +356,13 @@
       "2": "在 x87 模拟中检查精度控制的低精度。"
     }
   },
+  "BOX64_DUMP_INST_STATS": {
+    "description": "是否输出指令翻译统计信息，包含每种 X86-64 指令类型对应的 native 指令平均数。",
+    "options": {
+      "0": "不输出指令翻译统计信息。",
+      "1": "输出指令翻译统计信息。"
+    }
+  },
   "BOX64_DYNAREC_INTERP_SIGNAL": {
     "description": "允许在信号处理器中使用 DynaRec。",
     "options": {

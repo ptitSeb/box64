@@ -456,6 +456,14 @@ Force the use of float/double for x87 emulation. Available in WowBox64.
  * 2 : Check Precision Control low precision on x87 emulation. 
 
 
+=item B<BOX64_DYNAREC_INST_STATS> =I<0|1>
+
+Dump instruction translation statistics, including the average number of native instructions for each x86-64 instruction type.
+
+ * 0 : Do not dump instruction translation statistics. [Default]
+ * 1 : Dump instruction translation statistics. 
+
+
 =item B<BOX64_DYNAREC_INTERP_SIGNAL> =I<0|1>
 
 Allow the use of DynaRec in Signal Handlers.

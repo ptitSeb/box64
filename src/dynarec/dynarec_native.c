@@ -515,6 +515,7 @@ dynablock_t* FillBlock64(uintptr_t addr, int is32bits, int inst_max, int is_new,
     helper.next_cap = MAX_INSTS;
     helper.table64 = NULL;
     helper.env = GetCurEnvByAddr(addr);
+    helper.stats = my_context->inst_stats;
     if(prot&PROT_NEVERCLEAN) {
         helper.always_test = 1;
     }

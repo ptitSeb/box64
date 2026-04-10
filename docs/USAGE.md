@@ -668,6 +668,13 @@ Enable or disable DynaRec trace.
  * 0: Do not trace DynaRec blocks. [Default]
  * 1: Trace DynaRec blocks, will slow down the program a lot and generates huge logs.
 
+### BOX64_DYNAREC_INST_STATS
+
+Dump instruction translation statistics, including the average number of native instructions for each x86-64 instruction type.
+
+ * 0: Do not dump instruction translation statistics. [Default]
+ * 1: Dump instruction translation statistics.
+
 ### BOX64_JITGDB
 
 Launch gdb or not for SIGSEGV, SIGILL, and SIGBUS.

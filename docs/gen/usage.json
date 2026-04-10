@@ -1033,6 +1033,25 @@
     ]
   },
   {
+    "name": "BOX64_DYNAREC_INST_STATS",
+    "description": "Dump instruction translation statistics, including the average number of native instructions for each x86-64 instruction type.",
+    "category": "Debugging",
+    "wine": false,
+    "configurator": false,
+    "options": [
+      {
+        "key": "0",
+        "description": "Do not dump instruction translation statistics.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Dump instruction translation statistics.",
+        "default": false
+      }
+    ]
+  },
+  {
     "name": "BOX64_DYNAREC_INTERP_SIGNAL",
     "description": "Allow the use of DynaRec in Signal Handlers.",
     "category": "Compatibility",

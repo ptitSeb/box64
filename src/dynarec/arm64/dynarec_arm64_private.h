@@ -213,6 +213,9 @@ typedef struct dynarec_arm_s {
     int                 reloc_size;
     uint32_t*           relocs;
     box64env_t*         env;
+    size_t              inst_start_size;
+    inst_stats_table_t*  stats;
+    char                inst_name[STATS_INST_NAME_MAX];
 } dynarec_arm_t;
 
 void add_next(dynarec_arm_t *dyn, uintptr_t addr);

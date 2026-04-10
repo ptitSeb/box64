@@ -21,6 +21,27 @@ typedef uint32_t ulong_t;
 #endif
 
 
+#define STATS_INST_NAME_MAX 20
+
+typedef struct {
+    uint64_t x64_addr;
+    uint64_t native_insts;
+    uint64_t count;
+    uint32_t x64_size;
+    char     mnemonic[STATS_INST_NAME_MAX];
+} x86_inst_stat_t;
+
+typedef struct inst_stats_table {
+    x86_inst_stat_t* entries;
+    int count;
+    int capacity;
+} inst_stats_table_t;
+
+void collect_instruction_stat(inst_stats_table_t* stats,
+                              uint64_t x64_addr, uint32_t x64_size,
+                              uint64_t native_insts, const char* name);
+void print_instruction_statistics(inst_stats_table_t* stats);
+
 typedef struct elfheader_s elfheader_t;
 typedef struct cleanup_s cleanup_t;
 typedef struct x64emu_s x64emu_t;
@@ -248,6 +269,9 @@ typedef struct box64context_s {
     char*               log_call;   // is a large string composed of slices of 256 chars
     char*               log_ret;    // is a large string composed of sloces of 128 chars
     int                 current_line;
+
+    // translation statistics tracking
+    inst_stats_table_t   *inst_stats;
 
 } box64context_t;
 

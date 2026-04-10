@@ -9,14 +9,28 @@
 #define EMIT(A)     do{dyn->insts[ninst].size+=4; dyn->native_size+=4;}while(0)
 #define ENDPREFIX   dyn->prefixsize = dyn->native_size; dyn->insts[ninst].address = dyn->native_size; dyn->insts[ninst].size = 0
 #define NEW_INST                                                                                        \
+        dyn->inst_start_size = dyn->native_size;                                                        \
         if(ninst) {                                                                                     \
                 dyn->insts[ninst].address = (dyn->insts[ninst-1].address+dyn->insts[ninst-1].size);     \
                 dyn->insts_size += 1+((dyn->insts[ninst-1].x64.size>(dyn->insts[ninst-1].size/4))?dyn->insts[ninst-1].x64.size:(dyn->insts[ninst-1].size/4))/15; \
                 dyn->insts[ninst].ymm0_pass2 = dyn->ymm_zero;                                           \
         }                                                                                               \
         AREFLAGSNEEDED()
-#define INST_EPILOG dyn->insts[ninst].epilog = dyn->native_size; 
-#define INST_NAME(name) 
+#define INST_EPILOG                                                                 \
+        dyn->insts[ninst].epilog = dyn->native_size;                                \
+        do {                                                                        \
+            if (dyn->stats && dyn->insts[ninst].x64.alive) {                        \
+                size_t nb = dyn->native_size - dyn->inst_start_size;                \
+                collect_instruction_stat(dyn->stats,                      \
+                    dyn->insts[ninst].x64.addr, dyn->insts[ninst].x64.size,         \
+                    nb / 4, dyn->inst_name);                                            \
+            }                                                                       \
+        } while(0)
+#define INST_NAME(name)                                                             \
+        do {                                                                        \
+            if (dyn->stats)                                                         \
+                snprintf(dyn->inst_name, sizeof(dyn->inst_name), "%s", name);       \
+        } while(0)
 // TABLE64: PPC64LE uses 4 instructions to load from the constant pool:
 //   bcl 20,31,.+4  (get PC into LR)
 //   mflr Rd

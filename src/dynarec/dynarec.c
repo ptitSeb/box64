@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <errno.h>
 
 #include "os.h"
@@ -336,4 +337,71 @@ void EmuRun(x64emu_t* emu, int use_dynarec, int no_alt)
 void DynaRun(x64emu_t *emu)
 {
     EmuRun(emu, 1, 0);
+}
+
+void collect_instruction_stat(inst_stats_table_t* stats, uint64_t x64_addr,
+                              uint32_t x64_size, uint64_t native_insts,
+                              const char* name)
+{
+    if (!stats) return;
+
+    for (int i = 0; i < stats->count; i++) {
+        x86_inst_stat_t* e = &stats->entries[i];
+        if ((e->x64_addr == x64_addr
+             || (name && name[0] && e->mnemonic[0] && !strcmp(name, e->mnemonic)))
+            && e->x64_size == x64_size) {
+            e->native_insts += native_insts;
+            e->count++;
+            if (name && name[0] && !e->mnemonic[0])
+                snprintf(e->mnemonic, sizeof(e->mnemonic), "%s", name);
+            return;
+        }
+    }
+
+    if (stats->count >= stats->capacity) {
+        stats->capacity = stats->capacity ? stats->capacity * 2 : 512;
+        stats->entries = box_realloc(stats->entries, stats->capacity * sizeof(x86_inst_stat_t));
+    }
+
+    x86_inst_stat_t* e = &stats->entries[stats->count];
+    e->x64_addr = x64_addr;
+    e->x64_size = x64_size;
+    e->native_insts = native_insts;
+    e->count = 1;
+    e->mnemonic[0] = '\0';
+    if (name && name[0])
+        snprintf(e->mnemonic, sizeof(e->mnemonic), "%s", name);
+
+    stats->count++;
+}
+
+void print_instruction_statistics(inst_stats_table_t* stats)
+{
+    if (!stats || stats->count == 0) {
+        printf_log(LOG_NONE,"No instruction statistics collected\n");
+        return;
+    }
+
+    printf_log(LOG_NONE,"Total unique x86-64 instructions: %d\n\n", stats->count);
+
+    printf_log(LOG_NONE,"%-16s %-8s %-12s %-8s %-12s %-20s\n",
+           "Address", "Size", "Nat Insts",
+           "Count", "Inst Ratio", "Name");
+    printf_log(LOG_NONE,"%-16s %-8s %-12s %-8s %-12s %-20s\n",
+           "----------------", "--------", "------------",
+           "--------", "------------",
+           "--------------------");
+
+    for (int i = 0; i < stats->count; i++) {
+        x86_inst_stat_t* e = &stats->entries[i];
+        float ni = (float)e->native_insts;
+        float xc = (float)e->count;
+
+        printf_log(LOG_NONE,"0x%-14lx %-8d %-12lu %-8lu %-12f %-20s\n",
+               e->x64_addr, e->x64_size, e->native_insts,
+               e->count, ni / xc,
+               e->mnemonic[0] ? e->mnemonic : "(unknown)");
+    }
+
+    printf_log(LOG_NONE,"\n");
 }

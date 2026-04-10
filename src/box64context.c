@@ -250,10 +250,21 @@ box64context_t *NewBox64Context(int argc)
     context->uniques = NewMapSymbols();
 
     initAllHelpers(context);
-    
+
     #ifdef DYNAREC
     context->db_sizes = rbtree_init("db_sizes");
     #endif
+
+    if (BOX64ENV(dynarec_inst_stats)) {
+        context->inst_stats = (inst_stats_table_t*)box_calloc(1, sizeof(inst_stats_table_t));
+        if (context->inst_stats) {
+            context->inst_stats->capacity = 512;
+            context->inst_stats->entries = (x86_inst_stat_t*)box_calloc(512, sizeof(x86_inst_stat_t));
+            context->inst_stats->count = 0;
+        }
+    } else {
+        context->inst_stats = NULL;
+    }
 
     return context;
 }
@@ -416,6 +427,14 @@ void FreeBox64Context(box64context_t** context)
 #endif
     rbtree_delete(ctx->db_sizes);
 #endif
+
+    if (ctx->inst_stats) {
+        print_instruction_statistics(ctx->inst_stats);
+        if (ctx->inst_stats->entries) {
+            box_free(ctx->inst_stats->entries);
+        }
+        box_free(ctx->inst_stats);
+    }
 
     finiAllHelpers(ctx);
 

@@ -18,6 +18,7 @@
     dyn->inst_sew = dyn->vector_sew;                                                                                                                                           \
     dyn->inst_vlmul = VECTOR_LMUL1;                                                                                                                                            \
     dyn->inst_vl = 0;                                                                                                                                                          \
+    dyn->inst_start_size = dyn->native_size;                                                                                                                          \
     if (ninst) {                                                                                                                                                               \
         dyn->insts[ninst].address = (dyn->insts[ninst - 1].address + dyn->insts[ninst - 1].size);                                                                              \
         dyn->insts_size += 1 + ((dyn->insts[ninst - 1].x64.size > (dyn->insts[ninst - 1].size / 4)) ? dyn->insts[ninst - 1].x64.size : (dyn->insts[ninst - 1].size / 4)) / 15; \
@@ -29,8 +30,21 @@
     dyn->vector_sew = dyn->insts[ninst].vector_sew_exit; \
     dyn->inst_sew = dyn->vector_sew;                     \
     dyn->inst_vlmul = VECTOR_LMUL1;                      \
-    dyn->inst_vl = 0;
-#define INST_NAME(name)
+    dyn->inst_vl = 0;                                    \
+    do {                                                 \
+        if (dyn->stats && dyn->insts[ninst].x64.alive) { \
+            size_t nb = dyn->native_size - dyn->inst_start_size; \
+            collect_instruction_stat(dyn->stats,         \
+                dyn->insts[ninst].x64.addr,              \
+                dyn->insts[ninst].x64.size,              \
+                nb / 4, dyn->inst_name);                 \
+        }                                                \
+    } while(0)
+#define INST_NAME(name)                                  \
+    do {                                                 \
+        if (dyn->stats)                                  \
+            snprintf(dyn->inst_name, sizeof(dyn->inst_name), "%s", name); \
+    } while(0)
 #define TABLE64(A, V)                                \
     do {                                             \
         if (dyn->need_reloc && !isTable64(dyn, (V))) \
