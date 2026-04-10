@@ -1734,13 +1734,12 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
         case 0xE6:
             INST_NAME("VCVTTPD2DQ Gx, Ex");
             nextop = F8;
+            d0 = fpu_get_scratch(dyn, ninst);
             for(int l=0; l<1+vex.l; ++l) {
                 if(!l) {
                     GETEX_Y(v1, 0, 0);
                     GETGX_empty(v0);
                 } else {
-                    if(BOX64ENV(dynarec_fastround))
-                        d0 = fpu_get_scratch(dyn, ninst);
                     GETEY(v1);
                 }
                 if(BOX64ENV(dynarec_fastround)) {
@@ -1761,7 +1760,6 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                         if(!l) {
                             MRS_fpsr(x5);
                             ORRw_mask(x4, xZR, 1, 0);    //0x80000000
-                            d0 = fpu_get_scratch(dyn, ninst);
                         }
                         for(int i=0; i<2; ++i) {
                             BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
