@@ -812,6 +812,7 @@ typedef uint32_t (*uFbuu_t)(void*, uint32_t, uint32_t);
 typedef uint32_t (*uFbuU_t)(void*, uint32_t, uint64_t);
 typedef uint32_t (*uFbup_t)(void*, uint32_t, void*);
 typedef uint64_t (*UFpup_t)(void*, uint32_t, void*);
+typedef uint64_t (*UFpUU_t)(void*, uint64_t, uint64_t);
 typedef uint64_t (*UFppi_t)(void*, void*, int32_t);
 typedef uint64_t (*UFbCC_t)(void*, uint8_t, uint8_t);
 typedef uint64_t (*UFbCu_t)(void*, uint8_t, uint32_t);
@@ -5034,6 +5035,7 @@ void uFbuu(x64emu_t *emu, uintptr_t fcn) { uFbuu_t fn = (uFbuu_t)fcn; void *alig
 void uFbuU(x64emu_t *emu, uintptr_t fcn) { uFbuU_t fn = (uFbuU_t)fcn; void *aligned_xcb = align_xcb_connection((void*)R_RDI); R_RAX=(uint32_t)fn(aligned_xcb, (uint32_t)R_RSI, (uint64_t)R_RDX); unalign_xcb_connection(aligned_xcb, (void*)R_RDI); }
 void uFbup(x64emu_t *emu, uintptr_t fcn) { uFbup_t fn = (uFbup_t)fcn; void *aligned_xcb = align_xcb_connection((void*)R_RDI); R_RAX=(uint32_t)fn(aligned_xcb, (uint32_t)R_RSI, (void*)R_RDX); unalign_xcb_connection(aligned_xcb, (void*)R_RDI); }
 void UFpup(x64emu_t *emu, uintptr_t fcn) { UFpup_t fn = (UFpup_t)fcn; R_RAX=fn((void*)R_RDI, (uint32_t)R_RSI, (void*)R_RDX); }
+void UFpUU(x64emu_t *emu, uintptr_t fcn) { UFpUU_t fn = (UFpUU_t)fcn; R_RAX=fn((void*)R_RDI, (uint64_t)R_RSI, (uint64_t)R_RDX); }
 void UFppi(x64emu_t *emu, uintptr_t fcn) { UFppi_t fn = (UFppi_t)fcn; R_RAX=fn((void*)R_RDI, (void*)R_RSI, (int32_t)R_RDX); }
 void UFbCC(x64emu_t *emu, uintptr_t fcn) { UFbCC_t fn = (UFbCC_t)fcn; void *aligned_xcb = align_xcb_connection((void*)R_RDI); R_RAX=fn(aligned_xcb, (uint8_t)R_RSI, (uint8_t)R_RDX); unalign_xcb_connection(aligned_xcb, (void*)R_RDI); }
 void UFbCu(x64emu_t *emu, uintptr_t fcn) { UFbCu_t fn = (UFbCu_t)fcn; void *aligned_xcb = align_xcb_connection((void*)R_RDI); R_RAX=fn(aligned_xcb, (uint8_t)R_RSI, (uint32_t)R_RDX); unalign_xcb_connection(aligned_xcb, (void*)R_RDI); }
@@ -9131,6 +9133,7 @@ int isSimpleWrapper(wrapper_t fun) {
 	if (fun == &uFppL) return 1;
 	if (fun == &uFppp) return 1;
 	if (fun == &UFpup) return 1;
+	if (fun == &UFpUU) return 1;
 	if (fun == &UFppi) return 1;
 	if (fun == &fFuii) return -1;
 	if (fun == &fFupf) return -2;
@@ -11539,6 +11542,7 @@ int isSimpleWrapper(wrapper_t fun) {
 	if (fun == &uFppL) return 1;
 	if (fun == &uFppp) return 1;
 	if (fun == &UFpup) return 33;
+	if (fun == &UFpUU) return 1;
 	if (fun == &UFppi) return 65;
 	if (fun == &fFuii) return -113;
 	if (fun == &fFupf) return -18;
@@ -13947,6 +13951,7 @@ int isSimpleWrapper(wrapper_t fun) {
 	if (fun == &uFppL) return 1;
 	if (fun == &uFppp) return 1;
 	if (fun == &UFpup) return 33;
+	if (fun == &UFpUU) return 1;
 	if (fun == &UFppi) return 65;
 	if (fun == &fFuii) return -113;
 	if (fun == &fFupf) return -18;

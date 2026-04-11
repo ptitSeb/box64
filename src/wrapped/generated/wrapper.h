@@ -815,6 +815,7 @@ void uFbuu(x64emu_t *emu, uintptr_t fnc);
 void uFbuU(x64emu_t *emu, uintptr_t fnc);
 void uFbup(x64emu_t *emu, uintptr_t fnc);
 void UFpup(x64emu_t *emu, uintptr_t fnc);
+void UFpUU(x64emu_t *emu, uintptr_t fnc);
 void UFppi(x64emu_t *emu, uintptr_t fnc);
 void UFbCC(x64emu_t *emu, uintptr_t fnc);
 void UFbCu(x64emu_t *emu, uintptr_t fnc);

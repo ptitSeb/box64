@@ -764,7 +764,8 @@ GOM(vkCreateCuModuleNVX, iFEpppp)
 GOM(vkDestroyCuFunctionNVX, vFEppp)
 GOM(vkDestroyCuModuleNVX, vFEppp)
 
-// VK_NVX_image_view_handle
+//VK_NVX_image_view_handle
+GO(vkGetDeviceCombinedImageSamplerIndexNVX, UFpUU)
 GO(vkGetImageViewAddressNVX, iFppp)
 GO(vkGetImageViewHandle64NVX, UFpp)
 GO(vkGetImageViewHandleNVX, uFpp)
@@ -1120,6 +1121,12 @@ GOM(vkCreateShaderInstrumentationARM, iFEpppp)
 GOM(vkDestroyShaderInstrumentationARM, vFEppp)
 GO(vkEnumeratePhysicalDeviceShaderInstrumentationMetricsARM, iFppp)
 GO(vkGetShaderInstrumentationValuesARM, iFppppp)
+
+// VK_KHR_maintenance10
+GO(vkCmdEndRendering2KHR, vFpp)
+
+// VK_EXT_fragment_density_map_offset
+GO(vkCmdEndRendering2EXT, vFpp)
 
 // Layer stuffs
 GO(vk_icdNegotiateLoaderICDInterfaceVersion, iFp) // Warning: failed to confirm

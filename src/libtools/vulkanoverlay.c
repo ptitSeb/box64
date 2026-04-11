@@ -298,6 +298,7 @@ void freeVulkanOverlay(my_vulkanoverlay_t* v)
 #define GO_uFpubp(A, B, N)     static uint32_t my_##A##_##N(void* a, uint32_t b, void* c, void* d) {return (uint32_t)F4(A, #B +2, N);}
 #define GO_UFpp(A, B, N)       static uint64_t my_##A##_##N(void* a, void* b) {return (uint64_t)F2(A, #B +2, N);}
 #define GO_UFpu(A, B, N)       static uint64_t my_##A##_##N(void* a, uint32_t b) {return (uint64_t)F2(A, #B +2, N);}
+#define GO_UFpUU(A, B, N)      static uint64_t my_##A##_##N(void* a, uint64_t b, uint64_t c) {return (uint64_t)F3(A, #B +2, N);}
 #define GO_UFppuu(A, B, N)     static uint64_t my_##A##_##N(void* a, void* b, uint32_t c, uint32_t d) {return (uint64_t)F4(A, #B +2, N);}
 #define GO_UFpUui(A, B, N)     static uint64_t my_##A##_##N(void* a, uint64_t b, uint32_t c, int d) {return (uint64_t)F4(A, #B +2, N);}
 
