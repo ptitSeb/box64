@@ -1684,7 +1684,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         } else {
                             MARKLOCK;
                             LDAXRxw(x1, wback);
-                            MVNw_REG(x1, x1);
+                            MVNxw_REG(x1, x1);
                             STLXRxw(x3, x1, wback);
                             CBNZx_MARKLOCK(x3);
                         }
