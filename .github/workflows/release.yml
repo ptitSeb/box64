@@ -183,6 +183,9 @@ jobs:
               echo "BOX64_COMPILER=$PWD/android-ndk-r26b/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android31-clang" >> $GITHUB_ENV
               echo "BOX64_PLATFORM_MARCRO=-DANDROID=1 -DARM_DYNAREC=1 -DBAD_SIGNAL=1" >> $GITHUB_ENV
               git clone https://github.com/termux/termux-docker.git
+              cd termux-docker
+              git checkout 148b93d989cbc572719e050135b3e13f115f2a8e~1
+              cd ..
               sudo cp -rf termux-docker/system/arm /system
               sudo chown -R $(whoami):$(whoami) /system
               sudo chmod 755 -R /system
