@@ -906,7 +906,7 @@ done:
 #ifdef ARM64
 #define ARCH_VERSION SET_VERSION(0, 0, 13)
 #elif defined(RV64)
-#define ARCH_VERSION SET_VERSION(0, 0, 4)
+#define ARCH_VERSION SET_VERSION(0, 0, 5)
 #elif defined(LA64)
 #define ARCH_VERSION SET_VERSION(0, 0, 7)
 #elif defined(PPC64LE)

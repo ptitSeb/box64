@@ -10,6 +10,7 @@
 #include "box64context.h"
 #include "box64cpu.h"
 #include "emu/x64emu_private.h"
+#include "../dynablock_private.h"
 #include "x64emu.h"
 #include "box64stack.h"
 #include "callback.h"
@@ -1093,13 +1094,25 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     }
                     fpu_purgecache(dyn, ninst, 1, x1, x3, x4);
                     PUSH1z(x2);
+                    int can_continue = (addr < (dyn->start + dyn->isize));
                     if (BOX64DRENV(dynarec_callret)) {
                         SET_HASCALLRET();
                         // Push actual return address
-                        j64 = (dyn->insts) ? (GETMARK - (dyn->native_size)) : 0;
-                        AUIPC(x4, ((j64 + 0x800) >> 12) & 0xfffff);
-                        ADDI(x4, x4, j64 & 0xfff);
-                        MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64 >> 2);
+                        if(can_continue) {
+                            // there is a next...
+                            if(BOX64DRENV(dynarec_callret)>1)
+                                j64 = CALLRET_GETRET();
+                            else
+                                j64 = (dyn->insts)?(GETMARK-(dyn->native_size)):0;
+                            AUIPC(x4, SPLIT20(j64));
+                            ADDI(x4, x4, SPLIT12(j64));
+                            MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64>>2);
+                        } else {
+                            j64 = (dyn->insts)?(GETMARK-(dyn->native_size)):0;
+                            AUIPC(x4, SPLIT20(j64));
+                            ADDI(x4, x4, SPLIT12(j64));
+                            MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64>>2);
+                        }
                         ADDI(xSP, xSP, -16);
                         SD(x4, xSP, 0);
                         SD(x2, xSP, 8);
@@ -1112,10 +1125,11 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     else
                         j64 = addr + i32;
                     jump_to_next(dyn, j64, 0, ninst, rex.is32bits);
+                    CALLRET_RET(can_continue);
                     MARK;
-                    if (BOX64DRENV(dynarec_callret) && dyn->vector_sew != VECTOR_SEWNA)
+                    if (BOX64DRENV(dynarec_callret) && can_continue && dyn->vector_sew != VECTOR_SEWNA)
                         vector_vsetvli(dyn, ninst, x3, dyn->vector_sew, VECTOR_LMUL1, 1);
-                    if (BOX64DRENV(dynarec_callret) && addr >= (dyn->start + dyn->isize)) {
+                    if (BOX64DRENV(dynarec_callret) && !can_continue) {
                         // jumps out of current dynablock...
                         j64 = getJumpTableAddress64(addr);
                         if (dyn->need_reloc) {
@@ -1127,6 +1141,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         LD(x4, x4, 0);
                         BR(x4);
                     }
+                    CLEARIP();
                     break;
             }
             break;
@@ -1649,27 +1664,42 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     GETIP_(addr, x7);
                     if (BOX64DRENV(dynarec_callret)) {
                         SET_HASCALLRET();
-                        j64 = (dyn->insts) ? (GETMARK - (dyn->native_size)) : 0;
-                        AUIPC(x4, ((j64 + 0x800) >> 12) & 0xfffff);
-                        ADDI(x4, x4, j64 & 0xfff);
-                        MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64 >> 2);
+                        // Push actual return address
+                        if(addr < (dyn->start+dyn->isize)) {
+                            // there is a next...
+                            if(BOX64DRENV(dynarec_callret)>1)
+                                j64 = CALLRET_GETRET();
+                            else
+                                j64 = (dyn->insts)?(GETMARK-(dyn->native_size)):0;
+                            AUIPC(x4, SPLIT20(j64));
+                            ADDI(x4, x4, SPLIT12(j64));
+                            MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64>>2);
+                        } else {
+                            j64 = (dyn->insts)?(GETMARK-(dyn->native_size)):0;
+                            AUIPC(x4, SPLIT20(j64));
+                            ADDI(x4, x4, SPLIT12(j64));
+                            MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64>>2);
+                        }
                         ADDI(xSP, xSP, -16);
                         SD(x4, xSP, 0);
                         SD(xRIP, xSP, 8);
                     }
                     PUSH1z(xRIP);
                     jump_to_next(dyn, 0, ed, ninst, rex.is32bits);
+                    int can_continue = (addr < (dyn->start + dyn->isize));
+                    CALLRET_RET(can_continue);
                     MARK;
-                    if (BOX64DRENV(dynarec_callret) && dyn->vector_sew != VECTOR_SEWNA)
+                    if (BOX64DRENV(dynarec_callret) && can_continue && dyn->vector_sew != VECTOR_SEWNA)
                         vector_vsetvli(dyn, ninst, x3, dyn->vector_sew, VECTOR_LMUL1, 1);
-                    if (BOX64DRENV(dynarec_callret) && addr >= (dyn->start + dyn->isize)) {
+                    if (BOX64DRENV(dynarec_callret) && !can_continue) {
                         // jumps out of current dynablock...
                         j64 = getJumpTableAddress64(addr);
-                        if (dyn->need_reloc) AddRelocTable64RetEndBlock(dyn, ninst, addr, STEP);
+                        if(dyn->need_reloc) AddRelocTable64RetEndBlock(dyn, ninst, addr, STEP);
                         TABLE64_(x4, j64);
                         LD(x4, x4, 0);
                         BR(x4);
                     }
+                    CLEARIP();
                     break;
                 case 4: // JMP Ed
                     INST_NAME("JMP Ed");

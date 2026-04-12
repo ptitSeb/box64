@@ -115,6 +115,10 @@ extern void la64_next_invalid();
 #define ARCH_ADJUST(A, B, C, D) {}
 #define STOP_NATIVE_FLAGS(A, B) {}
 #define ARCH_UNALIGNED(A, B) arch_unaligned(A, B)
+
+#define ARCH_NOP    0b0010011
+#define ARCH_UDF    0xc0001073
+
 #define JMPNEXT_SIZE    (4*sizeof(void*))
 #define ADDITIONNAL_CHECKS()
 
