@@ -487,50 +487,18 @@ void jump_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst, int is3
 #endif
 }
 
-void ret_to_epilog(dynarec_rv64_t* dyn, uintptr_t ip, int ninst, rex_t rex)
+void ret_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int ninst, rex_t rex)
 {
     MAYUSE(dyn);
     MAYUSE(ninst);
-    MESSAGE(LOG_DUMP, "Ret to epilog\n");
-    POP1z(xRIP);
+    MESSAGE(LOG_DUMP, "Ret to next\n");
     MVz(x1, xRIP);
     SMEND();
     if (BOX64DRENV(dynarec_callret)) {
-        // pop the actual return address from RV64 stack
-        LD(xRA, xSP, 0);      // native addr
-        LD(x6, xSP, 8);       // x86 addr
-        ADDI(xSP, xSP, 16);   // pop
-        BNE(x6, xRIP, 2 * 4); // is it the right address?
-        BR(xRA);
-        // not the correct return address, regular jump, but purge the stack first, it's unsync now...
-        LD(xSP, xEmu, offsetof(x64emu_t, xSPSave));
-        ADDI(xSP, xSP, -16);
-    }
-    NOTEST(x2);
-    int dest = indirect_lookup(dyn, ninst, rex.is32bits, x2, x3);
-    BR(dest);
-    CLEARIP();
-}
-
-void retn_to_epilog(dynarec_rv64_t* dyn, uintptr_t ip, int ninst, rex_t rex, int n)
-{
-    MAYUSE(dyn);
-    MAYUSE(ninst);
-    MESSAGE(LOG_DUMP, "Retn to epilog\n");
-    POP1z(xRIP);
-    if (n > 0x7ff) {
-        MOV64x(x1, n);
-        ADDz(xRSP, xRSP, x1);
-    } else {
-        ADDIz(xRSP, xRSP, n);
-    }
-    MVz(x1, xRIP);
-    SMEND();
-    if (BOX64DRENV(dynarec_callret)) {
-        // pop the actual return address from RV64 stack
-        LD(xRA, xSP, 0);      // native addr
-        LD(x6, xSP, 8);       // x86 addr
-        ADDI(xSP, xSP, 16);   // pop
+        // pop the actual return address from LA64 stack
+        LD(xRA, xSP, 0);    // native addr
+        LD(x6, xSP, 8);     // x86 addr
+        ADDI(xSP, xSP, 16); // pop
         BNE(x6, xRIP, 2 * 4); // is it the right address?
         BR(xRA);
         // not the correct return address, regular jump, but purge the stack first, it's unsync now...

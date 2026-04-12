@@ -1262,8 +1262,7 @@
 #define jump_to_epilog      STEPNAME(jump_to_epilog)
 #define jump_to_epilog_fast STEPNAME(jump_to_epilog_fast)
 #define jump_to_next        STEPNAME(jump_to_next)
-#define ret_to_epilog       STEPNAME(ret_to_epilog)
-#define retn_to_epilog      STEPNAME(retn_to_epilog)
+#define ret_to_next         STEPNAME(ret_to_next)
 #define iret_to_epilog      STEPNAME(iret_to_epilog)
 #define call_c              STEPNAME(call_c)
 #define call_n              STEPNAME(call_n)
@@ -1429,8 +1428,7 @@ uintptr_t geted16(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop
 void jump_to_epilog(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst);
 void jump_to_epilog_fast(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst);
 void jump_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst, int is32bits);
-void ret_to_epilog(dynarec_rv64_t* dyn, uintptr_t ip, int ninst, rex_t rex);
-void retn_to_epilog(dynarec_rv64_t* dyn, uintptr_t ip, int ninst, rex_t rex, int n);
+void ret_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int ninst, rex_t rex);
 void iret_to_epilog(dynarec_rv64_t* dyn, uintptr_t ip, int ninst, int is64bits);
 void call_c(dynarec_rv64_t* dyn, int ninst, rv64_consts_t fnc, int reg, int ret, int saveflags, int savereg, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6);
 void call_n(dynarec_rv64_t* dyn, int ninst, void* fnc, int w);

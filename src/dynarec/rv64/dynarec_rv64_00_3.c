@@ -38,6 +38,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
     int64_t i64, j64;
     uint8_t u8;
     uint8_t gb1, gb2, eb1, eb2;
+    uint16_t u16;
     uint32_t u32;
     uint64_t u64;
     uint8_t wback, wb1, wb2, wb;
@@ -284,9 +285,16 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             if (BOX64DRENV(dynarec_safeflags)) {
                 READFLAGS(X_PEND); // lets play safe here too
             }
-            fpu_purgecache(dyn, ninst, 1, x1, x2, x3); // using next, even if there no next
-            i32 = F16;
-            retn_to_epilog(dyn, ip, ninst, rex, i32);
+            BARRIER(BARRIER_FLOAT);
+            u16 = F16;
+            POP1z(xRIP);
+            if (u16 < 0x7ff)
+                ADDIz(xRSP, xRSP, u16);
+            else {
+                MOV32w(x1, u16);
+                ADDz(xRSP, xRSP, x1);
+            }
+            ret_to_next(dyn, ip, ninst, rex);
             *need_epilog = 0;
             *ok = 0;
             break;
@@ -296,8 +304,9 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             if (BOX64DRENV(dynarec_safeflags)) {
                 READFLAGS(X_PEND); // so instead, force the deferred flags, so it's not too slow, and flags are not lost
             }
-            fpu_purgecache(dyn, ninst, 1, x1, x2, x3); // using next, even if there no next
-            ret_to_epilog(dyn, ip, ninst, rex);
+            BARRIER(BARRIER_FLOAT);
+            POP1z(xRIP);
+            ret_to_next(dyn, ip, ninst, rex);
             *need_epilog = 0;
             *ok = 0;
             break;
