@@ -505,6 +505,10 @@ static int runSingleTest(int argc, const char** argv, const char* include_path)
     unlink(my_context->fullpath);
 
     elfheader_t* elf_header = LoadAndCheckElfHeader(f, my_context->fullpath, 1);
+    if (!elf_header) {
+        printf_log(LOG_NONE, "Error: failed to load ELF header from test binary\n");
+        exit(1);
+    }
     AddElfHeader(my_context, elf_header);
     CalcLoadAddr(elf_header);
     AllocLoadElfMemory(my_context, elf_header, 1);
