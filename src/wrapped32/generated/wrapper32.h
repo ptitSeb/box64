@@ -1875,6 +1875,7 @@ void pFpipipL_32(x64emu_t *emu, uintptr_t fnc);
 void pFpipipp_32(x64emu_t *emu, uintptr_t fnc);
 void pFpipuii_32(x64emu_t *emu, uintptr_t fnc);
 void pFpuuupu_32(x64emu_t *emu, uintptr_t fnc);
+void pFppiiii_32(x64emu_t *emu, uintptr_t fnc);
 void XFpppppp_32(x64emu_t *emu, uintptr_t fnc);
 void iFpupupbL__32(x64emu_t *emu, uintptr_t fnc);
 void iFpupbL_pp_32(x64emu_t *emu, uintptr_t fnc);
