@@ -193,27 +193,59 @@ static struct test_var_combos getTestVariableCombos(const char* filepath)
     return combos;
 }
 
-static void applyTestVarCombo(struct test_var_combos* combos, int combo_index)
+static int isDynarecOff(struct test_var_combos* combos, int combo_index)
 {
     int stride = 1;
     for (int v = combos->num_vars - 1; v >= 0; v--) {
+        int idx = (combo_index / stride) % combos->num_values[v];
+        if (!strcmp(combos->names[v], "BOX64_DYNAREC") && !strcmp(combos->values[v][idx], "0"))
+            return 1;
+        stride *= combos->num_values[v];
+    }
+    return 0;
+}
+
+static int shouldSkipCombo(struct test_var_combos* combos, int combo_index)
+{
+    if (!isDynarecOff(combos, combo_index))
+        return 0;
+    int stride = 1;
+    for (int v = combos->num_vars - 1; v >= 0; v--) {
+        int idx = (combo_index / stride) % combos->num_values[v];
+        // when BOX64_DYNAREC=0, only keep the one where all BOX64_DYNAREC_* vars are at first value
+        if (!strncmp(combos->names[v], "BOX64_DYNAREC_", 14) && idx != 0)
+            return 1;
+        stride *= combos->num_values[v];
+    }
+    return 0;
+}
+
+static void applyTestVarCombo(struct test_var_combos* combos, int combo_index)
+{
+    int dynarec_off = isDynarecOff(combos, combo_index);
+    int stride = 1;
+    for (int v = combos->num_vars - 1; v >= 0; v--) {
         int value_index = (combo_index / stride) % combos->num_values[v];
-        setenv(combos->names[v], combos->values[v][value_index], 1);
+        if (!dynarec_off || strncmp(combos->names[v], "BOX64_DYNAREC_", 14))
+            setenv(combos->names[v], combos->values[v][value_index], 1);
         stride *= combos->num_values[v];
     }
 }
 
-static void printTestVarCombo(struct test_var_combos* combos, int combo_index)
+static void printTestVarCombo(struct test_var_combos* combos, int combo_index, int display_index, int display_total)
 {
+    int dynarec_off = isDynarecOff(combos, combo_index);
     int indices[MAX_TEST_VARS];
     int stride = 1;
     for (int v = combos->num_vars - 1; v >= 0; v--) {
         indices[v] = (combo_index / stride) % combos->num_values[v];
         stride *= combos->num_values[v];
     }
-    fprintf(stdout, "\033[44;37m[BOX64] Running combination %d/%d:", combo_index + 1, combos->total_combos);
-    for (int v = 0; v < combos->num_vars; v++)
-        fprintf(stdout, " %s=%s", combos->names[v], combos->values[v][indices[v]]);
+    fprintf(stdout, "\033[44;37m[BOX64] Running combination %d/%d:", display_index, display_total);
+    for (int v = 0; v < combos->num_vars; v++) {
+        if (!dynarec_off || strncmp(combos->names[v], "BOX64_DYNAREC_", 14))
+            fprintf(stdout, " %s=%s", combos->names[v], combos->values[v][indices[v]]);
+    }
     fprintf(stdout, "\033[0m\n");
     fflush(stdout);
 }
@@ -604,10 +636,20 @@ int unittest(int argc, const char** argv)
 
     struct test_var_combos combos = getTestVariableCombos(argv[2]);
 
-    int retcode = 0;
+    int actual_total = 0;
     for (int c = 0; c < combos.total_combos; c++) {
-        if (combos.total_combos > 1)
-            printTestVarCombo(&combos, c);
+        if (!shouldSkipCombo(&combos, c))
+            actual_total++;
+    }
+
+    int retcode = 0;
+    int display_index = 0;
+    for (int c = 0; c < combos.total_combos; c++) {
+        if (shouldSkipCombo(&combos, c))
+            continue;
+        display_index++;
+        if (actual_total > 1)
+            printTestVarCombo(&combos, c, display_index, actual_total);
         pid_t pid = fork();
         if (pid == 0) {
             applyTestVarCombo(&combos, c);
@@ -627,11 +669,11 @@ int unittest(int argc, const char** argv)
         }
     }
 
-    if (combos.total_combos > 1) {
+    if (actual_total > 1) {
         if (retcode == 0)
-            fprintf(stdout, "[BOX64] All %d combinations passed\n", combos.total_combos);
+            fprintf(stdout, "[BOX64] All %d combinations passed\n", actual_total);
         else
-            fprintf(stdout, "[BOX64] %d out of %d combinations failed\n", retcode, combos.total_combos);
+            fprintf(stdout, "[BOX64] %d out of %d combinations failed\n", retcode, actual_total);
     }
 
     freeTestVarCombos(&combos);
