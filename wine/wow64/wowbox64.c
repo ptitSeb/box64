@@ -445,7 +445,7 @@ void EmitInterruptionImpl(x64emu_t* emu, int code)
         R_RIP = ctx->Eip;
         if (cpu->Flags & WOW64_CPURESERVED_FLAG_RESET_STATE) {
             cpu->Flags &= ~WOW64_CPURESERVED_FLAG_RESET_STATE;
-            R_EAX = ctx->Eax;
+            //R_EAX = ctx->Eax; // do not clobber return value
             R_ECX = ctx->Ecx;
             R_EDX = ctx->Edx;
             R_FS = ctx->SegFs & 0xffff;
