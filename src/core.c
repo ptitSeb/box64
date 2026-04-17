@@ -497,6 +497,8 @@ void LoadLDPath(box64context_t *context)
             AddPath("/usr/lib/i386-linux-gnu", &context->box64_ld_lib, 1);
         if(FileExist("/usr/i386-linux-gnu/lib", 0))
             AddPath("/usr/i386-linux-gnu/lib", &context->box64_ld_lib, 1);
+        if(FileExist("/usr/i686-linux-gnu/lib", 0))
+            AddPath("/usr/i686-linux-gnu/lib", &context->box64_ld_lib, 1);
         if(FileExist("/usr/lib/box64-i386-linux-gnu", 0))
             AddPath("/usr/lib/box64-i386-linux-gnu", &context->box64_ld_lib, 1);
         if(FileExist("/opt/box64/lib32", 0))
