@@ -381,7 +381,7 @@ uintptr_t dynarec64_66F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         }
                         IFXORNAT (X_ALL | X_PEND) {
                             BSTRPICK_D(x6, x1, 15, 0);
-                            emit_add16(dyn, ninst, x6, gd, x3, x4, x5);
+                            emit_add16(dyn, ninst, x6, x5, x3, x4, x7);
                         }
                         BSTRINS_D(gd, x1, 15, 0);
                     }
