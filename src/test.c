@@ -508,7 +508,7 @@ static void setupZydis(box64context_t* context)
 #endif
 }
 
-static int runSingleTest(int argc, const char** argv, const char* include_path)
+static int runSingleTest(const char* filepath, const char* include_path)
 {
     box64_pagesize = sysconf(_SC_PAGESIZE);
     LoadEnvVariables();
@@ -528,10 +528,10 @@ static int runSingleTest(int argc, const char** argv, const char* include_path)
     if (!box64env.is_cputype_overridden && cputype) SET_BOX64ENV(cputype, cputype);
 
     PrintEnvVariables(&box64env, LOG_INFO);
-    my_context = NewBox64Context(argc - 1);
+    my_context = NewBox64Context(0);
 
-    loadTest(&argv[2], include_path); // will modify argv[2] to point to the binary file
-    my_context->fullpath = box_strdup(argv[2]);
+    loadTest(&filepath, include_path); // will modify filepath to point to the binary file
+    my_context->fullpath = box_strdup(filepath);
 
     FILE* f = fopen(my_context->fullpath, "rb");
     unlink(my_context->fullpath);
@@ -628,22 +628,42 @@ static int runSingleTest(int argc, const char** argv, const char* include_path)
 
 int unittest(int argc, const char** argv)
 {
-    if (argc < 3 || (strcmp(argv[1], "--test") && strcmp(argv[1], "-t"))) {
-        fprintf(stdout, "Usage: %s -t <filepath> [-i <include>]\n", argv[0]);
+    const char* filepath = NULL;
+    const char* include_path = NULL;
+    int combo_number = -1;  // -1 means run all
+
+    for (int i = 1; i < argc; i++) {
+        if (!strcmp(argv[i], "--test") || !strcmp(argv[i], "-t")) {
+            if (i + 1 < argc)
+                filepath = argv[++i];
+        } else if (!strcmp(argv[i], "--include") || !strcmp(argv[i], "-i")) {
+            if (i + 1 < argc)
+                include_path = argv[++i];
+        } else if (!strcmp(argv[i], "--number") || !strcmp(argv[i], "-n")) {
+            if (i + 1 < argc)
+                combo_number = atoi(argv[++i]);
+        }
+    }
+
+    if (!filepath) {
+        fprintf(stdout, "Usage: %s -t <filepath> [-i <include>] [-n <combo_number>]\n", argv[0]);
         return 0;
     }
 
-    const char* include_path = NULL;
-    if (argc > 4 && (!strcmp(argv[3], "-i") || !strcmp(argv[3], "--include"))) {
-        include_path = argv[4];
-    }
-
-    struct test_var_combos combos = getTestVariableCombos(argv[2]);
+    struct test_var_combos combos = getTestVariableCombos(filepath);
 
     int actual_total = 0;
     for (int c = 0; c < combos.total_combos; c++) {
         if (!shouldSkipCombo(&combos, c))
             actual_total++;
+    }
+
+    if (combo_number != -1) {
+        if (combo_number < 1 || combo_number > actual_total) {
+            fprintf(stderr, "[BOX64] Error: combination number %d is out of range (valid: 1-%d)\n", combo_number, actual_total);
+            freeTestVarCombos(&combos);
+            return 1;
+        }
     }
 
     int retcode = 0;
@@ -652,13 +672,15 @@ int unittest(int argc, const char** argv)
         if (shouldSkipCombo(&combos, c))
             continue;
         display_index++;
+        if (combo_number != -1 && display_index != combo_number)
+            continue;
         if (actual_total > 1)
             printTestVarCombo(&combos, c, display_index, actual_total);
         pid_t pid = fork();
         if (pid == 0) {
             applyTestVarCombo(&combos, c);
             freeTestVarCombos(&combos);
-            _exit(runSingleTest(argc, argv, include_path));
+            _exit(runSingleTest(filepath, include_path));
         } else if (pid > 0) {
             int status;
             waitpid(pid, &status, 0);
@@ -673,11 +695,12 @@ int unittest(int argc, const char** argv)
         }
     }
 
-    if (actual_total > 1) {
+    int combos_run = (combo_number != -1) ? 1 : actual_total;
+    if (combos_run > 1) {
         if (retcode == 0)
-            fprintf(stdout, "[BOX64] All %d combinations passed\n", actual_total);
+            fprintf(stdout, "[BOX64] All %d combinations passed\n", combos_run);
         else
-            fprintf(stdout, "[BOX64] %d out of %d combinations failed\n", retcode, actual_total);
+            fprintf(stdout, "[BOX64] %d out of %d combinations failed\n", retcode, combos_run);
     }
 
     freeTestVarCombos(&combos);
