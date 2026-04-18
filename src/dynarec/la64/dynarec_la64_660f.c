@@ -2531,16 +2531,19 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGWEW(x4, x5, 0);
             BNE_MARK(ed, xZR);
             IFX (X_ZF) ORI(xFlags, xFlags, 1 << F_ZF);
+            if (BOX64DRENV(dynarec_safeflags)) {
+                IFX (X_PF) ORI(xFlags, xFlags, 1 << F_PF);
+            }
             B_MARK2_nocond;
             MARK;
             IFXA (X_ZF, !BOX64DRENV(dynarec_safeflags))
                 BSTRINS_D(xFlags, xZR, F_ZF, F_ZF);
             CTZ_D(gd, ed);
             GWBACK;
-            MARK2;
             if (BOX64DRENV(dynarec_safeflags)) {
                 IFX (X_PF) emit_pf(dyn, ninst, gd, x1, x2);
             }
+            MARK2;
             IFX (X_ALL) SPILL_EFLAGS();
             break;
         case 0xBD:
@@ -2555,6 +2558,9 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGWEW(x4, x5, 0);
             BNE_MARK(ed, xZR);
             IFX (X_ZF) ORI(xFlags, xFlags, 1 << F_ZF);
+            if (BOX64DRENV(dynarec_safeflags)) {
+                IFX (X_PF) ORI(xFlags, xFlags, 1 << F_PF);
+            }
             B_MARK2_nocond;
             MARK;
             IFXA (X_ZF, !BOX64DRENV(dynarec_safeflags))
@@ -2563,10 +2569,10 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             ADDI_D(x1, xZR, 63);
             SUB_D(gd, x1, gd);
             GWBACK;
-            MARK2;
             if (BOX64DRENV(dynarec_safeflags)) {
                 IFX (X_PF) emit_pf(dyn, ninst, gd, x1, x2);
             }
+            MARK2;
             IFX (X_ALL) SPILL_EFLAGS();
             break;
         case 0xBE:
