@@ -58,6 +58,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
                 if (cpuext.lam_bh) {
                     AMADD_DB_B(x1, gd, wback);
+                    ANDI(x1, x1, 0xff);
                 } else {
                     LOCK_8_OP(ADD_D(x4, x1, gd), x1, wback, x3, x4, x5, x6);
                 }
@@ -1575,6 +1576,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
                         if (cpuext.lam_bh) {
                             AMADD_DB_B(x1, x7, wback);
+                            ANDI(x1, x1, 0xff);
                         } else {
                             LOCK_8_OP(ADD_D(x4, x1, x7), x1, wback, x3, x4, x5, x6);
                         }
@@ -1596,6 +1598,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
                         if (cpuext.lam_bh) {
                             AMADD_DB_B(x1, x7, wback);
+                            ANDI(x1, x1, 0xff);
                         } else {
                             LOCK_8_OP(ADD_D(x4, x1, x7), x1, wback, x3, x4, x5, x6);
                         }
