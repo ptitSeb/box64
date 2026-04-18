@@ -1675,7 +1675,7 @@ void emit_dec32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         }
     }
     IFX (X_SF) {
-        BSTRPICK_D(s5, s1, 31, 31);
+        BSTRPICK_D(s5, s1, rex.w ? 63 : 31, rex.w ? 63 : 31);
         BSTRINS_D(xFlags, s5, F_SF, F_SF);
     }
     if (!rex.w) ZEROUP(s1);
