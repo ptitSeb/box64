@@ -3382,7 +3382,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         // Push actual return address
                         if (addr < (dyn->start + dyn->isize)) {
                             // there is a next...
-                            if(BOX64DRENV(dynarec_callret)>1)
+                            if(BOX64DRENV(dynarec_callret)>1 && !dyn->always_test)
                                 j64 = CALLRET_GETRET();
                             else
                                 j64 = (dyn->insts) ? (dyn->insts[ninst].epilog - (dyn->native_size)) : 0;
@@ -4023,7 +4023,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         // Push actual return address
                         if (addr < (dyn->start + dyn->isize)) {
                             // there is a next
-                            if(BOX64DRENV(dynarec_callret)>1)
+                            if(BOX64DRENV(dynarec_callret)>1 && !dyn->always_test)
                                 j64 = CALLRET_GETRET();
                             else
                                 j64 = (dyn->insts) ? (dyn->insts[ninst].epilog - (dyn->native_size)) : 0;
@@ -4082,7 +4082,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             // Push actual return address. Note that CS will not be tested, but that should be ok?
                             if (can_continue) {
                                 // there is a next...
-                                if(BOX64DRENV(dynarec_callret)>1)
+                                if(BOX64DRENV(dynarec_callret)>1 && !dyn->always_test)
                                     j64 = CALLRET_GETRET();
                                 else
                                     j64 = (dyn->insts) ? (dyn->insts[ninst].epilog - (dyn->native_size)) : 0;
@@ -4090,7 +4090,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 ADDI_D(x4, x4, j64 & 0xfff);
                                 MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64 >> 2);
                             } else {
-                                if(BOX64DRENV(dynarec_callret)>1)
+                                if(BOX64DRENV(dynarec_callret)>1 && !dyn->always_test)
                                     j64 = CALLRET_GETRET();
                                 else
                                     j64 = (dyn->insts) ? (GETMARK - (dyn->native_size)) : 0;

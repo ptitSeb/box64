@@ -1147,7 +1147,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         // Push actual return address
                         if(can_continue) {
                             // there is a next...
-                            if(BOX64DRENV(dynarec_callret)>1)
+                            if(BOX64DRENV(dynarec_callret)>1 && !dyn->always_test)
                                 j64 = CALLRET_GETRET();
                             else
                                 j64 = (dyn->insts)?(GETMARK-(dyn->native_size)):0;
@@ -1714,7 +1714,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         // Push actual return address
                         if(addr < (dyn->start+dyn->isize)) {
                             // there is a next...
-                            if(BOX64DRENV(dynarec_callret)>1)
+                            if(BOX64DRENV(dynarec_callret)>1 && !dyn->always_test)
                                 j64 = CALLRET_GETRET();
                             else
                                 j64 = (dyn->insts)?(GETMARK-(dyn->native_size)):0;
@@ -1777,7 +1777,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             // Push actual return address
                             if(addr < (dyn->start+dyn->isize)) {
                                 // there is a next...
-                                if(BOX64DRENV(dynarec_callret)>1)
+                                if(BOX64DRENV(dynarec_callret)>1 && !dyn->always_test)
                                     j64 = CALLRET_GETRET();
                                 else
                                     j64 = (dyn->insts)?(GETMARK-(dyn->native_size)):0;
