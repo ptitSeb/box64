@@ -1,3 +1,50 @@
+v0.4.2
+======
+
+Highlights:
+* This version add lots on unconnected new things, like a PPC64LE backend, Vulkan overlay support or more Dynarec finetunning!
+    => Vulkan x64 overlay support. That means using the linux version of Steam, Fossilize & GameOverlayUI will work.
+    => Many dynarec refactors, especialy on ARM64 & LA64 with fixes to speed regression introduced with the the last 2 releases and improved compatibility.
+    => Support for SteamRT3 & new Proton 11
+    => New PCC64LE in the work. Not finished, but usable already. Note that the platform seems to use a 64k pagesize by default, so compatibility will suffer on this platformm.
+
+Version summary:
+
+* New RISC-V support for the script to denerate Debian .deb package
+* Improved the way system informations (like cpu brand and number of cores) is gathered and cpuid opcode handled
+* Improved support for Steam and new SteamRT3 64bit version
+* Elf: Improved handling of large pagesize (usefull for PPC64LE with its 64k pagesize)
+* Elf: Improved support for AppImage
+* Wrapping: Vulkan: Added support wor x64 overlay
+* Wrapping; Vulkan: Added BOX64_NOVULKANOVERLAY to disable x64 overlay handling
+* Wrapping: more wrapped functions, reworked some existing one with wrapperhelper
+* Wrapping: Added more wrapped libs
+* Wrapping: BOX32: more wrapped function and some fixes to existing ones
+* Wrapping: PPC64: Better handling of ioctl
+* Interpreter: Added a few more exotic opcodes
+* Dynarec: Added support for STRONGMEM=4
+* Dynarec: Improved TF flag handling
+* Dynarec: Reworked HotPage detection and handling
+* Dynarec: Reworked dynarec generation to batter handle abort mid-block
+* Dynarec: Rework how "Alt" addresses are handled
+* Dynarec: Removed BOX64_DYNAREC_HOTPAGE_ALT
+* Dynarec: Added support for Secondary Entry Point on dynablock when using CALLRET=1
+* Dynarec: Improve CALL FAR / RET FAR opcodes handling, adding CALLRET optimisation support
+* Dynarec: Improve IRET opcodes handling, adding CALLRET optimisation support
+* Dynarec: ARM64: Some new fixes for existing opcodes
+* Dynarec: ARM64: Reworked XMM/YMM register handling
+* Dynarec: ARM64: Reworked DIRTY=2 with AutoCRC Dynablock
+* Dynarec: LA64: Lots of new opcodes added & fixes
+* Dynarec: LA64: Added full support for SAFEFLAGS=2
+* Dynarec: LA64: Lots of fixes & improvements for FASTNAN=0
+* Dynarec: LA64: Refactor opcode printer
+* Dynarec: LA64: Reworked DIRTY=2 with AutoCRC Dynablock
+* Dynarec: LA64: Added CALLRET=2 support
+* Dynarec: RV64: A few fixes to existing opcodes
+* Dynarec: RV64: Added CALLRET=2 support
+* Dynarec: PPC64: Created a new backend for PPC64LE, with some opcodes already (still WIP)
+* WOWBOX64: Some small fixes
+
 v0.4.0
 ======
 

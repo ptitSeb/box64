@@ -1,3 +1,13 @@
+box64 (0.4.2) unstable; urgency=low
+
+This version add lots on unconnected new things, like a PPC64LE backend, Vulkan overlay support or more Dynarec finetunning.
+    => Vulkan x64 overlay support. That means using the linux version of Steam, Fossilize & GameOverlayUI will work.
+    => Many dynarec refactors, especialy on ARM64 & LA64 with fixes to speed regression introduced with the the last 2 releases and improved compatibility.
+    => Support for SteamRT3 & new Proton 11
+    => New PCC64LE in the work. Not finished, but should be usable already (but the platform seems to use a 64k pagesize by default, so compatibility will suffer on this platformm). Note that main Box64 mainteners don't have access to relevent hardware, so support will be limited.
+
+-- Sebastien Chevalier <ptitseb@box86.org>  Mon, 20 Apr 2026 10:30:33 -0100
+
 box64 (0.4.0) unstable; urgency=low
 
 This version added many important refactors: the opcode prefix decoder for Dynarec, libGL and Vulkan, the FSGSBASE support, making segments handling easier and faster.
