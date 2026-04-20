@@ -194,7 +194,7 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
                     tmp = (char*)(R_RDI);
                     snprintf(buff, 256, "%04d|%p: Calling %s(\"%s\", %p)", tid, *(void**)(R_RSP), s, (tmp)?tmp:"(nil)", (void*)(R_RSI));
                     perr = 1;
-                } else if (strstr(s, "mkdir")==s) {
+                } else if (!strcmp(s, "mkdir")) {
                     tmp = (char*)(R_RDI);
                     snprintf(buff, 256, "%04d|%p: Calling %s(\"%s\", %d)", tid, *(void**)(R_RSP), s, (tmp)?tmp:"(nil)", (int)(R_ESI));
                     perr = 1;
