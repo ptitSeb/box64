@@ -3538,7 +3538,7 @@ EXPORT void my___explicit_bzero_chk(x64emu_t* emu, void* dst, uint32_t len, uint
 
 EXPORT void* my_realpath(x64emu_t* emu, void* path, void* resolved_path)
 {
-    if(isProcSelf(path, "exe")) {
+    if(path && isProcSelf(path, "exe")) {
         return realpath(emu->context->fullpath, resolved_path);
     }
     return realpath(path, resolved_path);
