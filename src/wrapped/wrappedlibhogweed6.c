@@ -164,6 +164,32 @@ EXPORT int my_nettle_rsa_sec_decrypt(x64emu_t* emu, void* pub, void* key, void* 
     return my->nettle_rsa_sec_decrypt(pub, key, ctx, findnettle_random_funcFct(f), len, msg, s);
 }
 
+EXPORT int my_nettle_rsa_oaep_sha256_decrypt(x64emu_t* emu, void* pub, void* key, void* ctx, void* f, size_t len, void* label, void* length, void* msg, void* ciph)
+{
+    return my->nettle_rsa_oaep_sha256_decrypt(pub, key, ctx, findnettle_random_funcFct(f), len, label, length, msg, ciph);
+}
+EXPORT int my_nettle_rsa_oaep_sha384_decrypt(x64emu_t* emu, void* pub, void* key, void* ctx, void* f, size_t len, void* label, void* length, void* msg, void* ciph)
+{
+    return my->nettle_rsa_oaep_sha384_decrypt(pub, key, ctx, findnettle_random_funcFct(f), len, label, length, msg, ciph);
+}
+EXPORT int my_nettle_rsa_oaep_sha512_decrypt(x64emu_t* emu, void* pub, void* key, void* ctx, void* f, size_t len, void* label, void* length, void* msg, void* ciph)
+{
+    return my->nettle_rsa_oaep_sha512_decrypt(pub, key, ctx, findnettle_random_funcFct(f), len, label, length, msg, ciph);
+}
+
+EXPORT int my_nettle_rsa_oaep_sha256_encrypt(x64emu_t* emu, void* key, void* ctx, void* f, size_t label_len, void* label, size_t len, void* msg, void* ciph)
+{
+    return my->nettle_rsa_oaep_sha256_encrypt(key, ctx, findnettle_random_funcFct(f), label_len, label, len, msg, ciph);
+}
+EXPORT int my_nettle_rsa_oaep_sha384_encrypt(x64emu_t* emu, void* key, void* ctx, void* f, size_t label_len, void* label, size_t len, void* msg, void* ciph)
+{
+    return my->nettle_rsa_oaep_sha384_encrypt(key, ctx, findnettle_random_funcFct(f), label_len, label, len, msg, ciph);
+}
+EXPORT int my_nettle_rsa_oaep_sha512_encrypt(x64emu_t* emu, void* key, void* ctx, void* f, size_t label_len, void* label, size_t len, void* msg, void* ciph)
+{
+    return my->nettle_rsa_oaep_sha512_encrypt(key, ctx, findnettle_random_funcFct(f), label_len, label, len, msg, ciph);
+}
+
 #define NEEDED_LIBS "libnettle.so.8"
 
 #include "wrappedlib_init.h"

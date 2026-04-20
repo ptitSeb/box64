@@ -3662,6 +3662,7 @@
 #() iFEppuppppp
 #() iFEpppupppp
 #() iFEppplPPPP
+#() iFEpppLpLpp
 #() iFEppppLppp
 #() iFEpppppupp
 #() iFEppppppuu
@@ -3816,6 +3817,7 @@
 #() iFEpupppLppL
 #() iFEppiiiippp
 #() iFEppLuppupp
+#() iFEppppLpppp
 #() iFEppppppipp
 #() iFEpppppppip
 #() iFiuuupppppu
@@ -5994,12 +5996,20 @@ wrappedlibhogweed6:
   - nettle_dsa_generate_params
 - iFppppppp:
   - nettle_rsa_decrypt_tr
+- iFpppLpLpp:
+  - nettle_rsa_oaep_sha256_encrypt
+  - nettle_rsa_oaep_sha384_encrypt
+  - nettle_rsa_oaep_sha512_encrypt
 - iFppppLppp:
   - nettle_rsa_pss_sha256_sign_digest_tr
   - nettle_rsa_pss_sha384_sign_digest_tr
   - nettle_rsa_pss_sha512_sign_digest_tr
 - iFppppppuu:
   - nettle_rsa_generate_keypair
+- iFppppLpppp:
+  - nettle_rsa_oaep_sha256_decrypt
+  - nettle_rsa_oaep_sha384_decrypt
+  - nettle_rsa_oaep_sha512_decrypt
 wrappedlibibus:
 - vFpippp:
   - ibus_bus_current_input_context_async

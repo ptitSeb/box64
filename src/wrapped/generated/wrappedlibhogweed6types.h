@@ -18,8 +18,10 @@ typedef int32_t (*iFpppLpp_t)(void*, void*, void*, uintptr_t, void*, void*);
 typedef int32_t (*iFppppLpp_t)(void*, void*, void*, void*, uintptr_t, void*, void*);
 typedef int32_t (*iFpppppuu_t)(void*, void*, void*, void*, void*, uint32_t, uint32_t);
 typedef int32_t (*iFppppppp_t)(void*, void*, void*, void*, void*, void*, void*);
+typedef int32_t (*iFpppLpLpp_t)(void*, void*, void*, uintptr_t, void*, uintptr_t, void*, void*);
 typedef int32_t (*iFppppLppp_t)(void*, void*, void*, void*, uintptr_t, void*, void*, void*);
 typedef int32_t (*iFppppppuu_t)(void*, void*, void*, void*, void*, void*, uint32_t, uint32_t);
+typedef int32_t (*iFppppLpppp_t)(void*, void*, void*, void*, uintptr_t, void*, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(nettle_mpz_random_size, vFpppu_t) \
@@ -33,9 +35,15 @@ typedef int32_t (*iFppppppuu_t)(void*, void*, void*, void*, void*, void*, uint32
 	GO(nettle_rsa_sec_decrypt, iFppppLpp_t) \
 	GO(nettle_dsa_generate_params, iFpppppuu_t) \
 	GO(nettle_rsa_decrypt_tr, iFppppppp_t) \
+	GO(nettle_rsa_oaep_sha256_encrypt, iFpppLpLpp_t) \
+	GO(nettle_rsa_oaep_sha384_encrypt, iFpppLpLpp_t) \
+	GO(nettle_rsa_oaep_sha512_encrypt, iFpppLpLpp_t) \
 	GO(nettle_rsa_pss_sha256_sign_digest_tr, iFppppLppp_t) \
 	GO(nettle_rsa_pss_sha384_sign_digest_tr, iFppppLppp_t) \
 	GO(nettle_rsa_pss_sha512_sign_digest_tr, iFppppLppp_t) \
-	GO(nettle_rsa_generate_keypair, iFppppppuu_t)
+	GO(nettle_rsa_generate_keypair, iFppppppuu_t) \
+	GO(nettle_rsa_oaep_sha256_decrypt, iFppppLpppp_t) \
+	GO(nettle_rsa_oaep_sha384_decrypt, iFppppLpppp_t) \
+	GO(nettle_rsa_oaep_sha512_decrypt, iFppppLpppp_t)
 
 #endif // __wrappedlibhogweed6TYPES_H_
