@@ -2317,6 +2317,7 @@ typedef uint32_t (*uFippuuuuiiiiuuiiiiiiiipp_t)(int32_t, void*, void*, uint32_t,
 #if defined(HAVE_LD80BITS)
 typedef long double (*DED_t)(long double);
 typedef long double (*DFDi_t)(long double, int32_t);
+typedef long double (*DEDi_t)(long double, int32_t);
 typedef long double (*DEDD_t)(long double, long double);
 typedef long double (*DFDp_t)(long double, void*);
 typedef long double (*DEDp_t)(long double, void*);
@@ -2326,6 +2327,7 @@ typedef long double (*DEpBp_a_t)(void*, struct_p_t*, void*);
 #if !defined(HAVE_LD80BITS)
 typedef double (*KEK_t)(double);
 typedef double (*KFKi_t)(double, int32_t);
+typedef double (*KEKi_t)(double, int32_t);
 typedef double (*KEKK_t)(double, double);
 typedef double (*KFKp_t)(double, void*);
 typedef double (*KEKp_t)(double, void*);
@@ -4565,6 +4567,7 @@ void uFippuuuuiiiiuuiiiiiiiipp_32(x64emu_t *emu, uintptr_t fcn) { uFippuuuuiiiiu
 #if defined(HAVE_LD80BITS)
 void DED_32(x64emu_t *emu, uintptr_t fcn) { DED_t fn = (DED_t)fcn; errno = emu->libc_err; long double ld = fn(LD2localLD(from_ptrv(R_ESP + 4))); fpu_do_push(emu); ST0val = ld; emu->libc_err = errno; }
 void DFDi_32(x64emu_t *emu, uintptr_t fcn) { DFDi_t fn = (DFDi_t)fcn; long double ld = fn(LD2localLD(from_ptrv(R_ESP + 4)), from_ptri(int32_t, R_ESP + 16)); fpu_do_push(emu); ST0val = ld; }
+void DEDi_32(x64emu_t *emu, uintptr_t fcn) { DEDi_t fn = (DEDi_t)fcn; errno = emu->libc_err; long double ld = fn(LD2localLD(from_ptrv(R_ESP + 4)), from_ptri(int32_t, R_ESP + 16)); fpu_do_push(emu); ST0val = ld; emu->libc_err = errno; }
 void DEDD_32(x64emu_t *emu, uintptr_t fcn) { DEDD_t fn = (DEDD_t)fcn; errno = emu->libc_err; long double ld = fn(LD2localLD(from_ptrv(R_ESP + 4)), LD2localLD(from_ptrv(R_ESP + 16))); fpu_do_push(emu); ST0val = ld; emu->libc_err = errno; }
 void DFDp_32(x64emu_t *emu, uintptr_t fcn) { DFDp_t fn = (DFDp_t)fcn; long double ld = fn(LD2localLD(from_ptrv(R_ESP + 4)), from_ptriv(R_ESP + 16)); fpu_do_push(emu); ST0val = ld; }
 void DEDp_32(x64emu_t *emu, uintptr_t fcn) { DEDp_t fn = (DEDp_t)fcn; errno = emu->libc_err; long double ld = fn(LD2localLD(from_ptrv(R_ESP + 4)), from_ptriv(R_ESP + 16)); fpu_do_push(emu); ST0val = ld; emu->libc_err = errno; }
@@ -4574,6 +4577,7 @@ void DEpBp_a_32(x64emu_t *emu, uintptr_t fcn) { DEpBp_a_t fn = (DEpBp_a_t)fcn; e
 #if !defined(HAVE_LD80BITS)
 void KEK_32(x64emu_t *emu, uintptr_t fcn) { KEK_t fn = (KEK_t)fcn; errno = emu->libc_err; double db = fn(FromLD(from_ptrv(R_ESP + 4))); fpu_do_push(emu); ST0val = db; emu->libc_err = errno; }
 void KFKi_32(x64emu_t *emu, uintptr_t fcn) { KFKi_t fn = (KFKi_t)fcn; double db = fn(FromLD(from_ptrv(R_ESP + 4)), from_ptri(int32_t, R_ESP + 16)); fpu_do_push(emu); ST0val = db; }
+void KEKi_32(x64emu_t *emu, uintptr_t fcn) { KEKi_t fn = (KEKi_t)fcn; errno = emu->libc_err; double db = fn(FromLD(from_ptrv(R_ESP + 4)), from_ptri(int32_t, R_ESP + 16)); fpu_do_push(emu); ST0val = db; emu->libc_err = errno; }
 void KEKK_32(x64emu_t *emu, uintptr_t fcn) { KEKK_t fn = (KEKK_t)fcn; errno = emu->libc_err; double db = fn(FromLD(from_ptrv(R_ESP + 4)), FromLD(from_ptrv(R_ESP + 16))); fpu_do_push(emu); ST0val = db; emu->libc_err = errno; }
 void KFKp_32(x64emu_t *emu, uintptr_t fcn) { KFKp_t fn = (KFKp_t)fcn; double db = fn(FromLD(from_ptrv(R_ESP + 4)), from_ptriv(R_ESP + 16)); fpu_do_push(emu); ST0val = db; }
 void KEKp_32(x64emu_t *emu, uintptr_t fcn) { KEKp_t fn = (KEKp_t)fcn; errno = emu->libc_err; double db = fn(FromLD(from_ptrv(R_ESP + 4)), from_ptriv(R_ESP + 16)); fpu_do_push(emu); ST0val = db; emu->libc_err = errno; }
@@ -4632,6 +4636,7 @@ int isRetX87Wrapper32(wrapper_t fun) {
 #if defined(HAVE_LD80BITS)
 	if (fun == &DED_32) return 1;
 	if (fun == &DFDi_32) return 1;
+	if (fun == &DEDi_32) return 1;
 	if (fun == &DEDD_32) return 1;
 	if (fun == &DFDp_32) return 1;
 	if (fun == &DEDp_32) return 1;
@@ -4640,6 +4645,7 @@ int isRetX87Wrapper32(wrapper_t fun) {
 #if !defined(HAVE_LD80BITS)
 	if (fun == &KEK_32) return 1;
 	if (fun == &KFKi_32) return 1;
+	if (fun == &KEKi_32) return 1;
 	if (fun == &KEKK_32) return 1;
 	if (fun == &KFKp_32) return 1;
 	if (fun == &KEKp_32) return 1;

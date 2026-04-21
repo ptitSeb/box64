@@ -27,9 +27,9 @@ typedef int32_t (*iFWW_t)(uint16_t, uint16_t);
 typedef int32_t (*iFUU_t)(uint64_t, uint64_t);
 typedef int32_t (*iFpi_t)(void*, int32_t);
 typedef int32_t (*iFpp_t)(void*, void*);
-typedef uint32_t (*uFpW_t)(void*, uint16_t);
-typedef uint32_t (*uFpu_t)(void*, uint32_t);
-typedef uint32_t (*uFpU_t)(void*, uint64_t);
+typedef uintptr_t (*LFpW_t)(void*, uint16_t);
+typedef uintptr_t (*LFpu_t)(void*, uint32_t);
+typedef uintptr_t (*LFpU_t)(void*, uint64_t);
 typedef void* (*pFpi_t)(void*, int32_t);
 typedef void* (*pFpp_t)(void*, void*);
 typedef void (*vFipV_t)(int32_t, void*, ...);
@@ -42,7 +42,7 @@ typedef int64_t (*IFpIi_t)(void*, int64_t, int32_t);
 typedef void* (*pFupp_t)(uint32_t, void*, void*);
 typedef void* (*pFppi_t)(void*, void*, int32_t);
 typedef void* (*pFppp_t)(void*, void*, void*);
-typedef void (*vFpuup_t)(void*, uint32_t, uint32_t, void*);
+typedef void (*vFpLLp_t)(void*, uintptr_t, uintptr_t, void*);
 typedef int32_t (*iFpLpp_t)(void*, uintptr_t, void*, void*);
 typedef int32_t (*iFpLpV_t)(void*, uintptr_t, void*, ...);
 typedef uintptr_t (*LFppLL_t)(void*, void*, uintptr_t, uintptr_t);
@@ -100,13 +100,13 @@ typedef void* (*pFpippp_t)(void*, int32_t, void*, void*, void*);
 	GO(SDL_GameControllerAddMappingsFromRW, iFpi_t) \
 	GO(SDL_GetEventFilter, iFpp_t) \
 	GO(SDL_OpenAudio, iFpp_t) \
-	GO(SDL_WriteBE16, uFpW_t) \
-	GO(SDL_WriteLE16, uFpW_t) \
-	GO(SDL_WriteBE32, uFpu_t) \
-	GO(SDL_WriteLE32, uFpu_t) \
-	GO(SDL_WriteU8, uFpu_t) \
-	GO(SDL_WriteBE64, uFpU_t) \
-	GO(SDL_WriteLE64, uFpU_t) \
+	GO(SDL_WriteBE16, LFpW_t) \
+	GO(SDL_WriteLE16, LFpW_t) \
+	GO(SDL_WriteBE32, LFpu_t) \
+	GO(SDL_WriteLE32, LFpu_t) \
+	GO(SDL_WriteU8, LFpu_t) \
+	GO(SDL_WriteBE64, LFpU_t) \
+	GO(SDL_WriteLE64, LFpU_t) \
 	GO(SDL_LoadBMP_RW, pFpi_t) \
 	GO(SDL_RWFromConstMem, pFpi_t) \
 	GO(SDL_RWFromFP, pFpi_t) \
@@ -129,7 +129,7 @@ typedef void* (*pFpippp_t)(void*, int32_t, void*, void*, void*);
 	GO(SDL_AddTimer, pFupp_t) \
 	GO(SDL_LoadFile_RW, pFppi_t) \
 	GO(SDL_CreateThread, pFppp_t) \
-	GO(SDL_qsort, vFpuup_t) \
+	GO(SDL_qsort, vFpLLp_t) \
 	GO(SDL_vsnprintf, iFpLpp_t) \
 	GO(SDL_snprintf, iFpLpV_t) \
 	GO(SDL_RWread, LFppLL_t) \

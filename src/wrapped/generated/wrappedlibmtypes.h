@@ -13,13 +13,13 @@
 
 typedef int32_t (*iFv_t)(void);
 typedef int32_t (*iFi_t)(int32_t);
-typedef int32_t (*iFf_t)(float);
-typedef int32_t (*iFd_t)(double);
 typedef int32_t (*iFp_t)(void*);
 typedef int64_t (*IFf_t)(float);
 typedef int64_t (*IFd_t)(double);
 typedef float (*fFf_t)(float);
 typedef double (*dFd_t)(double);
+typedef intptr_t (*lFf_t)(float);
+typedef intptr_t (*lFd_t)(double);
 typedef float (*fFff_t)(float, float);
 typedef double (*dFdd_t)(double, double);
 
@@ -39,8 +39,6 @@ typedef double (*DFDD_t)(double, double);
 	GO(feraiseexcept, iFi_t) \
 	GO(fesetround, iFi_t) \
 	GO(fetestexcept, iFi_t) \
-	GO(lrintf, iFf_t) \
-	GO(lrint, iFd_t) \
 	GO(fesetenv, iFp_t) \
 	GO(feupdateenv, iFp_t) \
 	GO(llrintf, IFf_t) \
@@ -75,6 +73,8 @@ typedef double (*DFDD_t)(double, double);
 	GO(pow10, dFd_t) \
 	GO(rint, dFd_t) \
 	GO(pow10l, DFD_t) \
+	GO(lrintf, lFf_t) \
+	GO(lrint, lFd_t) \
 	GO(__atan2f_finite, fFff_t) \
 	GO(__fmodf_finite, fFff_t) \
 	GO(__hypotf_finite, fFff_t) \
