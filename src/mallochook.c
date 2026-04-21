@@ -774,7 +774,7 @@ EXPORT void* my_safer_scalable_aligned_realloc(void* p, size_t size, size_t alig
     void* new_p = actual_memalign(align, size);
     memcpy(new_p, p, (old_size<size)?old_size:size);
     actual_free(p);
-    return p;
+    return new_p;
 }
 
 EXPORT void my_safer_scalable_free(void*p , void* old)
@@ -822,7 +822,7 @@ EXPORT void* my_scalable_aligned_realloc(void* p, size_t size, size_t align)
     void* new_p = actual_memalign(align, size);
     memcpy(new_p, p, (old_size<size)?old_size:size);
     actual_free(p);
-    return p;
+    return new_p;
 }
 
 EXPORT size_t my_scalable_msize(void* p)
