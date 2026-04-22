@@ -10,7 +10,7 @@ GO(oggpack_adv, vFpi)
 //GO(oggpackB_adv, 
 //GO(oggpackB_adv1, 
 //GO(oggpackB_bits, 
-GO(oggpackB_bytes, iFp)
+GO(oggpackB_bytes, lFp)
 GO(oggpackB_get_buffer, pFp)
 //GO(oggpack_bits, 
 //GO(oggpackB_look, 
@@ -35,7 +35,7 @@ GO(oggpack_read, lFpi)
 //GO(oggpack_read1, 
 GO(oggpack_readinit, vFppi)
 GO(oggpack_reset, vFp)
-GO(oggpack_write, vFpui)
+GO(oggpack_write, vFpLi)
 //GO(oggpack_writealign, 
 //GO(oggpack_writecheck, 
 GO(oggpack_writeclear, vFp)
@@ -67,7 +67,7 @@ GO(ogg_stream_pageout, iFpp)
 //GO(ogg_stream_pageout_fill, 
 GO(ogg_stream_reset, iFp)
 GO(ogg_stream_reset_serialno, iFpi)
-GO(ogg_sync_buffer, pFpi)
+GO(ogg_sync_buffer, pFpl)
 //GO(ogg_sync_check, 
 GO(ogg_sync_clear, iFp)
 //GO(ogg_sync_destroy, 
@@ -75,4 +75,4 @@ GO(ogg_sync_init, iFp)
 GO(ogg_sync_pageout, iFpp)
 GO(ogg_sync_pageseek, iFpp)
 GO(ogg_sync_reset, iFp)
-GO(ogg_sync_wrote, iFpi)
+GO(ogg_sync_wrote, iFpl)

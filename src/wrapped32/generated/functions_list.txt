@@ -67,6 +67,7 @@
 #() uEu -> uEu
 #() uFu -> uFu
 #() uEU -> uEU
+#() uFl -> uFl
 #() uEp -> uEp
 #() uFp -> uFp
 #() uES -> uES
@@ -710,6 +711,7 @@
 #() dEddp -> dEddp
 #() lEEuV -> lEEuV
 #() lFEpi -> lFEpi
+#() lFEpp -> lFEpp
 #() lEili -> lEili
 #() lEipi -> lEipi
 #() lEipL -> lEipL
@@ -920,6 +922,7 @@
 #() vEEpup -> vEEpup
 #() vFEpup -> vFEpup
 #() vFEpll -> vFEpll
+#() vFEpLi -> vFEpLi
 #() vFEppi -> vFEppi
 #() vEEppp -> vEEppp
 #() vFEppp -> vFEppp
@@ -3049,6 +3052,7 @@ wrappedlibogg:
   - ogg_sync_buffer
 - vFpui:
   - oggpackB_write
+- vFpLi:
   - oggpack_write
 - vFppi:
   - oggpackB_readinit
@@ -3215,13 +3219,14 @@ wrappedlibvorbis:
   - vorbis_block_init
   - vorbis_comment_query_count
   - vorbis_commentheader_out
-  - vorbis_packet_blocksize
   - vorbis_synthesis
   - vorbis_synthesis_blockin
   - vorbis_synthesis_init
   - vorbis_synthesis_lapout
   - vorbis_synthesis_pcmout
   - vorbis_synthesis_trackonly
+- lFpp:
+  - vorbis_packet_blocksize
 - pFpi:
   - vorbis_analysis_buffer
   - vorbis_window

@@ -23,7 +23,7 @@ GO(curl_free, vFp)
 //GO(curl_getdate, 
 //GO(curl_getenv, 
 GO(curl_global_cleanup, vFv)
-GO(curl_global_init, uFu)
+GO(curl_global_init, uFl)
 GOM(curl_global_init_mem, iFElppppp)
 GO(curl_global_sslset, uFupp)
 // GO(curl_maprintf,

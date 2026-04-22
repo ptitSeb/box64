@@ -81,7 +81,7 @@ GO(vorbis_info_init, vFp)
 //GO(vorbis_lpc_predict, 
 //GO(vorbis_lpc_to_lsp, 
 //GO(vorbis_lsp_to_curve, 
-GO(vorbis_packet_blocksize, iFpp)
+GO(vorbis_packet_blocksize, lFpp)
 //GO(vorbis_staticbook_destroy, 
 //GO(vorbis_staticbook_pack, 
 //GO(vorbis_staticbook_unpack, 

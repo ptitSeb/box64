@@ -16,6 +16,7 @@ typedef int32_t (*iFp_t)(void*);
 typedef void (*vFpp_t)(void*, void*);
 typedef int32_t (*iFpi_t)(void*, int32_t);
 typedef int32_t (*iFpp_t)(void*, void*);
+typedef intptr_t (*lFpp_t)(void*, void*);
 typedef void* (*pFpi_t)(void*, int32_t);
 typedef void (*vFppp_t)(void*, void*, void*);
 typedef int32_t (*iFppp_t)(void*, void*, void*);
@@ -45,13 +46,13 @@ typedef int32_t (*iFppppp_t)(void*, void*, void*, void*, void*);
 	GO(vorbis_block_init, iFpp_t) \
 	GO(vorbis_comment_query_count, iFpp_t) \
 	GO(vorbis_commentheader_out, iFpp_t) \
-	GO(vorbis_packet_blocksize, iFpp_t) \
 	GO(vorbis_synthesis, iFpp_t) \
 	GO(vorbis_synthesis_blockin, iFpp_t) \
 	GO(vorbis_synthesis_init, iFpp_t) \
 	GO(vorbis_synthesis_lapout, iFpp_t) \
 	GO(vorbis_synthesis_pcmout, iFpp_t) \
 	GO(vorbis_synthesis_trackonly, iFpp_t) \
+	GO(vorbis_packet_blocksize, lFpp_t) \
 	GO(vorbis_analysis_buffer, pFpi_t) \
 	GO(vorbis_window, pFpi_t) \
 	GO(vorbis_comment_add_tag, vFppp_t) \

@@ -67,6 +67,7 @@
 #() uFu
 #() uFU
 #() uFd
+#() uFl
 #() uFL
 #() uFp
 #() uFS
@@ -3165,7 +3166,6 @@
 #() iFpLppiii
 #() iFpLppiip
 #() iFppiiiii
-#() iFppiiiip
 #() iFppiiLll
 #() iFppiipii
 #() iFppiipiL
@@ -3252,6 +3252,7 @@
 #() fFppppppL
 #() dFpppppLL
 #() dFppppppL
+#() lFppiiiip
 #() lFpppplpl
 #() LFEppLppU
 #() LFEpppppu
@@ -3820,7 +3821,6 @@
 #() iFEpiiiiippp
 #() iFEpuppupppp
 #() iFEpupppLppL
-#() iFEppiiiippp
 #() iFEppLuppupp
 #() iFEppppLpppp
 #() iFEppppppipp
@@ -3856,6 +3856,7 @@
 #() UFbuuiiWWiiW
 #() UFbuuuwwwwWW
 #() UFbuuuWCCCWp
+#() lFEppiiiippp
 #() lFpLppdddddd
 #() pFEiuppppppp
 #() pFEpiipWWupp
@@ -7323,7 +7324,7 @@ wrappedvorbisfile:
 - iFppplPPPP:
   - ov_open_callbacks
   - ov_test_callbacks
-- iFppiiiippp:
+- lFppiiiippp:
   - ov_read_filter
 wrappedvulkan:
 - vFpp:
