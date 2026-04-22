@@ -2003,7 +2003,7 @@ GO(EVP_PKEY_CTX_set_app_data, vFpp)
 //GO(EVP_PKEY_delete_attr, 
 GO(EVP_PKEY_derive, iFppp)
 GO(EVP_PKEY_derive_init, iFp)
-GO(EVP_PKEY_derive_set_peer, iFppi)
+GO(EVP_PKEY_derive_set_peer, iFpp)
 //GO(EVP_PKEY_encrypt, 
 //GO(EVP_PKEY_encrypt_init, 
 //GO(EVP_PKEY_encrypt_old, 
@@ -2059,7 +2059,7 @@ GO(EVP_PKEY_set1_RSA, iFpp)
 //GO(evp_pkey_set_cb_translate, 
 //GO(EVP_PKEY_set_type, 
 //GO(EVP_PKEY_set_type_str, 
-GO(EVP_PKEY_sign, iFppppp)
+GO(EVP_PKEY_sign, iFppppL)
 GO(EVP_PKEY_sign_init, iFp)
 //GO(EVP_PKEY_size, 
 GO(EVP_PKEY_type, iFi)
@@ -2146,7 +2146,7 @@ GO(HMAC_CTX_free, vFp)
 GO(HMAC_Init, iFppip)
 GO(HMAC_Init_ex, iFppipp)
 GO(HMAC_CTX_new, pFv)
-GO(HMAC_Update, iFppi)
+GO(HMAC_Update, iFppL)
 //GO(i2a_ACCESS_DESCRIPTION, 
 //GO(i2a_ASN1_ENUMERATED, 
 //GO(i2a_ASN1_INTEGER, 
@@ -2430,13 +2430,13 @@ GO(i2t_ASN1_OBJECT, iFpip)
 GO(MD4_Final, iFpp)
 GO(MD4_Init, iFp)
 //GO(MD4_Transform, 
-GO(MD4_Update, iFppu)
+GO(MD4_Update, iFppL)
 GO(MD5, pFpLp)
 //GO(md5_block_data_order, 
 GO(MD5_Final, iFpp)
 GO(MD5_Init, iFp)
 GO(MD5_Transform, vFpp)
-GO(MD5_Update, iFppu)
+GO(MD5_Update, iFppL)
 //GO(MDC2, 
 //GO(MDC2_Final, 
 //GO(MDC2_Init, 

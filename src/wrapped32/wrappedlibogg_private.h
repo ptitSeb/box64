@@ -33,7 +33,7 @@ GOM(oggpack_read, lFEpi)
 //GO(oggpack_read1,
 GOM(oggpack_readinit, vFEppi)
 GOM(oggpack_reset, vFEp)
-GOM(oggpack_write, vFEpui)
+GOM(oggpack_write, vFEpLi)
 //GO(oggpack_writealign,
 GOM(oggpack_writecheck, iFEp)
 GOM(oggpack_writeclear, vFEp)

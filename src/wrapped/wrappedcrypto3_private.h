@@ -2243,7 +2243,7 @@ GO(HMAC_CTX_set_flags, vFpL)
 GO(HMAC_Final, iFppp)
 GO(HMAC_Init, iFppip)
 GO(HMAC_Init_ex, iFppipp)
-GO(HMAC_Update, iFppi)
+GO(HMAC_Update, iFppL)
 //GO(i2a_ACCESS_DESCRIPTION, 
 GO(i2a_ASN1_ENUMERATED, iFpp)
 GO(i2a_ASN1_INTEGER, iFpp)
@@ -2528,7 +2528,7 @@ GO(ISSUING_DIST_POINT_it, pFv)
 GO(MD4_Final, iFpp)
 GO(MD4_Init, iFp)
 //GO(MD4_Transform, 
-GO(MD4_Update, iFppu)
+GO(MD4_Update, iFppL)
 GO(MD5, pFpLp)
 //GO(md5_block_data_order, 
 GO(MD5_Final, iFpp)

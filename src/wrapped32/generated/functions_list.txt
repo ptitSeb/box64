@@ -67,6 +67,7 @@
 #() uEu -> uEu
 #() uFu -> uFu
 #() uEU -> uEU
+#() uFl -> uFl
 #() uEp -> uEp
 #() uFp -> uFp
 #() uES -> uES
@@ -710,6 +711,7 @@
 #() dEddp -> dEddp
 #() lEEuV -> lEEuV
 #() lFEpi -> lFEpi
+#() lFEpp -> lFEpp
 #() lEili -> lEili
 #() lEipi -> lEipi
 #() lEipL -> lEipL
@@ -920,6 +922,7 @@
 #() vEEpup -> vEEpup
 #() vFEpup -> vFEpup
 #() vFEpll -> vFEpll
+#() vFEpLi -> vFEpLi
 #() vFEppi -> vFEppi
 #() vEEppp -> vEEppp
 #() vFEppp -> vFEppp
@@ -2221,12 +2224,14 @@
 #() uFippuuuuiiiiuuiiiiiiiipp -> uFippuuuuiiiiuuiiiiiiiipp
 #defined(HAVE_LD80BITS) DED -> DED
 #defined(HAVE_LD80BITS) DFDi -> DFDi
+#defined(HAVE_LD80BITS) DEDi -> DEDi
 #defined(HAVE_LD80BITS) DEDD -> DEDD
 #defined(HAVE_LD80BITS) DFDp -> DFDp
 #defined(HAVE_LD80BITS) DEDp -> DEDp
 #defined(HAVE_LD80BITS) DEpBp_a -> DEpBa
 #!defined(HAVE_LD80BITS) KEK -> KEK
 #!defined(HAVE_LD80BITS) KFKi -> KFKi
+#!defined(HAVE_LD80BITS) KEKi -> KEKi
 #!defined(HAVE_LD80BITS) KEKK -> KEKK
 #!defined(HAVE_LD80BITS) KFKp -> KFKp
 #!defined(HAVE_LD80BITS) KEKp -> KEKp
@@ -2969,7 +2974,6 @@ wrappedlibm:
   - cbrtl
   - erfcl
   - erfl
-  - ldexpl
   - lgammal
   - logl
   - pow10l
@@ -2982,6 +2986,8 @@ wrappedlibm:
   - __atan2_finite
   - __hypot_finite
   - __pow_finite
+- KEKi:
+  - ldexpl
 - KEKK:
   - fmodl
   - powl
@@ -3046,6 +3052,7 @@ wrappedlibogg:
   - ogg_sync_buffer
 - vFpui:
   - oggpackB_write
+- vFpLi:
   - oggpack_write
 - vFppi:
   - oggpackB_readinit
@@ -3212,13 +3219,14 @@ wrappedlibvorbis:
   - vorbis_block_init
   - vorbis_comment_query_count
   - vorbis_commentheader_out
-  - vorbis_packet_blocksize
   - vorbis_synthesis
   - vorbis_synthesis_blockin
   - vorbis_synthesis_init
   - vorbis_synthesis_lapout
   - vorbis_synthesis_pcmout
   - vorbis_synthesis_trackonly
+- lFpp:
+  - vorbis_packet_blocksize
 - pFpi:
   - vorbis_analysis_buffer
   - vorbis_window

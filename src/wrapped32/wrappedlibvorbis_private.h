@@ -81,7 +81,7 @@ GOM(vorbis_info_init, vFEp)
 //GO(vorbis_lpc_predict, 
 //GO(vorbis_lpc_to_lsp, 
 //GO(vorbis_lsp_to_curve, 
-GOM(vorbis_packet_blocksize, iFEpp)
+GOM(vorbis_packet_blocksize, lFEpp)
 //GO(vorbis_staticbook_destroy, 
 //GO(vorbis_staticbook_pack, 
 //GO(vorbis_staticbook_unpack, 

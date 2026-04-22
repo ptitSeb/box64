@@ -18,6 +18,7 @@ typedef long double (*DED_t)(long double);
 typedef double (*KEK_t)(double);
 typedef float (*fEff_t)(float, float);
 typedef double (*dEdd_t)(double, double);
+typedef double (*KEKi_t)(double, int32_t);
 typedef double (*KEKK_t)(double, double);
 typedef double (*KEKp_t)(double, void*);
 typedef uint64_t (*UEsvvs_t)(void*, void, void, void*);
@@ -70,7 +71,6 @@ typedef uint64_t (*UEsvvs_t)(void*, void, void, void*);
 	GO(cbrtl, KEK_t) \
 	GO(erfcl, KEK_t) \
 	GO(erfl, KEK_t) \
-	GO(ldexpl, KEK_t) \
 	GO(lgammal, KEK_t) \
 	GO(logl, KEK_t) \
 	GO(pow10l, KEK_t) \
@@ -81,6 +81,7 @@ typedef uint64_t (*UEsvvs_t)(void*, void, void, void*);
 	GO(__atan2_finite, dEdd_t) \
 	GO(__hypot_finite, dEdd_t) \
 	GO(__pow_finite, dEdd_t) \
+	GO(ldexpl, KEKi_t) \
 	GO(fmodl, KEKK_t) \
 	GO(powl, KEKK_t) \
 	GO(frexpl, KEKp_t) \

@@ -35,7 +35,7 @@ GO(FT_Face_GetCharVariantIndex, uFpLL)
 GO(FT_Face_Properties, iFpup)
 //GO(FT_Face_SetUnpatentedHinting, 
 GO(FT_FloorFix, lFl)
-GO(FT_Get_Advance, iFpiup)
+GO(FT_Get_Advance, iFpuip)
 GO(FT_Get_Advances, iFpuuip)
 //GO(FT_Get_BDF_Charset_ID,
 GO(FT_Get_BDF_Property, iFppp)

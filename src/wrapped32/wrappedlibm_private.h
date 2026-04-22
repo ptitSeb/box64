@@ -276,9 +276,9 @@ GO(jnf, fEif)
 GOW(ldexp, dEdi)
 GOW(ldexpf, fEfi)
 #ifdef HAVE_LD80BITS
-GOW(ldexpl, DED)
+GOW(ldexpl, DEDi)
 #else
-GOW2(ldexpl, KEK, ldexp)
+GOW2(ldexpl, KEKi, ldexp)
 #endif
 GOW(lgamma, dEd)
 GOW(lgammaf, fEf)

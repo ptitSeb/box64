@@ -67,6 +67,7 @@
 #() uFu
 #() uFU
 #() uFd
+#() uFl
 #() uFL
 #() uFp
 #() uFS
@@ -81,12 +82,14 @@
 #() fFu
 #() fFf
 #() fFp
+#() fFx
 #() dFv
 #() dFi
 #() dFu
 #() dFd
 #() dFL
 #() dFp
+#() dFX
 #() DFD
 #() DFY
 #() lFE
@@ -199,8 +202,6 @@
 #() wFpi
 #() iFEi
 #() iFEu
-#() iFEf
-#() iFEd
 #() iFEp
 #() iFwp
 #() iFii
@@ -318,6 +319,7 @@
 #() fFfi
 #() fFff
 #() fFfD
+#() fFfl
 #() fFfp
 #() fFpi
 #() fFpu
@@ -331,6 +333,7 @@
 #() dFdi
 #() dFdd
 #() dFdD
+#() dFdl
 #() dFdp
 #() dFll
 #() dFpi
@@ -344,11 +347,12 @@
 #() DFDp
 #() DFpp
 #() lFEi
+#() lFEf
+#() lFEd
 #() lFii
 #() lFiL
 #() lFip
 #() lFui
-#() lFDD
 #() lFll
 #() lFpi
 #() lFpu
@@ -797,7 +801,6 @@
 #() fFffp
 #() fFlpl
 #() fFppi
-#() fFppL
 #() fFppp
 #() dFuud
 #() dFddd
@@ -832,6 +835,9 @@
 #() lFppp
 #() lFppS
 #() lFSpl
+#() LFEpW
+#() LFEpu
+#() LFEpU
 #() LFEpp
 #() LFEpA
 #() LFipL
@@ -1303,7 +1309,6 @@
 #() iFpupl
 #() iFpupL
 #() iFpupp
-#() iFpupV
 #() iFpUup
 #() iFpUUu
 #() iFpUpp
@@ -1335,6 +1340,7 @@
 #() iFpLpD
 #() iFpLpL
 #() iFpLpp
+#() iFpLpV
 #() iFppcc
 #() iFppii
 #() iFppiI
@@ -1374,6 +1380,7 @@
 #() iFpppu
 #() iFpppU
 #() iFpppd
+#() iFpppl
 #() iFpppL
 #() iFpppp
 #() iFpONN
@@ -1712,7 +1719,6 @@
 #() vFEippp
 #() vFEpipV
 #() vFEpipA
-#() vFEpuup
 #() vFEpuuV
 #() vFEpuuA
 #() vFEpupp
@@ -3160,7 +3166,6 @@
 #() iFpLppiii
 #() iFpLppiip
 #() iFppiiiii
-#() iFppiiiip
 #() iFppiiLll
 #() iFppiipii
 #() iFppiipiL
@@ -3247,6 +3252,7 @@
 #() fFppppppL
 #() dFpppppLL
 #() dFppppppL
+#() lFppiiiip
 #() lFpppplpl
 #() LFEppLppU
 #() LFEpppppu
@@ -3815,7 +3821,6 @@
 #() iFEpiiiiippp
 #() iFEpuppupppp
 #() iFEpupppLppL
-#() iFEppiiiippp
 #() iFEppLuppupp
 #() iFEppppLpppp
 #() iFEppppppipp
@@ -3851,6 +3856,7 @@
 #() UFbuuiiWWiiW
 #() UFbuuuwwwwWW
 #() UFbuuuWCCCWp
+#() lFEppiiiippp
 #() lFpLppdddddd
 #() pFEiuppppppp
 #() pFEpiipWWupp
@@ -6043,10 +6049,6 @@ wrappedlibm:
   - feraiseexcept
   - fesetround
   - fetestexcept
-- iFf:
-  - lrintf
-- iFd:
-  - lrint
 - iFp:
   - fesetenv
   - feupdateenv
@@ -6088,6 +6090,10 @@ wrappedlibm:
   - rint
 - DFD:
   - pow10l
+- lFf:
+  - lrintf
+- lFd:
+  - lrint
 - fFff:
   - __atan2f_finite
   - __fmodf_finite
@@ -7053,14 +7059,14 @@ wrappedsdl2:
 - iFpp:
   - SDL_GetEventFilter
   - SDL_OpenAudio
-- uFpW:
+- LFpW:
   - SDL_WriteBE16
   - SDL_WriteLE16
-- uFpu:
+- LFpu:
   - SDL_WriteBE32
   - SDL_WriteLE32
   - SDL_WriteU8
-- uFpU:
+- LFpU:
   - SDL_WriteBE64
   - SDL_WriteLE64
 - pFpi:
@@ -7097,7 +7103,7 @@ wrappedsdl2:
   - SDL_LoadFile_RW
 - pFppp:
   - SDL_CreateThread
-- vFpuup:
+- vFpLLp:
   - SDL_qsort
 - iFpLpp:
   - SDL_vsnprintf
@@ -7318,7 +7324,7 @@ wrappedvorbisfile:
 - iFppplPPPP:
   - ov_open_callbacks
   - ov_test_callbacks
-- iFppiiiippp:
+- lFppiiiippp:
   - ov_read_filter
 wrappedvulkan:
 - vFpp:

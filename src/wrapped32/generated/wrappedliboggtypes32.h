@@ -23,6 +23,7 @@ typedef int32_t (*iFpp_t)(void*, void*);
 typedef intptr_t (*lFpi_t)(void*, int32_t);
 typedef void* (*pFpi_t)(void*, int32_t);
 typedef void (*vFpui_t)(void*, uint32_t, int32_t);
+typedef void (*vFpLi_t)(void*, uintptr_t, int32_t);
 typedef void (*vFppi_t)(void*, void*, int32_t);
 typedef int32_t (*iFppi_t)(void*, void*, int32_t);
 
@@ -70,7 +71,7 @@ typedef int32_t (*iFppi_t)(void*, void*, int32_t);
 	GO(oggpack_read, lFpi_t) \
 	GO(ogg_sync_buffer, pFpi_t) \
 	GO(oggpackB_write, vFpui_t) \
-	GO(oggpack_write, vFpui_t) \
+	GO(oggpack_write, vFpLi_t) \
 	GO(oggpackB_readinit, vFppi_t) \
 	GO(oggpack_readinit, vFppi_t) \
 	GO(ogg_stream_flush_fill, iFppi_t) \
