@@ -31,6 +31,8 @@ You may add as many `-I` options as needed. The folders `include-override/<arch>
 
 You may also use the `-32` and `-64` switches to generate `box32` or `box64` files respectively. Alterately, you can use the `--emu arch` and `--target arch` options to select more precisely the emlated and executing platforms, though only `x86`, `x86_64` and `aarch64` are supported for now. By default, everything is as if `-64` was supplied.
 
+Use the `--check-only` switch to restrict the run to only checking and correcting entries that already have a type signature. Entries without a type are left untouched.
+
 The first file is a `C` file containing every declaration required. The second file is the "requests" input. The third file is the output file, which may be a different file.
 
 The support file may contain pragma declarations of the form

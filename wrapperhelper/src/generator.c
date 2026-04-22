@@ -233,7 +233,7 @@ static const char *rqt_suffix[8] = {
 	[RQT_DATAM] = "M",
 };
 
-static void request_output(FILE *f, const request_t *req) {
+static void request_output(FILE *f, const request_t *req, int check_only) {
 	if (!req->has_val) {
 		if (IS_RQT_FUNCTION(req->def.rty)) {
 			if (!req->def.fun.typ) {
@@ -258,7 +258,7 @@ static void request_output(FILE *f, const request_t *req) {
 					valid_reqtype(req->def.fun.typ) ? "" : "\"",
 					IS_RQT_FUN2(req->def.rty) ? ", " : "",
 					IS_RQT_FUN2(req->def.rty) ? string_content(req->def.fun.fun2) : "",
-					(req->ignored || req->default_comment) ? "" : " // Warning: failed to confirm");
+					(req->ignored || req->default_comment || check_only) ? "" : " // Warning: failed to confirm");
 			}
 		} else {
 			if (req->def.dat.has_size) {
@@ -268,7 +268,7 @@ static void request_output(FILE *f, const request_t *req) {
 					rqt_suffix[req->def.rty],
 					string_content(req->obj_name),
 					req->def.dat.sz,
-					(req->ignored || req->default_comment) ? "" : " // Warning: failed to confirm");
+					(req->ignored || req->default_comment || check_only) ? "" : " // Warning: failed to confirm");
 			} else {
 				fprintf(f, "//DATA%s%s(%s, \n",
 					req->weak ? "V" : "",
@@ -310,10 +310,10 @@ static void request_output(FILE *f, const request_t *req) {
 		}
 	}
 }
-static void reference_output(FILE *f, const reference_t *ref) {
+static void reference_output(FILE *f, const reference_t *ref, int check_only) {
 	switch (ref->typ) {
 	case REF_REQ:
-		request_output(f, &ref->req);
+		request_output(f, &ref->req, check_only);
 		break;
 	case REF_LINE:
 		fputs(string_content(ref->line), f);
@@ -333,10 +333,10 @@ static void reference_output(FILE *f, const reference_t *ref) {
 		break;
 	}
 }
-void output_from_references(FILE *f, const VECTOR(references) *refs) {
+void output_from_references(FILE *f, const VECTOR(references) *refs, int check_only) {
 	fprintf(f, "#if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))\n#error Meh...\n#endif\n");
 	vector_for(references, ref, refs) {
-		reference_output(f, ref);
+		reference_output(f, ref, check_only);
 	}
 }
 
@@ -1178,13 +1178,17 @@ int solve_request_map_simple(request_t *req, khash_t(decl_map) *emu_decl_map, kh
 	}
 	return 0;
 }
-int solve_references_simple(VECTOR(references) *refs, khash_t(decl_map) *emu_decl_map, khash_t(decl_map) *target_decl_map, khash_t(conv_map) *conv_map) {
+int solve_references_simple(VECTOR(references) *refs, khash_t(decl_map) *emu_decl_map, khash_t(decl_map) *target_decl_map, khash_t(conv_map) *conv_map, int check_only) {
 	int ret = 1;
 	int cond_depth = 0, ok_depth = 0;
 	vector_for(references, ref, refs) {
 		switch (ref->typ) {
 		case REF_REQ:
 			if (ok_depth == cond_depth) {
+				if (check_only && (
+				    (IS_RQT_FUNCTION(ref->req.def.rty) && !ref->req.def.fun.typ) ||
+				    (!IS_RQT_FUNCTION(ref->req.def.rty) && !ref->req.def.dat.has_size)
+				)) break;
 				if (!solve_request_map_simple(&ref->req, emu_decl_map, target_decl_map, conv_map)) ret = 0;
 			} else {
 				ref->req.ignored = 1;
@@ -1861,13 +1865,17 @@ int solve_request_map(request_t *req, khash_t(decl_map) *emu_decl_map, khash_t(d
 	}
 	return 0;
 }
-int solve_references(VECTOR(references) *refs, khash_t(decl_map) *emu_decl_map, khash_t(decl_map) *target_decl_map, khash_t(conv_map) *conv_map) {
+int solve_references(VECTOR(references) *refs, khash_t(decl_map) *emu_decl_map, khash_t(decl_map) *target_decl_map, khash_t(conv_map) *conv_map, int check_only) {
 	int ret = 1;
 	int cond_depth = 0, ok_depth = 0;
 	vector_for(references, ref, refs) {
 		switch (ref->typ) {
 		case REF_REQ:
 			if (ok_depth == cond_depth) {
+				if (check_only && (
+				    (IS_RQT_FUNCTION(ref->req.def.rty) && !ref->req.def.fun.typ) ||
+				    (!IS_RQT_FUNCTION(ref->req.def.rty) && !ref->req.def.dat.has_size)
+				)) break;
 				if (!solve_request_map(&ref->req, emu_decl_map, target_decl_map, conv_map)) ret = 0;
 			} else {
 				ref->req.ignored = 1;

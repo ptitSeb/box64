@@ -14,12 +14,13 @@
 static void help(char *arg0) {
 	printf("Usage: %s --help\n"
 	       "       %s {-I/path/to/include}* [--gst] [--prepare|--preproc|--proc] [--arch <arch>|-32|-64|--32|--64] <filename_in>\n"
-	       "       %s {-I/path/to/include}* [--gst] [[--emu <arch>] [--target <arch>]|-32|-64|--32|--64] <filename_in> <filename_reqs> <filename_out>\n"
+	       "       %s {-I/path/to/include}* [--gst] [--check-only] [[--emu <arch>] [--target <arch>]|-32|-64|--32|--64] <filename_in> <filename_reqs> <filename_out>\n"
 	       "\n"
-	       "  --prepare  Dump all preprocessor tokens (prepare phase)\n"
-	       "  --preproc  Dump all processor tokens (preprocessor phase)\n"
-	       "  --proc     Dump all typedefs, declarations and constants (processor phase, default)\n"
-	       "  -I         Add a path to the list of system includes\n"
+	       "  --prepare     Dump all preprocessor tokens (prepare phase)\n"
+	       "  --preproc     Dump all processor tokens (preprocessor phase)\n"
+	       "  --proc        Dump all typedefs, declarations and constants (processor phase, default)\n"
+	       "  --check-only  Only check and correct existing typed wrappers; do not fill in untyped entries\n"
+	       "  -I            Add a path to the list of system includes\n"
 	       "\n"
 	       "Filenames may be preceded by '-f' or '--filename'.\n"
 	       "  <filename_in>    Parsing file\n"
@@ -53,6 +54,7 @@ enum bits_state {
 };
 
 int is_gst = 0;
+int is_check_only = 0;
 
 int main(int argc, char **argv) {
 	setbuf(stdout, NULL);
@@ -81,6 +83,8 @@ int main(int argc, char **argv) {
 			ms = MAIN_PROC;
 		} else if (!strcmp(argv[i], "--gst")) {
 			is_gst = 1;
+		} else if (!strcmp(argv[i], "--check-only")) {
+			is_check_only = 1;
 		} else if (!strcmp(argv[i], "-pthread")) {
 			// Ignore
 		} else if (!strcmp(argv[i], "-I") && (i + 1 < argc)) {
@@ -288,11 +292,11 @@ int main(int argc, char **argv) {
 		}
 		// vector_for(references, req, refs) request_print(req);
 		if (target->size_long != emu->size_long) {
-			if (!solve_references(refs, emu_content->decl_map, target_content->decl_map, emu_content->relaxed_type_conversion)) {
+			if (!solve_references(refs, emu_content->decl_map, target_content->decl_map, emu_content->relaxed_type_conversion, is_check_only)) {
 				log_warning_nopos("failed to solve all default requests\n");
 			}
 		} else {
-			if (!solve_references_simple(refs, emu_content->decl_map, target_content->decl_map, emu_content->relaxed_type_conversion)) {
+			if (!solve_references_simple(refs, emu_content->decl_map, target_content->decl_map, emu_content->relaxed_type_conversion, is_check_only)) {
 				log_warning_nopos("failed to solve all default requests\n");
 			}
 		}
@@ -309,7 +313,7 @@ int main(int argc, char **argv) {
 			prepare_cleanup();
 			return 2;
 		}
-		output_from_references(out, refs);
+		output_from_references(out, refs, is_check_only);
 		fclose(out);
 		vector_del(references, refs);
 		file_del(emu_content);
