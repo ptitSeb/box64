@@ -1409,6 +1409,7 @@ typedef int32_t (*iFpppC_t)(void*, void*, void*, uint8_t);
 typedef int32_t (*iFpppu_t)(void*, void*, void*, uint32_t);
 typedef int32_t (*iFpppU_t)(void*, void*, void*, uint64_t);
 typedef int32_t (*iFpppd_t)(void*, void*, void*, double);
+typedef int32_t (*iFpppl_t)(void*, void*, void*, intptr_t);
 typedef int32_t (*iFpppL_t)(void*, void*, void*, uintptr_t);
 typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 typedef int32_t (*iFpONN_t)(void*, int32_t, ...);
@@ -5637,6 +5638,7 @@ void iFpppC(x64emu_t *emu, uintptr_t fcn) { iFpppC_t fn = (iFpppC_t)fcn; R_RAX=(
 void iFpppu(x64emu_t *emu, uintptr_t fcn) { iFpppu_t fn = (iFpppu_t)fcn; R_RAX=(int)fn((void*)R_RDI, (void*)R_RSI, (void*)R_RDX, (uint32_t)R_RCX); }
 void iFpppU(x64emu_t *emu, uintptr_t fcn) { iFpppU_t fn = (iFpppU_t)fcn; R_RAX=(int)fn((void*)R_RDI, (void*)R_RSI, (void*)R_RDX, (uint64_t)R_RCX); }
 void iFpppd(x64emu_t *emu, uintptr_t fcn) { iFpppd_t fn = (iFpppd_t)fcn; R_RAX=(int)fn((void*)R_RDI, (void*)R_RSI, (void*)R_RDX, emu->xmm[0].d[0]); }
+void iFpppl(x64emu_t *emu, uintptr_t fcn) { iFpppl_t fn = (iFpppl_t)fcn; R_RAX=(int)fn((void*)R_RDI, (void*)R_RSI, (void*)R_RDX, (intptr_t)R_RCX); }
 void iFpppL(x64emu_t *emu, uintptr_t fcn) { iFpppL_t fn = (iFpppL_t)fcn; R_RAX=(int)fn((void*)R_RDI, (void*)R_RSI, (void*)R_RDX, (uintptr_t)R_RCX); }
 void iFpppp(x64emu_t *emu, uintptr_t fcn) { iFpppp_t fn = (iFpppp_t)fcn; R_RAX=(int)fn((void*)R_RDI, (void*)R_RSI, (void*)R_RDX, (void*)R_RCX); }
 void iFpONN(x64emu_t *emu, uintptr_t fcn) { iFpONN_t fn = (iFpONN_t)fcn; R_RAX=(int)fn((void*)R_RDI, of_convert((int32_t)R_RSI), (void*)R_RDX, (void*)R_RCX); }
@@ -9626,6 +9628,7 @@ int isSimpleWrapper(wrapper_t fun) {
 	if (fun == &iFpppu) return 1;
 	if (fun == &iFpppU) return 1;
 	if (fun == &iFpppd) return 2;
+	if (fun == &iFpppl) return 1;
 	if (fun == &iFpppL) return 1;
 	if (fun == &iFpppp) return 1;
 	if (fun == &IFIIIu) return 1;
@@ -12036,6 +12039,7 @@ int isSimpleWrapper(wrapper_t fun) {
 	if (fun == &iFpppu) return 129;
 	if (fun == &iFpppU) return 1;
 	if (fun == &iFpppd) return 2;
+	if (fun == &iFpppl) return 1;
 	if (fun == &iFpppL) return 1;
 	if (fun == &iFpppp) return 1;
 	if (fun == &IFIIIu) return 129;
@@ -14446,6 +14450,7 @@ int isSimpleWrapper(wrapper_t fun) {
 	if (fun == &iFpppu) return 129;
 	if (fun == &iFpppU) return 1;
 	if (fun == &iFpppd) return 2;
+	if (fun == &iFpppl) return 1;
 	if (fun == &iFpppL) return 1;
 	if (fun == &iFpppp) return 1;
 	if (fun == &IFIIIu) return 129;
