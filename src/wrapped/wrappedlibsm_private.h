@@ -44,4 +44,4 @@ GO(SmsSaveYourselfPhase2, vFp)
 //GOM(SmsSetErrorHandler, pFEp)
 GO(SmsShutdownCancelled, vFp)
 
-GO(dummy_vFpiiLiip, vFpiiLiip)
+GO(dummy_vFpiiLiip, vFpiiLiip) // for error handler
