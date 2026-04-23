@@ -274,10 +274,10 @@ static void* findWriteFct(void* fct)
 }
 // Metadata
 #define GO(A)   \
-static uintptr_t my_Metadata_fct_##A = 0;                                                        \
-static int my_Metadata_##A(void* decoder, void* metadata, void* data)                            \
-{                                                                                                \
-    return (int)RunFunctionFmt(my_Metadata_fct_##A, "ppp", decoder, metadata, data);      \
+static uintptr_t my_Metadata_fct_##A = 0;                                     \
+static void my_Metadata_##A(void* decoder, void* metadata, void* data)        \
+{                                                                             \
+    RunFunctionFmt(my_Metadata_fct_##A, "ppp", decoder, metadata, data);      \
 }
 SUPER()
 #undef GO

@@ -1992,7 +1992,7 @@ typedef struct my_GstAggregatorClass_s {
   int       (*sink_event_pre_queue) (void* self, void* aggregator_pad, void* event);
   int       (*sink_query_pre_queue) (void* self, void* aggregator_pad, void* query);
   int       (*finish_buffer_list)   (void* self, void* bufferlist);
-  void      (*peek_next_sample)     (void* self, void* aggregator_pad);
+  void*     (*peek_next_sample)     (void* self, void* aggregator_pad);
   void*      _gst_reserved[20-5];
 } my_GstAggregatorClass_t;
 

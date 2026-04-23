@@ -171,8 +171,8 @@ static int my_funcs_dispatch_##A(void* source, void* cb, void* data) {          
     return ret;                                                                                     \
 }                                                                                                   \
 static uintptr_t fct_funcs_finalize_##A = 0;                                                        \
-static int my_funcs_finalize_##A(void* source) {                                                    \
-    return (int)RunFunctionFmt((uintptr_t)ref_gsourcefuncs_##A->finalize, "p", source);             \
+static void my_funcs_finalize_##A(void* source) {                                                   \
+    RunFunctionFmt((uintptr_t)ref_gsourcefuncs_##A->finalize, "p", source);                         \
 }
 SUPER()
 #undef GO
@@ -763,11 +763,11 @@ static void* findGTraverseFuncFct(void* fct)
 }
 
 // GLogWriterFunc ...
-#define GO(A)                                                         \
-    static uintptr_t my_GLogWriterFunc_fct_##A = 0;                   \
-    static int my_GLogWriterFunc_##A(void* a, void* b)                \
-    {                                                                 \
-        return RunFunctionFmt(my_GLogWriterFunc_fct_##A, "pp", a, b); \
+#define GO(A)                                                                       \
+    static uintptr_t my_GLogWriterFunc_fct_##A = 0;                                 \
+    static int my_GLogWriterFunc_##A(uint32_t a, void* b, size_t c, void* d)        \
+    {                                                                               \
+        return (int)RunFunctionFmt(my_GLogWriterFunc_fct_##A, "upLp", a, b, c, d);  \
     }
 SUPER()
 #undef GO

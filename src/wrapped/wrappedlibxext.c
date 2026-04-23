@@ -88,9 +88,9 @@ static void* reverse_exterrorhandleFct(void* fct)
 // create_gc ...
 #define GO(A)   \
 static uintptr_t my_create_gc_fct_##A = 0;                          \
-static int my_create_gc_##A(void* a, uint32_t b, void* c)           \
+static int my_create_gc_##A(void* a, void* b, void* c)              \
 {                                                                   \
-    return RunFunctionFmt(my_create_gc_fct_##A, "pup", a, b, c);    \
+    return RunFunctionFmt(my_create_gc_fct_##A, "ppp", a, b, c);    \
 }
 SUPER()
 #undef GO
@@ -110,9 +110,9 @@ static void* find_create_gc_Fct(void* fct)
 // copy_gc ...
 #define GO(A)   \
 static uintptr_t my_copy_gc_fct_##A = 0;                        \
-static int my_copy_gc_##A(void* a, uint32_t b, void* c)         \
+static int my_copy_gc_##A(void* a, void* b, void* c)         \
 {                                                               \
-    return RunFunctionFmt(my_copy_gc_fct_##A, "pup", a, b, c);  \
+    return RunFunctionFmt(my_copy_gc_fct_##A, "ppp", a, b, c);  \
 }
 SUPER()
 #undef GO
@@ -132,9 +132,9 @@ static void* find_copy_gc_Fct(void* fct)
 // flush_gc ...
 #define GO(A)   \
 static uintptr_t my_flush_gc_fct_##A = 0;                           \
-static int my_flush_gc_##A(void* a, uint32_t b, void* c)            \
+static int my_flush_gc_##A(void* a, void* b, void* c)            \
 {                                                                   \
-    return RunFunctionFmt(my_flush_gc_fct_##A, "pup", a, b, c);     \
+    return RunFunctionFmt(my_flush_gc_fct_##A, "ppp", a, b, c);     \
 }
 SUPER()
 #undef GO
@@ -154,9 +154,9 @@ static void* find_flush_gc_Fct(void* fct)
 // free_gc ...
 #define GO(A)   \
 static uintptr_t my_free_gc_fct_##A = 0;                           \
-static int my_free_gc_##A(void* a, uint32_t b, void* c)            \
+static int my_free_gc_##A(void* a, void* b, void* c)            \
 {                                                                  \
-    return RunFunctionFmt(my_free_gc_fct_##A, "pup", a, b, c);     \
+    return RunFunctionFmt(my_free_gc_fct_##A, "ppp", a, b, c);     \
 }
 SUPER()
 #undef GO

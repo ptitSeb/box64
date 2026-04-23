@@ -510,7 +510,7 @@ WRAPPER(GApplication, activate, void, (void* application), "p", application);
 WRAPPER(GApplication, open, void, (void* application, void* files, int n_files, void* hint), "ppip", application, files, n_files, hint);
 WRAPPER(GApplication, command_line, void, (void* application, void* command_line), "pp", application, command_line);
 WRAPPER(GApplication, local_command_line, void, (void* application, void* arguments, void* exit_status), "ppp", application, arguments, exit_status);
-WRAPPER(GApplication, before_emit, void*, (void* application, void* platform_data), "pp", application, platform_data);
+WRAPPER(GApplication, before_emit, void, (void* application, void* platform_data), "pp", application, platform_data);
 WRAPPER(GApplication, after_emit, void, (void* application, void* platform_data), "pp", application, platform_data);
 WRAPPER(GApplication, add_platform_data, void, (void* application, void* builder), "pp", application, builder);
 WRAPPER(GApplication, quit_mainloop, void, (void* application), "p", application);
@@ -4199,7 +4199,7 @@ WRAPPER(GstAggregator, negotiate, int, (void* self), "p", self);
 WRAPPER(GstAggregator, sink_event_pre_queue, int, (void* self, void* aggregator_pad, void* event), "ppp", self, aggregator_pad, event);
 WRAPPER(GstAggregator, sink_query_pre_queue, int, (void* self, void* aggregator_pad, void* query), "ppp", self, aggregator_pad, query);
 WRAPPER(GstAggregator, finish_buffer_list, int, (void* self, void* bufferlist), "pp", self, bufferlist);
-WRAPPER(GstAggregator, peek_next_sample, void, (void* self, void* aggregator_pad), "pp", self, aggregator_pad);
+WRAPPER(GstAggregator, peek_next_sample, void*, (void* self, void* aggregator_pad), "pp", self, aggregator_pad);
 
 #define SUPERGO()                       \
     GO(flush, iFp);                     \
@@ -4224,7 +4224,7 @@ WRAPPER(GstAggregator, peek_next_sample, void, (void* self, void* aggregator_pad
     GO(sink_event_pre_queue, iFppp);    \
     GO(sink_query_pre_queue, iFppp);    \
     GO(finish_buffer_list, iFpp);       \
-    GO(peek_next_sample, vFpp);         \
+    GO(peek_next_sample, pFpp);         \
 
 // wrap (so bridge all calls, just in case)
 static void wrapGstAggregatorClass(my_GstAggregatorClass_t* class)
@@ -4761,7 +4761,7 @@ WRAPPER(GstAudioEncoder, flush, void, (void* enc), "p", enc);
 WRAPPER(GstAudioEncoder, pre_push, int, (void* enc, void* *buffer), "pp", enc, buffer);
 WRAPPER(GstAudioEncoder, sink_event, int, (void* enc, void* event), "pp", enc, event);
 WRAPPER(GstAudioEncoder, src_event, int, (void* enc, void* event), "pp", enc, event);
-WRAPPER(GstAudioEncoder, getcaps, void, (void* enc, void* filter), "pp", enc, filter);
+WRAPPER(GstAudioEncoder, getcaps, void*, (void* enc, void* filter), "pp", enc, filter);
 WRAPPER(GstAudioEncoder, open, int, (void* enc), "p", enc);
 WRAPPER(GstAudioEncoder, close, int, (void* enc), "p", enc);
 WRAPPER(GstAudioEncoder, negotiate, int, (void* enc), "p", enc);
@@ -4780,7 +4780,7 @@ WRAPPER(GstAudioEncoder, src_query, int, (void* enc, void* query), "pp", enc, qu
     GO(pre_push, iFpp);                 \
     GO(sink_event, iFpp);               \
     GO(src_event, iFpp);                \
-    GO(getcaps, vFpp);                  \
+    GO(getcaps, pFpp);                  \
     GO(open, iFp);                      \
     GO(close, iFp);                     \
     GO(negotiate, iFp);                 \

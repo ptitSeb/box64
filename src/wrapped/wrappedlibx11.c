@@ -414,9 +414,9 @@ static void* findXInternalAsyncHandlerFct(void* fct)
 // XSynchronizeProc
 #define GO(A)   \
 static uintptr_t my_XSynchronizeProc_fct_##A = 0;                       \
-static int my_XSynchronizeProc_##A()                                    \
+static int my_XSynchronizeProc_##A(void* dpy)                           \
 {                                                                       \
-    return (int)RunFunctionFmt(my_XSynchronizeProc_fct_##A, "");\
+    return (int)RunFunctionFmt(my_XSynchronizeProc_fct_##A, "p");       \
 }
 SUPER()
 #undef GO
@@ -441,7 +441,7 @@ static void* reverse_XSynchronizeProcFct(library_t* lib, void* fct)
     #define GO(A) if(my_XSynchronizeProc_##A == fct) return (void*)my_XSynchronizeProc_fct_##A;
     SUPER()
     #undef GO
-    return (void*)AddBridge(lib->w.bridge, iFppp, fct, 0, NULL);
+    return (void*)AddBridge(lib->w.bridge, iFp, fct, 0, NULL);
 }
 
 // XLockDisplay
@@ -787,7 +787,7 @@ typedef struct {
 static uintptr_t my_XNGeometryCallback_fct_##A = 0;                 \
 static void my_XNGeometryCallback_##A(void* a, void* b, void* c)    \
 {                                                                   \
-    RunFunctionFmt(my_XNGeometryCallback_fct_##A, "ppp", a, b);     \
+    RunFunctionFmt(my_XNGeometryCallback_fct_##A, "ppp", a, b, c);     \
 }
 SUPER()
 #undef GO
@@ -810,7 +810,7 @@ static void* findXNGeometryCallbackFct(void* fct)
 static uintptr_t my_XNDestroyCallback_fct_##A = 0;              \
 static void my_XNDestroyCallback_##A(void* a, void* b, void* c) \
 {                                                               \
-    RunFunctionFmt(my_XNDestroyCallback_fct_##A, "ppp", a, b);  \
+    RunFunctionFmt(my_XNDestroyCallback_fct_##A, "ppp", a, b, c);  \
 }
 SUPER()
 #undef GO
@@ -831,9 +831,9 @@ static void* findXNDestroyCallbackFct(void* fct)
 // XNPreeditStartCallback
 #define GO(A)   \
 static uintptr_t my_XNPreeditStartCallback_fct_##A = 0;                 \
-static void my_XNPreeditStartCallback_##A(void* a, void* b, void* c)    \
+static int my_XNPreeditStartCallback_##A(void* a, void* b, void* c)    \
 {                                                                       \
-    RunFunctionFmt(my_XNPreeditStartCallback_fct_##A, "ppp", a, b);     \
+    return (int)RunFunctionFmt(my_XNPreeditStartCallback_fct_##A, "ppp", a, b, c);     \
 }
 SUPER()
 #undef GO
@@ -856,7 +856,7 @@ static void* findXNPreeditStartCallbackFct(void* fct)
 static uintptr_t my_XNPreeditDoneCallback_fct_##A = 0;              \
 static void my_XNPreeditDoneCallback_##A(void* a, void* b, void* c) \
 {                                                                   \
-    RunFunctionFmt(my_XNPreeditDoneCallback_fct_##A, "ppp", a, b);  \
+    RunFunctionFmt(my_XNPreeditDoneCallback_fct_##A, "ppp", a, b, c);  \
 }
 SUPER()
 #undef GO
@@ -879,7 +879,7 @@ static void* findXNPreeditDoneCallbackFct(void* fct)
 static uintptr_t my_XNPreeditDrawCallback_fct_##A = 0;              \
 static void my_XNPreeditDrawCallback_##A(void* a, void* b, void* c) \
 {                                                                   \
-    RunFunctionFmt(my_XNPreeditDrawCallback_fct_##A, "ppp", a, b);  \
+    RunFunctionFmt(my_XNPreeditDrawCallback_fct_##A, "ppp", a, b, c);  \
 }
 SUPER()
 #undef GO
@@ -902,7 +902,7 @@ static void* findXNPreeditDrawCallbackFct(void* fct)
 static uintptr_t my_XNPreeditCaretCallback_fct_##A = 0;                 \
 static void my_XNPreeditCaretCallback_##A(void* a, void* b, void* c)    \
 {                                                                       \
-    RunFunctionFmt(my_XNPreeditCaretCallback_fct_##A, "ppp", a, b);     \
+    RunFunctionFmt(my_XNPreeditCaretCallback_fct_##A, "ppp", a, b, c);     \
 }
 SUPER()
 #undef GO
@@ -925,7 +925,7 @@ static void* findXNPreeditCaretCallbackFct(void* fct)
 static uintptr_t my_XNPreeditStateNotifyCallback_fct_##A = 0;               \
 static void my_XNPreeditStateNotifyCallback_##A(void* a, void* b, void* c)  \
 {                                                                           \
-    RunFunctionFmt(my_XNPreeditStateNotifyCallback_fct_##A, "ppp", a, b);   \
+    RunFunctionFmt(my_XNPreeditStateNotifyCallback_fct_##A, "ppp", a, b, c);   \
 }
 SUPER()
 #undef GO
@@ -948,7 +948,7 @@ static void* findXNPreeditStateNotifyCallbackFct(void* fct)
 static uintptr_t my_XNStatusStartCallback_fct_##A = 0;                  \
 static void my_XNStatusStartCallback_##A(void* a, void* b, void* c)     \
 {                                                                       \
-    RunFunctionFmt(my_XNStatusStartCallback_fct_##A, "ppp", a, b);      \
+    RunFunctionFmt(my_XNStatusStartCallback_fct_##A, "ppp", a, b, c);      \
 }
 SUPER()
 #undef GO
@@ -971,7 +971,7 @@ static void* findXNStatusStartCallbackFct(void* fct)
 static uintptr_t my_XNStatusDoneCallback_fct_##A = 0;               \
 static void my_XNStatusDoneCallback_##A(void* a, void* b, void* c)  \
 {                                                                   \
-    RunFunctionFmt(my_XNStatusDoneCallback_fct_##A, "ppp", a, b);   \
+    RunFunctionFmt(my_XNStatusDoneCallback_fct_##A, "ppp", a, b, c);   \
 }
 SUPER()
 #undef GO
@@ -994,7 +994,7 @@ static void* findXNStatusDoneCallbackFct(void* fct)
 static uintptr_t my_XNStatusDrawCallback_fct_##A = 0;               \
 static void my_XNStatusDrawCallback_##A(void* a, void* b, void* c)  \
 {                                                                   \
-    RunFunctionFmt(my_XNStatusDrawCallback_fct_##A, "ppp", a, b);   \
+    RunFunctionFmt(my_XNStatusDrawCallback_fct_##A, "ppp", a, b, c);   \
 }
 SUPER()
 #undef GO
@@ -1017,7 +1017,7 @@ static void* findXNStatusDrawCallbackFct(void* fct)
 static uintptr_t my_XNR6PreeditCallback_fct_##A = 0;                \
 static void my_XNR6PreeditCallback_##A(void* a, void* b, void* c)   \
 {                                                                   \
-    RunFunctionFmt(my_XNR6PreeditCallback_fct_##A, "ppp", a, b);    \
+    RunFunctionFmt(my_XNR6PreeditCallback_fct_##A, "ppp", a, b, c);    \
 }
 SUPER()
 #undef GO
@@ -1040,7 +1040,7 @@ static void* findXNR6PreeditCallbackFct(void* fct)
 static uintptr_t my_XNStringConversionCallback_fct_##A = 0;                 \
 static void my_XNStringConversionCallback_##A(void* a, void* b, void* c)    \
 {                                                                           \
-    RunFunctionFmt(my_XNStringConversionCallback_fct_##A, "ppp", a, b);     \
+    RunFunctionFmt(my_XNStringConversionCallback_fct_##A, "ppp", a, b, c);     \
 }
 SUPER()
 #undef GO

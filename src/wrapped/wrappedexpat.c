@@ -35,10 +35,10 @@ GO(4)
 
 // Start ...
 #define GO(A)   \
-static uintptr_t my_Start_fct_##A = 0;                                                      \
-static void* my_Start_##A(void* data, void* name, void* attr)                               \
-{                                                                                           \
-    return (void*)RunFunctionFmt(my_Start_fct_##A, "ppp", data, name, attr);          \
+static uintptr_t my_Start_fct_##A = 0;                         \
+static void my_Start_##A(void* data, void* name, void* attr)   \
+{                                                              \
+    RunFunctionFmt(my_Start_fct_##A, "ppp", data, name, attr); \
 }
 SUPER()
 #undef GO
