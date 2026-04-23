@@ -90,10 +90,10 @@ static glprocaddress_t findGetProcAddressAPIFct(int api)
 }
 // GDestroyFunc ...
 #define GO(A)   \
-static uintptr_t my_destroyfunc_fct_##A = 0;                               \
-static int my_destroyfunc_##A(void* a, void* b)                            \
-{                                                                          \
-    return RunFunctionFmt(my_destroyfunc_fct_##A, "pp", a, b); \
+static uintptr_t my_destroyfunc_fct_##A = 0;           \
+static void my_destroyfunc_##A(void* data)             \
+{                                                      \
+    RunFunctionFmt(my_destroyfunc_fct_##A, "p", data); \
 }
 SUPER()
 #undef GO

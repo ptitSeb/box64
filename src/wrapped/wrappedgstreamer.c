@@ -101,10 +101,10 @@ GO(12)  \
 
 // GDestroyFunc ...
 #define GO(A)   \
-static uintptr_t my_destroyfunc_fct_##A = 0;                                \
-static int my_destroyfunc_##A(void* a, void* b)                             \
-{                                                                           \
-    return RunFunctionFmt(my_destroyfunc_fct_##A, "pp", a, b);  \
+static uintptr_t my_destroyfunc_fct_##A = 0;           \
+static void my_destroyfunc_##A(void* data)             \
+{                                                      \
+    RunFunctionFmt(my_destroyfunc_fct_##A, "p", data); \
 }
 SUPER()
 #undef GO
@@ -497,9 +497,9 @@ static void* findGstPadProbeCallbackFct(void* fct)
 //GstStructureForeachFunc
 #define GO(A)   \
 static uintptr_t my_GstStructureForeachFunc_fct_##A = 0;                            \
-static int my_GstStructureForeachFunc_##A(void* a, void* b, void* c)                \
+static int my_GstStructureForeachFunc_##A(uint32_t a, void* b, void* c)             \
 {                                                                                   \
-    return (int)RunFunctionFmt(my_GstStructureForeachFunc_fct_##A, "ppp", a, b, c); \
+    return (int)RunFunctionFmt(my_GstStructureForeachFunc_fct_##A, "upp", a, b, c); \
 }
 SUPER()
 #undef GO
@@ -543,9 +543,9 @@ static void* findGstPadLinkFunctionFct(void* fct)
 //GstStructureFilterMapFunc
 #define GO(A)   \
 static uintptr_t my_GstStructureFilterMapFunc_fct_##A = 0;                              \
-static int my_GstStructureFilterMapFunc_##A(void* a, void* b, void* c)                  \
+static int my_GstStructureFilterMapFunc_##A(uint32_t a, void* b, void* c)               \
 {                                                                                       \
-    return (int)RunFunctionFmt(my_GstStructureFilterMapFunc_fct_##A, "ppp", a, b, c);   \
+    return (int)RunFunctionFmt(my_GstStructureFilterMapFunc_fct_##A, "upp", a, b, c);   \
 }
 SUPER()
 #undef GO
