@@ -125,10 +125,10 @@ static void* findGCallbackFct(void* fct)
 }
 // EventHandler
 #define GO(A)   \
-static uintptr_t my_EventHandler_fct_##A = 0;                                       \
-static void* my_EventHandler_##A(void* a, void* b, void* c, void* d, void* e)       \
-{                                                                                   \
-    return (void*)RunFunctionFmt(my_EventHandler_fct_##A, "ppppp", a, b, c, d, e);  \
+static uintptr_t my_EventHandler_fct_##A = 0;                   \
+static void my_EventHandler_##A(void* event, void* data)        \
+{                                                               \
+    RunFunctionFmt(my_EventHandler_fct_##A, "pp", event, data); \
 }
 SUPER()
 #undef GO

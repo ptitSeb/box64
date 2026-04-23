@@ -380,9 +380,9 @@ static void* findGDestroyNotifyFct(void* fct)
 // GTickCallback
 #define GO(A)                                                                 \
     static uintptr_t my_GTickCallback_fct_##A = 0;                            \
-    static void my_GTickCallback_##A(void* widget, void* clock, void* data)   \
+    static int my_GTickCallback_##A(void* widget, void* clock, void* data)    \
     {                                                                         \
-        RunFunctionFmt(my_GTickCallback_fct_##A, "ppp", widget, clock, data); \
+        return (int)RunFunctionFmt(my_GTickCallback_fct_##A, "ppp", widget, clock, data); \
     }
 SUPER()
 #undef GO
@@ -546,9 +546,9 @@ static void* findGtkListBoxUpdateHeaderFunc(void* fct)
 // TranslateEvent
 #define GO(A)   \
 static uintptr_t my_TranslateEvent_fct_##A = 0;             \
-static void my_TranslateEvent_##A(void* a, void* b)         \
+static void* my_TranslateEvent_##A(void* a, void* b)        \
 {                                                           \
-    RunFunctionFmt(my_TranslateEvent_fct_##A, "pp", a, b);  \
+    return (void*)RunFunctionFmt(my_TranslateEvent_fct_##A, "pp", a, b);  \
 }
 SUPER()
 #undef GO
@@ -571,7 +571,7 @@ static void* findTranslateEvent(void* fct)
     static uintptr_t my_GCallback_fct_##A = 0;    \
     static void my_GCallback_##A(void* data)      \
     {                                             \
-        RunFunctionFmt(my_GCallback_fct_##A, ""); \
+        RunFunctionFmt(my_GCallback_fct_##A, "p"); \
     }
 SUPER()
 #undef GO

@@ -233,10 +233,10 @@ static void* findValueTransformFct(void* fct)
 
 // GDestroyFunc ...
 #define GO(A)   \
-static uintptr_t my_destroyfunc_fct_##A = 0;                               \
-static int my_destroyfunc_##A(void* a, void* b)                            \
-{                                                                          \
-    return RunFunctionFmt(my_destroyfunc_fct_##A, "pp", a, b); \
+static uintptr_t my_destroyfunc_fct_##A = 0;        \
+static void my_destroyfunc_##A(void* a)             \
+{                                                   \
+    RunFunctionFmt(my_destroyfunc_fct_##A, "p", a); \
 }
 SUPER()
 #undef GO
@@ -512,9 +512,9 @@ static void* findGCallbackFct(void* fct)
 // EmissionHook
 #define GO(A)   \
 static uintptr_t my_EmissionHook_fct_##A = 0;                           \
-static void my_EmissionHook_##A(void* a, uint32_t b, void* c, void* d)  \
+static int my_EmissionHook_##A(void* a, uint32_t b, void* c, void* d)  \
 {                                                                       \
-    RunFunctionFmt(my_EmissionHook_fct_##A, "pupp", a, b, c, d);        \
+    return (int)RunFunctionFmt(my_EmissionHook_fct_##A, "pupp", a, b, c, d);        \
 }
 SUPER()
 #undef GO
