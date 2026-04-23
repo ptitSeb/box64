@@ -89,7 +89,7 @@ GOWD(clogl, YFY, clog)
 // conjl    // Weak
 GOW(copysign, dFdd)
 GOW(copysignf, fFff)
-// copysignl    // Weak
+GOWD(copysignl, DFDD, copysign)
 GOW(cos, dFd)
 GOW(cosf, fFf)
 GOW(cosh, dFd)
@@ -171,11 +171,11 @@ GOM(fesetround, iFEi)
 GOM(fetestexcept, iFEi)
 GOM(feupdateenv, iFEp)
 GOW(finite, iFd)
-// __finite
+GO(__finite, iFd)
 GOW(finitef, iFf)
 GO(__finitef, iFf)
-// finitel  // Weak
-// __finitel
+GOD(__finitel, iFD, __finite)
+GOWD(finitel, iFD, finite)
 GOW(floor, dFd)
 GOW(floorf, fFf)
 GOWD(floorl, DFD, floor)
@@ -283,7 +283,7 @@ GOWD(lroundl, lFD, lround)
 // matherr  // Weak
 GOW(modf, dFdp)
 GOW(modff, fFfp)
-// modfl    // Weak
+GOWD(modfl, DFDp, modf)
 GOW(nan, dFp)
 GOW(nanf, fFp)
 // nanl // Weak
@@ -332,7 +332,7 @@ GOW(scalblnf, fFfl)
 // scalblnl // Weak
 GOW(scalbn, dFdi)
 GOW(scalbnf, fFfi)
-// scalbnl  // Weak
+GOWD(scalbnl, DFDi, scalbn)
 // __signbit
 // __signbitf
 DATAB(signgam, 8)
