@@ -94,17 +94,17 @@ EXPORT void* my_cairo_xcb_device_get_connection(x64emu_t* emu, void* a)
     return add_xcb_connection(my->cairo_xcb_device_get_connection(a));
 }
 
-EXPORT int my_cairo_surface_set_user_data(x64emu_t* emu, void* surf, void* key, void* data, void* d)
+EXPORT uint32_t my_cairo_surface_set_user_data(x64emu_t* emu, void* surf, void* key, void* data, void* d)
 {
     return my->cairo_surface_set_user_data(surf, key, data, find_destroy_Fct(d));
 }
 
-EXPORT int my_cairo_set_user_data(x64emu_t* emu, void* cr, void* key, void* data, void* d)
+EXPORT uint32_t my_cairo_set_user_data(x64emu_t* emu, void* cr, void* key, void* data, void* d)
 {
     return my->cairo_set_user_data(cr, key, data, find_destroy_Fct(d));
 }
 
-EXPORT int my_cairo_device_set_user_data(x64emu_t* emu, void* device, void* key, void* data, void* d)
+EXPORT uint32_t my_cairo_device_set_user_data(x64emu_t* emu, void* device, void* key, void* data, void* d)
 {
     return my->cairo_device_set_user_data(device, key, data, find_destroy_Fct(d));
 }
@@ -114,12 +114,12 @@ EXPORT int my_cairo_font_face_set_user_data(x64emu_t* emu, void* font_face, void
     return my->cairo_font_face_set_user_data(font_face, key, data, find_destroy_Fct(d));
 }
 
-EXPORT int my_cairo_scaled_font_set_user_data(x64emu_t* emu, void* scaled_font, void* key, void* data, void* d)
+EXPORT uint32_t my_cairo_scaled_font_set_user_data(x64emu_t* emu, void* scaled_font, void* key, void* data, void* d)
 {
     return my->cairo_scaled_font_set_user_data(scaled_font, key, data, find_destroy_Fct(d));
 }
 
-EXPORT int my_cairo_surface_set_mime_data(x64emu_t* emu, void* surf, void* mime_type, void* data, size_t len, void* destroy, void* closure)
+EXPORT uint32_t my_cairo_surface_set_mime_data(x64emu_t* emu, void* surf, void* mime_type, void* data, size_t len, void* destroy, void* closure)
 {
     return my->cairo_surface_set_mime_data(surf, mime_type, data, len, find_destroy_Fct(destroy), closure);
 }

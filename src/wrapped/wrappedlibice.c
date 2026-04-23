@@ -129,9 +129,9 @@ EXPORT int my_IceAddConnectionWatch(x64emu_t* emu, void* f, void* data)
     return my->IceAddConnectionWatch(findWatchProcFct(f), data);
 }
 
-EXPORT int my_IceRemoveConnectionWatch(x64emu_t* emu, void* f, void* data)
+EXPORT void my_IceRemoveConnectionWatch(x64emu_t* emu, void* f, void* data)
 {
-    return my->IceRemoveConnectionWatch(findWatchProcFct(f), data);
+    my->IceRemoveConnectionWatch(findWatchProcFct(f), data);
 }
 
 EXPORT void* my_IceSetErrorHandler(x64emu_t* emu, void* f)

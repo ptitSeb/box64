@@ -1,5 +1,5 @@
 #if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
-#error meh!
+#error Meh...
 #endif
 
 // SSE2 2x double (b = SSE, N2 = 2 elements, v = vector)

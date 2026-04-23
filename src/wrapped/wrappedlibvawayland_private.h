@@ -1,7 +1,7 @@
 #if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
-#error meh!
+#error Meh...
 #endif
 
 GO(vaGetDisplayWl, pFp)
-GO(vaGetImageBufferWl, iFppup)
-GO(vaGetSurfaceBufferWl, iFppup)
+GO(vaGetImageBufferWl, iFpuup)
+GO(vaGetSurfaceBufferWl, iFpuup)

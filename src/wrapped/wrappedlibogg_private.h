@@ -1,5 +1,5 @@
 #if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
-#error meh!
+#error Meh...
 #endif
 
 // ogg_stream_state doesn't need align :)
@@ -19,7 +19,7 @@ GO(oggpackB_read, lFpi)
 //GO(oggpackB_read1, 
 GO(oggpackB_readinit, vFppi)
 GO(oggpackB_reset, vFp)
-GO(oggpackB_write, vFpui)
+GO(oggpackB_write, vFpLi)
 //GO(oggpackB_writealign, 
 //GO(oggpackB_writecheck, 
 GO(oggpackB_writeclear, vFp)
@@ -43,7 +43,7 @@ GO(oggpack_writeclear, vFp)
 GO(oggpack_writeinit, vFp)
 GO(oggpack_writetrunc, vFpl)
 GO(ogg_page_bos, iFp)
-GO(ogg_page_checksum_set, iFp)
+GO(ogg_page_checksum_set, vFp)
 GO(ogg_page_continued, iFp)
 GO(ogg_page_eos, iFp)
 GO(ogg_page_granulepos, IFp)
@@ -73,6 +73,6 @@ GO(ogg_sync_clear, iFp)
 //GO(ogg_sync_destroy, 
 GO(ogg_sync_init, iFp)
 GO(ogg_sync_pageout, iFpp)
-GO(ogg_sync_pageseek, iFpp)
+GO(ogg_sync_pageseek, lFpp)
 GO(ogg_sync_reset, iFp)
 GO(ogg_sync_wrote, iFpl)

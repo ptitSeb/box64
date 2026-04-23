@@ -1,5 +1,5 @@
 #if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
-#error Meh....
+#error Meh...
 #endif
 
 //GO(bufferevent_add_event_, 

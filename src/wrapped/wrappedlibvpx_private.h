@@ -1,10 +1,10 @@
 #if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
-#error meh!
+#error Meh...
 #endif
 
 // Image functions
-GO(vpx_img_alloc, pFpiuuu)
-GO(vpx_img_wrap, pFpiuuup)
+GO(vpx_img_alloc, pFpuuuu)
+GO(vpx_img_wrap, pFpuuuup)
 GO(vpx_img_set_rect, iFpuuuu)
 GO(vpx_img_flip, vFp)
 GO(vpx_img_free, vFp)
@@ -15,10 +15,10 @@ GO(vpx_codec_version_str, pFv)
 GO(vpx_codec_version_extra_str, pFv)
 GO(vpx_codec_build_config, pFv)
 GO(vpx_codec_iface_name, pFp)
-GO(vpx_codec_err_to_string, pFi)
+GO(vpx_codec_err_to_string, pFu)
 GO(vpx_codec_error, pFp)
 GO(vpx_codec_error_detail, pFp)
-GO(vpx_codec_destroy, iFp)
+GO(vpx_codec_destroy, uFp)
 GO(vpx_codec_get_caps, lFp)
 GO(vpx_codec_control_, iFpiN)
 

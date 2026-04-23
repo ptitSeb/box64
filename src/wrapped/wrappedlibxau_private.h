@@ -2,11 +2,11 @@
 #error Meh...
 #endif
 
-GO(XauDisposeAuth, iFp)
+GO(XauDisposeAuth, vFp)
 GO(XauFileName, pFv)
 GO(XauGetAuthByAddr, pFuupupup)
 GO(XauGetBestAuthByAddr, pFuupupipp)
-GO(XauLockAuth, iFpiii)
-GO(XauReadAuth, pFp)
+GO(XauLockAuth, iFpiil)
+GO(XauReadAuth, pFS)
 GO(XauUnlockAuth, iFp)
-GO(XauWriteAuth, iFpp)
+GO(XauWriteAuth, iFSp)

@@ -97,7 +97,7 @@ GOM(fuse_lowlevel_new, pFEppLp)
 GOM(fuse_main_real, iFEippLp)
 //GO(fuse_main_real_compat22, 
 //GO(fuse_main_real_compat25, 
-GO(fuse_mount, pFpp)
+GO(fuse_mount, iFpp)
 //GO(fuse_mount_compat1, 
 //GO(fuse_mount_compat22, 
 //GO(fuse_mount_compat25, 
@@ -174,7 +174,7 @@ GO(fuse_set_signal_handlers, iFp)
 //GO(__fuse_teardown, 
 //GO(fuse_teardown, 
 //GO(fuse_teardown_compat22, 
-GO(fuse_unmount, vFpp)
+GO(fuse_unmount, vFp)
 //GO(fuse_unmount_compat22, 
 //GO(fuse_version, 
 

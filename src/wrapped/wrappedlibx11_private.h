@@ -2,7 +2,7 @@
 #error Meh...
 #endif
 
-DATAB(_qfree, 4) // Warning: failed to confirm
+DATAB(_qfree, 4)
 
 GO(XActivateScreenSaver, iFp)
 GOM(XAddConnectionWatch, iFEppp)

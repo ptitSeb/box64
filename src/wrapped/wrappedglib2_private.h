@@ -1449,7 +1449,7 @@ GO(g_utf8_to_ucs4, pFplppp)
 GO(g_utf8_to_ucs4_fast, pFplp)
 GO(g_utf8_to_utf16, pFplppp)
 GO(g_utf8_validate, iFplp)
-GO(g_utime, iFpp) // Warning: failed to confirm
+GO(g_utime, iFpp)
 GO(g_uuid_string_is_valid, iFp)
 GO(g_uuid_string_random, pFv)
 GOM(g_variant_builder_add, vFEppV)

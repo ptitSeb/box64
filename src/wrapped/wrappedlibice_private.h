@@ -1,5 +1,5 @@
 #if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
-#error meh!
+#error Meh...
 #endif
 
 //GO(IceAcceptConnection, 
@@ -59,7 +59,7 @@ GO(IceConnectionNumber, iFp)
 //GO(_IcePaMagicCookie1Proc, 
 //GO(IcePing, 
 //GO(_IcePoMagicCookie1Proc, 
-GO(IceProcessMessages, iFppp)
+GO(IceProcessMessages, uFppp)
 //GO(IceProtocolRevision, 
 //GO(IceProtocolSetup, 
 //GO(IceProtocolShutdown, 
@@ -70,7 +70,7 @@ GO(IceProcessMessages, iFppp)
 //GO(IceRegisterForProtocolReply, 
 //GO(IceRegisterForProtocolSetup, 
 //GO(IceRelease, 
-GOM(IceRemoveConnectionWatch, iFEpp)
+GOM(IceRemoveConnectionWatch, vFEpp)
 //GO(_IceSearchReplyWaits, 
 GOM(IceSetErrorHandler, pFEp)
 //GO(IceSetHostBasedAuthProc, 

@@ -42,7 +42,7 @@ GO(avcodec_descriptor_get_by_name, pFp)
 GO(avcodec_descriptor_next, pFp)
 //GOM(avcodec_encode_subtitle, iFEppip)
 GO(avcodec_enum_to_chroma_pos, iFppi)
-DATA(av_codec_ffversion, 8) // Warning: failed to confirm
+DATA(av_codec_ffversion, 8)
 GO(avcodec_fill_audio_frame, iFpiipii)
 GO(avcodec_find_best_pix_fmt_of_list, iFpiip)
 GO(avcodec_find_decoder, pFu)

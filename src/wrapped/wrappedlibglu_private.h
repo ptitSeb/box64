@@ -2,7 +2,7 @@
 #error Meh...
 #endif
 
-GO(gluBeginCurve,vFp)
+GO(gluBeginCurve, vFp)
 GO(gluBeginPolygon, vFp)
 GO(gluBeginSurface, vFp)
 GO(gluBeginTrim, vFp)

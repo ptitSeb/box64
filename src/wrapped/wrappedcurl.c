@@ -933,7 +933,7 @@ EXPORT uint32_t my_curl_share_setopt(x64emu_t* emu, void* handle, CURLSHoption o
     }
 }
 
-EXPORT int my_curl_global_init_mem(x64emu_t* emu, long flags, void* m, void* f, void* r, void* s, void* c)
+EXPORT uint32_t my_curl_global_init_mem(x64emu_t* emu, long flags, void* m, void* f, void* r, void* s, void* c)
 {
     return my->curl_global_init_mem(flags,
         find_malloc_callback_Fct(m),

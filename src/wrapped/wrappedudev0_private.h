@@ -1,5 +1,5 @@
 #if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
-#error Meh....
+#error Meh...
 #endif
 
 GO(udev_get_dev_path, pFp)

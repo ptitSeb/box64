@@ -1,5 +1,5 @@
 #if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
-#error meh!
+#error Meh...
 #endif
 
 //GO(xcb_glx_are_textures_resident, 
@@ -498,9 +498,9 @@ DATA(xcb_glx_id, 8)
 //GO(xcb_glx_query_server_string_string_end, 
 //GO(xcb_glx_query_server_string_string_length, 
 //GO(xcb_glx_query_server_string_unchecked, 
-GO(xcb_glx_query_version, pFbuu)
-GO(xcb_glx_query_version_reply, pFbpp)
-GO(xcb_glx_query_version_unchecked, pFbuu)
+GO(xcb_glx_query_version, UFbuu)
+GO(xcb_glx_query_version_reply, pFbup)
+GO(xcb_glx_query_version_unchecked, UFbuu)
 //GO(xcb_glx_read_pixels, 
 //GO(xcb_glx_read_pixels_data, 
 //GO(xcb_glx_read_pixels_data_end, 

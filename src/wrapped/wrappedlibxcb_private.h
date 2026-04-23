@@ -174,7 +174,7 @@ GO(xcb_destroy_window, UFbu)
 GO(xcb_destroy_window_checked, UFbu)
 GO(xcb_discard_reply, vFbu)
 GO(xcb_discard_reply64, vFbU)
-GOM(xcb_disconnect, vFEp)
+GOM(xcb_disconnect, vFEb)
 //GO(xcb_drawable_end, 
 GO(xcb_drawable_next, vFp)
 GO(xcb_fill_poly, UFbuuCCup)

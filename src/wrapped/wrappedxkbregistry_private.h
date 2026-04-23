@@ -1,5 +1,5 @@
 #if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
-#error meh!
+#error Meh...
 #endif
 //typedef uint32_t xkb_keycode_t
 
@@ -9,7 +9,7 @@
 //GO(rxkb_context_include_path_append_default, 
 GO(rxkb_context_new, pFu)
 //GO(rxkb_context_parse, 
-GO(rxkb_context_parse_default_ruleset, uFp)
+GO(rxkb_context_parse_default_ruleset, iFp)
 //GO(rxkb_context_ref, 
 //GO(rxkb_context_set_log_fn, 
 //GO(rxkb_context_set_log_level, 

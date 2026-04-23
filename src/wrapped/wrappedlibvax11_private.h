@@ -1,5 +1,5 @@
 #if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
-#error meh!
+#error Meh...
 #endif
 
 //GO(VA_DRI2Authenticate, 
@@ -19,4 +19,4 @@
 GO(vaGetDisplay, pFp)
 //GO(va_isDRI2Connected, 
 //GO(va_isRenderNodeFd, 
-GO(vaPutSurface, iFpppwwWWwwWWpuu)
+GO(vaPutSurface, iFpuLwwWWwwWWpuu)

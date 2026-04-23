@@ -1,5 +1,5 @@
 #if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
-#error meh!
+#error Meh...
 #endif
 
 //GO(xcb_icccm_get_text_property, 
@@ -19,10 +19,10 @@
 //GO(xcb_icccm_get_wm_colormap_windows_reply, 
 //GO(xcb_icccm_get_wm_colormap_windows_reply_wipe, 
 //GO(xcb_icccm_get_wm_colormap_windows_unchecked, 
-GO(xcb_icccm_get_wm_hints, uFbu)
+GO(xcb_icccm_get_wm_hints, UFbu)
 //GO(xcb_icccm_get_wm_hints_from_reply, 
 GO(xcb_icccm_get_wm_hints_reply, CFbupp)
-GO(xcb_icccm_get_wm_hints_unchecked, uFbu)
+GO(xcb_icccm_get_wm_hints_unchecked, UFbu)
 //GO(xcb_icccm_get_wm_icon_name, 
 //GO(xcb_icccm_get_wm_icon_name_reply, 
 //GO(xcb_icccm_get_wm_icon_name_unchecked, 
@@ -51,14 +51,14 @@ GO(xcb_icccm_get_wm_hints_unchecked, uFbu)
 //GO(xcb_icccm_set_wm_client_machine_checked, 
 //GO(xcb_icccm_set_wm_colormap_windows, 
 //GO(xcb_icccm_set_wm_colormap_windows_checked, 
-GO(xcb_icccm_set_wm_hints, uFbup)
-GO(xcb_icccm_set_wm_hints_checked, uFbup)
+GO(xcb_icccm_set_wm_hints, UFbup)
+GO(xcb_icccm_set_wm_hints_checked, UFbup)
 //GO(xcb_icccm_set_wm_icon_name, 
 //GO(xcb_icccm_set_wm_icon_name_checked, 
 //GO(xcb_icccm_set_wm_name, 
 //GO(xcb_icccm_set_wm_name_checked, 
-GO(xcb_icccm_set_wm_normal_hints, uFbup)
-GO(xcb_icccm_set_wm_normal_hints_checked, uFbup)
+GO(xcb_icccm_set_wm_normal_hints, UFbup)
+GO(xcb_icccm_set_wm_normal_hints_checked, UFbup)
 //GO(xcb_icccm_set_wm_protocols, 
 //GO(xcb_icccm_set_wm_protocols_checked, 
 //GO(xcb_icccm_set_wm_size_hints, 
@@ -72,7 +72,7 @@ GO(xcb_icccm_size_hints_set_min_size, vFpii)
 GO(xcb_icccm_size_hints_set_position, vFpiii)
 GO(xcb_icccm_size_hints_set_resize_inc, vFpii)
 GO(xcb_icccm_size_hints_set_size, vFpiii)
-GO(xcb_icccm_size_hints_set_win_gravity, vFpi)
+GO(xcb_icccm_size_hints_set_win_gravity, vFpu)
 //GO(xcb_icccm_wm_hints_get_urgency, 
 GO(xcb_icccm_wm_hints_set_iconic, vFp)
 //GO(xcb_icccm_wm_hints_set_icon_mask, 

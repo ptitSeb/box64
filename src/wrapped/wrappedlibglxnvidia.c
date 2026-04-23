@@ -230,10 +230,10 @@ EXPORT int mynv_glXSwapIntervalMESA(x64emu_t* emu, int interval)
     return fnc(interval);
 }
 // glXSwapIntervalEXT ...
-EXPORT void mynv_dummy_glXSwapIntervalEXT(void* dpy, void* drawable, int interval) {}
-EXPORT void mynv_glXSwapIntervalEXT(x64emu_t* emu, void* dpy, void* drawable, int interval)
+EXPORT void mynv_dummy_glXSwapIntervalEXT(void* dpy, unsigned long drawable, int interval) {}
+EXPORT void mynv_glXSwapIntervalEXT(x64emu_t* emu, void* dpy, unsigned long drawable, int interval)
 {
-    vFppi_t fnc = getBridgeFnc2((void*)R_RIP);
+    vFpLi_t fnc = getBridgeFnc2((void*)R_RIP);
     if(!fnc) fnc=my->glXSwapIntervalEXT;
     if(!fnc) fnc=mynv_dummy_glXSwapIntervalEXT;
     fnc(dpy, drawable, interval);
