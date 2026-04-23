@@ -5467,17 +5467,37 @@ wrappedlibc:
   - setjmp
   - stime
   - uname
+- IFf:
+  - llrintf
+- IFd:
+  - llrint
+- IFD:
+  - llrintl
 - CFp:
   - _ITM_RU1
 - uFp:
   - _ITM_RU4
 - UFp:
   - _ITM_RU8
+- fFf:
+  - nearbyintf
+  - pow10f
+  - rintf
+- dFd:
+  - nearbyint
+  - pow10
+  - rint
+- DFD:
+  - pow10l
 - lFv:
   - syscall
 - lFi:
   - __sysconf
   - sysconf
+- lFf:
+  - lrintf
+- lFd:
+  - lrint
 - LFL:
   - getauxval
 - pFL:

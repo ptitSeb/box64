@@ -17,11 +17,17 @@ typedef void (*vFp_t)(void*);
 typedef int32_t (*iFv_t)(void);
 typedef int32_t (*iFi_t)(int32_t);
 typedef int32_t (*iFp_t)(void*);
+typedef int64_t (*IFf_t)(float);
+typedef int64_t (*IFd_t)(double);
 typedef uint8_t (*CFp_t)(void*);
 typedef uint32_t (*uFp_t)(void*);
 typedef uint64_t (*UFp_t)(void*);
+typedef float (*fFf_t)(float);
+typedef double (*dFd_t)(double);
 typedef intptr_t (*lFv_t)(void);
 typedef intptr_t (*lFi_t)(int32_t);
+typedef intptr_t (*lFf_t)(float);
+typedef intptr_t (*lFd_t)(double);
 typedef uintptr_t (*LFL_t)(uintptr_t);
 typedef void* (*pFL_t)(uintptr_t);
 typedef void* (*pFp_t)(void*);
@@ -129,6 +135,14 @@ typedef void* (*pFpLiiil_t)(void*, uintptr_t, int32_t, int32_t, int32_t, intptr_
 typedef int32_t (*iFpippppp_t)(void*, int32_t, void*, void*, void*, void*, void*);
 typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*);
 
+#if defined(HAVE_LD80BITS) || defined(ANDROID)
+typedef int64_t (*IFD_t)(long double);
+typedef long double (*DFD_t)(long double);
+#else // !HAVE_LD80BITS && !ANDROID
+typedef int64_t (*IFD_t)(double);
+typedef double (*DFD_t)(double);
+#endif
+
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(_Jv_RegisterClasses, vFv_t) \
 	GO(__cxa_pure_virtual, vFv_t) \
@@ -150,12 +164,24 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(setjmp, iFp_t) \
 	GO(stime, iFp_t) \
 	GO(uname, iFp_t) \
+	GO(llrintf, IFf_t) \
+	GO(llrint, IFd_t) \
+	GO(llrintl, IFD_t) \
 	GO(_ITM_RU1, CFp_t) \
 	GO(_ITM_RU4, uFp_t) \
 	GO(_ITM_RU8, UFp_t) \
+	GO(nearbyintf, fFf_t) \
+	GO(pow10f, fFf_t) \
+	GO(rintf, fFf_t) \
+	GO(nearbyint, dFd_t) \
+	GO(pow10, dFd_t) \
+	GO(rint, dFd_t) \
+	GO(pow10l, DFD_t) \
 	GO(syscall, lFv_t) \
 	GO(__sysconf, lFi_t) \
 	GO(sysconf, lFi_t) \
+	GO(lrintf, lFf_t) \
+	GO(lrint, lFd_t) \
 	GO(getauxval, LFL_t) \
 	GO(_ZGTtnaX, pFL_t) \
 	GO(_ZGTtnam, pFL_t) \
