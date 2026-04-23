@@ -54,7 +54,6 @@ enum bits_state {
 };
 
 int is_gst = 0;
-int is_check_only = 0;
 
 int main(int argc, char **argv) {
 	setbuf(stdout, NULL);
@@ -68,6 +67,7 @@ int main(int argc, char **argv) {
 	const char *in_file = NULL, *ref_file = NULL, *out_file = NULL;
 	VECTOR(charp) *paths = vector_new(charp);
 	const char *archname = NULL, *emuname = NULL, *targetname = NULL;
+	int is_check_only = 0;
 	
 	for (int i = 1; i < argc; ++i) {
 		int isfile = 0;
