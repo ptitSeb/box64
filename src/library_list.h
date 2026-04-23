@@ -303,6 +303,8 @@ GO("libproxy.so", proxy)
 GO("libssh.so.4", ssh4)
 GO("libsmbclient.so.0", smbclient)
 GO("libsmbclient.so", smbclient)
+GO("libpixman-1.so.0", pixman1)
+GO("libpixman-1.so", pixman1)
 
 GO("libc.so", libc)
 GO("libm.so", libm)

@@ -1136,6 +1136,7 @@
 #() vFpLpu
 #() vFpLpL
 #() vFpLpp
+#() vFppww
 #() vFppii
 #() vFppiu
 #() vFppid
@@ -1816,7 +1817,9 @@
 #() vFlplpl
 #() vFLpppi
 #() vFLpppp
+#() vFpwwip
 #() vFpwwWW
+#() vFpwiip
 #() vFpiiii
 #() vFpiiiu
 #() vFpiiip
@@ -1973,6 +1976,7 @@
 #() iFuupup
 #() iFuuppp
 #() iFupupp
+#() iFuppip
 #() iFuppLp
 #() iFupppp
 #() iFLppip
@@ -2279,6 +2283,7 @@
 #() pFipipp
 #() pFuiiii
 #() pFuiiiu
+#() pFuiipi
 #() pFuiupp
 #() pFuuiip
 #() pFuuupu
@@ -2468,6 +2473,7 @@
 #() vFpiiipp
 #() vFpiiuuu
 #() vFpiilli
+#() vFpiipii
 #() vFpiippi
 #() vFpiippp
 #() vFpiLppi
@@ -2674,6 +2680,7 @@
 #() iFpLpppp
 #() iFppiiii
 #() iFppiiip
+#() iFppiiuu
 #() iFppiipi
 #() iFppiipL
 #() iFppiipp
@@ -2906,6 +2913,7 @@
 #() pFpLpppp
 #() pFppiiii
 #() pFppiiup
+#() pFppiipi
 #() pFppiipp
 #() pFppiIll
 #() pFppiCCC
@@ -3014,6 +3022,7 @@
 #() vFlplpldd
 #() vFlpplppl
 #() vFLpuLpLp
+#() vFpiiiiii
 #() vFpiiiipp
 #() vFpiiliip
 #() vFpiiLiip
@@ -3439,6 +3448,7 @@
 #() iFuuuuuuuu
 #() iFupipppip
 #() iFdiippppL
+#() iFpiiiiiiu
 #() iFpiiupppp
 #() iFpiuiiLLL
 #() iFpipiipip
@@ -3742,6 +3752,7 @@
 #() pFEpppppppp
 #() pFuupuuuuuu
 #() pFpiiiiuuuu
+#() pFpiiuuuuii
 #() pFpLpLLipui
 #() pFpLppLLiLi
 #() pFppupupuuu
@@ -3788,6 +3799,8 @@
 #() vFullfplplpl
 #() vFulldplplpl
 #() vFullpplplpl
+#() vFuppiiiipip
+#() vFuppuiiiiip
 #() vFffffffffff
 #() vFpiuippppip
 #() vFpipipippip
@@ -3961,6 +3974,8 @@
 #() vFuullfplplfpl
 #() vFuulldplpldpl
 #() vFuullpplplppl
+#() vFupppwwwwwwWW
+#() vFupppiiiiiiii
 #() vFffffffffffff
 #() vFpiLLpiiiipii
 #() vFpiLLpLiiiipi
@@ -3987,8 +4002,10 @@
 #() iFpLLlliLppppp
 #() iFpLpuuLpLpppL
 #() iFpLpppppppppp
+#() iFppiiiiiiiiii
 #() iFppLlliLppppp
 #() iFpppipipiipii
+#() iFppppwwwwwwWW
 #() iFpppppppppppp
 #() uFpuupppppuuuu
 #() uFpppppppppppp
@@ -4062,6 +4079,7 @@
 #() pFbpCpppwwwwwwWW
 #() vFuiiiiiuiiiiilll
 #() vFuuiiiiuuiiiiiii
+#() vFuppuiiiiiiiipip
 #() vFfffffffffffffff
 #() vFppUpUUpUUpUUuuu
 #() vFpppippppppppppp
@@ -6747,6 +6765,7 @@ wrappedpangoft2:
 - pFp:
   - pango_fc_font_lock_face
 wrappedpcap:
+wrappedpixman1:
 wrappedplc4:
 wrappedplds4:
 wrappedpng16:

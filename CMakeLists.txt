@@ -842,6 +842,7 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedproxy.c"
     "${BOX64_ROOT}/src/wrapped/wrappedssh4.c"
     "${BOX64_ROOT}/src/wrapped/wrappedsmbclient.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedpixman1.c"
 )
 endif()
 if(ANDROID)
