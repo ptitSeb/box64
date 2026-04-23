@@ -2767,6 +2767,50 @@ GOW(atanhf, fFf)
 // __atanh_finite
 GOWD(atanhl, DFD, atanh)
 GOWD(atanl, DFD, atan)
+#ifdef STATICBUILD
+// GOW(cabs, dFX)
+// GOW(cabsf, fFx)
+// GOWD(cabsl, DFY, cabs)
+// GOW(cacos, XFX)
+// GOW(cacosf, xFx)
+// GOW(cacosh, XFX)
+// GOW(cacoshf, xFx)
+// GOWD(cacoshl, YFY, cacosh)
+// GOWD(cacosl, YFY, cacos)
+// GOW(carg, dFX)
+// GOW(cargf, fFx)
+// // cargl    // Weak
+// GOW(casin, XFX)
+// GOW(casinf, xFx)
+// GOW(casinh, XFX)
+// GOW(casinhf, xFx)
+// GOWD(casinhl, YFY, casinh)
+// GOWD(casinl, YFY, casin)
+// GOW(catan, XFX)
+// GOW(catanf, xFx)
+// GOW(catanh, XFX)
+// GOW(catanhf, xFx)
+// GOWD(catanhl, YFY, catanh)
+// GOWD(catanl, YFY, catan)
+// GOW(cbrt, dFd)
+// GOW(cbrtf, fFf)
+// GOWD(cbrtl, DFD, cbrt)
+// GOW(ccos, XFX)
+// GOW(ccosf, xFx)
+// GOW(ccosh, XFX)
+// GOW(ccoshf, xFx)
+// GOWD(ccoshl, YFY, ccosh)
+// GOWD(ccosl, YFY, ccos)
+// GOW(ceil, dFd)
+// GOW(ceilf, fFf)
+// GOWD(ceill, DFD, ceil)
+// GOW(cexp, XFX)
+// GOW(cexpf, xFx)
+// GOWD(cexpl, YFY, cexp)
+// GOW(clog, XFX)
+// GOW(clogf, xFx)
+// GOWD(clogl, YFY, clog)
+#else
 GOW(cabs, dFX)
 GOW(cabsf, fFx)
 GOWD(cabsl, DFY, cabs)
@@ -2806,24 +2850,12 @@ GOWD(ceill, DFD, ceil)
 GOW(cexp, XFX)
 GOW(cexpf, xFx)
 GOWD(cexpl, YFY, cexp)
-// cimag    // Weak
-// cimagf   // Weak
-// cimagl   // Weak
 GOW(clog, XFX)
-// clog10   // Weak
-// __clog10
-// clog10f  // Weak
-// __clog10f
-// clog10l  // Weak
-// __clog10l
 GOW(clogf, xFx)
 GOWD(clogl, YFY, clog)
-// conj // Weak
-// conjf    // Weak
-// conjl    // Weak
+#endif
 GOW(copysign, dFdd)
 GOW(copysignf, fFff)
-// copysignl    // Weak
 GOW(cos, dFd)
 GOW(cosf, fFf)
 GOW(cosh, dFd)
@@ -2837,10 +2869,6 @@ GOW(cpowf, xFxx)
 GOWD(cpowl, YFYY, cpow)
 GOW(cproj, XFX)
 GOW(cprojf, xFx)
-// cprojl   // Weak
-// creal    // Weak
-// crealf   // Weak
-// creall   // Weak
 GOW(csin, XFX)
 GOW(csinf, xFx)
 GOW(csinh, XFX)
@@ -2889,7 +2917,22 @@ GOW(fabsf, fFf)
 GOWD(fabsl, DFD, fabs)
 GOW(fdim, dFdd)
 GOW(fdimf, fFff)
-// fdiml    // Weak
+#ifdef STATICBUILD
+// GOM(feclearexcept, iFEi)
+// GO(fedisableexcept, iFi)
+// GO(feenableexcept, iFi)
+// GO(fegetenv, iFp)
+// GO(fegetexcept, iFv)
+// GO(fegetexceptflag, iFpi)
+// GOM(fegetround, iFEv)
+// GO(feholdexcept, iFp)
+// GOM(feraiseexcept, iFEi)
+// GOM(fesetenv, iFEp)
+// GO(fesetexceptflag, iFpi)
+// GOM(fesetround, iFEi)
+// GOM(fetestexcept, iFEi)
+// GOM(feupdateenv, iFEp)
+#else
 // GOM(feclearexcept, iFEi)
 GO(fedisableexcept, iFi)
 GO(feenableexcept, iFi)
@@ -2904,6 +2947,7 @@ GO(fesetexceptflag, iFpi)
 // GOM(fesetround, iFEi)
 // GOM(fetestexcept, iFEi)
 // GOM(feupdateenv, iFEp)
+#endif
 GOW(finite, iFd)
 // __finite
 GOW(finitef, iFf)
@@ -3026,9 +3070,9 @@ GOW(nanf, fFp)
 // nearbyintl   // Weak
 GOW(nextafter, dFdd)
 GOW(nextafterf, fFff)
-GOWD(nextafterl, DFDD, nextafter)
-GOWD(nexttoward, dFdD, my_nexttoward) // This loses precision
-GOWD(nexttowardf, fFfD, my_nexttowardf) // This loses precision
+// GOWD(nextafterl, DFDD, nextafter)
+// GOWD(nexttoward, dFdD, my_nexttoward) // This loses precision
+// GOWD(nexttowardf, fFfD, my_nexttowardf) // This loses precision
 // nexttowardl  // Weak
 GOW(pow, dFdd)
 // GOWM(pow10, dFd)
