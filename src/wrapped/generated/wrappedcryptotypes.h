@@ -15,7 +15,6 @@ typedef void (*vFp_t)(void*);
 typedef void* (*pFp_t)(void*);
 typedef void (*vFpp_t)(void*, void*);
 typedef int32_t (*iFpp_t)(void*, void*);
-typedef void* (*pFpp_t)(void*, void*);
 typedef int32_t (*iFppp_t)(void*, void*, void*);
 typedef void* (*pFpppp_t)(void*, void*, void*, void*);
 typedef int32_t (*iFpiipp_t)(void*, int32_t, int32_t, void*, void*);
@@ -27,6 +26,7 @@ typedef int32_t (*iFppppipp_t)(void*, void*, void*, void*, int32_t, void*, void*
 	GO(CRYPTO_set_id_callback, vFp_t) \
 	GO(CRYPTO_set_locking_callback, vFp_t) \
 	GO(sk_new, pFp_t) \
+	GO(OPENSSL_sk_pop_free, vFpp_t) \
 	GO(X509_STORE_CTX_set_verify_cb, vFpp_t) \
 	GO(X509_STORE_set_verify_cb, vFpp_t) \
 	GO(sk_pop_free, vFpp_t) \
@@ -37,7 +37,6 @@ typedef int32_t (*iFppppipp_t)(void*, void*, void*, void*, int32_t, void*, void*
 	GO(BIO_meth_set_puts, iFpp_t) \
 	GO(BIO_meth_set_read, iFpp_t) \
 	GO(BIO_meth_set_write, iFpp_t) \
-	GO(OPENSSL_sk_pop_free, pFpp_t) \
 	GO(ASN1_i2d_bio, iFppp_t) \
 	GO(ASN1_d2i_bio, pFpppp_t) \
 	GO(PEM_read_bio_DHparams, pFpppp_t) \

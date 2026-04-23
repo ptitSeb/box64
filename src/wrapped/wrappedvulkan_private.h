@@ -232,8 +232,8 @@ GO(vkCmdCopyImage2, vFpp)
 GO(vkCmdCopyImageToBuffer2, vFpp)
 GO(vkCmdResolveImage2, vFpp)
 GO(vkCmdSetDepthBiasEnable, vFpu)
-GO(vkCmdSetLogicOp, vFpi) // Warning: failed to confirm
-GO(vkCmdSetPatchControlPoints, vFpu) // Warning: failed to confirm
+GO(vkCmdSetLogicOp, vFpi)
+GO(vkCmdSetPatchControlPoints, vFpu)
 GO(vkCmdSetPrimitiveRestartEnable, vFpu)
 GO(vkCmdSetRasterizerDiscardEnable, vFpu)
 GOM(vkCreatePrivateDataSlot, iFEpppp)
@@ -325,15 +325,15 @@ GO(vkGetPhysicalDeviceSurfacePresentModesKHR, iFpppp)
 GO(vkGetPhysicalDeviceSurfaceSupportKHR, iFpupp)
 
 // VK_KHR_xcb_surface
-GOM(vkCreateXcbSurfaceKHR, iFEpppp) // Warning: failed to confirm
-GO(vkGetPhysicalDeviceXcbPresentationSupportKHR, uFpubp) // Warning: failed to confirm
+GOM(vkCreateXcbSurfaceKHR, iFEpppp)
+GO(vkGetPhysicalDeviceXcbPresentationSupportKHR, uFpubp)
 
 // VK_KHR_xlib_surface
-GOM(vkCreateXlibSurfaceKHR, iFEpppp) // Warning: failed to confirm
-GO(vkGetPhysicalDeviceXlibPresentationSupportKHR, uFpupp) // Warning: failed to confirm
+GOM(vkCreateXlibSurfaceKHR, iFEpppp)
+GO(vkGetPhysicalDeviceXlibPresentationSupportKHR, uFpupp)
 
 // VK_KHR_android_surface
-GOM(vkCreateAndroidSurfaceKHR, iFEpppp) // Warning: failed to confirm
+GOM(vkCreateAndroidSurfaceKHR, iFEpppp)
 
 // VK_KHR_swapchain
 GO(vkAcquireNextImageKHR, iFppUppp)
@@ -387,8 +387,8 @@ GOM(vkDestroySamplerYcbcrConversionKHR, vFEppp)
 GOM(vkCreateSharedSwapchainsKHR, iFEpuppp)
 
 // VK_KHR_wayland_surface
-GOM(vkCreateWaylandSurfaceKHR, iFEpppp) // Warning: failed to confirm
-GO(vkGetPhysicalDeviceWaylandPresentationSupportKHR, uFpup) // Warning: failed to confirm
+GOM(vkCreateWaylandSurfaceKHR, iFEpppp)
+GO(vkGetPhysicalDeviceWaylandPresentationSupportKHR, uFpup)
 
 // VK_KHR_device_group_creation
 GO(vkEnumeratePhysicalDeviceGroupsKHR, iFppp)
@@ -454,10 +454,10 @@ GO(vkCmdEndTransformFeedbackEXT, vFpuupp)
 // no functions
 
 // VK_EXT_full_screen_exclusive
-GO(vkAcquireFullScreenExclusiveModeEXT, iFpU) // Warning: failed to confirm
-GO(vkGetPhysicalDeviceSurfacePresentModes2EXT, iFpppp) // Warning: failed to confirm
-GO(vkReleaseFullScreenExclusiveModeEXT, iFpU) // Warning: failed to confirm
-GO(vkGetDeviceGroupSurfacePresentModes2EXT, iFppp) // Warning: failed to confirm
+GO(vkAcquireFullScreenExclusiveModeEXT, iFpU)
+GO(vkGetPhysicalDeviceSurfacePresentModes2EXT, iFpppp)
+GO(vkReleaseFullScreenExclusiveModeEXT, iFpU)
+GO(vkGetDeviceGroupSurfacePresentModes2EXT, iFppp)
 
 // VK_EXT_calibrated_timestamps
 GO(vkGetCalibratedTimestampsEXT, iFpuppp)
@@ -799,8 +799,8 @@ GO(vkGetAccelerationStructureMemoryRequirementsNV, vFppp)
 GO(vkGetRayTracingShaderGroupHandlesNV, iFppuuLp)
 
 // VK_EXT_acquire_xlib_display
-GO(vkAcquireXlibDisplayEXT, iFppU) // Warning: failed to confirm
-GO(vkGetRandROutputDisplayEXT, iFpppp) // Warning: failed to confirm
+GO(vkAcquireXlibDisplayEXT, iFppU)
+GO(vkGetRandROutputDisplayEXT, iFpppp)
 
 // VK_EXT_shader_module_identifier
 GO(vkGetShaderModuleCreateInfoIdentifierEXT, vFppp)
@@ -847,8 +847,8 @@ GO(vkCmdSetViewportSwizzleNV, vFpuup)
 GO(vkCmdSetViewportWScalingEnableNV, vFpu)
 
 // VK_KHR_external_memory_win32
-GO(vkGetMemoryWin32HandleKHR, iFppp) // Warning: failed to confirm
-GO(vkGetMemoryWin32HandlePropertiesKHR, iFpipp) // Warning: failed to confirm
+GO(vkGetMemoryWin32HandleKHR, iFppp)
+GO(vkGetMemoryWin32HandlePropertiesKHR, iFpipp)
 
 // VK_EXT_swapchain_maintenance1
 GO(vkReleaseSwapchainImagesEXT, iFpp)
@@ -977,12 +977,12 @@ GO(vkGetPhysicalDeviceCalibrateableTimeDomainsKHR, iFppp)
 // no functions
 
 // VK_NV_cuda_kernel_launch
-GO(vkCmdCudaLaunchKernelNV, vFpp) // Warning: failed to confirm
-GOM(vkCreateCudaFunctionNV, iFEpppp) // Warning: failed to confirm
-GOM(vkCreateCudaModuleNV, iFEpppp) // Warning: failed to confirm
-GOM(vkDestroyCudaFunctionNV, vFEpUp) // Warning: failed to confirm
-GOM(vkDestroyCudaModuleNV, vFEpUp) // Warning: failed to confirm
-GO(vkGetCudaModuleCacheNV, iFpUpp) // Warning: failed to confirm
+GO(vkCmdCudaLaunchKernelNV, vFpp)
+GOM(vkCreateCudaFunctionNV, iFEpppp)
+GOM(vkCreateCudaModuleNV, iFEpppp)
+GOM(vkDestroyCudaFunctionNV, vFEpUp)
+GOM(vkDestroyCudaModuleNV, vFEpUp)
+GO(vkGetCudaModuleCacheNV, iFpUpp)
 
 // VK_NV_low_latency2
 GO(vkGetLatencyTimingsNV, vFppp)
@@ -992,13 +992,13 @@ GO(vkSetLatencyMarkerNV, vFppp)
 GO(vkSetLatencySleepModeNV, iFppp)
 
 // VK_AMDX_shader_enqueue
-GO(vkCmdDispatchGraphAMDX, vFpUp) // Warning: failed to confirm
-GO(vkCmdDispatchGraphIndirectAMDX, vFpUp) // Warning: failed to confirm
-GO(vkCmdDispatchGraphIndirectCountAMDX, vFpUU) // Warning: failed to confirm
-GO(vkCmdInitializeGraphScratchMemoryAMDX, vFpU) // Warning: failed to confirm
-GOM(vkCreateExecutionGraphPipelinesAMDX, iFEpUuppp) // Warning: failed to confirm
-GO(vkGetExecutionGraphPipelineNodeIndexAMDX, iFpUpp) // Warning: failed to confirm
-GO(vkGetExecutionGraphPipelineScratchSizeAMDX, iFpUp) // Warning: failed to confirm
+GO(vkCmdDispatchGraphAMDX, vFpUp)
+GO(vkCmdDispatchGraphIndirectAMDX, vFpUp)
+GO(vkCmdDispatchGraphIndirectCountAMDX, vFpUU)
+GO(vkCmdInitializeGraphScratchMemoryAMDX, vFpU)
+GOM(vkCreateExecutionGraphPipelinesAMDX, iFEpUuppp)
+GO(vkGetExecutionGraphPipelineNodeIndexAMDX, iFpUpp)
+GO(vkGetExecutionGraphPipelineScratchSizeAMDX, iFpUp)
 
 // VK_KHR_maintenance6
 GO(vkCmdBindDescriptorSets2KHR, vFpp)
@@ -1016,12 +1016,12 @@ GO(vkCmdSetRenderingInputAttachmentIndicesKHR, vFpp)
 GO(vkCmdSetLineStippleKHR, vFpuW)
 
 // VK_KHR_external_semaphore_win32
-GO(vkGetSemaphoreWin32HandleKHR, iFppp) // Warning: failed to confirm
-GO(vkImportSemaphoreWin32HandleKHR, iFpp) // Warning: failed to confirm
+GO(vkGetSemaphoreWin32HandleKHR, iFppp)
+GO(vkImportSemaphoreWin32HandleKHR, iFpp)
 
 // VK_KHR_win32_keyed_mutex
-GO(wine_vkAcquireKeyedMutex, iFpUUu) // Warning: failed to confirm
-GO(wine_vkReleaseKeyedMutex, iFpUU) // Warning: failed to confirm
+GO(wine_vkAcquireKeyedMutex, iFpUUu)
+GO(wine_vkReleaseKeyedMutex, iFpUU)
 
 // VK_NV_cooperative_matrix2
 GO(vkGetPhysicalDeviceCooperativeMatrixFlexibleDimensionsPropertiesNV, iFppp)
@@ -1101,8 +1101,8 @@ GO(vkUnregisterCustomBorderColorEXT, vFpu)
 // no new functions
 
 // VK_KHR_win32_surface
-GOM(vkCreateWin32SurfaceKHR, iFEpppp) // Warning: failed to confirm
-GO(vkGetPhysicalDeviceWin32PresentationSupportKHR, iFpu) // Warning: failed to confirm
+GOM(vkCreateWin32SurfaceKHR, iFEpppp)
+GO(vkGetPhysicalDeviceWin32PresentationSupportKHR, iFpu)
 
 // VK_KHR_swapchain_maintenance1
 GO(vkReleaseSwapchainImagesKHR, iFpp)
@@ -1129,5 +1129,5 @@ GO(vkCmdEndRendering2KHR, vFpp)
 GO(vkCmdEndRendering2EXT, vFpp)
 
 // Layer stuffs
-GO(vk_icdNegotiateLoaderICDInterfaceVersion, iFp) // Warning: failed to confirm
+GO(vk_icdNegotiateLoaderICDInterfaceVersion, iFp)
 //GO(vkNegotiateLoaderLayerInterfaceVersion, iFp)

@@ -14,17 +14,19 @@
 typedef void (*vFp_t)(void*);
 typedef int32_t (*iFv_t)(void);
 typedef int32_t (*iFp_t)(void*);
+typedef uint16_t (*WFp_t)(void*);
 typedef uint32_t (*uFp_t)(void*);
 typedef uint64_t (*UFp_t)(void*);
 typedef void* (*pFv_t)(void);
 typedef void* (*pFp_t)(void*);
 typedef int32_t (*iFup_t)(uint32_t, void*);
+typedef int32_t (*iFpW_t)(void*, uint16_t);
+typedef int32_t (*iFpu_t)(void*, uint32_t);
+typedef int32_t (*iFpU_t)(void*, uint64_t);
 typedef int32_t (*iFpp_t)(void*, void*);
-typedef uint32_t (*uFpW_t)(void*, uint16_t);
-typedef uint32_t (*uFpu_t)(void*, uint32_t);
-typedef uint32_t (*uFpU_t)(void*, uint64_t);
 typedef void* (*pFpi_t)(void*, int32_t);
 typedef void* (*pFpp_t)(void*, void*);
+typedef void* (*pFSi_t)(void*, int32_t);
 typedef int32_t (*iFppi_t)(void*, void*, int32_t);
 typedef void* (*pFupp_t)(uint32_t, void*, void*);
 typedef void* (*pFpippp_t)(void*, int32_t, void*, void*, void*);
@@ -42,31 +44,31 @@ typedef void* (*pFpippp_t)(void*, int32_t, void*, void*, void*);
 	GO(SDL_HasSSE, iFv_t) \
 	GO(SDL_HasSSE2, iFv_t) \
 	GO(SDL_GetWMInfo, iFp_t) \
-	GO(SDL_RemoveTimer, iFp_t) \
-	GO(SDL_ReadBE16, uFp_t) \
+	GO(SDL_ReadBE16, WFp_t) \
+	GO(SDL_ReadLE16, WFp_t) \
 	GO(SDL_ReadBE32, uFp_t) \
-	GO(SDL_ReadLE16, uFp_t) \
 	GO(SDL_ReadLE32, uFp_t) \
+	GO(SDL_RemoveTimer, uFp_t) \
 	GO(SDL_ReadBE64, UFp_t) \
 	GO(SDL_ReadLE64, UFp_t) \
 	GO(SDL_GetEventFilter, pFv_t) \
 	GO(SDL_GL_GetProcAddress, pFp_t) \
 	GO(SDL_LoadObject, pFp_t) \
 	GO(SDL_SetTimer, iFup_t) \
+	GO(SDL_WriteBE16, iFpW_t) \
+	GO(SDL_WriteLE16, iFpW_t) \
+	GO(SDL_WriteBE32, iFpu_t) \
+	GO(SDL_WriteLE32, iFpu_t) \
+	GO(SDL_WriteBE64, iFpU_t) \
+	GO(SDL_WriteLE64, iFpU_t) \
 	GO(SDL_OpenAudio, iFpp_t) \
-	GO(SDL_WriteBE16, uFpW_t) \
-	GO(SDL_WriteLE16, uFpW_t) \
-	GO(SDL_WriteBE32, uFpu_t) \
-	GO(SDL_WriteLE32, uFpu_t) \
-	GO(SDL_WriteBE64, uFpU_t) \
-	GO(SDL_WriteLE64, uFpU_t) \
 	GO(SDL_LoadBMP_RW, pFpi_t) \
 	GO(SDL_RWFromConstMem, pFpi_t) \
-	GO(SDL_RWFromFP, pFpi_t) \
 	GO(SDL_RWFromMem, pFpi_t) \
 	GO(SDL_CreateThread, pFpp_t) \
 	GO(SDL_LoadFunction, pFpp_t) \
 	GO(SDL_RWFromFile, pFpp_t) \
+	GO(SDL_RWFromFP, pFSi_t) \
 	GO(SDL_SaveBMP_RW, iFppi_t) \
 	GO(SDL_AddTimer, pFupp_t) \
 	GO(SDL_LoadWAV_RW, pFpippp_t)

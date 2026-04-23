@@ -13,7 +13,7 @@
 
 typedef int32_t (*iFp_t)(void*);
 typedef int32_t (*iFip_t)(int32_t, void*);
-typedef int32_t (*iFupp_t)(uint32_t, void*, void*);
+typedef int32_t (*iFipp_t)(int32_t, void*, void*);
 typedef int32_t (*iFipip_t)(int32_t, void*, int32_t, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
@@ -22,7 +22,7 @@ typedef int32_t (*iFipip_t)(int32_t, void*, int32_t, void*);
 	GO(aio_write, iFp_t) \
 	GO(aio_write64, iFp_t) \
 	GO(aio_cancel, iFip_t) \
-	GO(timer_create, iFupp_t) \
+	GO(timer_create, iFipp_t) \
 	GO(lio_listio, iFipip_t)
 
 #endif // __wrappedlibrtTYPES_H_

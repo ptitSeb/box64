@@ -98,12 +98,12 @@ GO(gdk_pixbuf_rotate_simple, pFpu)
 GO(gdk_pixbuf_rotation_get_type, LFv)
 GO(gdk_pixbuf_saturate_and_pixelate, vFppfi)
 GOM(gdk_pixbuf_save, iFEppppV)
-//GO(gdk_pixbuf_save_to_buffer, iFpppppppppppppp)   //vaarg, wrap with gdk_pixbuf_save_to_bufferv ?
+//GOM(gdk_pixbuf_save_to_buffer, iFEpppppV)
 GO(gdk_pixbuf_save_to_bufferv, iFppppppp)
-//GOM(gdk_pixbuf_save_to_callback, iFEpppppV)   //wrap with gdk_pixbuf_save_to_callbackv
+//GOM(gdk_pixbuf_save_to_callback, iFEpppppV)
 //GOM(gdk_pixbuf_save_to_callbackv, iFEppppppp)
-//GO(gdk_pixbuf_save_to_stream, iFpppppppppppppp) //vaarg, but gdk_pixbuf_save_to_streamv is fairly recent
-//GOM(gdk_pixbuf_save_to_stream_async, vFEppppppppppppppp)   //vaarg, and gdk_pixbuf_save_to_streamv_async is fairly recent
+//GOM(gdk_pixbuf_save_to_stream, iFEpppppV)
+//GOM(gdk_pixbuf_save_to_stream_async, vFEppppppV)
 GO(gdk_pixbuf_save_to_stream_finish, iFpp)
 GO(gdk_pixbuf_savev, iFpppppp)
 GO(gdk_pixbuf_scale, vFppiiiiddddu)

@@ -1,5 +1,5 @@
 #if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
-#error meh!
+#error Meh...
 #endif
 
 GOW(acos, dFd)
@@ -125,7 +125,7 @@ GOWD(ctanl, YFY, ctan)
 // __cxa_finalize  // Weak
 GOW(drem, dFdd)
 GOW(dremf, fFff)
-// GOW(dreml,
+//GOW(dreml, 
 GOW(erf, dFd)
 GOW(erfc, dFd)
 GOW(erfcf, fFf)
@@ -258,7 +258,7 @@ GOW(log10, dFd)
 GOW(log10f, fFf)
 GOM(__log10f_finite, fFf)
 GOM(__log10_finite, dFd)
-GOWD(log10l, DFD, log10) //Weak
+GOWD(log10l, DFD, log10)
 GOW(log1p, dFd)
 GOW(log1pf, fFf)
 GOWD(log1pl, DFD, log1p)
@@ -320,7 +320,7 @@ GOW(round, dFd)
 GOW(roundf, fFf)
 GO(roundeven, dFd)  //since C23
 GO(roundevenf, fFf)
-//GO(roundevenl, DFD)
+//GOD(roundevenl, DFD, )
 GOWD(roundl, DFD, round)
 GOW(scalb, dFdd)
 GOW(scalbf, fFff)

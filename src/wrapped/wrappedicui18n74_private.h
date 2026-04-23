@@ -1,5 +1,5 @@
 #if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
-#error meh!
+#error Meh...
 #endif
 
 // UDate is double
@@ -68,7 +68,7 @@ GO(ucol_open_74, pFpp)
 GO(ucol_openElements_74, pFppip)
 GO(ucol_openRules_74, pFpiiipp)
 GO(ucol_safeClone_74, pFpppp)
-GO(ucol_setAttribute_74, vFpiip)
+GO(ucol_setAttribute_74, vFpuip)
 GO(ucol_setVariableTop_74, uFppip)
 GO(ucol_strcoll_74, iFppipi)
 

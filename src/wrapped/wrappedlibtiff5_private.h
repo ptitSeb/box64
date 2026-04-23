@@ -119,7 +119,7 @@ GO(TIFFReadScanline, iFppuW)
 GO(TIFFFreeDirectory, vFp)
 GO(TIFFCleanup, vFp)
 GO(TIFFFlush, iFp)
-GO(TIFFSetCompressionScheme, iFpi) // Warning: failed to confirm
+GO(TIFFSetCompressionScheme, iFpi)
 GO(TIFFSwabShort, vFp)
 //GO(TIFFInitNeXT, 
 //GO(TIFFInitDumpMode, 

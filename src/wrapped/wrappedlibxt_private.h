@@ -1,5 +1,5 @@
 #if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
-#error Meh....
+#error Meh...
 #endif
 
 //GO(XtAddActions, 
@@ -9,12 +9,12 @@
 //GO(XtAddCallbacks, 
 //GO(XtAddConverter, 
 //GO(_XtAddDefaultConverters, 
-GOM(XtAddEventHandler, vFEpuipp)
+GOM(XtAddEventHandler, vFEpLipp)
 //GO(_XtAddEventSeqToStateTree, 
 //GO(XtAddExposureToRegion, 
 //GO(XtAddGrab, 
 //GO(XtAddInput, 
-GOM(XtAddRawEventHandler, vFEpuipp)
+GOM(XtAddRawEventHandler, vFEpLipp)
 //GO(_XtAddShellToHookObj, 
 //GO(XtAddSignal, 
 //GO(XtAddTimeOut, 
@@ -28,10 +28,10 @@ GOM(XtAddRawEventHandler, vFEpuipp)
 //GO(XtAppAddActions, 
 //GO(XtAppAddBlockHook, 
 //GO(XtAppAddConverter, 
-GOM(XtAppAddInput, lFEpippp)
+GOM(XtAppAddInput, LFEpippp)
 //GO(XtAppAddSignal, 
 //GO(XtAppAddTimeOut, 
-GOM(XtAppAddWorkProc, lFEppp)
+GOM(XtAppAddWorkProc, LFEppp)
 GO(XtAppCreateShell, pFpppppu)
 //GO(_XtAppCreateShell, 
 //GO(XtAppError, 
@@ -46,17 +46,17 @@ GO(XtAppCreateShell, pFpppppu)
 //GO(XtAppMainLoop, 
 //GO(XtAppNextEvent, 
 //GO(XtAppPeekEvent, 
-GO(XtAppPending, pFp)
-GO(XtAppProcessEvent, vFpu)
+GO(XtAppPending, LFp)
+GO(XtAppProcessEvent, vFpL)
 //GO(XtAppReleaseCacheRefs, 
-GOM(XtAppSetErrorHandler, vFEpp)
-GOM(XtAppSetErrorMsgHandler, vFEpp)
+GOM(XtAppSetErrorHandler, pFEpp)
+GOM(XtAppSetErrorMsgHandler, pFEpp)
 //GO(XtAppSetExitFlag, 
 GO(XtAppSetFallbackResources, vFpp)
 //GO(XtAppSetSelectionTimeout, 
 //GO(XtAppSetTypeConverter, 
-GOM(XtAppSetWarningHandler, vFEpp)
-GOM(XtAppSetWarningMsgHandler, vFEpp)
+GOM(XtAppSetWarningHandler, pFEpp)
+GOM(XtAppSetWarningMsgHandler, pFEpp)
 //GO(XtAppUnlock, 
 //GO(XtAppWarning, 
 //GO(XtAppWarningMsg, 
@@ -229,11 +229,11 @@ GO(XtFree, vFp)
 //GO(_XtGetTypeIndex, 
 //GO(_XtGetUserName, 
 //GO(XtGetValues, 
-GO(XtGrabButton, vFpipiuiipp)
+GO(XtGrabButton, vFpiuiuiiLL)
 //GO(_XtGrabInitialize, 
-GO(XtGrabKey, vFpppiii)
-GO(XtGrabKeyboard, iFpiiiu)
-GO(XtGrabPointer, iFpiuiipp)
+GO(XtGrabKey, vFpuuiii)
+GO(XtGrabKeyboard, iFpiiiL)
+GO(XtGrabPointer, iFpiuiiLLL)
 //GO(_XtHandleFocus, 
 //GO(XtHasCallbacks, 
 //GO(_XtHeapAlloc, 
@@ -257,7 +257,7 @@ GO(_XtInherit, vFv)
 //GO(XtIsManaged, 
 //GO(XtIsObject, 
 //GO(XtIsOverrideShell, 
-GO(XtIsRealized, iFp)
+GO(XtIsRealized, cFp)
 //GO(XtIsRectObj, 
 //GO(XtIsSensitive, 
 //GO(XtIsSessionShell, 
@@ -326,7 +326,7 @@ GO(XtRealizeWidget, vFp)
 //GO(XtRealloc, 
 //GO(_XtRefreshMapping, 
 //GO(XtRegisterCaseConverter, 
-GO(XtRegisterDrawable, vFppp)
+GO(XtRegisterDrawable, vFpLp)
 //GO(XtRegisterExtensionSelector, 
 //GO(XtRegisterGrabAction, 
 //GO(_XtRegisterGrabs, 
@@ -345,13 +345,13 @@ GO(XtRegisterDrawable, vFppp)
 GO(XtRemoveEventHandler, vFpup)     // need to wrap to free event handler?
 //GO(XtRemoveEventTypeHandler, 
 //GO(XtRemoveGrab, 
-GO(XtRemoveInput, vFl)
+GO(XtRemoveInput, vFL)
 //GO(XtRemoveRawEventHandler, 
 //GO(XtRemoveSignal, 
 //GO(_XtRemoveStateTreeByIndex, 
-GO(XtRemoveTimeOut, vFp)
+GO(XtRemoveTimeOut, vFL)
 //GO(_XtRemoveTranslations, 
-GO(XtRemoveWorkProc, vFl)
+GO(XtRemoveWorkProc, vFL)
 //GO(XtReservePropertyAtom, 
 GO(XtResizeWidget, vFpuuu)
 GO(XtResizeWindow, vFp)
@@ -401,10 +401,10 @@ GO(XtToolkitInitialize, vFv)
 //GO(_XtTraverseStateTree, 
 //GO(_XtUnbindActions, 
 //GO(_XtUngrabBadGrabs, 
-GO(XtUngrabButton, vFppp)
-GO(XtUngrabKey, vFppp)
-GO(XtUngrabKeyboard, vFpu)
-GO(XtUngrabPointer, vFpu)
+GO(XtUngrabButton, vFpuu)
+GO(XtUngrabKey, vFpuu)
+GO(XtUngrabKeyboard, vFpL)
+GO(XtUngrabPointer, vFpL)
 //GO(XtUninstallTranslations, 
 //GO(XtUnmanageChild, 
 //GO(XtUnmanageChildren, 
@@ -434,9 +434,9 @@ GO(XtVaCreateWidget, pFppppppppppppppp) // need to wrap and use XtCreateWidget, 
 //GO(XtWarning, 
 //GO(XtWarningMsg, 
 //GO(XtWidgetToApplicationContext, 
-GO(XtWindow, pFp)
+GO(XtWindow, LFp)
 //GO(_XtWindowedAncestor, 
 //GO(XtWindowOfObject, 
-GO(XtWindowToWidget, pFpp)
+GO(XtWindowToWidget, pFpL)
 
 DATA(overrideShellClassRec, 96)    // real size? this is full of Callback function, so maybe wrap at some point?

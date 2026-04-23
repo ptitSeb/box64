@@ -37,7 +37,7 @@ GO(FT_Face_Properties, iFpup)
 GO(FT_FloorFix, lFl)
 GO(FT_Get_Advance, iFpuip)
 GO(FT_Get_Advances, iFpuuip)
-//GO(FT_Get_BDF_Charset_ID,
+//GO(FT_Get_BDF_Charset_ID, 
 GO(FT_Get_BDF_Property, iFppp)
 GO(FT_Get_Char_Index, uFpL)
 GO(FT_Get_Charmap_Index, iFp)
@@ -84,7 +84,7 @@ GO(FT_Get_TrueType_Engine_Type, uFp)
 GO(FT_Get_Var_Axis_Flags, iFpup)
 GO(FT_Get_Var_Blend_Coordinates, iFpup)
 GO(FT_Get_Var_Design_Coordinates, iFpup)
-GO(FT_Get_WinFNT_Header, iFpp)  // does FT_WinFNT_HeaderRec_ needs alignment?
+GO(FT_Get_WinFNT_Header, iFpp)
 GO(FT_Get_X11_Font_Format, pFp)
 GO(FT_Glyph_Copy, iFpp)
 GO(FT_Glyph_Get_CBox, vFpup)

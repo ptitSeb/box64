@@ -1,5 +1,5 @@
 #if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
-#error meh!
+#error Meh...
 #endif
 
 //GO(BIO_f_ssl, 
@@ -285,7 +285,7 @@ GO(SSL_CTX_get_ex_data, pFpi)
 //GO(SSL_CTX_get_ex_new_index, 
 //GO(SSL_CTX_get_info_callback, 
 //GO(SSL_CTX_get_quiet_shutdown, 
-GO(SSL_CTX_get_security_level, iFp) 
+GO(SSL_CTX_get_security_level, iFp)
 //GO(SSL_CTX_get_ssl_method, 
 //GO(SSL_CTX_get_timeout, 
 //GO(SSL_CTX_get_verify_callback, 
@@ -323,7 +323,7 @@ GO(SSL_CTX_set_default_verify_paths, iFp)
 //GO(SSL_CTX_set_msg_callback, 
 //GO(SSL_CTX_set_next_protos_advertised_cb, 
 GOM(SSL_CTX_set_next_proto_select_cb, vFEppp)
-GO(SSL_CTX_set_options, lFpl)
+GO(SSL_CTX_set_options, UFpU)
 //GO(SSL_CTX_set_psk_client_callback, 
 //GO(SSL_CTX_set_psk_server_callback, 
 //GO(SSL_CTX_set_purpose, 
@@ -353,7 +353,7 @@ GO(SSL_CTX_use_certificate_ASN1, iFpip)
 GO(SSL_CTX_use_certificate_chain_file, iFpp)
 GO(SSL_CTX_use_certificate_file, iFppi)
 GO(SSL_CTX_use_PrivateKey, iFpp)
-GO(SSL_CTX_use_PrivateKey_ASN1, iFuppi)
+GO(SSL_CTX_use_PrivateKey_ASN1, iFippl)
 GO(SSL_CTX_use_PrivateKey_file, iFppi)
 GO(SSL_CTX_use_psk_identity_hint, iFpp)
 GO(SSL_CTX_use_RSAPrivateKey, iFpp)
@@ -416,7 +416,7 @@ GO(SSL_get_session, pFp)
 //GO(SSL_get_shared_ciphers, 
 //GO(SSL_get_shared_sigalgs, 
 GO(SSL_get_shutdown, iFp)
-GO(SSL_get_state, iFp)
+GO(SSL_get_state, uFp)
 //GO(SSL_get_sigalgs, 
 //GO(ssl_get_sign_pkey, 
 //GO(SSL_get_srp_g, 
@@ -429,7 +429,7 @@ GO(SSL_get_SSL_CTX, pFp)
 GOM(SSL_get_verify_callback, pFEp)
 GO(SSL_get_verify_depth, iFp)
 GO(SSL_get_verify_mode, iFp)
-GO(SSL_get_verify_result, iFp)
+GO(SSL_get_verify_result, lFp)
 GO(SSL_get_version, pFp)
 //GO(SSL_get_wbio, 
 //GO(SSL_get_wfd, 
@@ -475,8 +475,8 @@ GO(SSL_SESSION_free, vFp)
 GO(SSL_SESSION_get_master_key, LFppL)
 GO(SSL_SESSION_get_ticket_lifetime_hint, LFp)
 //GO(SSL_SESSION_get_time, 
-//GO(SSL_SESSION_get_timeout,
-GO(SSL_SESSION_is_resumable, iFp) 
+//GO(SSL_SESSION_get_timeout, 
+GO(SSL_SESSION_is_resumable, iFp)
 GO(SSL_SESSION_new, pFv)
 //GO(SSL_SESSION_print, 
 //GO(SSL_SESSION_print_fp, 
@@ -502,11 +502,11 @@ GO(SSL_set_fd, iFpi)
 //GO(SSL_set_generate_session_id, 
 //GO(SSL_set_info_callback, 
 //GO(SSL_set_msg_callback, 
-GO(SSL_set_options, LFpL)
+GO(SSL_set_options, UFpU)
 //GO(ssl_set_peer_cert_type, 
 GOM(SSL_set_psk_client_callback, vFEpp)
 GOM(SSL_set_psk_server_callback, vFEpp)
-GOM(SSL_set_psk_use_session_callback, vFEpp) 
+GOM(SSL_set_psk_use_session_callback, vFEpp)
 //GO(SSL_set_purpose, 
 GO(SSL_set_quiet_shutdown, vFpi)
 //GO(SSL_set_read_ahead, 
@@ -516,7 +516,7 @@ GO(SSL_set_session, iFpp)
 //GO(SSL_set_session_secret_cb, 
 //GO(SSL_set_session_ticket_ext, 
 //GO(SSL_set_session_ticket_ext_cb, 
-GO(SSL_set_shutdown, iFp)
+GO(SSL_set_shutdown, vFpi)
 //GO(SSL_set_srp_server_param, 
 //GO(SSL_set_srp_server_param_pw, 
 //GO(SSL_set_SSL_CTX, 
@@ -546,7 +546,7 @@ GO(SSL_use_certificate, iFpp)
 GO(SSL_use_certificate_ASN1, iFppi)
 GO(SSL_use_certificate_file, iFppi)
 GO(SSL_use_PrivateKey, iFpp)
-GO(SSL_use_PrivateKey_ASN1, iFppl)
+GO(SSL_use_PrivateKey_ASN1, iFippl)
 GO(SSL_use_PrivateKey_file, iFppi)
 //GO(SSL_use_psk_identity_hint, 
 GO(SSL_use_RSAPrivateKey, iFpp)
@@ -615,4 +615,4 @@ GO(TLSv1_client_method, pFv)
 GO(TLSv1_method, pFv)
 GO(verify_callback, iFip)
 
-GO(TLSv1_server_method, pFv)    // not always present in lib
+GO(TLSv1_server_method, pFv)

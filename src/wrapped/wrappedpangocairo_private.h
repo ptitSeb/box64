@@ -1,5 +1,5 @@
 #if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
-#error meh!
+#error Meh...
 #endif
 
 GO(pango_cairo_context_get_font_options, pFp)
@@ -19,7 +19,7 @@ GO(pango_cairo_font_map_create_context, pFp)
 GO(pango_cairo_font_map_get_default, pFv)
 GO(pango_cairo_font_map_get_font_type, uFp)
 GO(pango_cairo_font_map_get_resolution, dFp)
-GO(pango_cairo_font_map_get_type, iFv)
+GO(pango_cairo_font_map_get_type, LFv)
 GO(pango_cairo_font_map_new, pFv)
 GO(pango_cairo_font_map_new_for_font_type, pFu)
 GO(pango_cairo_font_map_set_default, vFp)

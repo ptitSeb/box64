@@ -248,7 +248,7 @@
 //GO(ZBUFFv07_recommendedDInSize, 
 //GO(ZBUFFv07_recommendedDOutSize, 
 //GO(ZDICT_addEntropyTablesFromBuffer, 
-GO(ZDICT_finalizeDictionary, LFpLpLppuH) // last param afet LFpLpLppu is ZDICT_params_t, a struct with iuu
+GO(ZDICT_finalizeDictionary, LFpLpLppuH)  // last param afet LFpLpLppu is ZDICT_params_t, a struct with iuu
 GO(ZDICT_getDictHeaderSize, LFpL)
 GO(ZDICT_getDictID, uFpL)
 GO(ZDICT_getErrorName, pFL)

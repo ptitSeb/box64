@@ -1,16 +1,16 @@
 #if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))
-#error meh!
+#error Meh...
 #endif
 
 GO(SmcClientID, pFp)
-GO(SmcCloseConnection, iFpip)
+GO(SmcCloseConnection, uFpip)
 GO(_SmcDefaultErrorHandler, vFpiiliip)
 GO(SmcDeleteProperties, vFpip)
 GO(SmcGetIceConnection, pFp)
-//GOM(SmcGetProperties, iFEpBp)
-GO(SmcInteractDone, iFpi)
+//GOM(SmcGetProperties, iFEppp)
+GO(SmcInteractDone, vFpi)
 GOM(SmcInteractRequest, iFEpipp)
-//GOM(SmcModifyCallbacks, vFEpuB)
+//GOM(SmcModifyCallbacks, vFEpLp)
 GOM(SmcOpenConnection, pFEppiiLpppip)
 //GO(_SmcProcessMessage, 
 GO(SmcProtocolRevision, iFp)
@@ -23,7 +23,7 @@ GOM(SmcSetErrorHandler, pFEp)
 GO(SmcSetProperties, vFpip)
 GO(SmcVendor, pFp)
 GO(SmFreeProperty, vFp)
-GO(SmFreeReasons, vFpp)
+GO(SmFreeReasons, vFip)
 GO(SmsCleanUp, vFp)
 GO(SmsClientHostName, pFp)
 GO(SmsClientID, pFp)
@@ -31,7 +31,7 @@ GO(_SmsDefaultErrorHandler, vFpiiliip)
 GO(SmsDie, vFp)
 GO(SmsGenerateClientID, pFp)
 GO(SmsGetIceConnection, pFp)
-//GOM(SmsInitialize, iFppBpBip)
+//GOM(SmsInitialize, iFEpppppip)
 GO(SmsInteract, vFp)
 //GO(_SmsProcessMessage, 
 GO(SmsProtocolRevision, iFp)
@@ -41,7 +41,7 @@ GO(SmsReturnProperties, vFpip)
 GO(SmsSaveComplete, vFp)
 GO(SmsSaveYourself, vFpiiii)
 GO(SmsSaveYourselfPhase2, vFp)
-//GOM(SmsSetErrorHandler, BFEB)
+//GOM(SmsSetErrorHandler, pFEp)
 GO(SmsShutdownCancelled, vFp)
 
 GO(dummy_vFpiiLiip, vFpiiLiip) // for error handler

@@ -19,7 +19,7 @@ DATA(XFixesExtensionInfo, sizeof(void*))    //B
 DATA(XFixesExtensionName, sizeof(void*))    //D
 GO(XFixesFetchRegion, pFpLp)
 GO(XFixesFetchRegionAndBounds, pFpLpp)
-GO(XFixesFindDisplay, pFp) // Warning: failed to confirm
+GO(XFixesFindDisplay, pFp)
 GO(XFixesGetCursorImage, pFp)
 GO(XFixesGetCursorName, pFpLp)
 GO(XFixesHideCursor, vFpL)
