@@ -2877,6 +2877,7 @@ void LFEpuppp(x64emu_t *emu, uintptr_t fnc);
 void LFEpLppu(x64emu_t *emu, uintptr_t fnc);
 void LFEppppu(x64emu_t *emu, uintptr_t fnc);
 void LFpipipi(x64emu_t *emu, uintptr_t fnc);
+void LFpuuupL(x64emu_t *emu, uintptr_t fnc);
 void LFplplpl(x64emu_t *emu, uintptr_t fnc);
 void LFpLippp(x64emu_t *emu, uintptr_t fnc);
 void LFpLLLLL(x64emu_t *emu, uintptr_t fnc);
