@@ -702,9 +702,9 @@ static void* reverse_GtkLinkButtonUri_Fct(void* fct)
 // GtkKeySnoopFunc ...
 #define GO(A)   \
 static uintptr_t my_GtkKeySnoopFunc_fct_##A = 0;                    \
-static void my_GtkKeySnoopFunc_##A(void* a, void* b, void* c)       \
+static int my_GtkKeySnoopFunc_##A(void* a, void* b, void* c)       \
 {                                                                   \
-    RunFunctionFmt(my_GtkKeySnoopFunc_fct_##A, "ppp", a, b, c);     \
+    return (int)RunFunctionFmt(my_GtkKeySnoopFunc_fct_##A, "ppp", a, b, c);     \
 }
 SUPER()
 #undef GO
@@ -746,9 +746,9 @@ static void* findEventFct(void* fct)
 // TranslateEvent
 #define GO(A)   \
 static uintptr_t my_TranslateEvent_fct_##A = 0;             \
-static void my_TranslateEvent_##A(void* a, void* b)         \
+static void* my_TranslateEvent_##A(void* a, void* b)        \
 {                                                           \
-    RunFunctionFmt(my_TranslateEvent_fct_##A, "pp", a, b);  \
+    return (void*)RunFunctionFmt(my_TranslateEvent_fct_##A, "pp", a, b);  \
 }
 SUPER()
 #undef GO

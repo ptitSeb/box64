@@ -166,8 +166,9 @@ static uintptr_t fct_funcs_dispatch_##A = 0;                                    
 static int my_funcs_dispatch_##A(void* source, void* cb, void* data) {                              \
     uintptr_t old = fct_funcs_dispatch_cb_##A;                                                      \
     fct_funcs_dispatch_cb_##A = (uintptr_t)cb;                                                      \
-    return (int)RunFunctionFmt((uintptr_t)ref_gsourcefuncs_##A->dispatch, "ppp", source, cb?my_funcs_dispatch_cb_##A:NULL, data); \
+    int ret = (int)RunFunctionFmt((uintptr_t)ref_gsourcefuncs_##A->dispatch, "ppp", source, cb?my_funcs_dispatch_cb_##A:NULL, data); \
     fct_funcs_dispatch_cb_##A = old;                                                                \
+    return ret;                                                                                     \
 }                                                                                                   \
 static uintptr_t fct_funcs_finalize_##A = 0;                                                        \
 static int my_funcs_finalize_##A(void* source) {                                                    \
@@ -276,10 +277,10 @@ static void* findEqualFct(void* fct)
 }
 // GDestroyFunc ...
 #define GO(A)   \
-static uintptr_t my_destroyfunc_fct_##A = 0;                               \
-static int my_destroyfunc_##A(void* a, void* b)                            \
-{                                                                          \
-    return RunFunctionFmt(my_destroyfunc_fct_##A, "pp", a, b); \
+static uintptr_t my_destroyfunc_fct_##A = 0;           \
+static void my_destroyfunc_##A(void* data)             \
+{                                                      \
+    RunFunctionFmt(my_destroyfunc_fct_##A, "p", data); \
 }
 SUPER()
 #undef GO
@@ -320,10 +321,10 @@ static void* findSpawnChildSetupFct(void* fct)
 }
 // GSourceFunc ...
 #define GO(A)   \
-static uintptr_t my_GSourceFunc_fct_##A = 0;                                \
-static void my_GSourceFunc_##A(void* a, void* b, void* c, void* d)          \
-{                                                                           \
-    RunFunctionFmt(my_GSourceFunc_fct_##A, "pppp", a, b, c, d); \
+static uintptr_t my_GSourceFunc_fct_##A = 0;                    \
+static int my_GSourceFunc_##A(void* a)                          \
+{                                                               \
+    return (int)RunFunctionFmt(my_GSourceFunc_fct_##A, "p", a); \
 }
 SUPER()
 #undef GO
@@ -719,9 +720,9 @@ static void* findGThreadFuncFct(void* fct)
 // TimeOut
 #define GO(A)   \
 static uintptr_t my_TimeOut_fct_##A = 0;            \
-static void my_TimeOut_##A(void* a)                 \
+static int my_TimeOut_##A(void* a)                  \
 {                                                   \
-    RunFunctionFmt(my_TimeOut_fct_##A, "p", a);     \
+    return (int)RunFunctionFmt(my_TimeOut_fct_##A, "p", a);     \
 }
 SUPER()
 #undef GO

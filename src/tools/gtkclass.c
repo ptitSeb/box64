@@ -31,11 +31,8 @@ for match in unique_sorted_matches:
     print(f'void {match}(x64emu_t *emu, uintptr_t fnc);')
 */
 
-void UFp(x64emu_t* emu, uintptr_t fnc);
 void iFL(x64emu_t* emu, uintptr_t fnc);
 void iFp(x64emu_t* emu, uintptr_t fnc);
-void iFpUU(x64emu_t* emu, uintptr_t fnc);
-void iFpUup(x64emu_t* emu, uintptr_t fnc);
 void iFpi(x64emu_t* emu, uintptr_t fnc);
 void iFpii(x64emu_t* emu, uintptr_t fnc);
 void iFpiii(x64emu_t* emu, uintptr_t fnc);
@@ -44,38 +41,42 @@ void iFpip(x64emu_t* emu, uintptr_t fnc);
 void iFpipLpp(x64emu_t* emu, uintptr_t fnc);
 void iFpippp(x64emu_t* emu, uintptr_t fnc);
 void iFpp(x64emu_t* emu, uintptr_t fnc);
-void iFppLp(x64emu_t* emu, uintptr_t fnc);
-void iFppU(x64emu_t* emu, uintptr_t fnc);
-void iFppUup(x64emu_t* emu, uintptr_t fnc);
 void iFppdd(x64emu_t* emu, uintptr_t fnc);
 void iFppi(x64emu_t* emu, uintptr_t fnc);
 void iFppii(x64emu_t* emu, uintptr_t fnc);
 void iFppiiu(x64emu_t* emu, uintptr_t fnc);
+void iFppLp(x64emu_t* emu, uintptr_t fnc);
 void iFppp(x64emu_t* emu, uintptr_t fnc);
 void iFpppi(x64emu_t* emu, uintptr_t fnc);
 void iFpppp(x64emu_t* emu, uintptr_t fnc);
+void iFppppi(x64emu_t* emu, uintptr_t fnc);
 void iFppppp(x64emu_t* emu, uintptr_t fnc);
+void iFppppppi(x64emu_t* emu, uintptr_t fnc);
+void iFpppU(x64emu_t* emu, uintptr_t fnc);
+void iFppU(x64emu_t* emu, uintptr_t fnc);
+void iFppUup(x64emu_t* emu, uintptr_t fnc);
 void iFpu(x64emu_t* emu, uintptr_t fnc);
 void iFpupp(x64emu_t* emu, uintptr_t fnc);
-void iFppppi(x64emu_t* emu, uintptr_t fnc);
-void iFppppppi(x64emu_t* emu, uintptr_t fnc);
+void iFpUU(x64emu_t* emu, uintptr_t fnc);
+void iFpUup(x64emu_t* emu, uintptr_t fnc);
 void pFL(x64emu_t* emu, uintptr_t fnc);
 void pFLup(x64emu_t* emu, uintptr_t fnc);
 void pFp(x64emu_t* emu, uintptr_t fnc);
-void pFpLi(x64emu_t* emu, uintptr_t fnc);
-void pFpLp(x64emu_t* emu, uintptr_t fnc);
 void pFpi(x64emu_t* emu, uintptr_t fnc);
 void pFpipp(x64emu_t* emu, uintptr_t fnc);
+void pFpLi(x64emu_t* emu, uintptr_t fnc);
 void pFpll(x64emu_t* emu, uintptr_t fnc);
+void pFpLp(x64emu_t* emu, uintptr_t fnc);
 void pFpp(x64emu_t* emu, uintptr_t fnc);
+void pFppii(x64emu_t* emu, uintptr_t fnc);
 void pFppL(x64emu_t* emu, uintptr_t fnc);
 void pFppp(x64emu_t* emu, uintptr_t fnc);
-void pFppii(x64emu_t* emu, uintptr_t fnc);
 void pFpppp(x64emu_t* emu, uintptr_t fnc);
 void pFppppp(x64emu_t* emu, uintptr_t fnc);
 void pFpppppp(x64emu_t* emu, uintptr_t fnc);
 void pFppppppi(x64emu_t* emu, uintptr_t fnc);
 void pFv(x64emu_t* emu, uintptr_t fnc);
+void UFp(x64emu_t* emu, uintptr_t fnc);
 void uFpp(x64emu_t* emu, uintptr_t fnc);
 void vFLp(x64emu_t* emu, uintptr_t fnc);
 void vFLup(x64emu_t* emu, uintptr_t fnc);
@@ -88,6 +89,7 @@ void vFpip(x64emu_t* emu, uintptr_t fnc);
 void vFpipp(x64emu_t* emu, uintptr_t fnc);
 void vFpippp(x64emu_t* emu, uintptr_t fnc);
 void vFpipppp(x64emu_t* emu, uintptr_t fnc);
+void vFpLi(x64emu_t* emu, uintptr_t fnc);
 void vFpp(x64emu_t* emu, uintptr_t fnc);
 void vFppdd(x64emu_t* emu, uintptr_t fnc);
 void vFppi(x64emu_t* emu, uintptr_t fnc);
@@ -97,6 +99,8 @@ void vFppp(x64emu_t* emu, uintptr_t fnc);
 void vFpppp(x64emu_t* emu, uintptr_t fnc);
 void vFppppp(x64emu_t* emu, uintptr_t fnc);
 void vFpppppp(x64emu_t* emu, uintptr_t fnc);
+void vFppppppi(x64emu_t* emu, uintptr_t fnc);
+void vFppppppp(x64emu_t* emu, uintptr_t fnc);
 void vFpppuu(x64emu_t* emu, uintptr_t fnc);
 void vFppu(x64emu_t* emu, uintptr_t fnc);
 void vFppupp(x64emu_t* emu, uintptr_t fnc);
@@ -105,8 +109,6 @@ void vFpu(x64emu_t* emu, uintptr_t fnc);
 void vFpup(x64emu_t* emu, uintptr_t fnc);
 void vFpupp(x64emu_t* emu, uintptr_t fnc);
 void vFu(x64emu_t* emu, uintptr_t fnc);
-void vFppppppp(x64emu_t* emu, uintptr_t fnc);
-void vFppppppi(x64emu_t* emu, uintptr_t fnc);
 
 static bridge_t*        my_bridge           = NULL;
 static const char* (*g_type_name)(size_t)   = NULL;
@@ -403,8 +405,8 @@ WRAPPER(GObject, set_property, void, (void* object, uint32_t property_id, void* 
 WRAPPER(GObject, get_property, void, (void* object, uint32_t property_id, void* value, void* pspec), "pupp", object, property_id, value, pspec);
 WRAPPER(GObject, dispose, void, (void* object), "p", object);
 WRAPPER(GObject, finalize, void, (void* object), "p", object);
-WRAPPER(GObject, dispatch_properties_changed, void*, (size_t type, uint32_t n_pspecs, void* pspecs), "Lup", type, n_pspecs, pspecs);
-WRAPPER(GObject, notify, void*, (size_t type, void* pspecs), "Lp", type, pspecs);
+WRAPPER(GObject, dispatch_properties_changed, void, (size_t type, uint32_t n_pspecs, void* pspecs), "Lup", type, n_pspecs, pspecs);
+WRAPPER(GObject, notify, void, (void* object, void* pspecs), "pp", object, pspecs);
 WRAPPER(GObject, constructed, void, (void* object), "p", object);
 
 #define SUPERGO() \
@@ -456,8 +458,8 @@ WRAPPER(GInitiallyUnowned, set_property, void, (void* object, uint32_t property_
 WRAPPER(GInitiallyUnowned, get_property, void, (void* object, uint32_t property_id, void* value, void* pspec), "pupp", object, property_id, value, pspec);
 WRAPPER(GInitiallyUnowned, dispose, void, (void* object), "p", object);
 WRAPPER(GInitiallyUnowned, finalize, void, (void* object), "p", object);
-WRAPPER(GInitiallyUnowned, dispatch_properties_changed, void*, (size_t type, uint32_t n_pspecs, void* pspecs), "Lup", type, n_pspecs, pspecs);
-WRAPPER(GInitiallyUnowned, notify, void*, (size_t type, void* pspecs), "Lp", type, pspecs);
+WRAPPER(GInitiallyUnowned, dispatch_properties_changed, void, (size_t type, uint32_t n_pspecs, void* pspecs), "Lup", type, n_pspecs, pspecs);
+WRAPPER(GInitiallyUnowned, notify, void, (size_t type, void* pspecs), "Lp", type, pspecs);
 WRAPPER(GInitiallyUnowned, constructed, void, (void* object), "p", object);
 
 #define SUPERGO() \
@@ -580,7 +582,7 @@ WRAPPER(GtkApplication, window_added, void, (void* application, void* window), "
 WRAPPER(GtkApplication, window_removed, void, (void* application, void* window), "pp", application, window);
 
 #define SUPERGO() \
-    GO(window_added, pFpp);   \
+    GO(window_added, vFpp);   \
     GO(window_removed, vFpp);
 
 static void wrapGtkApplicationClass(my_GtkApplicationClass_t* class)
@@ -712,10 +714,10 @@ WRAPPER(GtkWidget2, selection_request_event,int, (void* widget, void* event), "p
 WRAPPER(GtkWidget2, selection_notify_event, int, (void* widget, void* event), "pp", widget, event);
 WRAPPER(GtkWidget2, proximity_in_event,  int, (void* widget, void* event), "pp", widget, event);
 WRAPPER(GtkWidget2, proximity_out_event, int, (void* widget, void* event), "pp", widget, event);
-WRAPPER(GtkWidget2, visibility_notify_event, int, (void* widget, void* event), "p", widget, event);
-WRAPPER(GtkWidget2, client_event,        int, (void* widget, void* event), "p", widget, event);
-WRAPPER(GtkWidget2, no_expose_event,     int, (void* widget, void* event), "p", widget, event);
-WRAPPER(GtkWidget2, window_state_event,  int, (void* widget, void* event), "p", widget, event);
+WRAPPER(GtkWidget2, visibility_notify_event, int, (void* widget, void* event), "pp", widget, event);
+WRAPPER(GtkWidget2, client_event,        int, (void* widget, void* event), "pp", widget, event);
+WRAPPER(GtkWidget2, no_expose_event,     int, (void* widget, void* event), "pp", widget, event);
+WRAPPER(GtkWidget2, window_state_event,  int, (void* widget, void* event), "pp", widget, event);
 WRAPPER(GtkWidget2, selection_get,       void, (void* widget, void* selection_data, uint32_t info, uint32_t time_), "ppuu", widget, selection_data, info, time_);
 WRAPPER(GtkWidget2, selection_received,  void, (void* widget, void* selection_data, uint32_t time_), "ppu", widget, selection_data, time_);
 WRAPPER(GtkWidget2, drag_begin,          void, (void* widget, void* context), "pp", widget, context);
@@ -1476,7 +1478,7 @@ WRAPPER(GtkTreeView2, start_interactive_search, int, (void* tree_view), "p", tre
     GO(row_collapsed, vFppp);               \
     GO(columns_changed, vFp);               \
     GO(cursor_changed, vFp);                \
-    GO(move_cursor, iFppp);                 \
+    GO(move_cursor, iFpii);                 \
     GO(select_all, iFp);                    \
     GO(unselect_all, iFp);                  \
     GO(select_cursor_row, iFpi);            \
@@ -1772,7 +1774,7 @@ static void bridgeGtkListBoxInstance(my_GtkListBox_t* class)
 WRAPPER(GtkListBoxRowClass, activate, void, (void *row), "p", row);
 
 #define SUPERGO()       \
-    GO(activate, vFpp);
+    GO(activate, vFp);
 
 // wrap (so bridge all calls, just in case)
 static void wrapGtkListBoxRowClass(my_GtkListBoxRowClass_t* class)
@@ -1921,7 +1923,7 @@ static void bridgeMetaFrames2Instance(my_MetaFrames2_t* class)
     bridgeGtkWindow2Instance(&class->parent);
 }
 // ----- GtkNotebook2Class ------
-WRAPPER(GtkNotebook2Class, switch_page, void, (void* notebook, void* page, uint32_t page_num), "ppp", notebook, page, page_num);
+WRAPPER(GtkNotebook2Class, switch_page, void, (void* notebook, void* page, uint32_t page_num), "ppu", notebook, page, page_num);
 WRAPPER(GtkNotebook2Class, select_page, int, (void* notebook, int move_focus), "pi", notebook, move_focus);
 WRAPPER(GtkNotebook2Class, focus_tab, int, (void* notebook, int type), "pi", notebook, type);
 WRAPPER(GtkNotebook2Class, change_current_page, int, (void* notebook, int offset), "pi", notebook, offset);
@@ -1931,7 +1933,7 @@ WRAPPER(GtkNotebook2Class, insert_page, int, (void* notebook, void* child, void*
 WRAPPER(GtkNotebook2Class, create_window, void*, (void* notebook, void* page, int x, int y), "ppii", notebook, page, x, y);
 
 #define SUPERGO()                   \
-    GO(switch_page, vFppp);         \
+    GO(switch_page, vFppu);         \
     GO(select_page, iFpi);          \
     GO(focus_tab, iFpi);            \
     GO(change_current_page, iFpi);  \
@@ -2567,8 +2569,8 @@ WRAPPER(GtkEntry2, get_text_area_size, void, (void* entry, void* x, void* y, voi
     GO(populate_popup, vFpp);       \
     GO(activate, vFp);              \
     GO(move_cursor, vFpiii);        \
-    GO(insert_at_cursor, vFp);      \
-    GO(delete_from_cursor, vFpii);  \
+    GO(insert_at_cursor, vFpp);     \
+    GO(delete_from_cursor, vFpLi);  \
     GO(backspace, vFp);             \
     GO(cut_clipboard, vFp);         \
     GO(copy_clipboard, vFp);        \
@@ -3602,7 +3604,7 @@ WRAPPER(GstElement,set_context, void, (void* element, void* context), "pp", elem
     GO(no_more_pads, vFp);      \
     GO(request_new_pad, pFpppp);\
     GO(release_pad, vFpp);      \
-    GO(get_state, iFppU);       \
+    GO(get_state, iFpppU);       \
     GO(set_state, iFpi);        \
     GO(change_state, iFpi);     \
     GO(state_changed, vFpiii);  \
@@ -3826,7 +3828,7 @@ WRAPPER(GstVideoDecoder, handle_missing_data, int, (void* decoder, uint64_t time
     GO(stop, iFp);                      \
     GO(parse, iFpppi);                  \
     GO(set_format, iFpp);               \
-    GO(reset, iFp);                     \
+    GO(reset, iFpi);                    \
     GO(finish, iFp);                    \
     GO(handle_frame, iFpp);             \
     GO(sink_event, iFpp);               \
@@ -3907,7 +3909,7 @@ WRAPPER(GstVideoEncoder, transform_meta, int, (void* encoder, void* frame, void*
     GO(stop, iFp);                      \
     GO(set_format, iFpp);               \
     GO(handle_frame, iFpp);             \
-    GO(reset, iFp);                     \
+    GO(reset, iFpi);                    \
     GO(finish, iFp);                    \
     GO(pre_push, iFpp);                 \
     GO(getcaps, pFpp);                  \
@@ -4711,7 +4713,7 @@ WRAPPER(GstAudioDecoder, transform_meta, int,(void* enc, void* outbuf, void* met
     GO(propose_allocation, iFpp);       \
     GO(sink_query, iFpp);               \
     GO(src_query, iFpp);                \
-    GO(getcaps, vFpp);                  \
+    GO(getcaps, pFpp);                  \
     GO(transform_meta, iFpppp);         \
 
 // wrap (so bridge all calls, just in case)
@@ -4774,7 +4776,7 @@ WRAPPER(GstAudioEncoder, src_query, int, (void* enc, void* query), "pp", enc, qu
     GO(stop, iFp);                      \
     GO(set_format, iFpp);               \
     GO(handle_frame, iFpp);             \
-    GO(flush, vFpi);                    \
+    GO(flush, vFp);                     \
     GO(pre_push, iFpp);                 \
     GO(sink_event, iFpp);               \
     GO(src_event, iFpp);                \

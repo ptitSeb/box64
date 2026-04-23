@@ -229,9 +229,9 @@ static void* findGDBusSignalCallbackFct(void* fct)
 // GDBusMessageFilterFunction
 #define GO(A)   \
 static uintptr_t my_GDBusMessageFilterFunction_fct_##A = 0;                                                         \
-static void my_GDBusMessageFilterFunction_##A(void* connection, void* message, int incoming, void* data)            \
+static void* my_GDBusMessageFilterFunction_##A(void* connection, void* message, int incoming, void* data)            \
 {                                                                                                                   \
-    RunFunctionFmt(my_GDBusMessageFilterFunction_fct_##A, "ppip", connection, message, incoming, data); \
+    return (void*)RunFunctionFmt(my_GDBusMessageFilterFunction_fct_##A, "ppip", connection, message, incoming, data); \
 }
 SUPER()
 #undef GO
