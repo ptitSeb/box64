@@ -81,7 +81,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 switch ((nextop >> 3) & 7) {
                     case 0:
                         INST_NAME("SGDT Ed");
-                        addr = geted(dyn, addr, ninst, nextop, &ed, x3, x2, &fixedaddress, rex, NULL, 0, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, x2, &fixedaddress, rex, NULL, 0, 0);
                         MOV32w(x1, 0x7f);
                         ST_H(x1, wback, 0);
                         if (rex.is32bits) {
@@ -94,7 +94,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         break;
                     case 1:
                         INST_NAME("SIDT Ed");
-                        addr = geted(dyn, addr, ninst, nextop, &ed, x3, x2, &fixedaddress, rex, NULL, 0, 0);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, x2, &fixedaddress, rex, NULL, 0, 0);
                         MOV32w(x1, 0xfff);
                         ST_H(x1, wback, 0);
                         if (rex.is32bits) {
