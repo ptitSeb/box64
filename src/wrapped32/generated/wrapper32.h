@@ -1914,6 +1914,7 @@ void iFpbpu_bpu_upu_32(x64emu_t *emu, uintptr_t fnc);
 void iFpbp_bp_bp_ii_32(x64emu_t *emu, uintptr_t fnc);
 void iFrpuu_Lrpuu_Lui_32(x64emu_t *emu, uintptr_t fnc);
 void iFXbLip_uubLip_L_32(x64emu_t *emu, uintptr_t fnc);
+void uFnibpL_bLpCC_up_32(x64emu_t *emu, uintptr_t fnc);
 void vFbp_bppup_ippbp__32(x64emu_t *emu, uintptr_t fnc);
 void iFpupbpu_bpu_bpu__32(x64emu_t *emu, uintptr_t fnc);
 void iFpubpu_bpu_bpu_p_32(x64emu_t *emu, uintptr_t fnc);
