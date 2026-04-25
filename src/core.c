@@ -424,8 +424,10 @@ static void addLibPaths(box64context_t* context)
     GO("libpng12.so.0");
     GO("libpng16.so.16");
     GO("libcurl.so.4");
-    if(getenv("BOX64_PRESSURE_VESSEL_FILES"))   // use emulated gnutls in this case, it's safer
+    if(getenv("BOX64_PRESSURE_VESSEL_FILES")) {  // use emulated gnutls in this case, it's safer (nettle is a gnutls dependancy)
         GO("libgnutls.so.30");
+        GO("libnettle.so.8");
+    }
     GO("libtbbmalloc.so.2");
     GO("libtbbmalloc_proxy.so.2");
     GO("libicuuc.so.64");
