@@ -47,12 +47,17 @@ ppc64le_next:
     ld      %r5, 16(%r1)           // arg2 = "from" (saved LR)
     addi    %r6, %r1, 80           // arg3 = address of saved RIP on stack
 
-    // Restore TOC for calling C code
-    // We need to load the TOC for LinkNext - use the saved TOC
-    // Note: In ELFv2, r12 must point to the function entry for local calls
-    // For external calls via PLT, the linker handles it
+    // Restore TOC (r2) before calling C code.
+    // JIT code calls native wrapped functions (e.g., libc) which set r2 to
+    // their own TOC. Since `bl LinkNext` is resolved as a local call (skipping
+    // LinkNext's global entry that reloads r2), we must restore it ourselves.
+    // emu->xSPSave (offset 808 from Emu/r31) points to the prolog's stack
+    // frame, which has the saved TOC at offset 24.
+    ld      %r2, 808(Emu)          // r2 = prolog's frame SP (from xSPSave)
+    ld      %r2, 24(%r2)           // r2 = saved TOC from prolog frame
+
     bl      LinkNext
-    nop                            // TOC restore slot (linker fills if needed)
+    nop                            // TOC restore slot (linker may patch)
 
     // Preserve return value (jump target) in r12
     mr      %r12, %r3
