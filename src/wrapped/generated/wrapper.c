@@ -8556,6 +8556,7 @@ void vFEv(x64emu_t *emu, uintptr_t fcn) { vFE_t fn = (vFE_t)fcn; fn(emu); }
 void iFEv(x64emu_t *emu, uintptr_t fcn) { iFE_t fn = (iFE_t)fcn; R_RAX=(int)fn(emu); }
 void lFEv(x64emu_t *emu, uintptr_t fcn) { lFE_t fn = (lFE_t)fcn; R_RAX=(intptr_t)fn(emu); }
 void pFEv(x64emu_t *emu, uintptr_t fcn) { pFE_t fn = (pFE_t)fcn; R_RAX=(uintptr_t)fn(emu); }
+void vFEvv(x64emu_t *emu, uintptr_t fcn) { vFE_t fn = (vFE_t)fcn; fn(emu); }
 void iFEvpp(x64emu_t *emu, uintptr_t fcn) { iFEpp_t fn = (iFEpp_t)fcn; R_RAX=(int)fn(emu, (void*)R_RSI, (void*)R_RDX); }
 void pFEppv(x64emu_t *emu, uintptr_t fcn) { pFEpp_t fn = (pFEpp_t)fcn; R_RAX=(uintptr_t)fn(emu, (void*)R_RDI, (void*)R_RSI); }
 void iFEpvpp(x64emu_t *emu, uintptr_t fcn) { iFEppp_t fn = (iFEppp_t)fcn; R_RAX=(int)fn(emu, (void*)R_RDI, (void*)R_RDX, (void*)R_RCX); }
