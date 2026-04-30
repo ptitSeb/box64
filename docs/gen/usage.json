@@ -314,7 +314,7 @@
   },
   {
     "name": "BOX64_DYNAREC_SEP",
-    "description": "Optimize CALL/RET further with Secondary Entry Points (SEP). Have no effect is CALLRET is not enabled",
+    "description": "Optimize CALL/RET further with Secondary Entry Points (SEP). Has no effect if CALLRET is not enabled",
     "category": "Performance",
     "wine": true,
     "options": [
@@ -325,7 +325,7 @@
       },
       {
         "key": "1",
-        "description": "Add SEP at CALLRET return, on meory that are from known binary files",
+        "description": "Add SEP at CALLRET return, on memory that are from known binary files",
         "default": true
       },
       {
@@ -371,7 +371,7 @@
       },
       {
         "key": "2",
-        "description": "Will also, when it detect an HotPage, flag that page as NEVERCLEAN, and so it will not be write protected but Block build from that page will always be tested. It can be faster that way (but soem SMC case might not be trapped).",
+        "description": "Will also, when it detects a HotPage, flag that page as NEVERCLEAN, and so it will not be write protected but blocks built from that page will always be tested. It can be faster that way (but some SMC case might not be trapped).",
         "default": false
       }
     ]
@@ -926,7 +926,7 @@
   },
   {
     "name": "BOX64_DYNAREC_WEAKBARRIER",
-    "description": "Tweak the memory barriers to reduce the performance impact by strong memory emualtion.",
+    "description": "Tweak the memory barriers to reduce the performance impact by strong memory emulation.",
     "category": "Performance",
     "wine": true,
     "options": [
@@ -942,7 +942,7 @@
       },
       {
         "key": "2",
-        "description": "All in 1, plus disabled the last write barriers.",
+        "description": "All in 1, plus disable the last write barriers.",
         "default": false
       }
     ]
@@ -990,7 +990,7 @@
   },
   {
     "name": "BOX64_DYNACACHE",
-    "description": "Enable/disable the Dynamic Recompiler Cache (a.k.a DynaCache). This option defaults to 2 (to read cache if present but not generate any). DynaCache write file to home folder by default, and can grow without limit.",
+    "description": "Enable/disable the Dynamic Recompiler Cache (a.k.a DynaCache). This option defaults to 2 (to read cache if present but not generate any). DynaCache writes files to the home folder by default, and can grow without limit.",
     "category": "Performance",
     "wine": false,
     "options": [
@@ -1207,7 +1207,7 @@
       },
       {
         "key": "1",
-        "description": "Launch gdb when a SIGSEGV, SIGILL or SIGBUS signal is trapped, attached to the offending process and go in an endless loop, waiting. Inside gdb, you need to find the correct thread yourself (the one with `my_box64signalhandler` in is stack), then probably need to `finish` 1 or 2 functions (inside `usleep(..)`) and then you'll be in `my_box64signalhandler`, just before the printf of the Segfault message. Then `set waiting=0` to exit the infinite loop.",
+        "description": "Launch gdb when a SIGSEGV, SIGILL or SIGBUS signal is trapped, attached to the offending process and go in an endless loop, waiting. Inside gdb, you need to find the correct thread yourself (the one with `my_box64signalhandler` in its stack), then probably need to `finish` 1 or 2 functions (inside `usleep(..)`) and then you'll be in `my_box64signalhandler`, just before the printf of the Segfault message. Then `set waiting=0` to exit the infinite loop.",
         "default": false
       },
       {
@@ -1458,23 +1458,23 @@
   },
   {
     "name": "BOX64_DYNAREC_NOARCH",
-    "description": "Remove Architecture metatdata from Dynarec blocks (used on signal).",
+    "description": "Remove Architecture metadata from Dynarec blocks (used on signal).",
     "category": "Performance",
     "wine": true,
     "options": [
       {
         "key": "0",
-        "description": "Generate all architecture metadata for each blocks, including x87/mmx/SSE/AVX regs tracking. Wil use some more memory.",
+        "description": "Generate all architecture metadata for each blocks, including x87/mmx/SSE/AVX regs tracking. Will use some more memory.",
         "default": true
       },
       {
         "key": "1",
-        "description": "Generate only essential metadata for each blocks (flags, alignments), saving some memory, but some encrypted software might fails.",
+        "description": "Generate only essential metadata for each blocks (flags, alignments), saving some memory, but some encrypted software might fail.",
         "default": false
       },
       {
         "key": "2",
-        "description": "Do not generate metadata for blocks. Saving a bit more memory but might fails on signal handling.",
+        "description": "Do not generate metadata for blocks. Saving a bit more memory but might fail on signal handling.",
         "default": false
       }
     ]
@@ -1613,7 +1613,7 @@
     "options": [
       {
         "key": "0",
-        "description": "Do try to Load x64 Vulkan overlay.",
+        "description": "Try to load x64 Vulkan overlay.",
         "default": true
       },
       {
@@ -1882,7 +1882,7 @@
   },
   {
     "name": "BOX64_SHOWSEGV",
-    "description": "Always show SIGSEGV signal detailes.",
+    "description": "Always show SIGSEGV signal details.",
     "category": "Debugging",
     "wine": false,
     "options": [
@@ -1893,7 +1893,7 @@
       },
       {
         "key": "1",
-        "description": "Always show SIGSEGV signal detailes.",
+        "description": "Always show SIGSEGV signal details.",
         "default": false
       }
     ]
@@ -2241,7 +2241,7 @@
   },
   {
     "name": "BOX64_X87_NO80BITS",
-    "description": "Behavoiur of x87 80bits long double.",
+    "description": "Behaviour of x87 80bits long double.",
     "category": "Compatibility",
     "wine": true,
     "options": [

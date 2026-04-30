@@ -18,7 +18,7 @@ Usage
 
 There are many environment variables to control Box64's behaviour, which will be listed below by category.
 
-There are 2 types of Box64 builds: the Wine WOW64 build (WowBox64) and the regular Linux build. Beware only some of the environment variables are available in WowBox64.
+There are 2 types of Box64 builds: the Wine WOW64 build (WowBox64) and the regular Linux build. Note that only some of the environment variables are available in WowBox64.
 
 ### Configuration files
 
@@ -42,7 +42,7 @@ This configuration will apply the specified settings application-wide to any exe
 
 1. **Wildcard Matching**
 
-   Asterisks (`*`) can be used for basic pattern matching in application names. For instance, `[*setup*]` will match any program containing "setup" in its name. Note this implements simple wildcard matching rather than full regex support.
+   Asterisks (`*`) can be used for basic pattern matching in application names. For instance, `[*setup*]` will match any program containing "setup" in its name. Note that this implements simple wildcard matching rather than full regex support.
 2. **Custom Configuration File**
 
    The `BOX64_RCFILE` environment variable can specify an alternative configuration file instead of the default `/etc/box64.box64rc`.
