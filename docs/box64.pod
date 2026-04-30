@@ -184,10 +184,10 @@ Optimize CALL/RET opcodes. Available in WowBox64.
 
 =item B<BOX64_DYNAREC_SEP> =I<0|1|2>
 
-Optimize CALL/RET further with Secondary Entry Points (SEP). Have no effect is CALLRET is not enabled Available in WowBox64.
+Optimize CALL/RET further with Secondary Entry Points (SEP). Has no effect if CALLRET is not enabled Available in WowBox64.
 
  * 0 : Do not add SEP at CALLRET return 
- * 1 : Add SEP at CALLRET return, on meory that are from known binary files [Default]
+ * 1 : Add SEP at CALLRET return, on memory that are from known binary files [Default]
  * 2 : Add SEP at CALLRET return for all type of memory. 
 
 
@@ -205,7 +205,7 @@ Allow continue running a block that is unprotected and potentially dirty.
 
  * 0 : Do not allow continue running a block that is unprotected and potentially dirty. [Default]
  * 1 : Allow continue to run a dynablock that write data in the same page as code. It can gets faster in loading time of some game but can also get unexpected crashes. 
- * 2 : Will also, when it detect an HotPage, flag that page as NEVERCLEAN, and so it will not be write protected but Block build from that page will always be tested. It can be faster that way (but soem SMC case might not be trapped). 
+ * 2 : Will also, when it detects a HotPage, flag that page as NEVERCLEAN, and so it will not be write protected but blocks built from that page will always be tested. It can be faster that way (but some SMC case might not be trapped). 
 
 
 =item B<BOX64_DYNAREC_NOHOTPAGE> =I<0|1>
@@ -434,11 +434,11 @@ Wait or not for the building of a DynaRec code block to be ready. Available in W
 
 =item B<BOX64_DYNAREC_WEAKBARRIER> =I<0|1|2>
 
-Tweak the memory barriers to reduce the performance impact by strong memory emualtion. Available in WowBox64.
+Tweak the memory barriers to reduce the performance impact by strong memory emulation. Available in WowBox64.
 
  * 0 : Use regular safe barrier. 
  * 1 : Use weak barriers to have more performance boost. [Default]
- * 2 : All in 1, plus disabled the last write barriers. 
+ * 2 : All in 1, plus disable the last write barriers. 
 
 
 =item B<BOX64_DYNAREC_X87DOUBLE> =I<0|1|2>
@@ -460,7 +460,7 @@ Allow the use of Dynarec in Signal Handlers.
 
 =item B<BOX64_DYNACACHE> =I<0|1|2>
 
-Enable/disable the Dynamic Recompiler Cache (a.k.a DynaCache). This option defaults to 2 (to read cache if present but not generate any). DynaCache write file to home folder by default, and can grow without limit.
+Enable/disable the Dynamic Recompiler Cache (a.k.a DynaCache). This option defaults to 2 (to read cache if present but not generate any). DynaCache writes files to the home folder by default, and can grow without limit.
 
  * 0 : Disable DynaCache. 
  * 1 : Enable DynaCache. 
@@ -557,7 +557,7 @@ Add --in-process-gpu argument to the guest program.
 Launch gdb or not for SIGSEGV, SIGILL, and SIGBUS.
 
  * 0 : Just print the message when the signal is caught. [Default]
- * 1 : Launch gdb when a SIGSEGV, SIGILL or SIGBUS signal is trapped, attached to the offending process and go in an endless loop, waiting. Inside gdb, you need to find the correct thread yourself (the one with `my_box64signalhandler` in is stack), then probably need to `finish` 1 or 2 functions (inside `usleep(..)`) and then you'll be in `my_box64signalhandler`, just before the printf of the Segfault message. Then `set waiting=0` to exit the infinite loop. 
+ * 1 : Launch gdb when a SIGSEGV, SIGILL or SIGBUS signal is trapped, attached to the offending process and go in an endless loop, waiting. Inside gdb, you need to find the correct thread yourself (the one with `my_box64signalhandler` in its stack), then probably need to `finish` 1 or 2 functions (inside `usleep(..)`) and then you'll be in `my_box64signalhandler`, just before the printf of the Segfault message. Then `set waiting=0` to exit the infinite loop. 
  * 2 : Launch gdbserver when a SIGSEGV, SIGILL or SIGBUS signal is trapped, attached to the offending process, and go in an endless loop, waiting. Use `gdb /PATH/TO/box64` and then `target remote 127.0.0.1: 1234` to connect to the gdbserver (or use actual IP if not on the machine). After that, the procedure is the same as with `BOX64_JITGDB=1`. 
  * 3 : Launch lldb when a SIGSEGV, SIGILL or SIGBUS signal is trapped, attached to the offending process and go in an endless loop, waiting. 
 
@@ -668,11 +668,11 @@ Remove NoDynarec range after a delay. Available in WowBox64.
 
 =item B<BOX64_DYNAREC_NOARCH> =I<0|1|2>
 
-Remove Architecture metatdata from Dynarec blocks (used on signal). Available in WowBox64.
+Remove Architecture metadata from Dynarec blocks (used on signal). Available in WowBox64.
 
- * 0 : Generate all architecture metadata for each blocks, including x87/mmx/SSE/AVX regs tracking. Wil use some more memory. [Default]
- * 1 : Generate only essential metadata for each blocks (flags, alignments), saving some memory, but some encrypted software might fails. 
- * 2 : Do not generate metadata for blocks. Saving a bit more memory but might fails on signal handling. 
+ * 0 : Generate all architecture metadata for each blocks, including x87/mmx/SSE/AVX regs tracking. Will use some more memory. [Default]
+ * 1 : Generate only essential metadata for each blocks (flags, alignments), saving some memory, but some encrypted software might fail. 
+ * 2 : Do not generate metadata for blocks. Saving a bit more memory but might fail on signal handling. 
 
 
 =item B<BOX64_NOGTK> =I<0|1>
@@ -735,7 +735,7 @@ Do not load Vulkan libraries.
 
 Do not load x64 Vulkan overlay.
 
- * 0 : Do try to Load x64 Vulkan overlay. [Default]
+ * 0 : Try to load x64 Vulkan overlay. [Default]
  * 1 : Do not load x64 Vulkan overlay. 
 
 
@@ -854,10 +854,10 @@ Show native and emulated backtrace when a signal is caught.
 
 =item B<BOX64_SHOWSEGV> =I<0|1>
 
-Always show SIGSEGV signal detailes.
+Always show SIGSEGV signal details.
 
  * 0 : Does nothing. [Default]
- * 1 : Always show SIGSEGV signal detailes. 
+ * 1 : Always show SIGSEGV signal details. 
 
 
 =item B<BOX64_SSE_FLUSHTO0> =I<0|1>
@@ -1005,7 +1005,7 @@ Call XInitThreads when loading X11. This is mostly for old Loki games with the L
 
 =item B<BOX64_X87_NO80BITS> =I<0|1>
 
-Behavoiur of x87 80bits long double. Available in WowBox64.
+Behaviour of x87 80bits long double. Available in WowBox64.
 
  * 0 : Try to handle 80bits long double as precise as possible. [Default]
  * 1 : Use 64bits double for x87. 
