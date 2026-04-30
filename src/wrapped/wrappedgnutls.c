@@ -23,6 +23,28 @@ const char* gnutlsName = "libgnutls.so.30";
 
 #define LIBNAME gnutls
 
+EXPORT uintptr_t my_gnutls_free = 0;
+static void (*native_gnutls_free)(void *p) = NULL;
+
+void my_wrap_gnutls_free(void* p)
+{
+    if(my_gnutls_free){
+        RunFunctionFmt(my_gnutls_free, "p", p);
+        return;
+    }
+    if (native_gnutls_free)
+        native_gnutls_free(p);
+}
+
+#define ADDED_INIT() \
+    void** p;                            \
+    p=dlsym(lib->w.lib, "gnutls_free");  \
+    my_gnutls_free = (p && *p)?AddCheckBridge(lib->w.bridge, vFp, *p, 0, "my_wrap_gnutls_free"):0; \
+    if(p) {                              \
+        native_gnutls_free = *p;         \
+        *p = my_wrap_gnutls_free;        \
+    }
+
 #include "generated/wrappedgnutlstypes.h"
 
 #include "wrappercallback.h"
