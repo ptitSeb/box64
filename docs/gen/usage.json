@@ -256,17 +256,17 @@
       },
       {
         "key": "1",
-        "description": "Build Dynarec block as big as possible.",
+        "description": "Build DynaRec block as big as possible.",
         "default": false
       },
       {
         "key": "2",
-        "description": "Build Dynarec block bigger, do not stop when block overlaps, but only for blocks in elf memory.",
+        "description": "Build DynaRec block bigger, do not stop when block overlaps, but only for blocks in elf memory.",
         "default": true
       },
       {
         "key": "3",
-        "description": "Build Dynarec block bigger, do not stop when block overlaps, for all type of memory, useful for wine programs.",
+        "description": "Build DynaRec block bigger, do not stop when block overlaps, for all type of memory, useful for wine programs.",
         "default": false
       }
     ]
@@ -366,7 +366,7 @@
       },
       {
         "key": "1",
-        "description": "Allow continue to run a dynablock that write data in the same page as code. It can gets faster in loading time of some game but can also get unexpected crashes.",
+        "description": "Allow continue to run a DynaBlock that write data in the same page as code. It can gets faster in loading time of some game but can also get unexpected crashes.",
         "default": false
       },
       {
@@ -390,24 +390,6 @@
       {
         "key": "1",
         "description": "Do not detect hot page",
-        "default": false
-      }
-    ]
-  },
-  {
-    "name": "BOX64_DYNAREC_HOTPAGE_ALT",
-    "description": "Use alternative way to detect HotPages (legacy way).",
-    "category": "Performance",
-    "wine": false,
-    "options": [
-      {
-        "key": "0",
-        "description": "Detect hot page, using new method from v0.3.9+",
-        "default": true
-      },
-      {
-        "key": "1",
-        "description": "Use alternate method to detect HotPage (from v0.3.8 and earlier)",
         "default": false
       }
     ]
@@ -461,7 +443,7 @@
     "options": [
       {
         "key": "0xXXXXXXXX-0xYYYYYYYY",
-        "description": "Define the range where dynablock gets dumped (inclusive-exclusive).",
+        "description": "Define the range where DynaBlock gets dumped (inclusive-exclusive).",
         "default": false
       }
     ]
@@ -538,27 +520,27 @@
     "options": [
       {
         "key": "0",
-        "description": "Dynarec will not generate GDBJIT debuginfo.",
+        "description": "DynaRec will not generate GDBJIT debuginfo.",
         "default": true
       },
       {
         "key": "1",
-        "description": "Dynarec will generate GDBJIT debuginfo.",
+        "description": "DynaRec will generate GDBJIT debuginfo.",
         "default": false
       },
       {
         "key": "2",
-        "description": "Dynarec will generate detailed GDBJIT debuginfo with internal state.",
+        "description": "DynaRec will generate detailed GDBJIT debuginfo with internal state.",
         "default": false
       },
       {
         "key": "3",
-        "description": "Dynarec will register detailed GDBJIT debuginfo only for dynablocks that the guest program trap into, greatly improving performance.",
+        "description": "DynaRec will register detailed GDBJIT debuginfo only for DynaBlocks that the guest program trap into, greatly improving performance.",
         "default": false
       },
       {
         "key": "0xXXXXXXX-0xYYYYYYY",
-        "description": "Define the range where Dynarec will generate detailed GDBJIT debuginfo with internal state.",
+        "description": "Define the range where DynaRec will generate detailed GDBJIT debuginfo with internal state.",
         "default": false
       }
     ]
@@ -691,37 +673,37 @@
     "options": [
       {
         "key": "0",
-        "description": "Dynarec will not generate perf map.",
+        "description": "DynaRec will not generate perf map.",
         "default": true
       },
       {
         "key": "1",
-        "description": "Dynarec will generate perf map.",
+        "description": "DynaRec will generate perf map.",
         "default": false
       }
     ]
   },
   {
     "name": "BOX64_DYNAREC_PURGE",
-    "description": "Purge dynablocks that haven't been executed recently, based on tick age threshold (BOX64_DYNAREC_PURGE_AGE).",
+    "description": "Purge DynaBlocks that haven't been executed recently, based on tick age threshold (BOX64_DYNAREC_PURGE_AGE).",
     "category": "Performance",
     "wine": false,
     "options": [
       {
         "key": "0",
-        "description": "Dynarec will not purge old unused dynablocks.",
+        "description": "DynaRec will not purge old unused DynaBlocks.",
         "default": true
       },
       {
         "key": "1",
-        "description": "Dynarec will purge old unused dynablocks based on tick age.",
+        "description": "DynaRec will purge old unused DynaBlocks based on tick age.",
         "default": false
       }
     ]
   },
   {
     "name": "BOX64_DYNAREC_PURGE_AGE",
-    "description": "Tick age threshold for dynablock purging (requires BOX64_DYNAREC_PURGE=1).",
+    "description": "Tick age threshold for DynaBlock purging (requires BOX64_DYNAREC_PURGE=1).",
     "category": "Performance",
     "wine": false,
     "options": [
@@ -824,12 +806,12 @@
       },
       {
         "key": "1",
-        "description": "Each opcode runs on interpreter and on Dynarec, regs and memory are compared and printed when they differ.",
+        "description": "Each opcode runs on interpreter and on DynaRec, regs and memory are compared and printed when they differ.",
         "default": false
       },
       {
         "key": "0xXXXXXXXX-0xYYYYYYYY",
-        "description": "Define the range where dynarec is tested (inclusive-exclusive).",
+        "description": "Define the range where DynaRec is tested (inclusive-exclusive).",
         "default": false
       }
     ]
@@ -972,13 +954,13 @@
   },
   {
     "name": "BOX64_DYNAREC_INTERP_SIGNAL",
-    "description": "Allow the use of Dynarec in Signal Handlers.",
+    "description": "Allow the use of DynaRec in Signal Handlers.",
     "category": "Compatibility",
     "wine": false,
     "options": [
       {
         "key": "0",
-        "description": "Allow the use of Dynarec in signal handlers.",
+        "description": "Allow the use of DynaRec in signal handlers.",
         "default": true
       },
       {
@@ -1032,7 +1014,7 @@
     "options": [
       {
         "key": "XXXX",
-        "description": "Set a minimum size of XXXX KB of Dynarec code to write the dynacache to disk. Will not be saved to disk else.",
+        "description": "Set a minimum size of XXXX KB of DynaRec code to write the dynacache to disk. Will not be saved to disk else.",
         "default": false
       },
       {
@@ -1427,38 +1409,38 @@
   },
   {
     "name": "BOX64_NODYNAREC",
-    "description": "Forbid dynablock creation in the address range specified, helpful for debugging behaviour difference between Dynarec and Interpreter.",
-    "category": "Performance",
+    "description": "Forbid DynaBlock creation in the address range specified, helpful for debugging behaviour difference between DynaRec and Interpreter.",
+    "category": "Debugging",
     "wine": true,
     "options": [
       {
         "key": "0xXXXXXXXX-0xYYYYYYYY",
-        "description": "Define the range where dynablock creation is forbidden (inclusive-exclusive).",
+        "description": "Define the range where DynaBlock creation is forbidden (inclusive-exclusive).",
         "default": false
       }
     ]
   },
   {
     "name": "BOX64_NODYNAREC_DELAY",
-    "description": "Remove NoDynarec range after a delay.",
+    "description": "Remove NoDynaRec range after a delay.",
     "category": "Debugging",
     "wine": true,
     "options": [
       {
         "key": "0",
-        "description": "Do not remove NoDynarec range.",
+        "description": "Do not remove NoDynaRec range.",
         "default": true
       },
       {
         "key": "1",
-        "description": "Remove the NoDynarec range once 2 threads have been created.",
+        "description": "Remove the NoDynaRec range once 2 threads have been created.",
         "default": false
       }
     ]
   },
   {
     "name": "BOX64_DYNAREC_NOARCH",
-    "description": "Remove Architecture metadata from Dynarec blocks (used on signal).",
+    "description": "Remove Architecture metadata from DynaRec blocks (used on signal).",
     "category": "Performance",
     "wine": true,
     "options": [
@@ -1771,7 +1753,7 @@
     "name": "BOX64_RDTSC_INV",
     "description": "Report Invariant TSC bit in CPUID for Intel CPU type.",
     "category": "Compatibility",
-    "wine": false,
+    "wine": true,
     "options": [
       {
         "key": "0",
@@ -1911,7 +1893,7 @@
       },
       {
         "key": "1",
-        "description": "Apply SSE Flush to 0 flag directly. Also reflect SSE exception flags in Dynarec (if available)",
+        "description": "Apply SSE Flush to 0 flag directly. Also reflect SSE exception flags in DynaRec (if available)",
         "default": false
       }
     ]
@@ -2253,6 +2235,24 @@
       {
         "key": "1",
         "description": "Use 64bits double for x87.",
+        "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_NOPERSONA32BITS",
+    "description": "Disable the automatic switch of personality for 32-bit binaries (always enabled on Box32).",
+    "category": "Compatibility",
+    "wine": false,
+    "options": [
+      {
+        "key": "0",
+        "description": "Switch personality for 32-bit binaries (if not already tried).",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Do not switch personality for 32-bit binaries.",
         "default": false
       }
     ]

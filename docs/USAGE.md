@@ -49,46 +49,46 @@ This configuration will apply the specified settings application-wide to any exe
 
 Enable/disable the Dynamic Recompiler (a.k.a DynaRec). This option defaults to 1 if it's enabled in the build options for a supported architecture. Available in WowBox64.
 
- * 0: Disable DynaRec. 
- * 1: Enable DynaRec. 
+ * 0: Disable DynaRec.
+ * 1: Enable DynaRec.
 
 ### BOX64_DYNAREC_ALIGNED_ATOMICS
 
 Generate aligned atomics only (only available on Arm64 for now). Available in WowBox64.
 
  * 0: Generate unaligned atomics handling code. [Default]
- * 1: Generate aligned atomics only, which is faster and smaller code size, but will cause SIGBUS for LOCK prefixed opcodes operating on unaligned data addresses. 
+ * 1: Generate aligned atomics only, which is faster and smaller code size, but will cause SIGBUS for LOCK prefixed opcodes operating on unaligned data addresses.
 
 ### BOX64_DYNAREC_BIGBLOCK
 
 Enable building bigger DynaRec code blocks for better performance. Available in WowBox64.
 
- * 0: Do not try to build block as big as possible, suitable for programs using lots of threads and JIT, like Unity. 
- * 1: Build Dynarec block as big as possible. 
- * 2: Build Dynarec block bigger, do not stop when block overlaps, but only for blocks in elf memory. [Default]
- * 3: Build Dynarec block bigger, do not stop when block overlaps, for all type of memory, useful for wine programs. 
+ * 0: Do not try to build block as big as possible, suitable for programs using lots of threads and JIT, like Unity.
+ * 1: Build DynaRec block as big as possible.
+ * 2: Build DynaRec block bigger, do not stop when block overlaps, but only for blocks in elf memory. [Default]
+ * 3: Build DynaRec block bigger, do not stop when block overlaps, for all type of memory, useful for wine programs.
 
 ### BOX64_DYNAREC_CALLRET
 
 Optimize CALL/RET opcodes. Available in WowBox64.
 
  * 0: Do not optimize CALL/RET, use jump table. [Default]
- * 1: Try to optimize CALL/RET, skipping the jump table when possible. 
- * 2: Try to optimize CALL/RET, skipping the jump table when possible, adding code to handle return to dirty/modified block. Does not work on WowBox64. 
+ * 1: Try to optimize CALL/RET, skipping the jump table when possible.
+ * 2: Try to optimize CALL/RET, skipping the jump table when possible, adding code to handle return to dirty/modified block. Does not work on WowBox64.
 
 ### BOX64_DYNAREC_SEP
 
 Optimize CALL/RET further with Secondary Entry Points (SEP). Has no effect if CALLRET is not enabled Available in WowBox64.
 
- * 0: Do not add SEP at CALLRET return 
+ * 0: Do not add SEP at CALLRET return
  * 1: Add SEP at CALLRET return, on memory that are from known binary files [Default]
- * 2: Add SEP at CALLRET return for all type of memory. 
+ * 2: Add SEP at CALLRET return for all type of memory.
 
 ### BOX64_DYNAREC_DF
 
 Enable or disable the use of deferred flags. Available in WowBox64.
 
- * 0: Disable the use of deferred flags. 
+ * 0: Disable the use of deferred flags.
  * 1: Enable the use of deferred flags. [Default]
 
 ### BOX64_DYNAREC_DIRTY
@@ -96,51 +96,44 @@ Enable or disable the use of deferred flags. Available in WowBox64.
 Allow continue running a block that is unprotected and potentially dirty.
 
  * 0: Do not allow continue running a block that is unprotected and potentially dirty. [Default]
- * 1: Allow continue to run a dynablock that write data in the same page as code. It can gets faster in loading time of some game but can also get unexpected crashes. 
- * 2: Will also, when it detects a HotPage, flag that page as NEVERCLEAN, and so it will not be write protected but blocks built from that page will always be tested. It can be faster that way (but some SMC case might not be trapped). 
+ * 1: Allow continue to run a DynaBlock that write data in the same page as code. It can gets faster in loading time of some game but can also get unexpected crashes.
+ * 2: Will also, when it detects a HotPage, flag that page as NEVERCLEAN, and so it will not be write protected but blocks built from that page will always be tested. It can be faster that way (but some SMC case might not be trapped).
 
 ### BOX64_DYNAREC_NOHOTPAGE
 
 Disable detection of hot page (where code is executed and data written at the same time).
 
  * 0: Detect hot page [Default]
- * 1: Do not detect hot page 
-
-### BOX64_DYNAREC_HOTPAGE_ALT
-
-Use alternative way to detect HotPages (legacy way).
-
- * 0: Detect hot page, using new method from v0.3.9+ [Default]
- * 1: Use alternate method to detect HotPage (from v0.3.8 and earlier) 
+ * 1: Do not detect hot page
 
 ### BOX64_DYNAREC_FASTNAN
 
 Enable or disable fast NaN handling. Available in WowBox64.
 
- * 0: Precisely emulate the -NaN generation like on x86. 
+ * 0: Precisely emulate the -NaN generation like on x86.
  * 1: Do not do anything special with -NAN generation, faster. [Default]
 
 ### BOX64_DYNAREC_FASTROUND
 
 Enable or disable fast rounding. Available in WowBox64.
 
- * 0: Generate float/double -> int rounding and use current rounding mode for float/double computation like on x86. 
+ * 0: Generate float/double -> int rounding and use current rounding mode for float/double computation like on x86.
  * 1: Do not do anything special with edge case rounding, faster. [Default]
- * 2: Generate float/double -> int rounding using current rounding mode for float/double computation like on x86, but use fast int -> float/double conversion. 
+ * 2: Generate float/double -> int rounding using current rounding mode for float/double computation like on x86, but use fast int -> float/double conversion.
 
 ### BOX64_DYNAREC_FORWARD
 
 Define max allowed forward value when building block. Available in WowBox64.
 
- * 0: No forward value. When current block ends, do not try to go further even if there are previous forward jumps. 
+ * 0: No forward value. When current block ends, do not try to go further even if there are previous forward jumps.
  * 128: Allow up to 128 bytes of gap between end of the block and the next forward jump. [Default]
- * XXXX: Allow up to XXXX bytes of gap between end of the block and the next forward jump. 
+ * XXXX: Allow up to XXXX bytes of gap between end of the block and the next forward jump.
 
 ### BOX64_DYNAREC_NATIVEFLAGS
 
 Enable or disable the use of native flags. Available in WowBox64.
 
- * 0: Do not use native flags. 
+ * 0: Do not use native flags.
  * 1: Use native flags when possible. [Default]
 
 ### BOX64_DYNAREC_PAUSE
@@ -148,112 +141,106 @@ Enable or disable the use of native flags. Available in WowBox64.
 Enable x86 PAUSE emulation, may help the performance of spinlocks. Available in WowBox64.
 
  * 0: Ignore x86 PAUSE instruction. [Default]
- * 1: Use YIELD to emulate x86 PAUSE instruction. 
- * 2: Use WFI to emulate x86 PAUSE instruction. 
- * 3: Use SEVL+WFE to emulate x86 PAUSE instruction. 
+ * 1: Use YIELD to emulate x86 PAUSE instruction.
+ * 2: Use WFI to emulate x86 PAUSE instruction.
+ * 3: Use SEVL+WFE to emulate x86 PAUSE instruction.
 
 ### BOX64_DYNAREC_PURGE
 
-Purge dynablocks that haven't been executed recently, based on tick age threshold (BOX64_DYNAREC_PURGE_AGE).
+Purge DynaBlocks that haven't been executed recently, based on tick age threshold (BOX64_DYNAREC_PURGE_AGE).
 
- * 0: Dynarec will not purge old unused dynablocks. [Default]
- * 1: Dynarec will purge old unused dynablocks based on tick age. 
+ * 0: DynaRec will not purge old unused DynaBlocks. [Default]
+ * 1: DynaRec will purge old unused DynaBlocks based on tick age.
 
 ### BOX64_DYNAREC_PURGE_AGE
 
-Tick age threshold for dynablock purging (requires BOX64_DYNAREC_PURGE=1).
+Tick age threshold for DynaBlock purging (requires BOX64_DYNAREC_PURGE=1).
 
  * 4096: Default age threshold. [Default]
- * XXXX: Custom age threshold (range: 10-65536). 
+ * XXXX: Custom age threshold (range: 10-65536).
 
 ### BOX64_DYNAREC_SAFEFLAGS
 
 Behaviour of flags emulation on CALL/RET opcodes and other edge cases. Available in WowBox64.
 
- * 0: Treat CALL/RET as if it never needs any flags. 
+ * 0: Treat CALL/RET as if it never needs any flags.
  * 1: Most of RETs will need flags, most of CALLs will not. [Default]
- * 2: All CALL/RET will need flags. All edge cases are also handled. 
+ * 2: All CALL/RET will need flags. All edge cases are also handled.
 
 ### BOX64_DYNAREC_STRONGMEM
 
 Enable the emulation of x86 strong memory model. Available in WowBox64.
 
  * 0: Do not try anything special. [Default]
- * 1: Enable some memory barriers when writing to memory to emulate the x86 strong memory model in a limited way. 
- * 2: All in 1, plus memory barriers on SIMD instructions. 
- * 3: All in 2, plus more memory barriers on a regular basis. 
- * 4: Mimic x86 TSO similarly to QEMU's approach, for evaluation purposes. 
+ * 1: Enable some memory barriers when writing to memory to emulate the x86 strong memory model in a limited way.
+ * 2: All in 1, plus memory barriers on SIMD instructions.
+ * 3: All in 2, plus more memory barriers on a regular basis.
+ * 4: Mimic x86 TSO similarly to QEMU's approach, for evaluation purposes.
 
 ### BOX64_DYNAREC_VOLATILE_METADATA
 
 Use volatile metadata parsed from PE files, only valid for 64bit Windows games.
 
- * 0: Do not use volatile metadata. 
+ * 0: Do not use volatile metadata.
  * 1: Use volatile metadata, which will guide Box64 for better strong memory emulation. [Default]
 
 ### BOX64_DYNAREC_WAIT
 
 Wait or not for the building of a DynaRec code block to be ready. Available in WowBox64.
 
- * 0: Do not wait and use interpreter instead, might speedup a bit on massive multithread or JIT programs. 
+ * 0: Do not wait and use interpreter instead, might speedup a bit on massive multithread or JIT programs.
  * 1: Wait for a DynaRec code block to be ready. [Default]
 
 ### BOX64_DYNAREC_WEAKBARRIER
 
 Tweak the memory barriers to reduce the performance impact by strong memory emulation. Available in WowBox64.
 
- * 0: Use regular safe barrier. 
+ * 0: Use regular safe barrier.
  * 1: Use weak barriers to have more performance boost. [Default]
- * 2: All in 1, plus disable the last write barriers. 
+ * 2: All in 1, plus disable the last write barriers.
 
 ### BOX64_DYNACACHE
 
 Enable/disable the Dynamic Recompiler Cache (a.k.a DynaCache). This option defaults to 2 (to read cache if present but not generate any). DynaCache writes files to the home folder by default, and can grow without limit.
 
- * 0: Disable DynaCache. 
- * 1: Enable DynaCache. 
+ * 0: Disable DynaCache.
+ * 1: Enable DynaCache.
  * 2: Use DynaCache files if present, but do not generate new one. [Default]
 
 ### BOX64_DYNACACHE_FOLDER
 
 Set the folder for DynaCache files. Default is $XDG_CACHE_HOME/box64 or $HOME/.cache/box64 if $XDG_CACHE_HOME is not set.
 
- * XXXX: Use folder XXXX for DynaCache files. 
+ * XXXX: Use folder XXXX for DynaCache files.
 
 ### BOX64_DYNACACHE_MIN
 
 Minimum size, in KB, for a DynaCache to be written to disk. Default size is 350KB
 
- * XXXX: Set a minimum size of XXXX KB of Dynarec code to write the dynacache to disk. Will not be saved to disk else. 
+ * XXXX: Set a minimum size of XXXX KB of DynaRec code to write the dynacache to disk. Will not be saved to disk else.
  * 350: A size of 350 KB is the default value. [Default]
 
 ### BOX64_MMAP32
 
 Force 32-bit compatible memory mappings on 64-bit programs that run 32-bit code (like Wine WOW64), can improve performance.
 
- * 0: Do not force 32-bit memory mappings. 
+ * 0: Do not force 32-bit memory mappings.
  * 1: Force 32-bit memory mappings. [Default]
-
-### BOX64_NODYNAREC
-
-Forbid dynablock creation in the address range specified, helpful for debugging behaviour difference between Dynarec and Interpreter. Available in WowBox64.
-
- * 0xXXXXXXXX-0xYYYYYYYY: Define the range where dynablock creation is forbidden (inclusive-exclusive). 
 
 ### BOX64_DYNAREC_NOARCH
 
-Remove Architecture metadata from Dynarec blocks (used on signal). Available in WowBox64.
+Remove Architecture metadata from DynaRec blocks (used on signal). Available in WowBox64.
 
  * 0: Generate all architecture metadata for each blocks, including x87/mmx/SSE/AVX regs tracking. Will use some more memory. [Default]
- * 1: Generate only essential metadata for each blocks (flags, alignments), saving some memory, but some encrypted software might fail. 
- * 2: Do not generate metadata for blocks. Saving a bit more memory but might fail on signal handling. 
+ * 1: Generate only essential metadata for each blocks (flags, alignments), saving some memory, but some encrypted software might fail.
+ * 2: Do not generate metadata for blocks. Saving a bit more memory but might fail on signal handling.
 
 ### BOX64_RDTSC_1GHZ
 
 Use hardware counter for rdtsc if available.
 
  * 0: Use hardware counter for rdtsc opcode if available. [Default]
- * 1: Use hardware counter for rdtsc if and only if precision is at least 1GHz. 
+ * 1: Use hardware counter for rdtsc if and only if precision is at least 1GHz.
 
 ## Arguments
 
@@ -261,29 +248,29 @@ Use hardware counter for rdtsc if available.
 
 Arguments to pass to the guest program, only valid if there is no existing arguments.
 
- * XXXX: Pass argument XXXX to the program. 
- * XXXX YYYY ZZZZ: Pass arguments XXXX, YYYY and ZZZZ to the guest program. 
+ * XXXX: Pass argument XXXX to the program.
+ * XXXX YYYY ZZZZ: Pass arguments XXXX, YYYY and ZZZZ to the guest program.
 
 ### BOX64_INSERT_ARGS
 
 Prepend arguments to the command line.
 
- * XXXX: Prepend argument XXXX to the program. 
- * XXXX YYYY ZZZZ: Prepend arguments XXXX, YYYY and ZZZZ to the guest program. 
+ * XXXX: Prepend argument XXXX to the program.
+ * XXXX YYYY ZZZZ: Prepend arguments XXXX, YYYY and ZZZZ to the guest program.
 
 ### BOX64_INPROCESSGPU
 
 Add --in-process-gpu argument to the guest program.
 
  * 0: Does nothing. [Default]
- * 1: Add --in-process-gpu argument to the guest program. 
+ * 1: Add --in-process-gpu argument to the guest program.
 
 ### BOX64_NOSANDBOX
 
 Add --no-sandbox argument to the guest program.
 
  * 0: Does nothing. [Default]
- * 1: Add --no-sandbox argument to the guest program. 
+ * 1: Add --no-sandbox argument to the guest program.
 
 ## Compatibility
 
@@ -291,51 +278,51 @@ Add --no-sandbox argument to the guest program.
 
 Expose AES capabilities. Available in WowBox64.
 
- * 0: Do not expose AES capabilities. 
+ * 0: Do not expose AES capabilities.
  * 1: Expose AES capabilities. [Default]
 
 ### BOX64_ARCH
 
 Specify the architecture in rcfiles to which the current entry applies. This option only takes effect when used inside rcfiles.
 
- * `arm64`: Only apply current entry for AArch64. 
- * `la64`: Only apply current entry for LoongArch64. 
- * `rv64`: Only apply current entry for RISC-V. 
+ * `arm64`: Only apply current entry for AArch64.
+ * `la64`: Only apply current entry for LoongArch64.
+ * `rv64`: Only apply current entry for RISC-V.
  * `<empty>`: Apply current entry for all architectures, will be replaced by more specific entries. [Default]
 
 ### BOX64_AVX
 
 Expose AVX extension to CPUID and cpuinfo file. Default value is 2 on Arm64 because it's fully implemented in DynaRec, 0 otherwise. Available in WowBox64.
 
- * 0: Do not expose AVX capabilities. 
- * 1: Expose AVX, BMI1, F16C and VAES extensions to CPUID and cpuinfo file. 
- * 2: All in 1, plus AVX2, BMI2, FMA, ADX,VPCLMULQDQ and RDRAND extensions. 
+ * 0: Do not expose AVX capabilities.
+ * 1: Expose AVX, BMI1, F16C and VAES extensions to CPUID and cpuinfo file.
+ * 2: All in 1, plus AVX2, BMI2, FMA, ADX,VPCLMULQDQ and RDRAND extensions.
 
 ### BOX64_BASH
 
 Path to the bash executable.
 
- * XXXX: Use bash executable at path XXXX. 
+ * XXXX: Use bash executable at path XXXX.
 
 ### BOX64_CPUTYPE
 
 Specify the CPU type to emulate. Available in WowBox64.
 
  * 0: Emulate a Intel CPU Model. [Default]
- * 1: Emulate a AMD CPU Model. 
+ * 1: Emulate a AMD CPU Model.
 
 ### BOX64_CRASHHANDLER
 
 Use a dummy crash handler or not.
 
- * 0: Use emulated crashhandler.so library if needed. 
+ * 0: Use emulated crashhandler.so library if needed.
  * 1: Use an internal dummy (empty) crashhandler.so library. [Default]
 
 ### BOX64_DYNAREC_BLEEDING_EDGE
 
 Detect MonoBleedingEdge and apply conservative settings (Linux only).
 
- * 0: Do not detect MonoBleedingEdge. 
+ * 0: Do not detect MonoBleedingEdge.
  * 1: Detect MonoBleedingEdge and apply BOX64_DYNAREC_BIGBLOCK=0 BOX64_DYNAREC_STRONGMEM=1 when detected. [Default]
 
 ### BOX64_DYNAREC_DIV0
@@ -343,13 +330,13 @@ Detect MonoBleedingEdge and apply conservative settings (Linux only).
 Enable or disable the generation of division-by-zero exception. Available in WowBox64.
 
  * 0: Do not generate the division-by-zero exception. [Default]
- * 1: Generate the division-by-zero exception. 
+ * 1: Generate the division-by-zero exception.
 
 ### BOX64_DYNAREC_TBB
 
 Enable or disable libtbb detection.
 
- * 0: Do not detect libtbb. 
+ * 0: Do not detect libtbb.
  * 1: Detect libtbb and apply conservative settings. [Default]
 
 ### BOX64_DYNAREC_X87DOUBLE
@@ -357,49 +344,49 @@ Enable or disable libtbb detection.
 Force the use of float/double for x87 emulation. Available in WowBox64.
 
  * 0: Try to use float when possible for x87 emulation. [Default]
- * 1: Only use Double for x87 emulation. 
- * 2: Check Precision Control low precision on x87 emulation. 
+ * 1: Only use Double for x87 emulation.
+ * 2: Check Precision Control low precision on x87 emulation.
 
 ### BOX64_DYNAREC_INTERP_SIGNAL
 
-Allow the use of Dynarec in Signal Handlers.
+Allow the use of DynaRec in Signal Handlers.
 
- * 0: Allow the use of Dynarec in signal handlers. [Default]
- * 1: Only use the Interpreter for signal handlers (as it was in v0.3.8 and earlier). 
+ * 0: Allow the use of DynaRec in signal handlers. [Default]
+ * 1: Only use the Interpreter for signal handlers (as it was in v0.3.8 and earlier).
 
 ### BOX64_EXIT
 
 Just exit, do not try to run the program.
 
  * 0: Does nothing. [Default]
- * 1: Just exit. 
+ * 1: Just exit.
 
 ### BOX64_FIX_64BIT_INODES
 
 Fix 64bit inodes.
 
  * 0: Do not fix 64bit inodes. [Default]
- * 1: Fix 64bit inodes. 
+ * 1: Fix 64bit inodes.
 
 ### BOX64_FORCE_LD_PRELOAD
 
 Force symbols from BOX64_LD_PRELOAD libraries to be resolved by RTLD_NEXT.
 
  * 0: Do nothing. [Default]
- * 1: Force symbols from BOX64_LD_PRELOAD libraries to be resolved by RTLD_NEXT. 
+ * 1: Force symbols from BOX64_LD_PRELOAD libraries to be resolved by RTLD_NEXT.
 
 ### BOX64_IGNOREINT3
 
 Ignore INT3 instructions.
 
  * 0: Trigger a TRAP signal if a handler is present. [Default]
- * 1: Skip the opcode silently. 
+ * 1: Skip the opcode silently.
 
 ### BOX64_JVM
 
 Detect libjvm and apply conservative settings.
 
- * 0: Does nothing. 
+ * 0: Does nothing.
  * 1: Detect libjvm, and apply BOX64_DYNAREC_BIGBLOCK=0 BOX64_DYNAREC_STRONGMEM=1 BOX64_SSE42=0 when detected. [Default]
 
 ### BOX64_LIBCEF
@@ -407,91 +394,91 @@ Detect libjvm and apply conservative settings.
 Detect libcef and apply BOX64_MALLOC_HACK settings.
 
  * 0: Does nothing. [Default]
- * 1: Detect libcef, and apply BOX64_MALLOC_HACK=2 if detected. 
+ * 1: Detect libcef, and apply BOX64_MALLOC_HACK=2 if detected.
 
 ### BOX64_MALLOC_HACK
 
 Behaviour when hooking malloc operators.
 
  * 0: Don't allow malloc operator to be redirected, rewriting code to use regular function. [Default]
- * 1: Allow malloc operator to be redirected. 
- * 2: Like 0, but track special mmap/free (some redirected functions are inlined and cannot be redirected). 
+ * 1: Allow malloc operator to be redirected.
+ * 2: Like 0, but track special mmap/free (some redirected functions are inlined and cannot be redirected).
 
 ### BOX64_MAXCPU
 
 Maximum CPU cores exposed. Available in WowBox64.
 
  * 0: Use the actual number of CPU cores. [Default]
- * XXXX: Use XXXX CPU cores. 
+ * XXXX: Use XXXX CPU cores.
 
 ### BOX64_NORCFILES
 
 Do not load any rc files.
 
  * 0: Load rc files. [Default]
- * 1: Do not load any rc files. 
+ * 1: Do not load any rc files.
 
 ### BOX64_PATH
 
 Path to look for x86_64 binaries.
 
- * XXXX: Add path XXXX to the binary path. 
+ * XXXX: Add path XXXX to the binary path.
 
 ### BOX64_PCLMULQDQ
 
 Expose PCLMULQDQ capabilities. Available in WowBox64.
 
- * 0: Do not expose PCLMULQDQ capabilities. 
+ * 0: Do not expose PCLMULQDQ capabilities.
  * 1: Expose PCLMULQDQ capabilities. [Default]
 
 ### BOX64_PROFILE
 
 Predefined sets of environment variables with compatibility or performance in mind. Available in WowBox64.
 
- * safest: Profile with all the unsafe DynaRec optimizations disabled. 
- * safe: Well, less safer than safest. 
+ * safest: Profile with all the unsafe DynaRec optimizations disabled.
+ * safe: Well, less safer than safest.
  * default: The default settings that most programs runs fine with a handy performance. [Default]
- * fast: Enable many unsafe optimizations, but also enable strongmem emulation. 
- * fastest: Enable many unsafe optimizations to have a better performance. 
+ * fast: Enable many unsafe optimizations, but also enable strongmem emulation.
+ * fastest: Enable many unsafe optimizations to have a better performance.
 
 ### BOX64_PYTHON3
 
 Path to a python3 executable.
 
- * XXXX: Use python3 executable at path XXXX. 
+ * XXXX: Use python3 executable at path XXXX.
 
 ### BOX64_RCFILE
 
 Path to the rc file to load.
 
- * XXXX: Load the rc file XXXX, default rc files will not be loaded. 
+ * XXXX: Load the rc file XXXX, default rc files will not be loaded.
 
 ### BOX64_RDTSC_INV
 
-Report Invariant TSC bit in CPUID for Intel CPU type.
+Report Invariant TSC bit in CPUID for Intel CPU type. Available in WowBox64.
 
  * 0: Do not report Invariant TSC for Intel CPU type (default). [Default]
- * 1: Report Invariant TSC bit in CPUID leaf 0x80000007 for Intel CPU type. 
+ * 1: Report Invariant TSC bit in CPUID leaf 0x80000007 for Intel CPU type.
 
 ### BOX64_RESERVE_HIGH
 
 Reserve high memory area for the program, always enabled on Box32.
 
  * 0: Do not reserve high memory area for the program. [Default]
- * 1: Reserve high memory area for the program. 
+ * 1: Reserve high memory area for the program.
 
 ### BOX64_SDL2_JGUID
 
 Use a workaround for SDL_GetJoystickGUIDInfo function for wrapped SDL2.
 
  * 0: Does nothing. [Default]
- * 1: Use a workaround for SDL_GetJoystickGUIDInfo function for wrapped SDL2. 
+ * 1: Use a workaround for SDL_GetJoystickGUIDInfo function for wrapped SDL2.
 
 ### BOX64_SHAEXT
 
 Expose SHAEXT (a.k.a. SHA_NI) capabilities. Available in WowBox64.
 
- * 0: Do not expose SHAEXT capabilities. 
+ * 0: Do not expose SHAEXT capabilities.
  * 1: Expose SHAEXT capabilities. [Default]
 
 ### BOX64_SSE_FLUSHTO0
@@ -499,13 +486,13 @@ Expose SHAEXT (a.k.a. SHA_NI) capabilities. Available in WowBox64.
 Behaviour of SSE Flush to 0 flags. Also tracking SSE exception flags. Available in WowBox64.
 
  * 0: Just track the flag. [Default]
- * 1: Apply SSE Flush to 0 flag directly. Also reflect SSE exception flags in Dynarec (if available) 
+ * 1: Apply SSE Flush to 0 flag directly. Also reflect SSE exception flags in DynaRec (if available)
 
 ### BOX64_SSE42
 
 Expose SSE4.2 capabilities. Available in WowBox64.
 
- * 0: Do not expose SSE4.2 capabilities. 
+ * 0: Do not expose SSE4.2 capabilities.
  * 1: Expose SSE4.2 capabilities. [Default]
 
 ### BOX64_STEAM_VULKAN
@@ -513,27 +500,27 @@ Expose SSE4.2 capabilities. Available in WowBox64.
 Force Vulkan for Linux Steam UI.
 
  * 0: Do nothing. [Default]
- * 1: Force Vulkan for Linux Steam UI. 
+ * 1: Force Vulkan for Linux Steam UI.
 
 ### BOX64_SYNC_ROUNDING
 
 Synchronize rounding mode between x86 and native.
 
  * 0: Do not synchronize rounding mode. [Default]
- * 1: Synchronize rounding mode between x86 and native. 
+ * 1: Synchronize rounding mode between x86 and native.
 
 ### BOX64_UNITYPLAYER
 
 Detect UnityPlayer and apply conservative settings.
 
- * 0: Does nothing. 
+ * 0: Does nothing.
  * 1: Detect UnityPlayer (Windows or Linux), and apply BOX64_UNITY=1 when detected. [Default]
 
 ### BOX64_UNITY
 
 Games is a Unity one.
 
- * 0: Does nothing. 
+ * 0: Does nothing.
  * 1: Unity Game, use special detecting code for Windows, apply BOX64_DYNAREC_STRONGMEM=1 for Linux. [Default]
 
 ### BOX64_X11GLX
@@ -541,28 +528,35 @@ Games is a Unity one.
 Force Xorg GLX extension to be present.
 
  * 0: Do not force Xorg GLX extension to be present. [Default]
- * 1: Require Xorg GLX extension when using XQueryExtension. 
+ * 1: Require Xorg GLX extension when using XQueryExtension.
 
 ### BOX64_X11SYNC
 
 Force synchronized operation on X11 display.
 
  * 0: Do not force synchronized operation on X11 display. [Default]
- * 1: Force synchronized operation on X11 display. 
+ * 1: Force synchronized operation on X11 display.
 
 ### BOX64_X11THREADS
 
 Call XInitThreads when loading X11. This is mostly for old Loki games with the Loki_Compat library.
 
  * 0: Do not call XInitThreads. [Default]
- * 1: Call XInitThreads as soon as libX11 is loaded. 
+ * 1: Call XInitThreads as soon as libX11 is loaded.
 
 ### BOX64_X87_NO80BITS
 
 Behaviour of x87 80bits long double. Available in WowBox64.
 
  * 0: Try to handle 80bits long double as precise as possible. [Default]
- * 1: Use 64bits double for x87. 
+ * 1: Use 64bits double for x87.
+
+### BOX64_NOPERSONA32BITS
+
+Disable the automatic switch of personality for 32-bit binaries (always enabled on Box32).
+
+ * 0: Switch personality for 32-bit binaries (if not already tried). [Default]
+ * 1: Do not switch personality for 32-bit binaries.
 
 ## Debugging
 
@@ -571,91 +565,91 @@ Behaviour of x87 80bits long double. Available in WowBox64.
 Enable or disable the logging of dlsym errors.
 
  * 0: Disable the logging of dlsym errors. [Default]
- * 1: Enable the logging of dlsym errors. 
+ * 1: Enable the logging of dlsym errors.
 
 ### BOX64_DUMP
 
 Dump elfloader debug information. Available in WowBox64.
 
  * 0: Do not dump elfloader debug information. [Default]
- * 1: Dump elfloader debug information. 
+ * 1: Dump elfloader debug information.
 
 ### BOX64_DYNAREC_DUMP
 
 Enable DynaRec dump. Available in WowBox64.
 
  * 0: Do not dump DynaRec blocks. [Default]
- * 1: Dump DynaRec blocks. 
- * 2: Dump DynaRec blocks with some colors. 
+ * 1: Dump DynaRec blocks.
+ * 2: Dump DynaRec blocks with some colors.
 
 ### BOX64_DYNAREC_DUMP_RANGE
 
 Dump DynaRec blocks in the specified range. Available in WowBox64.
 
- * 0xXXXXXXXX-0xYYYYYYYY: Define the range where dynablock gets dumped (inclusive-exclusive). 
+ * 0xXXXXXXXX-0xYYYYYYYY: Define the range where DynaBlock gets dumped (inclusive-exclusive).
 
 ### BOX64_DYNAREC_GDBJIT
 
 The GDBJIT debugging support, only available on build with `-DGDBJIT=ON`, enable it with gdb command: jit-reader-load /usr/local/lib/libbox64gdbjitreader.so.
 
- * 0: Dynarec will not generate GDBJIT debuginfo. [Default]
- * 1: Dynarec will generate GDBJIT debuginfo. 
- * 2: Dynarec will generate detailed GDBJIT debuginfo with internal state. 
- * 3: Dynarec will register detailed GDBJIT debuginfo only for dynablocks that the guest program trap into, greatly improving performance. 
- * 0xXXXXXXX-0xYYYYYYY: Define the range where Dynarec will generate detailed GDBJIT debuginfo with internal state. 
+ * 0: DynaRec will not generate GDBJIT debuginfo. [Default]
+ * 1: DynaRec will generate GDBJIT debuginfo.
+ * 2: DynaRec will generate detailed GDBJIT debuginfo with internal state.
+ * 3: DynaRec will register detailed GDBJIT debuginfo only for DynaBlocks that the guest program trap into, greatly improving performance.
+ * 0xXXXXXXX-0xYYYYYYY: Define the range where DynaRec will generate detailed GDBJIT debuginfo with internal state.
 
 ### BOX64_DYNAREC_LOG
 
 Disable or enable DynaRec logs. Available in WowBox64.
 
  * 0: Disable DynaRec logs. [Default]
- * 1: Enable minimal DynaRec logs. 
- * 2: Enable debug level DynaRec logs. 
- * 3: Enable verbose level DynaRec logs. 
+ * 1: Enable minimal DynaRec logs.
+ * 2: Enable debug level DynaRec logs.
+ * 3: Enable verbose level DynaRec logs.
 
 ### BOX64_DYNAREC_MISSING
 
 Print missing opcodes. Available in WowBox64.
 
  * 0: Do not print the missing opcode. [Default]
- * 1: Print missing opcodes. 
- * 2: Print the fallback to scalar opcodes, only valid on RISC-V. 
+ * 1: Print missing opcodes.
+ * 2: Print the fallback to scalar opcodes, only valid on RISC-V.
 
 ### BOX64_DYNAREC_NOHOSTEXT
 
 Disable optional host extensions.
 
  * 0: Disable nothing. [Default]
- * 1: Disable all the optional extensions. 
- * xxx,yyy,zzz: Disable selected optional extensions, choices are Arm: `crc32,pmull,aes,atomics,sha1,sha2,uscat,flagm,flagm2,frintts,afp,rndr`, LoongArch: `lasx,lbt,frecipe,lam_bh,lamcas,scq`, and RISC-V: `zba,zbb,zbc,zbs,vector,xtheadba,xtheadbb,xtheadbs,xtheadmemidx,xtheadmempair,xtheadcondmov`. 
+ * 1: Disable all the optional extensions.
+ * xxx,yyy,zzz: Disable selected optional extensions, choices are Arm: `crc32,pmull,aes,atomics,sha1,sha2,uscat,flagm,flagm2,frintts,afp,rndr`, LoongArch: `lasx,lbt,frecipe,lam_bh,lamcas,scq`, and RISC-V: `zba,zbb,zbc,zbs,vector,xtheadba,xtheadbb,xtheadbs,xtheadmemidx,xtheadmempair,xtheadcondmov`.
 
 ### BOX64_DYNAREC_PERFMAP
 
 Generate map file for Linux perf tool.
 
- * 0: Dynarec will not generate perf map. [Default]
- * 1: Dynarec will generate perf map. 
+ * 0: DynaRec will not generate perf map. [Default]
+ * 1: DynaRec will generate perf map.
 
 ### BOX64_DYNAREC_TEST
 
 Enable DynaRec execution comparison with the interpreter, very slow, only for testing. Available in WowBox64.
 
  * 0: No comparison. [Default]
- * 1: Each opcode runs on interpreter and on Dynarec, regs and memory are compared and printed when they differ. 
- * 0xXXXXXXXX-0xYYYYYYYY: Define the range where dynarec is tested (inclusive-exclusive). 
+ * 1: Each opcode runs on interpreter and on DynaRec, regs and memory are compared and printed when they differ.
+ * 0xXXXXXXXX-0xYYYYYYYY: Define the range where DynaRec is tested (inclusive-exclusive).
 
 ### BOX64_DYNAREC_TEST_NODUP
 
 Enable deduplication of IP address where COSIM find a difference. Available in WowBox64.
 
  * 0: Show all addresses in error. [Default]
- * 1: Show address in error only 1 time, even if dump might differs. 
+ * 1: Show address in error only 1 time, even if dump might differs.
 
 ### BOX64_DYNAREC_TEST_NODUMP
 
 Do not dump test code when BOX64_DYNAREC_DUMP is enabled. Available in WowBox64.
 
- * 0: Dump test code. 
+ * 0: Dump test code.
  * 1: Do not dump test code. [Default]
 
 ### BOX64_DYNAREC_TRACE
@@ -663,137 +657,143 @@ Do not dump test code when BOX64_DYNAREC_DUMP is enabled. Available in WowBox64.
 Enable or disable DynaRec trace.
 
  * 0: Do not trace DynaRec blocks. [Default]
- * 1: Trace DynaRec blocks, will slow down the program a lot and generates huge logs. 
+ * 1: Trace DynaRec blocks, will slow down the program a lot and generates huge logs.
 
 ### BOX64_JITGDB
 
 Launch gdb or not for SIGSEGV, SIGILL, and SIGBUS.
 
  * 0: Just print the message when the signal is caught. [Default]
- * 1: Launch gdb when a SIGSEGV, SIGILL or SIGBUS signal is trapped, attached to the offending process and go in an endless loop, waiting. Inside gdb, you need to find the correct thread yourself (the one with `my_box64signalhandler` in its stack), then probably need to `finish` 1 or 2 functions (inside `usleep(..)`) and then you'll be in `my_box64signalhandler`, just before the printf of the Segfault message. Then `set waiting=0` to exit the infinite loop. 
- * 2: Launch gdbserver when a SIGSEGV, SIGILL or SIGBUS signal is trapped, attached to the offending process, and go in an endless loop, waiting. Use `gdb /PATH/TO/box64` and then `target remote 127.0.0.1: 1234` to connect to the gdbserver (or use actual IP if not on the machine). After that, the procedure is the same as with `BOX64_JITGDB=1`. 
- * 3: Launch lldb when a SIGSEGV, SIGILL or SIGBUS signal is trapped, attached to the offending process and go in an endless loop, waiting. 
+ * 1: Launch gdb when a SIGSEGV, SIGILL or SIGBUS signal is trapped, attached to the offending process and go in an endless loop, waiting. Inside gdb, you need to find the correct thread yourself (the one with `my_box64signalhandler` in its stack), then probably need to `finish` 1 or 2 functions (inside `usleep(..)`) and then you'll be in `my_box64signalhandler`, just before the printf of the Segfault message. Then `set waiting=0` to exit the infinite loop.
+ * 2: Launch gdbserver when a SIGSEGV, SIGILL or SIGBUS signal is trapped, attached to the offending process, and go in an endless loop, waiting. Use `gdb /PATH/TO/box64` and then `target remote 127.0.0.1: 1234` to connect to the gdbserver (or use actual IP if not on the machine). After that, the procedure is the same as with `BOX64_JITGDB=1`.
+ * 3: Launch lldb when a SIGSEGV, SIGILL or SIGBUS signal is trapped, attached to the offending process and go in an endless loop, waiting.
 
 ### BOX64_LOAD_ADDR
 
 Set the address where the program is loaded, only active for PIE guest programs.
 
- * 0xXXXXXXXX: Set the address where the program is loaded. 
+ * 0xXXXXXXXX: Set the address where the program is loaded.
 
 ### BOX64_LOG
 
 Enable or disable Box64 logs, default value is 0 if stdout is not terminal, 1 otherwise. Available in WowBox64.
 
- * 0: Disable Box64 logs. 
- * 1: Enable minimal Box64 logs. 
- * 2: Enable debug level Box64 logs. 
- * 3: Enable verbose level Box64 logs. 
+ * 0: Disable Box64 logs.
+ * 1: Enable minimal Box64 logs.
+ * 2: Enable debug level Box64 logs.
+ * 3: Enable verbose level Box64 logs.
 
 ### BOX64_NOBANNER
 
 Disable the Box64 banner. Available in WowBox64.
 
- * 0: Show the Box64 banner. 
- * 1: Do not show the Box64 banner. 
+ * 0: Show the Box64 banner.
+ * 1: Do not show the Box64 banner.
+
+### BOX64_NODYNAREC
+
+Forbid DynaBlock creation in the address range specified, helpful for debugging behaviour difference between DynaRec and Interpreter. Available in WowBox64.
+
+ * 0xXXXXXXXX-0xYYYYYYYY: Define the range where DynaBlock creation is forbidden (inclusive-exclusive).
 
 ### BOX64_NODYNAREC_DELAY
 
-Remove NoDynarec range after a delay. Available in WowBox64.
+Remove NoDynaRec range after a delay. Available in WowBox64.
 
- * 0: Do not remove NoDynarec range. [Default]
- * 1: Remove the NoDynarec range once 2 threads have been created. 
+ * 0: Do not remove NoDynaRec range. [Default]
+ * 1: Remove the NoDynaRec range once 2 threads have been created.
 
 ### BOX64_NOSIGSEGV
 
 Disable the handling of SIGSEGV.
 
  * 0: Let the x86 program set sighandler for SIGSEGV. [Default]
- * 1: Disable the handling of SIGSEGV. 
+ * 1: Disable the handling of SIGSEGV.
 
 ### BOX64_NOSIGILL
 
 Disable the handling of SIGILL.
 
  * 0: Let the x86 program set sighandler for SIGILL. [Default]
- * 1: Disable the handling of SIGILL. 
+ * 1: Disable the handling of SIGILL.
 
 ### BOX64_ROLLING_LOG
 
 Show last few wrapped function call when a signal is caught.
 
  * 0: Does nothing. [Default]
- * 1: Show last 16 wrapped function call when a signal is caught. 
- * XXXX: Show last XXXX wrapped function call when a signal is caught. 
+ * 1: Show last 16 wrapped function call when a signal is caught.
+ * XXXX: Show last XXXX wrapped function call when a signal is caught.
 
 ### BOX64_SHOWBT
 
 Show native and emulated backtrace when a signal is caught.
 
  * 0: Does nothing. [Default]
- * 1: Show native and emulated backtrace when a signal is caught. 
+ * 1: Show native and emulated backtrace when a signal is caught.
 
 ### BOX64_SHOWSEGV
 
 Always show SIGSEGV signal details.
 
  * 0: Does nothing. [Default]
- * 1: Always show SIGSEGV signal details. 
+ * 1: Always show SIGSEGV signal details.
 
 ### BOX64_TRACE_COLOR
 
 Enable or disable colored trace output.
 
  * 0: Disable colored trace output. [Default]
- * 1: Enable colored trace output. 
+ * 1: Enable colored trace output.
 
 ### BOX64_TRACE_EMM
 
 Enable or disable EMM (i.e. MMX) trace output.
 
  * 0: Disable EMM trace output. [Default]
- * 1: Enable EMM trace output. 
+ * 1: Enable EMM trace output.
 
 ### BOX64_TRACE_FILE
 
 Send all log and trace to a file instead of `stdout`.
 
- * XXXX: Send all log and trace to file XXXX. 
- * XXXX%pid: Send all log and trace to file XXXX with pid appended. 
+ * XXXX: Send all log and trace to file XXXX.
+ * XXXX%pid: Send all log and trace to file XXXX with pid appended.
  * stderr: Send all log and trace to `stderr`. [Default]
- * stdout: Send all log and trace to `stdout`. 
+ * stdout: Send all log and trace to `stdout`.
 
 ### BOX64_TRACE_INIT
 
 Same as BOX64_TRACE but starts the trace immediately.
 
  * 0: Disable trace output. [Default]
- * 1: Enable trace output. Trace starts before the initialization of dependencies. 
- * symbolname: Enable trace output for `symbolname` only. Trace starts before the initialization of dependencies. 
- * 0xXXXXXXX-0xYYYYYYY: Enable trace output for the range of address (inclusive-exclusive). Trace starts before the initialization of dependencies. 
+ * 1: Enable trace output. Trace starts before the initialization of dependencies.
+ * symbolname: Enable trace output for `symbolname` only. Trace starts before the initialization of dependencies.
+ * 0xXXXXXXX-0xYYYYYYY: Enable trace output for the range of address (inclusive-exclusive). Trace starts before the initialization of dependencies.
 
 ### BOX64_TRACE_START
 
 Start trace after N opcodes executed.
 
  * 0: Start trace immediately. [Default]
- * 1: Start trace after 1 opcode executed. 
- * XXXX: Start trace after XXXX opcodes executed. 
+ * 1: Start trace after 1 opcode executed.
+ * XXXX: Start trace after XXXX opcodes executed.
 
 ### BOX64_TRACE_XMM
 
 Enable or disable XMM (i.e. SSE) trace output.
 
  * 0: Disable XMM trace output. [Default]
- * 1: Enable XMM trace output. 
+ * 1: Enable XMM trace output.
 
 ### BOX64_TRACE
 
 Only available on box64 build with trace. Adds trace of all instructions executed, along with a register dump.
 
  * 0: Disable trace output. [Default]
- * 1: Enable trace output. 
- * symbolname: Enable trace output for `symbolname` only. 
- * 0xXXXXXXX-0xYYYYYYY: Enable trace output for the range of address (inclusive-exclusive). 
+ * 1: Enable trace output.
+ * symbolname: Enable trace output for `symbolname` only.
+ * 0xXXXXXXX-0xYYYYYYY: Enable trace output for the range of address (inclusive-exclusive).
 
 ## Environment
 
@@ -801,13 +801,13 @@ Only available on box64 build with trace. Adds trace of all instructions execute
 
 Add an environment variable.
 
- * XXXX=yyyy: Add environment variable XXXX with value yyyy. 
+ * XXXX=yyyy: Add environment variable XXXX with value yyyy.
 
 ### BOX64_ENV[1-5]
 
 Add an environment variable.
 
- * XXXX=yyyy: Add environment variable XXXX with value yyyy. 
+ * XXXX=yyyy: Add environment variable XXXX with value yyyy.
 
 ## Libraries
 
@@ -815,89 +815,89 @@ Add an environment variable.
 
 Add extras to the needed libraries list, rarely needed.
 
- * XXXX: Add library XXXX to the needed libraries list. 
- * XXXX:YYYY:ZZZZ: Add library XXXX, YYYY and ZZZZ to the needed libraries list. 
+ * XXXX: Add library XXXX to the needed libraries list.
+ * XXXX:YYYY:ZZZZ: Add library XXXX, YYYY and ZZZZ to the needed libraries list.
 
 ### BOX64_ALLOWMISSINGLIBS
 
 Allow missing libraries to be ignored.
 
  * 0: Do not allow missing libraries. [Default]
- * 1: Allow missing libraries. 
+ * 1: Allow missing libraries.
 
 ### BOX64_EMULATED_LIBS
 
 Force the use of emulated libraries.
 
- * XXXX: Force the use of emulated library XXXX. 
- * XXXX:YYYY:ZZZZ: Force the use of emulated libraries XXXX, YYYY and ZZZZ. 
+ * XXXX: Force the use of emulated library XXXX.
+ * XXXX:YYYY:ZZZZ: Force the use of emulated libraries XXXX, YYYY and ZZZZ.
 
 ### BOX64_LD_LIBRARY_PATH
 
 Path to look for x86_64 libraries.
 
- * XXXX: Add path XXXX to the library path. 
+ * XXXX: Add path XXXX to the library path.
 
 ### BOX64_LD_PRELOAD
 
 Force loading libraries with the binary.
 
- * XXXX: Force the loading of library XXXX. 
- * XXXX:YYYY: Force the loading of libraries XXXX and YYYY. 
+ * XXXX: Force the loading of library XXXX.
+ * XXXX:YYYY: Force the loading of libraries XXXX and YYYY.
 
 ### BOX64_LIBGL
 
 Set the name for libGL.
 
- * libXXXX: Set the name for libGL to libXXXX. 
- * /path/to/libXXXX: Set the name and path for libGL to /path/to/libXXXX, you can also use SDL_VIDEO_GL_DRIVER. 
+ * libXXXX: Set the name for libGL to libXXXX.
+ * /path/to/libXXXX: Set the name and path for libGL to /path/to/libXXXX, you can also use SDL_VIDEO_GL_DRIVER.
 
 ### BOX64_NOGTK
 
 Do not load wrapped GTK libraries.
 
  * 0: Load wrapped GTK libraries. [Default]
- * 1: Do not load wrapped GTK libraries. 
+ * 1: Do not load wrapped GTK libraries.
 
 ### BOX64_NOPULSE
 
 Do not load PulseAudio libraries (both native and x86_64).
 
  * 0: Load PulseAudio libraries. [Default]
- * 1: Do not load PulseAudio libraries. 
+ * 1: Do not load PulseAudio libraries.
 
 ### BOX64_NOVULKAN
 
 Do not load Vulkan libraries.
 
  * 0: Load Vulkan libraries. [Default]
- * 1: Do not load Vulkan libraries, both native and x86_64. 
+ * 1: Do not load Vulkan libraries, both native and x86_64.
 
 ### BOX64_NOVULKANOVERLAY
 
 Do not load x64 Vulkan overlay.
 
  * 0: Try to load x64 Vulkan overlay. [Default]
- * 1: Do not load x64 Vulkan overlay. 
+ * 1: Do not load x64 Vulkan overlay.
 
 ### BOX64_PREFER_EMULATED
 
 Prefer emulated libraries over native ones.
 
  * 0: Prefer native libraries over emulated ones. [Default]
- * 1: Prefer emulated libraries over native ones. 
+ * 1: Prefer emulated libraries over native ones.
 
 ### BOX64_PREFER_WRAPPED
 
 Prefer wrapped libs first even if the lib is specified with absolute path.
 
  * 0: Prefer libs with absolute path over wrapped ones. [Default]
- * 1: Prefer wrapped libs first even if the lib is specified with absolute path. 
+ * 1: Prefer wrapped libs first even if the lib is specified with absolute path.
 
 ### BOX64_WRAP_EGL
 
 Prefer wrapped libs for EGL and GLESv2.
 
  * 0: Prefer emulated libs for EGL and GLESv2. [Default]
- * 1: Prefer wrapped libs for EGL and GLESv2. 
+ * 1: Prefer wrapped libs for EGL and GLESv2.
 

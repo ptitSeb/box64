@@ -160,9 +160,9 @@ Generate aligned atomics only (only available on Arm64 for now). Available in Wo
 Enable building bigger DynaRec code blocks for better performance. Available in WowBox64.
 
  * 0 : Do not try to build block as big as possible, suitable for programs using lots of threads and JIT, like Unity. 
- * 1 : Build Dynarec block as big as possible. 
- * 2 : Build Dynarec block bigger, do not stop when block overlaps, but only for blocks in elf memory. [Default]
- * 3 : Build Dynarec block bigger, do not stop when block overlaps, for all type of memory, useful for wine programs. 
+ * 1 : Build DynaRec block as big as possible. 
+ * 2 : Build DynaRec block bigger, do not stop when block overlaps, but only for blocks in elf memory. [Default]
+ * 3 : Build DynaRec block bigger, do not stop when block overlaps, for all type of memory, useful for wine programs. 
 
 
 =item B<BOX64_DYNAREC_BLEEDING_EDGE> =I<0|1>
@@ -204,7 +204,7 @@ Enable or disable the use of deferred flags. Available in WowBox64.
 Allow continue running a block that is unprotected and potentially dirty.
 
  * 0 : Do not allow continue running a block that is unprotected and potentially dirty. [Default]
- * 1 : Allow continue to run a dynablock that write data in the same page as code. It can gets faster in loading time of some game but can also get unexpected crashes. 
+ * 1 : Allow continue to run a DynaBlock that write data in the same page as code. It can gets faster in loading time of some game but can also get unexpected crashes. 
  * 2 : Will also, when it detects a HotPage, flag that page as NEVERCLEAN, and so it will not be write protected but blocks built from that page will always be tested. It can be faster that way (but some SMC case might not be trapped). 
 
 
@@ -214,14 +214,6 @@ Disable detection of hot page (where code is executed and data written at the sa
 
  * 0 : Detect hot page [Default]
  * 1 : Do not detect hot page 
-
-
-=item B<BOX64_DYNAREC_HOTPAGE_ALT> =I<0|1>
-
-Use alternative way to detect HotPages (legacy way).
-
- * 0 : Detect hot page, using new method from v0.3.9+ [Default]
- * 1 : Use alternate method to detect HotPage (from v0.3.8 and earlier) 
 
 
 =item B<BOX64_DYNAREC_DIV0> =I<0|1>
@@ -245,7 +237,7 @@ Enable DynaRec dump. Available in WowBox64.
 
 Dump DynaRec blocks in the specified range. Available in WowBox64.
 
- * 0xXXXXXXXX-0xYYYYYYYY : Define the range where dynablock gets dumped (inclusive-exclusive). 
+ * 0xXXXXXXXX-0xYYYYYYYY : Define the range where DynaBlock gets dumped (inclusive-exclusive). 
 
 
 =item B<BOX64_DYNAREC_FASTNAN> =I<0|1>
@@ -278,11 +270,11 @@ Define max allowed forward value when building block. Available in WowBox64.
 
 The GDBJIT debugging support, only available on build with `-DGDBJIT=ON`, enable it with gdb command: jit-reader-load /usr/local/lib/libbox64gdbjitreader.so.
 
- * 0 : Dynarec will not generate GDBJIT debuginfo. [Default]
- * 1 : Dynarec will generate GDBJIT debuginfo. 
- * 2 : Dynarec will generate detailed GDBJIT debuginfo with internal state. 
- * 3 : Dynarec will register detailed GDBJIT debuginfo only for dynablocks that the guest program trap into, greatly improving performance. 
- * 0xXXXXXXX-0xYYYYYYY : Define the range where Dynarec will generate detailed GDBJIT debuginfo with internal state. 
+ * 0 : DynaRec will not generate GDBJIT debuginfo. [Default]
+ * 1 : DynaRec will generate GDBJIT debuginfo. 
+ * 2 : DynaRec will generate detailed GDBJIT debuginfo with internal state. 
+ * 3 : DynaRec will register detailed GDBJIT debuginfo only for DynaBlocks that the guest program trap into, greatly improving performance. 
+ * 0xXXXXXXX-0xYYYYYYY : Define the range where DynaRec will generate detailed GDBJIT debuginfo with internal state. 
 
 
 =item B<BOX64_DYNAREC_LOG> =I<0|1|2|3>
@@ -335,21 +327,21 @@ Enable x86 PAUSE emulation, may help the performance of spinlocks. Available in 
 
 Generate map file for Linux perf tool.
 
- * 0 : Dynarec will not generate perf map. [Default]
- * 1 : Dynarec will generate perf map. 
+ * 0 : DynaRec will not generate perf map. [Default]
+ * 1 : DynaRec will generate perf map. 
 
 
 =item B<BOX64_DYNAREC_PURGE> =I<0|1>
 
-Purge dynablocks that haven't been executed recently, based on tick age threshold (BOX64_DYNAREC_PURGE_AGE).
+Purge DynaBlocks that haven't been executed recently, based on tick age threshold (BOX64_DYNAREC_PURGE_AGE).
 
- * 0 : Dynarec will not purge old unused dynablocks. [Default]
- * 1 : Dynarec will purge old unused dynablocks based on tick age. 
+ * 0 : DynaRec will not purge old unused DynaBlocks. [Default]
+ * 1 : DynaRec will purge old unused DynaBlocks based on tick age. 
 
 
 =item B<BOX64_DYNAREC_PURGE_AGE> =I<4096|XXXX>
 
-Tick age threshold for dynablock purging (requires BOX64_DYNAREC_PURGE=1).
+Tick age threshold for DynaBlock purging (requires BOX64_DYNAREC_PURGE=1).
 
  * 4096 : Default age threshold. [Default]
  * XXXX : Custom age threshold (range: 10-65536). 
@@ -388,8 +380,8 @@ Enable or disable libtbb detection.
 Enable DynaRec execution comparison with the interpreter, very slow, only for testing. Available in WowBox64.
 
  * 0 : No comparison. [Default]
- * 1 : Each opcode runs on interpreter and on Dynarec, regs and memory are compared and printed when they differ. 
- * 0xXXXXXXXX-0xYYYYYYYY : Define the range where dynarec is tested (inclusive-exclusive). 
+ * 1 : Each opcode runs on interpreter and on DynaRec, regs and memory are compared and printed when they differ. 
+ * 0xXXXXXXXX-0xYYYYYYYY : Define the range where DynaRec is tested (inclusive-exclusive). 
 
 
 =item B<BOX64_DYNAREC_TEST_NODUP> =I<0|1>
@@ -452,9 +444,9 @@ Force the use of float/double for x87 emulation. Available in WowBox64.
 
 =item B<BOX64_DYNAREC_INTERP_SIGNAL> =I<0|1>
 
-Allow the use of Dynarec in Signal Handlers.
+Allow the use of DynaRec in Signal Handlers.
 
- * 0 : Allow the use of Dynarec in signal handlers. [Default]
+ * 0 : Allow the use of DynaRec in signal handlers. [Default]
  * 1 : Only use the Interpreter for signal handlers (as it was in v0.3.8 and earlier). 
 
 
@@ -478,7 +470,7 @@ Set the folder for DynaCache files. Default is $XDG_CACHE_HOME/box64 or $HOME/.c
 
 Minimum size, in KB, for a DynaCache to be written to disk. Default size is 350KB
 
- * XXXX : Set a minimum size of XXXX KB of Dynarec code to write the dynacache to disk. Will not be saved to disk else. 
+ * XXXX : Set a minimum size of XXXX KB of DynaRec code to write the dynacache to disk. Will not be saved to disk else. 
  * 350 : A size of 350 KB is the default value. [Default]
 
 
@@ -653,22 +645,22 @@ Disable the Box64 banner. Available in WowBox64.
 
 =item B<BOX64_NODYNAREC> =I<0xXXXXXXXX-0xYYYYYYYY>
 
-Forbid dynablock creation in the address range specified, helpful for debugging behaviour difference between Dynarec and Interpreter. Available in WowBox64.
+Forbid DynaBlock creation in the address range specified, helpful for debugging behaviour difference between DynaRec and Interpreter. Available in WowBox64.
 
- * 0xXXXXXXXX-0xYYYYYYYY : Define the range where dynablock creation is forbidden (inclusive-exclusive). 
+ * 0xXXXXXXXX-0xYYYYYYYY : Define the range where DynaBlock creation is forbidden (inclusive-exclusive). 
 
 
 =item B<BOX64_NODYNAREC_DELAY> =I<0|1>
 
-Remove NoDynarec range after a delay. Available in WowBox64.
+Remove NoDynaRec range after a delay. Available in WowBox64.
 
- * 0 : Do not remove NoDynarec range. [Default]
- * 1 : Remove the NoDynarec range once 2 threads have been created. 
+ * 0 : Do not remove NoDynaRec range. [Default]
+ * 1 : Remove the NoDynaRec range once 2 threads have been created. 
 
 
 =item B<BOX64_DYNAREC_NOARCH> =I<0|1|2>
 
-Remove Architecture metadata from Dynarec blocks (used on signal). Available in WowBox64.
+Remove Architecture metadata from DynaRec blocks (used on signal). Available in WowBox64.
 
  * 0 : Generate all architecture metadata for each blocks, including x87/mmx/SSE/AVX regs tracking. Will use some more memory. [Default]
  * 1 : Generate only essential metadata for each blocks (flags, alignments), saving some memory, but some encrypted software might fail. 
@@ -805,7 +797,7 @@ Use hardware counter for rdtsc if available.
 
 =item B<BOX64_RDTSC_INV> =I<0|1>
 
-Report Invariant TSC bit in CPUID for Intel CPU type.
+Report Invariant TSC bit in CPUID for Intel CPU type. Available in WowBox64.
 
  * 0 : Do not report Invariant TSC for Intel CPU type (default). [Default]
  * 1 : Report Invariant TSC bit in CPUID leaf 0x80000007 for Intel CPU type. 
@@ -865,7 +857,7 @@ Always show SIGSEGV signal details.
 Behaviour of SSE Flush to 0 flags. Also tracking SSE exception flags. Available in WowBox64.
 
  * 0 : Just track the flag. [Default]
- * 1 : Apply SSE Flush to 0 flag directly. Also reflect SSE exception flags in Dynarec (if available) 
+ * 1 : Apply SSE Flush to 0 flag directly. Also reflect SSE exception flags in DynaRec (if available) 
 
 
 =item B<BOX64_SSE42> =I<0|1>
@@ -1009,6 +1001,14 @@ Behaviour of x87 80bits long double. Available in WowBox64.
 
  * 0 : Try to handle 80bits long double as precise as possible. [Default]
  * 1 : Use 64bits double for x87. 
+
+
+=item B<BOX64_NOPERSONA32BITS> =I<0|1>
+
+Disable the automatic switch of personality for 32-bit binaries (always enabled on Box32).
+
+ * 0 : Switch personality for 32-bit binaries (if not already tried). [Default]
+ * 1 : Do not switch personality for 32-bit binaries. 
 
 
 =back
