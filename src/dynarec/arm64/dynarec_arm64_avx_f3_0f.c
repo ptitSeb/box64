@@ -214,7 +214,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                 q0 = fpu_get_scratch(dyn, ninst);
                 q1 = fpu_get_scratch(dyn, ninst);
                 // check if any input value was NAN
-                FCMEQS(q0, v1, v1);    // 0 if NAN, 1 if not NAN
+                FCMEQS(q0, d0, d0);    // 0 if NAN, 1 if not NAN
             }
             FSQRTS(d1, d0);
             if(!BOX64ENV(dynarec_fastnan)) {
