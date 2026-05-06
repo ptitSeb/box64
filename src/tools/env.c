@@ -1139,6 +1139,7 @@ void SerializeMmaplist(mapping_t* mapping)
 #define DCERR_MAPCHG        10
 #define DCERR_RELOC         11
 #define DCERR_BADNAME       12
+#define DCERR_CPUEXT        13
 
 #ifndef WIN32
 int ReadDynaCache(const char* folder, const char* name, mapping_t* mapping, int verbose)
@@ -1191,6 +1192,11 @@ int ReadDynaCache(const char* folder, const char* name, mapping_t* mapping, int 
         if(verbose) printf_log_prefix(0, LOG_NONE, "Bad pagesize\n");
         fclose(f);
         return DCERR_PAGESIZE;
+    }
+    if(header.cpuext!=cpuext.x) {
+        if(verbose) printf_log_prefix(0, LOG_NONE, "Incompatible CPU extensions\n");
+        fclose(f);
+        return DCERR_CPUEXT;
     }
     char map_filename[header.filename_length+1];
     if(fread(map_filename, header.filename_length+1, 1, f)!=1) {
