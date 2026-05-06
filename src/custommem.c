@@ -1498,6 +1498,10 @@ int MmaplistAddBlock(mmaplist_t* list, int fd, off_t offset, void* orig, size_t 
             // adjust guest source addresses with delta_map
             bl->x64_addr += delta_map;
             bl->x64_readaddr += delta_map;
+            for (int j = 0; j < bl->sep_size; ++j) {
+                // SEP native entries also carry a hidden dynablock reference.
+                *(dynablock_t**)(bl->block + bl->sep[j].nat_offs - sizeof(void*)) = bl;
+            }
             *(uintptr_t*)(bl->jmpnext+2*sizeof(void*)) = RelocGetNext();
             if(bl->relocs && bl->relocsize)
                 ApplyRelocs(bl, delta, delta_map, mapping_start);
