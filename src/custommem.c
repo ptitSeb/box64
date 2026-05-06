@@ -1514,8 +1514,7 @@ int MmaplistAddBlock(mmaplist_t* list, int fd, off_t offset, void* orig, size_t 
             } else {
                 for(int i=0; i<bl->sep_size; ++i) {
                     uint32_t x64_offs = bl->sep[i].x64_offs;
-                    uint32_t nat_offs = bl->sep[i].nat_offs;
-                    if(addJumpTableIfDefault64(bl->x64_addr+x64_offs, (bl->dirty || bl->always_test)?bl->jmpnext:(bl->block+nat_offs)))
+                    if (addJumpTableIfDefault64(bl->x64_addr + x64_offs, bl->jmpnext))
                         bl->sep[i].active = 1;
                     else
                         bl->sep[i].active = 0;
