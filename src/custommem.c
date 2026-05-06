@@ -1495,8 +1495,9 @@ int MmaplistAddBlock(mmaplist_t* list, int fd, off_t offset, void* orig, size_t 
                 db_ref = (bl->jmpnext-sizeof(void*)+3*sizeof(void*));
                 *db_ref = native_next;
             }
-            // adjust x64_addr with delta_map
+            // adjust guest source addresses with delta_map
             bl->x64_addr += delta_map;
+            bl->x64_readaddr += delta_map;
             *(uintptr_t*)(bl->jmpnext+2*sizeof(void*)) = RelocGetNext();
             if(bl->relocs && bl->relocsize)
                 ApplyRelocs(bl, delta, delta_map, mapping_start);
