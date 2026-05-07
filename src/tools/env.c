@@ -433,6 +433,7 @@ static void initializeEnvFile(const char* filename, int priority)
                 pushNewEntry(current_name, &current_env, is_wildcard_name);
             is_wildcard_name = (line[1] == '*' && line[(intptr_t)(strchr(line, ']') - line) - 1] == '*');
             memset(&current_env, 0, sizeof(current_env));
+            current_env.priority = priority;
             box_free(current_name);
             current_name = LowerCase(line + (is_wildcard_name ? 2 : 1));
             *(strchr(current_name, ']') + 1 - (is_wildcard_name ? 2 : 1)) = '\0';
