@@ -376,8 +376,12 @@ static void pushNewEntry(const char* name, box64env_t* env, int wildcard)
         freeEnv(p);
         box64env_t* p = &kh_value(khp, k);
         memcpy(p, env, sizeof(box64env_t));
+    } else {
+        freeEnv(env);
     }
 }
+
+static void internalApplyEnvFileEntry(const char* entryname, const box64env_t* env);
 
 #ifdef ANDROID
 static int shm_open(const char *name, int oflag, mode_t mode) {
@@ -419,7 +423,8 @@ static void initializeEnvFile(const char* filename, int priority)
     current_env.priority = priority;
     size_t linesize = 0, len = 0;
     char* current_name = NULL;
-    bool is_wildcard_name = false;
+    int current_is_wildcard = 0;
+    int current_is_shared = 0;
     char line[1024];
     while ((box_fgets(line, 1024, f)) != NULL) {
         // remove comments
@@ -429,15 +434,28 @@ static void initializeEnvFile(const char* filename, int priority)
         len = strlen(line);
         if (line[0] == '[' && strchr(line, ']')) {
             // new entry, push the previous one
-            if (current_name)
-                pushNewEntry(current_name, &current_env, is_wildcard_name);
-            is_wildcard_name = (line[1] == '*' && line[(intptr_t)(strchr(line, ']') - line) - 1] == '*');
+            if (current_name) {
+                if (current_is_shared) {
+                    internalApplyEnvFileEntry("*", &current_env);
+                } else {
+                    pushNewEntry(current_name, &current_env, current_is_wildcard);
+                }
+            }
+            char* end = strchr(line, ']');
             memset(&current_env, 0, sizeof(current_env));
             current_env.priority = priority;
             box_free(current_name);
-            current_name = LowerCase(line + (is_wildcard_name ? 2 : 1));
-            *(strchr(current_name, ']') + 1 - (is_wildcard_name ? 2 : 1)) = '\0';
+            current_is_shared = (line[1] == '*' && end == line + 2);
+            current_is_wildcard = (!current_is_shared && line[1] == '*' && end > line + 2 && end[-1] == '*');
+            size_t start = current_is_wildcard ? 2 : 1;
+            size_t skip_end = current_is_wildcard ? 1 : 0;
+            size_t name_len = (uintptr_t)end - (uintptr_t)line - start - skip_end;
+            current_name = box_calloc(1, name_len + 1);
+            memcpy(current_name, line + start, name_len);
             trimStringInplace(current_name);
+            char* lowercase_name = LowerCase(current_name);
+            box_free(current_name);
+            current_name = lowercase_name;
         } else if (strchr(line, '=')) {
             char* key = line;
             char* val = strchr(key, '=') + 1;
@@ -518,7 +536,11 @@ static void initializeEnvFile(const char* filename, int priority)
     }
     // push the last entry
     if (current_name) {
-        pushNewEntry(current_name, &current_env, is_wildcard_name);
+        if (current_is_shared) {
+            internalApplyEnvFileEntry("*", &current_env);
+        } else {
+            pushNewEntry(current_name, &current_env, current_is_wildcard);
+        }
         box_free(current_name);
     }
     box_fclose(f);
@@ -553,6 +575,9 @@ void InitializeEnvFiles()
             initializeEnvFile(tmp, priority++);
         }
     }
+
+    // in case there is a shared entry [*]
+    applyCustomRules();
 }
 
 static void internalApplyEnvFileEntry(const char* entryname, const box64env_t* env)

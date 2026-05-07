@@ -24,15 +24,20 @@ BOX64_DYNAREC_CALLRET=1
 
 This configuration will apply the specified settings application-wide to any executable named `factorio`.
 
+Shared options can also be defined in a special `[*]` section. Those settings apply globally, and any more specific section only overrides the options it defines itself.
+
 ### Advanced usage for Linux build
 
 1. **Wildcard Matching**
 
    Asterisks (`*`) can be used for basic pattern matching in application names. For instance, `[*setup*]` will match any program containing "setup" in its name. Note that this implements simple wildcard matching rather than full regex support.
-2. **Custom Configuration File**
+2. **Shared Settings**
+
+   The special `[*]` section defines shared rcfile options for all applications. Unlike wildcard sections such as `[*setup*]`, this is a dedicated global section.
+3. **Custom Configuration File**
 
    The `BOX64_RCFILE` environment variable can specify an alternative configuration file instead of the default `/etc/box64.box64rc`.
-3. **Per-File Settings**
+4. **Per-File Settings**
 
    Sections starting with `/` apply to specific files. For example:
    ```

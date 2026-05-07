@@ -44,6 +44,9 @@ Example:
     BOX64_DYNAREC_FORWARD=1024
     BOX64_DYNAREC_CALLRET=1
 
+The special C<[*]> section defines shared rcfile options for all applications.
+More specific sections override only the options they define themselves.
+
 =head1 ENVIRONMENT VARIABLES
 
 =over 8
