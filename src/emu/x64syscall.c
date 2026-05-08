@@ -212,6 +212,9 @@ static const scwrap_t syscallwrap[] = {
     [112] = {__NR_setsid, 0},
     [113] = {__NR_setreuid, 2},
     [114] = {__NR_setregid, 2},
+    #ifdef __NR_setgroups
+    [116] = {__NR_setgroups, 2},
+    #endif
     [118] = {__NR_getresuid, 3},
     [120] = {__NR_getresgid, 3},
     [121] = {__NR_getpgid, 1},
