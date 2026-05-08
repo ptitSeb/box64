@@ -442,7 +442,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
         case 0x08:
             INST_NAME("VPSIGNB Gx, Vx, Ex");
             nextop = F8;
-            GETEX(x1, 0, vex.l ? 31 : 15);
+            GETEX(x6, 0, vex.l ? 31 : 15);
             GETGX();
             GETVX();
             GETGY();
@@ -473,7 +473,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
         case 0x09:
             INST_NAME("VPSIGNW Gx, Vx, Ex");
             nextop = F8;
-            GETEX(x1, 0, vex.l ? 30 : 14);
+            GETEX(x6, 0, vex.l ? 30 : 14);
             GETGX();
             GETVX();
             GETGY();
@@ -504,7 +504,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
         case 0x0A:
             INST_NAME("VPSIGND Gx, Vx, Ex");
             nextop = F8;
-            GETEX(x1, 0, vex.l ? 28 : 12);
+            GETEX(x6, 0, vex.l ? 28 : 12);
             GETGX();
             GETVX();
             GETGY();
