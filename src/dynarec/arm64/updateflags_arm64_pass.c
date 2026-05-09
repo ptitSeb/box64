@@ -164,7 +164,7 @@ SETMARK(d_inc64);
     RET(xLR);
 SETMARK(d_imul8);
     LDRSH_U12(x1, xEmu, offsetof(x64emu_t, res));
-    ASRxw(x2, x1, 8);
+    ASRxw(x2, x1, 7);
     CMPSw_REG_ASR(x2, x1, 16);
     CSETw(x3, cNE);
     BFIw(xFlags, x3, F_CF, 1);
@@ -179,7 +179,7 @@ SETMARK(d_imul8);
     RET(xLR);
 SETMARK(d_imul16);
     LDRw_U12(x1, xEmu, offsetof(x64emu_t, res));
-    ASRw(x2, x1, 16);
+    ASRw(x2, x1, 15);
     CMPSw_REG_ASR(x2, x1, 31);
     CSETw(x3, cNE);
     BFIw(xFlags, x3, F_CF, 1);
@@ -783,7 +783,7 @@ SETMARK(d_rol8);
         BFIw(xFlags, x2, F_OF, 1);
     } else {
         LDRB_U12(x2, xEmu, offsetof(x64emu_t, op1));
-        LSLw_IMM(x3, x2, 6);
+        LSRw_IMM(x3, x2, 6);
         EORw_REG_LSR(x3, x3, x3, 1);
         BFIw(xFlags, x3, F_OF, 1);
     }
@@ -796,7 +796,7 @@ SETMARK(d_rol16);
         BFIw(xFlags, x2, F_OF, 1);
     } else {
         LDRH_U12(x2, xEmu, offsetof(x64emu_t, op1));
-        LSLw_IMM(x3, x2, 14);
+        LSRw_IMM(x3, x2, 14);
         EORw_REG_LSR(x3, x3, x3, 1);
         BFIw(xFlags, x3, F_OF, 1);
     }
@@ -809,7 +809,7 @@ SETMARK(d_rol32);
         BFIw(xFlags, x2, F_OF, 1);
     } else {
         LDRw_U12(x2, xEmu, offsetof(x64emu_t, op1));
-        LSLw_IMM(x3, x2, 30);
+        LSRw_IMM(x3, x2, 30);
         EORw_REG_LSR(x3, x3, x3, 1);
         BFIw(xFlags, x3, F_OF, 1);
     }
@@ -822,7 +822,7 @@ SETMARK(d_rol64);
         BFIw(xFlags, x2, F_OF, 1);
     } else {
         LDRx_U12(x2, xEmu, offsetof(x64emu_t, op1));
-        LSLx_IMM(x3, x2, 62);
+        LSRw_IMM(x3, x2, 62);
         EORw_REG_LSR(x3, x3, x3, 1);
         BFIw(xFlags, x3, F_OF, 1);
     }

@@ -95,8 +95,7 @@ void* create_updateflags()
     helper.callret_size = 0;
     // pass 3, emit (log emit native opcode)
     if(helper.need_dump) {
-        dynarec_log(LOG_NONE, "%s%04d|Emitting %zu bytes for UpdateFlags", (helper.need_dump>1)?"\e[01;36m":"", GetTID(), helper.native_size);
-        PrintFunctionAddr(helper.start, " => ");
+        dynarec_log(LOG_NONE, "%s%04d|Emitting %zu bytes for UpdateFlags (%p)", (helper.need_dump>1)?"\e[01;36m":"", GetTID(), helper.native_size, helper.native_start);
         dynarec_log_prefix(0, LOG_NONE, "%s\n", (helper.need_dump>1)?"\e[m":"");
     }
     helper.native_size = 0;
