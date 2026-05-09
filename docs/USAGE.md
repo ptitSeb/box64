@@ -150,20 +150,6 @@ Enable x86 PAUSE emulation, may help the performance of spinlocks. Available in 
  * 2: Use WFI to emulate x86 PAUSE instruction.
  * 3: Use SEVL+WFE to emulate x86 PAUSE instruction.
 
-### BOX64_DYNAREC_PURGE
-
-Purge DynaBlocks that haven't been executed recently, based on tick age threshold (BOX64_DYNAREC_PURGE_AGE).
-
- * 0: DynaRec will not purge old unused DynaBlocks. [Default]
- * 1: DynaRec will purge old unused DynaBlocks based on tick age.
-
-### BOX64_DYNAREC_PURGE_AGE
-
-Tick age threshold for DynaBlock purging (requires BOX64_DYNAREC_PURGE=1).
-
- * 4096: Default age threshold. [Default]
- * XXXX: Custom age threshold (range: 10-65536).
-
 ### BOX64_DYNAREC_SAFEFLAGS
 
 Behaviour of flags emulation on CALL/RET opcodes and other edge cases. Available in WowBox64.
@@ -195,35 +181,6 @@ Wait or not for the building of a DynaRec code block to be ready. Available in W
 
  * 0: Do not wait and use interpreter instead, might speedup a bit on massive multithread or JIT programs.
  * 1: Wait for a DynaRec code block to be ready. [Default]
-
-### BOX64_DYNAREC_WEAKBARRIER
-
-Tweak the memory barriers to reduce the performance impact by strong memory emulation. Available in WowBox64.
-
- * 0: Use regular safe barrier.
- * 1: Use weak barriers to have more performance boost. [Default]
- * 2: All in 1, plus disable the last write barriers.
-
-### BOX64_DYNACACHE
-
-Enable/disable the Dynamic Recompiler Cache (a.k.a DynaCache). This option defaults to 2 (to read cache if present but not generate any). DynaCache writes files to the home folder by default, and can grow without limit.
-
- * 0: Disable DynaCache.
- * 1: Enable DynaCache.
- * 2: Use DynaCache files if present, but do not generate new one. [Default]
-
-### BOX64_DYNACACHE_FOLDER
-
-Set the folder for DynaCache files. Default is $XDG_CACHE_HOME/box64 or $HOME/.cache/box64 if $XDG_CACHE_HOME is not set.
-
- * XXXX: Use folder XXXX for DynaCache files.
-
-### BOX64_DYNACACHE_MIN
-
-Minimum size, in KB, for a DynaCache to be written to disk. Default size is 350KB
-
- * XXXX: Set a minimum size of XXXX KB of DynaRec code to write the dynacache to disk. Will not be saved to disk else.
- * 350: A size of 350 KB is the default value. [Default]
 
 ### BOX64_MMAP32
 
@@ -813,6 +770,51 @@ Add an environment variable.
 Add an environment variable.
 
  * XXXX=yyyy: Add environment variable XXXX with value yyyy.
+
+## Fragile or Legacy
+
+### BOX64_DYNAREC_PURGE
+
+Purge DynaBlocks that haven't been executed recently, based on tick age threshold (BOX64_DYNAREC_PURGE_AGE).
+
+ * 0: DynaRec will not purge old unused DynaBlocks. [Default]
+ * 1: DynaRec will purge old unused DynaBlocks based on tick age.
+
+### BOX64_DYNAREC_PURGE_AGE
+
+Tick age threshold for DynaBlock purging (requires BOX64_DYNAREC_PURGE=1).
+
+ * 4096: Default age threshold. [Default]
+ * XXXX: Custom age threshold (range: 10-65536).
+
+### BOX64_DYNAREC_WEAKBARRIER
+
+Tweak the memory barriers to reduce the performance impact by strong memory emulation. Available in WowBox64.
+
+ * 0: Use regular safe barrier.
+ * 1: Use weak barriers to have more performance boost. [Default]
+ * 2: All in 1, plus disable the last write barriers.
+
+### BOX64_DYNACACHE
+
+Enable/disable the Dynamic Recompiler Cache (a.k.a DynaCache). This option defaults to 2 (to read cache if present but not generate any). DynaCache writes files to the home folder by default, and can grow without limit.
+
+ * 0: Disable DynaCache.
+ * 1: Enable DynaCache.
+ * 2: Use DynaCache files if present, but do not generate new one. [Default]
+
+### BOX64_DYNACACHE_FOLDER
+
+Set the folder for DynaCache files. Default is $XDG_CACHE_HOME/box64 or $HOME/.cache/box64 if $XDG_CACHE_HOME is not set.
+
+ * XXXX: Use folder XXXX for DynaCache files.
+
+### BOX64_DYNACACHE_MIN
+
+Minimum size, in KB, for a DynaCache to be written to disk. Default size is 350KB
+
+ * XXXX: Set a minimum size of XXXX KB of DynaRec code to write the dynacache to disk. Will not be saved to disk else.
+ * 350: A size of 350 KB is the default value. [Default]
 
 ## Libraries
 

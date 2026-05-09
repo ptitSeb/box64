@@ -132,6 +132,7 @@ BOX64_DYNAREC_CALLRET=1
             "Debugging": "调试",
             "Environment": "环境变量",
             "Libraries": "库",
+            "Fragile or Legacy": "不稳定或遗留选项",
         },
     },
 }

@@ -686,7 +686,7 @@
   {
     "name": "BOX64_DYNAREC_PURGE",
     "description": "Purge DynaBlocks that haven't been executed recently, based on tick age threshold (BOX64_DYNAREC_PURGE_AGE).",
-    "category": "Performance",
+    "category": "Fragile or Legacy",
     "wine": false,
     "options": [
       {
@@ -704,7 +704,7 @@
   {
     "name": "BOX64_DYNAREC_PURGE_AGE",
     "description": "Tick age threshold for DynaBlock purging (requires BOX64_DYNAREC_PURGE=1).",
-    "category": "Performance",
+    "category": "Fragile or Legacy",
     "wine": false,
     "options": [
       {
@@ -909,7 +909,7 @@
   {
     "name": "BOX64_DYNAREC_WEAKBARRIER",
     "description": "Tweak the memory barriers to reduce the performance impact by strong memory emulation.",
-    "category": "Performance",
+    "category": "Fragile or Legacy",
     "wine": true,
     "options": [
       {
@@ -973,7 +973,7 @@
   {
     "name": "BOX64_DYNACACHE",
     "description": "Enable/disable the Dynamic Recompiler Cache (a.k.a DynaCache). This option defaults to 2 (to read cache if present but not generate any). DynaCache writes files to the home folder by default, and can grow without limit.",
-    "category": "Performance",
+    "category": "Fragile or Legacy",
     "wine": false,
     "options": [
       {
@@ -996,7 +996,7 @@
   {
     "name": "BOX64_DYNACACHE_FOLDER",
     "description": "Set the folder for DynaCache files. Default is $XDG_CACHE_HOME/box64 or $HOME/.cache/box64 if $XDG_CACHE_HOME is not set.",
-    "category": "Performance",
+    "category": "Fragile or Legacy",
     "wine": false,
     "options": [
       {
@@ -1009,7 +1009,7 @@
   {
     "name": "BOX64_DYNACACHE_MIN",
     "description": "Minimum size, in KB, for a DynaCache to be written to disk. Default size is 350KB",
-    "category": "Performance",
+    "category": "Fragile or Legacy",
     "wine": false,
     "options": [
       {
