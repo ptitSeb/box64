@@ -206,21 +206,20 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGXSD(v0);
             GETEXSD(v1, 0);
             if (!BOX64ENV(dynarec_fastnan)) {
-                FEQD(x3, v0, v0);
-                FEQD(x4, v1, v1);
+                FEQD(x3, v1, v1);
+                FEQD(x4, v0, v0);
+                AND(x5, x3, x4);
+                BEQZ(x5, 4 + 4 * 4);
             }
-            FADDD(v0, v0, v1);
+            FADDD(v1, v1, v0);
             if (!BOX64ENV(dynarec_fastnan)) {
-                AND(x3, x3, x4);
-                BNEZ_MARK(x3);
-                CBNZ_NEXT(x4);
-                FMVD(v0, v1);
-                B_NEXT_nocond;
-                MARK;
-                FEQD(x3, v0, v0);
-                CBNZ_NEXT(x3);
-                FNEGD(v0, v0);
+                FEQD(x5, v1, v1);
+                BNEZ(x5, 4 + 4);
+                FNEGD(v1, v1);
+                BNEZ(x4, 4 + 4);
+                FMVD(v1, v0);
             }
+            FMVD(v0, v1);
             break;
         case 0x59:
             INST_NAME("MULSD Gx, Ex");
@@ -228,21 +227,20 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGXSD(v0);
             GETEXSD(v1, 0);
             if (!BOX64ENV(dynarec_fastnan)) {
-                FEQD(x3, v0, v0);
-                FEQD(x4, v1, v1);
+                FEQD(x3, v1, v1);
+                FEQD(x4, v0, v0);
+                AND(x5, x3, x4);
+                BEQZ(x5, 4 + 4 * 4);
             }
-            FMULD(v0, v0, v1);
+            FMULD(v1, v1, v0);
             if (!BOX64ENV(dynarec_fastnan)) {
-                AND(x3, x3, x4);
-                BNEZ_MARK(x3);
-                CBNZ_NEXT(x4);
-                FMVD(v0, v1);
-                B_NEXT_nocond;
-                MARK;
-                FEQD(x3, v0, v0);
-                CBNZ_NEXT(x3);
-                FNEGD(v0, v0);
+                FEQD(x5, v1, v1);
+                BNEZ(x5, 4 + 4);
+                FNEGD(v1, v1);
+                BNEZ(x4, 4 + 4);
+                FMVD(v1, v0);
             }
+            FMVD(v0, v1);
             break;
         case 0x5A:
             INST_NAME("CVTSD2SS Gx, Ex");
@@ -263,21 +261,20 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGXSD(v0);
             GETEXSD(v1, 0);
             if (!BOX64ENV(dynarec_fastnan)) {
-                FEQD(x3, v0, v0);
-                FEQD(x4, v1, v1);
+                FEQD(x3, v1, v1);
+                FEQD(x4, v0, v0);
+                AND(x5, x3, x4);
+                BEQZ(x5, 4 + 4 * 4);
             }
-            FSUBD(v0, v0, v1);
+            FSUBD(v1, v0, v1);
             if (!BOX64ENV(dynarec_fastnan)) {
-                AND(x3, x3, x4);
-                BNEZ_MARK(x3);
-                CBNZ_NEXT(x4);
-                FMVD(v0, v1);
-                B_NEXT_nocond;
-                MARK;
-                FEQD(x3, v0, v0);
-                CBNZ_NEXT(x3);
-                FNEGD(v0, v0);
+                FEQD(x5, v1, v1);
+                BNEZ(x5, 4 + 4);
+                FNEGD(v1, v1);
+                BNEZ(x4, 4 + 4);
+                FMVD(v1, v0);
             }
+            FMVD(v0, v1);
             break;
         case 0x5D:
             INST_NAME("MINSD Gx, Ex");
@@ -300,21 +297,20 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGXSD(v0);
             GETEXSD(v1, 0);
             if (!BOX64ENV(dynarec_fastnan)) {
-                FEQD(x3, v0, v0);
-                FEQD(x4, v1, v1);
+                FEQD(x3, v1, v1);
+                FEQD(x4, v0, v0);
+                AND(x5, x3, x4);
+                BEQZ(x5, 4 + 4 * 4);
             }
-            FDIVD(v0, v0, v1);
+            FDIVD(v1, v0, v1);
             if (!BOX64ENV(dynarec_fastnan)) {
-                AND(x3, x3, x4);
-                BNEZ_MARK(x3);
-                CBNZ_NEXT(x4);
-                FMVD(v0, v1);
-                B_NEXT_nocond;
-                MARK;
-                FEQD(x3, v0, v0);
-                CBNZ_NEXT(x3);
-                FNEGD(v0, v0);
+                FEQD(x5, v1, v1);
+                BNEZ(x5, 4 + 4);
+                FNEGD(v1, v1);
+                BNEZ(x4, 4 + 4);
+                FMVD(v1, v0);
             }
+            FMVD(v0, v1);
             break;
         case 0x5F:
             INST_NAME("MAXSD Gx, Ex");
