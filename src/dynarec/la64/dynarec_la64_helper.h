@@ -4,6 +4,7 @@
 // undef to get Close to SSE Float->int conversions
 // #define PRECISE_CVT
 
+#ifndef STEP_PASS
 #if STEP == 0
 #include "dynarec_la64_pass0.h"
 #elif STEP == 1
@@ -12,6 +13,8 @@
 #include "dynarec_la64_pass2.h"
 #elif STEP == 3
 #include "dynarec_la64_pass3.h"
+#endif
+#define STEP_PASS
 #endif
 
 #include "debug.h"
@@ -955,7 +958,8 @@
 #define READFLAGS(A)                           \
     if ((A) != X_PEND                          \
         && (dyn->f == status_unk)) {           \
-        CALL_(const_updateflags, -1, 0, 0, 0); \
+        TABLE64C(x6, const_updateflags_la64);  \
+        JIRL(xRA, x6, 0);                      \
         dyn->f = status_none;                  \
     }
 #endif
@@ -993,7 +997,8 @@
 #define GRABFLAGS(A)                                             \
     if ((A) != X_PEND                                            \
         && ((dyn->f == status_unk) || (dyn->f == status_set))) { \
-        CALL_(const_updateflags, -1, 0, 0, 0);                   \
+        TABLE64C(x6, const_updateflags_la64);                    \
+        JIRL(xRA, x6, 0);                                        \
         dyn->f = status_none;                                    \
     }
 
@@ -1137,6 +1142,7 @@
 #endif
 
 #define native_pass STEPNAME(native_pass)
+#define updateflags_pass STEPNAME(updateflags_pass)
 
 #define dynarec64_00          STEPNAME(dynarec64_00)
 #define dynarec64_0F          STEPNAME(dynarec64_0F)

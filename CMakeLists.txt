@@ -1134,6 +1134,7 @@ if(LARCH64_DYNAREC)
         "${BOX64_ROOT}/src/dynarec/la64/la64_printer.c"
         "${BOX64_ROOT}/src/dynarec/la64/dynarec_la64_jmpnext.c"
         "${BOX64_ROOT}/src/dynarec/la64/dynarec_la64_consts.c"
+        "${BOX64_ROOT}/src/dynarec/la64/updateflags_la64.c"
     )
     set(DYNAREC_ASM
         ${DYNAREC_ASM}
@@ -1178,6 +1179,7 @@ if(LARCH64_DYNAREC)
     "${BOX64_ROOT}/src/dynarec/la64/dynarec_la64_dd.c"
     "${BOX64_ROOT}/src/dynarec/la64/dynarec_la64_de.c"
     "${BOX64_ROOT}/src/dynarec/la64/dynarec_la64_df.c"
+    "${BOX64_ROOT}/src/dynarec/la64/updateflags_la64_pass.c"
     )
 endif()
 

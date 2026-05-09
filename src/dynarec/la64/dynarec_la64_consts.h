@@ -77,6 +77,7 @@ typedef enum la64_consts_s {
     const_cpuid,
     const_getsegmentbase,
     const_updateflags,
+    const_updateflags_la64,
     const_reset_fpu,
     const_sha1nexte,
     const_sha1msg1,

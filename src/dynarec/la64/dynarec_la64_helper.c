@@ -2239,7 +2239,8 @@ static void flagsCacheTransform(dynarec_la64_t* dyn, int ninst, int s1)
             j64 = (GETMARKF2) - (dyn->native_size);
             BEQZ(s1, j64);
         }
-        CALL_(const_updateflags, -1, 0, 0, 0);
+        TABLE64C(s1, const_updateflags_la64);
+        JIRL(xRA, s1, 0);
         MARKF2;
     }
     MESSAGE(LOG_DUMP, "\t---- Flags fetch\n");
