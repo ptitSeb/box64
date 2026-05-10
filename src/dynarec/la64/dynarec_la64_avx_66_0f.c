@@ -375,7 +375,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             nextop = F8;
             GETEYxy(v1, 0, 0);
             GETGYx_empty(v0);
-            if (!BOX64ENV(dynarec_fastround)) {
+            if (BOX64ENV(dynarec_fastround) <= 1) {
                 u8 = sse_setround(dyn, ninst, x6, x4);
             }
             d0 = fpu_get_scratch(dyn);
@@ -387,7 +387,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 VFCVT_S_D(d0, v1, v1);
                 XVPICKVE_D(v0, d0, 0);
             }
-            if (!BOX64ENV(dynarec_fastround)) {
+            if (BOX64ENV(dynarec_fastround) <= 1) {
                 x87_restoreround(dyn, ninst, u8);
             }
             break;

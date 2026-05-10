@@ -105,10 +105,16 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETED(0);
             d1 = fpu_get_scratch(dyn);
             MOVGR2FR_D(d1, ed);
+            if (BOX64ENV(dynarec_fastround) <= 1) {
+                u8 = sse_setround(dyn, ninst, x5, x6);
+            }
             if (rex.w) {
                 FFINT_S_L(d1, d1);
             } else {
                 FFINT_S_W(d1, d1);
+            }
+            if (BOX64ENV(dynarec_fastround) <= 1) {
+                x87_restoreround(dyn, ninst, u8);
             }
             VEXTRINS_W(v0, d1, 0);
             break;

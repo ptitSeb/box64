@@ -98,12 +98,18 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGX(v0, 1);
             GETED(0);
             d1 = fpu_get_scratch(dyn);
+            if (BOX64ENV(dynarec_fastround) <= 1) {
+                u8 = sse_setround(dyn, ninst, x2, x3);
+            }
             if (rex.w) {
                 MOVGR2FR_D(d1, ed);
                 FFINT_D_L(d1, d1);
             } else {
                 MOVGR2FR_W(d1, ed);
                 FFINT_D_W(d1, d1);
+            }
+            if (BOX64ENV(dynarec_fastround) <= 1) {
+                x87_restoreround(dyn, ninst, u8);
             }
             VEXTRINS_D(v0, d1, 0);
             break;
@@ -266,7 +272,13 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGX(v0, 1);
             GETEXSD(d0, 0, 0);
             d1 = fpu_get_scratch(dyn);
+            if (BOX64ENV(dynarec_fastround) <= 1) {
+                u8 = sse_setround(dyn, ninst, x2, x3);
+            }
             FCVT_S_D(d1, d0);
+            if (BOX64ENV(dynarec_fastround) <= 1) {
+                x87_restoreround(dyn, ninst, u8);
+            }
             VEXTRINS_W(v0, d1, 0);
             break;
         case 0x5C:

@@ -1591,11 +1591,16 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETEX(v1, 0, 0);
             GETGX_empty(v0);
-            // TODO: !BOX64ENV(dynarec_fastround)
+            if (BOX64ENV(dynarec_fastround) <= 1) {
+                u8 = sse_setround(dyn, ninst, x6, x4);
+            }
             q0 = fpu_get_scratch(dyn);
             VFCVT_S_D(q0, v1, v1);
             VXOR_V(v0, v0, v0);
             VEXTRINS_D(v0, q0, 0);
+            if (BOX64ENV(dynarec_fastround) <= 1) {
+                x87_restoreround(dyn, ninst, u8);
+            }
             break;
         case 0x5B:
             INST_NAME("CVTPS2DQ Gx, Ex");

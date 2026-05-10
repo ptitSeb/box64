@@ -117,7 +117,7 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETVYx(v1, 0);
             GETGYx_empty(v0);
             d1 = fpu_get_scratch(dyn);
-            if (!BOX64ENV(dynarec_fastround)) {
+            if (BOX64ENV(dynarec_fastround) <= 1) {
                 u8 = sse_setround(dyn, ninst, x2, x3);
             }
             if (rex.w) {
@@ -127,7 +127,7 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 MOVGR2FR_W(d1, ed);
                 FFINT_D_W(d1, d1);
             }
-            if (!BOX64ENV(dynarec_fastround)) {
+            if (BOX64ENV(dynarec_fastround) <= 1) {
                 x87_restoreround(dyn, ninst, u8);
             }
             if (v0 != v1) VOR_V(v0, v1, v1);
@@ -270,7 +270,13 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETVYx(v1, 0);
             GETGYx_empty(v0);
             d0 = fpu_get_scratch(dyn);
+            if (BOX64ENV(dynarec_fastround) <= 1) {
+                u8 = sse_setround(dyn, ninst, x2, x3);
+            }
             FCVT_S_D(d0, v2);
+            if (BOX64ENV(dynarec_fastround) <= 1) {
+                x87_restoreround(dyn, ninst, u8);
+            }
             if (v0 != v1) VOR_V(v0, v1, v1);
             XVINSVE0_W(v0, d0, 0);
             break;
