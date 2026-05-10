@@ -950,7 +950,26 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
         case 0x62:
             nextop = F8;
-            if(rex.is32bits && !MODREG) {
+            if(!rex.is32bits) {
+                vex_t vex = {0};
+                u8 = F8;
+                u16 = F8;
+                if(FillVEXFromEVEX(&vex, rex, nextop, u8, u16)) {
+                    INST_NAME("EVEX");
+                    addr = dynarec64_AVX(dyn, addr, ip, ninst, vex, ok, need_epilog);
+                } else {
+                    INST_NAME("Illegal 62");
+                    if(BOX64DRENV(dynarec_safeflags)>1) {
+                        READFLAGS(X_PEND);
+                    } else {
+                        SETFLAGS(X_ALL, SF_SET_NODF);    // Hack to set flags in "don't care" state
+                    }
+                    GETIP(ip);
+                    UDF(0);
+                    *need_epilog = 1;
+                    *ok = 0;
+                }
+            } else if(!MODREG) {
                 INST_NAME("BOUND Gd, Ed");
                 addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                 LDRxw_U12(x2, wback, 0);
