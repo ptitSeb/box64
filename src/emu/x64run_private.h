@@ -42,7 +42,42 @@ typedef struct vex_s {
     uint16_t    p:2;    //0: none, 1: 0x66, 2:0xF3, 3: 0xF2
     uint16_t    v:4;    // src register
     uint16_t    m:5;    // opcode map
+    uint16_t    evex:1; // was decoded from an EVEX prefix
 } vex_t;
+
+static inline int FillVEXFromEVEX(vex_t* vex, rex_t rex, uint8_t p0, uint8_t p1, uint8_t p2)
+{
+    uint8_t m = p0 & 0x0f;
+    uint8_t l = (p2 >> 5) & 0x03;
+
+    if(rex.is32bits || rex.is66 || rex.isf0 || rex.rep)
+        return 0;
+    if(!(p1 & 0x04))    // EVEX P1 bit 2 is reserved and must be 1
+        return 0;
+    if(m != VEX_M_0F && m != VEX_M_0F38 && m != VEX_M_0F3A)
+        return 0;
+    if(l > 1)           // no ZMM state yet
+        return 0;
+    if(!(p0 & 0x10))    // no high-16 destination register state yet
+        return 0;
+    if(!(p2 & 0x08))    // no high-16 NDS/VIDX register state yet
+        return 0;
+    if(p2 & 0x97)       // z, b and aaa need opmask/broadcast/SAE handling
+        return 0;
+
+    *vex = (vex_t){0};
+    vex->rex = rex;
+    vex->rex.b = (p0 & 0x20) ? 0 : 1;
+    vex->rex.x = (p0 & 0x40) ? 0 : 1;
+    vex->rex.r = (p0 & 0x80) ? 0 : 1;
+    vex->rex.w = (p1 >> 7) & 1;
+    vex->p = p1 & 0x03;
+    vex->l = l;
+    vex->v = ((~p1) >> 3) & 0x0f;
+    vex->m = m;
+    vex->evex = 1;
+    return 1;
+}
 
 // the op code definition can be found here: http://ref.x86asm.net/geek32.html
 
