@@ -504,9 +504,29 @@ x64emurun:
                 goto fini;
             }
             break;
-        case 0x62:                  /* BOUND Gd, Ed */
+        case 0x62:                  /* EVEX prefix / BOUND Gd, Ed */
             nextop = F8;
-            if(rex.is32bits && !MODREG) {
+            if(!rex.is32bits) {
+                vex_t vex = {0};
+                tmp8u = F8;
+                tmp8u2 = F8;
+                if(!FillVEXFromEVEX(&vex, rex, nextop, tmp8u, tmp8u2)) {
+                    unimp = 1;
+                    goto fini;
+                }
+                #ifdef TEST_INTERPRETER
+                if(!(addr = TestAVX(test, vex, addr, &step)))
+                    unimp = 1;
+                #else
+                if(!(addr = RunAVX(emu, vex, addr, &step))) {
+                    unimp = 1;
+                    goto fini;
+                }
+                if(step==2) {
+                    STEP2;
+                }
+                #endif
+            } else if(!MODREG) {
                 GETGD;
                 int* bounds = (int*)GETEA(0);
                 if((GD->sdword[0]<bounds[0]) || (GD->sdword[0]>bounds[1]))
