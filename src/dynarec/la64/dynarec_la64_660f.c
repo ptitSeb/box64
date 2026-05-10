@@ -826,7 +826,12 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     VMIN_HU(q2, q0, q1);           // all lane is min(abcdefgh)
                     VSEQ_H(q0, q2, v1);            // get mask(0xffff)
                     VFRSTPI_H(q2, q0, 1);          // find first neg(0xffff),insert index to q2
-                    XVPICKVE_W(v0, q2, 0);
+                    if (cpuext.lasx) {
+                        XVPICKVE_W(v0, q2, 0);
+                    } else {
+                        VXOR_V(v0, v0, v0);
+                        VEXTRINS_W(v0, q2, 0);
+                    }
                     break;
                 case 0xDB:
                     INST_NAME("AESIMC Gx, Ex"); // AES-NI
