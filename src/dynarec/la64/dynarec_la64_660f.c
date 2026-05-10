@@ -226,13 +226,11 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x2B:
             INST_NAME("MOVNTPD Ex,Gx");
             nextop = F8;
-            GETG;
-            v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
             if (MODREG) {
-                ed = (nextop & 7) + (rex.b << 3);
-                v1 = sse_get_reg_empty(dyn, ninst, x1, ed);
-                VOR_V(v1, v0, v0);
+                DEFAULT;
             } else {
+                GETG;
+                v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
                 VST(v0, ed, fixedaddress);
             }
@@ -661,9 +659,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     INST_NAME("MOVNTDQA Gx, Ex");
                     nextop = F8;
                     if (MODREG) {
-                        v1 = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0);
-                        GETGX_empty(v0);
-                        VOR_V(v0, v1, v1);
+                        DEFAULT;
                     } else {
                         GETGX_empty(v0);
                         SMREAD();
@@ -2942,11 +2938,10 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0xE7:
             INST_NAME("MOVNTDQ Ex, Gx");
             nextop = F8;
-            GETGX(v0, 0);
             if (MODREG) {
-                v1 = sse_get_reg_empty(dyn, ninst, x1, (nextop & 7) + (rex.b << 3));
-                VOR_V(v1, v0, v0);
+                DEFAULT;
             } else {
+                GETGX(v0, 0);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
                 VST(v0, ed, fixedaddress);
             }

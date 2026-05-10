@@ -210,10 +210,10 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
         case 0x2B:
             INST_NAME("VMOVNTPD Ex, Gx");
             nextop = F8;
-            GETGYxy(q0, 0);
             if (MODREG) {
                 DEFAULT;
             } else {
+                GETGYxy(q0, 0);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x4, x5, &fixedaddress, rex, NULL, 1, 0);
                 if (vex.l) {
                     XVST(q0, ed, fixedaddress);
