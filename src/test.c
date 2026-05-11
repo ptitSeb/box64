@@ -60,8 +60,17 @@ struct {
 
 static inline uint64_t fromstr(const char* str)
 {
-    int base = strlen(str) > 2 && (str[1] == 'x' || str[1] == 'X') ? 16 : 10;
-    return strtoull(str, NULL, base);
+    size_t len = strlen(str);
+    int base = len > 2 && (str[1] == 'x' || str[1] == 'X') ? 16 : 10;
+    size_t j = 0;
+    char clean[len + 1];
+
+    for (size_t i = 0; i < len; ++i)
+        if (str[i] != '_')
+            clean[j++] = str[i];
+    clean[j] = '\0';
+
+    return strtoull(clean, NULL, base);
 }
 
 static struct json_value_s* json_find(struct json_object_s* object, const char* key)
