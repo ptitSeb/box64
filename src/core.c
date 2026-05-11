@@ -882,11 +882,11 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     {
         char* p = BOX64ENV(python3);
         if(p) {
-            if(FileIsX64ELF(p)) {
+            if(FileExist(p, IS_FILE)) {
                 pythonpath = p;
-                printf_log(LOG_INFO, "Using python3 \"%s\"\n", pythonpath);
+                printf_log(LOG_INFO, "Using python helper \"%s\"\n", pythonpath);
             } else {
-                printf_log(LOG_INFO, "The x86_64 python3 \"%s\" is not an x86_64 binary.\n", p);
+                printf_log(LOG_INFO, "The python helper \"%s\" was not found.\n", p);
             }
         }
     }
@@ -1115,6 +1115,8 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         bashpath = ResolveFile("box64-bash", &my_context->box64_path);
     if(bashpath)
         my_context->bashpath = box_strdup(bashpath);
+    if(!pythonpath)
+        pythonpath = ResolveFile("box64-python", &my_context->box64_path);
     if(pythonpath)
         my_context->pythonpath = box_strdup(pythonpath);
 
