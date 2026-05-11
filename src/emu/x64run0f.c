@@ -1403,12 +1403,12 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                     #ifdef TEST_INTERPRETER
                     emu->sw.f.F87_TOP = emu->top&7;
                     #else
-                    fpu_xsave(emu, ED, rex.w?0:1);
+                    fpu_xsave(emu, ED, rex.is32bits);
                     #endif
                     break;
                 case 5:                 /* XRSTOR Ed */
                     _GETED(0);
-                    fpu_xrstor(emu, ED, rex.w?0:1);
+                    fpu_xrstor(emu, ED, rex.is32bits);
                     break;
                 case 7:                 /* CLFLUSH Ed */
                     _GETED(0);

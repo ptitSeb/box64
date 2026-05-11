@@ -2075,7 +2075,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         BARRIER(BARRIER_FLOAT);
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                         if(ed!=x1) {MOVx_REG(x1, ed);}
-                        MOV32w(x2, rex.w?0:1);
+                        MOV32w(x2, rex.is32bits);
                         CALL(const_fpu_xsave, -1);
                         break;
                     case 5:
@@ -2084,7 +2084,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         BARRIER(BARRIER_FLOAT);
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                         if(ed!=x1) {MOVx_REG(x1, ed);}
-                        MOV32w(x2, rex.w?0:1);
+                        MOV32w(x2, rex.is32bits);
                         CALL(const_fpu_xrstor, -1);
                         break;
                     case 7:
