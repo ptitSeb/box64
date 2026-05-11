@@ -704,16 +704,14 @@ void endBox64()
         const int max_wait_ms = 2000; // 2s
         int waited_ms = 0;
 
-        printf_log(LOG_INFO, "endBox64: waiting emu workers to exit (n=%d)\n", workers);
+        printf_log(LOG_DEBUG, "endBox64: waiting emu workers to exit (n=%d)\n", workers);
         while ((workers = get_active_emu_workers()) > 0 && waited_ms < max_wait_ms) {
             usleep(sleep_us);
             waited_ms += sleep_us / 1000;
         }
 
         if (workers > 0) {
-            printf_log(LOG_INFO,
-                "endBox64: %d emu workers still alive after %dms, skip unload/free to avoid UAF crash\n",
-                workers, waited_ms);
+            printf_log(LOG_DEBUG, "endBox64: %d emu workers still alive after %dms, skip unload/free to avoid UAF crash\n", workers, waited_ms);
             return;
         }
     }
