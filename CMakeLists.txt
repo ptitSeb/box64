@@ -1887,6 +1887,11 @@ add_test(lock ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
 endif()
 
 if(NOT ANDROID)
+add_test(NAME xsave_xrstor COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
+    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/misc/xsave_xrstor -D TEST_OUTPUT=tmpfile-xsave_xrstor.txt
+    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/misc/xsave_xrstor.txt
+    -P ${CMAKE_SOURCE_DIR}/runTest.cmake)
+
 file(GLOB extension_tests "${CMAKE_SOURCE_DIR}/tests/extensions/*.c")
 foreach(file ${extension_tests})
     get_filename_component(testname "${file}" NAME_WE)
