@@ -77,6 +77,7 @@ int my32_dladdr1(x64emu_t* emu, void *addr, void *i, void** extra_info, int flag
     info->dli_saddr = to_ptrv(start);
     info->dli_fname = to_ptrv((void*)fname);
     info->dli_fbase = to_ptrv(base);
+    // TODO: If dli_sname points to native_name, how do I avoid data tampering during usage?
     info->dli_sname = to_ptrv((void*)sname);
     printf_log(LOG_DEBUG, "     dladdr return saddr=%p, fname=\"%s\", sname=\"%s\"\n", start, sname?sname:"", fname?fname:"");
     if(flags==RTLD_DL_SYMENT) {

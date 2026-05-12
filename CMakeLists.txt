@@ -1365,16 +1365,29 @@ if(_x86_64 OR _aarch64 OR _ppc64le)
 endif()
 
 if(NOT _x86 AND NOT _x86_64)
+  file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+  configure_file(${CMAKE_SOURCE_DIR}/tests/box64-bash ${CMAKE_BINARY_DIR}/bin/box64-bash COPYONLY)
+  configure_file(${CMAKE_SOURCE_DIR}/system/box64-python ${CMAKE_BINARY_DIR}/bin/box64-python COPYONLY)
+  configure_file(${CMAKE_SOURCE_DIR}/system/sitecustomize.py ${CMAKE_BINARY_DIR}/bin/sitecustomize.py COPYONLY)
+  file(CHMOD ${CMAKE_BINARY_DIR}/bin/box64-python
+      FILE_PERMISSIONS
+      OWNER_READ OWNER_WRITE OWNER_EXECUTE
+      GROUP_READ GROUP_EXECUTE
+      WORLD_READ WORLD_EXECUTE)
   if(NOT TERMUX)
    install(TARGETS ${BOX64} RUNTIME DESTINATION bin)
-   if(NOT NO_LIB_INSTALL)
-    install(PROGRAMS ${CMAKE_SOURCE_DIR}/tests/box64-bash DESTINATION bin)
-   endif()
+    if(NOT NO_LIB_INSTALL)
+     install(PROGRAMS ${CMAKE_SOURCE_DIR}/tests/box64-bash DESTINATION bin)
+     install(PROGRAMS ${CMAKE_SOURCE_DIR}/system/box64-python DESTINATION bin)
+     install(FILES ${CMAKE_SOURCE_DIR}/system/sitecustomize.py DESTINATION bin)
+    endif()
   else()
    install(TARGETS ${BOX64} RUNTIME DESTINATION ${TERMUX_PATH}/usr/bin)
-   if(NOT NO_LIB_INSTALL)
-    install(PROGRAMS ${CMAKE_SOURCE_DIR}/tests/box64-bash DESTINATION ${TERMUX_PATH}/usr/bin)
-   endif()
+    if(NOT NO_LIB_INSTALL)
+     install(PROGRAMS ${CMAKE_SOURCE_DIR}/tests/box64-bash DESTINATION ${TERMUX_PATH}/usr/bin)
+     install(PROGRAMS ${CMAKE_SOURCE_DIR}/system/box64-python DESTINATION ${TERMUX_PATH}/usr/bin)
+     install(FILES ${CMAKE_SOURCE_DIR}/system/sitecustomize.py DESTINATION ${TERMUX_PATH}/usr/bin)
+    endif()
   endif()
   if (GDBJIT)
     install(TARGETS box64gdbjitreader RUNTIME DESTINATION lib)
@@ -1887,6 +1900,11 @@ add_test(lock ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
 endif()
 
 if(NOT ANDROID)
+add_test(NAME xsave_xrstor COMMAND ${CMAKE_COMMAND} -D TEST_PROGRAM=${CMAKE_BINARY_DIR}/${BOX64}
+    -D TEST_ARGS=${CMAKE_SOURCE_DIR}/tests/misc/xsave_xrstor -D TEST_OUTPUT=tmpfile-xsave_xrstor.txt
+    -D TEST_REFERENCE=${CMAKE_SOURCE_DIR}/tests/misc/xsave_xrstor.txt
+    -P ${CMAKE_SOURCE_DIR}/runTest.cmake)
+
 file(GLOB extension_tests "${CMAKE_SOURCE_DIR}/tests/extensions/*.c")
 foreach(file ${extension_tests})
     get_filename_component(testname "${file}" NAME_WE)

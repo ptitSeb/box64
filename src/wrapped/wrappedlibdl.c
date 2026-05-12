@@ -523,6 +523,7 @@ int my_dladdr1(x64emu_t* emu, void *addr, void *i, void** extra_info, int flags)
     library_t* lib = NULL;
     info->dli_saddr = NULL;
     info->dli_fname = NULL;
+    // TODO: If dli_sname points to native_name, how do I avoid data tampering during usage?
     info->dli_sname = FindSymbolName(my_context->maplib, addr, &info->dli_saddr, NULL, &info->dli_fname, &info->dli_fbase, &lib);
     printf_log(LOG_DEBUG, "     dladdr return saddr=%p, fname=\"%s\", sname=\"%s\"\n", info->dli_saddr, info->dli_sname?info->dli_sname:"", info->dli_fname?info->dli_fname:"");
     if(flags==RTLD_DL_SYMENT) {

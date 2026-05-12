@@ -2709,7 +2709,8 @@ EXPORT int32_t my_execv(x64emu_t* emu, const char* path, char* const argv[])
     int x64 = FileIsX64ELF(path);
     int x86 = my_context->box86path?FileIsX86ELF(path):0;
     int script = (my_context->bashpath && FileIsShell(path))?1:0;
-    printf_log(LOG_DEBUG, "execv(\"%s\", %p) is x64=%d x86=%d script=%d self=%d\n", path, argv, x64, x86, script, self);
+    int python = (my_context->pythonpath && FileIsPython(path))?1:0;
+    printf_log(LOG_DEBUG, "execv(\"%s\", %p) is x64=%d x86=%d script=%d python=%d self=%d\n", path, argv, x64, x86, script, python, self);
     while (argv[n])
         ++n;
     if (BOX64ENV(steam_vulkan) && n == 3 && !strcmp(argv[0], "sh") && !strcmp(argv[1], "-c") && strstr(argv[2], "steamwebhelper.sh")) {
@@ -2754,17 +2755,18 @@ EXPORT int32_t my_execv(x64emu_t* emu, const char* path, char* const argv[])
         return ret;
     }
 #if 1
-    if (x64 || x86 || script || self) {
+    if (x64 || x86 || script || python || self) {
         int skip_first = 0;
         if(strlen(path)>=strlen("wine64-preloader") && strcmp(path+strlen(path)-strlen("wine64-preloader"), "wine64-preloader")==0)
             skip_first++;
         // count argv...
         int n=skip_first;
         while(argv[n]) ++n;
-        int toadd = script?2:1;
+        int toadd = (script || python)?2:1;
         const char** newargv = (const char**)box_calloc(n+toadd+2, sizeof(char*));
         newargv[0] = x86?emu->context->box86path:emu->context->box64path;
         if(script) newargv[1] = emu->context->bashpath; // script needs to be launched with bash
+        if(python) newargv[1] = emu->context->pythonpath; // python scripts need box64-python
         memcpy(newargv+toadd, argv+skip_first, sizeof(char*)*(n+1-skip_first));
         if(self)
             newargv[1] = emu->context->fullpath;
@@ -2975,7 +2977,8 @@ EXPORT int32_t my_execvpe(x64emu_t* emu, const char* path, char* argv[], char* c
     int x64 = FileIsX64ELF(fullpath);
     int x86 = my_context->box86path?FileIsX86ELF(fullpath):0;
     int script = (my_context->bashpath && FileIsShell(fullpath))?1:0;
-    printf_log(LOG_DEBUG, "execvpe(\"%s\", %p[%s,%s,%s], %p), IsX86=%d / fullpath=\"%s\"\n", path, argv, (argv && argv[0])?argv[0]:"(nil)", (argv && argv[0] && argv[1])?argv[1]:"(nil)", (argv && argv[0] && argv[1] && argv[2])?argv[2]:"(nil)", envp, x64, fullpath);
+    int python = (my_context->pythonpath && FileIsPython(fullpath))?1:0;
+    printf_log(LOG_DEBUG, "execvpe(\"%s\", %p[%s,%s,%s], %p), IsX86=%d IsScript=%d IsPython=%d / fullpath=\"%s\"\n", path, argv, (argv && argv[0])?argv[0]:"(nil)", (argv && argv[0] && argv[1])?argv[1]:"(nil)", (argv && argv[0] && argv[1] && argv[2])?argv[2]:"(nil)", envp, x64, script, python, fullpath);
     char buffsrlc[MAX_PATH*3] = {0};
     #define SRLC "/usr/bin/steam-runtime-launch-client"
     if(!self && !x64 && !x86 && !script && !strcmp(path, SRLC) && !FileExist(SRLC, IS_FILE)) {
@@ -2993,6 +2996,7 @@ EXPORT int32_t my_execvpe(x64emu_t* emu, const char* path, char* argv[], char* c
             x64 = FileIsX64ELF(fullpath);
             x86 = my_context->box86path?FileIsX86ELF(fullpath):0;
             script = (my_context->bashpath && FileIsShell(fullpath))?1:0;
+            python = (my_context->pythonpath && FileIsPython(fullpath))?1:0;
         } else 
             printf_log(LOG_INFO, "Warning, trying to launch " SRLC " without BOX64_PRESSURE_ENV_PATH set\n");
 
@@ -3055,6 +3059,7 @@ EXPORT int32_t my_execvpe(x64emu_t* emu, const char* path, char* argv[], char* c
                 x64 = FileIsX64ELF(prog);
                 x86 = my_context->box86path?FileIsX86ELF(prog):0;
                 script = (my_context->bashpath && FileIsShell(prog))?1:0;
+                python = (my_context->pythonpath && FileIsPython(prog))?1:0;
             }
             if(x64 || x86 || script) {
                 char buff2[MAX_PATH*4] = {0};
@@ -3084,15 +3089,16 @@ EXPORT int32_t my_execvpe(x64emu_t* emu, const char* path, char* argv[], char* c
     if(envp == my_context->envv && environ) {
         envp = environ;
     }
-    if (x64 || x86 || script || self) {
+    if (x64 || x86 || script || python || self) {
         // count argv...
         int i=0;
         while(argv[i]) ++i;
-        int toadd = script?2:1;
+        int toadd = (script || python)?2:1;
         char** newargv = (char**)alloca((i+toadd+1)*sizeof(char*));
         memset(newargv, 0, (i+toadd+1)*sizeof(char*));
         newargv[0] = x86?emu->context->box86path:emu->context->box64path;
         if(script) newargv[1] = emu->context->bashpath; // script needs to be launched with bash
+        if(python) newargv[1] = emu->context->pythonpath; // python scripts need box64-python
         for (int j=0; j<i; ++j)
             newargv[j+toadd] = argv[j];
         if(self) newargv[1] = emu->context->fullpath;
@@ -3172,20 +3178,22 @@ EXPORT int32_t my_posix_spawn(x64emu_t* emu, pid_t* pid, const char* fullpath,
     int x64 = FileIsX64ELF(fullpath);
     int x86 = my_context->box86path?FileIsX86ELF(fullpath):0;
     int script = (my_context->bashpath && FileIsShell(fullpath))?1:0;
+    int python = (my_context->pythonpath && FileIsPython(fullpath))?1:0;
     int ret;
-    printf_log(/*LOG_DEBUG*/LOG_INFO, "posix_spawn(%p, \"%s\", %p, %p, %p[\"%s\", \"%s\", ...], %p), IsX64=%d, IsX86=%d IsScript=%d %s\n", pid, fullpath, actions, attrp, argv, argv[0], argv[1]?argv[1]:"", envp, x64, x86, script, (envp==my_context->envv)?"envp is context->envv":"");
+    printf_log(/*LOG_DEBUG*/LOG_INFO, "posix_spawn(%p, \"%s\", %p, %p, %p[\"%s\", \"%s\", ...], %p), IsX64=%d, IsX86=%d IsScript=%d IsPython=%d %s\n", pid, fullpath, actions, attrp, argv, argv[0], argv[1]?argv[1]:"", envp, x64, x86, script, python, (envp==my_context->envv)?"envp is context->envv":"");
     // hack to update the environ var if needed
     if(envp == my_context->envv && environ) {
         envp = environ;
     }
-    if (x64 || x86 || script || self) {
+    if (x64 || x86 || script || python || self) {
         int n=1;
         while(argv[n]) ++n;
-        int toadd = script?2:1;
+        int toadd = (script || python)?2:1;
         const char** newargv = (const char**)alloca((n+1+toadd)*sizeof(char*));
         memset(newargv, 0, (n+1+toadd)*sizeof(char*));
         newargv[0] = x86?emu->context->box86path:emu->context->box64path;
         if(script) newargv[1] = emu->context->bashpath; // script needs to be launched with bash
+        if(python) newargv[1] = emu->context->pythonpath; // python scripts need box64-python
         memcpy(newargv+toadd, argv, (n+1)*sizeof(char*));
         if(self) newargv[toadd] = emu->context->fullpath;
         else {
@@ -3214,20 +3222,22 @@ EXPORT int32_t my_posix_spawnp(x64emu_t* emu, pid_t* pid, const char* path,
     int x64 = FileIsX64ELF(fullpath);
     int x86 = my_context->box86path?FileIsX86ELF(path):0;
     int script = (my_context->bashpath && FileIsShell(fullpath))?1:0;
+    int python = (my_context->pythonpath && FileIsPython(fullpath))?1:0;
     int ret;
-    printf_log(/*LOG_DEBUG*/LOG_INFO, "posix_spawnp(%p, \"%s\", %p, %p, %p, %p), IsX86=%d / fullpath=\"%s\"\n", pid, path, actions, attrp, argv, envp, x64, fullpath);
+    printf_log(/*LOG_DEBUG*/LOG_INFO, "posix_spawnp(%p, \"%s\", %p, %p, %p, %p), IsX86=%d IsScript=%d IsPython=%d / fullpath=\"%s\"\n", pid, path, actions, attrp, argv, envp, x64, script, python, fullpath);
     // hack to update the environ var if needed
     if(envp == my_context->envv && environ) {
         envp = environ;
     }
-    if (x64 || x86 || script || self) {
+    if (x64 || x86 || script || python || self) {
         int n=1;
         while(argv[n]) ++n;
-        int toadd = script?2:1;
+        int toadd = (script || python)?2:1;
         const char** newargv = (const char**)alloca((n+1+toadd)*sizeof(char*));
         memset(newargv, 0, (n+1+toadd)*sizeof(char*));
         newargv[0] = x86?emu->context->box86path:emu->context->box64path;
         if(script) newargv[1] = emu->context->bashpath; // script needs to be launched with bash
+        if(python) newargv[1] = emu->context->pythonpath; // python scripts need box64-python
         memcpy(newargv+toadd, argv, (n+1)*sizeof(char*));
         if(self) newargv[toadd] = emu->context->fullpath;
         else {

@@ -60,8 +60,17 @@ struct {
 
 static inline uint64_t fromstr(const char* str)
 {
-    int base = strlen(str) > 2 && (str[1] == 'x' || str[1] == 'X') ? 16 : 10;
-    return strtoull(str, NULL, base);
+    size_t len = strlen(str);
+    int base = len > 2 && (str[1] == 'x' || str[1] == 'X') ? 16 : 10;
+    size_t j = 0;
+    char clean[len + 1];
+
+    for (size_t i = 0; i < len; ++i)
+        if (str[i] != '_')
+            clean[j++] = str[i];
+    clean[j] = '\0';
+
+    return strtoull(clean, NULL, base);
 }
 
 static struct json_value_s* json_find(struct json_object_s* object, const char* key)
@@ -667,6 +676,7 @@ int unittest(int argc, const char** argv)
     }
 
     int retcode = 0;
+    int simple_run = (combo_number != -1) || (actual_total == 1);
     int display_index = 0;
     for (int c = 0; c < combos.total_combos; c++) {
         if (shouldSkipCombo(&combos, c))
@@ -676,23 +686,31 @@ int unittest(int argc, const char** argv)
             continue;
         if (actual_total > 1)
             printTestVarCombo(&combos, c, display_index, actual_total);
-        pid_t pid = fork();
-        if (pid == 0) {
+        if (simple_run) {
             applyTestVarCombo(&combos, c);
-            freeTestVarCombos(&combos);
-            _exit(runSingleTest(filepath, include_path));
-        } else if (pid > 0) {
-            int status;
-            waitpid(pid, &status, 0);
-            if (WIFEXITED(status)) {
-                if (WEXITSTATUS(status) != 0) retcode++;
+            if (runSingleTest(filepath, include_path) != 0)
+                retcode++;
+        } else {
+            pid_t pid = fork();
+            if (pid == 0) {
+                applyTestVarCombo(&combos, c);
+                freeTestVarCombos(&combos);
+                _exit(runSingleTest(filepath, include_path));
+            } else if (pid > 0) {
+                int status;
+                waitpid(pid, &status, 0);
+                if (WIFEXITED(status)) {
+                    if (WEXITSTATUS(status) != 0) retcode++;
+                } else {
+                    retcode++;
+                }
             } else {
+                fprintf(stderr, "fork() failed\n");
                 retcode++;
             }
-        } else {
-            fprintf(stderr, "fork() failed\n");
-            retcode++;
         }
+        if (combo_number != -1)
+            break;
     }
 
     int combos_run = (combo_number != -1) ? 1 : actual_total;

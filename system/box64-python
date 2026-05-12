@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+
+if [[ -n "${PYTHONPATH:-}" ]]; then
+    export PYTHONPATH="$SCRIPT_DIR:$PYTHONPATH"
+else
+    export PYTHONPATH="$SCRIPT_DIR"
+fi
+
+exec python3 "$@"

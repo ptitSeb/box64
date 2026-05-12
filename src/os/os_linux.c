@@ -106,9 +106,10 @@ const char* GetBridgeName(void* p)
     return getBridgeName(p);
 }
 
+static __thread char native_name[500] = { 0 };
+
 const char* GetNativeName(void* p, int lib)
 {
-    static char buff[500] = { 0 };
     {
         const char* n = GetBridgeName(p);
         if (n)
@@ -119,22 +120,22 @@ const char* GetNativeName(void* p, int lib)
         const char* ret = GetNameOffset(my_context->maplib, p);
         if (ret)
             return ret;
-        sprintf(buff, "%s(%p)", "???", p);
-        return buff;
+        sprintf(native_name, "%s(%p)", "???", p);
+        return native_name;
     } else {
         if (info.dli_sname) {
-            strcpy(buff, info.dli_sname);
+            strcpy(native_name, info.dli_sname);
             if (lib && info.dli_fname) {
-                strcat(buff, "(");
-                strcat(buff, info.dli_fname);
-                strcat(buff, ")");
+                strcat(native_name, "(");
+                strcat(native_name, info.dli_fname);
+                strcat(native_name, ")");
             }
         } else {
-            sprintf(buff, "%s(%s+%p)", "???", info.dli_fname, (void*)(p - info.dli_fbase));
-            return buff;
+            sprintf(native_name, "%s(%s+%p)", "???", info.dli_fname, (void*)(p - info.dli_fbase));
+            return native_name;
         }
     }
-    return buff;
+    return native_name;
 }
 
 

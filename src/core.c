@@ -704,16 +704,14 @@ void endBox64()
         const int max_wait_ms = 2000; // 2s
         int waited_ms = 0;
 
-        printf_log(LOG_INFO, "endBox64: waiting emu workers to exit (n=%d)\n", workers);
+        printf_log(LOG_DEBUG, "endBox64: waiting emu workers to exit (n=%d)\n", workers);
         while ((workers = get_active_emu_workers()) > 0 && waited_ms < max_wait_ms) {
             usleep(sleep_us);
             waited_ms += sleep_us / 1000;
         }
 
         if (workers > 0) {
-            printf_log(LOG_INFO,
-                "endBox64: %d emu workers still alive after %dms, skip unload/free to avoid UAF crash\n",
-                workers, waited_ms);
+            printf_log(LOG_DEBUG, "endBox64: %d emu workers still alive after %dms, skip unload/free to avoid UAF crash\n", workers, waited_ms);
             return;
         }
     }
@@ -882,11 +880,11 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     {
         char* p = BOX64ENV(python3);
         if(p) {
-            if(FileIsX64ELF(p)) {
+            if(FileExist(p, IS_FILE)) {
                 pythonpath = p;
-                printf_log(LOG_INFO, "Using python3 \"%s\"\n", pythonpath);
+                printf_log(LOG_INFO, "Using python helper \"%s\"\n", pythonpath);
             } else {
-                printf_log(LOG_INFO, "The x86_64 python3 \"%s\" is not an x86_64 binary.\n", p);
+                printf_log(LOG_INFO, "The python helper \"%s\" was not found.\n", p);
             }
         }
     }
@@ -1115,6 +1113,8 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         bashpath = ResolveFile("box64-bash", &my_context->box64_path);
     if(bashpath)
         my_context->bashpath = box_strdup(bashpath);
+    if(!pythonpath)
+        pythonpath = ResolveFile("box64-python", &my_context->box64_path);
     if(pythonpath)
         my_context->pythonpath = box_strdup(pythonpath);
 

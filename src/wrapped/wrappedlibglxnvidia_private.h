@@ -3390,6 +3390,11 @@ GO(glGetSemaphoreParameterui64vEXT, vFuup)
 GO(glWaitSemaphoreEXT, vFuupupp)
 GO(glSignalSemaphoreEXT, vFuupupp)
 
+// GL_NV_timeline_semaphore
+GO(glCreateSemaphoresNV, vFip)
+GO(glSemaphoreParameterivNV, vFuup)
+GO(glGetSemaphoreParameterivNV, vFuup)
+
 // GL_EXT_memory_object_fd
 GO(glImportMemoryFdEXT, vFuUui)
 

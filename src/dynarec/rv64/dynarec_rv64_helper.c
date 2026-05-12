@@ -2418,11 +2418,11 @@ static void fpuCacheTransform(dynarec_rv64_t* dyn, int ninst, int s1, int s2, in
         MESSAGE(LOG_DUMP, "\t    - adjust stack count %d -> %d -\n", stack_cnt, cache_i2.stack);
         int a = stack_cnt - cache_i2.stack;
         // Add x87stack to emu fpu_stack
-        LWU(s3, xEmu, offsetof(x64emu_t, fpu_stack));
+        LW(s3, xEmu, offsetof(x64emu_t, fpu_stack));
         ADDI(s3, s3, a);
         SW(s3, xEmu, offsetof(x64emu_t, fpu_stack));
         // Sub x87stack to top, with and 7
-        LWU(s3, xEmu, offsetof(x64emu_t, top));
+        LW(s3, xEmu, offsetof(x64emu_t, top));
         SUBI(s3, s3, a);
         ANDI(s3, s3, 7);
         SW(s3, xEmu, offsetof(x64emu_t, top));

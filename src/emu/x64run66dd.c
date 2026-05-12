@@ -90,7 +90,7 @@ uintptr_t Run66DD(x64emu_t *emu, rex_t rex, uintptr_t addr)
                     char* p =(char*)ED;
                     p += 14;
                     for (int i=0; i<8; ++i) {
-                        LD2D(p, &emu->x87[7-i].d);
+                        LD2D(p, &ST(i).d);
                         p+=10;
                     }
                 }
@@ -105,7 +105,7 @@ uintptr_t Run66DD(x64emu_t *emu, rex_t rex, uintptr_t addr)
                     char* p =(char*)ED;
                     p += 14;
                     for (int i=0; i<8; ++i) {
-                        D2LD(&emu->x87[7-i].d, p);
+                        D2LD(&ST(i).d, p);
                         p+=10;
                     }
                 }

@@ -176,6 +176,19 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                 }
             } else {
+                // check if stack is empty (freed register will not count, but might work if using tags instead)
+                i2 = -dyn->n.x87stack;
+                LDRw_U12(x3, xEmu, offsetof(x64emu_t, fpu_stack));
+                if(i2) {
+                    if(i2<0) {
+                        ADDw_U12(x3, x3, -i2);
+                    } else {
+                        SUBw_U12(x3, x3, i2);
+                    }
+                }
+                CMPSw_U12(x3, 0);
+                MOV32w(x4, 0b100000100000000);  // empty: C3,C2,C0 = 101
+                B_MARK3(cLE);
                 // simply move from cache reg to x2
                 v1 = dyn->n.x87reg[i1];
                 VMOVQDto(x2, v1, 0);

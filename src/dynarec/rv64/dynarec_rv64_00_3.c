@@ -920,6 +920,10 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0xD7:
             INST_NAME("XLAT");
             ANDI(x1, xRAX, 0xff);
+            if (rex.seg) {
+                grab_segdata(dyn, addr, ninst, x2, rex.seg);
+                ADD(x1, x1, x2);
+            }
             ADD(x1, xRBX, x1);
             LBU(x1, x1, 0);
             ANDI(xRAX, xRAX, ~0xff);

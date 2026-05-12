@@ -32,30 +32,18 @@ void reset_fpu(x64emu_t* emu)
 }
 
 void fpu_fbst(x64emu_t* emu, uint8_t* d) {
-    // very aproximative... but should not be much used...
-    uint8_t p;
-    uint8_t sign = 0x00;
-    double tmp, v = ST0.d;
-    if(ST0.d<0.0) 
-    {
-        sign = 0x80;
-        v = -v;
+    uint64_t tmp = 0;
+    uint8_t sign = signbit(ST0.d) ? 0x80 : 0x00;
+    double v = fpu_round(emu, ST0.d);
+    if (isfinite(v))
+        tmp = llabs((int64_t)v);
+    memset(d, 0, 10);
+    for (int i = 0; i < 9 && tmp; ++i) {
+        uint8_t digit = tmp % 100;
+        d[i] = ((digit / 10) << 4) | (digit % 10);
+        tmp /= 100;
     }
-    for (int i=0; i<9; ++i) {
-        tmp = floor(v/10.0);
-        p = (v - 10.0*tmp);
-        v = tmp;
-        tmp = floor(v/10.0);
-        p |= ((uint8_t)(v - 10.0*tmp))<<4;
-        v = tmp;
-
-        *(d++)=p;
-    }
-    tmp = floor(v/10.0);
-    p = (v - 10.0*tmp);
-    p |= sign;
-    *(d++)=p;
-    // no flags....
+    d[9] = sign;
 }
 
 void fpu_fbld(x64emu_t* emu, uint8_t* s) {
@@ -70,8 +58,7 @@ void fpu_fbld(x64emu_t* emu, uint8_t* s) {
         m *= 10;
     }
     ST0.d = tmp;
-    p =*(s++);
-    ST0.d += m * (p&0x0f);
+    p = *(s++);
     if(p&0x80)
         ST0.d = -ST0.d;
 }

@@ -629,11 +629,11 @@ int x87_stackcount(dynarec_la64_t* dyn, int ninst, int scratch)
     int a = dyn->lsx.x87stack;
     // Add x87stack to emu fpu_stack
     LD_W(scratch, xEmu, offsetof(x64emu_t, fpu_stack));
-    ADDI_D(scratch, scratch, a);
+    ADDI_W(scratch, scratch, a);
     ST_W(scratch, xEmu, offsetof(x64emu_t, fpu_stack));
     // Sub x87stack to top, with and 7
     LD_W(scratch, xEmu, offsetof(x64emu_t, top));
-    ADDI_D(scratch, scratch, -a);
+    ADDI_W(scratch, scratch, -a);
     ANDI(scratch, scratch, 7);
     ST_W(scratch, xEmu, offsetof(x64emu_t, top));
     // reset x87stack, but not the stack count of extcache
@@ -2175,11 +2175,11 @@ static void fpuCacheTransform(dynarec_la64_t* dyn, int ninst, int s1, int s2, in
         MESSAGE(LOG_DUMP, "\t    - adjust stack count %d -> %d -\n", stack_cnt, cache_i2.stack);
         int a = stack_cnt - cache_i2.stack;
         // Add x87stack to emu fpu_stack
-        LD_WU(s3, xEmu, offsetof(x64emu_t, fpu_stack));
+        LD_W(s3, xEmu, offsetof(x64emu_t, fpu_stack));
         ADDI_D(s3, s3, a);
         ST_W(s3, xEmu, offsetof(x64emu_t, fpu_stack));
         // Sub x87stack to top, with and 7
-        LD_WU(s3, xEmu, offsetof(x64emu_t, top));
+        LD_W(s3, xEmu, offsetof(x64emu_t, top));
         ADDI_D(s3, s3, -a);
         ANDI(s3, s3, 7);
         ST_W(s3, xEmu, offsetof(x64emu_t, top));

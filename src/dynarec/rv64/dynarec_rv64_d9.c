@@ -119,7 +119,7 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     } else {
                         // not in cache, so check Empty status and load it
                         i2 = -dyn->e.x87stack;
-                        LWU(x3, xEmu, offsetof(x64emu_t, fpu_stack));
+                        LW(x3, xEmu, offsetof(x64emu_t, fpu_stack));
                         if (i2) {
                             SUBI(x3, x3, i2);
                         }
@@ -152,6 +152,14 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         }
                     }
                 } else {
+                    // check if stack is empty (freed register will not count, but might work if using tags instead)
+                    i2 = -dyn->e.x87stack;
+                    LW(x3, xEmu, offsetof(x64emu_t, fpu_stack));
+                    if (i2) {
+                        SUBI(x3, x3, i2);
+                    }
+                    MOV32w(x4, 0b100000100000000); // empty: C3,C2,C0 = 101
+                    BGE_MARK3(xZR, x3);
                     // simply move from cache reg to x2
                     v1 = dyn->e.x87reg[i1];
                     FMVXD(x2, v1);
