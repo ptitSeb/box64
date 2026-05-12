@@ -40,34 +40,38 @@ static const char* avx_map_string(uint16_t m)
     }
 }
 
+typedef uintptr_t (*dynarec64_avx_f)(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
+
 uintptr_t dynarec64_AVX(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog)
 {
     (void)ip; (void)need_epilog;
 
     uint8_t opcode = PK(0);
     rex_t rex = vex.rex;
+    static const dynarec64_avx_f avx_dispatch[4][4] = {
+        [VEX_M_0F] = {
+            [VEX_P_NONE] = dynarec64_AVX_0F,
+            [VEX_P_66]   = dynarec64_AVX_66_0F,
+            [VEX_P_F3]   = dynarec64_AVX_F3_0F,
+            [VEX_P_F2]   = dynarec64_AVX_F2_0F,
+        },
+        [VEX_M_0F38] = {
+            [VEX_P_NONE] = dynarec64_AVX_0F38,
+            [VEX_P_66]   = dynarec64_AVX_66_0F38,
+            [VEX_P_F3]   = dynarec64_AVX_F3_0F38,
+            [VEX_P_F2]   = dynarec64_AVX_F2_0F38,
+        },
+        [VEX_M_0F3A] = {
+            [VEX_P_66]   = dynarec64_AVX_66_0F3A,
+            [VEX_P_F2]   = dynarec64_AVX_F2_0F3A,
+        },
+    };
 
-    if( (vex.m==VEX_M_0F) && (vex.p==VEX_P_NONE))
-        addr = dynarec64_AVX_0F(dyn, addr, ip, ninst, vex, ok, need_epilog);
-    else if( (vex.m==VEX_M_0F38) && (vex.p==VEX_P_NONE))
-        addr = dynarec64_AVX_0F38(dyn, addr, ip, ninst, vex, ok, need_epilog);
-    else if( (vex.m==VEX_M_0F) && (vex.p==VEX_P_66))
-        addr = dynarec64_AVX_66_0F(dyn, addr, ip, ninst, vex, ok, need_epilog);
-    else if( (vex.m==VEX_M_0F) && (vex.p==VEX_P_F2))
-        addr = dynarec64_AVX_F2_0F(dyn, addr, ip, ninst, vex, ok, need_epilog);
-    else if( (vex.m==VEX_M_0F) && (vex.p==VEX_P_F3))
-        addr = dynarec64_AVX_F3_0F(dyn, addr, ip, ninst, vex, ok, need_epilog);
-    else if( (vex.m==VEX_M_0F38) && (vex.p==VEX_P_66))
-        addr = dynarec64_AVX_66_0F38(dyn, addr, ip, ninst, vex, ok, need_epilog);
-    else if( (vex.m==VEX_M_0F3A) && (vex.p==VEX_P_66))
-        addr = dynarec64_AVX_66_0F3A(dyn, addr, ip, ninst, vex, ok, need_epilog);
-    else if( (vex.m==VEX_M_0F38) && (vex.p==VEX_P_F2))
-        addr = dynarec64_AVX_F2_0F38(dyn, addr, ip, ninst, vex, ok, need_epilog);
-    else if( (vex.m==VEX_M_0F3A) && (vex.p==VEX_P_F2))
-        addr = dynarec64_AVX_F2_0F3A(dyn, addr, ip, ninst, vex, ok, need_epilog);
-    else if( (vex.m==VEX_M_0F38) && (vex.p==VEX_P_F3))
-        addr = dynarec64_AVX_F3_0F38(dyn, addr, ip, ninst, vex, ok, need_epilog);
-    else {DEFAULT;}
+    if(vex.m < 4 && vex.p < 4 && avx_dispatch[vex.m][vex.p])
+        addr = avx_dispatch[vex.m][vex.p](dyn, addr, ip, ninst, vex, ok, need_epilog);
+    else {
+        DEFAULT;
+    }
 
     if((*ok==-1) && (BOX64ENV(dynarec_log)>=LOG_INFO || dyn->need_dump || BOX64ENV(dynarec_missing)))
         if(!dyn->size || BOX64ENV(dynarec_log)>LOG_INFO || dyn->need_dump) {
