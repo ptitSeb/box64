@@ -1886,6 +1886,55 @@ static int findCacheSlot(dynarec_arm_t* dyn, int ninst, int t, int n, neoncache_
     return -1;
 }
 
+static void buildCacheMasks(neoncache_t* cache, uint8_t* st, uint8_t* mm, uint16_t* xmm, uint16_t* ymm)
+{
+    *st = *mm = 0;
+    *xmm = *ymm = 0;
+    for(int i=0; i<32; ++i) {
+        if(!cache->neoncache[i].v)
+            continue;
+        int n = cache->neoncache[i].n;
+        switch(cache->neoncache[i].t) {
+            case NEON_CACHE_ST_F:
+            case NEON_CACHE_ST_D:
+            case NEON_CACHE_ST_I64:
+                *st |= 1<<n;
+                break;
+            case NEON_CACHE_MM:
+                *mm |= 1<<n;
+                break;
+            case NEON_CACHE_XMMR:
+            case NEON_CACHE_XMMW:
+                *xmm |= 1<<n;
+                break;
+            case NEON_CACHE_YMMR:
+            case NEON_CACHE_YMMW:
+                *ymm |= 1<<n;
+                break;
+        }
+    }
+}
+
+static int cacheMaskHas(int t, int n, uint8_t st, uint8_t mm, uint16_t xmm, uint16_t ymm)
+{
+    switch(t) {
+        case NEON_CACHE_ST_F:
+        case NEON_CACHE_ST_D:
+        case NEON_CACHE_ST_I64:
+            return st&(1<<n);
+        case NEON_CACHE_MM:
+            return mm&(1<<n);
+        case NEON_CACHE_XMMR:
+        case NEON_CACHE_XMMW:
+            return xmm&(1<<n);
+        case NEON_CACHE_YMMR:
+        case NEON_CACHE_YMMW:
+            return ymm&(1<<n);
+        default:
+            return 0;
+    }
+}
+
 static void swapCache(dynarec_arm_t* dyn, int ninst, int i, int j, neoncache_t *cache)
 {
     if (i==j)
@@ -2095,6 +2144,9 @@ static void fpuCacheTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2, int
     }
     neoncache_t cache_i2 = dyn->insts[i2].n;
     neoncacheUnwind(&cache_i2);
+    uint8_t cache_i2_st, cache_i2_mm;
+    uint16_t cache_i2_xmm, cache_i2_ymm;
+    buildCacheMasks(&cache_i2, &cache_i2_st, &cache_i2_mm, &cache_i2_xmm, &cache_i2_ymm);
 
     if(!cache_i2.stack) {
         int purge = 0;  // default to purge if there is any regs that are not needed at jump
@@ -2143,22 +2195,22 @@ static void fpuCacheTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2, int
     // check SSE first, than MMX, in order, to optimize successive memory write
     for(int i=0; i<16; ++i) {
         int j=findCacheSlot(dyn, ninst, NEON_CACHE_XMMW, i, &cache);
-        if(j>=0 && findCacheSlot(dyn, ninst, NEON_CACHE_XMMW, i, &cache_i2)==-1)
+        if(j>=0 && !(cache_i2_xmm&(1<<i)))
             unloadCache(dyn, ninst, stack_cnt, s1, s2, s3, &s1_val, &s2_val, &s3_top, &cache, j, cache.neoncache[j].t, cache.neoncache[j].n, i2);
     }
     for(int i=0; i<16; ++i) {
         int j=findCacheSlot(dyn, ninst, NEON_CACHE_YMMW, i, &cache);
-        if(j>=0 && findCacheSlot(dyn, ninst, NEON_CACHE_YMMW, i, &cache_i2)==-1)
+        if(j>=0 && !(cache_i2_ymm&(1<<i)))
             unloadCache(dyn, ninst, stack_cnt, s1, s2, s3, &s1_val, &s2_val, &s3_top, &cache, j, cache.neoncache[j].t, cache.neoncache[j].n, i2);
     }
     for(int i=0; i<8; ++i) {
         int j=findCacheSlot(dyn, ninst, NEON_CACHE_MM, i, &cache);
-        if(j>=0 && findCacheSlot(dyn, ninst, NEON_CACHE_MM, i, &cache_i2)==-1)
+        if(j>=0 && !(cache_i2_mm&(1<<i)))
             unloadCache(dyn, ninst, stack_cnt, s1, s2, s3, &s1_val, &s2_val, &s3_top, &cache, j, cache.neoncache[j].t, cache.neoncache[j].n, i2);
     }
     for(int i=0; i<32; ++i) {
         if(cache.neoncache[i].v)
-            if(findCacheSlot(dyn, ninst, cache.neoncache[i].t, cache.neoncache[i].n, &cache_i2)==-1)
+            if(!cacheMaskHas(cache.neoncache[i].t, cache.neoncache[i].n, cache_i2_st, cache_i2_mm, cache_i2_xmm, cache_i2_ymm))
                 unloadCache(dyn, ninst, stack_cnt, s1, s2, s3, &s1_val, &s2_val, &s3_top, &cache, i, cache.neoncache[i].t, cache.neoncache[i].n, i2);
     }
     // and now load/swap the missing one
