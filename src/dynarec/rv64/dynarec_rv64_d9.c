@@ -109,7 +109,7 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 break;
             case 0xE5:
                 INST_NAME("FXAM");
-#if 1
+                x87_purgecache(dyn, ninst, 0, x1, x2, x3);
                 i1 = x87_get_current_cache(dyn, ninst, 0, EXT_CACHE_ST_D);
                 // value put in x4
                 if (i1 == -1) {
@@ -185,13 +185,6 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 AND(x1, x1, x2);
                 OR(x4, x4, x1);
                 SH(x4, xEmu, offsetof(x64emu_t, sw));
-#else
-                MESSAGE(LOG_DUMP, "Need Optimization\n");
-                x87_refresh(dyn, ninst, x1, x2, 0);
-                s0 = x87_stackcount(dyn, ninst, x1);
-                CALL(fpu_fxam, -1, 0, 0); // should be possible inline, but is it worth it?
-                x87_unstackcount(dyn, ninst, x1, s0);
-#endif
                 break;
 
             case 0xE8:
