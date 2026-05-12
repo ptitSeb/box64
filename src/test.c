@@ -676,6 +676,7 @@ int unittest(int argc, const char** argv)
     }
 
     int retcode = 0;
+    int simple_run = (combo_number != -1) || (actual_total == 1);
     int display_index = 0;
     for (int c = 0; c < combos.total_combos; c++) {
         if (shouldSkipCombo(&combos, c))
@@ -685,23 +686,31 @@ int unittest(int argc, const char** argv)
             continue;
         if (actual_total > 1)
             printTestVarCombo(&combos, c, display_index, actual_total);
-        pid_t pid = fork();
-        if (pid == 0) {
+        if (simple_run) {
             applyTestVarCombo(&combos, c);
-            freeTestVarCombos(&combos);
-            _exit(runSingleTest(filepath, include_path));
-        } else if (pid > 0) {
-            int status;
-            waitpid(pid, &status, 0);
-            if (WIFEXITED(status)) {
-                if (WEXITSTATUS(status) != 0) retcode++;
+            if (runSingleTest(filepath, include_path) != 0)
+                retcode++;
+        } else {
+            pid_t pid = fork();
+            if (pid == 0) {
+                applyTestVarCombo(&combos, c);
+                freeTestVarCombos(&combos);
+                _exit(runSingleTest(filepath, include_path));
+            } else if (pid > 0) {
+                int status;
+                waitpid(pid, &status, 0);
+                if (WIFEXITED(status)) {
+                    if (WEXITSTATUS(status) != 0) retcode++;
+                } else {
+                    retcode++;
+                }
             } else {
+                fprintf(stderr, "fork() failed\n");
                 retcode++;
             }
-        } else {
-            fprintf(stderr, "fork() failed\n");
-            retcode++;
         }
+        if (combo_number != -1)
+            break;
     }
 
     int combos_run = (combo_number != -1) ? 1 : actual_total;
