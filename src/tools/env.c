@@ -21,7 +21,9 @@
 #include "rbtree.h"
 #include "wine_tools.h"
 #include "pe_tools.h"
+#ifdef DYNAREC
 #include "dynacache_hashes.h"
+#endif
 
 box64env_t box64env = { 0 };
 
