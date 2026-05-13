@@ -20,7 +20,7 @@ enum {
     X64_PREFIX_REX,
 };
 
-extern const uint8_t x64_prefix_kind[256];
+extern const uint8_t x64_prefix_kind_table[256];
 
 typedef struct rex_s {
     union {
