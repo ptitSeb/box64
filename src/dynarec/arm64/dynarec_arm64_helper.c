@@ -1781,9 +1781,10 @@ void fpu_pushcache(dynarec_arm_t* dyn, int ninst, int s1, int not07)
         if((dyn->n.ssecache[i].v!=-1) && (dyn->n.ssecache[i].write))
             ++n;
     }
-    for(int i=0; i<32; ++i)
-        if(dyn->n.neoncache[i].t==NEON_CACHE_YMMW)
-            ++n;
+    if(dyn->use_ymm)
+        for(int i=0; i<32; ++i)
+            if(dyn->n.neoncache[i].t==NEON_CACHE_YMMW)
+                ++n;
     if(!n)
         return;
     MESSAGE(LOG_DUMP, "\tPush XMM Cache (%d)------\n", n);
@@ -1793,10 +1794,11 @@ void fpu_pushcache(dynarec_arm_t* dyn, int ninst, int s1, int not07)
         }
     }
     // push the YMM values
-    for(int i=0; i<32; ++i) {
-        if(dyn->n.neoncache[i].t==NEON_CACHE_YMMW)
-            VSTR128_U12(i, xEmu, offsetof(x64emu_t, ymm[dyn->n.neoncache[i].n]));
-    }
+    if(dyn->use_ymm)
+        for(int i=0; i<32; ++i) {
+            if(dyn->n.neoncache[i].t==NEON_CACHE_YMMW)
+                VSTR128_U12(i, xEmu, offsetof(x64emu_t, ymm[dyn->n.neoncache[i].n]));
+        }
     MESSAGE(LOG_DUMP, "\t------- Push XMM Cache (%d)\n", n);
 }
 
@@ -1808,9 +1810,10 @@ void fpu_popcache(dynarec_arm_t* dyn, int ninst, int s1, int not07)
     for (int i=start; i<16; i++)
         if(dyn->n.ssecache[i].v!=-1)
             ++n;
-    for(int i=0; i<32; ++i)
-        if(dyn->n.neoncache[i].t==NEON_CACHE_YMMW || dyn->n.neoncache[i].t==NEON_CACHE_YMMR)
-            ++n;
+    if(dyn->use_ymm)
+        for(int i=0; i<32; ++i)
+            if(dyn->n.neoncache[i].t==NEON_CACHE_YMMW || dyn->n.neoncache[i].t==NEON_CACHE_YMMR)
+                ++n;
     if(!n)
         return;
     MESSAGE(LOG_DUMP, "\tPop XMM Cache (%d)------\n", n);
@@ -1820,9 +1823,10 @@ void fpu_popcache(dynarec_arm_t* dyn, int ninst, int s1, int not07)
             /*dyn->n.ssecache[i].write = 0;   // OPTIM: it's sync, so not write anymore
             dyn->n.neoncache[dyn->n.ssecache[i].reg].t = NEON_CACHE_XMMR;*/
         }
-    for(int i=0; i<32; ++i)
-        if(dyn->n.neoncache[i].t==NEON_CACHE_YMMW || dyn->n.neoncache[i].t==NEON_CACHE_YMMR)
-            VLDR128_U12(i, xEmu, offsetof(x64emu_t, ymm[dyn->n.neoncache[i].n]));
+    if(dyn->use_ymm)
+        for(int i=0; i<32; ++i)
+            if(dyn->n.neoncache[i].t==NEON_CACHE_YMMW || dyn->n.neoncache[i].t==NEON_CACHE_YMMR)
+                VLDR128_U12(i, xEmu, offsetof(x64emu_t, ymm[dyn->n.neoncache[i].n]));
     MESSAGE(LOG_DUMP, "\t------- Pop XMM Cache (%d)\n", n);
 }
 
