@@ -58,6 +58,7 @@ build*/
 .cache
 .gdb_history
 src/git_head.h
+src/dynacache_hashes.h
 backup/
 
 # Wrapper helper

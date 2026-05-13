@@ -797,7 +797,7 @@ Tweak the memory barriers to reduce the performance impact by strong memory emul
 
 ### BOX64_DYNACACHE
 
-Enable/disable the Dynamic Recompiler Cache (a.k.a DynaCache). This option defaults to 2 (to read cache if present but not generate any). DynaCache writes files to the home folder by default, and can grow without limit.
+Enable/disable the Dynamic Recompiler Cache (a.k.a DynaCache). This option defaults to 2 (to read cache if present but not generate any). DynaCache writes files to the home folder by default, and keeps its folder below BOX64_DYNACACHE_LIMIT when generating new cache files.
 
  * 0: Disable DynaCache.
  * 1: Enable DynaCache.
@@ -808,6 +808,14 @@ Enable/disable the Dynamic Recompiler Cache (a.k.a DynaCache). This option defau
 Set the folder for DynaCache files. Default is $XDG_CACHE_HOME/box64 or $HOME/.cache/box64 if $XDG_CACHE_HOME is not set.
 
  * XXXX: Use folder XXXX for DynaCache files.
+
+### BOX64_DYNACACHE_LIMIT
+
+Maximum size, in MiB, for the DynaCache folder. When the limit is exceeded, invalid DynaCache files are removed first, then the oldest valid files are removed if needed. Default size is 2048MiB.
+
+ * 0: Do not limit the DynaCache folder size.
+ * XXXX: Keep the DynaCache folder below XXXX MiB by removing invalid cache files first, then the oldest valid cache files.
+ * 2048: A size of 2048 MiB is the default value. [Default]
 
 ### BOX64_DYNACACHE_MIN
 

@@ -153,6 +153,7 @@ extern char* ftrace_name;
     BOOLEAN(BOX64_NOVULKANOVERLAY, novulkanoverlay, 0, 0)                     \
     INTEGER(BOX64_DYNACACHE, dynacache, 2, 0, 2, 0)                           \
     STRING(BOX64_DYNACACHE_FOLDER, dynacache_folder, 0)                       \
+    INTEGER(BOX64_DYNACACHE_LIMIT, dynacache_limit, 2048, 0, 1048576, 0)      \
     INTEGER(BOX64_DYNACACHE_MIN, dynacache_min, 350, 0, 10240, 0)
 
 #if defined(ARM64)

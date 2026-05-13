@@ -393,9 +393,19 @@ if(BOX32)
     )
 endif()
 
-# git_head.h is a generated file
+set(DYNACACHE_HASH_HEADER "${BOX64_ROOT}/src/dynacache_hashes.h")
+add_custom_target(generate_dynacache_hashes
+    COMMAND "${PYTHON_EXECUTABLE}" "${BOX64_ROOT}/tools/gen_dynacache_hashes.py"
+        --root "${BOX64_ROOT}"
+        --output "${DYNACACHE_HASH_HEADER}"
+    BYPRODUCTS "${DYNACACHE_HASH_HEADER}"
+    VERBATIM
+)
+
+# generated files
 set_source_files_properties(
     "${BOX64_ROOT}/src/git_head.h"
+    "${BOX64_ROOT}/src/dynacache_hashes.h"
     PROPERTIES GENERATED TRUE
     HEADER_FILE_ONLY TRUE)
 
@@ -1299,6 +1309,7 @@ add_library(interpreter OBJECT ${INTERPRETER})
 
 add_library(mainobj OBJECT ${OS_LINUX_SRC} ${ELFLOADER_SRC} ${WRAPPEDS} ${WRAPPEDS32})
 add_dependencies(mainobj generate_git_head_target)
+add_dependencies(mainobj generate_dynacache_hashes)
 
 add_executable(${BOX64})
 target_link_libraries(${BOX64} mainobj)
@@ -1366,9 +1377,10 @@ endif()
 
 if(NOT _x86 AND NOT _x86_64)
   file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+  file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/share/box64)
   configure_file(${CMAKE_SOURCE_DIR}/tests/box64-bash ${CMAKE_BINARY_DIR}/bin/box64-bash COPYONLY)
   configure_file(${CMAKE_SOURCE_DIR}/system/box64-python ${CMAKE_BINARY_DIR}/bin/box64-python COPYONLY)
-  configure_file(${CMAKE_SOURCE_DIR}/system/sitecustomize.py ${CMAKE_BINARY_DIR}/bin/sitecustomize.py COPYONLY)
+  configure_file(${CMAKE_SOURCE_DIR}/system/sitecustomize.py ${CMAKE_BINARY_DIR}/share/box64/sitecustomize.py COPYONLY)
   file(CHMOD ${CMAKE_BINARY_DIR}/bin/box64-python
       FILE_PERMISSIONS
       OWNER_READ OWNER_WRITE OWNER_EXECUTE
@@ -1379,14 +1391,14 @@ if(NOT _x86 AND NOT _x86_64)
     if(NOT NO_LIB_INSTALL)
      install(PROGRAMS ${CMAKE_SOURCE_DIR}/tests/box64-bash DESTINATION bin)
      install(PROGRAMS ${CMAKE_SOURCE_DIR}/system/box64-python DESTINATION bin)
-     install(FILES ${CMAKE_SOURCE_DIR}/system/sitecustomize.py DESTINATION bin)
+     install(FILES ${CMAKE_SOURCE_DIR}/system/sitecustomize.py DESTINATION share/box64)
     endif()
   else()
    install(TARGETS ${BOX64} RUNTIME DESTINATION ${TERMUX_PATH}/usr/bin)
     if(NOT NO_LIB_INSTALL)
      install(PROGRAMS ${CMAKE_SOURCE_DIR}/tests/box64-bash DESTINATION ${TERMUX_PATH}/usr/bin)
      install(PROGRAMS ${CMAKE_SOURCE_DIR}/system/box64-python DESTINATION ${TERMUX_PATH}/usr/bin)
-     install(FILES ${CMAKE_SOURCE_DIR}/system/sitecustomize.py DESTINATION ${TERMUX_PATH}/usr/bin)
+     install(FILES ${CMAKE_SOURCE_DIR}/system/sitecustomize.py DESTINATION ${TERMUX_PATH}/usr/share/box64)
     endif()
   endif()
   if (GDBJIT)

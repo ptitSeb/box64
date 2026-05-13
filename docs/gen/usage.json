@@ -972,7 +972,7 @@
   },
   {
     "name": "BOX64_DYNACACHE",
-    "description": "Enable/disable the Dynamic Recompiler Cache (a.k.a DynaCache). This option defaults to 2 (to read cache if present but not generate any). DynaCache writes files to the home folder by default, and can grow without limit.",
+    "description": "Enable/disable the Dynamic Recompiler Cache (a.k.a DynaCache). This option defaults to 2 (to read cache if present but not generate any). DynaCache writes files to the home folder by default, and keeps its folder below BOX64_DYNACACHE_LIMIT when generating new cache files.",
     "category": "Fragile or Legacy",
     "wine": false,
     "options": [
@@ -1003,6 +1003,29 @@
         "key": "XXXX",
         "description": "Use folder XXXX for DynaCache files.",
         "default": false
+      }
+    ]
+  },
+  {
+    "name": "BOX64_DYNACACHE_LIMIT",
+    "description": "Maximum size, in MiB, for the DynaCache folder. When the limit is exceeded, invalid DynaCache files are removed first, then the oldest valid files are removed if needed. Default size is 2048MiB.",
+    "category": "Fragile or Legacy",
+    "wine": false,
+    "options": [
+      {
+        "key": "0",
+        "description": "Do not limit the DynaCache folder size.",
+        "default": false
+      },
+      {
+        "key": "XXXX",
+        "description": "Keep the DynaCache folder below XXXX MiB by removing invalid cache files first, then the oldest valid cache files.",
+        "default": false
+      },
+      {
+        "key": "2048",
+        "description": "A size of 2048 MiB is the default value.",
+        "default": true
       }
     ]
   },

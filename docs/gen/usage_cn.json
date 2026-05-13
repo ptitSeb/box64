@@ -354,7 +354,7 @@
     }
   },
   "BOX64_DYNACACHE": {
-    "description": "启用或禁用动态重编译器缓存（DynaCache）。此选项默认为 2（读取已有缓存但不生成新的）。DynaCache 默认将文件写入 home 文件夹，且可能无限增长。",
+    "description": "启用或禁用动态重编译器缓存（DynaCache）。此选项默认为 2（读取已有缓存但不生成新的）。DynaCache 默认将文件写入 home 文件夹，生成新缓存文件时会根据 BOX64_DYNACACHE_LIMIT 控制文件夹大小。",
     "options": {
       "0": "禁用 DynaCache。",
       "1": "启用 DynaCache。",
@@ -365,6 +365,14 @@
     "description": "设置 DynaCache 文件的文件夹。默认为 $XDG_CACHE_HOME/box64，如果 $XDG_CACHE_HOME 未设置则为 $HOME/.cache/box64。",
     "options": {
       "XXXX": "使用文件夹 XXXX 存储 DynaCache 文件。"
+    }
+  },
+  "BOX64_DYNACACHE_LIMIT": {
+    "description": "DynaCache 文件夹的最大大小（MiB）。超过限制时，会先删除无效的 DynaCache 文件，如仍超限再删除最旧的有效文件。默认大小为 2048MiB。",
+    "options": {
+      "0": "不限制 DynaCache 文件夹大小。",
+      "XXXX": "先删除无效缓存文件，如仍超限再删除最旧的有效缓存文件，将 DynaCache 文件夹保持在 XXXX MiB 以下。",
+      "2048": "默认值为 2048 MiB。"
     }
   },
   "BOX64_DYNACACHE_MIN": {
