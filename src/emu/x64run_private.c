@@ -30,7 +30,7 @@
 #define from_ptrv(A) ((void*)(uintptr_t)(A))
 #endif
 
-const uint8_t x64_prefix_kind[256] = {
+const uint8_t x64_prefix_kind_table[256] = {
     [0x26] = X64_PREFIX_SEG0,
     [0x2e] = X64_PREFIX_SEG0,
     [0x36] = X64_PREFIX_SEG0,
