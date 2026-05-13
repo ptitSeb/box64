@@ -3,11 +3,12 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+PYTHON_SITE_DIR="$(CDPATH= cd -- "$SCRIPT_DIR/../share/box64" && pwd)"
 
 if [[ -n "${PYTHONPATH:-}" ]]; then
-    export PYTHONPATH="$SCRIPT_DIR:$PYTHONPATH"
+    export PYTHONPATH="$PYTHON_SITE_DIR:$PYTHONPATH"
 else
-    export PYTHONPATH="$SCRIPT_DIR"
+    export PYTHONPATH="$PYTHON_SITE_DIR"
 fi
 
 exec python3 "$@"
