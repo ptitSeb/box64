@@ -108,7 +108,7 @@ x64emurun:
         rex.is67 = 0;
         rex.isf0 = 0;
         rex.rep = 0;
-        uint8_t prefix = x64_prefix_kind[opcode];
+        uint8_t prefix = x64_prefix_kind_table[opcode];
         while(prefix && (prefix!=X64_PREFIX_REX || !is32bits)) {
             switch (prefix) {
                 case X64_PREFIX_LOCK: rex.isf0 = 1; rex.rex = 0; break;
@@ -122,7 +122,7 @@ x64emurun:
                 case X64_PREFIX_REX: rex.rex = opcode; break;
             }
             opcode = F8;
-            prefix = x64_prefix_kind[opcode];
+            prefix = x64_prefix_kind_table[opcode];
         }
 
         if(rex.seg)
