@@ -21,6 +21,7 @@
 #include "rbtree.h"
 #include "wine_tools.h"
 #include "pe_tools.h"
+#include "dynacache_hashes.h"
 
 box64env_t box64env = { 0 };
 
@@ -916,31 +917,17 @@ done:
 }
 
 /*
-    There is 3 version to change when evoling things, depending on what is changed:
-    1. FILE_VERSION for the DynaCache infrastructure
-    2. DYNAREC_VERSION for dynablock_t changes and other global dynarec change
-    3. ARCH_VERSION for the architecture specific changes (and there is one per arch)
+    There are 3 compatibility values for DynaCache:
+    1. FILE_VERSION for the DynaCache infrastructure and file format
+    2. DYNAREC_VERSION as the generated hash of common dynarec sources
+    3. ARCH_VERSION as the generated hash of the active backend sources
 
-    An ARCH_VERSION of 0 means Unsupported and disable DynaCache.
     Dynacache will ignore any DynaCache file not exactly matching those 3 version.
     `box64 --dynacache-clean` can be used from command line to purge obsolete DyaCache files
 */
 
-#define FILE_VERSION               2
-#define HEADER_SIGN "DynaCache"
-#define SET_VERSION(MAJ, MIN, REV) (((MAJ)<<24)|((MIN)<<16)|(REV))
-#ifdef ARM64
-#define ARCH_VERSION SET_VERSION(0, 0, 14)
-#elif defined(RV64)
-#define ARCH_VERSION SET_VERSION(0, 0, 5)
-#elif defined(LA64)
-#define ARCH_VERSION SET_VERSION(0, 0, 8)
-#elif defined(PPC64LE)
-#define ARCH_VERSION SET_VERSION(0, 0, 1)
-#else
-#error meh!
-#endif
-#define DYNAREC_VERSION SET_VERSION(0, 1, 1)
+#define FILE_VERSION 2
+#define HEADER_SIGN  "DynaCache"
 
 typedef struct DynaCacheHeader_s {
     char sign[10];  //"DynaCache\0"

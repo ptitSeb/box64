@@ -119,6 +119,16 @@ include_directories(
     "${BOX64_ROOT}/external/musl/internal"
 )
 
+set(DYNACACHE_HASH_HEADER "${BOX64_ROOT}/src/dynacache_hashes.h")
+add_custom_target(generate_dynacache_hashes
+    COMMAND "${PYTHON_EXECUTABLE}" "${BOX64_ROOT}/tools/gen_dynacache_hashes.py"
+        --root "${BOX64_ROOT}"
+        --output "${DYNACACHE_HASH_HEADER}"
+    BYPRODUCTS "${DYNACACHE_HASH_HEADER}"
+    VERBATIM
+)
+add_dependencies(wowbox64 generate_dynacache_hashes)
+
 set(DLLTOOL aarch64-w64-mingw32-dlltool)
 
 function(import_dll name)

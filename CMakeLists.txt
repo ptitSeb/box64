@@ -393,9 +393,19 @@ if(BOX32)
     )
 endif()
 
-# git_head.h is a generated file
+set(DYNACACHE_HASH_HEADER "${BOX64_ROOT}/src/dynacache_hashes.h")
+add_custom_target(generate_dynacache_hashes
+    COMMAND "${PYTHON_EXECUTABLE}" "${BOX64_ROOT}/tools/gen_dynacache_hashes.py"
+        --root "${BOX64_ROOT}"
+        --output "${DYNACACHE_HASH_HEADER}"
+    BYPRODUCTS "${DYNACACHE_HASH_HEADER}"
+    VERBATIM
+)
+
+# generated files
 set_source_files_properties(
     "${BOX64_ROOT}/src/git_head.h"
+    "${BOX64_ROOT}/src/dynacache_hashes.h"
     PROPERTIES GENERATED TRUE
     HEADER_FILE_ONLY TRUE)
 
@@ -1299,6 +1309,7 @@ add_library(interpreter OBJECT ${INTERPRETER})
 
 add_library(mainobj OBJECT ${OS_LINUX_SRC} ${ELFLOADER_SRC} ${WRAPPEDS} ${WRAPPEDS32})
 add_dependencies(mainobj generate_git_head_target)
+add_dependencies(mainobj generate_dynacache_hashes)
 
 add_executable(${BOX64})
 target_link_libraries(${BOX64} mainobj)
