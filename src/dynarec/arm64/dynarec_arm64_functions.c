@@ -98,22 +98,23 @@ int fpu_get_reg_x87(dynarec_arm_t* dyn, int ninst, int t, int n)
 void fpu_free_reg(dynarec_arm_t* dyn, int reg)
 {
     // TODO: check upper limit?
+    int t = dyn->n.neoncache[reg].t;
+    int n = dyn->n.neoncache[reg].n;
     dyn->n.fpuused[reg] = 0;
-    if(dyn->n.neoncache[reg].t==NEON_CACHE_YMMR || dyn->n.neoncache[reg].t==NEON_CACHE_YMMW) {
-        dyn->n.ymm_removed |= 1<<dyn->n.neoncache[reg].n;
-        if(dyn->n.neoncache[reg].t==NEON_CACHE_YMMW)
-            dyn->n.ymm_write |= 1<<dyn->n.neoncache[reg].n;
+    if(t==NEON_CACHE_XMMR || t==NEON_CACHE_XMMW) {
+        dyn->n.xmm_removed |= 1<<n;
+        if(t==NEON_CACHE_XMMW)
+            dyn->n.xmm_write |= 1<<n;
+    } else if(t==NEON_CACHE_YMMR || t==NEON_CACHE_YMMW) {
+        dyn->n.ymm_removed |= 1<<n;
+        if(t==NEON_CACHE_YMMW)
+            dyn->n.ymm_write |= 1<<n;
         if(reg>SCRATCH0)
-            dyn->n.ymm_regs |= (8LL+reg-SCRATCH0)<<(dyn->n.neoncache[reg].n*4);
+            dyn->n.ymm_regs |= (8LL+reg-SCRATCH0)<<(n*4);
         else
-            dyn->n.ymm_regs |= ((uint64_t)(reg-EMM0))<<(dyn->n.neoncache[reg].n*4);
+            dyn->n.ymm_regs |= ((uint64_t)(reg-EMM0))<<(n*4);
     }
-    if(dyn->n.neoncache[reg].t==NEON_CACHE_XMMR || dyn->n.neoncache[reg].t==NEON_CACHE_XMMW) {
-        dyn->n.xmm_removed |= 1<<dyn->n.neoncache[reg].n;
-        if(dyn->n.neoncache[reg].t==NEON_CACHE_XMMW)
-            dyn->n.xmm_write |= 1<<dyn->n.neoncache[reg].n;
-    }
-    if(dyn->n.neoncache[reg].t!=NEON_CACHE_ST_F && dyn->n.neoncache[reg].t!=NEON_CACHE_ST_D && dyn->n.neoncache[reg].t!=NEON_CACHE_ST_I64)
+    if(t!=NEON_CACHE_ST_F && t!=NEON_CACHE_ST_D && t!=NEON_CACHE_ST_I64)
         dyn->n.neoncache[reg].v = 0;
     if(dyn->n.fpu_scratch && reg==SCRATCH0+dyn->n.fpu_scratch-1)
         --dyn->n.fpu_scratch;
@@ -941,20 +942,21 @@ static void mmx_reset(neoncache_t* n)
         n->mmxcache[i] = -1;
 }
 
-static void sse_reset(neoncache_t* n)
+static void sse_reset(neoncache_t* n, int use_ymm)
 {
     for (int i=0; i<16; ++i)
         n->ssecache[i].v = -1;
-    for (int i=0; i<32; ++i)
-        if(n->neoncache[i].t==NEON_CACHE_YMMR || n->neoncache[i].t==NEON_CACHE_YMMW)
-            n->neoncache[i].v = 0;
+    if(use_ymm)
+        for (int i=0; i<32; ++i)
+            if(n->neoncache[i].t==NEON_CACHE_YMMR || n->neoncache[i].t==NEON_CACHE_YMMW)
+                n->neoncache[i].v = 0;
 }
 
 void fpu_reset(dynarec_native_t* dyn)
 {
     x87_reset(&dyn->n);
     mmx_reset(&dyn->n);
-    sse_reset(&dyn->n);
+    sse_reset(&dyn->n, dyn->use_ymm);
     fpu_reset_reg(dyn);
     dyn->ymm_zero = 0;
 }
@@ -963,7 +965,7 @@ void fpu_reset_ninst(dynarec_native_t* dyn, int ninst)
 {
     x87_reset(&dyn->insts[ninst].n);
     mmx_reset(&dyn->insts[ninst].n);
-    sse_reset(&dyn->insts[ninst].n);
+    sse_reset(&dyn->insts[ninst].n, dyn->use_ymm);
     fpu_reset_reg_neoncache(&dyn->insts[ninst].n);
 
 }
