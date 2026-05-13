@@ -108,26 +108,21 @@ x64emurun:
         rex.is67 = 0;
         rex.isf0 = 0;
         rex.rep = 0;
-        while((opcode==0xF2) || (opcode==0xF3) || (opcode==0xF0)
-            || (opcode==0x3E) || (opcode==0x26) || (opcode==0x2e) || (opcode==0x36) 
-            || (opcode==0x64) || (opcode==0x65) || (opcode==0x66) || (opcode==0x67)
-            || (!is32bits && (opcode>=0x40 && opcode<=0x4f))) {
-            switch (opcode) {
-                case 0xF0: rex.isf0 = 1; rex.rex = 0; break;
-                case 0xF2: rex.rep = 1; rex.rex = 0; break;
-                case 0xF3: rex.rep = 2; rex.rex = 0; break;
-                case 0x26: /* ES: */
-                case 0x2E: /* CS: */
-                case 0x36: /* SS; */
-                case 0x3E: /* DS; */ 
-                           rex.seg =   0; rex.rex = 0; break;
-                case 0x64: rex.seg = _FS; rex.rex = 0; break;
-                case 0x65: rex.seg = _GS; rex.rex = 0; break;
-                case 0x66: rex.is66 = 1; rex.rex = 0; break;
-                case 0x67: rex.is67 = 1; rex.rex = 0; break;
-                case 0x40 ... 0x4F: rex.rex = opcode; break;
+        uint8_t prefix = x64_prefix_kind[opcode];
+        while(prefix && (prefix!=X64_PREFIX_REX || !is32bits)) {
+            switch (prefix) {
+                case X64_PREFIX_LOCK: rex.isf0 = 1; rex.rex = 0; break;
+                case X64_PREFIX_REP_F2: rex.rep = 1; rex.rex = 0; break;
+                case X64_PREFIX_REP_F3: rex.rep = 2; rex.rex = 0; break;
+                case X64_PREFIX_SEG0: rex.seg = 0; rex.rex = 0; break;
+                case X64_PREFIX_FS: rex.seg = _FS; rex.rex = 0; break;
+                case X64_PREFIX_GS: rex.seg = _GS; rex.rex = 0; break;
+                case X64_PREFIX_66: rex.is66 = 1; rex.rex = 0; break;
+                case X64_PREFIX_67: rex.is67 = 1; rex.rex = 0; break;
+                case X64_PREFIX_REX: rex.rex = opcode; break;
             }
             opcode = F8;
+            prefix = x64_prefix_kind[opcode];
         }
 
         if(rex.seg)
