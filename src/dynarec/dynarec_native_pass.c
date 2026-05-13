@@ -54,6 +54,46 @@ static int dynarec_can_read_window(uintptr_t addr, uintptr_t size)
 }
 #endif
 
+#define X64_PREFIX_LOCK     1
+#define X64_PREFIX_REP_F2   2
+#define X64_PREFIX_REP_F3   3
+#define X64_PREFIX_SEG0     4
+#define X64_PREFIX_FS       5
+#define X64_PREFIX_GS       6
+#define X64_PREFIX_66       7
+#define X64_PREFIX_67       8
+#define X64_PREFIX_REX      9
+
+static const uint8_t x64_prefix_kind[256] = {
+    [0x26] = X64_PREFIX_SEG0,
+    [0x2e] = X64_PREFIX_SEG0,
+    [0x36] = X64_PREFIX_SEG0,
+    [0x3e] = X64_PREFIX_SEG0,
+    [0x40] = X64_PREFIX_REX,
+    [0x41] = X64_PREFIX_REX,
+    [0x42] = X64_PREFIX_REX,
+    [0x43] = X64_PREFIX_REX,
+    [0x44] = X64_PREFIX_REX,
+    [0x45] = X64_PREFIX_REX,
+    [0x46] = X64_PREFIX_REX,
+    [0x47] = X64_PREFIX_REX,
+    [0x48] = X64_PREFIX_REX,
+    [0x49] = X64_PREFIX_REX,
+    [0x4a] = X64_PREFIX_REX,
+    [0x4b] = X64_PREFIX_REX,
+    [0x4c] = X64_PREFIX_REX,
+    [0x4d] = X64_PREFIX_REX,
+    [0x4e] = X64_PREFIX_REX,
+    [0x4f] = X64_PREFIX_REX,
+    [0x64] = X64_PREFIX_FS,
+    [0x65] = X64_PREFIX_GS,
+    [0x66] = X64_PREFIX_66,
+    [0x67] = X64_PREFIX_67,
+    [0xf0] = X64_PREFIX_LOCK,
+    [0xf2] = X64_PREFIX_REP_F2,
+    [0xf3] = X64_PREFIX_REP_F3,
+};
+
 uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int is32bits, int inst_max)
 {
     int ok = 1;
@@ -235,27 +275,22 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         rex.is67 = 0;
         rex.isf0 = 0;
         rex.rep = 0;
-        while((pk==0xF2) || (pk==0xF3) || (pk==0xf0)
-            || (pk==0x3E) || (pk==0x26) || (pk==0x2e) || (pk==0x36) 
-            || (pk==0x64) || (pk==0x65) || (pk==0x66) || (pk==0x67)
-            || (!is32bits && (pk>=0x40 && pk<=0x4f))) {
-            switch (pk) {
-                case 0xF0: rex.isf0 = 1; rex.rex = 0; break;
-                case 0xF2: rex.rep = 1; rex.rex = 0; break;
-                case 0xF3: rex.rep = 2; rex.rex = 0; break;
-                case 0x26: /* ES: */
-                case 0x2E: /* CS: */
-                case 0x36: /* SS; */
-                case 0x3E: /* DS; */ 
-                           rex.seg =   0; rex.rex = 0; break;
-                case 0x64: rex.seg = _FS; rex.rex = 0; break;
-                case 0x65: rex.seg = _GS; rex.rex = 0; break;
-                case 0x66: rex.is66 = 1; rex.rex = 0; break;
-                case 0x67: rex.is67 = 1; rex.rex = 0; break;
-                case 0x40 ... 0x4F: rex.rex = pk; break;
+        uint8_t prefix = x64_prefix_kind[pk];
+        while(prefix && (prefix!=X64_PREFIX_REX || !is32bits)) {
+            switch (prefix) {
+                case X64_PREFIX_LOCK: rex.isf0 = 1; rex.rex = 0; break;
+                case X64_PREFIX_REP_F2: rex.rep = 1; rex.rex = 0; break;
+                case X64_PREFIX_REP_F3: rex.rep = 2; rex.rex = 0; break;
+                case X64_PREFIX_SEG0: rex.seg = 0; rex.rex = 0; break;
+                case X64_PREFIX_FS: rex.seg = _FS; rex.rex = 0; break;
+                case X64_PREFIX_GS: rex.seg = _GS; rex.rex = 0; break;
+                case X64_PREFIX_66: rex.is66 = 1; rex.rex = 0; break;
+                case X64_PREFIX_67: rex.is67 = 1; rex.rex = 0; break;
+                case X64_PREFIX_REX: rex.rex = pk; break;
             }
             ++addr;
             pk = PK(0);
+            prefix = x64_prefix_kind[pk];
         }
         if(rex.isf0) {
             if(rex.is66 && !rex.w)
