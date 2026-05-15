@@ -471,6 +471,7 @@ set(ELFLOADER_SRC
     "${BOX64_ROOT}/src/tools/pathcoll.c"
     "${BOX64_ROOT}/src/tools/rbtree.c"
     "${BOX64_ROOT}/src/tools/env.c"
+    "${BOX64_ROOT}/src/tools/dynacache.c"
     "${BOX64_ROOT}/src/tools/wine_tools.c"
     "${BOX64_ROOT}/src/tools/pe_tools.c"
     "${BOX64_ROOT}/src/wrapped/generated/wrapper.c"

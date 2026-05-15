@@ -46,6 +46,7 @@
 #include "library.h"
 #include "core.h"
 #include "env.h"
+#include "dynacache.h"
 #include "cleanup.h"
 #include "freq.h"
 #include "hostext.h"

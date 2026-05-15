@@ -375,6 +375,14 @@
       "2048": "默认值为 2048 MiB。"
     }
   },
+  "BOX64_DYNACACHE_COMPRESS": {
+    "description": "设置是否压缩磁盘上的 DynaCache 文件。",
+    "options": {
+      "0": "不压缩 DynaCache 文件。",
+      "1": "使用 Zlib 默认压缩级别压缩 DynaCache 文件。",
+      "2": "使用 Zlib 最高压缩级别压缩 DynaCache 文件。"
+    }
+  },
   "BOX64_DYNACACHE_MIN": {
     "description": "DynaCache 写入磁盘的最小大小（KB）。默认大小为 350KB。",
     "options": {

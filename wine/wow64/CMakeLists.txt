@@ -100,6 +100,7 @@ set(WOW64_BOX64CPU_SRC
     "${BOX64_ROOT}/src/tools/alternate.c"
     "${BOX64_ROOT}/src/tools/bitutils.c"
     "${BOX64_ROOT}/src/tools/env.c"
+    "${BOX64_ROOT}/src/tools/dynacache.c"
     "${BOX64_ROOT}/src/tools/rbtree.c"
 )
 

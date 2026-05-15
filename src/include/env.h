@@ -225,24 +225,6 @@ typedef struct box64env_s {
 } box64env_t;
 
 typedef struct mmaplist_s mmaplist_t;
-#ifdef DYNAREC
-typedef struct blocklist_s blocklist_t;
-
-typedef struct DynaCacheBlock_s {
-    blocklist_t*    block;
-    size_t          size;
-    size_t          free_size;
-} DynaCacheBlock_t;
-
-#define COMP_NONE   0
-#define COMP_Z      1
-#define COMP_Z_MAX  2
-typedef struct CompressedDynaCacheBlock_s {
-    DynaCacheBlock_t block;
-    size_t      compsize;
-    uint8_t     type;
-} CompressedDynaCacheBlock_t;
-#endif
 
 void InitializeEnvFiles();
 int ApplyEnvFileEntry(const char* name);
@@ -260,8 +242,6 @@ size_t SizeFileMapped(uintptr_t addr);
 mmaplist_t* GetMmaplistByAddr(uintptr_t addr);
 int IsAddrNeedReloc(uintptr_t addr);
 void SerializeAllMapping();
-void DynaCacheList(const char* name);
-void DynaCacheClean();
 int IsAddrMappingLoadAndClean(uintptr_t addr);
 
 #endif // __ENV_H
