@@ -1128,6 +1128,12 @@ GO(vkCmdEndRendering2KHR, vFpp)
 // VK_EXT_fragment_density_map_offset
 GO(vkCmdEndRendering2EXT, vFpp)
 
+// VK_ARM_data_graph_instruction_set_tosa
+GO(vkGetPhysicalDeviceQueueFamilyDataGraphEngineOperationPropertiesARM, iFpupp)
+
+// VK_ARM_data_graph_optical_flow
+GO(vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM, iFpupppp)
+
 // Layer stuffs
 GO(vk_icdNegotiateLoaderICDInterfaceVersion, iFp)
 //GO(vkNegotiateLoaderLayerInterfaceVersion, iFp)

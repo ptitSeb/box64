@@ -276,6 +276,7 @@ void freeVulkanOverlay(my_vulkanoverlay_t* v)
 #define GO_iFpuUpU(A, B, N)    static int my_##A##_##N(void* a, uint32_t b, uint64_t c, void* d, uint64_t e) {return (int)F5(A, #B +2, N);}
 #define GO_iFpupuU(A, B, N)    static int my_##A##_##N(void* a, uint32_t b, void* c, uint32_t d, uint64_t e) {return (int)F5(A, #B +2, N);}
 #define GO_iFpUiipp(A, B, N)   static int my_##A##_##N(void* a, uint64_t b, int c, int d, void* e, void* f) {return (int)F6(A, #B +2, N);}
+#define GO_iFpupppp(A, B, N)   static int my_##A##_##N(void* a, uint32_t b, void* c, void* d, void* e, void* f) {return (int)F6(A, #B +2, N);}
 #define GO_iFppUppp(A, B, N)   static int my_##A##_##N(void* a, void* b, uint64_t c, void* d, void* e, void* f) {return (int)F6(A, #B +2, N);}
 #define GO_iFppuupp(A, B, N)   static int my_##A##_##N(void* a, void* b, uint32_t c, uint32_t d, void* e, void* f) {return (int)F6(A, #B +2, N);}
 #define GO_iFppuuLp(A, B, N)   static int my_##A##_##N(void* a, void* b, uint32_t c, uint32_t d, size_t e, void* f) {return (int)F6(A, #B +2, N);}
