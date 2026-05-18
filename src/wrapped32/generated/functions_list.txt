@@ -411,6 +411,7 @@
 #() uFpbL_ -> uFpB
 #() fEpBp_ -> fEpB
 #() dEpBp_ -> dEpB
+#() dFpbp_ -> dFpB
 #() lFpbp_ -> lFpB
 #() LFpbp_ -> LFpB
 #() LFpbL_ -> LFpB
@@ -433,6 +434,7 @@
 #() uFpbpu_ -> uFpB
 #() pFnbpi_ -> pFnB
 #() vFpbupi_ -> vFpB
+#() vFbp_bp_ -> vFBB
 #() iEpBlii_ -> iEpB
 #() iESBliu_ -> iESB
 #() iFbppi_i -> iFBi
@@ -758,7 +760,9 @@
 #() pFupi -> pFupi
 #() pFupL -> pFupL
 #() pFupp -> pFupp
+#() pFUpi -> pFUpi
 #() pFddd -> pFddd
+#() pFlpi -> pFlpi
 #() pFLpi -> pFLpi
 #() pFpcU -> pFpcU
 #() pEpii -> pEpii
@@ -840,6 +844,7 @@
 #() iFXbp_p -> iFXBp
 #() iFXbL_p -> iFXBp
 #() IEpBp_i -> IEpBi
+#() IFpbp_i -> IFpBi
 #() uFupbp_ -> uFupB
 #() uFpubp_ -> uFpuB
 #() uFpubL_ -> uFpuB
@@ -847,13 +852,16 @@
 #() uFppbL_ -> uFppB
 #() uFpbp_p -> uFpBp
 #() UEpBp_i -> UEpBi
+#() UFpbp_i -> UFpBi
 #() fEpBp_p -> fEpBp
 #() fEpBp_a -> fEpBa
 #() dEpBp_i -> dEpBi
 #() dEpBp_a -> dEpBa
 #() lEpBp_i -> lEpBi
+#() lFpbp_i -> lFpBi
 #() lFpbp_L -> lFpBL
 #() LEpBp_i -> LEpBi
+#() LFpbp_i -> LFpBi
 #() pFuXbl_ -> pFuXB
 #() pFpibp_ -> pFpiB
 #() pFpubl_ -> pFpuB
@@ -1515,6 +1523,7 @@
 #() iEipppp -> iEipppp
 #() iFuiuup -> iFuiuup
 #() iFuupid -> iFuupid
+#() iFpiiii -> iFpiiii
 #() iFpiiuu -> iFpiiuu
 #() iFpiipp -> iFpiipp
 #() iFpippL -> iFpippL
@@ -1665,6 +1674,7 @@
 #() iFpbpu_bpu_bp_u -> iFpBBBu
 #() iFXLiuriiiiiLi_ -> iFXLiuB
 #() LELbp_bL_bp_bL_ -> LELBBBB
+#() LFpbp_bL_bp_bL_ -> LFpBBBB
 #() iFpubpu_bpu_bpu_ -> iFpuBBB
 #() iFppbpu_bpu_bpu_ -> iFppBBB
 #() uFEpbppuuuuup_ip -> uFEpBip
@@ -3639,9 +3649,9 @@ wrappedsdl1:
   - SDL_LockSurface
   - SDL_PollEvent
   - SDL_PushEvent
-  - SDL_RemoveTimer
 - uFp:
   - SDL_ReadLE32
+  - SDL_RemoveTimer
 - pFv:
   - SDL_GetVideoInfo
   - SDL_GetVideoSurface

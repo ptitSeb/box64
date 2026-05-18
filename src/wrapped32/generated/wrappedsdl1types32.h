@@ -52,8 +52,8 @@ typedef void* (*pFpiiiiuuuu_t)(void*, int32_t, int32_t, int32_t, int32_t, uint32
 	GO(SDL_LockSurface, iFp_t) \
 	GO(SDL_PollEvent, iFp_t) \
 	GO(SDL_PushEvent, iFp_t) \
-	GO(SDL_RemoveTimer, iFp_t) \
 	GO(SDL_ReadLE32, uFp_t) \
+	GO(SDL_RemoveTimer, uFp_t) \
 	GO(SDL_GetVideoInfo, pFv_t) \
 	GO(SDL_GetVideoSurface, pFv_t) \
 	GO(SDL_GL_GetProcAddress, pFp_t) \
