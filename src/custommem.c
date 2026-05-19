@@ -1484,6 +1484,11 @@ int MmaplistAddBlock_internal(mmaplist_t* list, void* map, void* orig, size_t si
                 db_ref = (bl->jmpnext-sizeof(void*)+3*sizeof(void*));
                 *db_ref = native_next;
             }
+            if(bl->gone || !bl->done) {
+                dynarec_log(LOG_DEBUG, "Skipping stale DynCache block %p for %p (done=%d, gone=%d)\n", bl, bl->x64_addr, bl->done, bl->gone);
+                p = NEXT_BLOCK((blockmark_t*)p);
+                continue;
+            }
             // adjust guest source addresses with delta_map
             bl->x64_addr += delta_map;
             bl->x64_readaddr += delta_map;
