@@ -166,7 +166,7 @@ x64emurun:
                 goto fini;
             }
             #endif
-        } else if(rex.is66) {
+        } else if(rex.is66 && (!rex.w || opcode==0x0F)) {
             /* 16bits prefix */
             #ifdef TEST_INTERPRETER
             if(!(addr = Test66(test, rex, addr-1, &step)))
