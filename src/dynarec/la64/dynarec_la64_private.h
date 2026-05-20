@@ -200,6 +200,10 @@ int Table64(dynarec_la64_t *dyn, uint64_t val, int pass);  // add a value to tab
 
 void CreateJmpNext(void* addr, void* next);
 
+// TODO: Save and restore the temp register.
+#define SAVE_ACTIVE_SCRATCH_REGISTERS do{} while(0);
+#define LOAD_ACTIVE_SCRATCH_REGISTERS do{} while(0);
+
 #define GO_TRACE(A, B, s0)         \
     GETIP(addr, s0);               \
     MV(x1, xRIP);                  \
