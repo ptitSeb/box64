@@ -21,6 +21,7 @@
 #include "dynarec_la64_private.h"
 #include "dynarec_la64_functions.h"
 #include "../dynarec_helper.h"
+#include "dynarec_la64_aes.h"
 #include "emu/x64compstrings.h"
 
 uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog)
@@ -837,9 +838,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     if (q0 != q1) {
                         VOR_V(q0, q1, q1);
                     }
-                    sse_forget_reg(dyn, ninst, gd);
-                    MOV32w(x1, gd);
-                    CALL(const_native_aesimc, -1, x1, 0);
+                    la64_aesimc_lsx(dyn, ninst, q0);
                     break;
                 case 0xDC:
                     INST_NAME("AESENC Gx, Ex"); // AES-NI
@@ -851,10 +850,8 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         VOR_V(d0, q1, q1);
                     } else
                         d0 = -1;
-                    sse_forget_reg(dyn, ninst, gd);
-                    MOV32w(x1, gd);
-                    CALL(const_native_aese, -1, x1, 0);
                     GETGX(q0, 1);
+                    la64_aese_lsx(dyn, ninst, q0);
                     VXOR_V(q0, q0, (d0 != -1) ? d0 : q1);
                     break;
                 case 0xDD:
@@ -867,10 +864,8 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         VOR_V(d0, q1, q1);
                     } else
                         d0 = -1;
-                    sse_forget_reg(dyn, ninst, gd);
-                    MOV32w(x1, gd);
-                    CALL(const_native_aeselast, -1, x1, 0);
                     GETGX(q0, 1);
+                    la64_aeselast_lsx(dyn, ninst, q0);
                     VXOR_V(q0, q0, (d0 != -1) ? d0 : q1);
                     break;
                 case 0xDE:
@@ -883,10 +878,8 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         VOR_V(d0, q1, q1);
                     } else
                         d0 = -1;
-                    sse_forget_reg(dyn, ninst, gd);
-                    MOV32w(x1, gd);
-                    CALL(const_native_aesd, -1, x1, 0);
                     GETGX(q0, 1);
+                    la64_aesd_lsx(dyn, ninst, q0);
                     VXOR_V(q0, q0, (d0 != -1) ? d0 : q1);
                     break;
                 case 0xDF:
@@ -899,10 +892,8 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         VOR_V(d0, q1, q1);
                     } else
                         d0 = -1;
-                    sse_forget_reg(dyn, ninst, gd);
-                    MOV32w(x1, gd);
-                    CALL(const_native_aesdlast, -1, x1, 0);
                     GETGX(q0, 1);
+                    la64_aesdlast_lsx(dyn, ninst, q0);
                     VXOR_V(q0, q0, (d0 != -1) ? d0 : q1);
                     break;
                 case 0xF0:
@@ -1420,23 +1411,12 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     INST_NAME("AESKEYGENASSIST Gx, Ex, Ib"); // AES-NI
                     nextop = F8;
                     GETG;
-                    sse_forget_reg(dyn, ninst, gd);
-                    MOV32w(x1, gd); // gx
-                    if (MODREG) {
-                        ed = (nextop & 7) + (rex.b << 3);
-                        sse_forget_reg(dyn, ninst, ed);
-                        MOV32w(x2, ed);
-                        MOV32w(x3, 0); // p = NULL
-                    } else {
-                        MOV32w(x2, 0);
-                        addr = geted(dyn, addr, ninst, nextop, &ed, x3, x2, &fixedaddress, rex, NULL, 0, 1);
-                        if (ed != x3) {
-                            MV(x3, ed);
-                        }
-                    }
+                    GETEX(q1, 0, 1);
+                    GETGX_empty(q0);
+                    if (q0 != q1)
+                        VOR_V(q0, q1, q1);
                     u8 = F8;
-                    MOV32w(x4, u8);
-                    CALL4(const_native_aeskeygenassist, -1, x1, x2, x3, x4);
+                    la64_aeskeygenassist_lsx(dyn, ninst, q0, u8);
                     break;
                 default:
                     DEFAULT;

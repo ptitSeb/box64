@@ -19,6 +19,7 @@
 #include "dynarec_la64_private.h"
 #include "dynarec_la64_functions.h"
 #include "../dynarec_helper.h"
+#include "dynarec_la64_aes.h"
 
 uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog)
 {
@@ -1304,10 +1305,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             if (q0 != q1) {
                 VOR_V(q0, q1, q1);
             }
-            avx_forget_reg(dyn, ninst, gd);
-            MOV32w(x1, gd);
-            CALL(const_native_aesimc, -1, x1, 0);
-            GETGYx(q0, 1); // reget writable for mark zeroup hi-128bits.
+            la64_aesimc_lsx(dyn, ninst, q0);
             break;
         case 0xDC:
             INST_NAME("VAESENC Gx, Vx, Ex");
@@ -1321,14 +1319,11 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             if (gd != vex.v) {
                 VOR_Vxy(q0, q1, q1);
             }
-            avx_forget_reg(dyn, ninst, gd);
-            MOV32w(x1, gd);
-            CALL(const_native_aese, -1, x1, 0);
             if (vex.l) {
-                MOV32w(x1, gd);
-                CALL(const_native_aese_y, -1, x1, 0);
+                la64_aese_lasx(dyn, ninst, q0);
+            } else {
+                la64_aese_lsx(dyn, ninst, q0);
             }
-            GETGYxy(q0, 1);
             VXOR_Vxy(q0, q0, (d0 != -1) ? d0 : q2);
             break;
         case 0xDD:
@@ -1343,14 +1338,11 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             if (gd != vex.v) {
                 VOR_Vxy(q0, q1, q1);
             }
-            avx_forget_reg(dyn, ninst, gd);
-            MOV32w(x1, gd);
-            CALL(const_native_aeselast, -1, x1, 0);
             if (vex.l) {
-                MOV32w(x1, gd);
-                CALL(const_native_aeselast_y, -1, x1, 0);
+                la64_aeselast_lasx(dyn, ninst, q0);
+            } else {
+                la64_aeselast_lsx(dyn, ninst, q0);
             }
-            GETGYxy(q0, 1);
             VXOR_Vxy(q0, q0, (d0 != -1) ? d0 : q2);
             break;
         case 0xDE:
@@ -1365,14 +1357,11 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             if (gd != vex.v) {
                 VOR_Vxy(q0, q1, q1);
             }
-            avx_forget_reg(dyn, ninst, gd);
-            MOV32w(x1, gd);
-            CALL(const_native_aesd, -1, x1, 0);
             if (vex.l) {
-                MOV32w(x1, gd);
-                CALL(const_native_aesd_y, -1, x1, 0);
+                la64_aesd_lasx(dyn, ninst, q0);
+            } else {
+                la64_aesd_lsx(dyn, ninst, q0);
             }
-            GETGYxy(q0, 1);
             VXOR_Vxy(q0, q0, (d0 != -1) ? d0 : q2);
             break;
         case 0xDF:
@@ -1387,14 +1376,11 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             if (gd != vex.v) {
                 VOR_Vxy(q0, q1, q1);
             }
-            avx_forget_reg(dyn, ninst, gd);
-            MOV32w(x1, gd);
-            CALL(const_native_aesdlast, -1, x1, 0);
             if (vex.l) {
-                MOV32w(x1, gd);
-                CALL(const_native_aesdlast_y, -1, x1, 0);
+                la64_aesdlast_lasx(dyn, ninst, q0);
+            } else {
+                la64_aesdlast_lsx(dyn, ninst, q0);
             }
-            GETGYxy(q0, 1);
             VXOR_Vxy(q0, q0, (d0 != -1) ? d0 : q2);
             break;
         case 0xF7:
