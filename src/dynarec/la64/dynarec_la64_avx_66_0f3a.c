@@ -19,6 +19,7 @@
 #include "dynarec_la64_private.h"
 #include "dynarec_la64_functions.h"
 #include "../dynarec_helper.h"
+#include "dynarec_la64_aes.h"
 
 uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog)
 {
@@ -789,27 +790,16 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             INST_NAME("VAESKEYGENASSIST Gx, Ex, Ib");
             nextop = F8;
             GETG;
-            avx_forget_reg(dyn, ninst, gd);
-            MOV32w(x1, gd); // gx
-            if (MODREG) {
-                ed = (nextop & 7) + (rex.b << 3);
-                avx_forget_reg(dyn, ninst, ed);
-                MOV32w(x2, ed);
-                MOV32w(x3, 0); // p = NULL
+            GETEYx(q1, 0, 1);
+            if (vex.l) {
+                GETGYy(q0, 1);
             } else {
-                MOV32w(x2, 0);
-                addr = geted(dyn, addr, ninst, nextop, &ed, x3, x2, &fixedaddress, rex, NULL, 0, 1);
-                if (ed != x3) {
-                    MV(x3, ed);
-                }
+                GETGYx_empty(q0);
             }
+            if (q0 != q1)
+                VOR_V(q0, q1, q1);
             u8 = F8;
-            MOV32w(x4, u8);
-            CALL4(const_native_aeskeygenassist, -1, x1, x2, x3, x4);
-            if (!vex.l) {
-                ST_D(xZR, xEmu, offsetof(x64emu_t, ymm[gd]));
-                ST_D(xZR, xEmu, offsetof(x64emu_t, ymm[gd]) + 8);
-            }
+            la64_aeskeygenassist_lsx(dyn, ninst, q0, u8);
             break;
 
         default:
