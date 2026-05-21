@@ -200,9 +200,33 @@ int Table64(dynarec_la64_t *dyn, uint64_t val, int pass);  // add a value to tab
 
 void CreateJmpNext(void* addr, void* next);
 
-// TODO: Save and restore the temp register.
-#define SAVE_ACTIVE_SCRATCH_REGISTERS do{} while(0);
-#define LOAD_ACTIVE_SCRATCH_REGISTERS do{} while(0);
+// While we could theoretically traverse forward to find the flags-consuming x86
+// instruction and get the exact scratch registers to save, this is too complicated.
+// So we went with the simpler approach of saving all scratch registers, this won't
+// add noticeable performance overhead in trace mode.
+#define SPILL_NF_REGISTERS         \
+    do {                           \
+       ADDI_D(xSP, xSP, -64);      \
+       ST_D(x1, xSP, 0 * 8);       \
+       ST_D(x2, xSP, 1 * 8);       \
+       ST_D(x3, xSP, 2 * 8);       \
+       ST_D(x4, xSP, 3 * 8);       \
+       ST_D(x5, xSP, 4 * 8);       \
+       ST_D(x6, xSP, 5 * 8);       \
+       ST_D(x7, xSP, 6 * 8);       \
+    } while(0);
+
+#define RESTORE_NF_REGISTERS       \
+    do {                           \
+       LD_D(x1, xSP, 0 * 8);       \
+       LD_D(x2, xSP, 1 * 8);       \
+       LD_D(x3, xSP, 2 * 8);       \
+       LD_D(x4, xSP, 3 * 8);       \
+       LD_D(x5, xSP, 4 * 8);       \
+       LD_D(x6, xSP, 5 * 8);       \
+       LD_D(x7, xSP, 6 * 8);       \
+       ADDI_D(xSP, xSP, 64);       \
+    } while(0);
 
 #define GO_TRACE(A, B, s0)         \
     GETIP(addr, s0);               \

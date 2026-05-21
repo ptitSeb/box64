@@ -257,11 +257,15 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         if((trace_end == 0)
             || ((ip >= trace_start) && (ip < trace_end)))  {
                 MESSAGE(LOG_DUMP, "TRACE ----\n");
-                if (BOX64ENV(dynarec_nativeflags)) SAVE_ACTIVE_SCRATCH_REGISTERS;
+                #if defined (SPILL_NF_REGISTERS)
+                if (BOX64ENV(dynarec_nativeflags)) SPILL_NF_REGISTERS;
+                #endif
                 fpu_reflectcache(dyn, ninst, x1, x2, x3);
                 GO_TRACE(PrintTrace, 1, x5);
                 fpu_unreflectcache(dyn, ninst, x1, x2, x3);
-                if (BOX64ENV(dynarec_nativeflags)) LOAD_ACTIVE_SCRATCH_REGISTERS;
+                #if defined (RESTORE_NF_REGISTERS)
+                if (BOX64ENV(dynarec_nativeflags)) RESTORE_NF_REGISTERS;
+                #endif
                 MESSAGE(LOG_DUMP, "----------\n");
             }
         }
