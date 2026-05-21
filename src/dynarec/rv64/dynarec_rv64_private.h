@@ -216,7 +216,7 @@ int Table64(dynarec_rv64_t *dyn, uint64_t val, int pass);  // add a value to tab
 
 void CreateJmpNext(void* addr, void* next);
 
-#define SAVE_ACTIVE_SCRATCH_REGISTERS                 \
+#define SPILL_NF_REGISTERS()                          \
     do {                                              \
         uint8_t n1 = dyn->insts[ninst].nat_flags_op1; \
         uint8_t n2 = dyn->insts[ninst].nat_flags_op2; \
@@ -229,7 +229,7 @@ void CreateJmpNext(void* addr, void* next);
         }                                             \
     } while(0);
 
-#define LOAD_ACTIVE_SCRATCH_REGISTERS                 \
+#define RESTORE_NF_REGISTERS()                        \
     do {                                              \
         uint8_t n1 = dyn->insts[ninst].nat_flags_op1; \
         uint8_t n2 = dyn->insts[ninst].nat_flags_op2; \

@@ -200,9 +200,31 @@ int Table64(dynarec_la64_t *dyn, uint64_t val, int pass);  // add a value to tab
 
 void CreateJmpNext(void* addr, void* next);
 
-// TODO: Save and restore the temp register.
-#define SAVE_ACTIVE_SCRATCH_REGISTERS do{} while(0);
-#define LOAD_ACTIVE_SCRATCH_REGISTERS do{} while(0);
+#define SPILL_NF_REGISTERS()                          \
+    do {                                              \
+        uint8_t n1 = dyn->insts[ninst].nat_flags_op1; \
+        uint8_t n2 = dyn->insts[ninst].nat_flags_op2; \
+        if (IS_SCRATCH(n1) || IS_SCRATCH(n2)) {       \
+            ADDI_D(xSP, xSP, -16);                    \
+            if (IS_SCRATCH(n1))                       \
+                ST_D(n1, xSP, 0);                     \
+            if (n1 != n2 && IS_SCRATCH(n2))           \
+                ST_D(n2, xSP, 8);                     \
+        }                                             \
+    } while(0);
+
+#define RESTORE_NF_REGISTERS()                        \
+    do {                                              \
+        uint8_t n1 = dyn->insts[ninst].nat_flags_op1; \
+        uint8_t n2 = dyn->insts[ninst].nat_flags_op2; \
+        if (IS_SCRATCH(n1) || IS_SCRATCH(n2)) {       \
+            if (IS_SCRATCH(n1))                       \
+                LD_D(n1, xSP, 0);                     \
+            if (n1 != n2 && IS_SCRATCH(n2))           \
+                LD_D(n2, xSP, 8);                     \
+            ADDI_D(xSP, xSP, 16);                     \
+        }                                             \
+    } while(0);
 
 #define GO_TRACE(A, B, s0)         \
     GETIP(addr, s0);               \
