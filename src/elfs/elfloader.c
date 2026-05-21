@@ -843,6 +843,13 @@ static int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, int 
                         tlsdescUndefweak = AddBridge(my_context->system, pFE, my__dl_tlsdesc_undefweak, 0, "_dl_tlsdesc_undefweak");
                     td->entry = tlsdescUndefweak;
                     td->arg = (uintptr_t)(head->tlsbase + rela[i].r_addend);
+                } if(symname && sym_elf && elfsym) {
+                    printf_dump(LOG_NEVER, "Apply %s R_X86_64_TLSDESC @%p for %s with addend=%zu\n", BindSym(bind), p, symname, rela[i].r_addend);
+                    struct tlsdesc volatile *td = (struct tlsdesc volatile *)p;
+                    if(!tlsdescUndefweak)
+                        tlsdescUndefweak = AddBridge(my_context->system, pFE, my__dl_tlsdesc_undefweak, 0, "_dl_tlsdesc_undefweak");
+                    td->entry = tlsdescUndefweak;
+                    td->arg = (uintptr_t)(sym_elf->tlsbase + offs + rela[i].r_addend);
                 } else {
                     printf_log(LOG_INFO, "Warning, R_X86_64_TLSDESC used with Symbol %s(%p) not supported for now \n", symname, sym);
                 }
