@@ -183,16 +183,16 @@ typedef struct box64context_s {
     #endif
     uintptr_t           max_db_size;    // the biggest (in x86_64 instructions bytes) built dynablock
     rbtree_t*             db_sizes;
-    #define DB_ZOMBIE_SIZE 512
+#define DB_ZOMBIE_SIZE 64
     struct dynablock_s* db_zombie[DB_ZOMBIE_SIZE];  // ring queue of invalidated blocks pending free
     int                 db_zombie_head;   // next write slot (also the oldest slot when full)
     int                 db_zombie_count;  // number of entries currently queued
     int                 trace_dynarec;
     pthread_mutex_t     mutex_lock;     // this is for the Test interpreter
-    #if defined(__riscv) || defined(__loongarch64) || defined(__powerpc64__)
+#if defined(__riscv) || defined(__loongarch64) || defined(__powerpc64__)
     uint32_t            mutex_16b;
-    #endif
-    #endif
+#endif
+#endif
 
     library_t           *libclib;       // shortcut to libc library (if loaded, so probably yes)
     library_t           *sdl1mixerlib;
