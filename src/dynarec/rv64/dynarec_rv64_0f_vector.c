@@ -569,6 +569,10 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
             GETEX_vector(q0, 0, 0, VECTOR_SEW32);
             GETGX_vector(v0, 1, VECTOR_SEW32);
+            if (v0 == q0) {
+                q0 = fpu_get_scratch(dyn);
+                VMV_V_V(q0, v0);
+            }
             VXOR_VI(v0, v0, 0x1f, VECTOR_UNMASKED);
             VAND_VV(v0, v0, q0, VECTOR_UNMASKED);
             break;
