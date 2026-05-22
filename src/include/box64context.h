@@ -183,6 +183,10 @@ typedef struct box64context_s {
     #endif
     uintptr_t           max_db_size;    // the biggest (in x86_64 instructions bytes) built dynablock
     rbtree_t*             db_sizes;
+    #define DB_ZOMBIE_SIZE 512
+    struct dynablock_s* db_zombie[DB_ZOMBIE_SIZE];  // ring queue of invalidated blocks pending free
+    int                 db_zombie_head;   // next write slot (also the oldest slot when full)
+    int                 db_zombie_count;  // number of entries currently queued
     int                 trace_dynarec;
     pthread_mutex_t     mutex_lock;     // this is for the Test interpreter
     #if defined(__riscv) || defined(__loongarch64) || defined(__powerpc64__)

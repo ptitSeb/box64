@@ -11,6 +11,9 @@
 #include "os.h"
 #include "box64context.h"
 #include "debug.h"
+#ifdef DYNAREC
+#include "dynablock.h"
+#endif
 #include "elfloader.h"
 #include "custommem.h"
 #include "threads.h"
@@ -350,6 +353,10 @@ void FreeBox64Context(box64context_t** context)
         if(ctx->signals[i]!=0 && ctx->signals[i]!=1) {
             signal(i, SIG_DFL);
         }
+
+    #ifdef DYNAREC
+    FlushZombieDynablocks();  // free all deferred-free dynablocks before my_context goes away
+    #endif
 
     *context = NULL;                // bye bye my_context
 
