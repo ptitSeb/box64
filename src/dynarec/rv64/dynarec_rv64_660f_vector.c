@@ -1119,6 +1119,10 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             SET_ELEMENT_WIDTH(x1, VECTOR_SEWANY, 1);
             GETGX_vector(q0, 1, dyn->vector_eew);
             GETEX_vector(q1, 0, 0, dyn->vector_eew);
+            if (q0 == q1) {
+                q1 = fpu_get_scratch(dyn);
+                VMV_V_V(q1, q0);
+            }
             VXOR_VI(q0, q0, 0x1F, VECTOR_UNMASKED);
             VAND_VV(q0, q1, q0, VECTOR_UNMASKED);
             break;
@@ -2034,6 +2038,10 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             SET_ELEMENT_WIDTH(x1, VECTOR_SEWANY, 1);
             GETGX_vector(q0, 1, dyn->vector_eew);
             GETEX_vector(q1, 0, 0, dyn->vector_eew);
+            if (q0 == q1) {
+                q1 = fpu_get_scratch(dyn);
+                VMV_V_V(q1, q0);
+            }
             VXOR_VI(q0, q0, 0x1F, VECTOR_UNMASKED);
             VAND_VV(q0, q1, q0, VECTOR_UNMASKED);
             break;
