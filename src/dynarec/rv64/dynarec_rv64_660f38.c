@@ -689,40 +689,6 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                         SW(x3, gback, gdoffset + i * 4);
                     }
                     break;
-                case 0x61:
-                    INST_NAME("PCMPESTRI Gx, Ex, Ib");
-                    SETFLAGS(X_ALL, SF_SET_DF, NAT_FLAGS_NOFUSION);
-                    nextop = F8;
-                    GETG;
-                    sse_reflect_reg(dyn, ninst, x6, gd);
-                    ADDI(x3, xEmu, offsetof(x64emu_t, xmm[gd]));
-                    if (MODREG) {
-                        ed = (nextop & 7) + (rex.b << 3);
-                        sse_reflect_reg(dyn, ninst, x6, ed);
-                        ADDI(x1, xEmu, offsetof(x64emu_t, xmm[ed]));
-                        ed = x1;
-                    } else {
-                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 1);
-                    }
-                    // prepare rest arguments
-                    MV(x2, xRDX);
-                    MV(x4, xRAX);
-                    u8 = F8;
-                    MOV32w(x5, u8);
-                    CALL6(const_sse42_compare_string_explicit_len, x1, ed, x2, x3, x4, x5, 0);
-                    ZEROUP(x1);
-                    BNEZ_MARK(x1);
-                    MOV32w(xRCX, (u8 & 1) ? 8 : 16);
-                    B_NEXT_nocond;
-                    MARK;
-                    if (u8 & 0b1000000) {
-                        CLZxw(xRCX, x1, 0, x2, x3, x4);
-                        ADDI(x2, xZR, 31);
-                        SUB(xRCX, x2, xRCX);
-                    } else {
-                        CTZxw(xRCX, x1, 0, x2, x3);
-                    }
-                    break;
                 case 0xDB:
                     INST_NAME("AESIMC Gx, Ex"); // AES-NI
                     nextop = F8;
@@ -1301,7 +1267,6 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     GETG;
                     sse_forget_reg(dyn, ninst, x6, gd);
                     sse_forget_reg(dyn, ninst, x6, 0);
-                    ADDI(x2, xEmu, offsetof(x64emu_t, xmm[gd]));
                     if (MODREG) {
                         ed = (nextop & 7) + (rex.b << 3);
                         sse_reflect_reg(dyn, ninst, x6, ed);
@@ -1310,6 +1275,7 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 1);
                     }
+                    ADDI(x2, xEmu, offsetof(x64emu_t, xmm[gd]));
                     u8 = F8;
                     ADDI(x3, xZR, u8);
                     CALL4(const_sse42_compare_string_implicit_len, x1, ed, x2, x3, 0);
