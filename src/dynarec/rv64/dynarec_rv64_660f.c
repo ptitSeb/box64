@@ -1596,6 +1596,9 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETEW(x5, 0);
             GETGW(x4);
+            if (BOX64DRENV(dynarec_safeflags)) {
+                IFX (X_PF) MV(x2, xZR);
+            }
             BNE_MARK(ed, xZR);
             IFX (X_ZF) ORI(xFlags, xFlags, 1 << F_ZF);
             B_MARK2_nocond;
@@ -1603,10 +1606,13 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             IFXA (X_ZF, !BOX64DRENV(dynarec_safeflags))
                 ANDI(xFlags, xFlags, ~(1 << F_ZF));
             CTZxw(gd, ed, 0, x1, x2);
+            if (BOX64DRENV(dynarec_safeflags)) {
+                IFX (X_PF) MV(x2, gd);
+            }
             GWBACK;
             MARK2;
             if (BOX64DRENV(dynarec_safeflags)) {
-                IFX (X_PF) emit_pf(dyn, ninst, gd, x1, x2);
+                IFX (X_PF) emit_pf(dyn, ninst, x2, x1, x5);
             }
             break;
         case 0xBD:
@@ -1620,6 +1626,9 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETEW(x5, 0);
             GETGW(x4);
+            if (BOX64DRENV(dynarec_safeflags)) {
+                IFX (X_PF) MV(x2, xZR);
+            }
             BNE_MARK(ed, xZR);
             IFX (X_ZF) ORI(xFlags, xFlags, 1 << F_ZF);
             B_MARK2_nocond;
@@ -1629,10 +1638,13 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             CLZxw(gd, ed, 1, x1, x2, x6);
             ADDI(x1, xZR, 63);
             SUB(gd, x1, gd);
+            if (BOX64DRENV(dynarec_safeflags)) {
+                IFX (X_PF) MV(x2, gd);
+            }
             GWBACK;
             MARK2;
             if (BOX64DRENV(dynarec_safeflags)) {
-                IFX (X_PF) emit_pf(dyn, ninst, gd, x1, x2);
+                IFX (X_PF) emit_pf(dyn, ninst, x2, x1, x5);
             }
             break;
         case 0xBE:
