@@ -347,6 +347,7 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             INST_NAME("VBLENDVPS Gx, Vx, Ex, XMMImm8");
             nextop = F8;
             u8 = geted_ib(dyn, addr, ninst, nextop) >> 4;
+            sse_forget_reg(dyn, ninst, x3, u8);
             GETEX(x1, 1, vex.l ? 28 : 12);
             GETGX();
             GETVX();
