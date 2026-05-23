@@ -875,8 +875,8 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     GETGD;
                     SMREAD();
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, 0);
-                    REV8xw(x1, gd, x1, x2, x3, x4);
-                    SDxw(x1, wback, fixedaddress);
+                    REV8xw(x3, gd, x3, x4, x5, x6);
+                    SDxw(x3, wback, fixedaddress);
                     break;
                 default:
                     DEFAULT;
