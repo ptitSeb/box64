@@ -2377,14 +2377,20 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 ZEXTW2(x4, ed);
                 ed = x4;
             }
+            if (BOX64DRENV(dynarec_safeflags)) {
+                IFX (X_PF) MV(x3, xZR);
+            }
             BNE_MARK(ed, xZR);
             IFX (X_ZF) ORI(xFlags, xFlags, 1 << F_ZF);
             B_MARK2_nocond;
             MARK;
             CTZxw(gd, ed, rex.w, x3, x5);
+            if (BOX64DRENV(dynarec_safeflags)) {
+                IFX (X_PF) MV(x3, gd);
+            }
             MARK2;
             if (BOX64DRENV(dynarec_safeflags)) {
-                IFX (X_PF) emit_pf(dyn, ninst, gd, x2, x5);
+                IFX (X_PF) emit_pf(dyn, ninst, x3, x2, x5);
             }
             break;
         case 0xBD:
@@ -2403,6 +2409,9 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 ZEXTW2(x4, ed);
                 ed = x4;
             }
+            if (BOX64DRENV(dynarec_safeflags)) {
+                IFX (X_PF) MV(x2, xZR);
+            }
             BNE_MARK(ed, xZR);
             IFX (X_ZF) ORI(xFlags, xFlags, 1 << F_ZF);
             B_MARK2_nocond;
@@ -2410,9 +2419,12 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             CLZxw(gd, ed, rex.w, x3, x5, x7);
             ADDI(x3, xZR, rex.w ? 63 : 31);
             SUB(gd, x3, gd);
+            if (BOX64DRENV(dynarec_safeflags)) {
+                IFX (X_PF) MV(x2, gd);
+            }
             MARK2;
             if (BOX64DRENV(dynarec_safeflags)) {
-                IFX (X_PF) emit_pf(dyn, ninst, gd, x2, x5);
+                IFX (X_PF) emit_pf(dyn, ninst, x2, x4, x5);
             }
             break;
         case 0xBE:
