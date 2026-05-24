@@ -1040,7 +1040,7 @@ void emit_sbb16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
     CLEAR_FLAGS();
     SLLIW(s1, s1, 16);
     IFX (X_SF) {
-        SET_FLAGS_LTZ(s1, F_SF, s4, s5);
+        SET_FLAGS_LTZ(s1, F_SF, s3, s4);
     }
     SRLIW(s1, s1, 16);
 
@@ -1080,7 +1080,7 @@ void emit_sbb32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 
     CLEAR_FLAGS();
     IFX (X_SF) {
-        SET_FLAGS_LTZ(s1, F_SF, s4, s5);
+        SET_FLAGS_LTZ(s1, F_SF, s3, s4);
     }
     if (!rex.w && (IS_GPR(s1) || dyn->insts[ninst].nat_flags_fusion)) {
         ZEROUP(s1);
