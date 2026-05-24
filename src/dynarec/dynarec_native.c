@@ -27,6 +27,9 @@
 #include "khash.h"
 
 KHASH_MAP_INIT_INT64(table64, uint32_t)
+KHASH_SET_INIT_INT64(nextset)
+
+static kh_nextset_t* khnextset = NULL;
 
 void printf_x64_instruction(dynarec_native_t* dyn, zydis_dec_t* dec, instruction_x64_t* inst, const char* name) {
     uint8_t *ip = (uint8_t*)inst->addr;
@@ -65,16 +68,11 @@ void printf_x64_instruction(dynarec_native_t* dyn, zydis_dec_t* dec, instruction
 void add_next(dynarec_native_t *dyn, uintptr_t addr) {
     if (!BOX64DRENV(dynarec_bigblock))
         return;
-    // exist?
-    for(int i=0; i<dyn->next_sz; ++i)
-        if(dyn->next[i]==addr)
-            return;
-    // put in a free slot
-    for(int i=0; i<dyn->next_sz; ++i)
-        if(!dyn->next[i]) {
-            dyn->next[i] = addr;
-            return;
-        }
+    khint_t k = kh_get(nextset, khnextset, addr);
+    if(k != kh_end(khnextset))
+        return;
+    int ret;
+    kh_put(nextset, khnextset, addr, &ret);
     // add slots
     if(dyn->next_sz == dyn->next_cap) {
         printf_log(LOG_NONE, "Warning, overallocating next\n");
@@ -85,15 +83,19 @@ uintptr_t get_closest_next(dynarec_native_t *dyn, uintptr_t addr) {
     // get closest, but no addresses before
     uintptr_t best = 0;
     int i = 0;
-    while((i<dyn->next_sz) && (best!=addr)) {
-        if(dyn->next[i]) {
-            if(dyn->next[i]<addr) { // remove the address, it's before current address
-                dyn->next[i] = 0;
-            } else {
-                if((dyn->next[i]<best) || !best)
-                    best = dyn->next[i];
+    while(i<dyn->next_sz) {
+        uintptr_t next = dyn->next[i];
+        if(!next || next<addr) {
+            if(next) {
+                khint_t k = kh_get(nextset, khnextset, next);
+                if(k != kh_end(khnextset))
+                    kh_del(nextset, khnextset, k);
             }
+            dyn->next[i] = dyn->next[--dyn->next_sz];
+            continue;
         }
+        if((next<best) || !best)
+            best = next;
         ++i;
     }
     return best;
@@ -472,6 +474,9 @@ dynablock_t* FillBlock64(uintptr_t addr, int is32bits, int inst_max, int is_new,
     // init the helper
     dynarec_native_t helper = {0};
     dynarec_native_t* dyn = &helper;
+    if(!khnextset)
+        khnextset = kh_init(nextset);
+    kh_clear(nextset, khnextset);
 #ifdef GDBJIT
     helper.gdbjit_block = box_calloc(1, sizeof(gdbjit_block_t));
 #endif
