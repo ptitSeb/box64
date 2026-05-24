@@ -68,11 +68,10 @@ void printf_x64_instruction(dynarec_native_t* dyn, zydis_dec_t* dec, instruction
 void add_next(dynarec_native_t *dyn, uintptr_t addr) {
     if (!BOX64DRENV(dynarec_bigblock))
         return;
-    khint_t k = kh_get(nextset, khnextset, addr);
-    if(k != kh_end(khnextset))
-        return;
     int ret;
     kh_put(nextset, khnextset, addr, &ret);
+    if(!ret)
+        return;
     // add slots
     if(dyn->next_sz == dyn->next_cap) {
         printf_log(LOG_NONE, "Warning, overallocating next\n");
