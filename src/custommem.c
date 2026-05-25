@@ -16,7 +16,9 @@
 #include "callback.h"
 #include "x64trace.h"
 #include "custommem.h"
+#ifndef _WIN32
 #include "signals.h"
+#endif
 #include "khash.h"
 #include "threads.h"
 #include "rbtree.h"
@@ -563,6 +565,11 @@ static uintptr_t    defered_prot_p = 0;
 static size_t       defered_prot_sz = 0;
 static uint32_t     defered_prot_prot = 0;
 static mem_flag_t   defered_prot_flags = MEM_ALLOCATED;
+
+#ifdef _WIN32
+void enter_critical_section(void) {}
+void leave_critical_section(void) {}
+#endif
 
 static void setProtection_generic(uintptr_t addr, size_t sz, uint32_t prot, mem_flag_t flags);
 #define LOCK_PROT()               \

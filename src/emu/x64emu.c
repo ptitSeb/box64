@@ -43,11 +43,13 @@ static uint32_t x86emu_parity_tab[8] =
 
 static void reset_deferred_signal(x64emu_t* emu)
 {
+    #ifndef _WIN32
     emu->critical_section = 0;
     emu->deferred_signal_processing = 0;
     emu->deferred_signal_count = 0;
     memset((void*)emu->deferred_signal_pending, 0, sizeof(emu->deferred_signal_pending));
     memset(emu->deferred_siginfo, 0, sizeof(emu->deferred_siginfo));
+    #endif
 }
 
 static void internalX64Setup(x64emu_t* emu, box64context_t *context, uintptr_t start, uintptr_t stack, int stacksize, int ownstack)
