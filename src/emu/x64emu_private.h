@@ -4,6 +4,7 @@
 #include "regs.h"
 #include "os.h"
 #include "box64context.h"
+#include <signal.h>
 
 typedef struct x64_ucontext_s x64_ucontext_t;
 #ifdef BOX32
@@ -135,6 +136,11 @@ typedef struct x64emu_s {
     tlsdatasize_t  *tlsdata;
     // other informations
     int         type;       // EMUTYPE_xxx define
+    volatile sig_atomic_t critical_section;
+    volatile sig_atomic_t deferred_signal_processing;
+    volatile sig_atomic_t deferred_signal_count;
+    volatile sig_atomic_t deferred_signal_pending[MAX_SIGNAL+1];
+    siginfo_t   deferred_siginfo[MAX_SIGNAL+1];
     #ifdef BOX32
     int         libc_err;   // copy of errno from libc
     int         libc_herr;  // copy of h_errno from libc

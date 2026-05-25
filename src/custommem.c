@@ -16,6 +16,7 @@
 #include "callback.h"
 #include "x64trace.h"
 #include "custommem.h"
+#include "signals.h"
 #include "khash.h"
 #include "threads.h"
 #include "rbtree.h"
@@ -562,24 +563,52 @@ static uintptr_t    defered_prot_p = 0;
 static size_t       defered_prot_sz = 0;
 static uint32_t     defered_prot_prot = 0;
 static mem_flag_t   defered_prot_flags = MEM_ALLOCATED;
-static sigset_t     critical_prot = {0};
-static void setProtection_generic(uintptr_t addr, size_t sz, uint32_t prot, mem_flag_t flags);
-#define LOCK_PROT()         sigset_t old_sig = {0}; pthread_sigmask(SIG_BLOCK, &critical_prot, &old_sig); mutex_lock(&mutex_prot)
-#define LOCK_PROT_READ()    sigset_t old_sig = {0}; pthread_sigmask(SIG_BLOCK, &critical_prot, &old_sig); mutex_lock(&mutex_prot)
-#define LOCK_PROT_FAST()    mutex_lock(&mutex_prot)
-#define UNLOCK_PROT()       if(defered_prot_p) {                                \
-                                uintptr_t p = defered_prot_p; size_t sz = defered_prot_sz; uint32_t prot = defered_prot_prot; mem_flag_t f = defered_prot_flags;\
-                                defered_prot_p = 0;                             \
-                                pthread_sigmask(SIG_SETMASK, &old_sig, NULL);   \
-                                mutex_unlock(&mutex_prot);                      \
-                                setProtection_generic(p, sz, prot, f);          \
-                            } else {                                            \
-                                pthread_sigmask(SIG_SETMASK, &old_sig, NULL);   \
-                                mutex_unlock(&mutex_prot);                      \
-                            }
-#define UNLOCK_PROT_READ()  mutex_unlock(&mutex_prot); pthread_sigmask(SIG_SETMASK, &old_sig, NULL)
-#define UNLOCK_PROT_FAST()  mutex_unlock(&mutex_prot)
 
+static void setProtection_generic(uintptr_t addr, size_t sz, uint32_t prot, mem_flag_t flags);
+#define LOCK_PROT()               \
+    do {                          \
+        enter_critical_section(); \
+        mutex_lock(&mutex_prot);  \
+    } while (0)
+
+#define LOCK_PROT_READ()          \
+    do {                          \
+        enter_critical_section(); \
+        mutex_lock(&mutex_prot);  \
+    } while (0)
+
+#define LOCK_PROT_FAST()         \
+    do {                         \
+        mutex_lock(&mutex_prot); \
+    } while (0)
+
+#define UNLOCK_PROT()                              \
+    do {                                           \
+        if (defered_prot_p) {                      \
+            uintptr_t p = defered_prot_p;          \
+            size_t sz = defered_prot_sz;           \
+            uint32_t prot = defered_prot_prot;     \
+            mem_flag_t f = defered_prot_flags;     \
+            defered_prot_p = 0;                    \
+            mutex_unlock(&mutex_prot);             \
+            leave_critical_section();              \
+            setProtection_generic(p, sz, prot, f); \
+        } else {                                   \
+            mutex_unlock(&mutex_prot);             \
+            leave_critical_section();              \
+        }                                          \
+    } while (0)
+
+#define UNLOCK_PROT_READ()         \
+    do {                           \
+        mutex_unlock(&mutex_prot); \
+        leave_critical_section();  \
+    } while (0)
+
+#define UNLOCK_PROT_FAST()         \
+    do {                           \
+        mutex_unlock(&mutex_prot); \
+    } while (0)
 
 #ifdef TRACE_MEMSTAT
 static uint64_t customMalloc_allocated = 0;
@@ -3095,7 +3124,6 @@ void init_custommem_helper(box64context_t* ctx)
         for(int i=0; i<n_blocks; ++i)
             rb_set(blockstree, (uintptr_t)p_blocks[i].block, (uintptr_t)p_blocks[i].block+p_blocks[i].size, i);
     memprot = rbtree_init("memprot");
-    sigfillset(&critical_prot);
 #ifdef DYNAREC
     if(BOX64ENV(dynarec)) {
         #ifdef JMPTABL_SHIFT4

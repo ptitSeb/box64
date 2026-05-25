@@ -287,6 +287,7 @@ int AddTLSPartition(box64context_t* context, int tlssize);
 // defined in fact in threads.c
 void thread_set_emu(x64emu_t* emu);
 void thread_forget_emu();
+x64emu_t* thread_get_emu_no_create(void);
 x64emu_t* thread_get_emu(void);
 
 // relock the muxtex that were unlocked

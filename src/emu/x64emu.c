@@ -41,6 +41,15 @@ static uint32_t x86emu_parity_tab[8] =
     0x69969669,
 };
 
+static void reset_deferred_signal(x64emu_t* emu)
+{
+    emu->critical_section = 0;
+    emu->deferred_signal_processing = 0;
+    emu->deferred_signal_count = 0;
+    memset((void*)emu->deferred_signal_pending, 0, sizeof(emu->deferred_signal_pending));
+    memset(emu->deferred_siginfo, 0, sizeof(emu->deferred_siginfo));
+}
+
 static void internalX64Setup(x64emu_t* emu, box64context_t *context, uintptr_t start, uintptr_t stack, int stacksize, int ownstack)
 {
     emu->context = context;
@@ -90,6 +99,7 @@ static void internalX64Setup(x64emu_t* emu, box64context_t *context, uintptr_t s
     emu->mxcsr.x32 = 0x1f80;
     // want some new jmpbuf for error recovery
     emu->flags.need_jmpbuf = 1;
+    reset_deferred_signal(emu);
 }
 
 EXPORTDYN
@@ -219,6 +229,7 @@ void CloneEmu(x64emu_t *newemu, const x64emu_t* emu)
     newemu->quit = emu->quit;
     newemu->error = emu->error;
     newemu->x64emu_parity_tab = emu->x64emu_parity_tab;
+    reset_deferred_signal(newemu);
 }
 
 void CopyEmu(x64emu_t *newemu, const x64emu_t* emu)
@@ -247,6 +258,7 @@ void CopyEmu(x64emu_t *newemu, const x64emu_t* emu)
     newemu->mxcsr = emu->mxcsr;
     newemu->quit = emu->quit;
     newemu->error = emu->error;
+    reset_deferred_signal(newemu);
 }
 
 box64context_t* GetEmuContext(x64emu_t* emu)
