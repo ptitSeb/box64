@@ -258,9 +258,80 @@ x64emu_t* getEmuSignal(x64emu_t* emu, ucontext_t* p, dynablock_t* db)
 }
 #endif
 
+void my_sigactionhandler_oldcode(x64emu_t* emu, int32_t sig, int simple, siginfo_t* info, void* ucntx, int* old_code, void* cur_db, uintptr_t x64pc);
 #ifdef BOX32
 int my_sigactionhandler_oldcode_32(x64emu_t* emu, int32_t sig, int simple, siginfo_t* info, void * ucntx, int* old_code, void* cur_db);
 #endif
+
+static int is_signal_deferrable(int sig)
+{
+    switch (sig) {
+        case X64_SIGSEGV:
+        case X64_SIGBUS:
+        case X64_SIGILL:
+        case X64_SIGABRT:
+            return 0;
+    }
+    return 1;
+}
+
+int defer_signal(x64emu_t* emu, int signum, siginfo_t* info)
+{
+    if (!emu || signum < 0 || signum > MAX_SIGNAL || !is_signal_deferrable(signum) || emu->critical_section <= 0)
+        return 0;
+
+    if (info)
+        emu->deferred_siginfo[signum] = *info;
+    else
+        memset(&emu->deferred_siginfo[signum], 0, sizeof(emu->deferred_siginfo[signum]));
+    emu->deferred_siginfo[signum].si_signo = signum;
+    if (!emu->deferred_signal_pending[signum])
+        ++emu->deferred_signal_count;
+    emu->deferred_signal_pending[signum] = 1;
+    return 1;
+}
+
+void cancel_deferred_signal_processing(x64emu_t* emu)
+{
+    if (!emu) return;
+    emu->critical_section = 0;
+    emu->deferred_signal_processing = 0;
+}
+
+void enter_critical_section()
+{
+    x64emu_t* emu = thread_get_emu_no_create();
+    if (emu) ++emu->critical_section;
+}
+
+void leave_critical_section()
+{
+    x64emu_t* emu = thread_get_emu_no_create();
+    if (!emu || emu->critical_section <= 0)
+        return;
+    if (--emu->critical_section || !emu->deferred_signal_count || emu->deferred_signal_processing)
+        return;
+
+    emu->deferred_signal_processing = 1;
+    while (emu->deferred_signal_count) {
+        int handled = 0;
+        for (int sig = 1; sig <= MAX_SIGNAL; ++sig) {
+            if (!emu->deferred_signal_pending[sig])
+                continue;
+            siginfo_t info = emu->deferred_siginfo[sig];
+            emu->deferred_signal_pending[sig] = 0;
+            --emu->deferred_signal_count;
+            handled = 1;
+            my_sigactionhandler_oldcode(emu, sig, 0, &info, NULL, NULL, NULL, R_RIP);
+        }
+        if (!handled) {
+            emu->deferred_signal_count = 0;
+            break;
+        }
+    }
+    emu->deferred_signal_processing = 0;
+}
+
 int my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, siginfo_t* info, void * ucntx, int* old_code, void* cur_db)
 {
     int Locks = unlockMutex();
@@ -520,6 +591,7 @@ int my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigin
             #ifdef DYNAREC
             dynablock_leave_runtime((dynablock_t*)cur_db);
             #endif
+            cancel_deferred_signal_processing(emu);
             #ifdef ANDROID
             siglongjmp(*emu->jmpbuf, skip);
             #else
@@ -841,6 +913,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
                         #if defined(RV64) || defined(PPC64LE)
                         emu->xSPSave = emu->old_savedsp;
                         #endif
+                        cancel_deferred_signal_processing(emu);
                         #ifdef ANDROID
                         siglongjmp(*(JUMPBUFF*)emu->jmpbuf, 3);
                         #else
@@ -915,6 +988,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
                 #if defined(RV64) || defined(PPC64LE)
                 emu->xSPSave = emu->old_savedsp;
                 #endif
+                cancel_deferred_signal_processing(emu);
                 #ifdef ANDROID
                 siglongjmp(*(JUMPBUFF*)emu->jmpbuf, 2);
                 #else
@@ -1259,13 +1333,16 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "%04d|Repeated SIGSEGV with Access error on %
 void my_sigactionhandler(int32_t sig, siginfo_t* info, void * ucntx)
 {
     sig = signal_to_x64(sig);
+    x64emu_t* emu = thread_get_emu_no_create();
+    if (defer_signal(emu, sig, info))
+        return;
     void* pc = NULL;
     #ifdef DYNAREC
     ucontext_t *p = (ucontext_t *)ucntx;
     pc = (void*)CONTEXT_PC(p);
     #endif
     dynablock_t* db = FindDynablockFromNativeAddress(pc);
-    x64emu_t* emu = thread_get_emu();
+    if (!emu) emu = thread_get_emu();
     uintptr_t x64pc = R_RIP;
     if(db)
         x64pc = getX64Address(db, (uintptr_t)pc);

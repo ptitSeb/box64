@@ -771,6 +771,7 @@ int my_sigactionhandler_oldcode_32(x64emu_t* emu, int32_t sig, int simple, sigin
             #ifdef DYNAREC
             dynablock_leave_runtime((dynablock_t*)cur_db);
             #endif
+            cancel_deferred_signal_processing(emu);
             #ifdef ANDROID
             siglongjmp(*emu->jmpbuf, skip);
             #else
@@ -817,6 +818,10 @@ int my_sigactionhandler_oldcode_32(x64emu_t* emu, int32_t sig, int simple, sigin
 
 void my32_sigactionhandler(int32_t sig, siginfo_t* info, void * ucntx)
 {
+    sig = signal_to_x64(sig);
+    x64emu_t* emu = thread_get_emu_no_create();
+    if (defer_signal(emu, sig, info))
+        return;
     #ifdef DYNAREC
     ucontext_t *p = (ucontext_t *)ucntx;
     #ifdef ARM64
@@ -835,7 +840,7 @@ void my32_sigactionhandler(int32_t sig, siginfo_t* info, void * ucntx)
     void* db = NULL;
     #endif
 
-    my_sigactionhandler_oldcode_32(NULL, sig, 0, info, ucntx, NULL, db);
+    my_sigactionhandler_oldcode_32(emu, sig, 0, info, ucntx, NULL, db);
 }
 
 

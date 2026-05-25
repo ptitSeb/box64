@@ -71,6 +71,11 @@ int my___sigaction(x64emu_t* emu, int signum, const x64_sigaction_t *act, x64_si
 
 int my_syscall_rt_sigaction(x64emu_t* emu, int signum, const x64_sigaction_restorer_t *act, x64_sigaction_restorer_t *oldact, int sigsetsize);
 
+void enter_critical_section();
+void leave_critical_section();
+int defer_signal(x64emu_t* emu, int signum, siginfo_t* info);
+void cancel_deferred_signal_processing(x64emu_t* emu);
+
 void init_signal_helper(box64context_t* context);
 void fini_signal_helper(void);
 
