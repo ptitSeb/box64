@@ -19,6 +19,7 @@
 #include <sys/wait.h>
 #include <sys/utsname.h>
 #include <sys/resource.h>
+#include <sys/prctl.h>
 #include <poll.h>
 #include <sys/epoll.h>
 
@@ -85,6 +86,10 @@ int32_t my_execve(x64emu_t* emu, const char* path, char* const argv[], char* con
 #endif
 #undef fcntl
 int fcntl(int fd, int cmd, ... /* arg */ );
+
+#ifndef PR_SET_SYSCALL_USER_DISPATCH
+#define PR_SET_SYSCALL_USER_DISPATCH 59
+#endif
 
 // Syscall table for x86_64 can be found
 typedef struct scwrap_s {
@@ -521,6 +526,11 @@ void EXPORT x64Syscall_linux(x64emu_t *emu)
         snprintf(buff, 255, "%04d|%p: Calling syscall 0x%02X (%d) %p %p %p %p %p %p", GetTID(), (void*)R_RIP, s, s, (void*)R_RDI, (void*)R_RSI, (void*)R_RDX, (void*)R_R10, (void*)R_R8, (void*)R_R9);
         if(!BOX64ENV(rolling_log))
             printf_log(LOG_NONE, "%s", buff);
+    }
+    if (s == 157 && R_EDI == PR_SET_SYSCALL_USER_DISPATCH) {
+        printf_log(LOG_DEBUG, "Ignoring syscall prctl(PR_SET_SYSCALL_USER_DISPATCH, ...)\n");
+        R_RAX = 0;
+        return;
     }
     // check wrapper first
     uint32_t cnt = sizeof(syscallwrap) / sizeof(scwrap_t);
@@ -1216,6 +1226,12 @@ long EXPORT my_syscall(x64emu_t *emu)
         case 133: // sys_mknod
             return mknod((void*)R_RSI, R_EDX, R_RCX);
         #endif
+        case 157: // sys_prctl
+            if (S_ESI == PR_SET_SYSCALL_USER_DISPATCH) {
+                printf_log(LOG_INFO, "ignoring syscall prctl(PR_SET_SYSCALL_USER_DISPATCH, ...)\n");
+                return 0;
+            }
+            return syscall(__NR_prctl, S_ESI, R_RDX, R_RCX, R_R8, R_R9);
         case 158: // sys_arch_prctl
             return my_arch_prctl(emu, S_ESI, (void*)R_RDX);
         #ifndef __NR_setrlimit
