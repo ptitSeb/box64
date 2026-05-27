@@ -1023,6 +1023,8 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         unsetenv("BOX64_ARG0");
         if(!my_context->bashpath)
             my_context->bashpath = ResolveFile("box64-bash", &my_context->box64_path);
+        if(!my_context->pythonpath)
+            my_context->pythonpath = ResolveFile("box64-python", &my_context->box64_path);
         pressure_vessel(argc, argv, nextarg+1, prog);
     }
     #endif
