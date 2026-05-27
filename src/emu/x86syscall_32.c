@@ -39,6 +39,7 @@
 #include "box32.h"
 #include "converter32.h"
 #include "custommem.h"
+#include "syscall_user_dispatch.h"
 
 
 // Syscall table for x86_64 can be found 
@@ -309,6 +310,13 @@ void EXPORT x86Syscall(x64emu_t *emu)
 {
     uint32_t s = R_EAX;
     printf_log(LOG_DEBUG, "%04d|%p: Calling 32bits syscall 0x%02X (%d) %p %p %p %p %p", GetTID(), (void*)R_RIP, s, s, (void*)(uintptr_t)R_EBX, (void*)(uintptr_t)R_ECX, (void*)(uintptr_t)R_EDX, (void*)(uintptr_t)R_ESI, (void*)(uintptr_t)R_EDI); 
+    if(my_syscall_user_dispatch(emu, R_RIP - 2, s, 1))
+        return;
+    if(s == 172 && R_EBX == PR_SET_SYSCALL_USER_DISPATCH) {
+        S_EAX = my_syscall_user_dispatch_prctl(emu, R_ECX, R_EDX, R_ESI, R_EDI ? from_ptrv(R_EDI) : NULL);
+        printf_log(LOG_DEBUG, " => 0x%x\n", R_EAX);
+        return;
+    }
     // check wrapper first
     int cnt = sizeof(syscallwrap) / sizeof(scwrap_t);
     void* tmp;
@@ -560,6 +568,14 @@ uint32_t EXPORT my32_syscall(x64emu_t *emu, uint32_t s, ptr_t* b)
 {
     static uint64_t warned[10] = {0};
     printf_log(LOG_DEBUG, "%p: Calling libc syscall 0x%02X (%d) %p %p %p %p %p\n", from_ptrv(R_EIP), s, s, from_ptrv(u32(0)), from_ptrv(u32(4)), from_ptrv(u32(8)), from_ptrv(u32(12)), from_ptrv(u32(16))); 
+    if(s == 172 && u32(0) == PR_SET_SYSCALL_USER_DISPATCH) {
+        long ret = my_syscall_user_dispatch_prctl(emu, u32(4), u32(8), u32(12), u32(16) ? p(16) : NULL);
+        if(ret < 0) {
+            errno = -ret;
+            return (uint32_t)-1;
+        }
+        return 0;
+    }
     // check wrapper first
     int cnt = sizeof(syscallwrap) / sizeof(scwrap_t);
     size_t tmps;

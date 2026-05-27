@@ -72,10 +72,7 @@
 #include "converter32.h"
 #include "cleanup.h"
 #include "box32_inputevent.h"
-
-#ifndef PR_SET_SYSCALL_USER_DISPATCH
-#define PR_SET_SYSCALL_USER_DISPATCH 59
-#endif
+#include "syscall_user_dispatch.h"
 
 // need to undef all read / read64 stuffs!
 #undef pread
@@ -3619,7 +3616,11 @@ EXPORT int my32___prctl_time64(x64emu_t* emu, int option, unsigned long arg2, un
         return 0;
     }
     if (option == PR_SET_SYSCALL_USER_DISPATCH) {
-        printf_log(LOG_DEBUG, "Ignoring prctl(PR_SET_SYSCALL_USER_DISPATCH, ...)\n");
+        long ret = my_syscall_user_dispatch_prctl(emu, arg2, arg3, arg4, (void*)arg5);
+        if(ret < 0) {
+            errno = -ret;
+            return -1;
+        }
         return 0;
     }
     return prctl(option, arg2, arg3, arg4, arg5);
@@ -3643,7 +3644,11 @@ EXPORT int my32_prctl(x64emu_t* emu, int option, unsigned long arg2, unsigned lo
         return 0;
     }
     if (option == PR_SET_SYSCALL_USER_DISPATCH) {
-        printf_log(LOG_INFO, "ignoring prctl(PR_SET_SYSCALL_USER_DISPATCH, ...)\n");
+        long ret = my_syscall_user_dispatch_prctl(emu, arg2, arg3, arg4, (void*)arg5);
+        if(ret < 0) {
+            errno = -ret;
+            return -1;
+        }
         return 0;
     }
     return prctl(option, arg2, arg3, arg4, arg5);

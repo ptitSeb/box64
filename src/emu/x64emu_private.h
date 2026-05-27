@@ -136,6 +136,10 @@ typedef struct x64emu_s {
     tlsdatasize_t  *tlsdata;
     // other informations
     int         type;       // EMUTYPE_xxx define
+    uint8_t     sud_enabled;  // syscall_user_dispatch enabled for this thread?
+    uint8_t*    sud_selector; // Wine selector
+    uintptr_t   sud_offset;   // always allowed range start
+    uintptr_t   sud_len;      // always allowed range len
     #ifndef _WIN32
     volatile sig_atomic_t critical_section;
     volatile sig_atomic_t deferred_signal_processing;
