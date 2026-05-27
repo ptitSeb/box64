@@ -12,6 +12,7 @@ void MarkCRCRangeDynablock(dynablock_t* db, uintptr_t addr, uintptr_t size);
 int FreeRangeDynablock(dynablock_t* db, uintptr_t addr, uintptr_t size);
 void FreeInvalidDynablock(dynablock_t* db, int need_lock);
 dynablock_t* InvalidDynablock(dynablock_t* db, int need_lock);
+void DeferFreeDynablockClearRange(void* addr, size_t sz);
 
 dynablock_t* FindDynablockFromNativeAddress(void* addr);    // defined in box64context.h
 

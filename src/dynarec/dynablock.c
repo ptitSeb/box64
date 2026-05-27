@@ -79,12 +79,20 @@ static void DeferFreeDynablockMap(dynablock_t* db)
 {
     // enq for a deferred free so any threads still running in this block has a better chance to finish.
     if (my_context->db_zombie_count == DB_ZOMBIE_SIZE) {
-        FreeDynarecMap((uintptr_t)my_context->db_zombie[my_context->db_zombie_head]->actual_block);
+        if(my_context->db_zombie[my_context->db_zombie_head])
+            FreeDynarecMap((uintptr_t)my_context->db_zombie[my_context->db_zombie_head]->actual_block);
     } else {
         my_context->db_zombie_count++;
     }
     my_context->db_zombie[my_context->db_zombie_head] = db;
     my_context->db_zombie_head = (my_context->db_zombie_head + 1) % DB_ZOMBIE_SIZE;
+}
+
+void DeferFreeDynablockClearRange(void* addr, size_t sz)
+{
+    for(int i=0; i<my_context->db_zombie_count; ++i)
+        if(my_context->db_zombie[i] && ((void*)my_context->db_zombie[i]>=addr) && ((void*)my_context->db_zombie[i]<(addr+sz)))
+            my_context->db_zombie[i] = NULL;
 }
 
 void FreeInvalidDynablock(dynablock_t* db, int need_lock)

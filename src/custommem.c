@@ -1623,6 +1623,7 @@ void DelMmaplist(mmaplist_t* list)
     for(int i=0; i<list->size; ++i)
         if(list->chunks[i]->size) {
             cleanDBFromAddressRange((uintptr_t)list->chunks[i]->block, list->chunks[i]->size, 1);
+            DeferFreeDynablockClearRange(list->chunks[i]->block, list->chunks[i]->size);
             rb_unset(rbt_dynmem, (uintptr_t)list->chunks[i]->block, (uintptr_t)list->chunks[i]->block+list->chunks[i]->size);
             // the blocklist_t "chunk" structure is port of the memory map, so grab info before freing the memory
             // also need to include back the blocklist_t that is excluded from the blocklist tracking
