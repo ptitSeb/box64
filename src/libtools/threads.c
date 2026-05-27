@@ -178,6 +178,7 @@ emuthread_t* get_thread(void* t)
 #endif
 
 static pthread_key_t thread_key;
+static int thread_key_ready = 0;
 
 void emuthread_destroy(void* p)
 {
@@ -258,12 +259,14 @@ void thread_set_emu(x64emu_t* emu)
 
 x64emu_t* thread_get_emu_no_create(void)
 {
-    emuthread_t* et = (emuthread_t*)pthread_getspecific(thread_key);
-    return et ? et->emu : NULL;
+	if(!thread_key_ready) return NULL;
+	emuthread_t* et = (emuthread_t*)pthread_getspecific(thread_key);
+	return et ? et->emu : NULL;
 }
 
 x64emu_t* thread_get_emu(void)
 {
+	if(!thread_key_ready) return NULL;
 	emuthread_t *et = (emuthread_t*)pthread_getspecific(thread_key);
 	if(!et) {
 		// this should not happens. So if it happens, use a small stack
@@ -1350,6 +1353,7 @@ void init_pthread_helper()
 	}
 
 	pthread_key_create(&thread_key, emuthread_destroy);
+	thread_key_ready = 1;
 	pthread_setspecific(thread_key, NULL);
 }
 
