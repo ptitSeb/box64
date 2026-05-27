@@ -78,10 +78,7 @@ extern int _nl_msg_cat_cntr __attribute__((weak));
 #include "librarian/library_private.h"
 #include "emu/x64emu_private.h"
 #include "box64context.h"
-
-#ifndef PR_SET_SYSCALL_USER_DISPATCH
-#define PR_SET_SYSCALL_USER_DISPATCH 59
-#endif
+#include "syscall_user_dispatch.h"
 #include "myalign.h"
 #include "signals.h"
 #include "fileutils.h"
@@ -4505,7 +4502,11 @@ EXPORT int my_prctl(x64emu_t* emu, int option, unsigned long arg2, unsigned long
         return 0;
     }
     if (option == PR_SET_SYSCALL_USER_DISPATCH) {
-        printf_log(LOG_DEBUG, "Ignoring prctl(PR_SET_SYSCALL_USER_DISPATCH, ...)\n");
+        long ret = my_syscall_user_dispatch_prctl(emu, arg2, arg3, arg4, (void*)arg5);
+        if(ret < 0) {
+            errno = -ret;
+            return -1;
+        }
         return 0;
     }
     return prctl(option, arg2, arg3, arg4, arg5);

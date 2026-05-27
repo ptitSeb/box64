@@ -33,6 +33,7 @@
 #include "callback.h"
 #include "signals.h"
 #include "x64tls.h"
+#include "syscall_user_dispatch.h"
 
 
 // Syscall table for x86_64 can be found 
@@ -233,6 +234,13 @@ void EXPORT x86Syscall(x64emu_t *emu)
 {
     uint32_t s = R_EAX;
     printf_log(LOG_DEBUG, "%p: Calling 32bits syscall 0x%02X (%d) %p %p %p %p %p", (void*)R_RIP, s, s, (void*)(uintptr_t)R_EBX, (void*)(uintptr_t)R_ECX, (void*)(uintptr_t)R_EDX, (void*)(uintptr_t)R_ESI, (void*)(uintptr_t)R_EDI); 
+    if(my_syscall_user_dispatch(emu, R_RIP - 2, s, 1))
+        return;
+    if(s == 172 && R_EBX == PR_SET_SYSCALL_USER_DISPATCH) {
+        S_EAX = my_syscall_user_dispatch_prctl(emu, R_ECX, R_EDX, R_ESI, R_EDI ? (void*)(uintptr_t)R_EDI : NULL);
+        printf_log(LOG_DEBUG, " => 0x%x\n", R_EAX);
+        return;
+    }
     // check wrapper first
     int cnt = sizeof(syscallwrap) / sizeof(scwrap_t);
     for (int i=0; i<cnt; i++) {

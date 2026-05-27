@@ -41,6 +41,7 @@
 #include "x64tls.h"
 #include "elfloader.h"
 #include "x64int_private.h"
+#include "syscall_user_dispatch.h"
 
 typedef struct x64_sigaction_s x64_sigaction_t;
 typedef struct x64_stack_s x64_stack_t;
@@ -86,10 +87,6 @@ int32_t my_execve(x64emu_t* emu, const char* path, char* const argv[], char* con
 #endif
 #undef fcntl
 int fcntl(int fd, int cmd, ... /* arg */ );
-
-#ifndef PR_SET_SYSCALL_USER_DISPATCH
-#define PR_SET_SYSCALL_USER_DISPATCH 59
-#endif
 
 // Syscall table for x86_64 can be found
 typedef struct scwrap_s {
@@ -496,7 +493,8 @@ static int clone_fn_syscall(void* arg)
 void EXPORT x64Syscall(x64emu_t *emu)
 {
     // check if it's a wine process, then filter the syscall (simulate SECCMP)
-    if(box64_wine && !box64_is32bits) {
+    // Wine uses SUD (syscall user dispatch) since 11.5, bypass this hack if SUD is effective
+    if(box64_wine && !box64_is32bits && (!emu || !emu->sud_enabled)) {
         //64bits only here...
         uintptr_t ret_addr = R_RIP-2;
         if(/*ret_addr<0x700000000000LL &&*/ (my_context->signals[X64_SIGSYS]>2) && !FindElfAddress(my_context, ret_addr)) {
@@ -527,9 +525,10 @@ void EXPORT x64Syscall_linux(x64emu_t *emu)
         if(!BOX64ENV(rolling_log))
             printf_log(LOG_NONE, "%s", buff);
     }
+    if(my_syscall_user_dispatch(emu, R_RIP - 2, s, 0))
+        return;
     if (s == 157 && R_EDI == PR_SET_SYSCALL_USER_DISPATCH) {
-        printf_log(LOG_DEBUG, "Ignoring syscall prctl(PR_SET_SYSCALL_USER_DISPATCH, ...)\n");
-        R_RAX = 0;
+        S_RAX = my_syscall_user_dispatch_prctl(emu, R_RSI, R_RDX, R_R10, (void*)R_R8);
         return;
     }
     // check wrapper first
@@ -1024,6 +1023,14 @@ long EXPORT my_syscall(x64emu_t *emu)
     static uint32_t warned = 0;
     uint32_t s = R_EDI;
     printf_dump(LOG_DEBUG, "%04d| %p: Calling libc syscall 0x%02X (%d) %p %p %p %p %p\n", GetTID(), (void*)R_RIP, s, s, (void*)R_RSI, (void*)R_RDX, (void*)R_RCX, (void*)R_R8, (void*)R_R9);
+    if (s == 157 && S_ESI == PR_SET_SYSCALL_USER_DISPATCH) {
+        long ret = my_syscall_user_dispatch_prctl(emu, R_RDX, R_RCX, R_R8, (void*)R_R9);
+        if(ret < 0) {
+            errno = -ret;
+            return -1;
+        }
+        return 0;
+    }
     // check wrapper first
     uint32_t cnt = sizeof(syscallwrap) / sizeof(scwrap_t);
     if(s<cnt && syscallwrap[s].nats) {
@@ -1228,7 +1235,11 @@ long EXPORT my_syscall(x64emu_t *emu)
         #endif
         case 157: // sys_prctl
             if (S_ESI == PR_SET_SYSCALL_USER_DISPATCH) {
-                printf_log(LOG_INFO, "ignoring syscall prctl(PR_SET_SYSCALL_USER_DISPATCH, ...)\n");
+                long ret = my_syscall_user_dispatch_prctl(emu, R_RDX, R_RCX, R_R8, (void*)R_R9);
+                if(ret < 0) {
+                    errno = -ret;
+                    return -1;
+                }
                 return 0;
             }
             return syscall(__NR_prctl, S_ESI, R_RDX, R_RCX, R_R8, R_R9);
