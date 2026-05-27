@@ -75,6 +75,18 @@ dynablock_t* InvalidDynablock(dynablock_t* db, int need_lock)
     return db;
 }
 
+static void DeferFreeDynablockMap(dynablock_t* db)
+{
+    // enq for a deferred free so any threads still running in this block has a better chance to finish.
+    if (my_context->db_zombie_count == DB_ZOMBIE_SIZE) {
+        FreeDynarecMap((uintptr_t)my_context->db_zombie[my_context->db_zombie_head]->actual_block);
+    } else {
+        my_context->db_zombie_count++;
+    }
+    my_context->db_zombie[my_context->db_zombie_head] = db;
+    my_context->db_zombie_head = (my_context->db_zombie_head + 1) % DB_ZOMBIE_SIZE;
+}
+
 void FreeInvalidDynablock(dynablock_t* db, int need_lock)
 {
     if(db) {
@@ -92,14 +104,7 @@ void FreeInvalidDynablock(dynablock_t* db, int need_lock)
                 dynarec_log(LOG_INFO, "BOX64 Dynarec: lower max_db=%d\n", my_context->max_db_size);
             }
         }
-        // enq for a deferred free so any threads still running in this block has a better chance to finish.
-        if (my_context->db_zombie_count == DB_ZOMBIE_SIZE) {
-            FreeDynarecMap((uintptr_t)my_context->db_zombie[my_context->db_zombie_head]->actual_block);
-        } else {
-            my_context->db_zombie_count++;
-        }
-        my_context->db_zombie[my_context->db_zombie_head] = db;
-        my_context->db_zombie_head = (my_context->db_zombie_head + 1) % DB_ZOMBIE_SIZE;
+        DeferFreeDynablockMap(db);
         if(need_lock)
             mutex_unlock(&my_context->mutex_dyndump);
     }
@@ -131,7 +136,7 @@ void FreeDynablock(dynablock_t* db, int need_lock, int need_remove)
                 dynarec_log(LOG_INFO, "BOX64 Dynarec: lower max_db=%d\n", my_context->max_db_size);
             }
         }
-        FreeDynarecMap((uintptr_t)db->actual_block);    // will also free db
+        DeferFreeDynablockMap(db);
         if(need_lock)
             mutex_unlock(&my_context->mutex_dyndump);
     }
