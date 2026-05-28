@@ -1048,13 +1048,13 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             VADDxy(D, v0, v1, v2);
             break;
         case 0xD5:
-            INST_NAME("VPMULLW Gx, Ex");
+            INST_NAME("VPMULLW Gx, Vx, Ex");
             nextop = F8;
             GETGY_empty_VYEY_xy(v0, v1, v2, 0);
             VMULxy(H, v0, v1, v2);
             break;
         case 0xD6:
-            INST_NAME("VMOVD Ex, Gx");
+            INST_NAME("VMOVQ Ex, Gx");
             nextop = F8;
             GETGYx(q0, 0);
             if (MODREG) {

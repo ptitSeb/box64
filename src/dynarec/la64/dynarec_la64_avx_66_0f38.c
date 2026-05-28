@@ -698,7 +698,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             VMAXxy(WU, v0, v1, v2);
             break;
         case 0x40:
-            INST_NAME("VPMULLD Gx, Ex");
+            INST_NAME("VPMULLD Gx, Vx, Ex");
             nextop = F8;
             GETGY_empty_VYEY_xy(v0, v1, v2, 0);
             VMULxy(W, v0, v1, v2);
