@@ -1352,6 +1352,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             }
             d0 = fpu_get_scratch(dyn);
             d1 = fpu_get_scratch(dyn);
+            d2 = d0;
             FLD(d0, gback, vxoffset + 0);
             FLD(d1, gback, vxoffset + 8);
             if (!BOX64ENV(dynarec_fastnan)) {
@@ -1391,6 +1392,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             }
             if (vex.l) {
                 GETEY();
+                d0 = d2;
                 if (gd == ed) {
                     FLD(v0, gback, gyoffset + 0);
                 }
@@ -1448,6 +1450,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             }
             d0 = fpu_get_scratch(dyn);
             d1 = fpu_get_scratch(dyn);
+            d2 = d0;
             FLD(d0, gback, vxoffset + 0);
             FLD(d1, gback, vxoffset + 8);
             if (!BOX64ENV(dynarec_fastnan)) {
@@ -1487,6 +1490,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             }
             if (vex.l) {
                 GETEY();
+                d0 = d2;
                 if (gd == ed) {
                     FLD(v0, gback, gyoffset + 0);
                 }
