@@ -936,24 +936,6 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
             }
         }
         box64_wine = 1;
-        // check if it's proton, with it's custom gstreamer build, to disable gtk3 loading
-        char tmp[strlen(prog)+100];
-        strcpy(tmp, prog);
-        char* pp = strrchr(tmp, '/');
-        if(pp) {
-            *pp = '\0'; // remove the wine binary call
-            strcat(tmp, "/../lib64/gstreamer-1.0");
-            // check if it exist
-            if(FileExist(tmp, 0)) {
-                box64_custom_gstreamer = box_strdup(tmp);
-            } else {
-                *pp = '\0';
-                strcat(tmp, "/../lib/x86_64-linux-gnu/gstreamer-1.0");
-                if(FileExist(tmp, 0)) {
-                   box64_custom_gstreamer = box_strdup(tmp);
-                }
-            }
-        }
         // Try to get the name of the exe being run, to ApplyEnvFileEntry laters
         if(argv[nextarg+1] && argv[nextarg+1][0]!='-' && strlen(argv[nextarg+1])>4 /*&& !strcasecmp(argv[nextarg+1]+strlen(argv[nextarg+1])-4, ".exe")*/) {
             const char* pp = strrchr(argv[nextarg+1], '/');
@@ -997,6 +979,28 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     my_context = NewBox64Context(argc - nextarg);
 
     addLibPaths(my_context);
+    if(box64_wine) {
+        // check if it's proton, with it's custom gstreamer build, to disable gtk3 loading
+        char* tmp_ = ResolveFile(prog_, &my_context->box64_path);
+        char tmp[strlen(tmp_)+100];
+        strcpy(tmp, tmp_);
+        box_free(tmp_);
+        char* pp = strrchr(tmp, '/');
+        if(pp) {
+            *pp = '\0'; // remove the wine binary call
+            strcat(tmp, "/../lib64/gstreamer-1.0");
+            // check if it exist
+            if(FileExist(tmp, 0)) {
+                box64_custom_gstreamer = box_strdup(tmp);
+            } else {
+                *pp = '\0';
+                strcat(tmp, "/../lib/x86_64-linux-gnu/gstreamer-1.0");
+                if(FileExist(tmp, 0)) {
+                   box64_custom_gstreamer = box_strdup(tmp);
+                }
+            }
+        }
+    }
 
     // Append ld_list if it exist
     if(ld_libs_args!=-1)
