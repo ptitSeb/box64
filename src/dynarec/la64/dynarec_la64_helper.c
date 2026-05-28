@@ -1508,8 +1508,10 @@ int avx_get_reg_empty(dynarec_la64_t* dyn, int ninst, int s1, int a, int width)
         dyn->lsx.avxcache[a].dirty = width == LSX_AVX_WIDTH_128;
         return dyn->lsx.avxcache[a].reg;
     }
-    fpu_free_reg(dyn, dyn->lsx.ssecache[a].reg);
-    dyn->lsx.ssecache[a].v = -1;
+    if (dyn->lsx.ssecache[a].v != -1) {
+        fpu_free_reg(dyn, dyn->lsx.ssecache[a].reg);
+        dyn->lsx.ssecache[a].v = -1;
+    }
     dyn->lsx.avxcache[a].v = 0;
     dyn->lsx.avxcache[a].reg = fpu_get_reg_ymm(dyn, LSX_CACHE_YMMW, a);
     dyn->lsx.avxcache[a].write = 1;
@@ -1684,6 +1686,9 @@ void fpu_popcache(dynarec_la64_t* dyn, int ninst, int s1, int not07)
                 VLD(dyn->lsx.avxcache[i].reg, xEmu, offsetof(x64emu_t, xmm[i]));
                 if (!dyn->lsx.avxcache[i].dirty) {
                     VLD(SCRATCH, xEmu, offsetof(x64emu_t, ymm[i]));
+                    XVPERMI_Q(dyn->lsx.avxcache[i].reg, SCRATCH, XVPERMI_IMM_4_0(0, 2));
+                } else {
+                    XVXOR_V(SCRATCH, SCRATCH, SCRATCH);
                     XVPERMI_Q(dyn->lsx.avxcache[i].reg, SCRATCH, XVPERMI_IMM_4_0(0, 2));
                 }
             }
