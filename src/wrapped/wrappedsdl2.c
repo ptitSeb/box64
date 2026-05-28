@@ -50,7 +50,7 @@ int EXPORT my2_SDL_HasAVX(void) {
     return BOX64ENV(avx)?1:0;
 }
 int EXPORT my2_SDL_HasAVX2(void) {
-    return BOX64ENV(avx2)?1:0;
+    return (BOX64ENV(avx) == 2)?1:0;
 }
 int EXPORT my2_SDL_HasAVX512F(void) __attribute__((alias("sdl_No")));
 

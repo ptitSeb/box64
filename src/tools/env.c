@@ -267,10 +267,6 @@ static void applyCustomRules()
     }
 #endif
 
-    if (box64env.avx == 2) {
-        box64env.avx = 1;
-        box64env.avx2 = 1;
-    }
 
 #ifndef _WIN32
     if (box64env.exit) exit(0);

@@ -116,7 +116,7 @@ void my_cpuid(x64emu_t* emu)
                     | 1<<3      // Monitor/MWait (priviledge instructions)
                     | (BOX64ENV(cputype)?0:1)<<5      // VMX  //is that usefull
                     | 1<<9      // SSSE3
-                    | BOX64ENV(avx2)<<12     // fma
+                    | (BOX64ENV(avx) == 2)<<12     // fma
                     | 1<<13     // cx16 (cmpxchg16)
                     | 1<<19     // SSE4_1
                     | BOX64ENV(sse42)<<20     // SSE4_2 can be hiden
@@ -127,7 +127,7 @@ void my_cpuid(x64emu_t* emu)
                     | BOX64ENV(avx)<<27 // osxsave
                     | BOX64ENV(avx)<<28 // AVX
                     | BOX64ENV(avx)<<29 // F16C
-                    | BOX64ENV(avx2)<<30     // RDRAND
+                    | (BOX64ENV(avx) == 2)<<30     // RDRAND
                     | 0<<31     // Hypervisor guest running
                     ;
             break;
@@ -206,22 +206,22 @@ void my_cpuid(x64emu_t* emu)
                 R_RAX = 0;
                 R_RBX = 1<<0 // FSGSBASE
                         | BOX64ENV(avx)<<3  // BMI1
-                        | BOX64ENV(avx2)<<5  //AVX2
+                        | (BOX64ENV(avx) == 2)<<5  //AVX2
                         | (BOX64ENV(cputype)?0:1)<<6 // FDP_EXCPTN_ONLY
                         | 1<<7 // SMEP
-                        | BOX64ENV(avx2)<<8 //BMI2
+                        | (BOX64ENV(avx) == 2)<<8 //BMI2
                         | (BOX64ENV(cputype)?0:1)<<9    // Enhanced REP MOVSB   // is it a good idea?
                         | 1<<10 //INVPCID (priviledge instruction
                         | (BOX64ENV(cputype)?0:1)<<13 // Deprecates FPU CS and FPU DS
                         | 0<<18 // RDSEED
-                        | BOX64ENV(avx2)<<19 //ADX
+                        | (BOX64ENV(avx) == 2)<<19 //ADX
                         | 1<<23 // CLFLUSHOPT
                         | 1<<24 // CLWB
                         | BOX64ENV(shaext)<<29 // SHA extension
                         ;
                 R_RCX =
                         (BOX64ENV(avx)&&BOX64ENV(aes))<<9   | //VAES
-                        (BOX64ENV(avx2)&&BOX64ENV(pclmulqdq))<<10 | //VPCLMULQDQ.
+                        ((BOX64ENV(avx) == 2)&&BOX64ENV(pclmulqdq))<<10 | //VPCLMULQDQ.
                         1<<22 | // RDPID
                         0;
                 R_RDX = 0;

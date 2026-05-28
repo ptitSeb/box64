@@ -207,7 +207,6 @@ typedef struct box64env_s {
     /******** Custom ones ********/
     int maxcpu;
     int dynarec_test;
-    int avx2;
     int rolling_log;
     int dynarec_perf_map_fd;
     int dynarec_gdbjit;

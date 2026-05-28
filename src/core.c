@@ -226,7 +226,6 @@ static void displayMiscInfo(void)
 #if defined(LA64)
     if (box64env.avx && !cpuext.lasx) {
         box64env.avx = 0;
-        box64env.avx2 = 0;
     }
 #endif
 #endif
