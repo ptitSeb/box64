@@ -285,7 +285,7 @@ DynaCache 写入磁盘的最小大小（KB）。默认大小为 350KB。
 
 ### BOX64_AVX
 
-向 CPUID 和 cpuinfo 文件暴露 AVX 扩展。在 Arm64 上默认值为 2，因为 DynaRec 已完全实现，其他架构默认为 0。 在 WowBox64 中可用。
+向 CPUID 和 cpuinfo 文件暴露 AVX 扩展。在 Arm64 和龙架构上默认值为 2，因为 DynaRec 已完全实现，其他架构默认为 0。 在 WowBox64 中可用。
 
  * 0: 不暴露 AVX 能力。
  * 1: 向 CPUID 和 cpuinfo 文件暴露 AVX、BMI1、F16C 和 VAES 扩展。
