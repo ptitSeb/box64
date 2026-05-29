@@ -205,7 +205,7 @@ void x64Int3(x64emu_t* emu, uintptr_t* addr)
                 } else if (strstr(s, "popen")==s) {
                     tmp = (char*)(R_RDI);
                     char* tmp2 = (char*)(R_RSI);
-                    snprintf(buff, 256, "%04d|%p: Calling %s(\"%s\")", tid, *(void**)(R_RSP), s, (tmp)?tmp:"(nil)", (tmp2)?tmp2:"nil");
+                    snprintf(buff, 256, "%04d|%p: Calling %s(\"%s\", \"%s\")", tid, *(void**)(R_RSP), s, (tmp)?tmp:"(nil)", (tmp2)?tmp2:"nil");
                     perr = 5;
                 } else if (!strcmp(s, "read") || !strcmp(s, "my_read")) {
                     snprintf(buff, 256, "%04d|%p: Calling %s(%d, %p, %zu)", tid, *(void**)(R_RSP), s, R_EDI, (void*)R_RSI, R_RDX);
