@@ -2125,7 +2125,7 @@ EXPORT ssize_t my_readlink(x64emu_t* emu, void* path, void* buf, size_t sz)
                 if(filename[0]=='.') {
                     // relative path, need to grap cwd and cannonicalise the path
                     char cwd_name[strlen(path)+4];
-                    sprintf(cwd_name, "/proc/%d/cwd");
+                    sprintf(cwd_name, "/proc/%d/cwd", pid);
                     char cwd[MAX_PATH] = {0};
                     if(readlink(cwd_name, cwd, MAX_PATH)>0 && strlen(cwd)+strlen(path)+1<MAX_PATH) {
                         strcat(cwd, "/");
