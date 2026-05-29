@@ -783,8 +783,9 @@ void RecordEnvMappings(uintptr_t addr, size_t length, int fd)
     if(strstr(lowercase_filename, "/memfd:")==lowercase_filename) {
         // memfd, first remove the (deleted) at the end
         char* p = strstr(lowercase_filename, " (deleted)");
-        if(p=lowercase_filename+strlen(lowercase_filename)-strlen(" (deleted)"))
-            *p = 0;
+        if(p == lowercase_filename+strlen(lowercase_filename)-strlen(" (deleted)")) {
+            *p = '\0';
+        }
         // add the "/fd" at the end to differenciate between memfd
         char* new_name = box_calloc(1, strlen(lowercase_filename)+100);
         sprintf(new_name, "%s/%d", lowercase_filename, fd);
