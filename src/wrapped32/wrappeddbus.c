@@ -538,7 +538,7 @@ EXPORT int my32_dbus_message_append_args(x64emu_t* emu, void* message, int arg, 
     // fill the array
     while(type) {
         void* value = from_ptrv(V[idx*2]);
-        if((type == (int)'s')) {
+        if(type == (int)'s') {
             array[count + nstr] = from_ptrv(*(ptr_t*)value);
             array[idx*2+0] = &array[count + nstr++];
         } else if(type == ((int)'a')) {
