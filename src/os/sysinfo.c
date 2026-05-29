@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <sched.h>
+#include <inttypes.h>
 
 #include "debug.h"
 #include "sysinfo.h"
@@ -170,7 +171,7 @@ fallback:
     sprintf(str, "%d", (info->ncpu) ? (int)info->ncpu : 1);
     setenv("BOX64_SYSINFO_NCPU", str, 1);
     setenv("BOX64_SYSINFO_CPUNAME", info->cpuname, 1);
-    sprintf(str, "%llu", info->frequency);
+    sprintf(str, "%" PRIu64, info->frequency);
     setenv("BOX64_SYSINFO_FREQUENCY", str, 1);
     setenv("BOX64_SYSINFO_CACHED", "1", 1);
     return;
@@ -190,7 +191,7 @@ void InitializeSystemInfo(void)
         if (box64_sysinfo.frequency > 1500000) {
             snprintf(branding, sizeof(branding), BOX64_BUILD_INFO_STRING_SHORT " on %.*s @%1.2f GHz", 28, box64_sysinfo.cpuname, box64_sysinfo.frequency / 1000000000.);
         } else {
-            snprintf(branding, sizeof(branding), BOX64_BUILD_INFO_STRING_SHORT " on %.*s @%04d MHz", 28, box64_sysinfo.cpuname, box64_sysinfo.frequency / 1000000);
+            snprintf(branding, sizeof(branding), BOX64_BUILD_INFO_STRING_SHORT " on %.*s @%04" PRIu64 " MHz", 28, box64_sysinfo.cpuname, box64_sysinfo.frequency / 1000000);
         }
     }
     box64_sysinfo.box64_cpuname = (char*)calloc(strlen(branding) + 1, 1);

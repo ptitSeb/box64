@@ -4,6 +4,7 @@
 #include <fcntl.h>
 #include <string.h>
 #include <stdint.h>
+#include <inttypes.h>
 #if defined(DYNAREC) && !defined(WIN32)
 #include <sys/types.h>
 #include <dirent.h>
@@ -168,7 +169,7 @@ char* MmaplistName(const char* filename, uint64_t dynarec_settings, const char* 
     // Where XXXXX is the hash of the full name
     // and YYYY is the Dynarec optim (in hex)
     static char mapname[4096];
-    snprintf(mapname, 4095-6, "%s-%llx-%u", filename, dynarec_settings, __ac_X31_hash_string(fullname));
+    snprintf(mapname, 4095-6, "%s-%" PRIx64 "-%u", filename, dynarec_settings, __ac_X31_hash_string(fullname));
     strcat(mapname, ".box64");
     return mapname;
 }
