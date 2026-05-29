@@ -481,10 +481,10 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 RDTIME_D(x3, xZR);
             }
             if (box64_rdtsc_shift) {
-                SRLI_D(x3, x3, box64_rdtsc_shift);
+                SLLI_D(x3, x3, box64_rdtsc_shift);
             }
             SRLI_D(xRDX, x3, 32);
-            ZEROUP2(xRDX, x3);
+            ZEROUP2(xRAX, x3);
             break;
         case 0x38:
             // SSE3
