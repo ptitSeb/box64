@@ -836,7 +836,7 @@ void RecordEnvMappings(uintptr_t addr, size_t length, int fd)
         int dynacache = box64env.dynacache;
         if(mapping->env && mapping->env->is_dynacache_overridden)
             dynacache = mapping->env->dynacache;
-        if(dynacache)
+        if(dynacache && BOX64ENV(dynarec))
             MmapDynaCache(mapping);
         #endif
     }
