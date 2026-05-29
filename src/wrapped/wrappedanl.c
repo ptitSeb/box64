@@ -12,6 +12,8 @@
 #include "x64emu.h"
 
 const char* anlName = "libanl.so.1";
+#define ALTNAME "libanl.so"
+#define ALTNAME2 "libc.so.6"
 
 #define LIBNAME anl
 
