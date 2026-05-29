@@ -802,6 +802,10 @@
 #define CBNZ_MARKSEG(reg)                  \
     j64 = GETMARKSEG - (dyn->native_size); \
     BNEZ(reg, j64);
+// Branch to MARKSEG if reg1==reg2 (use j64)
+#define BEQ_MARKSEG(reg1, reg2)            \
+    j64 = GETMARKSEG - (dyn->native_size); \
+    BEQ(reg1, reg2, j64);
 
 #define IFX(A)      if ((dyn->insts[ninst].x64.gen_flags & (A)))
 #define IFXA(A, B)  if ((dyn->insts[ninst].x64.gen_flags & (A)) && (B))
