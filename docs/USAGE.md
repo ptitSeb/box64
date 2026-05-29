@@ -254,7 +254,7 @@ Specify the architecture in rcfiles to which the current entry applies. This opt
 
 ### BOX64_AVX
 
-Expose AVX extension to CPUID and cpuinfo file. Default value is 2 on Arm64 because it's fully implemented in DynaRec, 0 otherwise. Available in WowBox64.
+Expose AVX extension to CPUID and cpuinfo file. Default value is 2 on Arm64 and LoongArch64 because it's fully implemented in DynaRec, 0 otherwise. Available in WowBox64.
 
  * 0: Do not expose AVX capabilities.
  * 1: Expose AVX, BMI1, F16C and VAES extensions to CPUID and cpuinfo file.
