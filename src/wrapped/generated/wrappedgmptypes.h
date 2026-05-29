@@ -12,10 +12,10 @@
 #endif
 
 typedef void (*vFppp_t)(void*, void*, void*);
-typedef int32_t (*iFppV_t)(void*, void*, ...);
-typedef int32_t (*iFppA_t)(void*, void*, va_list);
-typedef int32_t (*iFSpV_t)(void*, void*, ...);
-typedef int32_t (*iFSpA_t)(void*, void*, va_list);
+typedef int32_t (*iFppV_t)(void*, const char *, ...);
+typedef int32_t (*iFppA_t)(void*, const char *, va_list);
+typedef int32_t (*iFSpV_t)(void*, const char *, ...);
+typedef int32_t (*iFSpA_t)(void*, const char *, va_list);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(__gmp_get_memory_functions, vFppp_t) \
