@@ -461,7 +461,9 @@ void ret_to_next(dynarec_la64_t* dyn, uintptr_t ip, int ninst, rex_t rex)
 
 void iret_to_next(dynarec_la64_t* dyn, uintptr_t ip, int ninst, int is32bits, int is64bits)
 {
+    int64_t j64;
     MAYUSE(ninst);
+    MAYUSE(j64);
     MESSAGE(LOG_DUMP, "IRet to next\n");
     if (is64bits) {
         POP1(xRIP);
@@ -481,6 +483,12 @@ void iret_to_next(dynarec_la64_t* dyn, uintptr_t ip, int ninst, int is32bits, in
     ORI(xFlags, xFlags, 0x2);
     SPILL_EFLAGS();
     CHECK_DFNONE(0);
+    if (is32bits) {
+        ANDI(x1, x2, 0xff);
+        // check if return segment is 64bits, then restore rsp too
+        MOV32w(x3, 0x23);
+        BEQ_MARKSEG(x1, x3);
+    }
     // POP RSP
     if (is64bits) {
         POP1(x3); // rsp
@@ -493,6 +501,7 @@ void iret_to_next(dynarec_la64_t* dyn, uintptr_t ip, int ninst, int is32bits, in
     ST_H(x2, xEmu, offsetof(x64emu_t, segs[_SS]));
     // set new RSP
     MV(xRSP, x3);
+    MARKSEG;
     // Ret....
     rex_t dummy = { 0 };
     dummy.is32bits = is32bits;
