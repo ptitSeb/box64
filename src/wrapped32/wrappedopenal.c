@@ -101,7 +101,7 @@ EXPORT void* my32_alGetProcAddress(x64emu_t* emu, void* name)
     const char* rname = (const char*)name;
     printf_log(LOG_DEBUG, "Calling 32bits alGetProcAddress(%s)\n", rname);
     if(!emu->context->alwrappers)   // could be moved in "my" structure...
-        fillALProcWrapper32(emu->context);
+        fillALProcWrapper32();
     // get proc adress using actual alGetProcAddress
     k = kh_get(symbolmap, emu->context->almymap, rname);
     int is_my = (k==kh_end(emu->context->almymap))?0:1;
