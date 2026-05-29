@@ -282,6 +282,8 @@ static void applyCustomRules()
 #ifndef _WIN32
     if (box64env.addlibs) AddNewLibs(box64env.addlibs);
 #endif
+
+    box64env.dynacache = box64env.dynarec && box64env.dynacache;
 }
 
 static void trimStringInplace(char* s)
@@ -836,7 +838,7 @@ void RecordEnvMappings(uintptr_t addr, size_t length, int fd)
         int dynacache = box64env.dynacache;
         if(mapping->env && mapping->env->is_dynacache_overridden)
             dynacache = mapping->env->dynacache;
-        if(dynacache)
+        if(BOX64ENV(dynarec) && dynacache)
             MmapDynaCache(mapping);
         #endif
     }
