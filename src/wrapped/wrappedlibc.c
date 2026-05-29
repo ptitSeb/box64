@@ -2043,8 +2043,8 @@ static int isProcAny(const char *path, const char* w)
     if(strncmp(path, "/proc/", 6)==0) {
         int pid;
         char p[4096] ={0};
-        if(sscanf(path, "/proc/%d/%s", &pid, &p)==2)
-            if(p && !strcmp(p, w))
+        if(sscanf(path, "/proc/%d/%s", &pid, p)==2)
+            if(strcmp(p, w) == 0)
                 return pid;
     }
     return -1;
