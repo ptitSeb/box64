@@ -2056,7 +2056,7 @@ EXPORT int32_t my32_execve(x64emu_t* emu, const char* path, ptr_t argv[], ptr_t 
 EXPORT int32_t my32_execvp(x64emu_t* emu, const char* path, ptr_t argv[])
 {
     // need to use BOX32_PATH / PATH here...
-    char* fullpath = ResolveFile(path, &my_context->box64_path);
+    char* fullpath = ResolveFileSoft(path, &my_context->box64_path);
     // use fullpath now
     int self = isProcSelf(fullpath, "exe");
     int x86 = FileIsX86ELF(fullpath);
@@ -2105,7 +2105,7 @@ EXPORT int32_t my32_execvp(x64emu_t* emu, const char* path, ptr_t argv[])
 EXPORT int32_t my32_execvpe(x64emu_t* emu, const char* path, ptr_t argv[], ptr_t envp[])
 {
     // need to use BOX32_PATH / PATH here...
-    char* fullpath = ResolveFile(path, &my_context->box64_path);
+    char* fullpath = ResolveFileSoft(path, &my_context->box64_path);
     // use fullpath now
     int self = isProcSelf(fullpath, "exe");
     int x86 = FileIsX86ELF(fullpath);
@@ -2294,7 +2294,7 @@ EXPORT int32_t my32_posix_spawnp(x64emu_t* emu, pid_t* pid, const char* path,
         convert_file_action_to_64(actions, actions_s);
     }
     // need to use BOX32_PATH / PATH here...
-    char* fullpath = ResolveFile(path, &my_context->box64_path);
+    char* fullpath = ResolveFileSoft(path, &my_context->box64_path);
     // use fullpath...
     int self = isProcSelf(fullpath, "exe");
     int x86 = FileIsX86ELF(fullpath);
