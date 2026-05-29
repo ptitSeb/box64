@@ -69,20 +69,51 @@ static inline uint64_t readFreq()
     return val;
 }
 #elif defined(LA64)
+#define LA64_CPUCFG2        0x2
+#define LA64_CPUCFG2_LLFTP  (1u << 14)
+#define LA64_CPUCFG4        0x4
+#define LA64_CPUCFG5        0x5
+
 static inline uint64_t readCycleCounter()
 {
     uint64_t val;
+    uint64_t id;
     asm volatile("rdtime.d %0, %1"
-                 : "=r"(val) : "r"(0));
+                 : "=r"(val), "=r"(id));
+    (void)id;
     return val;
 }
 
 static inline uint64_t readFreq()
 {
-    static size_t val = -1;
+    static uint64_t val = 0;
 
-    if (box64_sysinfo.read_frequency) return box64_sysinfo.frequency;
+    if (val) return val;
 
+    uint32_t idx = LA64_CPUCFG2;
+    uint32_t res;
+    asm volatile("cpucfg %0, %1"
+                 : "=r"(res)
+                 : "r"(idx));
+    if (res & LA64_CPUCFG2_LLFTP) {
+        idx = LA64_CPUCFG4;
+        uint32_t base_freq;
+        asm volatile("cpucfg %0, %1"
+                     : "=r"(base_freq)
+                     : "r"(idx));
+        idx = LA64_CPUCFG5;
+        asm volatile("cpucfg %0, %1"
+                     : "=r"(res)
+                     : "r"(idx));
+        uint32_t cfm = res & 0xffff;
+        uint32_t cfd = (res >> 16) & 0xffff;
+        if (base_freq && cfm && cfd) {
+            val = (uint64_t)base_freq * cfm / cfd;
+            return val;
+        }
+    }
+
+    // fallback to rdtime + sleep
     struct timespec ts;
     ts.tv_sec = 0;
     ts.tv_nsec = 50000000; // 50 milliseconds
