@@ -45,7 +45,7 @@ static char* ResolveFileInner(const char* filename, path_collection_t* paths, in
         } else
             strcpy(p, paths->paths[i]);
         strcat(p, filename);
-        if(FileExist(p, 0)) {
+        if(FileExist(p, IS_FILE)) {
             return ResolvePathInner(p, resolve_symlink);
         }
     }
