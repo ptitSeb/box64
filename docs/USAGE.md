@@ -800,8 +800,8 @@ Tweak the memory barriers to reduce the performance impact by strong memory emul
 Enable/disable the Dynamic Recompiler Cache (a.k.a DynaCache). This option defaults to 2 (to read cache if present but not generate any). DynaCache writes files to the home folder by default, and keeps its folder below BOX64_DYNACACHE_LIMIT when generating new cache files.
 
  * 0: Disable DynaCache.
- * 1: Enable DynaCache.
- * 2: Use DynaCache files if present, but do not generate new one. [Default]
+ * 1: Enable DynaCache. [Default]
+ * 2: Use DynaCache files if present, but do not generate new one.
 
 ### BOX64_DYNACACHE_FOLDER
 

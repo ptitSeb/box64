@@ -984,12 +984,12 @@
       {
         "key": "1",
         "description": "Enable DynaCache.",
-        "default": false
+        "default": true
       },
       {
         "key": "2",
         "description": "Use DynaCache files if present, but do not generate new one.",
-        "default": true
+        "default": false
       }
     ]
   },

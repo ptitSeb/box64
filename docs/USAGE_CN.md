@@ -233,8 +233,8 @@ BOX64_DYNAREC_CALLRET=1
 启用或禁用动态重编译器缓存（DynaCache）。此选项默认为 2（读取已有缓存但不生成新的）。DynaCache 默认将文件写入 home 文件夹，生成新缓存文件时会根据 BOX64_DYNACACHE_LIMIT 控制文件夹大小。
 
  * 0: 禁用 DynaCache。
- * 1: 启用 DynaCache。
- * 2: 使用已有的 DynaCache 文件，但不生成新的。 [默认值]
+ * 1: 启用 DynaCache。 [默认值]
+ * 2: 使用已有的 DynaCache 文件，但不生成新的。
 
 ### BOX64_DYNACACHE_FOLDER
 
