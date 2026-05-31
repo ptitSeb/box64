@@ -108,6 +108,8 @@ void freeVulkanOverlay(my_vulkanoverlay_t* v)
 #define MAPNAME2(N,M) MAPNAME3(N,M)
 #define MAPNAME(N) MAPNAME2(GO_,N)
 
+#define SIGFMT(B) (&(#B)[2])
+
 #define F1(A, B, N) RunFunctionFmt(my_##A##_fct_##N, B, a)
 #define F2(A, B, N) RunFunctionFmt(my_##A##_fct_##N, B, a, b)
 #define F3(A, B, N) RunFunctionFmt(my_##A##_fct_##N, B, a, b, c)
@@ -121,187 +123,187 @@ void freeVulkanOverlay(my_vulkanoverlay_t* v)
 #define F11(A, B, N) RunFunctionFmt(my_##A##_fct_##N, B, a, b, c, d, e, f, g, h, i, j, k)
 #define F15(A, B, N) RunFunctionFmt(my_##A##_fct_##N, B, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o)
 
-#define GO_vFp(A, B, N)        static void my_##A##_##N(void* a) {F1(A, #B +2, N);}
-#define GO_vFpi(A, B, N)       static void my_##A##_##N(void* a, int b) {F2(A, #B +2, N);}
-#define GO_vFpp(A, B, N)       static void my_##A##_##N(void* a, void* b) {F2(A, #B +2, N);}
-#define GO_vFpf(A, B, N)       static void my_##A##_##N(void* a, float b) {F2(A, #B +2, N);}
-#define GO_vFpu(A, B, N)       static void my_##A##_##N(void* a, uint32_t b) {F2(A, #B +2, N);}
-#define GO_vFpU(A, B, N)       static void my_##A##_##N(void* a, uint64_t b) {F2(A, #B +2, N);}
-#define GO_vFpip(A, B, N)      static void my_##A##_##N(void* a, int b, void* c) {F3(A, #B +2, N);}
-#define GO_vFppi(A, B, N)      static void my_##A##_##N(void* a, void* b, int c) {F3(A, #B +2, N);}
-#define GO_vFppp(A, B, N)      static void my_##A##_##N(void* a, void* b, void* c) {F3(A, #B +2, N);}
-#define GO_vFpff(A, B, N)      static void my_##A##_##N(void* a, float b, float c) {F3(A, #B +2, N);}
-#define GO_vFppf(A, B, N)      static void my_##A##_##N(void* a, void* b, float c) {F3(A, #B +2, N);}
-#define GO_vFpiU(A, B, N)      static void my_##A##_##N(void* a, int b, uint64_t c) {F3(A, #B +2, N);}
-#define GO_vFpUi(A, B, N)      static void my_##A##_##N(void* a, uint64_t b, int c) {F3(A, #B +2, N);}
-#define GO_vFppu(A, B, N)      static void my_##A##_##N(void* a, void* b, uint32_t c) {F3(A, #B +2, N);}
-#define GO_vFppU(A, B, N)      static void my_##A##_##N(void* a, void* b, uint64_t c) {F3(A, #B +2, N);}
-#define GO_vFpup(A, B, N)      static void my_##A##_##N(void* a, uint32_t b, void* c) {F3(A, #B +2, N);}
-#define GO_vFpUp(A, B, N)      static void my_##A##_##N(void* a, uint64_t b, void* c) {F3(A, #B +2, N);}
-#define GO_vFpUf(A, B, N)      static void my_##A##_##N(void* a, uint64_t b, float c) {F3(A, #B +2, N);}
-#define GO_vFpUU(A, B, N)      static void my_##A##_##N(void* a, uint64_t b, uint64_t c) {F3(A, #B +2, N);}
-#define GO_vFpUu(A, B, N)      static void my_##A##_##N(void* a, uint64_t b, uint32_t c) {F3(A, #B +2, N);}
-#define GO_vFpuu(A, B, N)      static void my_##A##_##N(void* a, uint32_t b, uint32_t c) {F3(A, #B +2, N);}
-#define GO_vFpuW(A, B, N)      static void my_##A##_##N(void* a, uint32_t b, uint16_t c) {F3(A, #B +2, N);}
-#define GO_vFpipp(A, B, N)     static void my_##A##_##N(void* a, int b, void* c, void* d) {F4(A, #B +2, N);}
-#define GO_vFpppp(A, B, N)     static void my_##A##_##N(void* a, void* b, void* c, void* d) {F4(A, #B +2, N);}
-#define GO_vFpfff(A, B, N)     static void my_##A##_##N(void* a, float b, float c, float d) {F4(A, #B +2, N);}
-#define GO_vFpiup(A, B, N)     static void my_##A##_##N(void* a, int b, uint32_t c, void* d) {F4(A, #B +2, N);}
-#define GO_vFppLp(A, B, N)     static void my_##A##_##N(void* a, void* b, size_t c, void* d) {F4(A, #B +2, N);}
-#define GO_vFpupp(A, B, N)     static void my_##A##_##N(void* a, uint32_t b, void* c, void* d) {F4(A, #B +2, N);}
-#define GO_vFpUpp(A, B, N)     static void my_##A##_##N(void* a, uint64_t b, void* c, void* d) {F4(A, #B +2, N);}
-#define GO_vFppup(A, B, N)     static void my_##A##_##N(void* a, void* b, uint32_t c, void* d) {F4(A, #B +2, N);}
-#define GO_vFpppu(A, B, N)     static void my_##A##_##N(void* a, void* b, void* c, uint32_t d) {F4(A, #B +2, N);}
-#define GO_vFpiUu(A, B, N)     static void my_##A##_##N(void* a, int b, uint64_t c, uint32_t d) {F4(A, #B +2, N);}
-#define GO_vFpUUi(A, B, N)     static void my_##A##_##N(void* a, uint64_t b, uint64_t c, int d) {F4(A, #B +2, N);}
-#define GO_vFppUu(A, B, N)     static void my_##A##_##N(void* a, void* b, uint64_t c, uint32_t d) {F4(A, #B +2, N);}
-#define GO_vFppuu(A, B, N)     static void my_##A##_##N(void* a, void* b, uint32_t c, uint32_t d) {F4(A, #B +2, N);}
-#define GO_vFpupu(A, B, N)     static void my_##A##_##N(void* a, uint32_t b, void* c, uint32_t d) {F4(A, #B +2, N);}
-#define GO_vFpuup(A, B, N)     static void my_##A##_##N(void* a, uint32_t b, uint32_t c, void* d) {F4(A, #B +2, N);}
-#define GO_vFpUup(A, B, N)     static void my_##A##_##N(void* a, uint64_t b, uint32_t c, void* d) {F4(A, #B +2, N);}
-#define GO_vFpUUp(A, B, N)     static void my_##A##_##N(void* a, uint64_t b, uint64_t c, void* d) {F4(A, #B +2, N);}
-#define GO_vFpUpu(A, B, N)     static void my_##A##_##N(void* a, uint64_t b, void* c, uint32_t d) {F4(A, #B +2, N);}
-#define GO_vFpUUu(A, B, N)     static void my_##A##_##N(void* a, uint64_t b, uint64_t c, uint32_t d) {F4(A, #B +2, N);}
-#define GO_vFpUuu(A, B, N)     static void my_##A##_##N(void* a, uint64_t b, uint32_t c, uint32_t d) {F4(A, #B +2, N);}
-#define GO_vFpuuu(A, B, N)     static void my_##A##_##N(void* a, uint32_t b, uint32_t c, uint32_t d) {F4(A, #B +2, N);}
-#define GO_vFpippp(A, B, N)    static void my_##A##_##N(void* a, int b, void* c, void* d, void* e) {F5(A, #B +2, N);}
-#define GO_vFpuppp(A, B, N)    static void my_##A##_##N(void* a, uint32_t b, void* c, void* d, void* e) {F5(A, #B +2, N);}
-#define GO_vFpppup(A, B, N)    static void my_##A##_##N(void* a, void* b, void* c, uint32_t d, void* e) {F5(A, #B +2, N);}
-#define GO_vFpiUUp(A, B, N)    static void my_##A##_##N(void* a, int b, uint64_t c, uint64_t d, void* e) {F5(A, #B +2, N);}
-#define GO_vFpiUUu(A, B, N)    static void my_##A##_##N(void* a, int b, uint64_t c, uint64_t d, uint32_t e) {F5(A, #B +2, N);}
-#define GO_vFpupup(A, B, N)    static void my_##A##_##N(void* a, uint32_t b, void* c, uint32_t d, void* e) {F5(A, #B +2, N);}
-#define GO_vFpuupp(A, B, N)    static void my_##A##_##N(void* a, uint32_t b, uint32_t c, void* d, void* e) {F5(A, #B +2, N);}
-#define GO_vFpUUUi(A, B, N)    static void my_##A##_##N(void* a, uint64_t b, uint64_t c, uint64_t d, int e) {F5(A, #B +2, N);}
-#define GO_vFpuUpp(A, B, N)    static void my_##A##_##N(void* a, uint32_t b, uint64_t c, void* d, void* e) {F5(A, #B +2, N);}
-#define GO_vFppUUp(A, B, N)    static void my_##A##_##N(void* a, void* b, uint64_t c, uint64_t d, void* e) {F5(A, #B +2, N);}
-#define GO_vFpupUu(A, B, N)    static void my_##A##_##N(void* a, uint32_t b, void* c, uint64_t d, uint32_t e) {F5(A, #B +2, N);}
-#define GO_vFppUUu(A, B, N)    static void my_##A##_##N(void* a, void* b, uint64_t c, uint64_t d, uint32_t e) {F5(A, #B +2, N);}
-#define GO_vFpUUUp(A, B, N)    static void my_##A##_##N(void* a, uint64_t b, uint64_t c, uint64_t d, void* e) {F5(A, #B +2, N);}
-#define GO_vFpuuup(A, B, N)    static void my_##A##_##N(void* a, uint32_t b, uint32_t c, uint32_t d, void* e) {F5(A, #B +2, N);}
-#define GO_vFpUUup(A, B, N)    static void my_##A##_##N(void* a, uint64_t b, uint64_t c, uint32_t d, void* e) {F5(A, #B +2, N);}
-#define GO_vFppUuu(A, B, N)    static void my_##A##_##N(void* a, void* b, uint64_t c, uint32_t d, uint32_t e) {F5(A, #B +2, N);}
-#define GO_vFpUpUu(A, B, N)    static void my_##A##_##N(void* a, uint64_t b, void* c, uint64_t d, uint32_t e) {F5(A, #B +2, N);}
-#define GO_vFppuuu(A, B, N)    static void my_##A##_##N(void* a, void* b, uint32_t c, uint32_t d, uint32_t e) {F5(A, #B +2, N);}
-#define GO_vFpuuuu(A, B, N)    static void my_##A##_##N(void* a, uint32_t b, uint32_t c, uint32_t d, uint32_t e) {F5(A, #B +2, N);}
-#define GO_vFpUuuu(A, B, N)    static void my_##A##_##N(void* a, uint64_t b, uint32_t c, uint32_t d, uint32_t e) {F5(A, #B +2, N);}
-#define GO_vFpUUUu(A, B, N)    static void my_##A##_##N(void* a, uint64_t b, uint64_t c, uint64_t d, uint32_t e) {F5(A, #B +2, N);}
-#define GO_vFpUUuu(A, B, N)    static void my_##A##_##N(void* a, uint64_t b, uint64_t c, uint32_t d, uint32_t e) {F5(A, #B +2, N);}
-#define GO_vFpuiiii(A, B, N)   static void my_##A##_##N(void* a, uint32_t b, int c, int d, int e, int f) {F6(A, #B +2, N);}
-#define GO_vFpupppp(A, B, N)   static void my_##A##_##N(void* a, uint32_t b, void* c, void* d, void* e, void* f) {F6(A, #B +2, N);}
-#define GO_vFpppppU(A, B, N)   static void my_##A##_##N(void* a, void* b, void* c, void* d, void* e, uint64_t f) {F6(A, #B +2, N);}
-#define GO_vFpUipup(A, B, N)   static void my_##A##_##N(void* a, uint64_t b, int c, void* d, uint32_t e, void* f) {F6(A, #B +2, N);}
-#define GO_vFppupup(A, B, N)   static void my_##A##_##N(void* a, void* b, uint32_t c, void* d, uint32_t e, void* f) {F6(A, #B +2, N);}
-#define GO_vFpppuup(A, B, N)   static void my_##A##_##N(void* a, void* b, void* c, uint32_t d, uint32_t e, void* f) {F6(A, #B +2, N);}
-#define GO_vFpuuppp(A, B, N)   static void my_##A##_##N(void* a, uint32_t b, uint32_t c, void* d, void* e, void* f) {F6(A, #B +2, N);}
-#define GO_vFpUiUup(A, B, N)   static void my_##A##_##N(void* a, uint64_t b, int c, uint64_t d, uint32_t e, void* f) {F6(A, #B +2, N);}
-#define GO_vFpiUuup(A, B, N)   static void my_##A##_##N(void* a, int b, uint64_t c, uint32_t d, uint32_t e, void* f) {F6(A, #B +2, N);}
-#define GO_vFpUUiup(A, B, N)   static void my_##A##_##N(void* a, uint64_t b, uint64_t c, int d, uint32_t e, void* f) {F6(A, #B +2, N);}
-#define GO_vFpupiUu(A, B, N)   static void my_##A##_##N(void* a, uint32_t b, void* c, int d, uint64_t e, uint32_t f) {F6(A, #B +2, N);}
-#define GO_vFppuuup(A, B, N)   static void my_##A##_##N(void* a, void* b, uint32_t c, uint32_t d, uint32_t e, void* f) {F6(A, #B +2, N);}
-#define GO_vFpupupu(A, B, N)   static void my_##A##_##N(void* a, uint32_t b, void* c, uint32_t d, void* e, uint32_t f) {F6(A, #B +2, N);}
-#define GO_vFpupuup(A, B, N)   static void my_##A##_##N(void* a, uint32_t b, void* c, uint32_t d, uint32_t e, void* f) {F6(A, #B +2, N);}
-#define GO_vFpuuuiu(A, B, N)   static void my_##A##_##N(void* a, uint32_t b, uint32_t c, uint32_t d, int e, uint32_t f) {F6(A, #B +2, N);}
-#define GO_vFpUuuup(A, B, N)   static void my_##A##_##N(void* a, uint64_t b, uint32_t c, uint32_t d, uint32_t e, void* f) {F6(A, #B +2, N);}
-#define GO_vFpupuuu(A, B, N)   static void my_##A##_##N(void* a, uint32_t b, void* c, uint32_t d, uint32_t e, uint32_t f) {F6(A, #B +2, N);}
-#define GO_vFpuuuuu(A, B, N)   static void my_##A##_##N(void* a, uint32_t b, uint32_t c, uint32_t d, uint32_t e, uint32_t f) {F6(A, #B +2, N);}
-#define GO_vFpUiUiup(A, B, N)  static void my_##A##_##N(void* a, uint64_t b, int c, uint64_t d, int e, uint32_t f, void* g) {F7(A, #B +2, N);}
-#define GO_vFpuupppp(A, B, N)  static void my_##A##_##N(void* a, uint32_t b, uint32_t c, void* d, void* e, void* f, void* g) {F7(A, #B +2, N);}
-#define GO_vFpUuupup(A, B, N)  static void my_##A##_##N(void* a, uint64_t b, uint32_t c, uint32_t d, void* e, uint32_t f, void* g) {F7(A, #B +2, N);}
-#define GO_vFppUuupp(A, B, N)  static void my_##A##_##N(void* a, void* b, uint64_t c, uint32_t d, uint32_t e, void* f, void* g) {F7(A, #B +2, N);}
-#define GO_vFpupuupp(A, B, N)  static void my_##A##_##N(void* a, uint32_t b, void* c, uint32_t d, uint32_t e, void* f, void* g) {F7(A, #B +2, N);}
-#define GO_vFppupuup(A, B, N)  static void my_##A##_##N(void* a, void* b, uint32_t c, void* d, uint32_t e, uint32_t f, void* g) {F7(A, #B +2, N);}
-#define GO_vFpUuuUip(A, B, N)  static void my_##A##_##N(void* a, uint64_t b, uint32_t c, uint32_t d, uint64_t e, int f, void* g) {F7(A, #B +2, N);}
-#define GO_vFpupuuup(A, B, N)  static void my_##A##_##N(void* a, uint32_t b, void* c, uint32_t d, uint32_t e, uint32_t f, void* g) {F7(A, #B +2, N);}
-#define GO_vFppUpUuu(A, B, N)  static void my_##A##_##N(void* a, void* b, uint64_t c, void* d, uint64_t e, uint32_t f, uint32_t g) {F7(A, #B +2, N);}
-#define GO_vFpuupUuu(A, B, N)  static void my_##A##_##N(void* a, uint32_t b, uint32_t c, void* d, uint64_t e, uint32_t f, uint32_t g) {F7(A, #B +2, N);}
-#define GO_vFpuuuuuu(A, B, N)  static void my_##A##_##N(void* a, uint32_t b, uint32_t c, uint32_t d, uint32_t e, uint32_t f, uint32_t g) {F7(A, #B +2, N);}
-#define GO_vFpuuUUuu(A, B, N)  static void my_##A##_##N(void* a, uint32_t b, uint32_t c, uint64_t d, uint64_t e, uint32_t f, uint32_t g) {F7(A, #B +2, N);}
-#define GO_vFpUUUUuu(A, B, N)  static void my_##A##_##N(void* a, uint64_t b, uint64_t c, uint64_t d, uint64_t e, uint32_t f, uint32_t g) {F7(A, #B +2, N);}
-#define GO_vFpiiiuipp(A, B, N) static void my_##A##_##N(void* a, int b, int c, int d, uint32_t e, int f, void* g, void* h) {F8(A, #B +2, N);}
-#define GO_vFpUiUiupi(A, B, N) static void my_##A##_##N(void* a, uint64_t b, int c, uint64_t d, int e, uint32_t f, void* g, int h) {F8(A, #B +2, N);}
-#define GO_vFpuiULipp(A, B, N) static void my_##A##_##N(void* a, uint32_t b, int c, uint64_t d, size_t e, int f, void* g, void* h) {F8(A, #B +2, N);}
-#define GO_vFpuuULipp(A, B, N) static void my_##A##_##N(void* a, uint32_t b, uint32_t c, uint64_t d, size_t e, int f, void* g, void* h) {F8(A, #B +2, N);}
-#define GO_vFpppppuuu(A, B, N) static void my_##A##_##N(void* a, void* b, void* c, void* d, void* e, uint32_t f, uint32_t g, uint32_t h) {F8(A, #B +2, N);}
-#define GO_vFpiUuupup(A, B, N) static void my_##A##_##N(void* a, int b, uint64_t c, uint32_t d, uint32_t e, void* f, uint32_t g, void* h) {F8(A, #B +2, N);}
-#define GO_vFpupuupup(A, B, N) static void my_##A##_##N(void* a, uint32_t b, void* c, uint32_t d, uint32_t e, void* f, uint32_t g, void* h) {F8(A, #B +2, N);}
-#define GO_vFppupuupu(A, B, N) static void my_##A##_##N(void* a, void* b, uint32_t c, void* d, uint32_t e, uint32_t f, void* g, uint32_t h) {F8(A, #B +2, N);}
-#define GO_vFpuuuuupp(A, B, N) static void my_##A##_##N(void* a, uint32_t b, uint32_t c, uint32_t d, uint32_t e, uint32_t f, void* g, void* h) {F8(A, #B +2, N);}
-#define GO_vFppuupUUu(A, B, N) static void my_##A##_##N(void* a, void* b, uint32_t c, uint32_t d, void* e, uint64_t f, uint64_t g, uint32_t h) {F8(A, #B +2, N);}
-#define GO_vFpUuuUUUu(A, B, N) static void my_##A##_##N(void* a, uint64_t b, uint32_t c, uint32_t d, uint64_t e, uint64_t f, uint64_t g, uint32_t h) {F8(A, #B +2, N);}
-#define GO_vFpppUupppU(A, B, N)         static void my_##A##_##N(void* a, void* b, void* c, uint64_t d, uint32_t e, void* f, void* g, void* h, uint64_t i) {F9(A, #B +2, N);}
-#define GO_vFppUUuUUUU(A, B, N)         static void my_##A##_##N(void* a, void* b, uint64_t c, uint64_t d, uint32_t e, uint64_t f, uint64_t g, uint64_t h, uint64_t i) {F9(A, #B +2, N);}
-#define GO_vFpuuuupupup(A, B, N)        static void my_##A##_##N(void* a, uint32_t b, uint32_t c, uint32_t d, uint32_t e, void* f, uint32_t g, void* h, uint32_t i, void* j) {F10(A, #B +2, N);}
-#define GO_vFpupuuupupup(A, B, N)       static void my_##A##_##N(void* a, uint32_t b, void* c, uint32_t d, uint32_t e, uint32_t f, void* g, uint32_t h, void* i, uint32_t j, void* k) {F11(A, #B +2, N);}
-#define GO_vFppUpUUpUUpUUuuu(A, B, N)   static void my_##A##_##N(void* a, void* b, uint64_t c, void* d, uint64_t e, uint64_t f, void* g, uint64_t h, uint64_t i, void* j, uint64_t k, uint64_t l, uint32_t m, uint32_t n, uint32_t o) {F15(A, #B +2, N);}
-#define GO_vFpUUUUUUUUUUUuuu(A, B, N)   static void my_##A##_##N(void* a, uint64_t b, uint64_t c, uint64_t d, uint64_t e, uint64_t f, uint64_t g, uint64_t h, uint64_t i, uint64_t j, uint64_t k, uint64_t l, uint32_t m, uint32_t n, uint32_t o) {F15(A, #B +2, N);}
-#define GO_iFp(A, B, N)        static int my_##A##_##N(void* a) {return (int)F1(A, #B +2, N);}
-#define GO_iFpp(A, B, N)       static int my_##A##_##N(void* a, void* b) {return (int)F2(A, #B +2, N);}
-#define GO_iFpu(A, B, N)       static int my_##A##_##N(void* a, uint32_t b) {return (int)F2(A, #B +2, N);}
-#define GO_iFpU(A, B, N)       static int my_##A##_##N(void* a, uint64_t b) {return (int)F2(A, #B +2, N);}
-#define GO_iFpip(A, B, N)      static int my_##A##_##N(void* a, int b, void* c) {return (int)F3(A, #B +2, N);}
-#define GO_iFppp(A, B, N)      static int my_##A##_##N(void* a, void* b, void* c) {return (int)F3(A, #B +2, N);}
-#define GO_iFpiU(A, B, N)      static int my_##A##_##N(void* a, int b, uint64_t c) {return (int)F3(A, #B +2, N);}
-#define GO_iFppu(A, B, N)      static int my_##A##_##N(void* a, void* b, uint32_t c) {return (int)F3(A, #B +2, N);}
-#define GO_iFppU(A, B, N)      static int my_##A##_##N(void* a, void* b, uint64_t c) {return (int)F3(A, #B +2, N);}
-#define GO_iFpup(A, B, N)      static int my_##A##_##N(void* a, uint32_t b, void* c) {return (int)F3(A, #B +2, N);}
-#define GO_iFpUp(A, B, N)      static int my_##A##_##N(void* a, uint64_t b, void* c) {return (int)F3(A, #B +2, N);}
-#define GO_iFpUu(A, B, N)      static int my_##A##_##N(void* a, uint64_t b, uint32_t c) {return (int)F3(A, #B +2, N);}
-#define GO_iFpUU(A, B, N)      static int my_##A##_##N(void* a, uint64_t b, uint64_t c) {return (int)F3(A, #B +2, N);}
-#define GO_iFpiip(A, B, N)     static int my_##A##_##N(void* a, int b, int c, void* d) {return (int)F4(A, #B +2, N);}
-#define GO_iFpipp(A, B, N)     static int my_##A##_##N(void* a, int b, void* c, void* d) {return (int)F4(A, #B +2, N);}
-#define GO_iFppip(A, B, N)     static int my_##A##_##N(void* a, void* b, int c, void* d) {return (int)F4(A, #B +2, N);}
-#define GO_iFpppp(A, B, N)     static int my_##A##_##N(void* a, void* b, void* c, void* d) {return (int)F4(A, #B +2, N);}
-#define GO_iFpuip(A, B, N)     static int my_##A##_##N(void* a, uint32_t b, int c, void* d) {return (int)F4(A, #B +2, N);}
-#define GO_iFpiup(A, B, N)     static int my_##A##_##N(void* a, int b, uint32_t c, void* d) {return (int)F4(A, #B +2, N);}
-#define GO_iFpUip(A, B, N)     static int my_##A##_##N(void* a, uint64_t b, int c, void* d) {return (int)F4(A, #B +2, N);}
-#define GO_iFppLp(A, B, N)     static int my_##A##_##N(void* a, void* b, size_t c, void* d) {return (int)F4(A, #B +2, N);}
-#define GO_iFpppU(A, B, N)     static int my_##A##_##N(void* a, void* b, void* c, uint64_t d) {return (int)F4(A, #B +2, N);}
-#define GO_iFppup(A, B, N)     static int my_##A##_##N(void* a, void* b, uint32_t c, void* d) {return (int)F4(A, #B +2, N);}
-#define GO_iFpupp(A, B, N)     static int my_##A##_##N(void* a, uint32_t b, void* c, void* d) {return (int)F4(A, #B +2, N);}
-#define GO_iFpUpp(A, B, N)     static int my_##A##_##N(void* a, uint64_t b, void* c, void* d) {return (int)F4(A, #B +2, N);}
-#define GO_iFpULp(A, B, N)     static int my_##A##_##N(void* a, uint64_t b, size_t c, void* d) {return (int)F4(A, #B +2, N);}
-#define GO_iFpuUp(A, B, N)     static int my_##A##_##N(void* a, uint32_t b, uint64_t c, void* d) {return (int)F4(A, #B +2, N);}
-#define GO_iFpupU(A, B, N)     static int my_##A##_##N(void* a, uint32_t b, void* c, uint64_t d) {return (int)F4(A, #B +2, N);}
-#define GO_iFpUup(A, B, N)     static int my_##A##_##N(void* a, uint64_t b, uint32_t c, void* d) {return (int)F4(A, #B +2, N);}
-#define GO_iFppUU(A, B, N)     static int my_##A##_##N(void* a, void* b, uint64_t c, uint64_t d) {return (int)F4(A, #B +2, N);}
-#define GO_iFpUUu(A, B, N)     static int my_##A##_##N(void* a, uint64_t b, uint64_t c, uint32_t d) {return (int)F4(A, #B +2, N);}
-#define GO_iFpUUU(A, B, N)     static int my_##A##_##N(void* a, uint64_t b, uint64_t c, uint64_t d) {return (int)F4(A, #B +2, N);}
-#define GO_iFppppp(A, B, N)    static int my_##A##_##N(void* a, void* b, void* c, void* d, void* e) {return (int)F5(A, #B +2, N);}
-#define GO_iFpUiUi(A, B, N)    static int my_##A##_##N(void* a, uint64_t b, int c, uint64_t d, int e) {return (int)F5(A, #B +2, N);}
-#define GO_iFpuppp(A, B, N)    static int my_##A##_##N(void* a, uint32_t b, void* c, void* d, void* e) {return (int)F5(A, #B +2, N);}
-#define GO_iFppupp(A, B, N)    static int my_##A##_##N(void* a, void* b, uint32_t c, void* d, void* e) {return (int)F5(A, #B +2, N);}
-#define GO_iFppupu(A, B, N)    static int my_##A##_##N(void* a, void* b, uint32_t c, void* d, uint32_t e) {return (int)F5(A, #B +2, N);}
-#define GO_iFpUupp(A, B, N)    static int my_##A##_##N(void* a, uint64_t b, uint32_t c, void* d, void* e) {return (int)F5(A, #B +2, N);}
-#define GO_iFpiUUU(A, B, N)    static int my_##A##_##N(void* a, int b, uint64_t c, uint64_t d, uint64_t e) {return (int)F5(A, #B +2, N);}
-#define GO_iFpuUpU(A, B, N)    static int my_##A##_##N(void* a, uint32_t b, uint64_t c, void* d, uint64_t e) {return (int)F5(A, #B +2, N);}
-#define GO_iFpupuU(A, B, N)    static int my_##A##_##N(void* a, uint32_t b, void* c, uint32_t d, uint64_t e) {return (int)F5(A, #B +2, N);}
-#define GO_iFpUiipp(A, B, N)   static int my_##A##_##N(void* a, uint64_t b, int c, int d, void* e, void* f) {return (int)F6(A, #B +2, N);}
-#define GO_iFpupppp(A, B, N)   static int my_##A##_##N(void* a, uint32_t b, void* c, void* d, void* e, void* f) {return (int)F6(A, #B +2, N);}
-#define GO_iFppUppp(A, B, N)   static int my_##A##_##N(void* a, void* b, uint64_t c, void* d, void* e, void* f) {return (int)F6(A, #B +2, N);}
-#define GO_iFppuupp(A, B, N)   static int my_##A##_##N(void* a, void* b, uint32_t c, uint32_t d, void* e, void* f) {return (int)F6(A, #B +2, N);}
-#define GO_iFppuuLp(A, B, N)   static int my_##A##_##N(void* a, void* b, uint32_t c, uint32_t d, size_t e, void* f) {return (int)F6(A, #B +2, N);}
-#define GO_iFppUUup(A, B, N)   static int my_##A##_##N(void* a, void* b, uint64_t c, uint64_t d, uint32_t e, void* f) {return (int)F6(A, #B +2, N);}
-#define GO_iFpUuuLp(A, B, N)   static int my_##A##_##N(void* a, uint64_t b, uint32_t c, uint32_t d, size_t e, void* f) {return (int)F6(A, #B +2, N);}
-#define GO_iFpUUUup(A, B, N)   static int my_##A##_##N(void* a, uint64_t b, uint64_t c, uint64_t d, uint32_t e, void* f) {return (int)F6(A, #B +2, N);}
-#define GO_iFpUUUUp(A, B, N)   static int my_##A##_##N(void* a, uint64_t b, uint64_t c, uint64_t d, uint64_t e, void* f) {return (int)F6(A, #B +2, N);}
-#define GO_iFpiiiuup(A, B, N)  static int my_##A##_##N(void* a, int b, int c, int d, uint32_t e, uint32_t f, void* g) {return (int)F7(A, #B +2, N);}
-#define GO_iFpupiLpL(A, B, N)  static int my_##A##_##N(void* a, uint32_t b, void* c, int d, size_t e, void* f, size_t g) {return (int)F7(A, #B +2, N);}
-#define GO_iFpupuLpL(A, B, N)  static int my_##A##_##N(void* a, uint32_t b, void* c, uint32_t d, size_t e, void* f, size_t g) {return (int)F7(A, #B +2, N);}
-#define GO_iFpuuuuup(A, B, N)  static int my_##A##_##N(void* a, uint32_t b, uint32_t c, uint32_t d, uint32_t e, uint32_t f, void* g) {return (int)F7(A, #B +2, N);}
-#define GO_iFpiiiuuup(A, B, N) static int my_##A##_##N(void* a, int b, int c, int d, uint32_t e, uint32_t f, uint32_t g, void* h) {return (int)F8(A, #B +2, N);}
-#define GO_iFppuuLpUu(A, B, N) static int my_##A##_##N(void* a, void* b, uint32_t c, uint32_t d, size_t e, void* f, uint64_t g, uint32_t h) {return (int)F8(A, #B +2, N);}
-#define GO_iFpuuuuuup(A, B, N) static int my_##A##_##N(void* a, uint32_t b, uint32_t c, uint32_t d, uint32_t e, uint32_t f, uint32_t g, void* h) {return (int)F8(A, #B +2, N);}
-#define GO_iFpUuuLpUu(A, B, N) static int my_##A##_##N(void* a, uint64_t b, uint32_t c, uint32_t d, size_t e, void* f, uint64_t g, uint32_t h) {return (int)F8(A, #B +2, N);}
-#define GO_uFpp(A, B, N)       static uint32_t my_##A##_##N(void* a, void* b) {return (uint32_t)F2(A, #B +2, N);}
-#define GO_uFpU(A, B, N)       static uint32_t my_##A##_##N(void* a, uint64_t b) {return (uint32_t)F2(A, #B +2, N);}
-#define GO_uFpup(A, B, N)      static uint32_t my_##A##_##N(void* a, uint32_t b, void* c) {return (uint32_t)F3(A, #B +2, N);}
-#define GO_uFpupp(A, B, N)     static uint32_t my_##A##_##N(void* a, uint32_t b, void* c, void* d) {return (uint32_t)F4(A, #B +2, N);}
-#define GO_uFpubp(A, B, N)     static uint32_t my_##A##_##N(void* a, uint32_t b, void* c, void* d) {return (uint32_t)F4(A, #B +2, N);}
-#define GO_UFpp(A, B, N)       static uint64_t my_##A##_##N(void* a, void* b) {return (uint64_t)F2(A, #B +2, N);}
-#define GO_UFpu(A, B, N)       static uint64_t my_##A##_##N(void* a, uint32_t b) {return (uint64_t)F2(A, #B +2, N);}
-#define GO_UFpUU(A, B, N)      static uint64_t my_##A##_##N(void* a, uint64_t b, uint64_t c) {return (uint64_t)F3(A, #B +2, N);}
-#define GO_UFppuu(A, B, N)     static uint64_t my_##A##_##N(void* a, void* b, uint32_t c, uint32_t d) {return (uint64_t)F4(A, #B +2, N);}
-#define GO_UFpUui(A, B, N)     static uint64_t my_##A##_##N(void* a, uint64_t b, uint32_t c, int d) {return (uint64_t)F4(A, #B +2, N);}
+#define GO_vFp(A, B, N)        static void my_##A##_##N(void* a) {F1(A, SIGFMT(B), N);}
+#define GO_vFpi(A, B, N)       static void my_##A##_##N(void* a, int b) {F2(A, SIGFMT(B), N);}
+#define GO_vFpp(A, B, N)       static void my_##A##_##N(void* a, void* b) {F2(A, SIGFMT(B), N);}
+#define GO_vFpf(A, B, N)       static void my_##A##_##N(void* a, float b) {F2(A, SIGFMT(B), N);}
+#define GO_vFpu(A, B, N)       static void my_##A##_##N(void* a, uint32_t b) {F2(A, SIGFMT(B), N);}
+#define GO_vFpU(A, B, N)       static void my_##A##_##N(void* a, uint64_t b) {F2(A, SIGFMT(B), N);}
+#define GO_vFpip(A, B, N)      static void my_##A##_##N(void* a, int b, void* c) {F3(A, SIGFMT(B), N);}
+#define GO_vFppi(A, B, N)      static void my_##A##_##N(void* a, void* b, int c) {F3(A, SIGFMT(B), N);}
+#define GO_vFppp(A, B, N)      static void my_##A##_##N(void* a, void* b, void* c) {F3(A, SIGFMT(B), N);}
+#define GO_vFpff(A, B, N)      static void my_##A##_##N(void* a, float b, float c) {F3(A, SIGFMT(B), N);}
+#define GO_vFppf(A, B, N)      static void my_##A##_##N(void* a, void* b, float c) {F3(A, SIGFMT(B), N);}
+#define GO_vFpiU(A, B, N)      static void my_##A##_##N(void* a, int b, uint64_t c) {F3(A, SIGFMT(B), N);}
+#define GO_vFpUi(A, B, N)      static void my_##A##_##N(void* a, uint64_t b, int c) {F3(A, SIGFMT(B), N);}
+#define GO_vFppu(A, B, N)      static void my_##A##_##N(void* a, void* b, uint32_t c) {F3(A, SIGFMT(B), N);}
+#define GO_vFppU(A, B, N)      static void my_##A##_##N(void* a, void* b, uint64_t c) {F3(A, SIGFMT(B), N);}
+#define GO_vFpup(A, B, N)      static void my_##A##_##N(void* a, uint32_t b, void* c) {F3(A, SIGFMT(B), N);}
+#define GO_vFpUp(A, B, N)      static void my_##A##_##N(void* a, uint64_t b, void* c) {F3(A, SIGFMT(B), N);}
+#define GO_vFpUf(A, B, N)      static void my_##A##_##N(void* a, uint64_t b, float c) {F3(A, SIGFMT(B), N);}
+#define GO_vFpUU(A, B, N)      static void my_##A##_##N(void* a, uint64_t b, uint64_t c) {F3(A, SIGFMT(B), N);}
+#define GO_vFpUu(A, B, N)      static void my_##A##_##N(void* a, uint64_t b, uint32_t c) {F3(A, SIGFMT(B), N);}
+#define GO_vFpuu(A, B, N)      static void my_##A##_##N(void* a, uint32_t b, uint32_t c) {F3(A, SIGFMT(B), N);}
+#define GO_vFpuW(A, B, N)      static void my_##A##_##N(void* a, uint32_t b, uint16_t c) {F3(A, SIGFMT(B), N);}
+#define GO_vFpipp(A, B, N)     static void my_##A##_##N(void* a, int b, void* c, void* d) {F4(A, SIGFMT(B), N);}
+#define GO_vFpppp(A, B, N)     static void my_##A##_##N(void* a, void* b, void* c, void* d) {F4(A, SIGFMT(B), N);}
+#define GO_vFpfff(A, B, N)     static void my_##A##_##N(void* a, float b, float c, float d) {F4(A, SIGFMT(B), N);}
+#define GO_vFpiup(A, B, N)     static void my_##A##_##N(void* a, int b, uint32_t c, void* d) {F4(A, SIGFMT(B), N);}
+#define GO_vFppLp(A, B, N)     static void my_##A##_##N(void* a, void* b, size_t c, void* d) {F4(A, SIGFMT(B), N);}
+#define GO_vFpupp(A, B, N)     static void my_##A##_##N(void* a, uint32_t b, void* c, void* d) {F4(A, SIGFMT(B), N);}
+#define GO_vFpUpp(A, B, N)     static void my_##A##_##N(void* a, uint64_t b, void* c, void* d) {F4(A, SIGFMT(B), N);}
+#define GO_vFppup(A, B, N)     static void my_##A##_##N(void* a, void* b, uint32_t c, void* d) {F4(A, SIGFMT(B), N);}
+#define GO_vFpppu(A, B, N)     static void my_##A##_##N(void* a, void* b, void* c, uint32_t d) {F4(A, SIGFMT(B), N);}
+#define GO_vFpiUu(A, B, N)     static void my_##A##_##N(void* a, int b, uint64_t c, uint32_t d) {F4(A, SIGFMT(B), N);}
+#define GO_vFpUUi(A, B, N)     static void my_##A##_##N(void* a, uint64_t b, uint64_t c, int d) {F4(A, SIGFMT(B), N);}
+#define GO_vFppUu(A, B, N)     static void my_##A##_##N(void* a, void* b, uint64_t c, uint32_t d) {F4(A, SIGFMT(B), N);}
+#define GO_vFppuu(A, B, N)     static void my_##A##_##N(void* a, void* b, uint32_t c, uint32_t d) {F4(A, SIGFMT(B), N);}
+#define GO_vFpupu(A, B, N)     static void my_##A##_##N(void* a, uint32_t b, void* c, uint32_t d) {F4(A, SIGFMT(B), N);}
+#define GO_vFpuup(A, B, N)     static void my_##A##_##N(void* a, uint32_t b, uint32_t c, void* d) {F4(A, SIGFMT(B), N);}
+#define GO_vFpUup(A, B, N)     static void my_##A##_##N(void* a, uint64_t b, uint32_t c, void* d) {F4(A, SIGFMT(B), N);}
+#define GO_vFpUUp(A, B, N)     static void my_##A##_##N(void* a, uint64_t b, uint64_t c, void* d) {F4(A, SIGFMT(B), N);}
+#define GO_vFpUpu(A, B, N)     static void my_##A##_##N(void* a, uint64_t b, void* c, uint32_t d) {F4(A, SIGFMT(B), N);}
+#define GO_vFpUUu(A, B, N)     static void my_##A##_##N(void* a, uint64_t b, uint64_t c, uint32_t d) {F4(A, SIGFMT(B), N);}
+#define GO_vFpUuu(A, B, N)     static void my_##A##_##N(void* a, uint64_t b, uint32_t c, uint32_t d) {F4(A, SIGFMT(B), N);}
+#define GO_vFpuuu(A, B, N)     static void my_##A##_##N(void* a, uint32_t b, uint32_t c, uint32_t d) {F4(A, SIGFMT(B), N);}
+#define GO_vFpippp(A, B, N)    static void my_##A##_##N(void* a, int b, void* c, void* d, void* e) {F5(A, SIGFMT(B), N);}
+#define GO_vFpuppp(A, B, N)    static void my_##A##_##N(void* a, uint32_t b, void* c, void* d, void* e) {F5(A, SIGFMT(B), N);}
+#define GO_vFpppup(A, B, N)    static void my_##A##_##N(void* a, void* b, void* c, uint32_t d, void* e) {F5(A, SIGFMT(B), N);}
+#define GO_vFpiUUp(A, B, N)    static void my_##A##_##N(void* a, int b, uint64_t c, uint64_t d, void* e) {F5(A, SIGFMT(B), N);}
+#define GO_vFpiUUu(A, B, N)    static void my_##A##_##N(void* a, int b, uint64_t c, uint64_t d, uint32_t e) {F5(A, SIGFMT(B), N);}
+#define GO_vFpupup(A, B, N)    static void my_##A##_##N(void* a, uint32_t b, void* c, uint32_t d, void* e) {F5(A, SIGFMT(B), N);}
+#define GO_vFpuupp(A, B, N)    static void my_##A##_##N(void* a, uint32_t b, uint32_t c, void* d, void* e) {F5(A, SIGFMT(B), N);}
+#define GO_vFpUUUi(A, B, N)    static void my_##A##_##N(void* a, uint64_t b, uint64_t c, uint64_t d, int e) {F5(A, SIGFMT(B), N);}
+#define GO_vFpuUpp(A, B, N)    static void my_##A##_##N(void* a, uint32_t b, uint64_t c, void* d, void* e) {F5(A, SIGFMT(B), N);}
+#define GO_vFppUUp(A, B, N)    static void my_##A##_##N(void* a, void* b, uint64_t c, uint64_t d, void* e) {F5(A, SIGFMT(B), N);}
+#define GO_vFpupUu(A, B, N)    static void my_##A##_##N(void* a, uint32_t b, void* c, uint64_t d, uint32_t e) {F5(A, SIGFMT(B), N);}
+#define GO_vFppUUu(A, B, N)    static void my_##A##_##N(void* a, void* b, uint64_t c, uint64_t d, uint32_t e) {F5(A, SIGFMT(B), N);}
+#define GO_vFpUUUp(A, B, N)    static void my_##A##_##N(void* a, uint64_t b, uint64_t c, uint64_t d, void* e) {F5(A, SIGFMT(B), N);}
+#define GO_vFpuuup(A, B, N)    static void my_##A##_##N(void* a, uint32_t b, uint32_t c, uint32_t d, void* e) {F5(A, SIGFMT(B), N);}
+#define GO_vFpUUup(A, B, N)    static void my_##A##_##N(void* a, uint64_t b, uint64_t c, uint32_t d, void* e) {F5(A, SIGFMT(B), N);}
+#define GO_vFppUuu(A, B, N)    static void my_##A##_##N(void* a, void* b, uint64_t c, uint32_t d, uint32_t e) {F5(A, SIGFMT(B), N);}
+#define GO_vFpUpUu(A, B, N)    static void my_##A##_##N(void* a, uint64_t b, void* c, uint64_t d, uint32_t e) {F5(A, SIGFMT(B), N);}
+#define GO_vFppuuu(A, B, N)    static void my_##A##_##N(void* a, void* b, uint32_t c, uint32_t d, uint32_t e) {F5(A, SIGFMT(B), N);}
+#define GO_vFpuuuu(A, B, N)    static void my_##A##_##N(void* a, uint32_t b, uint32_t c, uint32_t d, uint32_t e) {F5(A, SIGFMT(B), N);}
+#define GO_vFpUuuu(A, B, N)    static void my_##A##_##N(void* a, uint64_t b, uint32_t c, uint32_t d, uint32_t e) {F5(A, SIGFMT(B), N);}
+#define GO_vFpUUUu(A, B, N)    static void my_##A##_##N(void* a, uint64_t b, uint64_t c, uint64_t d, uint32_t e) {F5(A, SIGFMT(B), N);}
+#define GO_vFpUUuu(A, B, N)    static void my_##A##_##N(void* a, uint64_t b, uint64_t c, uint32_t d, uint32_t e) {F5(A, SIGFMT(B), N);}
+#define GO_vFpuiiii(A, B, N)   static void my_##A##_##N(void* a, uint32_t b, int c, int d, int e, int f) {F6(A, SIGFMT(B), N);}
+#define GO_vFpupppp(A, B, N)   static void my_##A##_##N(void* a, uint32_t b, void* c, void* d, void* e, void* f) {F6(A, SIGFMT(B), N);}
+#define GO_vFpppppU(A, B, N)   static void my_##A##_##N(void* a, void* b, void* c, void* d, void* e, uint64_t f) {F6(A, SIGFMT(B), N);}
+#define GO_vFpUipup(A, B, N)   static void my_##A##_##N(void* a, uint64_t b, int c, void* d, uint32_t e, void* f) {F6(A, SIGFMT(B), N);}
+#define GO_vFppupup(A, B, N)   static void my_##A##_##N(void* a, void* b, uint32_t c, void* d, uint32_t e, void* f) {F6(A, SIGFMT(B), N);}
+#define GO_vFpppuup(A, B, N)   static void my_##A##_##N(void* a, void* b, void* c, uint32_t d, uint32_t e, void* f) {F6(A, SIGFMT(B), N);}
+#define GO_vFpuuppp(A, B, N)   static void my_##A##_##N(void* a, uint32_t b, uint32_t c, void* d, void* e, void* f) {F6(A, SIGFMT(B), N);}
+#define GO_vFpUiUup(A, B, N)   static void my_##A##_##N(void* a, uint64_t b, int c, uint64_t d, uint32_t e, void* f) {F6(A, SIGFMT(B), N);}
+#define GO_vFpiUuup(A, B, N)   static void my_##A##_##N(void* a, int b, uint64_t c, uint32_t d, uint32_t e, void* f) {F6(A, SIGFMT(B), N);}
+#define GO_vFpUUiup(A, B, N)   static void my_##A##_##N(void* a, uint64_t b, uint64_t c, int d, uint32_t e, void* f) {F6(A, SIGFMT(B), N);}
+#define GO_vFpupiUu(A, B, N)   static void my_##A##_##N(void* a, uint32_t b, void* c, int d, uint64_t e, uint32_t f) {F6(A, SIGFMT(B), N);}
+#define GO_vFppuuup(A, B, N)   static void my_##A##_##N(void* a, void* b, uint32_t c, uint32_t d, uint32_t e, void* f) {F6(A, SIGFMT(B), N);}
+#define GO_vFpupupu(A, B, N)   static void my_##A##_##N(void* a, uint32_t b, void* c, uint32_t d, void* e, uint32_t f) {F6(A, SIGFMT(B), N);}
+#define GO_vFpupuup(A, B, N)   static void my_##A##_##N(void* a, uint32_t b, void* c, uint32_t d, uint32_t e, void* f) {F6(A, SIGFMT(B), N);}
+#define GO_vFpuuuiu(A, B, N)   static void my_##A##_##N(void* a, uint32_t b, uint32_t c, uint32_t d, int e, uint32_t f) {F6(A, SIGFMT(B), N);}
+#define GO_vFpUuuup(A, B, N)   static void my_##A##_##N(void* a, uint64_t b, uint32_t c, uint32_t d, uint32_t e, void* f) {F6(A, SIGFMT(B), N);}
+#define GO_vFpupuuu(A, B, N)   static void my_##A##_##N(void* a, uint32_t b, void* c, uint32_t d, uint32_t e, uint32_t f) {F6(A, SIGFMT(B), N);}
+#define GO_vFpuuuuu(A, B, N)   static void my_##A##_##N(void* a, uint32_t b, uint32_t c, uint32_t d, uint32_t e, uint32_t f) {F6(A, SIGFMT(B), N);}
+#define GO_vFpUiUiup(A, B, N)  static void my_##A##_##N(void* a, uint64_t b, int c, uint64_t d, int e, uint32_t f, void* g) {F7(A, SIGFMT(B), N);}
+#define GO_vFpuupppp(A, B, N)  static void my_##A##_##N(void* a, uint32_t b, uint32_t c, void* d, void* e, void* f, void* g) {F7(A, SIGFMT(B), N);}
+#define GO_vFpUuupup(A, B, N)  static void my_##A##_##N(void* a, uint64_t b, uint32_t c, uint32_t d, void* e, uint32_t f, void* g) {F7(A, SIGFMT(B), N);}
+#define GO_vFppUuupp(A, B, N)  static void my_##A##_##N(void* a, void* b, uint64_t c, uint32_t d, uint32_t e, void* f, void* g) {F7(A, SIGFMT(B), N);}
+#define GO_vFpupuupp(A, B, N)  static void my_##A##_##N(void* a, uint32_t b, void* c, uint32_t d, uint32_t e, void* f, void* g) {F7(A, SIGFMT(B), N);}
+#define GO_vFppupuup(A, B, N)  static void my_##A##_##N(void* a, void* b, uint32_t c, void* d, uint32_t e, uint32_t f, void* g) {F7(A, SIGFMT(B), N);}
+#define GO_vFpUuuUip(A, B, N)  static void my_##A##_##N(void* a, uint64_t b, uint32_t c, uint32_t d, uint64_t e, int f, void* g) {F7(A, SIGFMT(B), N);}
+#define GO_vFpupuuup(A, B, N)  static void my_##A##_##N(void* a, uint32_t b, void* c, uint32_t d, uint32_t e, uint32_t f, void* g) {F7(A, SIGFMT(B), N);}
+#define GO_vFppUpUuu(A, B, N)  static void my_##A##_##N(void* a, void* b, uint64_t c, void* d, uint64_t e, uint32_t f, uint32_t g) {F7(A, SIGFMT(B), N);}
+#define GO_vFpuupUuu(A, B, N)  static void my_##A##_##N(void* a, uint32_t b, uint32_t c, void* d, uint64_t e, uint32_t f, uint32_t g) {F7(A, SIGFMT(B), N);}
+#define GO_vFpuuuuuu(A, B, N)  static void my_##A##_##N(void* a, uint32_t b, uint32_t c, uint32_t d, uint32_t e, uint32_t f, uint32_t g) {F7(A, SIGFMT(B), N);}
+#define GO_vFpuuUUuu(A, B, N)  static void my_##A##_##N(void* a, uint32_t b, uint32_t c, uint64_t d, uint64_t e, uint32_t f, uint32_t g) {F7(A, SIGFMT(B), N);}
+#define GO_vFpUUUUuu(A, B, N)  static void my_##A##_##N(void* a, uint64_t b, uint64_t c, uint64_t d, uint64_t e, uint32_t f, uint32_t g) {F7(A, SIGFMT(B), N);}
+#define GO_vFpiiiuipp(A, B, N) static void my_##A##_##N(void* a, int b, int c, int d, uint32_t e, int f, void* g, void* h) {F8(A, SIGFMT(B), N);}
+#define GO_vFpUiUiupi(A, B, N) static void my_##A##_##N(void* a, uint64_t b, int c, uint64_t d, int e, uint32_t f, void* g, int h) {F8(A, SIGFMT(B), N);}
+#define GO_vFpuiULipp(A, B, N) static void my_##A##_##N(void* a, uint32_t b, int c, uint64_t d, size_t e, int f, void* g, void* h) {F8(A, SIGFMT(B), N);}
+#define GO_vFpuuULipp(A, B, N) static void my_##A##_##N(void* a, uint32_t b, uint32_t c, uint64_t d, size_t e, int f, void* g, void* h) {F8(A, SIGFMT(B), N);}
+#define GO_vFpppppuuu(A, B, N) static void my_##A##_##N(void* a, void* b, void* c, void* d, void* e, uint32_t f, uint32_t g, uint32_t h) {F8(A, SIGFMT(B), N);}
+#define GO_vFpiUuupup(A, B, N) static void my_##A##_##N(void* a, int b, uint64_t c, uint32_t d, uint32_t e, void* f, uint32_t g, void* h) {F8(A, SIGFMT(B), N);}
+#define GO_vFpupuupup(A, B, N) static void my_##A##_##N(void* a, uint32_t b, void* c, uint32_t d, uint32_t e, void* f, uint32_t g, void* h) {F8(A, SIGFMT(B), N);}
+#define GO_vFppupuupu(A, B, N) static void my_##A##_##N(void* a, void* b, uint32_t c, void* d, uint32_t e, uint32_t f, void* g, uint32_t h) {F8(A, SIGFMT(B), N);}
+#define GO_vFpuuuuupp(A, B, N) static void my_##A##_##N(void* a, uint32_t b, uint32_t c, uint32_t d, uint32_t e, uint32_t f, void* g, void* h) {F8(A, SIGFMT(B), N);}
+#define GO_vFppuupUUu(A, B, N) static void my_##A##_##N(void* a, void* b, uint32_t c, uint32_t d, void* e, uint64_t f, uint64_t g, uint32_t h) {F8(A, SIGFMT(B), N);}
+#define GO_vFpUuuUUUu(A, B, N) static void my_##A##_##N(void* a, uint64_t b, uint32_t c, uint32_t d, uint64_t e, uint64_t f, uint64_t g, uint32_t h) {F8(A, SIGFMT(B), N);}
+#define GO_vFpppUupppU(A, B, N)         static void my_##A##_##N(void* a, void* b, void* c, uint64_t d, uint32_t e, void* f, void* g, void* h, uint64_t i) {F9(A, SIGFMT(B), N);}
+#define GO_vFppUUuUUUU(A, B, N)         static void my_##A##_##N(void* a, void* b, uint64_t c, uint64_t d, uint32_t e, uint64_t f, uint64_t g, uint64_t h, uint64_t i) {F9(A, SIGFMT(B), N);}
+#define GO_vFpuuuupupup(A, B, N)        static void my_##A##_##N(void* a, uint32_t b, uint32_t c, uint32_t d, uint32_t e, void* f, uint32_t g, void* h, uint32_t i, void* j) {F10(A, SIGFMT(B), N);}
+#define GO_vFpupuuupupup(A, B, N)       static void my_##A##_##N(void* a, uint32_t b, void* c, uint32_t d, uint32_t e, uint32_t f, void* g, uint32_t h, void* i, uint32_t j, void* k) {F11(A, SIGFMT(B), N);}
+#define GO_vFppUpUUpUUpUUuuu(A, B, N)   static void my_##A##_##N(void* a, void* b, uint64_t c, void* d, uint64_t e, uint64_t f, void* g, uint64_t h, uint64_t i, void* j, uint64_t k, uint64_t l, uint32_t m, uint32_t n, uint32_t o) {F15(A, SIGFMT(B), N);}
+#define GO_vFpUUUUUUUUUUUuuu(A, B, N)   static void my_##A##_##N(void* a, uint64_t b, uint64_t c, uint64_t d, uint64_t e, uint64_t f, uint64_t g, uint64_t h, uint64_t i, uint64_t j, uint64_t k, uint64_t l, uint32_t m, uint32_t n, uint32_t o) {F15(A, SIGFMT(B), N);}
+#define GO_iFp(A, B, N)        static int my_##A##_##N(void* a) {return (int)F1(A, SIGFMT(B), N);}
+#define GO_iFpp(A, B, N)       static int my_##A##_##N(void* a, void* b) {return (int)F2(A, SIGFMT(B), N);}
+#define GO_iFpu(A, B, N)       static int my_##A##_##N(void* a, uint32_t b) {return (int)F2(A, SIGFMT(B), N);}
+#define GO_iFpU(A, B, N)       static int my_##A##_##N(void* a, uint64_t b) {return (int)F2(A, SIGFMT(B), N);}
+#define GO_iFpip(A, B, N)      static int my_##A##_##N(void* a, int b, void* c) {return (int)F3(A, SIGFMT(B), N);}
+#define GO_iFppp(A, B, N)      static int my_##A##_##N(void* a, void* b, void* c) {return (int)F3(A, SIGFMT(B), N);}
+#define GO_iFpiU(A, B, N)      static int my_##A##_##N(void* a, int b, uint64_t c) {return (int)F3(A, SIGFMT(B), N);}
+#define GO_iFppu(A, B, N)      static int my_##A##_##N(void* a, void* b, uint32_t c) {return (int)F3(A, SIGFMT(B), N);}
+#define GO_iFppU(A, B, N)      static int my_##A##_##N(void* a, void* b, uint64_t c) {return (int)F3(A, SIGFMT(B), N);}
+#define GO_iFpup(A, B, N)      static int my_##A##_##N(void* a, uint32_t b, void* c) {return (int)F3(A, SIGFMT(B), N);}
+#define GO_iFpUp(A, B, N)      static int my_##A##_##N(void* a, uint64_t b, void* c) {return (int)F3(A, SIGFMT(B), N);}
+#define GO_iFpUu(A, B, N)      static int my_##A##_##N(void* a, uint64_t b, uint32_t c) {return (int)F3(A, SIGFMT(B), N);}
+#define GO_iFpUU(A, B, N)      static int my_##A##_##N(void* a, uint64_t b, uint64_t c) {return (int)F3(A, SIGFMT(B), N);}
+#define GO_iFpiip(A, B, N)     static int my_##A##_##N(void* a, int b, int c, void* d) {return (int)F4(A, SIGFMT(B), N);}
+#define GO_iFpipp(A, B, N)     static int my_##A##_##N(void* a, int b, void* c, void* d) {return (int)F4(A, SIGFMT(B), N);}
+#define GO_iFppip(A, B, N)     static int my_##A##_##N(void* a, void* b, int c, void* d) {return (int)F4(A, SIGFMT(B), N);}
+#define GO_iFpppp(A, B, N)     static int my_##A##_##N(void* a, void* b, void* c, void* d) {return (int)F4(A, SIGFMT(B), N);}
+#define GO_iFpuip(A, B, N)     static int my_##A##_##N(void* a, uint32_t b, int c, void* d) {return (int)F4(A, SIGFMT(B), N);}
+#define GO_iFpiup(A, B, N)     static int my_##A##_##N(void* a, int b, uint32_t c, void* d) {return (int)F4(A, SIGFMT(B), N);}
+#define GO_iFpUip(A, B, N)     static int my_##A##_##N(void* a, uint64_t b, int c, void* d) {return (int)F4(A, SIGFMT(B), N);}
+#define GO_iFppLp(A, B, N)     static int my_##A##_##N(void* a, void* b, size_t c, void* d) {return (int)F4(A, SIGFMT(B), N);}
+#define GO_iFpppU(A, B, N)     static int my_##A##_##N(void* a, void* b, void* c, uint64_t d) {return (int)F4(A, SIGFMT(B), N);}
+#define GO_iFppup(A, B, N)     static int my_##A##_##N(void* a, void* b, uint32_t c, void* d) {return (int)F4(A, SIGFMT(B), N);}
+#define GO_iFpupp(A, B, N)     static int my_##A##_##N(void* a, uint32_t b, void* c, void* d) {return (int)F4(A, SIGFMT(B), N);}
+#define GO_iFpUpp(A, B, N)     static int my_##A##_##N(void* a, uint64_t b, void* c, void* d) {return (int)F4(A, SIGFMT(B), N);}
+#define GO_iFpULp(A, B, N)     static int my_##A##_##N(void* a, uint64_t b, size_t c, void* d) {return (int)F4(A, SIGFMT(B), N);}
+#define GO_iFpuUp(A, B, N)     static int my_##A##_##N(void* a, uint32_t b, uint64_t c, void* d) {return (int)F4(A, SIGFMT(B), N);}
+#define GO_iFpupU(A, B, N)     static int my_##A##_##N(void* a, uint32_t b, void* c, uint64_t d) {return (int)F4(A, SIGFMT(B), N);}
+#define GO_iFpUup(A, B, N)     static int my_##A##_##N(void* a, uint64_t b, uint32_t c, void* d) {return (int)F4(A, SIGFMT(B), N);}
+#define GO_iFppUU(A, B, N)     static int my_##A##_##N(void* a, void* b, uint64_t c, uint64_t d) {return (int)F4(A, SIGFMT(B), N);}
+#define GO_iFpUUu(A, B, N)     static int my_##A##_##N(void* a, uint64_t b, uint64_t c, uint32_t d) {return (int)F4(A, SIGFMT(B), N);}
+#define GO_iFpUUU(A, B, N)     static int my_##A##_##N(void* a, uint64_t b, uint64_t c, uint64_t d) {return (int)F4(A, SIGFMT(B), N);}
+#define GO_iFppppp(A, B, N)    static int my_##A##_##N(void* a, void* b, void* c, void* d, void* e) {return (int)F5(A, SIGFMT(B), N);}
+#define GO_iFpUiUi(A, B, N)    static int my_##A##_##N(void* a, uint64_t b, int c, uint64_t d, int e) {return (int)F5(A, SIGFMT(B), N);}
+#define GO_iFpuppp(A, B, N)    static int my_##A##_##N(void* a, uint32_t b, void* c, void* d, void* e) {return (int)F5(A, SIGFMT(B), N);}
+#define GO_iFppupp(A, B, N)    static int my_##A##_##N(void* a, void* b, uint32_t c, void* d, void* e) {return (int)F5(A, SIGFMT(B), N);}
+#define GO_iFppupu(A, B, N)    static int my_##A##_##N(void* a, void* b, uint32_t c, void* d, uint32_t e) {return (int)F5(A, SIGFMT(B), N);}
+#define GO_iFpUupp(A, B, N)    static int my_##A##_##N(void* a, uint64_t b, uint32_t c, void* d, void* e) {return (int)F5(A, SIGFMT(B), N);}
+#define GO_iFpiUUU(A, B, N)    static int my_##A##_##N(void* a, int b, uint64_t c, uint64_t d, uint64_t e) {return (int)F5(A, SIGFMT(B), N);}
+#define GO_iFpuUpU(A, B, N)    static int my_##A##_##N(void* a, uint32_t b, uint64_t c, void* d, uint64_t e) {return (int)F5(A, SIGFMT(B), N);}
+#define GO_iFpupuU(A, B, N)    static int my_##A##_##N(void* a, uint32_t b, void* c, uint32_t d, uint64_t e) {return (int)F5(A, SIGFMT(B), N);}
+#define GO_iFpUiipp(A, B, N)   static int my_##A##_##N(void* a, uint64_t b, int c, int d, void* e, void* f) {return (int)F6(A, SIGFMT(B), N);}
+#define GO_iFpupppp(A, B, N)   static int my_##A##_##N(void* a, uint32_t b, void* c, void* d, void* e, void* f) {return (int)F6(A, SIGFMT(B), N);}
+#define GO_iFppUppp(A, B, N)   static int my_##A##_##N(void* a, void* b, uint64_t c, void* d, void* e, void* f) {return (int)F6(A, SIGFMT(B), N);}
+#define GO_iFppuupp(A, B, N)   static int my_##A##_##N(void* a, void* b, uint32_t c, uint32_t d, void* e, void* f) {return (int)F6(A, SIGFMT(B), N);}
+#define GO_iFppuuLp(A, B, N)   static int my_##A##_##N(void* a, void* b, uint32_t c, uint32_t d, size_t e, void* f) {return (int)F6(A, SIGFMT(B), N);}
+#define GO_iFppUUup(A, B, N)   static int my_##A##_##N(void* a, void* b, uint64_t c, uint64_t d, uint32_t e, void* f) {return (int)F6(A, SIGFMT(B), N);}
+#define GO_iFpUuuLp(A, B, N)   static int my_##A##_##N(void* a, uint64_t b, uint32_t c, uint32_t d, size_t e, void* f) {return (int)F6(A, SIGFMT(B), N);}
+#define GO_iFpUUUup(A, B, N)   static int my_##A##_##N(void* a, uint64_t b, uint64_t c, uint64_t d, uint32_t e, void* f) {return (int)F6(A, SIGFMT(B), N);}
+#define GO_iFpUUUUp(A, B, N)   static int my_##A##_##N(void* a, uint64_t b, uint64_t c, uint64_t d, uint64_t e, void* f) {return (int)F6(A, SIGFMT(B), N);}
+#define GO_iFpiiiuup(A, B, N)  static int my_##A##_##N(void* a, int b, int c, int d, uint32_t e, uint32_t f, void* g) {return (int)F7(A, SIGFMT(B), N);}
+#define GO_iFpupiLpL(A, B, N)  static int my_##A##_##N(void* a, uint32_t b, void* c, int d, size_t e, void* f, size_t g) {return (int)F7(A, SIGFMT(B), N);}
+#define GO_iFpupuLpL(A, B, N)  static int my_##A##_##N(void* a, uint32_t b, void* c, uint32_t d, size_t e, void* f, size_t g) {return (int)F7(A, SIGFMT(B), N);}
+#define GO_iFpuuuuup(A, B, N)  static int my_##A##_##N(void* a, uint32_t b, uint32_t c, uint32_t d, uint32_t e, uint32_t f, void* g) {return (int)F7(A, SIGFMT(B), N);}
+#define GO_iFpiiiuuup(A, B, N) static int my_##A##_##N(void* a, int b, int c, int d, uint32_t e, uint32_t f, uint32_t g, void* h) {return (int)F8(A, SIGFMT(B), N);}
+#define GO_iFppuuLpUu(A, B, N) static int my_##A##_##N(void* a, void* b, uint32_t c, uint32_t d, size_t e, void* f, uint64_t g, uint32_t h) {return (int)F8(A, SIGFMT(B), N);}
+#define GO_iFpuuuuuup(A, B, N) static int my_##A##_##N(void* a, uint32_t b, uint32_t c, uint32_t d, uint32_t e, uint32_t f, uint32_t g, void* h) {return (int)F8(A, SIGFMT(B), N);}
+#define GO_iFpUuuLpUu(A, B, N) static int my_##A##_##N(void* a, uint64_t b, uint32_t c, uint32_t d, size_t e, void* f, uint64_t g, uint32_t h) {return (int)F8(A, SIGFMT(B), N);}
+#define GO_uFpp(A, B, N)       static uint32_t my_##A##_##N(void* a, void* b) {return (uint32_t)F2(A, SIGFMT(B), N);}
+#define GO_uFpU(A, B, N)       static uint32_t my_##A##_##N(void* a, uint64_t b) {return (uint32_t)F2(A, SIGFMT(B), N);}
+#define GO_uFpup(A, B, N)      static uint32_t my_##A##_##N(void* a, uint32_t b, void* c) {return (uint32_t)F3(A, SIGFMT(B), N);}
+#define GO_uFpupp(A, B, N)     static uint32_t my_##A##_##N(void* a, uint32_t b, void* c, void* d) {return (uint32_t)F4(A, SIGFMT(B), N);}
+#define GO_uFpubp(A, B, N)     static uint32_t my_##A##_##N(void* a, uint32_t b, void* c, void* d) {return (uint32_t)F4(A, SIGFMT(B), N);}
+#define GO_UFpp(A, B, N)       static uint64_t my_##A##_##N(void* a, void* b) {return (uint64_t)F2(A, SIGFMT(B), N);}
+#define GO_UFpu(A, B, N)       static uint64_t my_##A##_##N(void* a, uint32_t b) {return (uint64_t)F2(A, SIGFMT(B), N);}
+#define GO_UFpUU(A, B, N)      static uint64_t my_##A##_##N(void* a, uint64_t b, uint64_t c) {return (uint64_t)F3(A, SIGFMT(B), N);}
+#define GO_UFppuu(A, B, N)     static uint64_t my_##A##_##N(void* a, void* b, uint32_t c, uint32_t d) {return (uint64_t)F4(A, SIGFMT(B), N);}
+#define GO_UFpUui(A, B, N)     static uint64_t my_##A##_##N(void* a, uint64_t b, uint32_t c, int d) {return (uint64_t)F4(A, SIGFMT(B), N);}
 
 #define SUPER(A, B, C, N)    \
 static uintptr_t my_##A##_fct_##N = 0;  \

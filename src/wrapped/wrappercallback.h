@@ -13,7 +13,7 @@ typedef struct TYPENAME2(LIBNAME, _my_s) {
 } TYPENAME(LIBNAME);
 
 static library_t* my_lib = NULL;
-static TYPENAME(LIBNAME) TYPENAME2(my_, LIBNAME) = {0};
+static TYPENAME(LIBNAME) TYPENAME2(my_, LIBNAME);
 static TYPENAME(LIBNAME) * const my = &TYPENAME2(my_, LIBNAME);
 
 static void getMy(library_t* lib)
