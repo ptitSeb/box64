@@ -3333,6 +3333,12 @@ EXPORT void* box_mmap(void *addr, size_t length, int prot, int flags, int fd, ss
     }
     #endif
     void* ret = InternalMmap(addr, length, prot, new_flags, fd, offset);
+    // io_uring doesn't support non-NULL address.
+    // The optimal approach is to detect whether an fd is an io_uring instance,
+    // but this is overly complex. So we simply retry the mmap call with the
+    // original address here.
+    if (ret == MAP_FAILED && old_addr == NULL && fd >= 0)
+        ret = InternalMmap(old_addr, length, prot, new_flags, fd, offset);
 #if !defined(NOALIGN)
     if((ret!=MAP_FAILED) && (flags&MAP_32BIT) &&
       (((uintptr_t)ret>0xffffffffLL) || ((box64_wine) && ((uintptr_t)ret&0xffff) && (ret!=addr)))) {
