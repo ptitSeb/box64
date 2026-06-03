@@ -860,6 +860,7 @@
 #() LFplL
 #() LFpLi
 #() LFpLC
+#() LFpLu
 #() LFpLL
 #() LFpLp
 #() LFppi
@@ -953,7 +954,9 @@
 #() pFpLp
 #() pFppc
 #() pFppi
+#() pFppI
 #() pFppu
+#() pFppU
 #() pFppf
 #() pFppd
 #() pFppl
@@ -1628,7 +1631,9 @@
 #() pFpiiu
 #() pFpiiU
 #() pFpiip
+#() pFpiui
 #() pFpiuu
+#() pFpiuL
 #() pFpiUL
 #() pFpiLi
 #() pFpiLu
@@ -1637,6 +1642,7 @@
 #() pFpipi
 #() pFpipu
 #() pFpipd
+#() pFpipL
 #() pFpipp
 #() pFpCip
 #() pFpCuu
@@ -1675,6 +1681,7 @@
 #() pFppWp
 #() pFppui
 #() pFppuu
+#() pFppuL
 #() pFppup
 #() pFppdd
 #() pFppll
@@ -2303,6 +2310,7 @@
 #() pFpiipp
 #() pFpiCCC
 #() pFpiuuu
+#() pFpiupL
 #() pFpiupp
 #() pFpiLip
 #() pFpipii
@@ -2322,6 +2330,7 @@
 #() pFpuupp
 #() pFpuLpp
 #() pFpupuu
+#() pFpupuL
 #() pFpuppu
 #() pFpuppp
 #() pFpfffi
@@ -2359,6 +2368,7 @@
 #() pFpppii
 #() pFpppip
 #() pFpppui
+#() pFpppuu
 #() pFpppup
 #() pFpppli
 #() pFpppLi
@@ -2408,6 +2418,7 @@
 #() vFilipli
 #() vFiliplu
 #() vFipiplp
+#() vFipippp
 #() vFCCCCff
 #() vFuiiiii
 #() vFuiiiip
@@ -2621,6 +2632,7 @@
 #() iFpiippp
 #() iFpiIIIi
 #() iFpiCCpu
+#() iFpiuipu
 #() iFpiuuup
 #() iFpiuupp
 #() iFpiupip
@@ -2730,6 +2742,7 @@
 #() iFpppipi
 #() iFpppipu
 #() iFpppipp
+#() iFpppIpp
 #() iFpppuii
 #() iFpppuip
 #() iFpppuuu
@@ -2887,6 +2900,8 @@
 #() pFpiiuuu
 #() pFpiipip
 #() pFpiippp
+#() pFpiuipp
+#() pFpiuuup
 #() pFpidddd
 #() pFpiLLLL
 #() pFpipipL
@@ -2894,10 +2909,13 @@
 #() pFpipuii
 #() pFpippip
 #() pFpipppp
+#() pFpuiipp
+#() pFpuiuuu
 #() pFpuuiip
 #() pFpuuuuu
 #() pFpuuuup
 #() pFpuuupu
+#() pFpuupuL
 #() pFpupuui
 #() pFpupuuu
 #() pFpupuup
@@ -2928,12 +2946,15 @@
 #() pFppuupp
 #() pFppuLli
 #() pFppupLi
+#() pFppupLp
 #() pFppuppp
 #() pFpplplp
 #() pFpplppp
 #() pFppLuui
 #() pFppLpuu
 #() pFpppiip
+#() pFpppupu
+#() pFpppupL
 #() pFpppupp
 #() pFpppLii
 #() pFpppLui
@@ -2941,6 +2962,7 @@
 #() pFppppiL
 #() pFpppppi
 #() pFpppppu
+#() pFpppppL
 #() pFpppppp
 #() pFpSiipi
 #() pFSpiiii
@@ -2972,6 +2994,7 @@
 #() vFiupuuup
 #() vFilipliu
 #() vFilulipi
+#() vFippippp
 #() vFCCCCfff
 #() vFuiiiiii
 #() vFuiiiiiC
@@ -3150,6 +3173,7 @@
 #() iFpupuupp
 #() iFpupuLpL
 #() iFpupupui
+#() iFpupupup
 #() iFpuppppp
 #() iFpllpppp
 #() iFpLiiiiL
@@ -3182,6 +3206,7 @@
 #() iFppuuppp
 #() iFppupupu
 #() iFppupupp
+#() iFppupLip
 #() iFppupppp
 #() iFppUUUUu
 #() iFppliupp
@@ -3279,6 +3304,7 @@
 #() pFduuulul
 #() pFpiiiiid
 #() pFpiiippp
+#() pFpiiLppu
 #() pFpiipipp
 #() pFpiiplui
 #() pFpiipppp
@@ -3310,8 +3336,10 @@
 #() pFppuuuuu
 #() pFppuuupu
 #() pFppuuupp
+#() pFppuuppp
 #() pFppuLLip
 #() pFppupuuu
+#() pFppupLip
 #() pFppliuip
 #() pFpplipup
 #() pFppLLiLi
@@ -3453,6 +3481,7 @@
 #() iFpiiiiiiu
 #() iFpiiupppp
 #() iFpiuiiLLL
+#() iFpiuuuppp
 #() iFpipiipip
 #() iFpippiiii
 #() iFpippuuui
@@ -6769,6 +6798,7 @@ wrappedpangoft2:
 - pFp:
   - pango_fc_font_lock_face
 wrappedpcap:
+wrappedpipewire03:
 wrappedpixman1:
 wrappedplc4:
 wrappedplds4:
