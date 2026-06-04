@@ -632,13 +632,10 @@ void call_n(dynarec_rv64_t* dyn, int ninst, void* fnc, int w)
         }
     }
     // native call
-    if (dyn->need_reloc) {
-        // fnc is indirect, to help with relocation (but PltResolver might be an issue here)
-        TABLE64(x3, (uintptr_t)fnc);
-        LD(x3, x3, 0);
-    } else {
-        TABLE64_(x3, *(uintptr_t*)fnc); // using x16 as scratch regs for call address
-    }
+    TABLE64_(x3, *(uintptr_t*)fnc); // using x16 as scratch regs for call address
+    // Note that if need_reloc is active, the TABLE64 will trigger cancel block, 
+    // because native function might be very different on a next run: different function address, different brick, different everything basicaly
+    // and we don't have a relocation mecanism here, it's too complex
     JALR(xRA, x3);
     // put return value in x64 regs
     if (w > 0) {

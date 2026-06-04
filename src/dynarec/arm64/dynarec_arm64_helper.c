@@ -665,13 +665,10 @@ void call_n(dynarec_arm_t* dyn, int ninst, void* fnc, int w)
     MOVx_REG(x4, xR8);
     MOVx_REG(x5, xR9);
     // native call
-    if(dyn->need_reloc) {
-        // fnc is indirect, to help with relocation (but PltResolver might be an issue here)
-        TABLE64(16, (uintptr_t)fnc);
-        LDRx_U12(16, 16, 0);
-    } else {
-        TABLE64_(16, *(uintptr_t*)fnc);    // using x16 as scratch regs for call address
-    }
+    TABLE64_(16, *(uintptr_t*)fnc);    // using x16 as scratch regs for call address
+    // Note that if need_reloc is active, the TABLE64 will trigger cancel block, 
+    // because native function might be very different on a next run: different function address, different brick, different everything basicaly
+    // and we don't have a relocation mecanism here, it's too complex
     BLR(16);
     // put return value in x64 regs
     if(w>0) {

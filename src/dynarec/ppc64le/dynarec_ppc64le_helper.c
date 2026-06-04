@@ -722,13 +722,10 @@ void call_n(dynarec_ppc64le_t* dyn, int ninst, void* fnc, int w)
         }
     }
     // native call — load function pointer into x7 (r10) to avoid clobbering argument regs
-    if (dyn->need_reloc) {
-        // fnc is indirect, to help with relocation (but PltResolver might be an issue here)
-        TABLE64(x7, (uintptr_t)fnc);
-        LD(x7, 0, x7);
-    } else {
-        TABLE64_(x7, *(uintptr_t*)fnc);
-    }
+    TABLE64_(x7, *(uintptr_t*)fnc);
+    // Note that if need_reloc is active, the TABLE64 will trigger cancel block, 
+    // because native function might be very different on a next run: different function address, different brick, different everything basicaly
+    // and we don't have a relocation mecanism here, it's too complex
     // ELFv2 ABI: r12 must be set to the function entry address
     MR(12, x7);
     MTCTR(x7);
