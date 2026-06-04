@@ -8,7 +8,6 @@ static inline void la64_subbytes_lsx(dynarec_la64_t* dyn, int ninst, int dst, in
 {
     (void)dyn;
     (void)ninst;
-    VXOR_V(zero, zero, zero);
     VANDI_B(t0, dst, 0x0f);
     VSRLI_B(t1, dst, 4);
     VLD(tab, x5, 1 * 16);
@@ -42,7 +41,6 @@ static inline void la64_subbytes_lasx(dynarec_la64_t* dyn, int ninst, int dst, i
 {
     (void)dyn;
     (void)ninst;
-    XVXOR_V(zero, zero, zero);
     XVANDI_B(t0, dst, 0x0f);
     XVSRLI_B(t1, dst, 4);
     XVLD(tab, x5, 1 * 32);
@@ -172,7 +170,7 @@ static inline void la64_aesimc_lasx(dynarec_la64_t* dyn, int ninst, int dst)
 
 static inline void la64_aeselast_lsx(dynarec_la64_t* dyn, int ninst, int dst)
 {
-    int zero = fpu_get_scratch(dyn);
+    int zero = VZERO;
     int t0 = fpu_get_scratch(dyn);
     int t1 = fpu_get_scratch(dyn);
     int t2 = fpu_get_scratch(dyn);
@@ -187,7 +185,7 @@ static inline void la64_aeselast_lsx(dynarec_la64_t* dyn, int ninst, int dst)
 
 static inline void la64_aeselast_lasx(dynarec_la64_t* dyn, int ninst, int dst)
 {
-    int zero = fpu_get_scratch(dyn);
+    int zero = VZERO;
     int t0 = fpu_get_scratch(dyn);
     int t1 = fpu_get_scratch(dyn);
     int t2 = fpu_get_scratch(dyn);
@@ -202,43 +200,45 @@ static inline void la64_aeselast_lasx(dynarec_la64_t* dyn, int ninst, int dst)
 
 static inline void la64_aese_lsx(dynarec_la64_t* dyn, int ninst, int dst)
 {
-    int zero = fpu_get_scratch(dyn);
+    int zero = VZERO;
     int t0 = fpu_get_scratch(dyn);
     int t1 = fpu_get_scratch(dyn);
     int t2 = fpu_get_scratch(dyn);
     int t3 = fpu_get_scratch(dyn);
     int tab = fpu_get_scratch(dyn);
+    int tab_hi = fpu_get_scratch(dyn);
 
     TABLE64C(x5, const_la64_vpaes_enc_tables);
     la64_subbytes_lsx(dyn, ninst, dst, zero, t0, t1, t2, t3, tab);
     VLD(tab, x5, 6 * 16);
     VSHUF_B(dst, dst, dst, tab);
     VLD(tab, x5, 7 * 16);
-    VLD(zero, x5, 8 * 16);
-    la64_mixcolumns_xtime_lsx(dyn, ninst, dst, tab, zero, t0, t1, t2, t3);
+    VLD(tab_hi, x5, 8 * 16);
+    la64_mixcolumns_xtime_lsx(dyn, ninst, dst, tab, tab_hi, t0, t1, t2, t3);
 }
 
 static inline void la64_aese_lasx(dynarec_la64_t* dyn, int ninst, int dst)
 {
-    int zero = fpu_get_scratch(dyn);
+    int zero = VZERO;
     int t0 = fpu_get_scratch(dyn);
     int t1 = fpu_get_scratch(dyn);
     int t2 = fpu_get_scratch(dyn);
     int t3 = fpu_get_scratch(dyn);
     int tab = fpu_get_scratch(dyn);
+    int tab_hi = fpu_get_scratch(dyn);
 
     TABLE64C(x5, const_la64_vpaes_enc_tables_xv);
     la64_subbytes_lasx(dyn, ninst, dst, zero, t0, t1, t2, t3, tab);
     XVLD(tab, x5, 6 * 32);
     XVSHUF_B(dst, dst, dst, tab);
     XVLD(tab, x5, 7 * 32);
-    XVLD(zero, x5, 8 * 32);
-    la64_mixcolumns_xtime_lasx(dyn, ninst, dst, tab, zero, t0, t1, t2, t3);
+    XVLD(tab_hi, x5, 8 * 32);
+    la64_mixcolumns_xtime_lasx(dyn, ninst, dst, tab, tab_hi, t0, t1, t2, t3);
 }
 
 static inline void la64_aesdlast_lsx(dynarec_la64_t* dyn, int ninst, int dst)
 {
-    int zero = fpu_get_scratch(dyn);
+    int zero = VZERO;
     int t0 = fpu_get_scratch(dyn);
     int t1 = fpu_get_scratch(dyn);
     int t2 = fpu_get_scratch(dyn);
@@ -249,7 +249,6 @@ static inline void la64_aesdlast_lsx(dynarec_la64_t* dyn, int ninst, int dst)
     TABLE64C(x5, const_la64_vpaes_dec_tables);
     VLD(tab, x5, 6 * 16);
     VSHUF_B(dst, dst, dst, tab);
-    VXOR_V(zero, zero, zero);
     VXORI_B(dst, dst, 99);
     VANDI_B(t0, dst, 0x0f);
     VSRLI_B(t1, dst, 4);
@@ -282,7 +281,7 @@ static inline void la64_aesdlast_lsx(dynarec_la64_t* dyn, int ninst, int dst)
 
 static inline void la64_aesdlast_lasx(dynarec_la64_t* dyn, int ninst, int dst)
 {
-    int zero = fpu_get_scratch(dyn);
+    int zero = VZERO;
     int t0 = fpu_get_scratch(dyn);
     int t1 = fpu_get_scratch(dyn);
     int t2 = fpu_get_scratch(dyn);
@@ -293,7 +292,6 @@ static inline void la64_aesdlast_lasx(dynarec_la64_t* dyn, int ninst, int dst)
     TABLE64C(x5, const_la64_vpaes_dec_tables_xv);
     XVLD(tab, x5, 6 * 32);
     XVSHUF_B(dst, dst, dst, tab);
-    XVXOR_V(zero, zero, zero);
     XVXORI_B(dst, dst, 99);
     XVANDI_B(t0, dst, 0x0f);
     XVSRLI_B(t1, dst, 4);
@@ -326,7 +324,7 @@ static inline void la64_aesdlast_lasx(dynarec_la64_t* dyn, int ninst, int dst)
 
 static inline void la64_aesd_lsx(dynarec_la64_t* dyn, int ninst, int dst)
 {
-    int zero = fpu_get_scratch(dyn);
+    int zero = VZERO;
     int t0 = fpu_get_scratch(dyn);
     int t1 = fpu_get_scratch(dyn);
     int t2 = fpu_get_scratch(dyn);
@@ -337,7 +335,6 @@ static inline void la64_aesd_lsx(dynarec_la64_t* dyn, int ninst, int dst)
     TABLE64C(x5, const_la64_vpaes_dec_tables);
     VLD(tab, x5, 6 * 16);
     VSHUF_B(dst, dst, dst, tab);
-    VXOR_V(zero, zero, zero);
     VXORI_B(dst, dst, 99);
     VANDI_B(t0, dst, 0x0f);
     VSRLI_B(t1, dst, 4);
@@ -367,13 +364,13 @@ static inline void la64_aesd_lsx(dynarec_la64_t* dyn, int ninst, int dst)
     VSHUF_B(t1, zero, tab, t3);
     VXOR_V(dst, t0, t1);
     VLD(tab, x5, 7 * 16);
-    VLD(zero, x5, 8 * 16);
-    la64_invmixcolumns_xtime_lsx(dyn, ninst, dst, tab, zero, t0, t1, t2, t3);
+    VLD(t4, x5, 8 * 16);
+    la64_invmixcolumns_xtime_lsx(dyn, ninst, dst, tab, t4, t0, t1, t2, t3);
 }
 
 static inline void la64_aesd_lasx(dynarec_la64_t* dyn, int ninst, int dst)
 {
-    int zero = fpu_get_scratch(dyn);
+    int zero = VZERO;
     int t0 = fpu_get_scratch(dyn);
     int t1 = fpu_get_scratch(dyn);
     int t2 = fpu_get_scratch(dyn);
@@ -384,7 +381,6 @@ static inline void la64_aesd_lasx(dynarec_la64_t* dyn, int ninst, int dst)
     TABLE64C(x5, const_la64_vpaes_dec_tables_xv);
     XVLD(tab, x5, 6 * 32);
     XVSHUF_B(dst, dst, dst, tab);
-    XVXOR_V(zero, zero, zero);
     XVXORI_B(dst, dst, 99);
     XVANDI_B(t0, dst, 0x0f);
     XVSRLI_B(t1, dst, 4);
@@ -414,13 +410,13 @@ static inline void la64_aesd_lasx(dynarec_la64_t* dyn, int ninst, int dst)
     XVSHUF_B(t1, zero, tab, t3);
     XVXOR_V(dst, t0, t1);
     XVLD(tab, x5, 7 * 32);
-    XVLD(zero, x5, 8 * 32);
-    la64_invmixcolumns_xtime_lasx(dyn, ninst, dst, tab, zero, t0, t1, t2, t3);
+    XVLD(t4, x5, 8 * 32);
+    la64_invmixcolumns_xtime_lasx(dyn, ninst, dst, tab, t4, t0, t1, t2, t3);
 }
 
 static inline void la64_aeskeygenassist_lsx(dynarec_la64_t* dyn, int ninst, int dst, uint8_t imm)
 {
-    int zero = fpu_get_scratch(dyn);
+    int zero = VZERO;
     int t0 = fpu_get_scratch(dyn);
     int t1 = fpu_get_scratch(dyn);
     int t2 = fpu_get_scratch(dyn);

@@ -35,7 +35,7 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
     int cacheupd = 0;
     int v0, v1, v2;
     int q0, q1, q2;
-    int d0, d1, d2;
+    int d0, d1;
     int s0;
     uint64_t tmp64u;
     int64_t j64;
@@ -147,7 +147,6 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
                 XVXOR_V(v0, v0, v0);
                 break;
             }
-            d0 = fpu_get_scratch(dyn);
             uint8_t zero_low = (u8 & 0x8) >> 3;
             uint8_t zero_up = (u8 & 0x80) >> 7;
             uint8_t vec_lo = (u8 & 0x2) >> 1;
@@ -165,13 +164,12 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
                 }
                 break;
             }
-            XVXOR_V(d0, d0, d0);
             if (zero_low) {
                 XVORI_B(v0, vec_hi ? v2 : v1, 0);
-                XVPERMI_Q(v0, d0, XVPERMI_IMM_4_0(2 + index_hi, 0));
+                XVPERMI_Q(v0, VZERO, XVPERMI_IMM_4_0(2 + index_hi, 0));
             } else {
                 XVORI_B(v0, vec_lo ? v2 : v1, 0);
-                XVPERMI_Q(v0, d0, XVPERMI_IMM_4_0(0, 2 + index_lo));
+                XVPERMI_Q(v0, VZERO, XVPERMI_IMM_4_0(0, 2 + index_lo));
             }
             break;
         case 0x08:
@@ -507,7 +505,6 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
                 GETEYSD(v1, 1, 1);
             }
             u8 = F8;
-            d0 = fpu_get_scratch(dyn);
             if (u8 & 4) {
                 u8 = sse_setround(dyn, ninst, x4, x5);
             } else {
@@ -517,13 +514,11 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
                 u8 = x4;
             }
             if (vex.l) {
-                XVXOR_V(d0, d0, d0);
-                XVFCVT_H_S(v1, d0, v0);
+                XVFCVT_H_S(v1, VZERO, v0);
                 XVPERMI_D(v1, v1, 0b11011000);
                 PUTEYx(v1);
             } else {
-                XVXOR_V(d0, d0, d0);
-                VFCVT_H_S(v1, d0, v0);
+                VFCVT_H_S(v1, VZERO, v0);
                 PUTEYSD(v1);
             }
             x87_restoreround(dyn, ninst, u8);
@@ -573,10 +568,9 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             }
             uint8_t zmask = u8 & 0xf;
             if (zmask) {
-                VXOR_V(q1, q1, q1);
                 for (uint8_t i = 0; i < 4; i++) {
                     if (zmask & (1 << i)) {
-                        VEXTRINS_W(v0, q1, VEXTRINS_IMM_4_0(i, 0));
+                        VEXTRINS_W(v0, VZERO, VEXTRINS_IMM_4_0(i, 0));
                     }
                 }
             }
@@ -606,12 +600,10 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             u8 = F8;
             d0 = fpu_get_scratch(dyn);
             d1 = fpu_get_scratch(dyn);
-            d2 = fpu_get_scratch(dyn);
             VFMULxy(S, d0, v1, v2);
-            VXOR_Vxy(d2, d2, d2);
             for (int i = 0; i < 4; ++i) {
                 if (!(u8 & (1 << (4 + i)))) {
-                    VEXTRINSxy(W, d0, d2, (i << 4));
+                    VEXTRINSxy(W, d0, VZERO, (i << 4));
                 }
             }
             VSHUF4Ixy(W, d1, d0, 0b10110001); // v0[a,b,c,d] v1[b,a,d,c]
@@ -621,7 +613,7 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             VREPLVEIxy(W, v0, d0, 0);
             for (int i = 0; i < 4; ++i) {
                 if (!(u8 & (1 << i))) {
-                    VEXTRINSxy(W, v0, d2, (i << 4));
+                    VEXTRINSxy(W, v0, VZERO, (i << 4));
                 }
             }
             break;
@@ -632,12 +624,10 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             u8 = F8;
             d0 = fpu_get_scratch(dyn);
             d1 = fpu_get_scratch(dyn);
-            d2 = fpu_get_scratch(dyn);
             VFMULxy(D, d0, v1, v2);
-            VXOR_Vxy(d2, d2, d2);
             for (int i = 0; i < 2; ++i) {
                 if (!(u8 & (1 << (4 + i)))) {
-                    VEXTRINSxy(D, d0, d2, (i << 4));
+                    VEXTRINSxy(D, d0, VZERO, (i << 4));
                 }
             }
             VSHUF4Ixy(W, d1, d0, 0b01001110); // v0[a,b] v1[b,a]
@@ -645,7 +635,7 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             VREPLVEIxy(D, v0, d0, 0);
             for (int i = 0; i < 2; ++i) {
                 if (!(u8 & (1 << i))) {
-                    VEXTRINSxy(D, v0, d2, (i << 4));
+                    VEXTRINSxy(D, v0, VZERO, (i << 4));
                 }
             }
             break;

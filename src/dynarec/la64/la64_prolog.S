@@ -12,6 +12,16 @@
 
 .extern cpuext
 
+.macro restore_vzero
+    .word 0x71277bde // vxor.v $vr30, $vr30, $vr30
+    la.global $r19, cpuext
+    ldptr.d   $r19, $r19, 0
+    andi      $r19, $r19, 0x20
+    beqz      $r19, 1f
+    .word 0x75277bde // xvxor.v $xr30, $xr30, $xr30
+1:
+.endm
+
 .global la64_prolog
 la64_prolog:
     //save all 18 used register
@@ -72,5 +82,6 @@ la64_prolog:
     addi.d $sp,  $sp, -16
     // save old sp into xSavedSP
     addi.d SavedSP, $sp, 16
+    restore_vzero
     //jump to function
     jirl   $r0,  $r16, 0

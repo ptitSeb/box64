@@ -194,9 +194,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             d1 = fpu_get_scratch(dyn);
             FSQRT_S(d1, v2);
             if (!BOX64ENV(dynarec_fastnan)) {
-                d0 = fpu_get_scratch(dyn);
-                VXOR_V(d0, d0, d0);
-                FCMP_S(fcc0, v2, d0, cLT);
+                FCMP_S(fcc0, v2, VZERO, cLT);
                 BCEQZ(fcc0, 4 + 4);
                 FNEG_S(d1, d1);
             }
@@ -475,8 +473,8 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETVYx(v1, 0);
             GETEYSS(v2, 0, 1);
             GETGYx(v0, 1);
-            q0 = fpu_get_scratch(dyn);
             u8 = F8;
+            q0 = ((u8 & 0xf) == 0x0b) ? VZERO : fpu_get_scratch(dyn);
             switch (u8 & 0xf) {
                 case 0x00: VFCMP_S(q0, v1, v2, cEQ); break;  // Equal, not unordered
                 case 0x01: VFCMP_S(q0, v1, v2, cLT); break;  // Less than
@@ -489,7 +487,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 case 0x08: VFCMP_S(q0, v1, v2, cUEQ); break; // Equal, or unordered
                 case 0x09: VFCMP_S(q0, v1, v2, cULT); break; // Less than or unordered
                 case 0x0a: VFCMP_S(q0, v1, v2, cULE); break; // Less or equal or unordered
-                case 0x0b: VXOR_V(q0, q0, q0); break;        // false
+                case 0x0b: break;                            // false
                 case 0x0c: VFCMP_S(q0, v1, v2, cNE); break;  // Not Eual, ordered
                 case 0x0d: VFCMP_S(q0, v2, v1, cLE); break;  // Greater or Equal ordered
                 case 0x0e: VFCMP_S(q0, v2, v1, cLT); break;  // Greater ordered

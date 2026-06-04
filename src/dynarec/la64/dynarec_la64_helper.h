@@ -21,6 +21,15 @@
 #include "la64_emitter.h"
 #include "../emu/x64primop.h"
 #include "dynarec_la64_consts.h"
+#include "dynarec_la64_functions.h"
+
+#define LA64_RESTORE_VZERO()              \
+    do {                                  \
+        if (cpuext.lasx)                  \
+            XVXOR_V(VZERO, VZERO, VZERO); \
+        else                              \
+            VXOR_V(VZERO, VZERO, VZERO);  \
+    } while (0)
 
 #define F8      *(uint8_t*)(addr++)
 #define F8S     *(int8_t*)(addr++)
@@ -959,12 +968,13 @@
 #endif
 
 #ifndef READFLAGS
-#define READFLAGS(A)                           \
-    if ((A) != X_PEND                          \
-        && (dyn->f == status_unk)) {           \
-        TABLE64C(x6, const_updateflags_la64);  \
-        JIRL(xRA, x6, 0);                      \
-        dyn->f = status_none;                  \
+#define READFLAGS(A)                          \
+    if ((A) != X_PEND                         \
+        && (dyn->f == status_unk)) {          \
+        TABLE64C(x6, const_updateflags_la64); \
+        JIRL(xRA, x6, 0);                     \
+        LA64_RESTORE_VZERO();                 \
+        dyn->f = status_none;                 \
     }
 #endif
 
@@ -1003,6 +1013,7 @@
         && ((dyn->f == status_unk) || (dyn->f == status_set))) { \
         TABLE64C(x6, const_updateflags_la64);                    \
         JIRL(xRA, x6, 0);                                        \
+        LA64_RESTORE_VZERO();                                    \
         dyn->f = status_none;                                    \
     }
 
