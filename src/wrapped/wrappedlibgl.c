@@ -178,6 +178,24 @@ static void* find_get_blob_func_Fct(void* fct)
 }
 #undef SUPER
 
+#define CUSTOM_INIT \
+    {                                                                              \
+        void* egl = dlopen("libEGL.so.1", RTLD_LAZY | RTLD_GLOBAL);                \
+        if(egl) {                                                                  \
+            const char* key;                                                       \
+            symbol1_t* val;                                                        \
+            kh_foreach_ref(lib->w.symbolmap, key, val, {                           \
+                if(!val->resolved && !strncmp(key, "egl", 3)) {                    \
+                    void* sym = dlsym(egl, key);                                   \
+                    if(sym) {                                                      \
+                        val->addr = AddBridge(lib->w.bridge, val->w, sym, 0, key); \
+                        val->resolved = 1;                                         \
+                    }                                                              \
+                }                                                                  \
+            });                                                                    \
+        }                                                                          \
+    }
+
 #define PRE_INIT                                                                \
     if(BOX64ENV(libgl)) {                                                       \
         lib->w.lib = dlopen(BOX64ENV(libgl), RTLD_LAZY | RTLD_GLOBAL);          \
