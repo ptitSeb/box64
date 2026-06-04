@@ -35,7 +35,12 @@
 // Get a FPU scratch reg
 int fpu_get_scratch(dynarec_la64_t* dyn)
 {
-    return SCRATCH0 + dyn->lsx.fpu_scratch++; // return an Sx
+    int ret = SCRATCH0 + dyn->lsx.fpu_scratch++; // return an Sx
+    if (ret >= SCRATCH_LIMIT) {
+        dyn->abort = 1;
+        ret = SCRATCH_LIMIT - 1;
+    }
+    return ret;
 }
 // Reset scratch regs counter
 void fpu_reset_scratch(dynarec_la64_t* dyn)

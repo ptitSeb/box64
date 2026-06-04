@@ -63,12 +63,10 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             nextop = F8;
             GETGY_empty_VYEY_xy(v0, v1, v2, 0);
             q0 = fpu_get_scratch(dyn);
-            q1 = fpu_get_scratch(dyn);
             VLDIxy(q0, 0b0000010001111); // broadcast 0b10001111 as byte
             VAND_Vxy(q0, q0, v2);
             VMINIxy(BU, q0, q0, 0x1f);
-            VXOR_Vxy(q1, q1, q1);
-            VSHUF_Bxy(v0, q1, v1, q0);
+            VSHUF_Bxy(v0, VZERO, v1, q0);
             break;
         case 0x01:
             INST_NAME("VPHADDW Gx, Vx, Ex");
@@ -346,25 +344,19 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             INST_NAME("VPABSB Gx, Ex");
             nextop = F8;
             GETGY_empty_EY_xy(v0, v1, 0);
-            q0 = fpu_get_scratch(dyn);
-            XVXOR_V(q0, q0, q0);
-            VABSDxy(B, v0, v1, q0);
+            VABSDxy(B, v0, v1, VZERO);
             break;
         case 0x1D:
             INST_NAME("VPABSW Gx, Ex");
             nextop = F8;
             GETGY_empty_EY_xy(v0, v1, 0);
-            q0 = fpu_get_scratch(dyn);
-            XVXOR_V(q0, q0, q0);
-            VABSDxy(H, v0, v1, q0);
+            VABSDxy(H, v0, v1, VZERO);
             break;
         case 0x1E:
             INST_NAME("VPABSD Gx, Ex");
             nextop = F8;
             GETGY_empty_EY_xy(v0, v1, 0);
-            q0 = fpu_get_scratch(dyn);
-            XVXOR_V(q0, q0, q0);
-            VABSDxy(W, v0, v1, q0);
+            VABSDxy(W, v0, v1, VZERO);
             break;
         case 0x20:
             INST_NAME("VPMOVSXBW Gx, Ex");
@@ -498,32 +490,26 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             INST_NAME("VMASKMOVPS Gx, Vx, Ex");
             nextop = F8;
             GETGY_empty_VYEY_xy(v0, v1, v2, 0);
-            d0 = fpu_get_scratch(dyn);
             d1 = fpu_get_scratch(dyn);
             if (vex.l) {
-                XVXOR_V(d0, d0, d0);
                 XVSLTI_W(d1, v1, 0); // create all-one mask for negetive element.
-                XVBITSEL_V(v0, d0, v2, d1);
+                XVBITSEL_V(v0, VZERO, v2, d1);
             } else {
-                VXOR_V(d0, d0, d0);
                 VSLTI_W(d1, v1, 0); // create all-one mask for negetive element.
-                VBITSEL_V(v0, d0, v2, d1);
+                VBITSEL_V(v0, VZERO, v2, d1);
             }
             break;
         case 0x2D:
             INST_NAME("VMASKMOVPD Gx, Vx, Ex");
             nextop = F8;
             GETGY_empty_VYEY_xy(v0, v1, v2, 0);
-            d0 = fpu_get_scratch(dyn);
             d1 = fpu_get_scratch(dyn);
             if (vex.l) {
-                XVXOR_V(d0, d0, d0);
                 XVSLTI_D(d1, v1, 0); // create all-one mask for negetive element.
-                XVBITSEL_V(v0, d0, v2, d1);
+                XVBITSEL_V(v0, VZERO, v2, d1);
             } else {
-                VXOR_V(d0, d0, d0);
                 VSLTI_D(d1, v1, 0); // create all-one mask for negetive element.
-                VBITSEL_V(v0, d0, v2, d1);
+                VBITSEL_V(v0, VZERO, v2, d1);
             }
             break;
         case 0x2E:
@@ -836,24 +822,21 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             INST_NAME("VPMASKMOVD/Q Gx, Vx, Ex");
             nextop = F8;
             GETGY_empty_VYEY_xy(v0, v1, v2, 0);
-            d0 = fpu_get_scratch(dyn);
             d1 = fpu_get_scratch(dyn);
             if (vex.l) {
-                XVXOR_V(d0, d0, d0);
                 if (rex.w) {
                     XVSLTI_D(d1, v1, 0);
                 } else {
                     XVSLTI_W(d1, v1, 0);
                 }
-                XVBITSEL_V(v0, d0, v2, d1);
+                XVBITSEL_V(v0, VZERO, v2, d1);
             } else {
-                VXOR_V(d0, d0, d0);
                 if (rex.w) {
                     VSLTI_D(d1, v1, 0);
                 } else {
                     VSLTI_W(d1, v1, 0);
                 }
-                VBITSEL_V(v0, d0, v2, d1);
+                VBITSEL_V(v0, VZERO, v2, d1);
             }
             break;
         case 0x8E:

@@ -501,8 +501,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     VLDI(v0, 0b0000010000111); // broadcast 0b10000111 as byte
                     VAND_V(v0, v0, q1);
                     VMINI_BU(v0, v0, 0x1f);
-                    VXOR_V(v1, v1, v1);
-                    VSHUF_B(q0, v1, q0, v0);
+                    VSHUF_B(q0, VZERO, q0, v0);
                     break;
                 case 0x01:
                     INST_NAME("PHADDW Gm, Em");
@@ -639,27 +638,21 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     nextop = F8;
                     GETGM(q0);
                     GETEM(q1, 0);
-                    v0 = fpu_get_scratch(dyn);
-                    VXOR_V(v0, v0, v0);
-                    VABSD_B(q0, q1, v0);
+                    VABSD_B(q0, q1, VZERO);
                     break;
                 case 0x1D:
                     INST_NAME("PABSW Gm, Em");
                     nextop = F8;
                     GETGM(q0);
                     GETEM(q1, 0);
-                    v0 = fpu_get_scratch(dyn);
-                    VXOR_V(v0, v0, v0);
-                    VABSD_H(q0, q1, v0);
+                    VABSD_H(q0, q1, VZERO);
                     break;
                 case 0x1E:
                     INST_NAME("PABSD Gm, Em");
                     nextop = F8;
                     GETGM(q0);
                     GETEM(q1, 0);
-                    v0 = fpu_get_scratch(dyn);
-                    VXOR_V(v0, v0, v0);
-                    VABSD_W(q0, q1, v0);
+                    VABSD_W(q0, q1, VZERO);
                     break;
                 case 0xC8 ... 0xCD:
                     u8 = nextop;

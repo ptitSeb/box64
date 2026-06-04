@@ -10,8 +10,19 @@
 .text
 .align 4
 
+.extern cpuext
 .extern LinkNext
 .extern LinkNextInvalid
+
+.macro restore_vzero
+    .word 0x71277bde // vxor.v $vr30, $vr30, $vr30
+    la.global $r19, cpuext
+    ldptr.d   $r19, $r19, 0
+    andi      $r19, $r19, 0x20
+    beqz      $r19, 1f
+    .word 0x75277bde // xvxor.v $xr30, $xr30, $xr30
+1:
+.endm
 
 .global la64_next
 .global la64_next_invalid
@@ -41,6 +52,7 @@ la64_next:
     bl LinkNext
     // preserve return value
     move   $r16, $a0
+    restore_vzero
     // pop regs
     ld.d   RDI, $sp, 0
     ld.d   RSI, $sp, 8
@@ -81,6 +93,7 @@ la64_next_invalid:
     bl LinkNextInvalid
     // preserve return value
     move   $r16, $a0
+    restore_vzero
     // pop regs
     ld.d   RDI, $sp, 0
     ld.d   RSI, $sp, 8

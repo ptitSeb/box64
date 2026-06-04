@@ -202,9 +202,7 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             d1 = fpu_get_scratch(dyn);
             FSQRT_D(d1, v2);
             if (!BOX64ENV(dynarec_fastnan)) {
-                d0 = fpu_get_scratch(dyn);
-                VXOR_V(d0, d0, d0);
-                FCMP_D(fcc0, v2, d0, cLT);
+                FCMP_D(fcc0, v2, VZERO, cLT);
                 BCEQZ(fcc0, 4 + 4);
                 FNEG_D(d1, d1);
             }
@@ -438,8 +436,8 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETVYx(v1, 0);
             GETEYSD(v2, 0, 1);
             GETGYx(v0, 1);
-            q0 = fpu_get_scratch(dyn);
             u8 = F8;
+            q0 = ((u8 & 0xf) == 0x0b) ? VZERO : fpu_get_scratch(dyn);
             switch (u8 & 0xf) {
                 case 0x00: VFCMP_D(q0, v1, v2, cEQ); break;  // Equal, not unordered
                 case 0x01: VFCMP_D(q0, v1, v2, cLT); break;  // Less than
@@ -452,7 +450,7 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 case 0x08: VFCMP_D(q0, v1, v2, cUEQ); break; // Equal, or unordered
                 case 0x09: VFCMP_D(q0, v1, v2, cULT); break; // Less than or unordered
                 case 0x0a: VFCMP_D(q0, v1, v2, cULE); break; // Less or equal or unordered
-                case 0x0b: VXOR_V(q0, q0, q0); break;        // false
+                case 0x0b: break;                            // false
                 case 0x0c: VFCMP_D(q0, v1, v2, cNE); break;  // Not Eual, ordered
                 case 0x0d: VFCMP_D(q0, v2, v1, cLE); break;  // Greater or Equal ordered
                 case 0x0e: VFCMP_D(q0, v2, v1, cLT); break;  // Greater ordered
@@ -495,18 +493,17 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETEYxy(v1, 0, 0);
             GETGYx_empty(v0);
             u8 = sse_setround(dyn, ninst, x1, x2);
-            d0 = fpu_get_scratch(dyn);
             if (vex.l) {
                 if (!BOX64ENV(dynarec_fastround)) {
                     q0 = fpu_get_scratch(dyn);
                     q1 = fpu_get_scratch(dyn);
                     q2 = fpu_get_scratch(dyn);
+                    d0 = fpu_get_scratch(dyn);
                     d1 = fpu_get_scratch(dyn);
                     XVFTINT_L_D(q2, v1);
                     XVFCMP_D(d1, v1, v1, cUN); // get NaN mask
                 }
-                XVXOR_V(d0, d0, d0);
-                XVFTINT_W_D(v0, d0, v1); // v0 [lo0, lo1, --, --, hi0, hi1, --, -- ]
+                XVFTINT_W_D(v0, VZERO, v1); // v0 [lo0, lo1, --, --, hi0, hi1, --, -- ]
                 if (!BOX64ENV(dynarec_fastround)) {
                     XVLDI(q0, 0b1001110000000); // broadcast 0x80000000 to all
                     MOV32w(x5, 0x7FFFFFFF);
@@ -519,6 +516,7 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 }
                 XVPERMI_D(v0, v0, 0b11011000);
             } else {
+                d0 = fpu_get_scratch(dyn);
                 VFTINT_W_D(d0, v1, v1);
                 if (!BOX64ENV(dynarec_fastround)) {
                     q0 = fpu_get_scratch(dyn);

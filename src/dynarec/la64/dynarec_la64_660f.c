@@ -369,8 +369,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     VLDI(v0, 0b0000010001111); // broadcast 0b10001111 as byte
                     VAND_V(v0, v0, q1);
                     VMINI_BU(v0, v0, 0x1f);
-                    VXOR_V(v1, v1, v1);
-                    VSHUF_B(q0, v1, q0, v0);
+                    VSHUF_B(q0, VZERO, q0, v0);
                     break;
                 case 0x01:
                     INST_NAME("PHADDW Gx, Ex");
@@ -576,18 +575,14 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     nextop = F8;
                     GETEX(q1, 0, 0);
                     GETGX_empty(q0);
-                    v0 = fpu_get_scratch(dyn);
-                    VXOR_V(v0, v0, v0);
-                    VABSD_B(q0, q1, v0);
+                    VABSD_B(q0, q1, VZERO);
                     break;
                 case 0x1D:
                     INST_NAME("PABSW Gx, Ex");
                     nextop = F8;
                     GETEX(q1, 0, 0);
                     GETGX_empty(q0);
-                    v0 = fpu_get_scratch(dyn);
-                    VXOR_V(v0, v0, v0);
-                    VABSD_H(q0, q1, v0);
+                    VABSD_H(q0, q1, VZERO);
                     break;
                 case 0x1E:
                     INST_NAME("PABSD Gx, Ex");
@@ -1247,11 +1242,10 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         VEXTRINS_W(q0, q2, VEXTRINS_IMM_4_0(((u8 >> 4) & 3), 0)); // src index is zero when Ex is mem operand
                     }
                     uint8_t zmask = u8 & 0xf;
-                    VXOR_V(q2, q2, q2);
                     if (zmask) {
                         for (uint8_t i = 0; i < 4; i++) {
                             if (zmask & (1 << i)) {
-                                VEXTRINS_W(q0, q2, VEXTRINS_IMM_4_0(i, 0));
+                                VEXTRINS_W(q0, VZERO, VEXTRINS_IMM_4_0(i, 0));
                             }
                         }
                     }
@@ -1277,12 +1271,10 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     u8 = F8;
                     v0 = fpu_get_scratch(dyn);
                     v1 = fpu_get_scratch(dyn);
-                    v2 = fpu_get_scratch(dyn);
                     VFMUL_S(v0, q0, q1);
-                    VXOR_V(v2, v2, v2);
                     for (int i = 0; i < 4; ++i) {
                         if (!(u8 & (1 << (4 + i)))) {
-                            VEXTRINS_W(v0, v2, (i << 4));
+                            VEXTRINS_W(v0, VZERO, (i << 4));
                         }
                     }
                     VSHUF4I_W(v1, v0, 0b10110001); // v0[a,b,c,d] v1[b,a,d,c]
@@ -1292,7 +1284,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     VREPLVEI_W(q0, v0, 0);
                     for (int i = 0; i < 4; ++i) {
                         if (!(u8 & (1 << i))) {
-                            VEXTRINS_W(q0, v2, (i << 4));
+                            VEXTRINS_W(q0, VZERO, (i << 4));
                         }
                     }
                     break;
@@ -1304,12 +1296,10 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     u8 = F8;
                     v0 = fpu_get_scratch(dyn);
                     v1 = fpu_get_scratch(dyn);
-                    v2 = fpu_get_scratch(dyn);
                     VFMUL_D(v0, q0, q1);
-                    VXOR_V(v2, v2, v2);
                     for (int i = 0; i < 2; ++i) {
                         if (!(u8 & (1 << (4 + i)))) {
-                            VEXTRINS_D(v0, v2, (i << 4));
+                            VEXTRINS_D(v0, VZERO, (i << 4));
                         }
                     }
                     VSHUF4I_W(v1, v0, 0b01001110); // v0[a,b] v1[b,a]
@@ -1317,7 +1307,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     VREPLVEI_D(q0, v0, 0);
                     for (int i = 0; i < 2; ++i) {
                         if (!(u8 & (1 << i))) {
-                            VEXTRINS_D(q0, v2, (i << 4));
+                            VEXTRINS_D(q0, VZERO, (i << 4));
                         }
                     }
                     break;

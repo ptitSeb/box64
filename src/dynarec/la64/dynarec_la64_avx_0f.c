@@ -506,14 +506,12 @@ uintptr_t dynarec64_AVX_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, in
                 if (vex.v != 0) {
                     UDF();
                 } else {
-                    q2 = fpu_get_scratch(dyn);
-                    XVXOR_V(q2, q2, q2);
                     for (int i = 0; i < (rex.is32bits ? 8 : 16); ++i) {
                         if (dyn->lsx.avxcache[i].v != -1) {
                             q1 = avx_get_reg(dyn, ninst, x1, i, 1, LSX_AVX_WIDTH_256);
-                            XVPERMI_Q(q1, q2, XVPERMI_IMM_4_0(0, 2));
+                            XVPERMI_Q(q1, VZERO, XVPERMI_IMM_4_0(0, 2));
                         } else {
-                            VST(q2, xEmu, offsetof(x64emu_t, ymm[i]));
+                            VST(VZERO, xEmu, offsetof(x64emu_t, ymm[i]));
                         }
                     }
                     SMWRITE2();

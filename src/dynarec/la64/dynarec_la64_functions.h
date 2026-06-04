@@ -3,7 +3,10 @@
 
 #include "../dynarec_native_functions.h"
 
-#define SCRATCH0 24
+#define SCRATCH0     24
+#define VZERO        30
+#define SCRATCH      31
+#define SCRATCH_LIMIT VZERO
 
 typedef struct x64emu_s x64emu_t;
 typedef struct dynarec_la64_s dynarec_la64_t;
