@@ -11,7 +11,11 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef void* (*pFpV_t)(void*, ...);
+typedef int32_t (*iFpppV_t)(void*, void*, void*, ...);
 
-#define SUPER() ADDED_FUNCTIONS()
+#define SUPER() ADDED_FUNCTIONS() \
+	GO(pw_properties_new, pFpV_t) \
+	GO(pw_properties_setf, iFpppV_t)
 
 #endif // __wrappedpipewire03TYPES_H_
