@@ -1385,7 +1385,8 @@ EXPORT sighandler_t my_signal(x64emu_t* emu, int signum, sighandler_t handler)
         struct sigaction oldact = {0};
         newact.sa_flags = 0x04;
         newact.sa_sigaction = MY_SIGHANDLER;
-        sigaction(signal_from_x64(signum), &newact, &oldact);
+        if(sigaction(signal_from_x64(signum), &newact, &oldact)<0)
+            return SIG_ERR;
         return oldact.sa_handler;
     } else
         return signal(signal_from_x64(signum), handler);
