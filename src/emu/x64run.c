@@ -562,10 +562,7 @@ x64emurun:
                 if(rex.w)
                     GD->sq[0] = ED->sdword[0];
                 else
-                    if(MODREG)
-                        GD->q[0] = ED->dword[0];    // not really a sign extension
-                    else
-                        GD->sdword[0] = ED->sdword[0];  // meh?
+                    GD->q[0] = ED->dword[0]; // zero upper 32 bits
             }
             break;
 
