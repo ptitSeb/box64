@@ -2021,6 +2021,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if (BOX64DRENV(dynarec_safeflags)) {
                 IFX (X_PF) ORI(xFlags, xFlags, 1 << F_PF);
             }
+            if (!rex.w) ZEROUP(gd);
             B_MARK2_nocond;
             MARK;
             CLZxw(gd, ed);
