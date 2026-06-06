@@ -1719,6 +1719,7 @@
 #() vFEiipV
 #() vFEiipA
 #() vFEippp
+#() vFEpipp
 #() vFEpipV
 #() vFEpipA
 #() vFEpuuV
@@ -1932,6 +1933,7 @@
 #() iFEpipp
 #() iFEpipV
 #() iFEpipA
+#() iFEpupp
 #() iFEpLpp
 #() iFEpLpV
 #() iFEpLpA
@@ -2742,6 +2744,7 @@
 #() iFpppipi
 #() iFpppipu
 #() iFpppipp
+#() iFpppIIu
 #() iFpppIpp
 #() iFpppuii
 #() iFpppuip
@@ -3124,6 +3127,7 @@
 #() iFEpLiLpV
 #() iFEpLpiiL
 #() iFEppiipi
+#() iFEppippp
 #() iFEppupup
 #() iFEppuppp
 #() iFEppLpIu
@@ -3857,6 +3861,7 @@
 #() iFEpiiiiippp
 #() iFEpuppupppp
 #() iFEpupppLppL
+#() iFEppiippppp
 #() iFEppLuppupp
 #() iFEppppLpppp
 #() iFEppppppipp
@@ -3954,6 +3959,7 @@
 #() vFppppppppppp
 #() iFEiipppppppp
 #() iFEpLppiiiiuu
+#() iFEppiipppppp
 #() iFEppLpLpLLpp
 #() iFEpppupppppp
 #() iFEpppppppppp
@@ -6150,6 +6156,8 @@ wrappedlibmvec:
   - _ZGVbN2v_cos
   - _ZGVbN2v_sin
   - _ZGVbN2vv_pow
+  - _ZGVbN4v_cosf
+  - _ZGVbN4v_sinf
   - _ZGVbN4vv_powf
 wrappedlibncurses:
 - pFv:
@@ -6431,13 +6439,28 @@ wrappedlibsqlite3:
   - sqlite3_mprintf
 - pFpA:
   - sqlite3_vmprintf
+- iFppp:
+  - sqlite3_set_authorizer
+- vFpipp:
+  - sqlite3_progress_handler
+- vFppip:
+  - sqlite3_result_blob
+  - sqlite3_result_text
+- iFpupp:
+  - sqlite3_trace_v2
 - iFpipip:
   - sqlite3_bind_blob
   - sqlite3_bind_text
 - iFppppp:
   - sqlite3_exec
+- iFppippp:
+  - sqlite3_create_collation_v2
 - iFppiipppp:
   - sqlite3_create_function
+- iFppiippppp:
+  - sqlite3_create_function_v2
+- iFppiipppppp:
+  - sqlite3_create_window_function
 wrappedlibssh2:
 - iFppup:
   - libssh2_userauth_keyboard_interactive_ex
