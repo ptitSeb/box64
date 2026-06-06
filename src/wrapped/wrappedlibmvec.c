@@ -33,6 +33,8 @@ static v2df_func_t native_v2d_cos = NULL;
 static v2df_v2df_func_t native_v2d_pow = NULL;
 
 static v4sf_func_t native_v4f_acosf = NULL;
+static v4sf_func_t native_v4f_sinf = NULL;
+static v4sf_func_t native_v4f_cosf = NULL;
 static v4sf_v4sf_func_t native_v4f_powf = NULL;
 
 // Native libmvec symbol names per architecture.
@@ -43,12 +45,16 @@ static v4sf_v4sf_func_t native_v4f_powf = NULL;
 #define NATIVE_COS_NAME "_ZGVnN2v_cos"
 #define NATIVE_POW_NAME "_ZGVnN2vv_pow"
 #define NATIVE_ACOSF4_NAME "_ZGVnN4v_acosf"
+#define NATIVE_SINF4_NAME "_ZGVnN4v_sinf"
+#define NATIVE_COSF4_NAME "_ZGVnN4v_cosf"
 #define NATIVE_POWF4_NAME "_ZGVnN4vv_powf"
 #else
 #define NATIVE_SIN_NAME "_ZGVbN2v_sin"
 #define NATIVE_COS_NAME "_ZGVbN2v_cos"
 #define NATIVE_POW_NAME "_ZGVbN2vv_pow"
 #define NATIVE_ACOSF4_NAME "_ZGVbN4v_acosf"
+#define NATIVE_SINF4_NAME "_ZGVbN4v_sinf"
+#define NATIVE_COSF4_NAME "_ZGVbN4v_cosf"
 #define NATIVE_POWF4_NAME "_ZGVbN4vv_powf"
 #endif
 
@@ -99,6 +105,36 @@ EXPORT void my__ZGVbN4v_acosf(x64emu_t* emu)
     }
 }
 
+EXPORT void my__ZGVbN4v_sinf(x64emu_t* emu)
+{
+    if (native_v4f_sinf) {
+        v4sf input, result;
+        memcpy(&input, &emu->xmm[0], sizeof(v4sf));
+        result = native_v4f_sinf(input);
+        memcpy(&emu->xmm[0], &result, sizeof(v4sf));
+    } else {
+        emu->xmm[0].f[0] = sinf(emu->xmm[0].f[0]);
+        emu->xmm[0].f[1] = sinf(emu->xmm[0].f[1]);
+        emu->xmm[0].f[2] = sinf(emu->xmm[0].f[2]);
+        emu->xmm[0].f[3] = sinf(emu->xmm[0].f[3]);
+    }
+}
+
+EXPORT void my__ZGVbN4v_cosf(x64emu_t* emu)
+{
+    if (native_v4f_cosf) {
+        v4sf input, result;
+        memcpy(&input, &emu->xmm[0], sizeof(v4sf));
+        result = native_v4f_cosf(input);
+        memcpy(&emu->xmm[0], &result, sizeof(v4sf));
+    } else {
+        emu->xmm[0].f[0] = cosf(emu->xmm[0].f[0]);
+        emu->xmm[0].f[1] = cosf(emu->xmm[0].f[1]);
+        emu->xmm[0].f[2] = cosf(emu->xmm[0].f[2]);
+        emu->xmm[0].f[3] = cosf(emu->xmm[0].f[3]);
+    }
+}
+
 EXPORT void my__ZGVbN2vv_pow(x64emu_t* emu)
 {
     if (native_v2d_pow) {
@@ -142,6 +178,8 @@ EXPORT void my__ZGVbN4vv_powf(x64emu_t* emu)
             native_v2d_cos = (v2df_func_t)dlsym(native, NATIVE_COS_NAME);           \
             native_v2d_pow = (v2df_v2df_func_t)dlsym(native, NATIVE_POW_NAME);      \
             native_v4f_acosf = (v4sf_func_t)dlsym(native, NATIVE_ACOSF4_NAME);      \
+            native_v4f_sinf = (v4sf_func_t)dlsym(native, NATIVE_SINF4_NAME);        \
+            native_v4f_cosf = (v4sf_func_t)dlsym(native, NATIVE_COSF4_NAME);        \
             native_v4f_powf = (v4sf_v4sf_func_t)dlsym(native, NATIVE_POWF4_NAME);   \
         } else {                                                                    \
             lib->w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL);                     \
