@@ -1788,13 +1788,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0xCF: /* BSWAP reg */
             INST_NAME("BSWAP Reg");
             gd = TO_NAT((opcode & 7) + (rex.b << 3));
-            if (rex.w) {
-                REV8xw(gd, gd, x1, x2, x3, x4);
-            } else {
-                // undefined behaviour
-                SRLI(gd, gd, 16);
-                SLLI(gd, gd, 16);
-            }
+            REV8xw(gd, gd, x1, x2, x3, x4);
             break;
         case 0xD1:
             INST_NAME("PSRLW Gx,Ex");

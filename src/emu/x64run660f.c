@@ -2311,8 +2311,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         if(rex.w) {
             emu->regs[tmp8u].q[0] = __builtin_bswap64(emu->regs[tmp8u].q[0]);
         } else {
-            // this is undefined behaviour
-            emu->regs[tmp8u].word[0] = 0;
+            emu->regs[tmp8u].q[0] = __builtin_bswap32(emu->regs[tmp8u].dword[0]);
         }
         break;
     case 0xD0:  /* ADDSUBPD Gx, Ex */

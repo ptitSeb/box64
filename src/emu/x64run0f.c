@@ -1664,6 +1664,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                     GD->q[0] = tmp8u;
                 } else {
                     SET_FLAG(F_ZF);
+                    GD->dword[1] = 0;
                 }
             }
             if(!BOX64ENV(cputype)) {
@@ -1699,6 +1700,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                     GD->q[0] = tmp8u;
                 } else {
                     SET_FLAG(F_ZF);
+                    GD->dword[1] = 0;
                 }
             }
             if(!BOX64ENV(cputype)) {

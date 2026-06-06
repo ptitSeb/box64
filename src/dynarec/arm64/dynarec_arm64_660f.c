@@ -3016,12 +3016,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0xCF:                  /* BSWAP reg */
             INST_NAME("BSWAP Reg");
             gd = TO_NAT((opcode & 7) + (rex.b << 3));
-            if(rex.w) {
-                REV64x(gd, gd);
-            } else {
-                // this is undefined behaviour
-                BFCx(gd, 0, 16);
-            }
+            REVxw(gd, gd);
             break;
 
         case 0xD0:

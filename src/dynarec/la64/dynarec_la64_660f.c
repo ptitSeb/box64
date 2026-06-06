@@ -2669,12 +2669,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0xCF:
             INST_NAME("BSWAP Reg");
             gd = TO_NAT((opcode & 7) + (rex.b << 3));
-            if (rex.w) {
-                REVB_D(gd, gd);
-            } else {
-                // undefined behaviour
-                BSTRINS_D(gd, xZR, 15, 0);
-            }
+            REVBxw(gd, gd);
             break;
         case 0xD0:
             INST_NAME("ADDSUBPD Gx, Ex");
