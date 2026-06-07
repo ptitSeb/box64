@@ -152,6 +152,8 @@
 
 // DBAR hint
 #define DBAR(hint) EMIT(type_hint(0b00111000011100100, hint))
+// IBAR hint
+#define IBAR(hint) EMIT(type_hint(0b00111000011100101, hint))
 
 #define DBAR_RW_RW() DBAR(0b10000)
 #define DBAR_R_RW()  DBAR(0b10100)
@@ -187,8 +189,8 @@
 
 #define BREAK() EMIT(0b1010100)
 
-// there is no UDF instruction, use BREAK instead is an acceptable offer
-#define UDF() BREAK()
+// there is no UDF instruction, use AMSWAP_W($r0, $r1, $r0) like gcc
+#define UDF() AMSWAP_W(0, 1, 0)
 
 // tmp = SLL(GR[rj][31:0], GR[rk][4:0])
 // GR[rd] = SignExtend(tmp[31:0], GRLEN)
