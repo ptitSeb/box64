@@ -456,7 +456,9 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             v2 = x87_get_st(dyn, ninst, x1, x2, 1, NEON_CACHE_ST_D);
             if(!BOX64ENV(dynarec_fastround))
                 u8 = x87_setround(dyn, ninst, x1, x2, x4);
-            CALL_D(const_direct_fscale, v1, v1, v2, -1, -1);
+            else
+                u8 = 0;
+            CALL_D(const_direct_fscale, v1, v1, v2, u8, -1);
             if(!BOX64ENV(dynarec_fastround))
                 x87_restoreround(dyn, ninst, u8);
             break;
@@ -466,7 +468,9 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
             if(!BOX64ENV(dynarec_fastround))
                 u8 = x87_setround(dyn, ninst, x1, x2, x4);
-            CALL_D(const_direct_fsin, v1, v1, -1, -1, -1);
+            else
+                u8 = 0;
+            CALL_D(const_direct_fsin, v1, v1, -1, u8, -1);
             if(!BOX64ENV(dynarec_fastround))
                 x87_restoreround(dyn, ninst, u8);
             break;
@@ -476,7 +480,9 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
             if(!BOX64ENV(dynarec_fastround))
                 u8 = x87_setround(dyn, ninst, x1, x2, x4);
-            CALL_D(const_direct_fcos, v1, v1, -1, -1, -1);
+            else
+                u8 = 0;
+            CALL_D(const_direct_fcos, v1, v1, -1, u8, -1);
             if(!BOX64ENV(dynarec_fastround))
                 x87_restoreround(dyn, ninst, u8);
             break;
