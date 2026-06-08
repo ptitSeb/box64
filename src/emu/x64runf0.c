@@ -1116,9 +1116,9 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                         
                     } while(native_lock_write_b(ED, GD->byte[0]));
                     ED->dword[0] = GD->dword[0];
-                    GD->dword[0] = tmp32u;
+                    GD->q[0] = tmp32u;
                 } else {
-                    GD->dword[0] = native_lock_xchg_d(ED, GD->dword[0]);
+                    GD->q[0] = native_lock_xchg_d(ED, GD->dword[0]);
                 }
             }
 #else
