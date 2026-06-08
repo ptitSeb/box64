@@ -77,7 +77,7 @@ extern void la64_crc_autocrc(); // same as la64_crc, but not using regular ABI
 #define ARCH_CRC(A, B)       return la64_crc(A, B)
 
 #define ARCH_NOP    (0b0000001101<<22)
-#define ARCH_UDF    0b1010100
+#define ARCH_UDF    0x38600400
 
 #define JMPNEXT_SIZE    (4*sizeof(void*))
 #define ADDITIONNAL_CHECKS()

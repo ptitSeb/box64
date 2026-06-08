@@ -115,6 +115,16 @@ EXPORT int my_sqlite3_bind_text(x64emu_t* emu, void* stmt, int idx, void* text, 
     return my->sqlite3_bind_text(stmt, idx, text, n, find_sqlite3_destroy_fct(dtor));
 }
 
+EXPORT void my_sqlite3_result_blob(x64emu_t* emu, void* ctx, void* data, int n, void* dtor) {
+    (void)emu;
+    my->sqlite3_result_blob(ctx, data, n, find_sqlite3_destroy_fct(dtor));
+}
+
+EXPORT void my_sqlite3_result_text(x64emu_t* emu, void* ctx, void* text, int n, void* dtor) {
+    (void)emu;
+    my->sqlite3_result_text(ctx, text, n, find_sqlite3_destroy_fct(dtor));
+}
+
 // sqlite3_func ...
 #define GO(A) \
 static uintptr_t my_sqlite3_func_fct_##A = 0; \
@@ -159,6 +169,94 @@ static void* find_sqlite3_final_fct(void* fct) {
     return NULL;
 }
 
+// sqlite3_collation ...
+#define GO(A) \
+static uintptr_t my_sqlite3_collation_fct_##A = 0; \
+static int my_sqlite3_collation_##A(void* data, int len1, void* str1, int len2, void* str2) { \
+    return RunFunctionFmt(my_sqlite3_collation_fct_##A, "pipip", data, len1, str1, len2, str2); \
+}
+SUPER()
+#undef GO
+
+static void* find_sqlite3_collation_fct(void* fct) {
+    if (!fct) return NULL;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if (my_sqlite3_collation_fct_##A == (uintptr_t)fct) return my_sqlite3_collation_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if (my_sqlite3_collation_fct_##A == 0) { my_sqlite3_collation_fct_##A = (uintptr_t)fct; return my_sqlite3_collation_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for sqlite3 collation callback\n");
+    return NULL;
+}
+
+// sqlite3_progress_handler ...
+#define GO(A) \
+static uintptr_t my_sqlite3_progress_fct_##A = 0; \
+static int my_sqlite3_progress_##A(void* data) { \
+    return RunFunctionFmt(my_sqlite3_progress_fct_##A, "p", data); \
+}
+SUPER()
+#undef GO
+
+static void* find_sqlite3_progress_fct(void* fct) {
+    if (!fct) return NULL;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if (my_sqlite3_progress_fct_##A == (uintptr_t)fct) return my_sqlite3_progress_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if (my_sqlite3_progress_fct_##A == 0) { my_sqlite3_progress_fct_##A = (uintptr_t)fct; return my_sqlite3_progress_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for sqlite3 progress callback\n");
+    return NULL;
+}
+
+// sqlite3_authorizer ...
+#define GO(A) \
+static uintptr_t my_sqlite3_authorizer_fct_##A = 0; \
+static int my_sqlite3_authorizer_##A(void* data, int action, void* p1, void* p2, void* dbname, void* trigger) { \
+    return RunFunctionFmt(my_sqlite3_authorizer_fct_##A, "pipppp", data, action, p1, p2, dbname, trigger); \
+}
+SUPER()
+#undef GO
+
+static void* find_sqlite3_authorizer_fct(void* fct) {
+    if (!fct) return NULL;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if (my_sqlite3_authorizer_fct_##A == (uintptr_t)fct) return my_sqlite3_authorizer_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if (my_sqlite3_authorizer_fct_##A == 0) { my_sqlite3_authorizer_fct_##A = (uintptr_t)fct; return my_sqlite3_authorizer_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for sqlite3 authorizer callback\n");
+    return NULL;
+}
+
+// sqlite3_trace_v2 ...
+#define GO(A) \
+static uintptr_t my_sqlite3_trace_v2_fct_##A = 0; \
+static int my_sqlite3_trace_v2_##A(unsigned mask, void* data, void* p, void* x) { \
+    return RunFunctionFmt(my_sqlite3_trace_v2_fct_##A, "uppp", mask, data, p, x); \
+}
+SUPER()
+#undef GO
+
+static void* find_sqlite3_trace_v2_fct(void* fct) {
+    if (!fct) return NULL;
+    if (GetNativeFnc((uintptr_t)fct)) return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if (my_sqlite3_trace_v2_fct_##A == (uintptr_t)fct) return my_sqlite3_trace_v2_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if (my_sqlite3_trace_v2_fct_##A == 0) { my_sqlite3_trace_v2_fct_##A = (uintptr_t)fct; return my_sqlite3_trace_v2_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for sqlite3 trace_v2 callback\n");
+    return NULL;
+}
+
 EXPORT int my_sqlite3_create_function(x64emu_t* emu,
     void* db, void* name, int nArg, int eTextRep, void* pApp,
     void* xFunc, void* xStep, void* xFinal)
@@ -169,6 +267,64 @@ EXPORT int my_sqlite3_create_function(x64emu_t* emu,
         find_sqlite3_func_fct(xStep),
         find_sqlite3_final_fct(xFinal)
     );
+}
+
+EXPORT int my_sqlite3_create_function_v2(x64emu_t* emu,
+    void* db, void* name, int nArg, int eTextRep, void* pApp,
+    void* xFunc, void* xStep, void* xFinal, void* xDestroy)
+{
+    (void)emu;
+    return my->sqlite3_create_function_v2(
+        db, name, nArg, eTextRep, pApp,
+        find_sqlite3_func_fct(xFunc),
+        find_sqlite3_func_fct(xStep),
+        find_sqlite3_final_fct(xFinal),
+        find_sqlite3_destroy_fct(xDestroy)
+    );
+}
+
+EXPORT int my_sqlite3_create_window_function(x64emu_t* emu,
+    void* db, void* name, int nArg, int eTextRep, void* pApp,
+    void* xStep, void* xFinal, void* xValue, void* xInverse, void* xDestroy)
+{
+    (void)emu;
+    return my->sqlite3_create_window_function(
+        db, name, nArg, eTextRep, pApp,
+        find_sqlite3_func_fct(xStep),
+        find_sqlite3_final_fct(xFinal),
+        find_sqlite3_final_fct(xValue),
+        find_sqlite3_func_fct(xInverse),
+        find_sqlite3_destroy_fct(xDestroy)
+    );
+}
+
+EXPORT int my_sqlite3_create_collation_v2(x64emu_t* emu,
+    void* db, void* name, int enc, void* data, void* compare, void* destroy)
+{
+    (void)emu;
+    return my->sqlite3_create_collation_v2(
+        db, name, enc, data,
+        find_sqlite3_collation_fct(compare),
+        find_sqlite3_destroy_fct(destroy)
+    );
+}
+
+EXPORT void my_sqlite3_progress_handler(x64emu_t* emu, void* db, int nops, void* callback, void* data)
+{
+    (void)emu;
+    my->sqlite3_progress_handler(db, nops, find_sqlite3_progress_fct(callback), data);
+}
+
+EXPORT int my_sqlite3_set_authorizer(x64emu_t* emu, void* db, void* callback, void* data)
+{
+    (void)emu;
+    return my->sqlite3_set_authorizer(db, find_sqlite3_authorizer_fct(callback), data);
+}
+
+EXPORT int my_sqlite3_trace_v2(x64emu_t* emu, void* db, uint32_t mask, void* callback, void* data)
+{
+    (void)emu;
+    return my->sqlite3_trace_v2(db, mask, find_sqlite3_trace_v2_fct(callback), data);
 }
 
 EXPORT void* my_sqlite3_vmprintf(x64emu_t *emu, void* fmt, x64_va_list_t b) {

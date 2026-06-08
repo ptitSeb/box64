@@ -150,8 +150,6 @@ void FreeDynablock(dynablock_t* db, int need_lock, int need_remove)
     }
 }
 
-
-
 void MarkDynablock(dynablock_t* db)
 {
     if(db) {

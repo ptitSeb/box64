@@ -229,6 +229,8 @@ void CreateJmpNext(void* addr, void* next);
     } while(0);
 
 #define GO_TRACE(A, B, s0)         \
+    if(cpuext.lbt)                 \
+        RESTORE_EFLAGS(s0);        \
     GETIP(addr, s0);               \
     MV(x1, xRIP);                  \
     STORE_XEMU_CALL();             \
