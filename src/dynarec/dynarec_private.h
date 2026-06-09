@@ -25,8 +25,10 @@
 #define SF_SUBSET   (SF_SUB|SF_SET)
 #define SF_SUBSET_PENDING   (SF_SUBSET|SF_PENDING)
 #define SF_DF       8
+// That means the opcode with set df to something (but that might happens outside, in the C part)
 #define SF_SET_DF   (SF_SET|SF_DF)
 #define SF_NODF     16
+// That means the opcode will not set DF directly (or it might use DFNONE() later)
 #define SF_SET_NODF (SF_SET|SF_NODF)
 
 #define NAT_FLAGS_FUSION   0
