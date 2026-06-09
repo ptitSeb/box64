@@ -304,7 +304,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             // no special check...
         case 0x2F:
             if(opcode==0x2F) {INST_NAME("COMISD Gx, Ex");} else {INST_NAME("UCOMISD Gx, Ex");}
-            SETFLAGS(X_ALL, SF_SET);
+            SETFLAGS(X_ALL, SF_SET_NODF);
             nextop = F8;
             GETGX(v0, 0);
             GETEXSD(q0, 0, 0);
@@ -497,7 +497,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 case 0x17:
                     INST_NAME("PTEST Gx, Ex");
                     nextop = F8;
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL, SF_SET_NODF);
                     GETGX(v0, 0);
                     GETEX(v1, 0, 0);
                     q0 = fpu_get_scratch(dyn, ninst);
@@ -1367,7 +1367,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     GETG;
                     u8 = geted_ib(dyn, addr, ninst, nextop);
                     if((u8&0b1100)==0b1000) {
-                        SETFLAGS(X_ALL, SF_SET);
+                        SETFLAGS(X_ALL, SF_SET_NODF);
                         // this case is (un)signed word, equal each
                         GETGX(v0, 0);
                         GETEX(v1, 0, 1);
@@ -2485,7 +2485,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             INST_NAME("SHLD Ew, Gw, CL");
             if(BOX64DRENV(dynarec_safeflags)>1) {
                 READFLAGS(X_ALL);
-                SETFLAGS(X_ALL, SF_SET);
+                SETFLAGS(X_ALL, SF_SET_NODF);
             } else
                 SETFLAGS(X_ALL, SF_SET_PENDING);
             GETGW(x2);
@@ -2554,7 +2554,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             INST_NAME("SHRD Ew, Gw, CL");
             if(BOX64DRENV(dynarec_safeflags)>1) {
                 READFLAGS(X_ALL);
-                SETFLAGS(X_ALL, SF_SET);
+                SETFLAGS(X_ALL, SF_SET_NODF);
             } else
                 SETFLAGS(X_ALL, SF_SET_PENDING);
             GETGW(x2);
@@ -2593,9 +2593,9 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
         case 0xAF:
             INST_NAME("IMUL Gw,Ew");
             if (BOX64DRENV(dynarec_safeflags) && BOX64ENV(cputype)) {
-                SETFLAGS(X_OF|X_CF, SF_SET);
+                SETFLAGS(X_OF|X_CF, SF_SET_NODF);
             } else {
-                SETFLAGS(X_ALL, SF_SET);
+                SETFLAGS(X_ALL, SF_SET_NODF);
             }
             nextop = F8;
             GETSEW(x1, 0);
@@ -2809,7 +2809,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             if (!BOX64DRENV(dynarec_safeflags) || BOX64ENV(cputype)) {
                 SETFLAGS(X_ZF, SF_SUBSET);
             } else {
-                SETFLAGS(X_ALL, SF_SET);
+                SETFLAGS(X_ALL, SF_SET_NODF);
             }
             SET_DFNONE();
             nextop = F8;
@@ -2845,7 +2845,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             if (!BOX64DRENV(dynarec_safeflags) || BOX64ENV(cputype)) {
                 SETFLAGS(X_ZF, SF_SUBSET);
             } else {
-                SETFLAGS(X_ALL, SF_SET);
+                SETFLAGS(X_ALL, SF_SET_NODF);
             }
             SET_DFNONE();
             nextop = F8;

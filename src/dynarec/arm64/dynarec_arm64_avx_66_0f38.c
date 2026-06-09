@@ -254,7 +254,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
 
         case 0x0E:
             INST_NAME("VTESTPS GX, EX");
-            SETFLAGS(X_ALL, SF_SET);
+            SETFLAGS(X_ALL, SF_SET_NODF);
             nextop = F8;
             GETGX(v0, 0);
             GETEX_Y(v1, 0, 0);
@@ -305,7 +305,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             break;
         case 0x0F:
             INST_NAME("VTESTPD GX, EX");
-            SETFLAGS(X_ALL, SF_SET);
+            SETFLAGS(X_ALL, SF_SET_NODF);
             nextop = F8;
             GETGX(v0, 0);
             GETEX_Y(v1, 0, 0);
@@ -417,7 +417,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             break;
         case 0x17:
             INST_NAME("VPTEST GX, EX");
-            SETFLAGS(X_ALL, SF_SET);
+            SETFLAGS(X_ALL, SF_SET_NODF);
             nextop = F8;
             GETGX(v0, 0);
             GETEX_Y(v1, 0, 0);

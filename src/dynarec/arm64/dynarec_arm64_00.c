@@ -1067,9 +1067,9 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x69:
             INST_NAME("IMUL Gd, Ed, Id");
             if (BOX64DRENV(dynarec_safeflags) > 1 && BOX64ENV(cputype)) {
-                SETFLAGS(X_OF|X_CF, SF_SET);
+                SETFLAGS(X_OF|X_CF, SF_SET_NODF);
             } else {
-                SETFLAGS(X_ALL, SF_SET);
+                SETFLAGS(X_ALL, SF_SET_NODF);
             }
             nextop = F8;
             GETGD;
@@ -1138,9 +1138,9 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
         case 0x6B:
             INST_NAME("IMUL Gd, Ed, Ib");
             if (BOX64DRENV(dynarec_safeflags) > 1 && BOX64ENV(cputype)) {
-                SETFLAGS(X_OF|X_CF, SF_SET);
+                SETFLAGS(X_OF|X_CF, SF_SET_NODF);
             } else {
-                SETFLAGS(X_ALL, SF_SET);
+                SETFLAGS(X_ALL, SF_SET_NODF);
             }
             nextop = F8;
             GETGD;
@@ -1842,7 +1842,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
         case 0x9D:
             INST_NAME("POPF");
-            SETFLAGS(X_ALL, SF_SET);
+            SETFLAGS(X_ALL, SF_SET_NODF);
             POP1z(xFlags);
             MOV32w(x1, 0x3E7FD7);
             ANDw_REG(xFlags, xFlags, x1);
@@ -2117,7 +2117,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 if(rex.rep==1) {INST_NAME("REPNZ CMPSB");} else {INST_NAME("REPZ CMPSB");}
                 if(BOX64DRENV(dynarec_safeflags)>1) {
                     READFLAGS(X_ALL);
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL, SF_SET_NODF);
                 } else
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                 SMREAD();
@@ -2169,7 +2169,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 if(rex.rep==1) {INST_NAME("REPNZ CMPSD");} else {INST_NAME("REPZ CMPSD");}
                 if(BOX64DRENV(dynarec_safeflags)>1) {
                     READFLAGS(X_ALL);
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL, SF_SET_NODF);
                 } else
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                 SMREAD();
@@ -2369,7 +2369,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 if(rex.rep==1) {INST_NAME("REPNZ SCASB");} else {INST_NAME("REPZ SCASB");}
                 if(BOX64DRENV(dynarec_safeflags)>1) {
                     READFLAGS(X_ALL);
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL, SF_SET_NODF);
                 } else
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                 SMREAD();
@@ -2416,7 +2416,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 if(rex.rep==1) {INST_NAME("REPNZ SCASD");} else {INST_NAME("REPZ SCASD");}
                 if(BOX64DRENV(dynarec_safeflags)>1) {
                     READFLAGS(X_ALL);
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL, SF_SET_NODF);
                 } else
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                 SMREAD();
@@ -3403,7 +3403,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("SHL Eb, CL");
                     if(BOX64DRENV(dynarec_safeflags)>1) {
                         READFLAGS(X_ALL);
-                        SETFLAGS(X_ALL, SF_SET);
+                        SETFLAGS(X_ALL, SF_SET_NODF);
                     } else
                         SETFLAGS(X_ALL, SF_SET_PENDING);
                     ANDw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
@@ -3418,7 +3418,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("SHR Eb, CL");
                     if(BOX64DRENV(dynarec_safeflags)>1) {
                         READFLAGS(X_ALL);
-                        SETFLAGS(X_ALL, SF_SET);
+                        SETFLAGS(X_ALL, SF_SET_NODF);
                     } else
                         SETFLAGS(X_ALL, SF_SET_PENDING);
                     ANDw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
@@ -3433,7 +3433,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("SAR Eb, CL");
                     if(BOX64DRENV(dynarec_safeflags)>1) {
                         READFLAGS(X_ALL);
-                        SETFLAGS(X_ALL, SF_SET);
+                        SETFLAGS(X_ALL, SF_SET_NODF);
                     } else
                         SETFLAGS(X_ALL, SF_SET_PENDING);
                     ANDw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
@@ -3560,7 +3560,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("SHL Ed, CL");
                     if(BOX64DRENV(dynarec_safeflags)>1) {
                         READFLAGS(X_ALL);
-                        SETFLAGS(X_ALL, SF_SET);
+                        SETFLAGS(X_ALL, SF_SET_NODF);
                     } else
                         SETFLAGS(X_ALL, SF_SET_PENDING);
                     if(rex.w) {
@@ -3580,7 +3580,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("SHR Ed, CL");
                     if(BOX64DRENV(dynarec_safeflags)>1) {
                         READFLAGS(X_ALL);
-                        SETFLAGS(X_ALL, SF_SET);
+                        SETFLAGS(X_ALL, SF_SET_NODF);
                     } else
                         SETFLAGS(X_ALL, SF_SET_PENDING);
                     if(rex.w) {
@@ -3600,7 +3600,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("SAR Ed, CL");
                     if(BOX64DRENV(dynarec_safeflags)>1) {
                         READFLAGS(X_ALL);
-                        SETFLAGS(X_ALL, SF_SET);
+                        SETFLAGS(X_ALL, SF_SET_NODF);
                     } else
                         SETFLAGS(X_ALL, SF_SET_PENDING);
                     if(rex.w) {
@@ -3901,22 +3901,16 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     BARRIER(BARRIER_FLOAT);
                     //fpu_purgecache(dyn, ninst, 0, x1, x3, x4, 0);
                     PUSH1z(x2);
+                    int can_continue = (addr < (dyn->start + dyn->isize));
                     if (BOX64DRENV(dynarec_callret)) {
                         SET_HASCALLRET();
                         // Push actual return address
-                        if(addr < (dyn->start+dyn->isize)) {
-                            // there is a next...
-                            if(BOX64DRENV(dynarec_callret)>1 && !dyn->always_test)
+                        if(can_continue && BOX64DRENV(dynarec_callret)>1 && !dyn->always_test)
                                 j64 = CALLRET_GETRET();
                             else
-                                j64 = (dyn->insts)?(dyn->insts[ninst].epilog-(dyn->native_size)):0;
-                            ADR_S20(x4, j64);
-                            MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64>>2);
-                        } else {
-                            j64 = (dyn->insts)?(GETMARK-(dyn->native_size)):0;
-                            ADR_S20(x4, j64);
-                            MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64>>2);
-                        }
+                                j64 = (dyn->insts)?(GETMARK-(dyn->native_size)):0;
+                        ADR_S20(x4, j64);
+                        MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64>>2);
                         STPx_S7_preindex(x4, x2, xSP, -16);
                     } else {
                         *ok = 0;
@@ -3927,11 +3921,10 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     else
                         j64 = addr+i32;
                     jump_to_next(dyn, j64, 0, ninst, rex.is32bits);
-                    int can_continue = (addr < (dyn->start + dyn->isize));
                     CALLRET_RET(can_continue);
+                    MARK;
                     if (BOX64DRENV(dynarec_callret) && !can_continue) {
                         // jumps out of current dynablock...
-                        MARK;
                         j64 = getJumpTableAddress64(addr);
                         if(dyn->need_reloc) {
                             AddRelocTable64JmpTbl(dyn, ninst, addr, STEP);
@@ -4103,9 +4096,9 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 4:
                     INST_NAME("MUL AL, Eb");
                     if (BOX64DRENV(dynarec_safeflags) && BOX64ENV(cputype)) {
-                        SETFLAGS(X_OF|X_CF, SF_SET);
+                        SETFLAGS(X_OF|X_CF, SF_SET_NODF);
                     } else {
-                        SETFLAGS(X_ALL, SF_SET);
+                        SETFLAGS(X_ALL, SF_SET_NODF);
                     }
                     GETEB(x1, 0);
                     UXTBw(x2, xRAX);
@@ -4133,9 +4126,9 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 5:
                     INST_NAME("IMUL AL, Eb");
                     if (BOX64DRENV(dynarec_safeflags) && BOX64ENV(cputype)) {
-                        SETFLAGS(X_OF|X_CF, SF_SET);
+                        SETFLAGS(X_OF|X_CF, SF_SET_NODF);
                     } else {
-                        SETFLAGS(X_ALL, SF_SET);
+                        SETFLAGS(X_ALL, SF_SET_NODF);
                     }
                     GETSEB(x1, 0);
                     SXTBw(x2, xRAX);
@@ -4164,7 +4157,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 6:
                     INST_NAME("DIV Eb");
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL, SF_SET_NODF);
                     FORCE_DFNONE();
                     GETEB(x1, 0);
                     UXTHw(x2, xRAX);
@@ -4202,7 +4195,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("IDIV Eb");
                     SKIPTEST(x1);
                     if (!BOX64DRENV(dynarec_safeflags)) {
-                        SETFLAGS(X_ALL, SF_SET);
+                        SETFLAGS(X_ALL, SF_SET_NODF);
                     } else if (BOX64ENV(cputype)) {
                         SETFLAGS(X_SF|X_PF|X_ZF|X_AF, SF_SUBSET);
                     }
@@ -4262,9 +4255,9 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 4:
                     INST_NAME("MUL EAX, Ed");
                     if (BOX64DRENV(dynarec_safeflags) && BOX64ENV(cputype)) {
-                        SETFLAGS(X_OF|X_CF, SF_SET);
+                        SETFLAGS(X_OF|X_CF, SF_SET_NODF);
                     } else {
-                        SETFLAGS(X_ALL, SF_SET);
+                        SETFLAGS(X_ALL, SF_SET_NODF);
                     }
                     GETED(0);
                     if(rex.w) {
@@ -4299,9 +4292,9 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 5:
                     INST_NAME("IMUL EAX, Ed");
                     if (BOX64DRENV(dynarec_safeflags) && BOX64ENV(cputype)) {
-                        SETFLAGS(X_OF|X_CF, SF_SET);
+                        SETFLAGS(X_OF|X_CF, SF_SET_NODF);
                     } else {
-                        SETFLAGS(X_ALL, SF_SET);
+                        SETFLAGS(X_ALL, SF_SET_NODF);
                     }
                     GETED(0);
                     if(rex.w) {
@@ -4335,7 +4328,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 6:
                     INST_NAME("DIV Ed");
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL, SF_SET_NODF);
                     FORCE_DFNONE();
                     if(!rex.w) {
                         GETED(0);
@@ -4433,9 +4426,9 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("IDIV Ed");
                     SKIPTEST(x1);
                     if (!BOX64DRENV(dynarec_safeflags)) {
-                        SETFLAGS(X_ALL, SF_SET);
+                        SETFLAGS(X_ALL, SF_SET_NODF);
                     } else if (BOX64ENV(cputype)) {
-                        SETFLAGS(X_SF|X_PF|X_ZF|X_AF, SF_SET);
+                        SETFLAGS(X_SF|X_PF|X_ZF|X_AF, SF_SUBSET);
                     }
                     if(!rex.w) {
                         GETSEDw(0);

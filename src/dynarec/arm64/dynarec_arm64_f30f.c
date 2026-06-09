@@ -602,7 +602,7 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
 
         case 0xB8:
             INST_NAME("POPCNT Gd, Ed");
-            SETFLAGS(X_ALL, SF_SET);
+            SETFLAGS(X_ALL, SF_SET_NODF);
             SET_DFNONE();
             nextop = F8;
             v1 = fpu_get_scratch(dyn, ninst);
@@ -667,7 +667,7 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 if(BOX64ENV(cputype)) {
                     SETFLAGS(X_ALL&~X_OF, SF_SUBSET);
                 } else {
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL, SF_SET_NODF);
                 }
             }
             SET_DFNONE();
@@ -701,7 +701,7 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 if(BOX64ENV(cputype)) {
                     SETFLAGS(X_ALL&~X_OF, SF_SUBSET);
                 } else {
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL, SF_SET_NODF);
                 }
             }
             SET_DFNONE();

@@ -424,9 +424,9 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 INST_NAME("IMUL Gw,Ew,Ib");
             }
             if (BOX64DRENV(dynarec_safeflags) > 1 && BOX64ENV(cputype)) {
-                SETFLAGS(X_OF|X_CF, SF_SET);
+                SETFLAGS(X_OF|X_CF, SF_SET_NODF);
             } else {
-                SETFLAGS(X_ALL, SF_SET);
+                SETFLAGS(X_ALL, SF_SET_NODF);
             }
             nextop = F8;
             GETSEW(x1, (opcode==0x69)?2:1);
@@ -787,7 +787,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
         case 0x9D:
             INST_NAME("POPF");
-            SETFLAGS(X_ALL, SF_SET);
+            SETFLAGS(X_ALL, SF_SET_NODF);
             SMREAD();
             POP1_16(x1);
             MOV32w(x2, 0x7FD7);
@@ -923,7 +923,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 if(rex.rep==1) {INST_NAME("REPNZ CMPSW");} else {INST_NAME("REPZ CMPSW");}
                 if(BOX64DRENV(dynarec_safeflags)>1) {
                     READFLAGS(X_ALL);
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL, SF_SET_NODF);
                 } else
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                 CBZx_NEXT(xRCX);
@@ -1045,7 +1045,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 if(rex.rep==1) {INST_NAME("REPNZ SCASW");} else {INST_NAME("REPZ SCASW");}
                 if(BOX64DRENV(dynarec_safeflags)>1) {
                     READFLAGS(X_ALL);
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL, SF_SET_NODF);
                 } else
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                 CBZx_NEXT(xRCX);
@@ -1439,7 +1439,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("SHL Ew, CL");
                     if(BOX64DRENV(dynarec_safeflags)>1) {
                         READFLAGS(X_ALL);
-                        SETFLAGS(X_ALL, SF_SET);
+                        SETFLAGS(X_ALL, SF_SET_NODF);
                     } else
                         SETFLAGS(X_ALL, SF_SET_PENDING);
                     ANDw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
@@ -1454,7 +1454,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("SHR Ew, CL");
                     if(BOX64DRENV(dynarec_safeflags)>1) {
                         READFLAGS(X_ALL);
-                        SETFLAGS(X_ALL, SF_SET);
+                        SETFLAGS(X_ALL, SF_SET_NODF);
                     } else
                         SETFLAGS(X_ALL, SF_SET_PENDING);
                     ANDw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
@@ -1469,7 +1469,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("SAR Ew, CL");
                     if(BOX64DRENV(dynarec_safeflags)>1) {
                         READFLAGS(X_ALL);
-                        SETFLAGS(X_ALL, SF_SET);
+                        SETFLAGS(X_ALL, SF_SET_NODF);
                     } else
                         SETFLAGS(X_ALL, SF_SET_PENDING);
                     ANDw_mask(x2, xRCX, 0, 0b00100);  //mask=0x00000001f
@@ -1579,9 +1579,9 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 4:
                     INST_NAME("MUL AX, Ew");
                     if (BOX64DRENV(dynarec_safeflags) && BOX64ENV(cputype)) {
-                        SETFLAGS(X_OF|X_CF, SF_SET);
+                        SETFLAGS(X_OF|X_CF, SF_SET_NODF);
                     } else {
-                        SETFLAGS(X_ALL, SF_SET);
+                        SETFLAGS(X_ALL, SF_SET_NODF);
                     }
                     GETEW(x1, 0);
                     UXTHw(x2, xRAX);
@@ -1610,9 +1610,9 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 case 5:
                     INST_NAME("IMUL AX, Ew");
                     if (BOX64DRENV(dynarec_safeflags) && BOX64ENV(cputype)) {
-                        SETFLAGS(X_OF|X_CF, SF_SET);
+                        SETFLAGS(X_OF|X_CF, SF_SET_NODF);
                     } else {
-                        SETFLAGS(X_ALL, SF_SET);
+                        SETFLAGS(X_ALL, SF_SET_NODF);
                     }
                     GETSEW(x1, 0);
                     SXTHw(x2, xRAX);
@@ -1641,7 +1641,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 6:
                     INST_NAME("DIV Ew");
-                    SETFLAGS(X_ALL, SF_SET);
+                    SETFLAGS(X_ALL, SF_SET_NODF);
                     GETEW(x1, 0);
                     UXTHw(x2, xRAX);
                     BFIw(x2, xRDX, 16, 16);
@@ -1681,9 +1681,9 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("IDIV Ew");
                     SKIPTEST(x1);
                     if (!BOX64DRENV(dynarec_safeflags)) {
-                        SETFLAGS(X_ALL, SF_SET);
+                        SETFLAGS(X_ALL, SF_SET_NODF);
                     } else if (BOX64ENV(cputype)) {
-                        SETFLAGS(X_SF|X_PF|X_ZF|X_AF, SF_SET);
+                        SETFLAGS(X_SF|X_PF|X_ZF|X_AF, SF_SUBSET);
                     }
                     GETSEW(x1, 0);
                     if(BOX64ENV(dynarec_div0)) {
