@@ -2006,6 +2006,10 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             if(rex.rep) {
                 INST_NAME("REP MOVSB");
                 CBZx_NEXT(xRCX);
+                if(rex.is67 && !rex.is32bits) {
+                    MOVw_REG(xRDI, xRDI);
+                    MOVw_REG(xRSI, xRSI);
+                }
                 TBNZ_MARK2(xFlags, F_DF);
                 IF_UNALIGNED(ip) {
                     MESSAGE(LOG_DEBUG, "\tUnaligned path");
@@ -2058,11 +2062,15 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 // done
             } else {
                 INST_NAME("MOVSB");
+                if(rex.is67 && !rex.is32bits) {
+                    MOVw_REG(xRDI, xRDI);
+                    MOVw_REG(xRSI, xRSI);
+                }
                 GETDIR(x3, 1);
                 LDRB_U12(x1, xRSI, 0);
                 STRB_U12(x1, xRDI, 0);
-                ADDx_REG(xRSI, xRSI, x3);
-                ADDx_REG(xRDI, xRDI, x3);
+                ADDy_REG(xRSI, xRSI, x3);
+                ADDy_REG(xRDI, xRDI, x3);
             }
             SMWRITE();
             break;
@@ -2071,6 +2079,10 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             if(rex.rep) {
                 INST_NAME("REP MOVSD");
                 CBZx_NEXT(xRCX);
+                if(rex.is67 && !rex.is32bits) {
+                    MOVw_REG(xRDI, xRDI);
+                    MOVw_REG(xRSI, xRSI);
+                }
                 TBNZ_MARK2(xFlags, F_DF);
                 MARK;   // Part with DF==0
                 LDRxw_S9_postindex(x1, xRSI, rex.w?8:4);
@@ -2086,11 +2098,15 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 // done
             } else {
                 INST_NAME("MOVSD");
+                if(rex.is67 && !rex.is32bits) {
+                    MOVw_REG(xRDI, xRDI);
+                    MOVw_REG(xRSI, xRSI);
+                }
                 GETDIR(x3, rex.w?8:4);
                 LDRxw_U12(x1, xRSI, 0);
                 STRxw_U12(x1, xRDI, 0);
-                ADDx_REG(xRSI, xRSI, x3);
-                ADDx_REG(xRDI, xRDI, x3);
+                ADDy_REG(xRSI, xRSI, x3);
+                ADDy_REG(xRDI, xRDI, x3);
             }
             SMWRITE();
             break;
@@ -2106,6 +2122,10 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                 SMREAD();
                 CBZx_NEXT(xRCX);
+                if(rex.is67 && !rex.is32bits) {
+                    MOVw_REG(xRDI, xRDI);
+                    MOVw_REG(xRSI, xRSI);
+                }
                 TBNZ_MARK2(xFlags, F_DF);
                 MARK;   // Part with DF==0
                 LDRB_S9_postindex(x1, xRSI, 1);
@@ -2128,12 +2148,16 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             default:
                 INST_NAME("CMPSB");
                 SETFLAGS(X_ALL, SF_SET_PENDING);
+                if(rex.is67 && !rex.is32bits) {
+                    MOVw_REG(xRDI, xRDI);
+                    MOVw_REG(xRSI, xRSI);
+                }
                 GETDIR(x3, 1);
                 SMREAD();
                 LDRB_U12(x1, xRSI, 0);
                 LDRB_U12(x2, xRDI, 0);
-                ADDx_REG(xRSI, xRSI, x3);
-                ADDx_REG(xRDI, xRDI, x3);
+                ADDy_REG(xRSI, xRSI, x3);
+                ADDy_REG(xRDI, xRDI, x3);
                 emit_cmp8(dyn, ninst, x1, x2, x3, x4, x5);
                 break;
             }
@@ -2150,6 +2174,10 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                 SMREAD();
                 CBZx_NEXT(xRCX);
+                if(rex.is67 && !rex.is32bits) {
+                    MOVw_REG(xRDI, xRDI);
+                    MOVw_REG(xRSI, xRSI);
+                }
                 TBNZ_MARK2(xFlags, F_DF);
                 MARK;   // Part with DF==0
                 LDRxw_S9_postindex(x1, xRSI, rex.w?8:4);
@@ -2172,12 +2200,16 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             default:
                 INST_NAME("CMPSD");
                 SETFLAGS(X_ALL, SF_SET_PENDING);
+                if(rex.is67 && !rex.is32bits) {
+                    MOVw_REG(xRDI, xRDI);
+                    MOVw_REG(xRSI, xRSI);
+                }
                 GETDIR(x3, rex.w?8:4);
                 SMREAD();
                 LDRxw_U12(x1, xRSI, 0);
                 LDRxw_U12(x2, xRDI, 0);
-                ADDx_REG(xRSI, xRSI, x3);
-                ADDx_REG(xRDI, xRDI, x3);
+                ADDy_REG(xRSI, xRSI, x3);
+                ADDy_REG(xRDI, xRDI, x3);
                 emit_cmp32(dyn, ninst, rex, x1, x2, x3, x4, x5);
                 break;
             }
@@ -2200,6 +2232,9 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             if(rex.rep) {
                 INST_NAME("REP STOSB");
                 CBZx_NEXT(xRCX);
+                if(rex.is67 && !rex.is32bits) {
+                    MOVw_REG(xRDI, xRDI);
+                }
                 TBNZ_MARK2(xFlags, F_DF);
                 IF_UNALIGNED(ip) {
                     MESSAGE(LOG_DEBUG, "\tUnaligned path");
@@ -2244,9 +2279,12 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 // done
             } else {
                 INST_NAME("STOSB");
+                if(rex.is67 && !rex.is32bits) {
+                    MOVw_REG(xRDI, xRDI);
+                }
                 GETDIR(x3, 1);
                 STRB_U12(xRAX, xRDI, 0);
-                ADDx_REG(xRDI, xRDI, x3);
+                ADDy_REG(xRDI, xRDI, x3);
             }
             SMWRITE();
             break;
@@ -2254,6 +2292,9 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             if(rex.rep) {
                 INST_NAME("REP STOSD");
                 CBZx_NEXT(xRCX);
+                if(rex.is67 && !rex.is32bits) {
+                    MOVw_REG(xRDI, xRDI);
+                }
                 TBNZ_MARK2(xFlags, F_DF);
                 MARK;   // Part with DF==0
                 STRxw_S9_postindex(xRAX, xRDI, rex.w?8:4);
@@ -2268,9 +2309,12 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 // done
             } else {
                 INST_NAME("STOSD");
+                if(rex.is67 && !rex.is32bits) {
+                    MOVw_REG(xRDI, xRDI);
+                }
                 GETDIR(x3, rex.w?8:4);
                 STRxw_U12(xRAX, xRDI, 0);
-                ADDx_REG(xRDI, xRDI, x3);
+                ADDy_REG(xRDI, xRDI, x3);
             }
             SMWRITE();
             break;
@@ -2286,8 +2330,11 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 CBZx_NEXT(xRCX);
                 MARK;
             }
+            if(rex.is67 && !rex.is32bits) {
+                MOVw_REG(xRSI, xRSI);
+            }
             LDRB_U12(x2, xRSI, 0);
-            ADDx_REG(xRSI, xRSI, x1);
+            ADDy_REG(xRSI, xRSI, x1);
             if(rex.rep) {
                 SUBx_U12(xRCX, xRCX, 1);
                 CBNZx_MARK(xRCX);
@@ -2305,8 +2352,11 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 CBZx_NEXT(xRCX);
                 MARK;
             }
+            if(rex.is67 && !rex.is32bits) {
+                MOVw_REG(xRSI, xRSI);
+            }
             LDRxw_U12(xRAX, xRSI, 0);
-            ADDx_REG(xRSI, xRSI, x1);
+            ADDy_REG(xRSI, xRSI, x1);
             if(rex.rep) {
                 SUBx_U12(xRCX, xRCX, 1);
                 CBNZx_MARK(xRCX);
@@ -2324,6 +2374,9 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                 SMREAD();
                 CBZx_NEXT(xRCX);
+                if(rex.is67 && !rex.is32bits) {
+                    MOVw_REG(xRDI, xRDI);
+                }
                 UBFXw(x1, xRAX, 0, 8);
                 TBNZ_MARK2(xFlags, F_DF);
                 MARK;   // Part with DF==0
@@ -2345,10 +2398,13 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             default:
                 INST_NAME("SCASB");
                 SETFLAGS(X_ALL, SF_SET_PENDING);
+                if(rex.is67 && !rex.is32bits) {
+                    MOVw_REG(xRDI, xRDI);
+                }
                 GETDIR(x3, 1);
                 UBFXw(x1, xRAX, 0, 8);
                 LDRB_U12(x2, xRDI, 0);
-                ADDx_REG(xRDI, xRDI, x3);
+                ADDy_REG(xRDI, xRDI, x3);
                 emit_cmp8(dyn, ninst, x1, x2, x3, x4, x5);
                 break;
             }
@@ -2365,6 +2421,9 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                 SMREAD();
                 CBZx_NEXT(xRCX);
+                if(rex.is67 && !rex.is32bits) {
+                    MOVw_REG(xRDI, xRDI);
+                }
                 TBNZ_MARK2(xFlags, F_DF);
                 MARK;   // Part with DF==0
                 LDRxw_S9_postindex(x2, xRDI, rex.w?8:4);
@@ -2385,9 +2444,12 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             default:
                 INST_NAME("SCASD");
                 SETFLAGS(X_ALL, SF_SET_PENDING);
+                if(rex.is67 && !rex.is32bits) {
+                    MOVw_REG(xRDI, xRDI);
+                }
                 GETDIR(x3, rex.w?8:4);
                 LDRxw_U12(x2, xRDI, 0);
-                ADDx_REG(xRDI, xRDI, x3);
+                ADDy_REG(xRDI, xRDI, x3);
                 emit_cmp32(dyn, ninst, rex, xRAX, x2, x3, x4, x5);
                 break;
             }
