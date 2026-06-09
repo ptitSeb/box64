@@ -851,6 +851,10 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if (rex.rep) {
                 INST_NAME("REP MOVSW");
                 CBZ_NEXT(xRCX);
+                if (rex.is67 && !rex.is32bits) {
+                    ZEROUP(xRSI);
+                    ZEROUP(xRDI);
+                }
                 ANDI(x1, xFlags, 1 << F_DF);
                 BNEZ_MARK2(x1);
                 MARK; // Part with DF==0
@@ -872,6 +876,10 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {
                 INST_NAME("MOVSW");
                 GETDIR(x3, x1, 2);
+                if (rex.is67 && !rex.is32bits) {
+                    ZEROUP(xRSI);
+                    ZEROUP(xRDI);
+                }
                 LD_H(x1, xRSI, 0);
                 ST_H(x1, xRDI, 0);
                 ADD_D(xRSI, xRSI, x3);
@@ -894,6 +902,10 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     } else
                         SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
                     CBZ_NEXT(xRCX);
+                    if (rex.is67 && !rex.is32bits) {
+                        ZEROUP(xRSI);
+                        ZEROUP(xRDI);
+                    }
                     ANDI(x1, xFlags, 1 << F_DF);
                     BNEZ_MARK2(x1);
                     MARK; // DF==0
@@ -928,6 +940,10 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     INST_NAME("CMPSW");
                     SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
                     GETDIR(x3, x1, 2);
+                    if (rex.is67 && !rex.is32bits) {
+                        ZEROUP(xRSI);
+                        ZEROUP(xRDI);
+                    }
                     LD_HU(x1, xRSI, 0);
                     LD_HU(x2, xRDI, 0);
                     ADD_D(xRSI, xRSI, x3);
@@ -948,6 +964,9 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if (rex.rep) {
                 INST_NAME("REP STOSW");
                 CBZ_NEXT(xRCX);
+                if (rex.is67 && !rex.is32bits) {
+                    ZEROUP(xRDI);
+                }
                 ANDI(x1, xFlags, 1 << F_DF);
                 BNEZ_MARK2(x1);
                 MARK; // Part with DF==0
@@ -965,6 +984,9 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {
                 INST_NAME("STOSW");
                 GETDIR(x3, x1, 2);
+                if (rex.is67 && !rex.is32bits) {
+                    ZEROUP(xRDI);
+                }
                 ST_H(xRAX, xRDI, 0);
                 ADD_D(xRDI, xRDI, x3);
             }
@@ -976,6 +998,9 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {
                 INST_NAME("LODSW");
                 GETDIR(x1, x2, 2);
+                if (rex.is67 && !rex.is32bits) {
+                    ZEROUP(xRSI);
+                }
                 LD_HU(x2, xRSI, 0);
                 ADD_D(xRSI, xRSI, x1);
                 BSTRINSz(xRAX, x2, 15, 0);
@@ -997,6 +1022,9 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
                     CBZ_NEXT(xRCX);
                     GETDIR(x3, x1, rex.w ? 8 : 2);
+                    if (rex.is67 && !rex.is32bits) {
+                        ZEROUP(xRDI);
+                    }
                     if (rex.w) {
                         MARK;
                         LD_D(x2, xRDI, 0);
@@ -1030,6 +1058,9 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     INST_NAME("SCASW");
                     SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     GETDIR(x3, x1, rex.w ? 8 : 2);
+                    if (rex.is67 && !rex.is32bits) {
+                        ZEROUP(xRDI);
+                    }
                     if (rex.w) {
                         LD_D(x2, xRDI, 0);
                         ADD_D(xRDI, xRDI, x3);

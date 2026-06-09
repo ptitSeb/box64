@@ -1679,6 +1679,10 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if (rex.rep) {
                 INST_NAME("REP MOVSB");
                 CBZ_NEXT(xRCX);
+                if (rex.is67 && !rex.is32bits) {
+                    ZEROUP(xRSI);
+                    ZEROUP(xRDI);
+                }
                 ANDI(x1, xFlags, 1 << F_DF);
                 BNEZ_MARK2(x1);
                 // special optim for large RCX value on forward case only
@@ -1714,6 +1718,10 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {
                 INST_NAME("MOVSB");
                 GETDIR(x3, x1, 1);
+                if (rex.is67 && !rex.is32bits) {
+                    ZEROUP(xRSI);
+                    ZEROUP(xRDI);
+                }
                 LD_BU(x1, xRSI, 0);
                 ST_B(x1, xRDI, 0);
                 ADD_D(xRSI, xRSI, x3);
@@ -1726,6 +1734,10 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if (rex.rep) {
                 INST_NAME("REP MOVSD");
                 CBZ_NEXT(xRCX);
+                if (rex.is67 && !rex.is32bits) {
+                    ZEROUP(xRSI);
+                    ZEROUP(xRDI);
+                }
                 ANDI(x1, xFlags, 1 << F_DF);
                 BNEZ_MARK2(x1);
                 MARK; // Part with DF==0
@@ -1747,6 +1759,10 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {
                 INST_NAME("MOVSD");
                 GETDIR(x3, x1, rex.w ? 8 : 4);
+                if (rex.is67 && !rex.is32bits) {
+                    ZEROUP(xRSI);
+                    ZEROUP(xRDI);
+                }
                 LDxw(x1, xRSI, 0);
                 SDxw(x1, xRDI, 0);
                 ADD_D(xRSI, xRSI, x3);
@@ -1770,6 +1786,10 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
                     SMREAD();
                     CBZ_NEXT(xRCX);
+                    if (rex.is67 && !rex.is32bits) {
+                        ZEROUP(xRSI);
+                        ZEROUP(xRDI);
+                    }
                     ANDI(x1, xFlags, 1 << F_DF);
                     BNEZ_MARK2(x1);
                     MARK; // Part with DF==0
@@ -1805,6 +1825,10 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
                     GETDIR(x3, x1, 1);
                     SMREAD();
+                    if (rex.is67 && !rex.is32bits) {
+                        ZEROUP(xRSI);
+                        ZEROUP(xRDI);
+                    }
                     LD_BU(x1, xRSI, 0);
                     LD_BU(x2, xRDI, 0);
                     ADD_D(xRSI, xRSI, x3);
@@ -1829,6 +1853,10 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
                     SMREAD();
                     CBZ_NEXT(xRCX);
+                    if (rex.is67 && !rex.is32bits) {
+                        ZEROUP(xRSI);
+                        ZEROUP(xRDI);
+                    }
                     ANDI(x1, xFlags, 1 << F_DF);
                     BNEZ_MARK2(x1);
                     MARK; // Part with DF==0
@@ -1864,6 +1892,10 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
                     GETDIR(x3, x1, rex.w ? 8 : 4);
                     SMREAD();
+                    if (rex.is67 && !rex.is32bits) {
+                        ZEROUP(xRSI);
+                        ZEROUP(xRDI);
+                    }
                     LDxw(x1, xRSI, 0);
                     LDxw(x2, xRDI, 0);
                     ADD_D(xRSI, xRSI, x3);
@@ -1891,6 +1923,9 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if (rex.rep) {
                 INST_NAME("REP STOSB");
                 CBZ_NEXT(xRCX);
+                if (rex.is67 && !rex.is32bits) {
+                    ZEROUP(xRDI);
+                }
                 v0 = fpu_get_scratch(dyn);
                 VREPLGR2VR_B(v0, xRAX);
                 MOV64x(x4, 16);
@@ -1957,6 +1992,9 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {
                 INST_NAME("STOSB");
                 GETDIR(x3, x1, 1);
+                if (rex.is67 && !rex.is32bits) {
+                    ZEROUP(xRDI);
+                }
                 ST_B(xRAX, xRDI, 0);
                 ADD_D(xRDI, xRDI, x3);
             }
@@ -1966,6 +2004,9 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if (rex.rep) {
                 INST_NAME("REP STOSD");
                 CBZ_NEXT(xRCX);
+                if (rex.is67 && !rex.is32bits) {
+                    ZEROUP(xRDI);
+                }
                 ANDI(x1, xFlags, 1 << F_DF);
                 BNEZ_MARK2(x1);
                 MARK; // Part with DF==0
@@ -1983,6 +2024,9 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {
                 INST_NAME("STOSD");
                 GETDIR(x3, x1, rex.w ? 8 : 4);
+                if (rex.is67 && !rex.is32bits) {
+                    ZEROUP(xRDI);
+                }
                 SDxw(xRAX, xRDI, 0);
                 ADD_D(xRDI, xRDI, x3);
             }
@@ -1994,6 +2038,8 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 GETDIR(x1, x2, 1);
                 SMREAD();
                 CBZ_NEXT(xRCX);
+                if (rex.is67 && !rex.is32bits)
+                    ZEROUP(xRSI);
                 MARK;
                 LD_BU(x2, xRSI, 0);
                 ADD_D(xRSI, xRSI, x1);
@@ -2004,6 +2050,9 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 INST_NAME("LODSB");
                 GETDIR(x1, x2, 1);
                 SMREAD();
+                if (rex.is67 && !rex.is32bits) {
+                    ZEROUP(xRSI);
+                }
                 LD_BU(x2, xRSI, 0);
                 ADD_D(xRSI, xRSI, x1);
                 BSTRINS_D(xRAX, x2, 7, 0);
@@ -2014,6 +2063,8 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 INST_NAME("REP LODSD");
                 CBZ_NEXT(xRCX);
                 GETDIR(x1, x2, rex.w ? 8 : 4);
+                if (rex.is67 && !rex.is32bits)
+                    ZEROUP(xRSI);
                 MARK;
                 LDxw(xRAX, xRSI, 0);
                 ADD_D(xRSI, xRSI, x1);
@@ -2022,6 +2073,9 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {
                 INST_NAME("LODSD");
                 GETDIR(x1, x2, rex.w ? 8 : 4);
+                if (rex.is67 && !rex.is32bits) {
+                    ZEROUP(xRSI);
+                }
                 LDxw(xRAX, xRSI, 0);
                 ADD_D(xRSI, xRSI, x1);
             }
@@ -2043,6 +2097,9 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SMREAD();
                     CBZ_NEXT(xRCX);
                     ANDI(x1, xRAX, 0xff);
+                    if (rex.is67 && !rex.is32bits) {
+                        ZEROUP(xRDI);
+                    }
                     ANDI(x2, xFlags, 1 << F_DF);
                     BNEZ_MARK2(x2);
                     MARK; // Part with DF==0
@@ -2074,6 +2131,9 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
                     GETDIR(x3, x1, 1);
                     ANDI(x1, xRAX, 0xff);
+                    if (rex.is67 && !rex.is32bits) {
+                        ZEROUP(xRDI);
+                    }
                     LD_BU(x2, xRDI, 0);
                     ADD_D(xRDI, xRDI, x3);
                     emit_cmp8(dyn, ninst, x1, x2, x3, x4, x5, x6);
@@ -2100,6 +2160,9 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         MV(x1, xRAX);
                     } else {
                         ZEROUP2(x1, xRAX);
+                    }
+                    if (rex.is67 && !rex.is32bits) {
+                        ZEROUP(xRDI);
                     }
                     ANDI(x2, xFlags, 1 << F_DF);
                     BNEZ_MARK2(x2);
@@ -2131,6 +2194,9 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     INST_NAME("SCASD");
                     SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
                     GETDIR(x3, x1, rex.w ? 8 : 4);
+                    if (rex.is67 && !rex.is32bits) {
+                        ZEROUP(xRDI);
+                    }
                     LDxw(x2, xRDI, 0);
                     ADD_D(xRDI, xRDI, x3);
                     emit_cmp32(dyn, ninst, rex, xRAX, x2, x3, x4, x5, x6);
