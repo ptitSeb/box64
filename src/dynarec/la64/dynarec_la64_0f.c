@@ -1517,7 +1517,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("SHLD Ed, Gd, CL");
             if (BOX64DRENV(dynarec_safeflags) > 1) {
                 READFLAGS(X_ALL);
-                SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_FUSION);
+                SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_FUSION);
             } else
                 SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             GETGD;
@@ -1603,7 +1603,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("SHRD Ed, Gd, CL");
             if (BOX64DRENV(dynarec_safeflags) > 1) {
                 READFLAGS(X_ALL);
-                SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_FUSION);
+                SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_FUSION);
             } else
                 SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             GETGD;
@@ -1725,7 +1725,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0xAF:
             INST_NAME("IMUL Gd, Ed");
-            SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
+            SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
             nextop = F8;
             GETGD;
             GETED(0);
@@ -1974,7 +1974,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if (!BOX64DRENV(dynarec_safeflags)) {
                 SETFLAGS(X_ZF, SF_SUBSET, NAT_FLAGS_NOFUSION);
             } else {
-                SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
+                SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
             }
             SET_DFNONE();
             CLEAR_FLAGS(x2);
@@ -2004,7 +2004,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if (!BOX64DRENV(dynarec_safeflags)) {
                 SETFLAGS(X_ZF, SF_SUBSET, NAT_FLAGS_NOFUSION);
             } else {
-                SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
+                SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
             }
             SET_DFNONE();
             CLEAR_FLAGS(x2);

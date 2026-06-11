@@ -231,7 +231,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             } else {
                 INST_NAME("VUCOMISD Gx, Ex");
             }
-            SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
+            SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
             SET_DFNONE();
             nextop = F8;
             GETGYx(d0, 0);
