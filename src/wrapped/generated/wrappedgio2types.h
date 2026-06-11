@@ -67,6 +67,7 @@ typedef void (*vFpppppppuippp_t)(void*, void*, void*, void*, void*, void*, void*
 	GO(g_simple_async_result_new_take_error, pFpppp_t) \
 	GO(g_task_new, pFpppp_t) \
 	GO(g_async_initable_init_async, vFpippp_t) \
+	GO(g_file_trash_async, vFpippp_t) \
 	GO(g_dbus_method_invocation_return_error, vFpuipV_t) \
 	GO(g_simple_async_result_set_error, vFpuipV_t) \
 	GO(g_task_return_new_error, vFpuipV_t) \

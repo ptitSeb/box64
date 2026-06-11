@@ -7,7 +7,7 @@ GO(curl_easy_duphandle, pFp)
 GO(curl_easy_escape, pFppi)
 GO(curl_easy_getinfo, uFpppppp) //vararg
 GO(curl_easy_init, pFv)
-//GO(curl_easy_pause, 
+GO(curl_easy_pause, uFpi)
 GO(curl_easy_perform, uFp)
 GO(curl_easy_recv, uFppLp)
 GO(curl_easy_reset, vFp)
@@ -55,7 +55,7 @@ GO(curl_multi_remove_handle, iFpp)
 GOM(curl_multi_setopt, iFEpup)
 //GO(curl_multi_socket, 
 GO(curl_multi_socket_action, iFpiip)
-//GO(curl_multi_socket_all, 
+GO(curl_multi_socket_all, iFpp)
 GO(curl_multi_strerror, pFi)
 GO(curl_multi_timeout, iFpp)
 GO(curl_multi_wait, iFppuip)
