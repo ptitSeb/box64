@@ -487,12 +487,12 @@ Compress or not DynaCache files on disk
  * 2 : Compress dynacache files using ZLib with default compression. 
 
 
-=item B<BOX64_DYNACACHE_MIN> =I<XXXX|350>
+=item B<BOX64_DYNACACHE_MIN> =I<XXXX|30>
 
-Minimum size, in KB, for a DynaCache to be written to disk. Default size is 350KB
+Minimum size, in KB, for a DynaCache to be written to disk. Default size is 30KB
 
  * XXXX : Set a minimum size of XXXX KB of DynaRec code to write the dynacache to disk. Will not be saved to disk else. 
- * 350 : A size of 350 KB is the default value. [Default]
+ * 30 : A size of 30 KB is the default value. [Default]
 
 
 =item B<BOX64_EMULATED_LIBS> =I<XXXX|XXXX:YYYY:ZZZZ>

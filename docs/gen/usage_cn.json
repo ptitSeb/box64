@@ -384,10 +384,10 @@
     }
   },
   "BOX64_DYNACACHE_MIN": {
-    "description": "DynaCache 写入磁盘的最小大小（KB）。默认大小为 350KB。",
+    "description": "DynaCache 写入磁盘的最小大小（KB）。默认大小为 30KB。",
     "options": {
       "XXXX": "设置将缓存写入磁盘的最小 DynaRec 代码大小（XXXX KB），小于此值将不会保存到磁盘。",
-      "350": "默认值为 350 KB。"
+      "30": "默认值为 30 KB。"
     }
   },
   "BOX64_EMULATED_LIBS": {

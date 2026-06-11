@@ -891,7 +891,7 @@
   {
     "name": "BOX64_DYNAREC_WAIT",
     "description": "Wait or not for the building of a DynaRec code block to be ready.",
-    "category": "Performance",
+    "category": "Fragile or Legacy",
     "wine": true,
     "options": [
       {
@@ -973,7 +973,7 @@
   {
     "name": "BOX64_DYNACACHE",
     "description": "Enable/disable the Dynamic Recompiler Cache (a.k.a DynaCache). This option defaults to 2 (to read cache if present but not generate any). DynaCache writes files to the home folder by default, and keeps its folder below BOX64_DYNACACHE_LIMIT when generating new cache files.",
-    "category": "Fragile or Legacy",
+    "category": "Performance",
     "wine": false,
     "options": [
       {
@@ -996,7 +996,7 @@
   {
     "name": "BOX64_DYNACACHE_FOLDER",
     "description": "Set the folder for DynaCache files. Default is $XDG_CACHE_HOME/box64 or $HOME/.cache/box64 if $XDG_CACHE_HOME is not set.",
-    "category": "Fragile or Legacy",
+    "category": "Performance",
     "wine": false,
     "options": [
       {
@@ -1009,7 +1009,7 @@
   {
     "name": "BOX64_DYNACACHE_LIMIT",
     "description": "Maximum size, in MiB, for the DynaCache folder. When the limit is exceeded, invalid DynaCache files are removed first, then the oldest valid files are removed if needed. Default size is 2048MiB.",
-    "category": "Fragile or Legacy",
+    "category": "Performance",
     "wine": false,
     "options": [
       {
@@ -1032,7 +1032,7 @@
   {
     "name": "BOX64_DYNACACHE_COMPRESS",
     "description": "Compress or not DynaCache files on disk",
-    "category": "Fragile or Legacy",
+    "category": "Performance",
     "wine": false,
     "options": [
       {
@@ -1054,8 +1054,8 @@
   },
   {
     "name": "BOX64_DYNACACHE_MIN",
-    "description": "Minimum size, in KB, for a DynaCache to be written to disk. Default size is 350KB",
-    "category": "Fragile or Legacy",
+    "description": "Minimum size, in KB, for a DynaCache to be written to disk. Default size is 30KB",
+    "category": "Performance",
     "wine": false,
     "options": [
       {
@@ -1064,8 +1064,8 @@
         "default": false
       },
       {
-        "key": "350",
-        "description": "A size of 350 KB is the default value.",
+        "key": "30",
+        "description": "A size of 30 KB is the default value.",
         "default": true
       }
     ]

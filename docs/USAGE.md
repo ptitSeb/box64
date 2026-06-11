@@ -175,12 +175,42 @@ Use volatile metadata parsed from PE files, only valid for 64bit Windows games.
  * 0: Do not use volatile metadata.
  * 1: Use volatile metadata, which will guide Box64 for better strong memory emulation. [Default]
 
-### BOX64_DYNAREC_WAIT
+### BOX64_DYNACACHE
 
-Wait or not for the building of a DynaRec code block to be ready. Available in WowBox64.
+Enable/disable the Dynamic Recompiler Cache (a.k.a DynaCache). This option defaults to 2 (to read cache if present but not generate any). DynaCache writes files to the home folder by default, and keeps its folder below BOX64_DYNACACHE_LIMIT when generating new cache files.
 
- * 0: Do not wait and use interpreter instead, might speedup a bit on massive multithread or JIT programs.
- * 1: Wait for a DynaRec code block to be ready. [Default]
+ * 0: Disable DynaCache.
+ * 1: Enable DynaCache. [Default]
+ * 2: Use DynaCache files if present, but do not generate new one.
+
+### BOX64_DYNACACHE_FOLDER
+
+Set the folder for DynaCache files. Default is $XDG_CACHE_HOME/box64 or $HOME/.cache/box64 if $XDG_CACHE_HOME is not set.
+
+ * XXXX: Use folder XXXX for DynaCache files.
+
+### BOX64_DYNACACHE_LIMIT
+
+Maximum size, in MiB, for the DynaCache folder. When the limit is exceeded, invalid DynaCache files are removed first, then the oldest valid files are removed if needed. Default size is 2048MiB.
+
+ * 0: Do not limit the DynaCache folder size.
+ * XXXX: Keep the DynaCache folder below XXXX MiB by removing invalid cache files first, then the oldest valid cache files.
+ * 2048: A size of 2048 MiB is the default value. [Default]
+
+### BOX64_DYNACACHE_COMPRESS
+
+Compress or not DynaCache files on disk
+
+ * 0: Do not compress dynacache files
+ * 1: Compress dynacache files using Zlib with fastest compression. [Default]
+ * 2: Compress dynacache files using ZLib with default compression.
+
+### BOX64_DYNACACHE_MIN
+
+Minimum size, in KB, for a DynaCache to be written to disk. Default size is 30KB
+
+ * XXXX: Set a minimum size of XXXX KB of DynaRec code to write the dynacache to disk. Will not be saved to disk else.
+ * 30: A size of 30 KB is the default value. [Default]
 
 ### BOX64_MMAP32
 
@@ -787,6 +817,13 @@ Tick age threshold for DynaBlock purging (requires BOX64_DYNAREC_PURGE=1).
  * 4096: Default age threshold. [Default]
  * XXXX: Custom age threshold (range: 10-65536).
 
+### BOX64_DYNAREC_WAIT
+
+Wait or not for the building of a DynaRec code block to be ready. Available in WowBox64.
+
+ * 0: Do not wait and use interpreter instead, might speedup a bit on massive multithread or JIT programs.
+ * 1: Wait for a DynaRec code block to be ready. [Default]
+
 ### BOX64_DYNAREC_WEAKBARRIER
 
 Tweak the memory barriers to reduce the performance impact by strong memory emulation. Available in WowBox64.
@@ -794,43 +831,6 @@ Tweak the memory barriers to reduce the performance impact by strong memory emul
  * 0: Use regular safe barrier.
  * 1: Use weak barriers to have more performance boost. [Default]
  * 2: All in 1, plus disable the last write barriers.
-
-### BOX64_DYNACACHE
-
-Enable/disable the Dynamic Recompiler Cache (a.k.a DynaCache). This option defaults to 2 (to read cache if present but not generate any). DynaCache writes files to the home folder by default, and keeps its folder below BOX64_DYNACACHE_LIMIT when generating new cache files.
-
- * 0: Disable DynaCache.
- * 1: Enable DynaCache. [Default]
- * 2: Use DynaCache files if present, but do not generate new one.
-
-### BOX64_DYNACACHE_FOLDER
-
-Set the folder for DynaCache files. Default is $XDG_CACHE_HOME/box64 or $HOME/.cache/box64 if $XDG_CACHE_HOME is not set.
-
- * XXXX: Use folder XXXX for DynaCache files.
-
-### BOX64_DYNACACHE_LIMIT
-
-Maximum size, in MiB, for the DynaCache folder. When the limit is exceeded, invalid DynaCache files are removed first, then the oldest valid files are removed if needed. Default size is 2048MiB.
-
- * 0: Do not limit the DynaCache folder size.
- * XXXX: Keep the DynaCache folder below XXXX MiB by removing invalid cache files first, then the oldest valid cache files.
- * 2048: A size of 2048 MiB is the default value. [Default]
-
-### BOX64_DYNACACHE_COMPRESS
-
-Compress or not DynaCache files on disk
-
- * 0: Do not compress dynacache files
- * 1: Compress dynacache files using Zlib with fastest compression. [Default]
- * 2: Compress dynacache files using ZLib with default compression.
-
-### BOX64_DYNACACHE_MIN
-
-Minimum size, in KB, for a DynaCache to be written to disk. Default size is 350KB
-
- * XXXX: Set a minimum size of XXXX KB of DynaRec code to write the dynacache to disk. Will not be saved to disk else.
- * 350: A size of 350 KB is the default value. [Default]
 
 ## Libraries
 
