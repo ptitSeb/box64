@@ -58,6 +58,30 @@ EXPORT int my_dn_expand(x64emu_t* emu, void* msg, void* eomorig, void* comp_dn, 
     return ((iFppppi_t)my_func_dn_expand)(msg, eomorig, comp_dn, exp_dn, length);
 }
 
+EXPORT int my___dn_skipname(x64emu_t* emu, void* comp_dn, void* eom)
+{
+    FIND_REAL_DNS_FUNC(dn_skipname);
+    return ((iFpp_t)my_func_dn_skipname)(comp_dn, eom);
+}
+
+EXPORT int my_dn_skipname(x64emu_t* emu, void* comp_dn, void* eom)
+{
+    FIND_REAL_DNS_FUNC(dn_skipname);
+    return ((iFpp_t)my_func_dn_skipname)(comp_dn, eom);
+}
+
+EXPORT int my___res_nmkquery(x64emu_t* emu, void* statep, int op, void* dname, int class, int type, void* data, int datalen, void* newrr, void* buf, int buflen)
+{
+    FIND_REAL_DNS_FUNC(res_nmkquery);
+    return ((iFpipiipippi_t)my_func_res_nmkquery)(statep, op, dname, class, type, data, datalen, newrr, buf, buflen);
+}
+
+EXPORT int my_res_nmkquery(x64emu_t* emu, void* statep, int op, void* dname, int class, int type, void* data, int datalen, void* newrr, void* buf, int buflen)
+{
+    FIND_REAL_DNS_FUNC(res_nmkquery);
+    return ((iFpipiipippi_t)my_func_res_nmkquery)(statep, op, dname, class, type, data, datalen, newrr, buf, buflen);
+}
+
 EXPORT int my___res_nquery(x64emu_t* emu, void* statep, void* dname, int class, int type, void* answer, int anslen)
 {
     FIND_REAL_DNS_FUNC(res_nquery);
@@ -80,6 +104,30 @@ EXPORT int my_res_nquerydomain(x64emu_t* emu, void* statep, void* dname, void* d
 {
     FIND_REAL_DNS_FUNC(res_nquerydomain);
     return ((iFpppiipi_t)my_func_res_nquerydomain)(statep, dname, domain, class, type, answer, anslen);
+}
+
+EXPORT int my___res_nsearch(x64emu_t* emu, void* statep, void* dname, int class, int type, void* answer, int anslen)
+{
+    FIND_REAL_DNS_FUNC(res_nsearch);
+    return ((iFppiipi_t)my_func_res_nsearch)(statep, dname, class, type, answer, anslen);
+}
+
+EXPORT int my_res_nsearch(x64emu_t* emu, void* statep, void* dname, int class, int type, void* answer, int anslen)
+{
+    FIND_REAL_DNS_FUNC(res_nsearch);
+    return ((iFppiipi_t)my_func_res_nsearch)(statep, dname, class, type, answer, anslen);
+}
+
+EXPORT int my___res_nsend(x64emu_t* emu, void* statep, void* msg, int msglen, void* answer, int anslen)
+{
+    FIND_REAL_DNS_FUNC(res_nsend);
+    return ((iFppipi_t)my_func_res_nsend)(statep, msg, msglen, answer, anslen);
+}
+
+EXPORT int my_res_nsend(x64emu_t* emu, void* statep, void* msg, int msglen, void* answer, int anslen)
+{
+    FIND_REAL_DNS_FUNC(res_nsend);
+    return ((iFppipi_t)my_func_res_nsend)(statep, msg, msglen, answer, anslen);
 }
 
 EXPORT int my___res_query(x64emu_t* emu, void* dname, int class, int type, void* answer, int anslen)
