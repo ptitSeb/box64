@@ -175,12 +175,42 @@ BOX64_DYNAREC_CALLRET=1
  * 0: 不使用 volatile 元数据。
  * 1: 使用 volatile 元数据，将指导 Box64 进行更好的强内存模拟。 [默认值]
 
-### BOX64_DYNAREC_WAIT
+### BOX64_DYNACACHE
 
-是否等待代码块构建完成。 在 WowBox64 中可用。
+启用或禁用动态重编译器缓存（DynaCache）。此选项默认为 2（读取已有缓存但不生成新的）。DynaCache 默认将文件写入 home 文件夹，生成新缓存文件时会根据 BOX64_DYNACACHE_LIMIT 控制文件夹大小。
 
- * 0: 不等待，改用解释器，可能在大量多线程或 JIT 程序上略微加速。
- * 1: 等待代码块构建完成。 [默认值]
+ * 0: 禁用 DynaCache。
+ * 1: 启用 DynaCache。 [默认值]
+ * 2: 使用已有的 DynaCache 文件，但不生成新的。
+
+### BOX64_DYNACACHE_FOLDER
+
+设置 DynaCache 文件的文件夹。默认为 $XDG_CACHE_HOME/box64，如果 $XDG_CACHE_HOME 未设置则为 $HOME/.cache/box64。
+
+ * XXXX: 使用文件夹 XXXX 存储 DynaCache 文件。
+
+### BOX64_DYNACACHE_LIMIT
+
+DynaCache 文件夹的最大大小（MiB）。超过限制时，会先删除无效的 DynaCache 文件，如仍超限再删除最旧的有效文件。默认大小为 2048MiB。
+
+ * 0: 不限制 DynaCache 文件夹大小。
+ * XXXX: 先删除无效缓存文件，如仍超限再删除最旧的有效缓存文件，将 DynaCache 文件夹保持在 XXXX MiB 以下。
+ * 2048: 默认值为 2048 MiB。 [默认值]
+
+### BOX64_DYNACACHE_COMPRESS
+
+设置是否压缩磁盘上的 DynaCache 文件。
+
+ * 0: 不压缩 DynaCache 文件。
+ * 1: 使用 Zlib 最快压缩级别压缩 DynaCache 文件。 [默认值]
+ * 2: 使用 Zlib 默认压缩级别压缩 DynaCache 文件。
+
+### BOX64_DYNACACHE_MIN
+
+DynaCache 写入磁盘的最小大小（KB）。默认大小为 30KB。
+
+ * XXXX: 设置将缓存写入磁盘的最小 DynaRec 代码大小（XXXX KB），小于此值将不会保存到磁盘。
+ * 30: 默认值为 30 KB。 [默认值]
 
 ### BOX64_MMAP32
 
@@ -220,6 +250,13 @@ BOX64_DYNAREC_CALLRET=1
  * 4096: 默认年龄阈值。 [默认值]
  * XXXX: 自定义年龄阈值（范围：10-65536）。
 
+### BOX64_DYNAREC_WAIT
+
+是否等待代码块构建完成。 在 WowBox64 中可用。
+
+ * 0: 不等待，改用解释器，可能在大量多线程或 JIT 程序上略微加速。
+ * 1: 等待代码块构建完成。 [默认值]
+
 ### BOX64_DYNAREC_WEAKBARRIER
 
 调整内存屏障以减少强内存模拟的性能影响。 在 WowBox64 中可用。
@@ -227,43 +264,6 @@ BOX64_DYNAREC_CALLRET=1
  * 0: 使用常规安全屏障。
  * 1: 使用弱屏障以获得更多性能提升。 [默认值]
  * 2: 包含 1 的全部内容，外加禁用最后的写屏障。
-
-### BOX64_DYNACACHE
-
-启用或禁用动态重编译器缓存（DynaCache）。此选项默认为 2（读取已有缓存但不生成新的）。DynaCache 默认将文件写入 home 文件夹，生成新缓存文件时会根据 BOX64_DYNACACHE_LIMIT 控制文件夹大小。
-
- * 0: 禁用 DynaCache。
- * 1: 启用 DynaCache。 [默认值]
- * 2: 使用已有的 DynaCache 文件，但不生成新的。
-
-### BOX64_DYNACACHE_FOLDER
-
-设置 DynaCache 文件的文件夹。默认为 $XDG_CACHE_HOME/box64，如果 $XDG_CACHE_HOME 未设置则为 $HOME/.cache/box64。
-
- * XXXX: 使用文件夹 XXXX 存储 DynaCache 文件。
-
-### BOX64_DYNACACHE_LIMIT
-
-DynaCache 文件夹的最大大小（MiB）。超过限制时，会先删除无效的 DynaCache 文件，如仍超限再删除最旧的有效文件。默认大小为 2048MiB。
-
- * 0: 不限制 DynaCache 文件夹大小。
- * XXXX: 先删除无效缓存文件，如仍超限再删除最旧的有效缓存文件，将 DynaCache 文件夹保持在 XXXX MiB 以下。
- * 2048: 默认值为 2048 MiB。 [默认值]
-
-### BOX64_DYNACACHE_COMPRESS
-
-设置是否压缩磁盘上的 DynaCache 文件。
-
- * 0: 不压缩 DynaCache 文件。
- * 1: 使用 Zlib 最快压缩级别压缩 DynaCache 文件。 [默认值]
- * 2: 使用 Zlib 默认压缩级别压缩 DynaCache 文件。
-
-### BOX64_DYNACACHE_MIN
-
-DynaCache 写入磁盘的最小大小（KB）。默认大小为 350KB。
-
- * XXXX: 设置将缓存写入磁盘的最小 DynaRec 代码大小（XXXX KB），小于此值将不会保存到磁盘。
- * 350: 默认值为 350 KB。 [默认值]
 
 ## 兼容性
 
