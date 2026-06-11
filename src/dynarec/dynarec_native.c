@@ -28,8 +28,10 @@
 
 KHASH_MAP_INIT_INT64(table64, uint32_t)
 KHASH_SET_INIT_INT64(nextset)
+KHASH_MAP_INIT_INT64(jumpaddr, int)
 
 static kh_nextset_t* khnextset = NULL;
+static kh_jumpaddr_t* khjumpaddr = NULL;
 
 void printf_x64_instruction(dynarec_native_t* dyn, zydis_dec_t* dec, instruction_x64_t* inst, const char* name) {
     uint8_t *ip = (uint8_t*)inst->addr;
@@ -105,6 +107,14 @@ void add_jump(dynarec_native_t *dyn, int ninst) {
         printf_log(LOG_NONE, "Warning, overallocating jmps\n");
     }
     dyn->jmps[dyn->jmp_sz++] = ninst;
+    if(dyn->insts[ninst].x64.jmp) {
+        if(!khjumpaddr)
+            khjumpaddr = kh_init(jumpaddr);
+        int ret;
+        khint_t k = kh_put(jumpaddr, khjumpaddr, dyn->insts[ninst].x64.jmp, &ret);
+        if(ret > 0)
+            kh_value(khjumpaddr, k) = ninst;
+    }
 }
 int get_first_jump(dynarec_native_t *dyn, int next) {
     if(next<0 || next>dyn->size)
@@ -112,6 +122,14 @@ int get_first_jump(dynarec_native_t *dyn, int next) {
     return get_first_jump_addr(dyn, dyn->insts[next].x64.addr);
 }
 int get_first_jump_addr(dynarec_native_t *dyn, uintptr_t next) {
+    if(khjumpaddr) {
+        khint_t k = kh_get(jumpaddr, khjumpaddr, next);
+        if(k != kh_end(khjumpaddr)) {
+            int ninst = kh_value(khjumpaddr, k);
+            if(ninst >= 0 && ninst < dyn->size && dyn->insts[ninst].x64.jmp == next)
+                return ninst;
+        }
+    }
     for(int i=0; i<dyn->jmp_sz; ++i)
         if(dyn->insts[dyn->jmps[i]].x64.jmp == next)
             return dyn->jmps[i];
@@ -476,6 +494,9 @@ dynablock_t* FillBlock64(uintptr_t addr, int is32bits, int inst_max, int is_new,
     if(!khnextset)
         khnextset = kh_init(nextset);
     kh_clear(nextset, khnextset);
+    if(!khjumpaddr)
+        khjumpaddr = kh_init(jumpaddr);
+    kh_clear(jumpaddr, khjumpaddr);
 #ifdef GDBJIT
     helper.gdbjit_block = box_calloc(1, sizeof(gdbjit_block_t));
 #endif

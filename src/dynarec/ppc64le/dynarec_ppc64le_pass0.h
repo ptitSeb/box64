@@ -46,7 +46,15 @@
         dyn->insts[ninst].nat_flags_nofusion = (FUSION);                                                                                                    \
     } while (0)
 #define EMIT(A)         dyn->native_size+=4
-#define JUMP(A, C)         add_jump(dyn, ninst); add_next(dyn, (uintptr_t)A); SMEND(); dyn->insts[ninst].x64.jmp = A; dyn->insts[ninst].x64.jmp_cond = C; dyn->insts[ninst].x64.jmp_insts = 0
+#define JUMP(A, C)                                      \
+    do {                                                \
+        dyn->insts[ninst].x64.jmp = (uintptr_t)(A);     \
+        add_jump(dyn, ninst);                           \
+        add_next(dyn, dyn->insts[ninst].x64.jmp);       \
+        SMEND();                                        \
+        dyn->insts[ninst].x64.jmp_cond = C;             \
+        dyn->insts[ninst].x64.jmp_insts = 0;            \
+    } while (0)
 #define BARRIER(A)      if(A!=BARRIER_MAYBE) {fpu_purgecache(dyn, ninst, 0, x1, x2, x3); dyn->insts[ninst].x64.barrier = A;} else dyn->insts[ninst].barrier_maybe = 1
 #define SET_HASCALLRET()    dyn->insts[ninst].x64.has_callret = 1
 #define NEW_INST \
