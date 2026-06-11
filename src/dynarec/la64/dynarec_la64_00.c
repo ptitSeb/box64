@@ -783,7 +783,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x69:
             INST_NAME("IMUL Gd, Ed, Id");
-            SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
+            SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
             nextop = F8;
             GETGD;
             GETED(4);
@@ -843,7 +843,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x6B:
             INST_NAME("IMUL Gd, Ed, Ib");
-            SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
+            SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
             nextop = F8;
             GETGD;
             GETED(1);
@@ -1570,7 +1570,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x9D:
             INST_NAME("POPF");
-            SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
+            SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
             POP1z(xFlags);
             MOV32w(x1, 0x3E7FD7);
             AND(xFlags, xFlags, x1);
@@ -1781,7 +1781,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     }
                     if (BOX64DRENV(dynarec_safeflags) > 1) {
                         READFLAGS(X_ALL);
-                        SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
+                        SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
                     } else
                         SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
                     SMREAD();
@@ -1848,7 +1848,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     }
                     if (BOX64DRENV(dynarec_safeflags) > 1) {
                         READFLAGS(X_ALL);
-                        SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
+                        SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
                     } else
                         SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
                     SMREAD();
@@ -2091,7 +2091,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     }
                     if (BOX64DRENV(dynarec_safeflags) > 1) {
                         READFLAGS(X_ALL);
-                        SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
+                        SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
                     } else
                         SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
                     SMREAD();
@@ -2151,7 +2151,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     }
                     if (BOX64DRENV(dynarec_safeflags) > 1) {
                         READFLAGS(X_ALL);
-                        SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
+                        SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
                     } else
                         SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
                     SMREAD();
@@ -3008,7 +3008,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     CBZ_NEXT(x2);
                     if (BOX64DRENV(dynarec_safeflags) > 1) {
                         READFLAGS(X_ALL);
-                        SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_FUSION);
+                        SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_FUSION);
                     } else
                         SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     emit_shl8(dyn, ninst, x1, x2, x5, x4, x6);
@@ -3021,7 +3021,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     CBZ_NEXT(x2);
                     if (BOX64DRENV(dynarec_safeflags) > 1) {
                         READFLAGS(X_ALL);
-                        SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_FUSION);
+                        SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_FUSION);
                     } else
                         SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     emit_shr8(dyn, ninst, x1, x2, x5, x4, x6);
@@ -3034,7 +3034,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     CBZ_NEXT(x2);
                     if (BOX64DRENV(dynarec_safeflags) > 1) {
                         READFLAGS(X_ALL);
-                        SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_FUSION);
+                        SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_FUSION);
                     } else
                         SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     emit_sar8(dyn, ninst, x1, x2, x5, x4, x6);
@@ -3114,7 +3114,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     INST_NAME("SHL Ed, CL");
                     if (BOX64DRENV(dynarec_safeflags) > 1) {
                         READFLAGS(X_ALL);
-                        SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_FUSION);
+                        SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_FUSION);
                     } else
                         SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     if (!dyn->insts[ninst].x64.gen_flags) {
@@ -3143,7 +3143,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     INST_NAME("SHR Ed, CL");
                     if (BOX64DRENV(dynarec_safeflags) > 1) {
                         READFLAGS(X_ALL);
-                        SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_FUSION);
+                        SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_FUSION);
                     } else
                         SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     if (!dyn->insts[ninst].x64.gen_flags) {
@@ -3172,7 +3172,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     INST_NAME("SAR Ed, CL");
                     if (BOX64DRENV(dynarec_safeflags) > 1) {
                         READFLAGS(X_ALL);
-                        SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_FUSION);
+                        SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_FUSION);
                     } else
                         SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     ANDI(x3, xRCX, rex.w ? 0x3f : 0x1f);
@@ -3447,24 +3447,17 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     }
                     BARRIER(BARRIER_FLOAT);
                     PUSH1z(x2);
+                    int can_continue = (addr < (dyn->start + dyn->isize));
                     if (BOX64DRENV(dynarec_callret)) {
                         SET_HASCALLRET();
                         // Push actual return address
-                        if (addr < (dyn->start + dyn->isize)) {
-                            // there is a next...
-                            if(BOX64DRENV(dynarec_callret)>1 && !dyn->always_test)
-                                j64 = CALLRET_GETRET();
-                            else
-                                j64 = (dyn->insts) ? (dyn->insts[ninst].epilog - (dyn->native_size)) : 0;
-                            PCADDU12I(x4, ((j64 + 0x800) >> 12) & 0xfffff);
-                            ADDI_D(x4, x4, j64 & 0xfff);
-                            MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64 >> 2);
-                        } else {
+                        if (can_continue && BOX64DRENV(dynarec_callret) > 1 && !dyn->always_test)
+                            j64 = CALLRET_GETRET();
+                        else
                             j64 = (dyn->insts) ? (GETMARK - (dyn->native_size)) : 0;
-                            PCADDU12I(x4, ((j64 + 0x800) >> 12) & 0xfffff);
-                            ADDI_D(x4, x4, j64 & 0xfff);
-                            MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64 >> 2);
-                        }
+                        PCADDU12I(x4, ((j64 + 0x800) >> 12) & 0xfffff);
+                        ADDI_D(x4, x4, j64 & 0xfff);
+                        MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64 >> 2);
                         ADDI_D(xSP, xSP, -16);
                         ST_D(x4, xSP, 0);
                         ST_D(x2, xSP, 8);
@@ -3477,11 +3470,10 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     else
                         j64 = addr + i32;
                     jump_to_next(dyn, j64, 0, ninst, rex.is32bits);
-                    int can_continue = (addr < (dyn->start + dyn->isize));
                     CALLRET_RET(can_continue);
-                    if (BOX64DRENV(dynarec_callret) && addr >= (dyn->start + dyn->isize)) {
+                    MARK;
+                    if (BOX64DRENV(dynarec_callret) && !can_continue) {
                         // jumps out of current dynablock...
-                        MARK;
                         j64 = getJumpTableAddress64(addr);
                         if (dyn->need_reloc) {
                             AddRelocTable64JmpTbl(dyn, ninst, addr, STEP);
@@ -3662,7 +3654,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
                 case 4:
                     INST_NAME("MUL AL, Eb");
-                    SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
+                    SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
                     GETEB(x1, 0);
                     ANDI(x2, xRAX, 0xff);
                     MUL_W(x1, x2, x1);
@@ -3708,7 +3700,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
                 case 6:
                     INST_NAME("DIV Eb");
-                    SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
+                    SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
                     GETEB(x1, 0);
                     BSTRPICK_D(x2, xRAX, 15, 0);
                     if (BOX64ENV(dynarec_div0)) {
@@ -3739,10 +3731,10 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 case 7:
                     INST_NAME("IDIV Eb");
                     SKIPTEST(x1);
-                    if (BOX64DRENV(dynarec_safeflags)) {
-                        SETFLAGS(X_SF | X_PF | X_ZF | X_AF, SF_SUBSET, NAT_FLAGS_NOFUSION);
+                    if (!BOX64DRENV(dynarec_safeflags)) {
+                        SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
                     } else if (BOX64ENV(cputype)) {
-                        SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
+                        SETFLAGS(X_SF | X_PF | X_ZF | X_AF, SF_SUBSET, NAT_FLAGS_NOFUSION);
                     }
                     GETSEB(x1, 0);
                     if (BOX64ENV(dynarec_div0)) {
@@ -3794,7 +3786,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
                 case 4:
                     INST_NAME("MUL EAX, Ed");
-                    SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
+                    SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
                     GETED(0);
                     if (rex.w) {
                         if (ed == xRDX)
@@ -3862,7 +3854,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
                 case 6:
                     INST_NAME("DIV Ed");
-                    SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
+                    SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
                     FORCE_DFNONE();
                     if (!rex.w) {
                         GETED(0);
@@ -3947,7 +3939,11 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 case 7:
                     INST_NAME("IDIV Ed");
                     SKIPTEST(x1);
-                    SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
+                    if (!BOX64DRENV(dynarec_safeflags)) {
+                        SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
+                    } else if (BOX64ENV(cputype)) {
+                        SETFLAGS(X_SF | X_PF | X_ZF | X_AF, SF_SUBSET, NAT_FLAGS_NOFUSION);
+                    }
                     // TODO: handle zero divisor
                     if (!rex.w) {
                         SET_DFNONE();
