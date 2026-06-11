@@ -701,6 +701,11 @@ EXPORT void my_g_input_stream_read_async(x64emu_t* emu, void* stream, void* buff
     my->g_input_stream_read_async(stream, buffer, count, io_prio, cancel, findGAsyncReadyCallbackFct(f), data);
 }
 
+EXPORT void my_g_file_trash_async(x64emu_t* emu, void* file, int io_priority, void* cancellable, void* callback, void* user_data)
+{
+    my->g_file_trash_async(file, io_priority, cancellable, findGAsyncReadyCallbackFct(callback), user_data);
+}
+
 EXPORT void my_g_dbus_method_invocation_return_error_valist(x64emu_t* emu, void* invocation, uint32_t domain, int code, void* fmt, x64_va_list_t b)
 {
     #ifdef CONVERT_VALIST
