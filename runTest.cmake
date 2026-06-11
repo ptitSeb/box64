@@ -17,6 +17,7 @@ endif()
 
 set(ENV{BOX64_LOG} 0)
 set(ENV{BOX64_NOBANNER} 1)
+set(ENV{BOX64_DYNACACHE} 0)
 
 # run the test program, capture the stdout/stderr and the result var
 execute_process(
