@@ -2582,6 +2582,7 @@
 #() iFEpuipp
 #() iFEpuppp
 #() iFEpLppp
+#() iFEppipi
 #() iFEppipp
 #() iFEppupp
 #() iFEppppi
@@ -3873,7 +3874,6 @@
 #() iFpiiLiiipip
 #() iFpiLLiiipip
 #() iFpiLLdduudd
-#() iFpipiipippi
 #() iFpCuWCCCCup
 #() iFpuuLiuiiLL
 #() iFpLLpiiuuii
@@ -3958,6 +3958,7 @@
 #() vFppppppppppL
 #() vFppppppppppp
 #() iFEiipppppppp
+#() iFEpipiipippi
 #() iFEpLppiiiiuu
 #() iFEppiipppppp
 #() iFEppLpLpLLpp
@@ -6388,18 +6389,26 @@ wrappedlibpthread:
 - iFpppp:
   - pthread_create
 wrappedlibresolv:
+- iFpp:
+  - __dn_skipname
+  - dn_skipname
 - iFpiipi:
   - __res_query
   - __res_search
   - res_query
   - res_search
+- iFppipi:
+  - __res_nsend
+  - res_nsend
 - iFppppi:
   - __dn_expand
   - dn_expand
 - iFppiipi:
   - __res_nquery
+  - __res_nsearch
   - __res_querydomain
   - res_nquery
+  - res_nsearch
   - res_querydomain
 - iFpppiipi:
   - __res_nquerydomain
@@ -6407,6 +6416,9 @@ wrappedlibresolv:
 - iFipiipippi:
   - __res_mkquery
   - res_mkquery
+- iFpipiipippi:
+  - __res_nmkquery
+  - res_nmkquery
 wrappedlibrt:
 - iFp:
   - aio_read

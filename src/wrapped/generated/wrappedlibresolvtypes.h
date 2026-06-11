@@ -11,26 +11,37 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef int32_t (*iFpp_t)(void*, void*);
 typedef int32_t (*iFpiipi_t)(void*, int32_t, int32_t, void*, int32_t);
+typedef int32_t (*iFppipi_t)(void*, void*, int32_t, void*, int32_t);
 typedef int32_t (*iFppppi_t)(void*, void*, void*, void*, int32_t);
 typedef int32_t (*iFppiipi_t)(void*, void*, int32_t, int32_t, void*, int32_t);
 typedef int32_t (*iFpppiipi_t)(void*, void*, void*, int32_t, int32_t, void*, int32_t);
 typedef int32_t (*iFipiipippi_t)(int32_t, void*, int32_t, int32_t, void*, int32_t, void*, void*, int32_t);
+typedef int32_t (*iFpipiipippi_t)(void*, int32_t, void*, int32_t, int32_t, void*, int32_t, void*, void*, int32_t);
 
 #define SUPER() ADDED_FUNCTIONS() \
+	GO(__dn_skipname, iFpp_t) \
+	GO(dn_skipname, iFpp_t) \
 	GO(__res_query, iFpiipi_t) \
 	GO(__res_search, iFpiipi_t) \
 	GO(res_query, iFpiipi_t) \
 	GO(res_search, iFpiipi_t) \
+	GO(__res_nsend, iFppipi_t) \
+	GO(res_nsend, iFppipi_t) \
 	GO(__dn_expand, iFppppi_t) \
 	GO(dn_expand, iFppppi_t) \
 	GO(__res_nquery, iFppiipi_t) \
+	GO(__res_nsearch, iFppiipi_t) \
 	GO(__res_querydomain, iFppiipi_t) \
 	GO(res_nquery, iFppiipi_t) \
+	GO(res_nsearch, iFppiipi_t) \
 	GO(res_querydomain, iFppiipi_t) \
 	GO(__res_nquerydomain, iFpppiipi_t) \
 	GO(res_nquerydomain, iFpppiipi_t) \
 	GO(__res_mkquery, iFipiipippi_t) \
-	GO(res_mkquery, iFipiipippi_t)
+	GO(res_mkquery, iFipiipippi_t) \
+	GO(__res_nmkquery, iFpipiipippi_t) \
+	GO(res_nmkquery, iFpipiipippi_t)
 
 #endif // __wrappedlibresolvTYPES_H_
