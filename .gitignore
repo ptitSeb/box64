@@ -90,3 +90,6 @@ backup/
 *.zip
 *.zst
 *.zstd
+
+# Python
+__pycache__/

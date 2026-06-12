@@ -131,18 +131,19 @@ option(STATICBUILD "Set to ON to have a static build (Warning, not working)" ${S
 option(NO_LIB_INSTALL "Set ON to not install a few x86_64 libs that are used by many program" ${NO_LIB_INSTALL})
 option(NO_CONF_INSTALL "Set ON to not install config files" ${NO_CONF_INSTALL})
 
+set(BOX64_PYTHON_MIN_VERSION 3.7)
 if(${CMAKE_VERSION} VERSION_LESS "3.12.2")
-    find_package(PythonInterp 3)
+    find_package(PythonInterp ${BOX64_PYTHON_MIN_VERSION})
     if(NOT PYTHONINTERP_FOUND)
         message( FATAL_ERROR "You need a Python interpreter, CMake will exit." )
     endif()
-    if(${PYTHON_VERSION_MAJOR} LESS 3)
-        message( FATAL_ERROR "You need a Python 3 interpreter, CMake will exit." )
+    if(${PYTHON_VERSION_STRING} VERSION_LESS ${BOX64_PYTHON_MIN_VERSION})
+        message( FATAL_ERROR "You need a Python ${BOX64_PYTHON_MIN_VERSION} or newer interpreter, CMake will exit." )
     endif()
 else()
-    find_package(Python3)
+    find_package(Python3 ${BOX64_PYTHON_MIN_VERSION})
     if(NOT Python3_Interpreter_FOUND)
-        message( FATAL_ERROR "You need a Python interpreter, CMake will exit." )
+        message( FATAL_ERROR "You need a Python ${BOX64_PYTHON_MIN_VERSION} or newer interpreter, CMake will exit." )
     endif()
     set(PYTHON_EXECUTABLE ${Python3_EXECUTABLE} CACHE INTERNAL "The Python3 executable" FORCE)
 endif()
@@ -1399,7 +1400,30 @@ if(NOT _x86 AND NOT _x86_64)
       GROUP_READ GROUP_EXECUTE
       WORLD_READ WORLD_EXECUTE)
   if(NOT TERMUX)
+   set(BOX64_CONFIGURATOR_OUTPUT ${CMAKE_BINARY_DIR}/bin/box64-configurator)
+   set(BOX64_CONFIGURATOR_SOURCES
+       ${CMAKE_SOURCE_DIR}/configurator/build_standalone.py
+       ${CMAKE_SOURCE_DIR}/configurator/box64rc.py
+       ${CMAKE_SOURCE_DIR}/configurator/configurator.py
+       ${CMAKE_SOURCE_DIR}/configurator/configurator.ui
+       ${CMAKE_SOURCE_DIR}/configurator/model.py
+       ${CMAKE_SOURCE_DIR}/configurator/usage.py
+       ${CMAKE_SOURCE_DIR}/configurator/text_en.json
+       ${CMAKE_SOURCE_DIR}/configurator/text_zh.json
+       ${CMAKE_SOURCE_DIR}/docs/gen/usage.json
+       ${CMAKE_SOURCE_DIR}/docs/gen/usage_cn.json)
+   add_custom_command(
+       OUTPUT ${BOX64_CONFIGURATOR_OUTPUT}
+       COMMAND "${PYTHON_EXECUTABLE}" "${CMAKE_SOURCE_DIR}/configurator/build_standalone.py"
+               --output "${BOX64_CONFIGURATOR_OUTPUT}"
+               --configurator-dir "${CMAKE_SOURCE_DIR}/configurator"
+               --usage "${CMAKE_SOURCE_DIR}/docs/gen/usage.json"
+               --usage-cn "${CMAKE_SOURCE_DIR}/docs/gen/usage_cn.json"
+       DEPENDS ${BOX64_CONFIGURATOR_SOURCES}
+       VERBATIM)
+   add_custom_target(box64-configurator ALL DEPENDS ${BOX64_CONFIGURATOR_OUTPUT})
    install(TARGETS ${BOX64} RUNTIME DESTINATION bin)
+   install(PROGRAMS ${BOX64_CONFIGURATOR_OUTPUT} DESTINATION bin)
     if(NOT NO_LIB_INSTALL)
      install(PROGRAMS ${CMAKE_SOURCE_DIR}/tests/box64-bash DESTINATION bin)
      install(PROGRAMS ${CMAKE_SOURCE_DIR}/system/box64-python DESTINATION bin)
