@@ -91,7 +91,7 @@ done:
     `box64 --dynacache-clean` can be used from command line to purge obsolete DyaCache files
 */
 
-#define FILE_VERSION 4
+#define FILE_VERSION 5
 #define HEADER_SIGN  "DynaCache"
 
 typedef struct DynaCacheHeader_s {
@@ -126,14 +126,15 @@ typedef struct DynaCacheHeader_s {
     DS_GO(BOX64_DYNAREC_DIV0, dynarec_div0, 1)                          \
     DS_GO(BOX64_DYNAREC_FASTNAN, dynarec_fastnan, 1)                    \
     DS_GO(BOX64_DYNAREC_FASTROUND, dynarec_fastround, 2)                \
-    DS_GO(BOX64_DYNAREC_FORWARD, dynarec_forward, 10)                   \
+    DS_GO(BOX64_DYNAREC_NOHOTPAGE, dynarec_nohotpage, 1)                \
     DS_GO(BOX64_DYNAREC_NATIVEFLAGS, dynarec_nativeflags, 1)            \
     DS_GO(BOX64_DYNAREC_SAFEFLAGS, dynarec_safeflags, 2)                \
-    DS_GO(BOX64_DYNAREC_STRONGMEM, dynarec_strongmem, 2)                \
+    DS_GO(BOX64_DYNAREC_STRONGMEM, dynarec_strongmem, 3)                \
     DS_GO(BOX64_DYNAREC_VOLATILE_METADATA, dynarec_volatile_metadata, 1)\
     DS_GO(BOX64_DYNAREC_WEAKBARRIER, dynarec_weakbarrier, 2)            \
     DS_GO(BOX64_DYNAREC_X87DOUBLE, dynarec_x87double, 2)                \
     DS_GO(BOX64_DYNAREC_NOARCH, dynarec_noarch, 2)                      \
+    DS_GO(BOX64_DYNAREC_SEP, dynarec_sep, 2)                            \
     DS_GO(BOX64_AES, aes, 1)                                            \
     DS_GO(BOX64_PCLMULQDQ, pclmulqdq, 1)                                \
     DS_GO(BOX64_SHAEXT, shaext, 1)                                      \
@@ -141,7 +142,10 @@ typedef struct DynaCacheHeader_s {
     DS_GO(BOX64_AVX, avx, 2)                                            \
     DS_GO(BOX64_X87_NO80BITS, x87_no80bits, 1)                          \
     DS_GO(BOX64_RDTSC_1GHZ, rdtsc_1ghz, 1)                              \
+    DS_GO(BOX64_RDTSC_INV, rdtsc_inv, 1)                                \
     DS_GO(BOX64_SSE_FLUSHTO0, sse_flushto0, 1)                          \
+    DS_GO(BOX64_CPUTYPE, cputype, 1)                                    \
+    DS_GO(BOX64_IGNOREINT3, ignoreint3, 1)                              \
 
 #define DS_GO(A, B, C) uint64_t B:C;
 typedef union dynarec_settings_s {
