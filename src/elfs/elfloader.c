@@ -48,6 +48,12 @@
 #include "../tools/bridge_private.h"
 #include "x64tls.h"
 
+#ifndef STATICBUILD
+void startMallocHook();
+#else
+void startMallocHook() {}
+#endif
+
 void* my__IO_2_1_stderr_ = (void*)1;
 void* my__IO_2_1_stdin_  = (void*)2;
 void* my__IO_2_1_stdout_ = (void*)3;
@@ -1216,16 +1222,21 @@ void RefreshElfTLS(elfheader_t* h, x64emu_t* emu)
         }
     }
 }
+
+void MallocHookRun(elfheader_t* h)
+{
+    if (!h)
+        return;
+    if(h->malloc_hook_2)
+        startMallocHook();
+}
+
 void MarkElfInitDone(elfheader_t* h)
 {
     if(h)
         h->init_done = 1;
 }
-#ifndef STATICBUILD
-void startMallocHook();
-#else
-void startMallocHook() {}
-#endif
+
 void RunElfInit(elfheader_t* h, x64emu_t *emu)
 {
     if(!h || h->init_done)
