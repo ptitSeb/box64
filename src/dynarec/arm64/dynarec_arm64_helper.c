@@ -2311,7 +2311,7 @@ static void flagsCacheTransform(dynarec_arm_t* dyn, int ninst)
     int jmp = dyn->insts[ninst].x64.jmp_insts;
     if(jmp<0)
         return;
-    if(dyn->insts[jmp].f_exit==dyn->insts[jmp].f_entry)  // flags will be fully known, nothing we can do more
+    if(dyn->insts[ninst].f_exit==dyn->insts[jmp].f_entry)  // flags will be fully known, nothing we can do more
         return;
     if(dyn->insts[jmp].df_notneeded)
         return;
