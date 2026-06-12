@@ -380,7 +380,7 @@ EXPORT void cfree(void* p)
 
 EXPORT size_t malloc_usable_size(void* p)
 {
-    if(malloc_hack_2 && real_malloc_usable_size) {
+    if(malloc_hack_2 && ALLOC && real_malloc_usable_size) {
         if(getMmapped((uintptr_t)p))
             return RunFunctionFmtNoAlt(real_malloc_usable_size, "p", p);
     }
