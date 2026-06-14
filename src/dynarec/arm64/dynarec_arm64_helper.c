@@ -517,6 +517,7 @@ void iret_to_next(dynarec_arm_t* dyn, uintptr_t ip, int ninst, int is32bits, int
     rex_t dummy = {0};
     dummy.is32bits = is32bits;
     dummy.w = is64bits;
+    TBNZ_MARK2(xFlags, F_TF);
     ret_to_next(dyn, ip, ninst, dummy);
     CLEARIP();
     MARK;
@@ -530,6 +531,8 @@ void iret_to_next(dynarec_arm_t* dyn, uintptr_t ip, int ninst, int is32bits, int
     else
         ADDx_U12(xRSP, xRSP, 4*3);
     CALL_S(const_native_priv, -1);
+    MARK2;
+    jump_to_epilog(dyn, 0, xRIP, ninst);
 }
 
 void call_c(dynarec_arm_t* dyn, int ninst, arm64_consts_t fnc, int reg, int ret, int saveflags, int savereg)
