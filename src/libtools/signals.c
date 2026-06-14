@@ -1292,6 +1292,7 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "%04d|Repeated SIGSEGV with Access error on %
                 if(!(i%4)) printf_log_prefix(0, log_minimum, "\n");
                 printf_log_prefix(0, log_minimum, "%s:0x%016llx ", reg_name[i], emu->regs[i].q[0]);
             }
+            printf_log_prefix(0, log_minimum, "\n");
             for (int i=0; i<6; ++i)
                 printf_log_prefix(0, log_minimum, "%s:0x%04x ", seg_name[i], emu->segs[i]);
             printf_log_prefix(0, log_minimum, "FSBASE=%p ", emu->segs_offs[_FS]);
