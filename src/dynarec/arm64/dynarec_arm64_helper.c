@@ -532,6 +532,9 @@ void iret_to_next(dynarec_arm_t* dyn, uintptr_t ip, int ninst, int is32bits, int
         ADDx_U12(xRSP, xRSP, 4*3);
     CALL_S(const_native_priv, -1);
     MARK2;
+    LDRw_U12(x4, xEmu, offsetof(x64emu_t, flags));
+    ORRw_mask(x4, x4, 32-FLAGS_NO_TF, 0);   //mask=1<<FLAGS_NO_TF
+    STRw_U12(x4, xEmu, offsetof(x64emu_t, flags));
     jump_to_epilog(dyn, 0, xRIP, ninst);
 }
 
