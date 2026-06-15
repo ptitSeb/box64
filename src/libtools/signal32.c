@@ -743,11 +743,12 @@ int my_sigactionhandler_oldcode_32(x64emu_t* emu, int32_t sig, int simple, sigin
             GO(SP);
             GO(BX);
             #undef GO
-            if((skip==1) && (emu->ip.q[0]!=sigcontext->uc_mcontext.gregs[I386_EIP]))
-                skip = 3;   // if it jumps elsewhere, it can resume with dynarec...
-            emu->ip.q[0]=sigcontext->uc_mcontext.gregs[I386_EIP];
             // flags
             emu->eflags.x64=sigcontext->uc_mcontext.gregs[I386_EFL];
+            if((skip==1) && (emu->ip.q[0]!=sigcontext->uc_mcontext.gregs[I386_EIP]) && !ACCESS_FLAG(F_TF))
+                skip = 3;   // if it jumps elsewhere, it can resume with dynarec...
+            emu->ip.q[0]=sigcontext->uc_mcontext.gregs[I386_EIP];
+            if (ACCESS_FLAG(F_TF) && skip == 1) emu->flags.no_tf = 1;
             // get segments
             #define GO(S) if(emu->segs[_##S]!=sigcontext->uc_mcontext.gregs[I386_##S])  emu->segs[_##S]=sigcontext->uc_mcontext.gregs[I386_##S]
             GO(CS);
@@ -792,6 +793,7 @@ int my_sigactionhandler_oldcode_32(x64emu_t* emu, int32_t sig, int simple, sigin
     GO(EBX);
     #undef GO
     emu->eflags.x64=sigcontext->uc_mcontext.gregs[I386_EFL];
+    if(ACCESS_FLAG(F_TF)) emu->flags.no_tf = 1;
     #define GO(R)   R_##R=sigcontext->uc_mcontext.gregs[I386_##R]
     GO(CS);
     GO(DS);
