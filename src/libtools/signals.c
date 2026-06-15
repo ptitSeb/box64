@@ -565,7 +565,9 @@ int my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigin
 
     if(memcmp(sigcontext, &sigcontext_copy, sizeof(x64_ucontext_t))) {
         #if defined(DYNAREC)
-        if(db) {
+        if(db || emu->jmpbuf)
+            mctx2emu(emu, &sigcontext->uc_mcontext);
+        if(db && !ACCESS_FLAG(F_TF)) {
             // if signal was inside a dynablock, just mirror all the new regs in the right place to simple run native_next
             mctx2emu(emu, &sigcontext->uc_mcontext);
             copyEmu2USignalCTXreg(p, emu, native_next);
@@ -574,9 +576,12 @@ int my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigin
         }
         #endif
         if(emu->jmpbuf) {
-            if((skip==1) && (emu->ip.q[0]!=sigcontext->uc_mcontext.gregs[X64_RIP]))
-                skip = 3;   // if it jumps elsewhere, it can resume with dynarec...
+            #ifndef DYNAREC
             mctx2emu(emu, &sigcontext->uc_mcontext);
+            #endif
+            if((skip==1) && (emu->ip.q[0]!=sigcontext->uc_mcontext.gregs[X64_RIP]) && !ACCESS_FLAG(F_TF))
+                skip = 3;   // if it jumps elsewhere, it can resume with dynarec...
+            if (ACCESS_FLAG(F_TF) && skip == 1) emu->flags.no_tf = 1;
             printf_log((sig==10)?LOG_DEBUG:log_minimum, "Context has been changed in Sigactionhanlder, doing siglongjmp to resume emu at %p, RSP=%p (resume with %s)\n", (void*)R_RIP, (void*)R_RSP, (skip==3)?"Dynarec":"Interp");
             if(old_code)
                 *old_code = -1;    // re-init the value to allow another segfault at the same place
@@ -621,6 +626,7 @@ int my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigin
     GO(RIP);
     #undef GO
     emu->eflags.x64=sigcontext->uc_mcontext.gregs[X64_EFL];
+    if (ACCESS_FLAG(F_TF)) emu->flags.no_tf = 1;
     uint16_t seg;
     seg = (sigcontext->uc_mcontext.gregs[X64_CSGSFS] >> 0)&0xffff;
     #define GO(S) emu->segs[_##S]=seg;
