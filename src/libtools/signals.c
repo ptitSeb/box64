@@ -576,6 +576,9 @@ int my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigin
         }
         #endif
         if(emu->jmpbuf) {
+            #ifndef DYNAREC
+            mctx2emu(emu, &sigcontext->uc_mcontext);
+            #endif
             if((skip==1) && (emu->ip.q[0]!=sigcontext->uc_mcontext.gregs[X64_RIP]) && !ACCESS_FLAG(F_TF))
                 skip = 3;   // if it jumps elsewhere, it can resume with dynarec...
             if (ACCESS_FLAG(F_TF) && skip == 1) emu->flags.no_tf = 1;
