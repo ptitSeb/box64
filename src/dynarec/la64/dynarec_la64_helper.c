@@ -504,8 +504,15 @@ void iret_to_next(dynarec_la64_t* dyn, uintptr_t ip, int ninst, int is32bits, in
     rex_t dummy = { 0 };
     dummy.is32bits = is32bits;
     dummy.w = is64bits;
+    ANDI(x1, xFlags, 1 << F_TF);
+    BNEZ_MARK2(x1);
     ret_to_next(dyn, ip, ninst, dummy);
     CLEARIP();
+    MARK2;
+    LD_WU(x4, xEmu, offsetof(x64emu_t, flags));
+    ORI(x4, x4, 1 << FLAGS_NO_TF);
+    ST_W(x4, xEmu, offsetof(x64emu_t, flags));
+    jump_to_epilog(dyn, 0, xRIP, ninst);
 }
 
 void call_c(dynarec_la64_t* dyn, int ninst, la64_consts_t fnc, int reg, int ret, int saveflags, int savereg, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6)
