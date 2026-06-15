@@ -1763,6 +1763,8 @@ x64emurun:
                     emu->segs[_SS] = new_ss;
                 }
                 emu->eflags.x64 = new_flags;
+                if(!tf && ACCESS_FLAG(F_TF))
+                    emu->flags.no_tf = 1;   // delay the effect to next opcode
                 tf = ACCESS_FLAG(F_TF);
                 emu->segs[_CS] = new_cs;
                 addr = new_addr;
