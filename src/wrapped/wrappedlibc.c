@@ -60,6 +60,8 @@ extern int _nl_msg_cat_cntr __attribute__((weak));
 #include <sys/resource.h>
 #include <sys/prctl.h>
 #include <sys/ptrace.h>
+#include <sys/uio.h>
+#include <sys/wait.h>
 #include <error.h>
 #undef LOG_INFO
 #undef LOG_DEBUG
@@ -4137,6 +4139,120 @@ EXPORT long my_ptrace(x64emu_t* emu, int request, pid_t pid, void* addr, uint32_
         return -1;
     }
     long ret = ptrace(request, pid, addr, data);
+    return ret;
+}
+
+static void copy_from_iovec(void* dst, size_t len, const struct iovec* iov, unsigned long cnt, size_t skip)
+{
+    char* out = (char*)dst;
+    size_t done = 0;
+    for (unsigned long i = 0; i < cnt && done < len; ++i) {
+        size_t ilen = iov[i].iov_len;
+        if (skip >= ilen) {
+            skip -= ilen;
+            continue;
+        }
+        size_t chunk = ilen - skip;
+        if (chunk > len - done) chunk = len - done;
+        memcpy(out + done, (const char*)iov[i].iov_base + skip, chunk);
+        done += chunk;
+        skip = 0;
+    }
+}
+
+static ssize_t ptrace_poke_range(pid_t pid, const char* src, uintptr_t dst, size_t size)
+{
+    size_t written = 0;
+    while (size > 0) {
+        uintptr_t align = dst & ~(sizeof(long) - 1);
+        unsigned offset = dst & (sizeof(long) - 1);
+        unsigned chunk = sizeof(long) - offset;
+        if (chunk > size) chunk = (unsigned)size;
+
+        errno = 0;
+        long old = ptrace(PTRACE_PEEKDATA, pid, (void*)align, NULL);
+        if (old == -1 && errno) return -1;
+
+        long value = old;
+        memcpy((char*)&value + offset, src + written, chunk);
+
+        errno = 0;
+        if (ptrace(PTRACE_POKEDATA, pid, (void*)align, (void*)value) == -1 && errno) return -1;
+
+        written += chunk;
+        dst += chunk;
+        size -= chunk;
+    }
+    return written;
+}
+
+EXPORT ssize_t my_process_vm_writev(x64emu_t* emu, pid_t pid, struct iovec* local_iov, unsigned long liovcnt,
+    struct iovec* remote_iov, unsigned long riovcnt, unsigned long flags)
+{
+    (void)emu;
+    size_t total = 0;
+    for (unsigned long i = 0; i < riovcnt; ++i)
+        total += remote_iov[i].iov_len;
+    ssize_t ret = syscall(__NR_process_vm_writev, pid, local_iov, liovcnt, remote_iov, riovcnt, flags);
+
+    if (ret >= 0 && (size_t)ret == total) return ret;
+    if (ret < 0 && errno != EFAULT) return ret;
+
+    // this is for Syringe.exe:
+    // Wine use process_vm_writev to implement WriteProcessMemory:
+    // the request is forwarded to wineserver, and wineserver use process_vm_writev to do the write.
+    // but the memory it's trying to write might be protected by DynaRec, and a normal process_vm_writev will fail with EFAULT,
+    // so try to write with ptrace instead...
+
+    // printf_log(LOG_INFO, "process_vm_writev fallback for pid=%d total=%zu ret=%zd errno=%d\n", pid, total, ret, errno);
+    size_t done = (ret > 0) ? (size_t)ret : 0; // partial write
+    size_t remain = total - done;
+    if (!remain) return ret;
+
+    // try to attach if the target is not already stopped / traced.
+    int attached = 0;
+    errno = 0;
+    long test = ptrace(PTRACE_PEEKDATA, pid, (void*)0, NULL);
+    if (test == -1 && errno == ESRCH) {
+        if (ptrace(PTRACE_ATTACH, pid, NULL, NULL) == -1) return ret;
+        attached = 1;
+        int status;
+        if (waitpid(pid, &status, __WALL) == -1) {
+            ptrace(PTRACE_DETACH, pid, NULL, NULL);
+            return ret;
+        }
+    }
+
+    char* buf = (char*)malloc(remain);
+    if (!buf) {
+        if (attached) ptrace(PTRACE_DETACH, pid, NULL, 0);
+        return ret;
+    }
+    copy_from_iovec(buf, remain, local_iov, liovcnt, done);
+
+    // write the remaining bytes...
+    size_t ptrace_written = 0;
+    size_t skip = done;
+    for (unsigned long i = 0; i < riovcnt && ptrace_written < remain; ++i) {
+        size_t len = remote_iov[i].iov_len;
+        if (skip >= len) {
+            skip -= len;
+            continue;
+        }
+        uintptr_t dst = (uintptr_t)remote_iov[i].iov_base + skip;
+        size_t chunk = len - skip;
+        if (chunk > remain - ptrace_written) chunk = remain - ptrace_written;
+        ssize_t w = ptrace_poke_range(pid, buf + ptrace_written, dst, chunk);
+        if (w == (size_t)-1) break;
+        ptrace_written += w;
+        skip = 0;
+    }
+
+    free(buf);
+    if (attached) ptrace(PTRACE_DETACH, pid, NULL, 0);
+
+    // printf_log(LOG_INFO, "process_vm_writev fallback done=%zu ptrace_written=%zu\n", done, ptrace_written);
+    if (ptrace_written) return (ssize_t)(done + ptrace_written);
     return ret;
 }
 
