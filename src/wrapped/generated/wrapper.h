@@ -3321,6 +3321,7 @@ void fFpppppLL(x64emu_t *emu, uintptr_t fnc);
 void fFppppppL(x64emu_t *emu, uintptr_t fnc);
 void dFpppppLL(x64emu_t *emu, uintptr_t fnc);
 void dFppppppL(x64emu_t *emu, uintptr_t fnc);
+void lFEipLpLL(x64emu_t *emu, uintptr_t fnc);
 void lFppiiiip(x64emu_t *emu, uintptr_t fnc);
 void lFpppplpl(x64emu_t *emu, uintptr_t fnc);
 void LFEppLppU(x64emu_t *emu, uintptr_t fnc);

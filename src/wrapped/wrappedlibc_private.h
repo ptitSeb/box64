@@ -1561,7 +1561,7 @@ GO(printf_size_info, iFpLp)
 GO(prlimit, iFiupp)
 GOW(prlimit64, iFiupp)
 GO(process_vm_readv, lFipLpLL)
-GO(process_vm_writev, lFipLpLL)
+GOM(process_vm_writev, lFEipLpLL)
 GO(profil, iFpLLu)
 //GO(__profile_frequency, 
 DATA(__progname, 8)

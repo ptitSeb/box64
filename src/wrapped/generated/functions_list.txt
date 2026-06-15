@@ -3284,6 +3284,7 @@
 #() fFppppppL
 #() dFpppppLL
 #() dFppppppL
+#() lFEipLpLL
 #() lFppiiiip
 #() lFpppplpl
 #() LFEppLppU
@@ -5848,6 +5849,8 @@ wrappedlibc:
 - iFpppppp:
   - posix_spawn
   - posix_spawnp
+- lFipLpLL:
+  - process_vm_writev
 - pFpLiiiI:
   - mmap64
 - pFpLiiil:

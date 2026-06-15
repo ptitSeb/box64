@@ -124,6 +124,7 @@ typedef int32_t (*iFpipppL_t)(void*, int32_t, void*, void*, void*, uintptr_t);
 typedef int32_t (*iFpLiLpp_t)(void*, uintptr_t, int32_t, uintptr_t, void*, void*);
 typedef int32_t (*iFpLiLpV_t)(void*, uintptr_t, int32_t, uintptr_t, void*, ...);
 typedef int32_t (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
+typedef intptr_t (*lFipLpLL_t)(int32_t, void*, uintptr_t, void*, uintptr_t, uintptr_t);
 typedef void* (*pFpLiiiI_t)(void*, uintptr_t, int32_t, int32_t, int32_t, int64_t);
 typedef void* (*pFpLiiil_t)(void*, uintptr_t, int32_t, int32_t, int32_t, intptr_t);
 typedef int32_t (*iFpippppp_t)(void*, int32_t, void*, void*, void*, void*, void*);
@@ -378,6 +379,7 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(__swprintf_chk, iFpLiLpV_t) \
 	GO(posix_spawn, iFpppppp_t) \
 	GO(posix_spawnp, iFpppppp_t) \
+	GO(process_vm_writev, lFipLpLL_t) \
 	GO(mmap64, pFpLiiiI_t) \
 	GO(mmap, pFpLiiil_t) \
 	GO(__libc_start_main, iFpippppp_t) \
