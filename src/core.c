@@ -836,14 +836,14 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
             DynaCacheClean();
             exit(0);
         }
-        if(!strcmp(prog, "--dynacache-list")) {
+        if(!strcmp(prog, "-dl") || !strcmp(prog, "--dynacache-list")) {
             #ifdef DYNAREC
             DetectHostCpuFeatures();
             #endif
             DynaCacheList(argv[nextarg+1]);
             exit(0);
         }
-        if(!strcmp(prog, "--dynacache-clean")) {
+        if(!strcmp(prog, "-dc") || !strcmp(prog, "--dynacache-clean")) {
             #ifdef DYNAREC
             DetectHostCpuFeatures();
             #endif
