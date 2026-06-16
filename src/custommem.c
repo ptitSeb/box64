@@ -2652,6 +2652,9 @@ void updateProtection(uintptr_t addr, size_t size, uint32_t prot)
     LOCK_PROT();
     uintptr_t cur = addr & ~(box64_pagesize-1);
     uintptr_t end = ALIGN(cur+size);
+    #ifdef DYNAREC
+    int check = BOX64ENV(dynarec);
+    #endif
     //rb_set(mapallmem, cur, cur+size, MEM_ALLOCATED);
     while (cur < end) {
         uintptr_t bend;
@@ -2663,6 +2666,15 @@ void updateProtection(uintptr_t addr, size_t size, uint32_t prot)
             cur = bend;
             continue;
         }
+        #ifdef DYNAREC
+        if(check && ((prot ^ oprot) & PROT_EXEC)) { // prot_exec changed
+            if(prot & PROT_EXEC) {
+                if(!IsAddrMappingLoadAndClean(cur))
+                    addDBFromAddressRange(cur, bend-cur);
+            } else
+                cleanDBFromAddressRange(cur, bend-cur, (!prot)?1:0);
+        }
+        #endif
         uint32_t never = dyn & PROT_NEVERCLEAN;
         if(!(never)) {
             if(dyn && (prot&PROT_WRITE)) {   // need to remove the write protection from this block
