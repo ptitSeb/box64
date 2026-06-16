@@ -465,6 +465,9 @@ BOX64_DYNAREC_CALLRET=0 # prevent segfaulting
 # Wine process
 #
 
+[explorer.exe]
+BOX64_DYNAREC_BIGBLOCK=0 # speedup
+
 [AC4BFSP.exe]
 BOX64_DYNAREC_STRONGMEM=1
 BOX64_DYNAREC_SAFEFLAGS=2
