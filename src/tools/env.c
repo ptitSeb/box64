@@ -465,18 +465,18 @@ static void initializeEnvFile(const char* filename, int priority)
 #define VALID(a) 1
 #endif
 
-#define INTEGER(NAME, name, default, min, max, wine, dynacache) \
-    else if (!strcmp(key, #NAME) && VALID(wine))                \
-    {                                                           \
-        int v = strtol(val, &p, 0);                             \
-        if (p != val) {                                         \
+#define INTEGER(NAME, name, default, min, max, wine, dynacache)           \
+    else if (!strcmp(key, #NAME) && VALID(wine))                          \
+    {                                                                     \
+        int v = strtol(val, &p, 0);                                       \
+        if (p != val) {                                                   \
             int validated = validateInteger(#NAME, v, default, min, max); \
-            if (validated != default || v == default) {         \
-                current_env.is_##name##_overridden = 1;         \
-                current_env.is_any_overridden = 1;              \
-                current_env.name = validated;                   \
-            }                                                   \
-        }                                                       \
+            if (validated != default || v == default) {                   \
+                current_env.is_##name##_overridden = 1;                   \
+                current_env.is_any_overridden = 1;                        \
+                current_env.name = validated;                             \
+            }                                                             \
+        }                                                                 \
     }
 #define INTEGER64(NAME, name, default, wine, dynacache) \
     else if (!strcmp(key, #NAME) && VALID(wine))        \
@@ -689,18 +689,18 @@ void LoadEnvVariables()
 #define GETENV(name, wine) GetEnv(name)
 #endif
 
-#define INTEGER(NAME, name, default, min, max, wine, dynacache) \
-    p = GETENV(#NAME, wine);                                    \
-    if (p) {                                                    \
-        int v = atoi(p);                                        \
+#define INTEGER(NAME, name, default, min, max, wine, dynacache)       \
+    p = GETENV(#NAME, wine);                                          \
+    if (p) {                                                          \
+        int v = atoi(p);                                              \
         int validated = validateInteger(#NAME, v, default, min, max); \
-        if (validated == default && v != default) {             \
-            box64env.name = default;                            \
-        } else {                                                \
-            box64env.name = validated;                          \
-            box64env.is_##name##_overridden = 1;                \
-            box64env.is_any_overridden = 1;                     \
-        }                                                       \
+        if (validated == default && v != default) {                   \
+            box64env.name = default;                                  \
+        } else {                                                      \
+            box64env.name = validated;                                \
+            box64env.is_##name##_overridden = 1;                      \
+            box64env.is_any_overridden = 1;                           \
+        }                                                             \
     }
 #define INTEGER64(NAME, name, default, wine, dynacache) \
     p = GETENV(#NAME, wine);                            \
