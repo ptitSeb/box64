@@ -125,7 +125,7 @@ uint64_t RunFunctionHandler(x64emu_t* emu, int* exit, int dynarec, x64_ucontext_
     }
     va_end (va);
 
-    printf_log(LOG_DEBUG, "%04d|signal #%d function handler %p called, RSP=%p\n", GetTID(), R_EDI, (void*)fnc, (void*)R_RSP);
+    printf_log(LOG_DEBUG, "%04d|signal #%d function handler %p called, RSP=%p%s\n", GetTID(), R_EDI, (void*)fnc, (void*)R_RSP, dynarec?" with Dynarec":"");
 
     int oldquitonlongjmp = emu->flags.quitonlongjmp;
     emu->flags.quitonlongjmp = 2;
@@ -382,7 +382,6 @@ int my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigin
     x64_ucontext_t   *sigcontext = (x64_ucontext_t*)frame;
     // get general register
     emu2mctx(&sigcontext->uc_mcontext, emu);
-    CLEAR_FLAG(F_TF);   // now clear TF flags inside the signal handler
     // get FloatPoint status
     sigcontext->uc_mcontext.fpregs = xstate;//(struct x64_libc_fpstate*)&sigcontext->xstate;
     fpu_xsave_mask(emu, xstate, 0, 0b111);
@@ -536,6 +535,8 @@ int my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigin
     GO(R9);
     GO(RBP);
     #undef GO
+    uint64_t old_eflags = emu->eflags.x64;
+    emu->eflags.x64 = 0x202; // default flags for inside the signal handler
     // set stack pointer
     R_RSP = frame;
     // set frame pointer
@@ -545,7 +546,7 @@ int my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigin
     int ret;
     int dynarec = 0;
     #ifdef DYNAREC
-    if(!(sig==X64_SIGSEGV || (Locks&is_dyndump_locked) || (Locks&is_memprot_locked)))
+    if(!(/*sig==X64_SIGSEGV ||*/ (Locks&is_dyndump_locked) || (Locks&is_memprot_locked)))
         dynarec = BOX64ENV(dynarec_interp_signal)?0:1;
     #endif
     ret = RunFunctionHandler(emu, &exits, dynarec, sigcontext, my_context->signals[info2->si_signo], 3, info2->si_signo, info2, sigcontext);
@@ -562,6 +563,7 @@ int my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigin
     GO(R9);
     GO(RBP);
     #undef GO
+    emu->eflags.x64 = old_eflags;
 
     if(memcmp(sigcontext, &sigcontext_copy, sizeof(x64_ucontext_t))) {
         #if defined(DYNAREC)
