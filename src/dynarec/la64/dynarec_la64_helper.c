@@ -463,43 +463,52 @@ void iret_to_next(dynarec_la64_t* dyn, uintptr_t ip, int ninst, int is32bits, in
     MAYUSE(ninst);
     MAYUSE(j64);
     MESSAGE(LOG_DUMP, "IRet to next\n");
+    SMEND();
+    SET_DFNONE();
+    // POP IP
+    NOTEST(x2);
     if (is64bits) {
-        POP1(xRIP);
+        POP1(x1);
         POP1(x2);
-        POP1(xFlags);
+        POP1(x3);
     } else {
-        POP1_32(xRIP);
+        POP1_32(x1);
         POP1_32(x2);
-        POP1_32(xFlags);
+        POP1_32(x3);
     }
-
-    ST_H(x2, xEmu, offsetof(x64emu_t, segs[_CS]));
+    // segfault if CS is NULL
+    BEQZ_MARK3(x2);
     // clean EFLAGS
-    RESTORE_EFLAGS(x1);
-    MOV32w(x1, 0x3E7FD7); // also mask RF
-    AND(xFlags, xFlags, x1);
-    ORI(xFlags, xFlags, 0x2);
-    SPILL_EFLAGS();
-    CHECK_DFNONE(0);
+    MOV32w(x4, 0x3E7FD7); // also mask RF
+    AND(x3, x3, x4);
+    ORI(x3, x3, 0x2);
+    FORCE_DFNONE();
     if (is32bits) {
-        ANDI(x1, x2, 0xff);
+        ANDI(x4, x2, 0xff);
         // check if return segment is 64bits, then restore rsp too
-        MOV32w(x3, 0x23);
-        BEQ_MARKSEG(x1, x3);
+        MOV32w(x5, 0x23);
+        BEQ_MARKSEG(x4, x5);
     }
     // POP RSP
     if (is64bits) {
-        POP1(x3); // rsp
-        POP1(x2); // ss
+        POP1(x4); // rsp
+        POP1(x5); // ss
     } else {
-        POP1_32(x3); // rsp
-        POP1_32(x2); // ss
+        POP1_32(x4); // rsp
+        POP1_32(x5); // ss
     }
+    // check if SS is NULL
+    BEQZ_MARK(x5);
     // POP SS
-    ST_H(x2, xEmu, offsetof(x64emu_t, segs[_SS]));
+    ST_H(x5, xEmu, offsetof(x64emu_t, segs[_SS]));
     // set new RSP
-    MV(xRSP, x3);
+    MV(xRSP, x4);
     MARKSEG;
+    // x2 is CS, x1 is IP, x3 is eFlags
+    ST_H(x2, xEmu, offsetof(x64emu_t, segs[_CS]));
+    MV(xRIP, x1);
+    MV(xFlags, x3);
+    SPILL_EFLAGS();
     // Ret....
     rex_t dummy = { 0 };
     dummy.is32bits = is32bits;
@@ -508,6 +517,17 @@ void iret_to_next(dynarec_la64_t* dyn, uintptr_t ip, int ninst, int is32bits, in
     BNEZ_MARK2(x1);
     ret_to_next(dyn, ip, ninst, dummy);
     CLEARIP();
+    MARK;
+    if (is64bits)
+        ADDI_D(xRSP, xRSP, 8 * 2);
+    else
+        ADDI_D(xRSP, xRSP, 4 * 2);
+    MARK3;
+    if (is64bits)
+        ADDI_D(xRSP, xRSP, 8 * 3);
+    else
+        ADDI_D(xRSP, xRSP, 4 * 3);
+    CALL_S(const_native_priv, -1, 0);
     MARK2;
     LD_WU(x4, xEmu, offsetof(x64emu_t, flags));
     ORI(x4, x4, 1 << FLAGS_NO_TF);
