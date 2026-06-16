@@ -516,7 +516,7 @@
   },
   {
     "name": "BOX64_DYNAREC_FORWARD",
-    "description": "Define max allowed forward value when building block.",
+    "description": "Define max allowed forward value when building block. Only 0, 128, 256, 512 and 1024 are valid; other values fall back to 128.",
     "category": "Performance",
     "wine": true,
     "configurator": true,
@@ -532,8 +532,18 @@
         "default": true
       },
       {
-        "key": "XXXX",
-        "description": "Allow up to XXXX bytes of gap between end of the block and the next forward jump.",
+        "key": "256",
+        "description": "Allow up to 256 bytes of gap between end of the block and the next forward jump.",
+        "default": false
+      },
+      {
+        "key": "512",
+        "description": "Allow up to 512 bytes of gap between end of the block and the next forward jump.",
+        "default": false
+      },
+      {
+        "key": "1024",
+        "description": "Allow up to 1024 bytes of gap between end of the block and the next forward jump.",
         "default": false
       }
     ]

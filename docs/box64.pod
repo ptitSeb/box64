@@ -260,13 +260,15 @@ Enable or disable fast rounding. Available in WowBox64.
  * 2 : Generate float/double -> int rounding using current rounding mode for float/double computation like on x86, but use fast int -> float/double conversion. 
 
 
-=item B<BOX64_DYNAREC_FORWARD> =I<0|128|XXXX>
+=item B<BOX64_DYNAREC_FORWARD> =I<0|128|256|512|1024>
 
-Define max allowed forward value when building block. Available in WowBox64.
+Define max allowed forward value when building block. Only 0, 128, 256, 512 and 1024 are valid; other values fall back to 128. Available in WowBox64.
 
  * 0 : No forward value. When current block ends, do not try to go further even if there are previous forward jumps. 
  * 128 : Allow up to 128 bytes of gap between end of the block and the next forward jump. [Default]
- * XXXX : Allow up to XXXX bytes of gap between end of the block and the next forward jump. 
+ * 256 : Allow up to 256 bytes of gap between end of the block and the next forward jump. 
+ * 512 : Allow up to 512 bytes of gap between end of the block and the next forward jump. 
+ * 1024 : Allow up to 1024 bytes of gap between end of the block and the next forward jump. 
 
 
 =item B<BOX64_DYNAREC_GDBJIT> =I<0|1|2|3|0xXXXXXXX-0xYYYYYYY>
