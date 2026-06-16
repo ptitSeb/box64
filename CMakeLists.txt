@@ -1079,8 +1079,6 @@ if(DYNAREC)
         "${BOX64_ROOT}/src/dynarec/dynarec_native_functions.c"
         "${BOX64_ROOT}/src/dynarec/dynacache_reloc.c"
         "${BOX64_ROOT}/src/dynarec/dynacache_compress.c"
-        "${BOX64_ROOT}/src/dynarec/hybrid_jit.c"
-        "${BOX64_ROOT}/src/dynarec/intelligent_cache.c"
         "${BOX64_ROOT}/src/emu/x64test.c"
     )
 endif()
@@ -1096,6 +1094,8 @@ if(ARM_DYNAREC)
         "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_jmpnext.c"
         "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_consts.c"
         "${BOX64_ROOT}/src/dynarec/arm64/updateflags_arm64.c"
+        "${BOX64_ROOT}/src/dynarec/hybrid_jit.c"
+        "${BOX64_ROOT}/src/dynarec/intelligent_cache.c"
     )
 
     # Advanced ARM64 feature definitions for dynarec
