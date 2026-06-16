@@ -203,7 +203,7 @@ char* GetMmaplistName(mapping_t* mapping)
 const char* NicePrintSize(size_t sz)
 {
     static char buf[256];
-    const char* units[] = {"", "kb", "Mb", "Gb"};
+    const char* units[] = {"", "KiB", "MiB", "GiB"};
     int idx = 0;
     size_t ratio = 0;
     while(idx<sizeof(units)/sizeof(units[0]) && (1<<(ratio+10))<sz) {
@@ -619,7 +619,7 @@ int ReadDynaCache(const char* folder, const char* name, mapping_t* mapping, int 
     strcpy(filename, folder);
     strcat(filename, name);
     if (!FileExist(filename, IS_FILE)) return DCERR_NEXIST;
-    if (verbose) printf_log(LOG_NONE, "File %s:\t", name);
+    if (verbose) printf_log(LOG_NONE, "File %s:\n\t", name);
     FILE *f = fopen(filename, "rb");
     if(!f) {
         if (verbose) printf_log_prefix(0, LOG_NONE, "Cannot open file\n");
@@ -821,6 +821,7 @@ int ReadDynaCache(const char* folder, const char* name, mapping_t* mapping, int 
             // check if name is coherent
             // file is valid, gives informations:
             printf_log_prefix(0, LOG_NONE, "%s (%s)\n", map_filename, NicePrintSize(filesize));
+            printf_log_prefix(0, LOG_NONE, "\tDynarec Settings:\n");
             PrintDynSettings(LOG_NONE, file_header->dynarec_settings);
             size_t total_blocks = 0, total_free = 0, total_compressed = 0, total_uncompressed = 0;
             size_t total_code = file_header->codesize;
@@ -832,15 +833,22 @@ int ReadDynaCache(const char* folder, const char* name, mapping_t* mapping, int 
                 else
                     total_uncompressed += blocks[i].block.size;
             }
-            printf_log_prefix(0, LOG_NONE, "\tHas %d blocks for a total of %s", file_header->nblocks, NicePrintSize(total_blocks));
-            printf_log_prefix(0, LOG_NONE, " with %s still free", NicePrintSize(total_free));
-            printf_log_prefix(0, LOG_NONE, " and %s non-canceled blocks (mapped at %p-%p, with %zu lock and %zu unaligned addresses)", NicePrintSize(total_code), (void*)file_header->map_addr, (void*)file_header->map_addr+file_header->map_len, file_header->nLockAddresses, file_header->nUnalignedAddresses);
-            if(total_compressed) {
-                printf_log_prefix(0, LOG_NONE, " with %s compressed blocks", NicePrintSize(total_compressed));
-                if(total_uncompressed)
-                    printf_log_prefix(0, LOG_NONE, " and %s uncompressed block", NicePrintSize(total_uncompressed));
+            char buf[1024];
+            int n = 0;
+            n += snprintf(buf+n, sizeof(buf)-n, "\tHas %d blocks for a total of %s", file_header->nblocks, NicePrintSize(total_blocks));
+            n += snprintf(buf+n, sizeof(buf)-n, ", with %s still free", NicePrintSize(total_free));
+            n += snprintf(buf+n, sizeof(buf)-n, " and %s non-canceled blocks\n", NicePrintSize(total_code));
+            n += snprintf(buf+n, sizeof(buf)-n, "\tMapped at %p-%p, with %zu lock and %zu unaligned addresses",
+                (void*)file_header->map_addr, (void*)file_header->map_addr+file_header->map_len,
+                file_header->nLockAddresses, file_header->nUnalignedAddresses);
+            if(total_compressed && n>0 && n<(int)sizeof(buf)) {
+                n += snprintf(buf+n, sizeof(buf)-n, "\n\tCompression: %s compressed", NicePrintSize(total_compressed));
+                if(total_uncompressed && n>0 && n<(int)sizeof(buf))
+                    n += snprintf(buf+n, sizeof(buf)-n, ", %s uncompressed", NicePrintSize(total_uncompressed));
             }
-            printf_log_prefix(0, LOG_NONE, "\n");
+            if(n>0 && n<(int)sizeof(buf))
+                snprintf(buf+n, sizeof(buf)-n, "\n");
+            printf_log_prefix(0, LOG_NONE, "%s", buf);
         }
     } else {
         // actually reading!
