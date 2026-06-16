@@ -550,21 +550,22 @@ void Box64ThreadManager_Rebalance(void) {
 
 void Box64ThreadManager_GetStats(uint32_t* pinned_count, uint32_t* migrated_count) {
     if (!g_thread_manager.initialized) Box64ThreadManager_Init();
-    
+
     pthread_mutex_lock(&g_thread_manager.mutex);
-    
-    *pinned_count = 0;
-    *migrated_count = 0;
-    
+
+    uint32_t pinned = 0;
+
     thread_info_t* t = g_thread_manager.threads;
     while (t) {
-        if (t->pinned) (*pinned_count)++;
+        if (t->pinned) pinned++;
         t = t->next;
     }
-    
-    *migrated_count = g_thread_manager.throttle_count;
-    
+
+    if (pinned_count) *pinned_count = pinned;
+    if (migrated_count) *migrated_count = g_thread_manager.throttle_count;
+
     pthread_mutex_unlock(&g_thread_manager.mutex);
+}
 }
 
 void Box64ThreadManager_Destroy(void) {

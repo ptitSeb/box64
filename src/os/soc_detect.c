@@ -9,6 +9,7 @@
 #include <sys/sysinfo.h>
 #include <sys/utsname.h>
 #include <dirent.h>
+#include <inttypes.h>
 
 #include "soc.h"
 #include "debug.h"
@@ -30,8 +31,10 @@ static bool g_initialized = false;
 static char* trim(char* str) {
     if (!str) return str;
     while (*str == ' ' || *str == '\t' || *str == '\n' || *str == '\r') str++;
-    char* end = str + strlen(str) - 1;
-    while (end > str && (*end == ' ' || *end == '\t' || *end == '\n' || *end == '\r')) *end-- = '\0';
+    size_t len = strlen(str);
+    if (len == 0) return str;
+    char* end = str + len - 1;
+    while (end >= str && (*end == ' ' || *end == '\t' || *end == '\n' || *end == '\r')) *end-- = '\0';
     return str;
 }
 
@@ -63,7 +66,7 @@ static bool read_file_int(const char* path, int* value) {
 static bool read_file_uint64(const char* path, uint64_t* value) {
     FILE* f = fopen(path, "r");
     if (!f) return false;
-    if (fscanf(f, "%lu", value) == 1) {
+    if (fscanf(f, "%" SCNu64, value) == 1) {
         fclose(f);
         return true;
     }
@@ -320,7 +323,7 @@ static void detect_soc_vendor(void) {
                         g_soc_info.mali_gpu_class = atoi(g + 1);
                     } else {
                         g = strstr(buffer, "G6");
-                        if (g) g_soc_info.mali_gpu_class = 600 + atoi(g + 1);
+                        if (g) g_soc_info.mali_gpu_class = 600 + atoi(g + 2);
                     }
                 }
             }
@@ -701,7 +704,8 @@ int Box64SOC_SetThreadAffinity(uint32_t cpu_mask) {
 }
 
 int Box64SOC_SetThreadAffinitySingle(uint32_t core_id) {
-    return Box64SOC_SetThreadAffinity(1U << core_id);
+    if (core_id >= 32) return -1;  // Bounds check for 32-bit shift
+    return Box64SOC_SetThreadAffinity(1ULL << core_id);
 }
 
 int Box64SOC_GetCurrentCore(void) {

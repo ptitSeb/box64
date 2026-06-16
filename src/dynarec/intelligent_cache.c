@@ -334,7 +334,7 @@ void Box64IntCache_PinBlock(uintptr_t x86_addr) {
     pthread_mutex_lock(&g_intcache_mutex);
     
     cache_block_meta_t* block = find_block(x86_addr);
-    if (block) {
+    if (block && !block->pinned) {
         block->pinned = true;
         g_intelligent_cache.stats.pinned_blocks++;
     }
@@ -348,10 +348,9 @@ void Box64IntCache_UnpinBlock(uintptr_t x86_addr) {
     pthread_mutex_lock(&g_intcache_mutex);
     
     cache_block_meta_t* block = find_block(x86_addr);
-    if (block) {
+    if (block && block->pinned) {
         block->pinned = false;
-        if (g_intelligent_cache.stats.pinned_blocks > 0)
-            g_intelligent_cache.stats.pinned_blocks--;
+        g_intelligent_cache.stats.pinned_blocks--;
     }
     
     pthread_mutex_unlock(&g_intcache_mutex);
