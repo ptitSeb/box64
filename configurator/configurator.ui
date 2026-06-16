@@ -7,23 +7,6 @@
     <property name="can-focus">False</property>
     <property name="show-close-button">True</property>
     <child>
-      <object class="GtkButton" id="new_button">
-        <property name="visible">True</property>
-        <property name="can-focus">False</property>
-        <property name="receives-default">False</property>
-      </object>
-    </child>
-    <child>
-      <object class="GtkButton" id="delete_button">
-        <property name="visible">True</property>
-        <property name="can-focus">False</property>
-        <property name="receives-default">False</property>
-      </object>
-      <packing>
-        <property name="position">1</property>
-      </packing>
-    </child>
-    <child>
       <object class="GtkButton" id="reload_button">
         <property name="visible">True</property>
         <property name="can-focus">False</property>
@@ -71,9 +54,10 @@
             <property name="can-focus">False</property>
             <property name="orientation">vertical</property>
             <child>
-              <object class="GtkSearchEntry" id="search_entry">
+              <object class="GtkButton" id="new_button">
                 <property name="visible">True</property>
-                <property name="can-focus">True</property>
+                <property name="can-focus">False</property>
+                <property name="receives-default">False</property>
                 <property name="margin-start">14</property>
                 <property name="margin-end">14</property>
                 <property name="margin-top">10</property>
@@ -81,8 +65,22 @@
               </object>
               <packing>
                 <property name="expand">False</property>
-                <property name="fill">False</property>
+                <property name="fill">True</property>
                 <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkSearchEntry" id="search_entry">
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="margin-start">14</property>
+                <property name="margin-end">14</property>
+                <property name="margin-bottom">6</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">1</property>
               </packing>
             </child>
             <child>
@@ -93,7 +91,7 @@
                 <property name="margin-end">14</property>
                 <property name="margin-bottom">8</property>
                 <child>
-                  <object class="GtkToggleButton" id="all_button">
+                  <object class="GtkToggleButton" id="user_button">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="receives-default">False</property>
@@ -106,7 +104,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkToggleButton" id="user_button">
+                  <object class="GtkToggleButton" id="all_button">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="receives-default">False</property>
@@ -124,7 +122,7 @@
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">False</property>
-                <property name="position">1</property>
+                <property name="position">2</property>
               </packing>
             </child>
             <child>
@@ -136,7 +134,7 @@
               <packing>
                 <property name="expand">True</property>
                 <property name="fill">True</property>
-                <property name="position">2</property>
+                <property name="position">3</property>
               </packing>
             </child>
             <style>

@@ -5,6 +5,7 @@ import argparse
 import json
 import locale
 import platform
+import struct
 import sys
 from pathlib import Path
 from typing import Dict, List, Optional, Sequence, Tuple
@@ -15,7 +16,8 @@ if __package__ in (None, ""):
 import gi
 
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gio, GLib, Gtk, Pango
+gi.require_version("Gdk", "3.0")
+from gi.repository import Gio, Gdk, GLib, Gtk, Pango
 
 try:
     from .model import ConfigStore, EntryRecord, ValueState, box64_arch_from_machine
@@ -112,6 +114,12 @@ headerbar:backdrop image {
 .option-row.selected-option:hover {
     background: alpha(@theme_selected_bg_color, 0.24);
 }
+.option-row.read-only-option:hover {
+    background: transparent;
+}
+.option-row.read-only-option.default-row:hover {
+    background: alpha(@theme_fg_color, 0.035);
+}
 .default-row {
     color: alpha(@theme_fg_color, 0.62);
     background: alpha(@theme_fg_color, 0.035);
@@ -189,14 +197,66 @@ def default_user_rc() -> Path:
     return Path.home() / ".box64rc"
 
 
+def detect_supported_executable(path: Path) -> Optional[str]:
+    with path.open("rb") as file:
+        header = file.read(64)
+
+        if len(header) >= 20 and header.startswith(b"\x7fELF"):
+            elf_class = header[4]
+            elf_data = header[5]
+            if elf_data == 1:
+                machine = struct.unpack_from("<H", header, 18)[0]
+            elif elf_data == 2:
+                machine = struct.unpack_from(">H", header, 18)[0]
+            else:
+                return None
+
+            if elf_class == 1 and machine == 3:
+                return "x86 ELF"
+            if elf_class == 2 and machine == 62:
+                return "x86_64 ELF"
+            return None
+
+        if len(header) >= 64 and header.startswith(b"MZ"):
+            pe_offset = struct.unpack_from("<I", header, 0x3C)[0]
+            if pe_offset > 1024 * 1024:
+                return None
+            file.seek(pe_offset)
+            pe_header = file.read(6)
+            if len(pe_header) < 6 or not pe_header.startswith(b"PE\0\0"):
+                return None
+
+            machine = struct.unpack_from("<H", pe_header, 4)[0]
+            if machine == 0x014C:
+                return "x86 PE"
+            if machine == 0x8664:
+                return "x86_64 PE"
+
+    return None
+
+
+def dropped_executable_entry(path: Path) -> str:
+    resolved = path.expanduser().resolve(strict=True)
+    if not resolved.is_file():
+        raise ValueError(f"Not a file: {path}")
+    if detect_supported_executable(resolved) is None:
+        raise ValueError(f"Unsupported file: {path}")
+    return resolved.name
+
+
 class EntryRow(Gtk.ListBoxRow):
     def __init__(self, entry: EntryRecord, language: str) -> None:
         super().__init__()
         self.entry = entry
         self.language = language
+        self.add_events(Gdk.EventMask.BUTTON_PRESS_MASK)
 
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=3)
         box.set_border_width(8)
+        self.event_box = Gtk.EventBox()
+        self.event_box.set_visible_window(False)
+        self.event_box.set_above_child(True)
+        self.event_box.add_events(Gdk.EventMask.BUTTON_PRESS_MASK)
 
         self.title = make_label(css_class="entry-title", ellipsize=True)
         box.pack_start(self.title, False, False, 0)
@@ -204,7 +264,8 @@ class EntryRow(Gtk.ListBoxRow):
         self.subtitle = make_label(css_class="entry-subtitle", ellipsize=True)
         box.pack_start(self.subtitle, False, False, 0)
 
-        self.add(box)
+        self.event_box.add(box)
+        self.add(self.event_box)
         self.update(entry, language)
 
     def update(self, entry: EntryRecord, language: str) -> None:
@@ -284,6 +345,11 @@ class OptionRow(Gtk.EventBox):
         self.state = state
 
         set_style(self, "default-row", default_row)
+        editable = entry.user_section is not None
+        selected = selected and editable
+        set_style(self, "read-only-option", not editable)
+        self.set_can_focus(editable)
+        self.chevron.set_visible(editable)
 
         source_label = tr(language, f"source_{state.source}")
         if state.source == "default" and not state.value:
@@ -295,7 +361,7 @@ class OptionRow(Gtk.EventBox):
         if language != self.language:
             self.language = language
             self.description.set_text(self.option.description(language))
-            self.set_tooltip_text(tr(language, "edit"))
+        self.set_tooltip_text(tr(language, "edit") if editable else None)
 
         self.set_selected(selected)
 
@@ -307,19 +373,23 @@ class OptionRow(Gtk.EventBox):
         )
 
     def _activate(self) -> None:
-        if self.entry is None or self.state is None:
+        if self.entry is None or self.state is None or self.entry.user_section is None:
             return
         self.owner.toggle_option(self.entry, self.state.option.name)
 
     def _on_button_press(self, _widget: Gtk.Widget, event) -> bool:
-        if event.button != 1:
+        if event.button != 1 or self.entry is None or self.entry.user_section is None:
             return False
         self.grab_focus()
         self._activate()
         return True
 
     def _on_key_press(self, _widget: Gtk.Widget, event) -> bool:
-        if event.keyval not in (self.KEY_RETURN, self.KEY_KP_ENTER, self.KEY_SPACE):
+        if (
+            event.keyval not in (self.KEY_RETURN, self.KEY_KP_ENTER, self.KEY_SPACE)
+            or self.entry is None
+            or self.entry.user_section is None
+        ):
             return False
         self._activate()
         return True
@@ -335,7 +405,7 @@ class ConfiguratorWindow(Gtk.ApplicationWindow):
         self.rows_by_key: Dict[object, EntryRow] = {}
         self.status_context = 0
         self._filter_text = ""
-        self._entry_filter_mode = "all"
+        self._entry_filter_mode = "user"
         self._building = False
         self._pending_refresh_key = None
         self._pending_status = ""
@@ -344,10 +414,12 @@ class ConfiguratorWindow(Gtk.ApplicationWindow):
         self.option_rows: Dict[str, OptionRow] = {}
         self.selected_option_name: Optional[str] = None
         self.selected_option_editor: Optional[Gtk.Widget] = None
+        self.entry_menu: Optional[Gtk.Menu] = None
 
         self.set_default_size(1120, 740)
         self.set_title(tr(self.language, "title"))
         self.connect("delete-event", self._on_delete_event)
+        self.connect("key-press-event", self._on_key_press)
 
         self._install_css()
         self._build_ui()
@@ -373,14 +445,13 @@ class ConfiguratorWindow(Gtk.ApplicationWindow):
         self.add(root)
 
         self.new_button = builder.get_object("new_button")
-        self.delete_button = builder.get_object("delete_button")
         self.reload_button = builder.get_object("reload_button")
         self.save_button = builder.get_object("save_button")
         self.language_combo = builder.get_object("language_combo")
         self.search = builder.get_object("search_entry")
         self.mode_box = builder.get_object("mode_box")
-        self.all_button = builder.get_object("all_button")
         self.user_button = builder.get_object("user_button")
+        self.all_button = builder.get_object("all_button")
         self.status = builder.get_object("statusbar")
 
         list_scroll = builder.get_object("list_scroll")
@@ -408,7 +479,8 @@ class ConfiguratorWindow(Gtk.ApplicationWindow):
         detail_scroll.add(self.detail_box)
 
         self._configure_header_button(self.new_button, "document-new-symbolic", "new", self._on_new_entry)
-        self._configure_header_button(self.delete_button, "user-trash-symbolic", "delete", self._on_delete_entry)
+        self.new_button.set_label(tr(self.language, "new"))
+        self.new_button.set_always_show_image(True)
         self._configure_header_button(self.reload_button, "view-refresh-symbolic", "reload", self._on_reload)
         self._configure_header_button(self.save_button, "document-save-symbolic", "save", self._on_save)
         save_action = Gio.SimpleAction.new("save", None)
@@ -425,20 +497,23 @@ class ConfiguratorWindow(Gtk.ApplicationWindow):
         self.search.set_placeholder_text(tr(self.language, "search"))
         self.search.connect("search-changed", self._on_search_changed)
 
-        self.all_button.set_can_focus(True)
         self.user_button.set_can_focus(True)
-        self.all_button.set_label(tr(self.language, "filter_all"))
+        self.all_button.set_can_focus(True)
         self.user_button.set_label(tr(self.language, "filter_user"))
-        self.all_button.connect("toggled", self._on_mode_toggled, "all")
+        self.all_button.set_label(tr(self.language, "filter_all"))
         self.user_button.connect("toggled", self._on_mode_toggled, "user")
+        self.all_button.connect("toggled", self._on_mode_toggled, "all")
 
         self.entry_list.set_can_focus(True)
+        self.entry_list.add_events(Gdk.EventMask.BUTTON_PRESS_MASK)
         self.entry_list.set_filter_func(self._filter_entry_row)
         self.entry_list.connect("row-selected", self._on_entry_selected)
+        self.entry_list.connect("button-press-event", self._on_entry_list_button_press)
 
         self.language_combo.set_can_focus(True)
 
         self.status_context = self.status.get_context_id("main")
+        self._enable_file_drop(self, root, self.entry_list, self.detail_box, list_scroll, detail_scroll)
 
     def _configure_header_button(
         self, button: Gtk.Button, icon: str, tooltip_key: str, callback
@@ -447,13 +522,93 @@ class ConfiguratorWindow(Gtk.ApplicationWindow):
         button.set_tooltip_text(tr(self.language, tooltip_key))
         button.connect("clicked", callback)
 
+    def _enable_file_drop(self, *widgets: Gtk.Widget) -> None:
+        for widget in widgets:
+            widget.drag_dest_set(Gtk.DestDefaults.ALL, [], Gdk.DragAction.COPY)
+            widget.drag_dest_add_uri_targets()
+            widget.connect("drag-data-received", self._on_drag_data_received)
+
+    def _on_drag_data_received(
+        self,
+        _widget: Gtk.Widget,
+        context: Gdk.DragContext,
+        _x: int,
+        _y: int,
+        selection: Gtk.SelectionData,
+        _info: int,
+        time_: int,
+    ) -> None:
+        keys = []
+        errors = []
+        for uri in selection.get_uris() or ():
+            path_text = Gio.File.new_for_uri(uri).get_path()
+            if path_text is None:
+                errors.append(f"Unsupported drop URI: {uri}")
+                continue
+
+            try:
+                keys.append(self.store.create_entry(dropped_executable_entry(Path(path_text))))
+            except Exception as error:
+                errors.append(str(error))
+
+        Gtk.drag_finish(context, bool(keys), False, time_)
+        if keys:
+            self.current_key = keys[-1]
+            self.selected_option_name = None
+            self._refresh_view(self.current_key)
+            if self.store.dirty:
+                self._push_status(tr(self.language, "dirty"))
+        elif errors:
+            self._show_error(ValueError("\n".join(errors)))
+
+    def _on_entry_list_button_press(self, _listbox: Gtk.ListBox, event) -> bool:
+        if event.button != 3:
+            return False
+
+        row = self.entry_list.get_row_at_y(int(event.y))
+        if not isinstance(row, EntryRow):
+            return False
+
+        return self._show_entry_menu_for_row(row, event)
+
+    def _on_entry_button_press(self, row: EntryRow, event) -> bool:
+        if event.button != 3:
+            return False
+
+        return self._show_entry_menu_for_row(row, event)
+
+    def _show_entry_menu_for_row(self, row: EntryRow, event) -> bool:
+        self._show_entry_menu(row.entry, event)
+        return True
+
+    def _show_entry_menu(self, entry: EntryRecord, event) -> None:
+        menu = Gtk.Menu()
+        if entry.user_section is not None:
+            item = Gtk.MenuItem(label=tr(self.language, "delete_action"))
+            item.connect("activate", lambda _item: self._delete_entry(entry))
+        elif entry.system_section is not None:
+            item = Gtk.MenuItem(label=tr(self.language, "fork_action"))
+            item.connect("activate", lambda _item: self._fork_entry(entry))
+        else:
+            return
+
+        menu.append(item)
+        menu.show_all()
+        self.entry_menu = menu
+        menu.attach_to_widget(self, None)
+        if hasattr(menu, "popup_at_pointer"):
+            menu.popup_at_pointer(event)
+        else:
+            menu.popup(None, None, None, None, event.button, event.time)
+
     def _filter_entry_row(self, row: EntryRow) -> bool:
         if self._entry_filter_mode == "user" and row.entry.user_section is None:
             return False
         text = self._filter_text
         if not text:
             return True
-        haystack = f"{row.entry.display_name} {row.entry.key.arch}".lower()
+        title = "[*]" if row.entry.key.kind == "shared" else row.entry.display_name
+        haystack = f"{title} {row.entry.display_name} {row.entry.key.arch}".lower()
         return text in haystack
 
     def _refresh_entries(self, select_key=None) -> None:
@@ -465,21 +620,23 @@ class ConfiguratorWindow(Gtk.ApplicationWindow):
         self.rows_by_key.clear()
         for entry in self.store.entries():
             row = EntryRow(entry, self.language)
+            row.connect("button-press-event", self._on_entry_button_press)
+            row.event_box.connect(
+                "button-press-event",
+                lambda _widget, event, row=row: self._on_entry_button_press(row, event),
+            )
             self.rows_by_key[entry.key] = row
             self.entry_list.add(row)
 
         self.entry_list.show_all()
         self.entry_list.invalidate_filter()
 
-        if selected_key in self.rows_by_key:
-            self.entry_list.select_row(self.rows_by_key[selected_key])
+        selected_row = self.rows_by_key.get(selected_key)
+        if selected_row is not None:
+            self.entry_list.select_row(selected_row)
             self.current_key = selected_key
-        elif self.rows_by_key:
-            first_row = next(iter(self.rows_by_key.values()))
-            self.entry_list.select_row(first_row)
-            self.current_key = first_row.entry.key
         else:
-            self.current_key = None
+            self._clear_entry_selection()
 
         self._building = False
         self._update_actions()
@@ -639,7 +796,7 @@ class ConfiguratorWindow(Gtk.ApplicationWindow):
             return
 
         for state in states:
-            selected = state.option.name == self.selected_option_name
+            selected = entry.user_section is not None and state.option.name == self.selected_option_name
             row = self._option_row_for(
                 entry,
                 state,
@@ -688,6 +845,8 @@ class ConfiguratorWindow(Gtk.ApplicationWindow):
             )
 
     def toggle_option(self, entry: EntryRecord, option_name: str) -> None:
+        if entry.user_section is None:
+            return
         if entry.key != self.current_key:
             self.current_key = entry.key
             self.selected_option_name = option_name
@@ -750,6 +909,8 @@ class ConfiguratorWindow(Gtk.ApplicationWindow):
         panel.show_all()
 
     def change_option(self, entry: EntryRecord, option_name: str, value: str) -> None:
+        if entry.user_section is None:
+            return
         self.selected_option_name = option_name
         try:
             new_key, forked = self.store.set_option(entry, option_name, value)
@@ -817,24 +978,17 @@ class ConfiguratorWindow(Gtk.ApplicationWindow):
         if not button.get_active():
             return
         self._entry_filter_mode = mode
-        if mode == "all":
-            self.user_button.set_active(False)
-        else:
+        if mode == "user":
             self.all_button.set_active(False)
+        else:
+            self.user_button.set_active(False)
         self.entry_list.invalidate_filter()
-        self._select_first_visible_entry()
         self._refresh_details()
 
-    def _select_first_visible_entry(self) -> None:
-        if self.current_key is not None:
-            row = self.rows_by_key.get(self.current_key)
-            if row is not None and self._filter_entry_row(row):
-                return
-        for row in self.entry_list.get_children():
-            if self._filter_entry_row(row):
-                self.entry_list.select_row(row)
-                return
+    def _clear_entry_selection(self) -> None:
+        self.entry_list.unselect_all()
         self.current_key = None
+        self.selected_option_name = None
 
     def _on_entry_selected(self, _listbox: Gtk.ListBox, row: Optional[EntryRow]) -> None:
         if self._building or row is None:
@@ -846,6 +1000,14 @@ class ConfiguratorWindow(Gtk.ApplicationWindow):
             self._clear_status()
         self._refresh_details()
 
+    def _on_key_press(self, _widget: Gtk.Widget, event) -> bool:
+        if event.keyval != Gdk.KEY_Escape:
+            return False
+        self._clear_entry_selection()
+        self._clear_status()
+        self._refresh_details()
+        return True
+
     def _on_language_changed(self, combo: Gtk.ComboBoxText) -> None:
         active = combo.get_active_id()
         if active not in ("en", "zh"):
@@ -854,10 +1016,10 @@ class ConfiguratorWindow(Gtk.ApplicationWindow):
         self.header.props.title = tr(self.language, "title")
         self.set_title(tr(self.language, "title"))
         self.search.set_placeholder_text(tr(self.language, "search"))
-        self.all_button.set_label(tr(self.language, "filter_all"))
         self.user_button.set_label(tr(self.language, "filter_user"))
+        self.all_button.set_label(tr(self.language, "filter_all"))
+        self.new_button.set_label(tr(self.language, "new"))
         self.new_button.set_tooltip_text(tr(self.language, "new"))
-        self.delete_button.set_tooltip_text(tr(self.language, "delete"))
         self.reload_button.set_tooltip_text(tr(self.language, "reload"))
         self.save_button.set_tooltip_text(tr(self.language, "save"))
         self._refresh_view()
@@ -880,6 +1042,12 @@ class ConfiguratorWindow(Gtk.ApplicationWindow):
         entry = Gtk.Entry()
         entry.set_activates_default(True)
         content.pack_start(entry, False, False, 0)
+        content.pack_start(
+            make_label(tr(self.language, "new_drop_hint"), "choice-doc", wrap=True), False, False, 0
+        )
+        content.pack_start(
+            make_label(tr(self.language, "new_global_hint"), "choice-doc", wrap=True), False, False, 0
+        )
         dialog.show_all()
 
         response = dialog.run()
@@ -887,22 +1055,34 @@ class ConfiguratorWindow(Gtk.ApplicationWindow):
         dialog.destroy()
         if response != Gtk.ResponseType.OK or not name:
             return
-        if "\n" in name or "]" in name:
-            self._show_error(ValueError("Invalid section name"))
+
+        try:
+            new_key = self.store.create_entry(name)
+        except Exception as error:
+            self._show_error(error)
             return
 
-        new_key = self.store.create_entry(name)
         self.current_key = new_key
         self._refresh_view(new_key)
-        self._push_status(tr(self.language, "dirty"))
+        if self.store.dirty:
+            self._push_status(tr(self.language, "dirty"))
 
-    def _on_delete_entry(self, _button: Gtk.Button) -> None:
-        if self.current_key is None:
-            return
-        entry = self.store.entry_for_key(self.current_key)
-        if entry is None or entry.user_section is None:
+    def _fork_entry(self, entry: EntryRecord) -> None:
+        try:
+            new_key, forked = self.store.fork_entry(entry)
+        except Exception as error:
+            self._show_error(error)
             return
 
+        self.current_key = new_key
+        self.selected_option_name = None
+        self._refresh_view(new_key)
+        if forked:
+            self._push_status(tr(self.language, "forked"))
+
+    def _delete_entry(self, entry: EntryRecord) -> None:
+        if entry.user_section is None:
+            return
         if self._message(
             Gtk.MessageType.WARNING,
             tr(self.language, "delete_title"),
@@ -913,7 +1093,9 @@ class ConfiguratorWindow(Gtk.ApplicationWindow):
             return
 
         self.store.delete_user_entry(entry.key)
-        self.current_key = entry.key if entry.system_section else None
+        if self.current_key == entry.key:
+            self.current_key = entry.key if entry.system_section else None
+            self.selected_option_name = None
         self._refresh_view(self.current_key)
         self._push_status(tr(self.language, "dirty"))
 
@@ -966,8 +1148,6 @@ class ConfiguratorWindow(Gtk.ApplicationWindow):
 
     def _update_actions(self) -> None:
         self.save_button.set_sensitive(self.store.dirty)
-        entry = self.store.entry_for_key(self.current_key) if self.current_key is not None else None
-        self.delete_button.set_sensitive(bool(entry and entry.user_section is not None))
 
     def _push_status(self, text: str) -> None:
         self.status.pop(self.status_context)
