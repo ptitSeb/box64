@@ -23,6 +23,19 @@ option(SD888 "Set to ON if targeting a Snapdragon 888 based device" ${SD888})
 option(SD8G2 "Set to ON if targeting a Snapdragon 8 Gen 2 based device" ${SD8G2})
 option(SD8EG5 "Set to ON if targeting a Snapdragon 8 Elite Gen 5 (SM8850) based device" ${SD8EG5})
 option(SDORYON1 "Set to ON if targeting a Snapdragon Oryon 1 (X1E80100/X1E78100) based device" ${SDORYON1})
+
+# MediaTek Dimensity options
+option(MTK_D9000 "Set to ON if targeting MediaTek Dimensity 9000 series" ${MTK_D9000})
+option(MTK_D9200 "Set to ON if targeting MediaTek Dimensity 9200 series" ${MTK_D9200})
+option(MTK_D9300 "Set to ON if targeting MediaTek Dimensity 9300 series" ${MTK_D9300})
+option(MTK_D1000 "Set to ON if targeting MediaTek Dimensity 1000/1100/1200 series" ${MTK_D1000})
+option(MTK_D800 "Set to ON if targeting MediaTek Dimensity 700/800/900 series" ${MTK_D800})
+
+# Enable advanced ARM64 features
+option(ENABLE_SVE "Enable Scalable Vector Extension (SVE) for ARMv8.2+ CPUs" OFF)
+option(ENABLE_SVE2 "Enable Scalable Vector Extension 2 (SVE2) for ARMv8.3+ CPUs" OFF)
+option(ENABLE_I8MM "Enable Int8 Matrix Multiply for ML workloads" OFF)
+option(ENABLE_BF16 "Enable BFloat16 support for deep learning" OFF)
 option(ADLINK "Set to ON if targeting an ADLink AmpereAltra based device" ${ADLINK})
 option(M1 "Set to ON if targeting a AppleM1 running on Asahi computer" ${M1})
 option(LARCH64 "Set to ON if targeting an Loongarch64 based device" ${LARCH64})
@@ -244,6 +257,46 @@ elseif(SDORYON1)
     #  * the 6th positional argument is represented as the "cost"
     #  I've chosen the a57 because I don't know if I should choose the a72
     set(CFLAGS -pipe -march=armv8.6-a+crypto+sm4+sha3+fp16 -mtune=cortex-a57)
+
+# MediaTek Dimensity configurations
+# Dimensity 9000/9200/9300 flagship series with ARMv9 cores
+elseif(MTK_D9300 OR MTK_D9200 OR MTK_D9000)
+    if(MTK_D9300)
+        add_definitions(-DMTK_D9300)
+    endif()
+    if(MTK_D9200)
+        add_definitions(-DMTK_D9200)
+    endif()
+    if(MTK_D9000)
+        add_definitions(-DMTK_D9000)
+    endif()
+    # Dimensity 9000+: X2/X3 core, G710/G720 GPU
+    # ARMv9-A architecture with SVE support
+    set(CFLAGS -pipe -march=armv9-a+fp16+simd+crypto+sve+i8mm+bf16 -mtune=cortex-a720)
+    if(ENABLE_SVE)
+        set(CFLAGS "${CFLAGS} -msve-vector-bits=256")
+    endif()
+
+# Dimensity 1000/1100/1200 mid-range series
+elseif(MTK_D1000)
+    add_definitions(-DMTK_D1000)
+    # Dimensity 1000+: A77/A78 core, G77 GPU
+    set(CFLAGS -pipe -march=armv8.2-a+fp16+simd+crypto+dotprod+predres -mtune=cortex-a77.cortex-a55)
+    if(ENABLE_I8MM)
+        set(CFLAGS "${CFLAGS} -march=armv8.2-a+fp16+simd+crypto+dotprod+predres+i8mm -mtune=cortex-a77.cortex-a55")
+    endif()
+
+# Dimensity 700/800/900 entry series
+elseif(MTK_D800)
+    add_definitions(-DMTK_D800)
+    # Dimensity 700/800/900: A76/A75 core, G57/G68 GPU
+    set(CFLAGS -pipe -march=armv8.2-a+fp16+simd+crypto -mtune=cortex-a76.cortex-a55)
+
+# Generic Dimensity (auto-detected)
+elseif(MTK_D9000 OR MTK_D9200 OR MTK_D9300 OR MTK_D1000 OR MTK_D800)
+    # Fallback for Dimensity targets
+    set(CFLAGS -pipe -march=armv8.2-a+fp16+simd+crypto+dotprod -mtune=cortex-a76.cortex-a55)
+
 elseif(ADLINK)
     add_definitions(-DADLINK)
     set(CFLAGS -pipe -mcpu=neoverse-n1)
@@ -430,6 +483,8 @@ set(OS_LINUX_SRC
     "${BOX64_ROOT}/src/os/random_linux.c"
     "${BOX64_ROOT}/src/os/my_cpuid.c"
     "${BOX64_ROOT}/src/os/sysinfo.c"
+    "${BOX64_ROOT}/src/os/soc_detect.c"
+    "${BOX64_ROOT}/src/os/thread_manager.c"
 )
 
 set(ELFLOADER_SRC
@@ -1024,6 +1079,8 @@ if(DYNAREC)
         "${BOX64_ROOT}/src/dynarec/dynarec_native_functions.c"
         "${BOX64_ROOT}/src/dynarec/dynacache_reloc.c"
         "${BOX64_ROOT}/src/dynarec/dynacache_compress.c"
+        "${BOX64_ROOT}/src/dynarec/hybrid_jit.c"
+        "${BOX64_ROOT}/src/dynarec/intelligent_cache.c"
         "${BOX64_ROOT}/src/emu/x64test.c"
     )
 endif()
@@ -1040,6 +1097,29 @@ if(ARM_DYNAREC)
         "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_consts.c"
         "${BOX64_ROOT}/src/dynarec/arm64/updateflags_arm64.c"
     )
+
+    # Advanced ARM64 feature definitions for dynarec
+    # These enable hardware-specific optimizations
+    if(ENABLE_SVE OR SD8G2 OR SD8EG5 OR MTK_D9300 OR MTK_D9200 OR MTK_D9000)
+        add_definitions(-DHAVE_SVE=1)
+        message(STATUS "Enabling SVE (Scalable Vector Extension) support")
+    endif()
+    
+    if(ENABLE_SVE2 OR SD8EG5)
+        add_definitions(-DHAVE_SVE2=1)
+        message(STATUS "Enabling SVE2 support")
+    endif()
+    
+    if(ENABLE_I8MM OR SD8G2 OR SD8EG5 OR MTK_D9300 OR MTK_D9200 OR MTK_D9000)
+        add_definitions(-DHAVE_I8MM=1)
+        message(STATUS "Enabling I8MM (Int8 Matrix Multiply) support")
+    endif()
+    
+    if(ENABLE_BF16 OR SD8G2 OR SD8EG5 OR MTK_D9300 OR MTK_D9200 OR MTK_D9000)
+        add_definitions(-DHAVE_BF16=1)
+        message(STATUS "Enabling BF16 (BFloat16) support")
+    endif()
+    
     set(DYNAREC_ASM
         ${DYNAREC_ASM}
         "${BOX64_ROOT}/src/dynarec/arm64/arm64_prolog.S"
