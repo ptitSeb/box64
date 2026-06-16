@@ -281,16 +281,16 @@ for entry in data:
 # regex to match env.h C code
 regex = {
     "INTEGER": re.compile(
-        r"^\s*INTEGER\((?P<define>\w+), (?P<name>\w+), (?P<default>\w+), (?P<min>\w+), (?P<max>\w+), (?P<wine>\w+)\)"
+        r"^\s*INTEGER\((?P<define>\w+), (?P<name>\w+), (?P<default>\w+), (?P<min>\w+), (?P<max>\w+), (?P<wine>\w+)(?:, \w+)?\)"
     ),
     "INTEGER64": re.compile(
-        r"^\s*INTEGER64\((?P<define>\w+), (?P<name>\w+), (?P<default>\w+), (?P<wine>\w+)\)"
+        r"^\s*INTEGER64\((?P<define>\w+), (?P<name>\w+), (?P<default>\w+), (?P<wine>\w+)(?:, \w+)?\)"
     ),
     "BOOLEAN": re.compile(
-        r"^\s*BOOLEAN\((?P<define>\w+), (?P<name>\w+), (?P<default>\w+), (?P<wine>\w+)\)"
+        r"^\s*BOOLEAN\((?P<define>\w+), (?P<name>\w+), (?P<default>\w+), (?P<wine>\w+)(?:, \w+)?\)"
     ),
-    "ADDRESS": re.compile(r"^\s*ADDRESS\((?P<define>\w+), (?P<name>\w+), (?P<wine>\w+)\)"),
-    "STRING": re.compile(r"^\s*STRING\((?P<define>\w+), (?P<name>\w+), (?P<wine>\w+)\)"),
+    "ADDRESS": re.compile(r"^\s*ADDRESS\((?P<define>\w+), (?P<name>\w+), (?P<wine>\w+)(?:, \w+)?\)"),
+    "STRING": re.compile(r"^\s*STRING\((?P<define>\w+), (?P<name>\w+), (?P<wine>\w+)(?:, \w+)?\)"),
 }
 
 env_file = os.path.join(script_dir, "../../src/include/env.h")

@@ -61,13 +61,13 @@ extern char* ftrace_name;
     STRING(BOX64_DYNAREC_DUMP_RANGE, dynarec_dump_range, 1, 0)                   \
     BOOLEAN(BOX64_DYNAREC_FASTNAN, dynarec_fastnan, 1, 1, 1)                     \
     INTEGER(BOX64_DYNAREC_FASTROUND, dynarec_fastround, 1, 0, 2, 1, 2)           \
-    INTEGER(BOX64_DYNAREC_FORWARD, dynarec_forward, 128, 0, 1024, 1, 0)          \
+    INTEGER(BOX64_DYNAREC_FORWARD, dynarec_forward, 128, 0, 1024, 1, 3)          \
     STRING(BOX64_DYNAREC_GDBJIT, dynarec_gdbjit_str, 0, 0)                       \
     INTEGER(BOX64_DYNAREC_LOG, dynarec_log, 0, 0, 3, 1, 0)                       \
     INTEGER(BOX64_DYNAREC_MISSING, dynarec_missing, 0, 0, 2, 1, 0)               \
     BOOLEAN(BOX64_DYNAREC_NATIVEFLAGS, dynarec_nativeflags, 1, 1, 1)             \
     STRING(BOX64_DYNAREC_NOHOSTEXT, dynarec_nohostext, 0, 0)                     \
-    INTEGER(BOX64_DYNAREC_PAUSE, dynarec_pause, 0, 0, 3, 1, 0)                   \
+    INTEGER(BOX64_DYNAREC_PAUSE, dynarec_pause, 0, 0, 3, 1, 2)                   \
     BOOLEAN(BOX64_DYNAREC_PERFMAP, dynarec_perf_map, 0, 0, 0)                    \
     INTEGER(BOX64_DYNAREC_SAFEFLAGS, dynarec_safeflags, 1, 0, 2, 1, 2)           \
     INTEGER(BOX64_DYNAREC_STRONGMEM, dynarec_strongmem, 0, 0, 4, 1, 3)           \

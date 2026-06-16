@@ -102,6 +102,18 @@ char* LowerCase(const char* s)
     return ret;
 }
 
+static int validateInteger(const char* name, int value, int default_value, int min, int max)
+{
+    if (value < min || value > max)
+        return default_value;
+    if (!strcmp(name, "BOX64_DYNAREC_FORWARD")) {
+        if (value == 0 || value == 128 || value == 256 || value == 512 || value == 1024)
+            return value;
+        return default_value;
+    }
+    return value;
+}
+
 static void addNewEnvVar(const char* s)
 {
 #ifndef _WIN32
@@ -457,10 +469,13 @@ static void initializeEnvFile(const char* filename, int priority)
     else if (!strcmp(key, #NAME) && VALID(wine))                \
     {                                                           \
         int v = strtol(val, &p, 0);                             \
-        if (p != val && v >= min && v <= max) {                 \
-            current_env.is_##name##_overridden = 1;             \
-            current_env.is_any_overridden = 1;                  \
-            current_env.name = v;                               \
+        if (p != val) {                                         \
+            int validated = validateInteger(#NAME, v, default, min, max); \
+            if (validated != default || v == default) {         \
+                current_env.is_##name##_overridden = 1;         \
+                current_env.is_any_overridden = 1;              \
+                current_env.name = validated;                   \
+            }                                                   \
         }                                                       \
     }
 #define INTEGER64(NAME, name, default, wine, dynacache) \
@@ -677,10 +692,12 @@ void LoadEnvVariables()
 #define INTEGER(NAME, name, default, min, max, wine, dynacache) \
     p = GETENV(#NAME, wine);                                    \
     if (p) {                                                    \
-        box64env.name = atoi(p);                                \
-        if (box64env.name < min || box64env.name > max) {       \
+        int v = atoi(p);                                        \
+        int validated = validateInteger(#NAME, v, default, min, max); \
+        if (validated == default && v != default) {             \
             box64env.name = default;                            \
         } else {                                                \
+            box64env.name = validated;                          \
             box64env.is_##name##_overridden = 1;                \
             box64env.is_any_overridden = 1;                     \
         }                                                       \

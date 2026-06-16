@@ -128,11 +128,13 @@ Enable or disable fast rounding. Available in WowBox64.
 
 ### BOX64_DYNAREC_FORWARD
 
-Define max allowed forward value when building block. Available in WowBox64.
+Define max allowed forward value when building block. Only 0, 128, 256, 512 and 1024 are valid; other values fall back to 128. Available in WowBox64.
 
  * 0: No forward value. When current block ends, do not try to go further even if there are previous forward jumps.
  * 128: Allow up to 128 bytes of gap between end of the block and the next forward jump. [Default]
- * XXXX: Allow up to XXXX bytes of gap between end of the block and the next forward jump.
+ * 256: Allow up to 256 bytes of gap between end of the block and the next forward jump.
+ * 512: Allow up to 512 bytes of gap between end of the block and the next forward jump.
+ * 1024: Allow up to 1024 bytes of gap between end of the block and the next forward jump.
 
 ### BOX64_DYNAREC_NATIVEFLAGS
 

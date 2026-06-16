@@ -143,10 +143,40 @@ typedef union dynarec_settings_s {
 #undef ADDRESS
 #undef STRING
 
+static int displayToInteger(const char* name, int value)
+{
+    if (!strcmp(name, "BOX64_DYNAREC_FORWARD")) {
+        switch (value) {
+            case 0: return 0;
+            case 128: return 1;
+            case 256: return 2;
+            case 512: return 3;
+            case 1024: return 4;
+            default: return 1; // default 128
+        }
+    }
+    return value;
+}
+
+static int integerToDisplay(const char* name, int stored)
+{
+    if (!strcmp(name, "BOX64_DYNAREC_FORWARD")) {
+        switch (stored) {
+            case 0: return 0;
+            case 1: return 128;
+            case 2: return 256;
+            case 3: return 512;
+            case 4: return 1024;
+            default: return 128;
+        }
+    }
+    return stored;
+}
+
 uint64_t GetDynSetting(mapping_t* mapping)
 {
     dynarec_settings_t settings = {0};
-#define INTEGER(NAME, name, default, min, max, wine, dynacache) DC_IF_WIDTH(dynacache, settings.name = (mapping && mapping->env && mapping->env->is_##name##_overridden) ? mapping->env->name : box64env.name;)
+#define INTEGER(NAME, name, default, min, max, wine, dynacache) DC_IF_WIDTH(dynacache, settings.name = displayToInteger(#NAME, (mapping && mapping->env && mapping->env->is_##name##_overridden) ? mapping->env->name : box64env.name);)
 #define INTEGER64(NAME, name, default, wine, dynacache)         DC_IF_WIDTH(dynacache, settings.name = (mapping && mapping->env && mapping->env->is_##name##_overridden) ? mapping->env->name : box64env.name;)
 #define BOOLEAN(NAME, name, default, wine, dynacache)           DC_IF_WIDTH(dynacache, settings.name = (mapping && mapping->env && mapping->env->is_##name##_overridden) ? mapping->env->name : box64env.name;)
 #define ADDRESS(NAME, name, wine, dynacache)                    DC_IF_WIDTH(dynacache, settings.name = (mapping && mapping->env && mapping->env->is_##name##_overridden) ? mapping->env->name : box64env.name;)
@@ -164,11 +194,11 @@ void PrintDynSettings(int level, uint64_t s)
 {
     dynarec_settings_t settings = {0};
     settings.x = s;
-#define INTEGER(NAME, name, default, min, max, wine, dynacache) DC_IF_WIDTH(dynacache, if (settings.name != default) printf_log_prefix(0, level, "\t\t" #NAME "=%d\n", settings.name);)
+#define INTEGER(NAME, name, default, min, max, wine, dynacache) DC_IF_WIDTH(dynacache, if (settings.name != displayToInteger(#NAME, default)) printf_log_prefix(0, level, "\t\t" #NAME "=%d\n", integerToDisplay(#NAME, settings.name));)
 #define INTEGER64(NAME, name, default, wine, dynacache)         DC_IF_WIDTH(dynacache, if (settings.name != default) printf_log_prefix(0, level, "\t\t" #NAME "=%lld\n", settings.name);)
 #define BOOLEAN(NAME, name, default, wine, dynacache)           DC_IF_WIDTH(dynacache, if (settings.name != default) printf_log_prefix(0, level, "\t\t" #NAME "=%d\n", settings.name);)
 #define ADDRESS(NAME, name, wine, dynacache)                    DC_IF_WIDTH(dynacache, if (settings.name != default) printf_log_prefix(0, level, "\t\t" #NAME "=%p\n", (void*)settings.name);)
-#define STRING(NAME, name, wine, dynacache)                     DC_IF_WIDTH(dynacache, if (settings.name != default) printf_log_prefix(0, level, "\t\t" #NAME "=%s\n", settings.name);)
+#define STRING(NAME, name, wine, dynacache)                     DC_IF_WIDTH(dynacache, if (settings.name != default) printf_log_prefix(0, level, "\t\t" #NAME "=%s\n", (char*)settings.name);)
     ENVSUPER()
 #undef INTEGER
 #undef INTEGER64
