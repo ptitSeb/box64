@@ -163,7 +163,7 @@ uint64_t GetDynSetting(mapping_t* mapping)
     #undef DS_GO
     return settings.x;
 }
-void PrintDynfSettings(int level, uint64_t s)
+void PrintDynSettings(int level, uint64_t s)
 {
     dynarec_settings_t settings = {0};
     settings.x = s;
@@ -607,12 +607,12 @@ int ReadDynaCache(const char* folder, const char* name, mapping_t* mapping, int 
     char filename[strlen(folder)+strlen(name)+1];
     strcpy(filename, folder);
     strcat(filename, name);
-    if(verbose) printf_log(LOG_NONE, "File %s:\t", name);
+    if (!FileExist(filename, IS_FILE)) return DCERR_NEXIST;
+    if (verbose) printf_log(LOG_NONE, "File %s:\t", name);
     FILE *f = fopen(filename, "rb");
     if(!f) {
-        int exists = FileExist(filename, IS_FILE);
-        if(verbose) printf_log_prefix(0, LOG_NONE, "%s\n", exists?"Cannot open file":"Invalid file");
-        return exists?DCERR_FERROR:DCERR_NEXIST;
+        if (verbose) printf_log_prefix(0, LOG_NONE, "Cannot open file\n");
+        return DCERR_FERROR;
     }
     struct stat st = {0};
     int fd = fileno(f);
@@ -678,6 +678,7 @@ int ReadDynaCache(const char* folder, const char* name, mapping_t* mapping, int 
     }
     all_header = box_malloc(header.cache_header_size);
     if(!all_header) {
+        if (verbose) printf_log_prefix(0, LOG_NONE, "Cannot allocate memory for header\n");
         fclose(f);
         return DCERR_FERROR;
     }
@@ -810,7 +811,7 @@ int ReadDynaCache(const char* folder, const char* name, mapping_t* mapping, int 
             // file is valid, gives informations:
             printf_log_prefix(0, LOG_NONE, "%s (%s)\n", map_filename, NicePrintSize(filesize));
             printf_log_prefix(0, LOG_NONE, "\tDynarec Settings:\n");
-            PrintDynfSettings(LOG_NONE, file_header->dynarec_settings);
+            PrintDynSettings(LOG_NONE, file_header->dynarec_settings);
             size_t total_blocks = 0, total_free = 0, total_compressed = 0, total_uncompressed = 0;
             size_t total_code = file_header->codesize;
             for(int i=0; i<file_header->nblocks; ++i) {
@@ -863,6 +864,7 @@ int ReadDynaCache(const char* folder, const char* name, mapping_t* mapping, int 
             addLockAddress(lockAddresses[i]+delta_map);
         for(size_t i=0; i<file_header->nUnalignedAddresses; ++i)
             add_unaligned_address(unalignedAddresses[i]+delta_map);
+        if (verbose) printf_log_prefix(0, LOG_NONE, "Cache loaded successfully\n");
         dynarec_log(LOG_INFO, "Loaded DynaCache for %s, with %d blocks\n", mapping->fullname, file_header->nblocks);
         // try to update mtime for used cache file, so that it is less likely to be pruned
         utime(filename, NULL);
