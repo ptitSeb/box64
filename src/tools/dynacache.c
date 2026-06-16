@@ -91,7 +91,7 @@ done:
     `box64 --dynacache-clean` can be used from command line to purge obsolete DyaCache files
 */
 
-#define FILE_VERSION 5
+#define FILE_VERSION 6
 #define HEADER_SIGN  "DynaCache"
 
 typedef struct DynaCacheHeader_s {
@@ -117,61 +117,72 @@ typedef struct DynaCacheHeader_s {
     char        filename[];
 } DynaCacheHeader_t;
 
-#define DYNAREC_SETTINGS()                                              \
-    DS_GO(BOX64_DYNAREC_ALIGNED_ATOMICS, dynarec_aligned_atomics, 1)    \
-    DS_GO(BOX64_DYNAREC_BIGBLOCK, dynarec_bigblock, 2)                  \
-    DS_GO(BOX64_DYNAREC_CALLRET, dynarec_callret, 2)                    \
-    DS_GO(BOX64_DYNAREC_DF, dynarec_df, 1)                              \
-    DS_GO(BOX64_DYNAREC_DIRTY, dynarec_dirty, 2)                        \
-    DS_GO(BOX64_DYNAREC_DIV0, dynarec_div0, 1)                          \
-    DS_GO(BOX64_DYNAREC_FASTNAN, dynarec_fastnan, 1)                    \
-    DS_GO(BOX64_DYNAREC_FASTROUND, dynarec_fastround, 2)                \
-    DS_GO(BOX64_DYNAREC_NOHOTPAGE, dynarec_nohotpage, 1)                \
-    DS_GO(BOX64_DYNAREC_NATIVEFLAGS, dynarec_nativeflags, 1)            \
-    DS_GO(BOX64_DYNAREC_SAFEFLAGS, dynarec_safeflags, 2)                \
-    DS_GO(BOX64_DYNAREC_STRONGMEM, dynarec_strongmem, 3)                \
-    DS_GO(BOX64_DYNAREC_VOLATILE_METADATA, dynarec_volatile_metadata, 1)\
-    DS_GO(BOX64_DYNAREC_WEAKBARRIER, dynarec_weakbarrier, 2)            \
-    DS_GO(BOX64_DYNAREC_X87DOUBLE, dynarec_x87double, 2)                \
-    DS_GO(BOX64_DYNAREC_NOARCH, dynarec_noarch, 2)                      \
-    DS_GO(BOX64_DYNAREC_SEP, dynarec_sep, 2)                            \
-    DS_GO(BOX64_AES, aes, 1)                                            \
-    DS_GO(BOX64_PCLMULQDQ, pclmulqdq, 1)                                \
-    DS_GO(BOX64_SHAEXT, shaext, 1)                                      \
-    DS_GO(BOX64_SSE42, sse42, 1)                                        \
-    DS_GO(BOX64_AVX, avx, 2)                                            \
-    DS_GO(BOX64_X87_NO80BITS, x87_no80bits, 1)                          \
-    DS_GO(BOX64_RDTSC_1GHZ, rdtsc_1ghz, 1)                              \
-    DS_GO(BOX64_RDTSC_INV, rdtsc_inv, 1)                                \
-    DS_GO(BOX64_SSE_FLUSHTO0, sse_flushto0, 1)                          \
-    DS_GO(BOX64_CPUTYPE, cputype, 1)                                    \
-    DS_GO(BOX64_IGNOREINT3, ignoreint3, 1)                              \
+// Helpers for conditional code emission based on dynacache bit width.
+#define DC_0(...)
+#define DC_1(...)                __VA_ARGS__
+#define DC_2(...)                __VA_ARGS__
+#define DC_3(...)                __VA_ARGS__
+#define DC_CONCAT(A, B)          A##B
+#define DC_IF_WIDTH(WIDTH, CODE) DC_CONCAT(DC_, WIDTH)(CODE)
 
-#define DS_GO(A, B, C) uint64_t B:C;
+// Generate dynarec_settings_t bit-fields from ENVSUPER().
+#define INTEGER(NAME, name, default, min, max, wine, dynacache) DC_IF_WIDTH(dynacache, uint64_t name : dynacache;)
+#define INTEGER64(NAME, name, default, wine, dynacache)         DC_IF_WIDTH(dynacache, uint64_t name : dynacache;)
+#define BOOLEAN(NAME, name, default, wine, dynacache)           DC_IF_WIDTH(dynacache, uint64_t name : dynacache;)
+#define ADDRESS(NAME, name, wine, dynacache)                    DC_IF_WIDTH(dynacache, uint64_t name : dynacache;)
+#define STRING(NAME, name, wine, dynacache)                     DC_IF_WIDTH(dynacache, uint64_t name : dynacache;)
 typedef union dynarec_settings_s {
     struct {
-        DYNAREC_SETTINGS()
+        ENVSUPER()
     };
     uint64_t    x;
 } dynarec_settings_t;
-#undef DS_GO
+#undef INTEGER
+#undef INTEGER64
+#undef BOOLEAN
+#undef ADDRESS
+#undef STRING
+
 uint64_t GetDynSetting(mapping_t* mapping)
 {
     dynarec_settings_t settings = {0};
-    #define DS_GO(A, B, C)  settings.B = (mapping->env && mapping->env->is_##B##_overridden)?mapping->env->B:box64env.B;
-    DYNAREC_SETTINGS()
-    #undef DS_GO
+#define INTEGER(NAME, name, default, min, max, wine, dynacache) DC_IF_WIDTH(dynacache, settings.name = (mapping && mapping->env && mapping->env->is_##name##_overridden) ? mapping->env->name : box64env.name;)
+#define INTEGER64(NAME, name, default, wine, dynacache)         DC_IF_WIDTH(dynacache, settings.name = (mapping && mapping->env && mapping->env->is_##name##_overridden) ? mapping->env->name : box64env.name;)
+#define BOOLEAN(NAME, name, default, wine, dynacache)           DC_IF_WIDTH(dynacache, settings.name = (mapping && mapping->env && mapping->env->is_##name##_overridden) ? mapping->env->name : box64env.name;)
+#define ADDRESS(NAME, name, wine, dynacache)                    DC_IF_WIDTH(dynacache, settings.name = (mapping && mapping->env && mapping->env->is_##name##_overridden) ? mapping->env->name : box64env.name;)
+#define STRING(NAME, name, wine, dynacache)                     DC_IF_WIDTH(dynacache, settings.name = (mapping && mapping->env && mapping->env->is_##name##_overridden) ? mapping->env->name : box64env.name;)
+    ENVSUPER()
+#undef INTEGER
+#undef INTEGER64
+#undef BOOLEAN
+#undef ADDRESS
+#undef STRING
     return settings.x;
 }
+
 void PrintDynSettings(int level, uint64_t s)
 {
     dynarec_settings_t settings = {0};
     settings.x = s;
-    #define DS_GO(A, B, C) if(settings.B) printf_log_prefix(0, level, "\t\t" #A "=%d\n", settings.B);
-    DYNAREC_SETTINGS()
-    #undef DS_GO
+#define INTEGER(NAME, name, default, min, max, wine, dynacache) DC_IF_WIDTH(dynacache, if (settings.name != default) printf_log_prefix(0, level, "\t\t" #NAME "=%d\n", settings.name);)
+#define INTEGER64(NAME, name, default, wine, dynacache)         DC_IF_WIDTH(dynacache, if (settings.name != default) printf_log_prefix(0, level, "\t\t" #NAME "=%lld\n", settings.name);)
+#define BOOLEAN(NAME, name, default, wine, dynacache)           DC_IF_WIDTH(dynacache, if (settings.name != default) printf_log_prefix(0, level, "\t\t" #NAME "=%d\n", settings.name);)
+#define ADDRESS(NAME, name, wine, dynacache)                    DC_IF_WIDTH(dynacache, if (settings.name != default) printf_log_prefix(0, level, "\t\t" #NAME "=%p\n", (void*)settings.name);)
+#define STRING(NAME, name, wine, dynacache)                     DC_IF_WIDTH(dynacache, if (settings.name != default) printf_log_prefix(0, level, "\t\t" #NAME "=%s\n", settings.name);)
+    ENVSUPER()
+#undef INTEGER
+#undef INTEGER64
+#undef BOOLEAN
+#undef ADDRESS
+#undef STRING
 }
-#undef DYNAREC_SETTINGS
+
+#undef DC_0
+#undef DC_1
+#undef DC_2
+#undef DC_3
+#undef DC_CONCAT
+#undef DC_IF_WIDTH
 
 char* MmaplistName(const char* filename, uint64_t dynarec_settings, const char* fullname)
 {
@@ -810,7 +821,6 @@ int ReadDynaCache(const char* folder, const char* name, mapping_t* mapping, int 
             // check if name is coherent
             // file is valid, gives informations:
             printf_log_prefix(0, LOG_NONE, "%s (%s)\n", map_filename, NicePrintSize(filesize));
-            printf_log_prefix(0, LOG_NONE, "\tDynarec Settings:\n");
             PrintDynSettings(LOG_NONE, file_header->dynarec_settings);
             size_t total_blocks = 0, total_free = 0, total_compressed = 0, total_uncompressed = 0;
             size_t total_code = file_header->codesize;
