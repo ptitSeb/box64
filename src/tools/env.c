@@ -298,11 +298,11 @@ static void trimStringInplace(char* s)
 
 static void freeEnv(box64env_t* env)
 {
-#define INTEGER(NAME, name, default, min, max, wine)
-#define INTEGER64(NAME, name, default, wine)
-#define BOOLEAN(NAME, name, default, wine)
-#define ADDRESS(NAME, name, wine)
-#define STRING(NAME, name, wine) box_free(env->name);
+#define INTEGER(NAME, name, default, min, max, wine, dynacache)
+#define INTEGER64(NAME, name, default, wine, dynacache)
+#define BOOLEAN(NAME, name, default, wine, dynacache)
+#define ADDRESS(NAME, name, wine, dynacache)
+#define STRING(NAME, name, wine, dynacache) box_free(env->name);
     ENVSUPER()
 #undef INTEGER
 #undef INTEGER64
@@ -453,40 +453,40 @@ static void initializeEnvFile(const char* filename, int priority)
 #define VALID(a) 1
 #endif
 
-#define INTEGER(NAME, name, default, min, max, wine) \
-    else if (!strcmp(key, #NAME) && VALID(wine))     \
-    {                                                \
-        int v = strtol(val, &p, 0);                  \
-        if (p != val && v >= min && v <= max) {      \
-            current_env.is_##name##_overridden = 1;  \
-            current_env.is_any_overridden = 1;       \
-            current_env.name = v;                    \
-        }                                            \
+#define INTEGER(NAME, name, default, min, max, wine, dynacache) \
+    else if (!strcmp(key, #NAME) && VALID(wine))                \
+    {                                                           \
+        int v = strtol(val, &p, 0);                             \
+        if (p != val && v >= min && v <= max) {                 \
+            current_env.is_##name##_overridden = 1;             \
+            current_env.is_any_overridden = 1;                  \
+            current_env.name = v;                               \
+        }                                                       \
     }
-#define INTEGER64(NAME, name, default, wine)        \
-    else if (!strcmp(key, #NAME) && VALID(wine))    \
-    {                                               \
-        int64_t v = strtoll(val, &p, 0);            \
-        if (p != val) {                             \
-            current_env.is_##name##_overridden = 1; \
-            current_env.is_any_overridden = 1;      \
-            current_env.name = v;                   \
-        }                                           \
+#define INTEGER64(NAME, name, default, wine, dynacache) \
+    else if (!strcmp(key, #NAME) && VALID(wine))        \
+    {                                                   \
+        int64_t v = strtoll(val, &p, 0);                \
+        if (p != val) {                                 \
+            current_env.is_##name##_overridden = 1;     \
+            current_env.is_any_overridden = 1;          \
+            current_env.name = v;                       \
+        }                                               \
     }
-#define BOOLEAN(NAME, name, default, wine)          \
-    else if (!strcmp(key, #NAME) && VALID(wine))    \
-    {                                               \
-        if (strcmp(val, "0")) {                     \
-            current_env.is_##name##_overridden = 1; \
-            current_env.is_any_overridden = 1;      \
-            current_env.name = 1;                   \
-        } else {                                    \
-            current_env.is_##name##_overridden = 1; \
-            current_env.is_any_overridden = 1;      \
-            current_env.name = 0;                   \
-        }                                           \
+#define BOOLEAN(NAME, name, default, wine, dynacache) \
+    else if (!strcmp(key, #NAME) && VALID(wine))      \
+    {                                                 \
+        if (strcmp(val, "0")) {                       \
+            current_env.is_##name##_overridden = 1;   \
+            current_env.is_any_overridden = 1;        \
+            current_env.name = 1;                     \
+        } else {                                      \
+            current_env.is_##name##_overridden = 1;   \
+            current_env.is_any_overridden = 1;        \
+            current_env.name = 0;                     \
+        }                                             \
     }
-#define ADDRESS(NAME, name, wine)                     \
+#define ADDRESS(NAME, name, wine, dynacache)          \
     else if (!strcmp(key, #NAME) && VALID(wine))      \
     {                                                 \
         uintptr_t v = (uintptr_t)strtoll(val, &p, 0); \
@@ -496,7 +496,7 @@ static void initializeEnvFile(const char* filename, int priority)
             current_env.name = v;                     \
         }                                             \
     }
-#define STRING(NAME, name, wine)                          \
+#define STRING(NAME, name, wine, dynacache)               \
     else if (!strcmp(key, #NAME) && VALID(wine))          \
     {                                                     \
         current_env.is_##name##_overridden = 1;           \
@@ -567,31 +567,31 @@ void InitializeEnvFiles()
 
 static void internalApplyEnvFileEntry(const char* entryname, const box64env_t* env)
 {
-#define INTEGER(NAME, name, default, min, max, wine) \
-    if (env->is_##name##_overridden) {               \
-        box64env.name = env->name;                   \
-        box64env.is_##name##_overridden = 1;         \
-        box64env.is_any_overridden = 1;              \
+#define INTEGER(NAME, name, default, min, max, wine, dynacache) \
+    if (env->is_##name##_overridden) {                          \
+        box64env.name = env->name;                              \
+        box64env.is_##name##_overridden = 1;                    \
+        box64env.is_any_overridden = 1;                         \
     }
-#define INTEGER64(NAME, name, default, wine) \
+#define INTEGER64(NAME, name, default, wine, dynacache) \
+    if (env->is_##name##_overridden) {                  \
+        box64env.name = env->name;                      \
+        box64env.is_##name##_overridden = 1;            \
+        box64env.is_any_overridden = 1;                 \
+    }
+#define BOOLEAN(NAME, name, default, wine, dynacache) \
+    if (env->is_##name##_overridden) {                \
+        box64env.name = env->name;                    \
+        box64env.is_##name##_overridden = 1;          \
+        box64env.is_any_overridden = 1;               \
+    }
+#define ADDRESS(NAME, name, wine, dynacache) \
     if (env->is_##name##_overridden) {       \
         box64env.name = env->name;           \
         box64env.is_##name##_overridden = 1; \
         box64env.is_any_overridden = 1;      \
     }
-#define BOOLEAN(NAME, name, default, wine)   \
-    if (env->is_##name##_overridden) {       \
-        box64env.name = env->name;           \
-        box64env.is_##name##_overridden = 1; \
-        box64env.is_any_overridden = 1;      \
-    }
-#define ADDRESS(NAME, name, wine)            \
-    if (env->is_##name##_overridden) {       \
-        box64env.name = env->name;           \
-        box64env.is_##name##_overridden = 1; \
-        box64env.is_any_overridden = 1;      \
-    }
-#define STRING(NAME, name, wine)             \
+#define STRING(NAME, name, wine, dynacache)  \
     if (env->is_##name##_overridden) {       \
         box64env.name = env->name;           \
         box64env.is_##name##_overridden = 1; \
@@ -641,11 +641,11 @@ int ApplyEnvFileEntry(const char* entryname)
 void LoadEnvVariables()
 {
 #ifdef _WIN32
-#define INTEGER(NAME, name, default, min, max, wine) box64env.name = wine ? default : 0;
-#define INTEGER64(NAME, name, default, wine)         box64env.name = wine ? default : 0;
-#define BOOLEAN(NAME, name, default, wine)           box64env.name = wine ? default : 0;
-#define ADDRESS(NAME, name, wine)                    box64env.name = 0;
-#define STRING(NAME, name, wine)                     box64env.name = NULL;
+#define INTEGER(NAME, name, default, min, max, wine, dynacache) box64env.name = wine ? default : 0;
+#define INTEGER64(NAME, name, default, wine, dynacache)         box64env.name = wine ? default : 0;
+#define BOOLEAN(NAME, name, default, wine, dynacache)           box64env.name = wine ? default : 0;
+#define ADDRESS(NAME, name, wine, dynacache)                    box64env.name = 0;
+#define STRING(NAME, name, wine, dynacache)                     box64env.name = NULL;
     ENVSUPER()
 #undef INTEGER
 #undef INTEGER64
@@ -653,11 +653,11 @@ void LoadEnvVariables()
 #undef ADDRESS
 #undef STRING
 #else
-#define INTEGER(NAME, name, default, min, max, wine) box64env.name = default;
-#define INTEGER64(NAME, name, default, wine)         box64env.name = default;
-#define BOOLEAN(NAME, name, default, wine)           box64env.name = default;
-#define ADDRESS(NAME, name, wine)                    box64env.name = 0;
-#define STRING(NAME, name, wine)                     box64env.name = NULL;
+#define INTEGER(NAME, name, default, min, max, wine, dynacache) box64env.name = default;
+#define INTEGER64(NAME, name, default, wine, dynacache)         box64env.name = default;
+#define BOOLEAN(NAME, name, default, wine, dynacache)           box64env.name = default;
+#define ADDRESS(NAME, name, wine, dynacache)                    box64env.name = 0;
+#define STRING(NAME, name, wine, dynacache)                     box64env.name = NULL;
     ENVSUPER()
 #undef INTEGER
 #undef INTEGER64
@@ -674,32 +674,32 @@ void LoadEnvVariables()
 #define GETENV(name, wine) GetEnv(name)
 #endif
 
-#define INTEGER(NAME, name, default, min, max, wine)      \
-    p = GETENV(#NAME, wine);                              \
-    if (p) {                                              \
-        box64env.name = atoi(p);                          \
-        if (box64env.name < min || box64env.name > max) { \
-            box64env.name = default;                      \
-        } else {                                          \
-            box64env.is_##name##_overridden = 1;          \
-            box64env.is_any_overridden = 1;               \
-        }                                                 \
+#define INTEGER(NAME, name, default, min, max, wine, dynacache) \
+    p = GETENV(#NAME, wine);                                    \
+    if (p) {                                                    \
+        box64env.name = atoi(p);                                \
+        if (box64env.name < min || box64env.name > max) {       \
+            box64env.name = default;                            \
+        } else {                                                \
+            box64env.is_##name##_overridden = 1;                \
+            box64env.is_any_overridden = 1;                     \
+        }                                                       \
     }
-#define INTEGER64(NAME, name, default, wine) \
-    p = GETENV(#NAME, wine);                 \
-    if (p) {                                 \
-        box64env.name = atoll(p);            \
-        box64env.is_##name##_overridden = 1; \
-        box64env.is_any_overridden = 1;      \
+#define INTEGER64(NAME, name, default, wine, dynacache) \
+    p = GETENV(#NAME, wine);                            \
+    if (p) {                                            \
+        box64env.name = atoll(p);                       \
+        box64env.is_##name##_overridden = 1;            \
+        box64env.is_any_overridden = 1;                 \
     }
-#define BOOLEAN(NAME, name, default, wine)   \
-    p = GETENV(#NAME, wine);                 \
-    if (p) {                                 \
-        box64env.name = p[0] != '0';         \
-        box64env.is_##name##_overridden = 1; \
-        box64env.is_any_overridden = 1;      \
+#define BOOLEAN(NAME, name, default, wine, dynacache) \
+    p = GETENV(#NAME, wine);                          \
+    if (p) {                                          \
+        box64env.name = p[0] != '0';                  \
+        box64env.is_##name##_overridden = 1;          \
+        box64env.is_any_overridden = 1;               \
     }
-#define ADDRESS(NAME, name, wine)                          \
+#define ADDRESS(NAME, name, wine, dynacache)               \
     p = GETENV(#NAME, wine);                               \
     if (p) {                                               \
         char* endptr;                                      \
@@ -707,7 +707,7 @@ void LoadEnvVariables()
         box64env.is_##name##_overridden = 1;               \
         box64env.is_any_overridden = 1;                    \
     }
-#define STRING(NAME, name, wine)                \
+#define STRING(NAME, name, wine, dynacache)     \
     p = GETENV(#NAME, wine);                    \
     if (p && strcasecmp(#NAME, "BOX64_ARCH")) { \
         box64env.name = strdup(p);              \
@@ -726,20 +726,20 @@ void LoadEnvVariables()
 void PrintEnvVariables(box64env_t* env, int level)
 {
     if (env->is_any_overridden) printf_log(level, "BOX64ENV: Variables overridden:\n");
-#define INTEGER(NAME, name, default, min, max, wine) \
-    if (env->is_##name##_overridden)                 \
+#define INTEGER(NAME, name, default, min, max, wine, dynacache) \
+    if (env->is_##name##_overridden)                            \
         printf_log_prefix(0, level, "\t%s=%d\n", #NAME, env->name);
-#define INTEGER64(NAME, name, default, wine) \
-    if (env->is_##name##_overridden)         \
+#define INTEGER64(NAME, name, default, wine, dynacache) \
+    if (env->is_##name##_overridden)                    \
         printf_log_prefix(0, level, "\t%s=%lld\n", #NAME, env->name);
-#define BOOLEAN(NAME, name, default, wine) \
-    if (env->is_##name##_overridden)       \
+#define BOOLEAN(NAME, name, default, wine, dynacache) \
+    if (env->is_##name##_overridden)                  \
         printf_log_prefix(0, level, "\t%s=%d\n", #NAME, env->name);
-#define ADDRESS(NAME, name, wine)    \
-    if (env->is_##name##_overridden) \
+#define ADDRESS(NAME, name, wine, dynacache) \
+    if (env->is_##name##_overridden)         \
         printf_log_prefix(0, level, "\t%s=%p\n", #NAME, (void*)env->name);
-#define STRING(NAME, name, wine)     \
-    if (env->is_##name##_overridden) \
+#define STRING(NAME, name, wine, dynacache) \
+    if (env->is_##name##_overridden)        \
         printf_log_prefix(0, level, "\t%s=%s\n", #NAME, env->name);
     ENVSUPER()
 #undef INTEGER
