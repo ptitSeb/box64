@@ -13,6 +13,8 @@ try:
         copy_assignments,
         direct_box64_assignments,
         header_from_key,
+        normalize_section_input,
+        section_key_from_header,
     )
     from .usage import EnvOption, UsageCatalog
 except ImportError:
@@ -24,6 +26,8 @@ except ImportError:
         copy_assignments,
         direct_box64_assignments,
         header_from_key,
+        normalize_section_input,
+        section_key_from_header,
     )
     from usage import EnvOption, UsageCatalog
 
@@ -157,13 +161,25 @@ class ConfigStore:
         self._rebuild_entry_cache()
 
     def create_entry(self, header: str) -> SectionKey:
-        section = self.user.add_section(header.strip())
+        normalized = normalize_section_input(header)
+        requested_key = section_key_from_header(normalized)
+        user_section = self.user.section_for_key(requested_key)
+        if user_section is not None:
+            return user_section.key
+
+        section = self.user.add_section(normalized)
         self._mark_dirty()
         return section.key
 
     def delete_user_entry(self, key: SectionKey) -> None:
         self.user.delete_section(key)
         self._mark_dirty()
+
+    def fork_entry(self, entry: EntryRecord) -> Tuple[SectionKey, bool]:
+        section, forked = self._ensure_user_section(entry)
+        if forked:
+            self._mark_dirty()
+        return section.key, forked
 
     def set_option(self, entry: EntryRecord, option_name: str, value: str) -> Tuple[SectionKey, bool]:
         section, forked = self._ensure_user_section(entry)

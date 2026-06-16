@@ -55,6 +55,18 @@ def section_key_from_header(header: str, arch: Optional[str] = None) -> SectionK
     return SectionKey("exact", name.lower(), arch_value)
 
 
+def normalize_section_input(value: str) -> str:
+    name = value.strip()
+    if name.startswith("[") or name.endswith("]"):
+        if not (name.startswith("[") and name.endswith("]")):
+            raise ValueError("Invalid section name")
+        name = name[1:-1].strip()
+
+    if not name or any(char in name for char in "\r\n[]#"):
+        raise ValueError("Invalid section name")
+    return name
+
+
 def header_from_key(key: SectionKey) -> str:
     if key.kind == "shared":
         return "*"
@@ -168,7 +180,10 @@ class RcDocument:
         section = self.section_for_key(key)
         if section is None:
             return
-        del self.lines[section.start : section.end]
+        delete_end = section.end
+        if section.assignments:
+            delete_end = section.assignments[-1].line_index + 1
+        del self.lines[section.start : delete_end]
         self._parse()
 
     def set_assignment(self, section_key: SectionKey, key: str, value: str) -> SectionKey:
