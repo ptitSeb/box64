@@ -584,6 +584,8 @@ dynablock_t* FillBlock64(uintptr_t addr, int is32bits, int inst_max, int is_new,
                 }
                 if(dyn->need_dump || BOX64ENV(dynarec_log))dynarec_log(LOG_NONE, "Dynablock shorten on pass0 at ninst=%d\n", helper.size);
                 --helper.size;
+                // preserve flags at the new block exit
+                helper.insts[helper.size - 1].x64.need_after |= X_PEND;
                 helper.abort = 0;
             }
             // basic checks
