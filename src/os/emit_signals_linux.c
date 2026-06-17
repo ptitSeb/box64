@@ -50,13 +50,13 @@ void EmitSignal(x64emu_t* emu, int sig, void* addr, int code)
         if (elf)
             elfname = ElfName(elf);
         printf_log(LOG_NONE, "%04d|Emit Signal %d at IP=%p(%s / %s) / addr=%p, code=0x%x\n", GetTID(), sig, (void*)R_RIP, x64name ? x64name : "???", elfname ? elfname : "?", addr, code);
-        if(sig==5)
-            printf_log(LOG_INFO, "\t Opcode (%02X %02X %02X %02X) %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X\n",
-                Peek(emu, -4), Peek(emu, -3), Peek(emu, -2), Peek(emu, -1),
-                Peek(emu, 0), Peek(emu, 1), Peek(emu, 2), Peek(emu, 3),
-                Peek(emu, 4), Peek(emu, 5), Peek(emu, 6), Peek(emu, 7),
-                Peek(emu, 8), Peek(emu, 9), Peek(emu,10), Peek(emu,11),
-                Peek(emu,12), Peek(emu,13), Peek(emu,14));
+        if(sig==5) {
+            char prev[4 * 3];
+            char opcode[15 * 3];
+            FormatPeekBytes(emu, -4, 4, prev, sizeof(prev));
+            FormatPeekBytes(emu, 0, 15, opcode, sizeof(opcode));
+            printf_log(LOG_INFO, "\t Opcode (%s) %s\n", prev, opcode);
+        }
 
         print_rolling_log(LOG_INFO);
 
@@ -295,4 +295,3 @@ void EmitWineInt(x64emu_t* emu, int num, void* addr)
         fpu_xrstor_mask(emu, xstate, 0, 0b111);
     }
 }
-
