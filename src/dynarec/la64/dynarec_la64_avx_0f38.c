@@ -110,6 +110,9 @@ uintptr_t dynarec64_AVX_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, 
                         SLLI_D(x5, x5, F_SF);
                         OR(xFlags, xFlags, x5);
                     }
+                    if (BOX64DRENV(dynarec_safeflags)) {
+                        IFX (X_PF) emit_pf(dyn, ninst, vd, x3, x5);
+                    }
                     SPILL_EFLAGS();
                     break;
                 case 2:
@@ -131,6 +134,9 @@ uintptr_t dynarec64_AVX_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, 
                         BSTRPICK_D(x5, vd, rex.w ? 63 : 31, rex.w ? 63 : 31);
                         SLLI_D(x5, x5, F_SF);
                         OR(xFlags, xFlags, x5);
+                    }
+                    if (BOX64DRENV(dynarec_safeflags)) {
+                        IFX (X_PF) emit_pf(dyn, ninst, vd, x3, x5);
                     }
                     SPILL_EFLAGS();
                     break;
@@ -157,6 +163,9 @@ uintptr_t dynarec64_AVX_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, 
                         BSTRPICK_D(x5, vd, rex.w ? 63 : 31, rex.w ? 63 : 31);
                         SLLI_D(x5, x5, F_SF);
                         OR(xFlags, xFlags, x5);
+                    }
+                    if (BOX64DRENV(dynarec_safeflags)) {
+                        IFX (X_PF) emit_pf(dyn, ninst, vd, x3, x5);
                     }
                     SPILL_EFLAGS();
                     break;
