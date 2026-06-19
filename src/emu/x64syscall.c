@@ -312,10 +312,12 @@ static const scwrap_t syscallwrap[] = {
     [281] = {__NR_epoll_pwait, 5},
     #endif
     //[282] = {__NR__signalfd, 3},
+    [283] = {__NR_timerfd_create, 2},
     #ifdef _NR_eventfd
     [284] = {__NR_eventfd, 1},
     #endif
     [285] = {__NR_fallocate, 4},
+    [286] = {__NR_timerfd_settime, 4},
     [288] = {__NR_accept4, 4},
     [289] = {__NR_signalfd4, 4},    // this one might need some wrapping
     [290] = {__NR_eventfd2, 2},
