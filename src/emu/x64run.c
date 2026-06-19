@@ -1445,9 +1445,11 @@ x64emurun:
             nextop = F8;
             GETEB(1);
             tmp8u = F8/* & 0x1f*/; // masking done in each functions
+            if (!BOX64ENV(cputype) && ((nextop>>3)&7) <= 1 && ((tmp8u&0x1f)>1))
+                CHECK_FLAGS(emu);
             switch((nextop>>3)&7) {
-                case 0: EB->byte[0] = rol8(emu, EB->byte[0], tmp8u); break;
-                case 1: EB->byte[0] = ror8(emu, EB->byte[0], tmp8u); break;
+                case 0: tmp8u2=ACCESS_FLAG(F_OF); EB->byte[0] = rol8(emu, EB->byte[0], tmp8u); break;
+                case 1: tmp8u2=ACCESS_FLAG(F_OF); EB->byte[0] = ror8(emu, EB->byte[0], tmp8u); break;
                 case 2: EB->byte[0] = rcl8(emu, EB->byte[0], tmp8u); break;
                 case 3: EB->byte[0] = rcr8(emu, EB->byte[0], tmp8u); break;
                 case 4:
@@ -1455,6 +1457,7 @@ x64emurun:
                 case 5: EB->byte[0] = shr8(emu, EB->byte[0], tmp8u); break;
                 case 7: EB->byte[0] = sar8(emu, EB->byte[0], tmp8u); break;
             }
+            if (!BOX64ENV(cputype) && ((nextop>>3)&7) <= 1 && ((tmp8u&0x1f)>1)) CONDITIONAL_SET_FLAG(tmp8u2, F_OF);
             break;
         case 0xC1:                      /* GRP2 Ed,Ib */
             nextop = F8;
@@ -1795,9 +1798,11 @@ x64emurun:
             nextop = F8;
             GETEB(0);
             tmp8u = (opcode==0xD0)?1:R_CL;
+            if (!BOX64ENV(cputype) && ((nextop>>3)&7) <= 1 && ((tmp8u&0x1f)>1))
+                CHECK_FLAGS(emu);
             switch((nextop>>3)&7) {
-                case 0: EB->byte[0] = rol8(emu, EB->byte[0], tmp8u); break;
-                case 1: EB->byte[0] = ror8(emu, EB->byte[0], tmp8u); break;
+                case 0: tmp8u2=ACCESS_FLAG(F_OF); EB->byte[0] = rol8(emu, EB->byte[0], tmp8u); break;
+                case 1: tmp8u2=ACCESS_FLAG(F_OF); EB->byte[0] = ror8(emu, EB->byte[0], tmp8u); break;
                 case 2: EB->byte[0] = rcl8(emu, EB->byte[0], tmp8u); break;
                 case 3: EB->byte[0] = rcr8(emu, EB->byte[0], tmp8u); break;
                 case 4: 
@@ -1805,6 +1810,7 @@ x64emurun:
                 case 5: EB->byte[0] = shr8(emu, EB->byte[0], tmp8u); break;
                 case 7: EB->byte[0] = sar8(emu, EB->byte[0], tmp8u); break;
             }
+            if (!BOX64ENV(cputype) && ((nextop>>3)&7) <= 1 && ((tmp8u&0x1f)>1)) CONDITIONAL_SET_FLAG(tmp8u2, F_OF);
             break;
         case 0xD1:                      /* GRP2 Ed,1 */
         case 0xD3:                      /* GRP2 Ed,CL */
