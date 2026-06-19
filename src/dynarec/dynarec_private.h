@@ -18,6 +18,7 @@
 
 // all state flags
 #define SF_UNKNOWN  0
+// Using this in SETFLAGS macro automaticaly include a DF_NONE macro
 #define SF_SET      1
 #define SF_PENDING  2
 #define SF_SET_PENDING (SF_SET|SF_PENDING)
@@ -25,7 +26,7 @@
 #define SF_SUBSET   (SF_SUB|SF_SET)
 #define SF_SUBSET_PENDING   (SF_SUBSET|SF_PENDING)
 #define SF_DF       8
-// That means the opcode with set df to something (but that might happens outside, in the C part)
+// That means the opcode will set df to something (but that might happens outside, in the C part)
 #define SF_SET_DF   (SF_SET|SF_DF)
 #define SF_NODF     16
 // That means the opcode will not set DF directly (or it might use DFNONE() later)

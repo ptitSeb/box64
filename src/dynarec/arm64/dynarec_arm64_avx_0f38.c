@@ -63,7 +63,7 @@ uintptr_t dynarec64_AVX_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, i
         case 0xF2:
             INST_NAME("ANDN Gd, Vd, Ed");
             nextop = F8;
-            SETFLAGS(X_ALL, SF_SET_NODF);
+            SETFLAGS(X_ALL, SF_SET);
             GETGD;
             GETED(0);
             GETVD;
@@ -109,7 +109,7 @@ uintptr_t dynarec64_AVX_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, i
             switch((nextop>>3)&7) {
                 case 1:
                     INST_NAME("BLSR Vd, Ed");
-                    SETFLAGS(X_ALL, SF_SET_NODF);
+                    SETFLAGS(X_ALL, SF_SET);
                     GETED(0);
                     GETVD;
                     IFX(X_CF) {
@@ -154,7 +154,7 @@ uintptr_t dynarec64_AVX_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, i
 
                 case 2:
                     INST_NAME("BLSMSK Vd, Ed");
-                    SETFLAGS(X_ALL, SF_SET_NODF);
+                    SETFLAGS(X_ALL, SF_SET);
                     GETED(0);
                     GETVD;
                     IFX(X_CF) {
@@ -198,7 +198,7 @@ uintptr_t dynarec64_AVX_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, i
 
                 case 3:
                     INST_NAME("BLSI Vd, Ed");
-                    SETFLAGS(X_ALL, SF_SET_NODF);
+                    SETFLAGS(X_ALL, SF_SET);
                     GETED(0);
                     GETVD;
                     IFX(X_CF) {
@@ -249,7 +249,7 @@ uintptr_t dynarec64_AVX_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, i
         case 0xF5:
             INST_NAME("BZHI Gd, Ed, Vd");
             nextop = F8;
-            SETFLAGS(X_ALL, SF_SET_NODF);
+            SETFLAGS(X_ALL, SF_SET);
             GETGD;
             GETED(0);
             GETVD;
@@ -296,7 +296,7 @@ uintptr_t dynarec64_AVX_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, i
         case 0xF7:
             INST_NAME("BEXTR Gd, Ed, Vd");
             nextop = F8;
-            SETFLAGS(X_ALL, SF_SET_NODF);
+            SETFLAGS(X_ALL, SF_SET);
             GETGD;
             GETED(0);
             GETVD;
