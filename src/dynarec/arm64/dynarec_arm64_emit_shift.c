@@ -975,11 +975,12 @@ void emit_rol8c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s
 
     if (!c) return;
 
-    IFX2(X_OF, && !BOX64ENV(cputype)) {
-        LSRw(s3, s1, 6);
-        EORw_REG_LSR(s3, s3, s3, 1);
-        BFIw(xFlags, s3, F_OF, 1);
-    }
+    if(!BOX64ENV(cputype))
+        IFX2(X_OF, && c == 1) {
+            LSRw(s3, s1, 6);
+            EORw_REG_LSR(s3, s3, s3, 1);
+            BFIw(xFlags, s3, F_OF, 1);
+        }
     if(c&7) {
         int rc = 8-(c&7);
         ORRw_REG_LSL(s1, s1, s1, 8);
