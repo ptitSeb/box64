@@ -1881,7 +1881,7 @@ GO(EVP_CipherInit_ex, iFpppppi)
 GO(EVP_CipherInit_ex2, iFppppip)
 //GO(EVP_CIPHER_iv_length, 
 //GO(EVP_CIPHER_key_length, 
-//GO(EVP_CIPHER_nid, 
+GOM(EVP_CIPHER_nid, iFEp)
 GO(EVP_CIPHER_param_to_asn1, iFpp)
 GO(EVP_CIPHER_set_asn1_iv, iFpp)
 GO(EVP_CIPHER_type, iFp)
@@ -3682,7 +3682,7 @@ GO(X509_get_default_cert_dir_env, pFv)
 GO(X509_get_default_cert_file, pFv)
 GO(X509_get_default_cert_file_env, pFv)
 //GO(X509_get_default_private_dir, 
-//GO(X509_get_ex_data, 
+GO(X509_get_ex_data, pFpi)
 //GO(X509_get_ex_new_index, 
 GO(X509_get_ext, pFpi)
 GO(X509_get_ext_by_critical, iFpii)
@@ -3869,7 +3869,7 @@ GO(X509_REVOKED_get_ext_d2i, pFpipp)
 //GO(X509_REVOKED_set_serialNumber, 
 GO(X509_set1_notAfter, iFpp)
 GO(X509_set1_notBefore, iFpp)
-//GO(X509_set_ex_data, 
+GO(X509_set_ex_data, iFpip)
 GO(X509_set_issuer_name, iFpp)
 //GO(X509_set_notAfter, 
 //GO(X509_set_notBefore, 
@@ -3919,7 +3919,7 @@ GO(X509_STORE_CTX_set_default, iFpp)
 //GO(X509_STORE_CTX_set_depth, 
 GO(X509_STORE_CTX_set_error, vFpi)
 GO(X509_STORE_CTX_set_error_depth, vFpi)
-//GO(X509_STORE_CTX_set_ex_data, 
+GO(X509_STORE_CTX_set_ex_data, iFpip)
 GO(X509_STORE_CTX_set_flags, vFpL)
 GO(X509_STORE_CTX_set_purpose, iFpi)
 //GO(X509_STORE_CTX_set_time, 

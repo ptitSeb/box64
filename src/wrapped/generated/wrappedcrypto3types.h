@@ -12,6 +12,7 @@
 #endif
 
 typedef void (*vFp_t)(void*);
+typedef int32_t (*iFp_t)(void*);
 typedef void* (*pFp_t)(void*);
 typedef void (*vFpp_t)(void*, void*);
 typedef int32_t (*iFpp_t)(void*, void*);
@@ -35,6 +36,7 @@ typedef void* (*pFpppppppp_t)(void*, void*, void*, void*, void*, void*, void*, v
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(CRYPTO_set_id_callback, vFp_t) \
 	GO(CRYPTO_set_locking_callback, vFp_t) \
+	GO(EVP_CIPHER_nid, iFp_t) \
 	GO(BIO_meth_get_callback_ctrl, pFp_t) \
 	GO(BIO_meth_get_create, pFp_t) \
 	GO(BIO_meth_get_ctrl, pFp_t) \

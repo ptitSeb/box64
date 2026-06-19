@@ -4384,6 +4384,8 @@ wrappedcrypto3:
 - vFp:
   - CRYPTO_set_id_callback
   - CRYPTO_set_locking_callback
+- iFp:
+  - EVP_CIPHER_nid
 - pFp:
   - BIO_meth_get_callback_ctrl
   - BIO_meth_get_create
@@ -6515,6 +6517,7 @@ wrappedlibssl3:
   - SSL_get_verify_callback
 - vFpp:
   - SSL_CTX_sess_set_new_cb
+  - SSL_CTX_sess_set_remove_cb
   - SSL_CTX_set_client_cert_cb
   - SSL_CTX_set_cookie_generate_cb
   - SSL_CTX_set_cookie_verify_cb
@@ -6544,6 +6547,7 @@ wrappedlibssl3:
   - SSL_CTX_set_cert_cb
   - SSL_CTX_set_cert_verify_callback
   - SSL_CTX_set_next_proto_select_cb
+  - SSL_set_cert_cb
 - lFpip:
   - SSL_CTX_callback_ctrl
   - SSL_callback_ctrl

@@ -23,6 +23,7 @@ const char* crypto3Name = "libcrypto.so.3";
 #define LIBNAME crypto3
 
 typedef void*(*pFv_t)     ();
+typedef int  (*iFp_t)     (void*);
 typedef int  (*iFppA_t)   (void*, void*, va_list);
 typedef int  (*iFpip_t)   (void*, int, void*);
 typedef void*(*pFppp_t)   (void*, void*, void*);
@@ -41,6 +42,7 @@ typedef void*(*pFppp_t)   (void*, void*, void*);
     GO(POLICYINFO_it, pFv_t);               \
     GO(CRL_DIST_POINTS_it, pFv_t);          \
     GO(ISSUING_DIST_POINT_it, pFv_t);       \
+    GO(EVP_CIPHER_get_nid, iFp_t);          \
 
 #include "generated/wrappedcrypto3types.h"
 
@@ -993,6 +995,13 @@ EXPORT int my3_ECDH_compute_key(x64emu_t* emu, void* out, size_t outlen, void* p
 EXPORT int my3_BIO_meth_set_callback_ctrl(x64emu_t* emu, void* biom, void* cb)
 {
     return my->BIO_meth_set_callback_ctrl(biom, find_callback_ctrl_Fct(cb));
+}
+
+EXPORT int my3_EVP_CIPHER_nid(x64emu_t* emu, void* cipher)
+{
+    if(my->EVP_CIPHER_nid)
+        return my->EVP_CIPHER_nid(cipher);
+    return my->EVP_CIPHER_get_nid(cipher);
 }
 
 #define ALTMY my3_
