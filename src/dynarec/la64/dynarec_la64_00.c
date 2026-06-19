@@ -3081,9 +3081,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
                     ANDI(x3, xRCX, rex.w ? 63 : 31);
                     GETED(0);
-                    UFLAG_IF {
-                        if (!rex.w && !rex.is32bits && MODREG) { ZEROUP(ed); }
-                    }
+                    if (!rex.w && !rex.is32bits && MODREG) { ZEROUP(ed); }
                     CBZ_NEXT(x3);
                     emit_rcl32(dyn, ninst, rex, ed, x3, x5, x4, x6);
                     WBACK;
@@ -3102,9 +3100,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         ANDI(x3, xRCX, 0x1f);
                     }
                     GETED(0);
-                    UFLAG_IF {
-                        if (!rex.w && !rex.is32bits && MODREG) { ZEROUP(ed); }
-                    }
+                    if (!rex.w && !rex.is32bits && MODREG) { ZEROUP(ed); }
                     CBZ_NEXT(x3);
                     emit_rcr32(dyn, ninst, rex, ed, x3, x5, x4, x6);
                     WBACK;
