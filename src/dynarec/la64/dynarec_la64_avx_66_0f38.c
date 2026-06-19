@@ -209,7 +209,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
                 INST_NAME("VTESTPD Gx, Ex");
             }
             nextop = F8;
-            SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
+            SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
             GETGYxy(q0, 0);
             GETEYxy(q1, 0, 0);
             if (!cpuext.lbt) {
@@ -284,7 +284,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
         case 0x17:
             INST_NAME("VPTEST Gx, Ex");
             nextop = F8;
-            SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
+            SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
             GETGYxy(q0, 0);
             GETEYxy(q1, 0, 0);
             if (!cpuext.lbt) {
