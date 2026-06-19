@@ -169,17 +169,29 @@ Implements the AAD instruction and side effects.
 uint16_t aad16(x64emu_t *emu, uint16_t d, uint8_t base)
 {
 	uint16_t l;
+	uint16_t res;
 	uint8_t hb, lb;
+	uint8_t s;
+	uint32_t cc;
 
 	RESET_FLAGS(emu);
 
 	hb = (uint8_t)((d >> 8) & 0xff);
 	lb = (uint8_t)((d & 0xff));
-	l = (uint16_t)((lb + base * hb) & 0xFF);
+	s = (uint8_t)(base * hb);
+	res = (uint16_t)lb + s;
+	l = (uint16_t)(res & 0xFF);
 
-	CLEAR_FLAG(F_CF);
-	CLEAR_FLAG(F_AF);
-	CLEAR_FLAG(F_OF);
+	if (BOX64ENV(cputype)) {
+		CLEAR_FLAG(F_CF);
+		CLEAR_FLAG(F_AF);
+		CLEAR_FLAG(F_OF);
+	} else {
+		cc = (s & lb) | ((~l) & (s | lb));
+		CONDITIONAL_SET_FLAG(res & 0x100, F_CF);
+		CONDITIONAL_SET_FLAG(cc & 0x8, F_AF);
+		CONDITIONAL_SET_FLAG(XOR2(cc >> 6), F_OF);
+	}
 	CONDITIONAL_SET_FLAG(l & 0x80, F_SF);
 	CONDITIONAL_SET_FLAG((l&0xff) == 0, F_ZF);
 	CONDITIONAL_SET_FLAG(PARITY(l & 0xff), F_PF);
