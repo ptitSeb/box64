@@ -123,10 +123,10 @@ void my_cpuid(x64emu_t* emu)
                     | 1<<22     // MOVBE
                     | 1<<23     // POPCOUNT
                     | BOX64ENV(aes)<<25     // aesni
-                    | BOX64ENV(avx)<<26 // xsave
-                    | BOX64ENV(avx)<<27 // osxsave
-                    | BOX64ENV(avx)<<28 // AVX
-                    | BOX64ENV(avx)<<29 // F16C
+                    | (BOX64ENV(avx)?1:0)<<26 // xsave
+                    | (BOX64ENV(avx)?1:0)<<27 // osxsave
+                    | (BOX64ENV(avx)?1:0)<<28 // AVX
+                    | (BOX64ENV(avx)?1:0)<<29 // F16C
                     | (BOX64ENV(avx) == 2)<<30     // RDRAND
                     | 0<<31     // Hypervisor guest running
                     ;
@@ -205,7 +205,7 @@ void my_cpuid(x64emu_t* emu)
             if(subleaf==0) {
                 R_RAX = 0;
                 R_RBX = 1<<0 // FSGSBASE
-                        | BOX64ENV(avx)<<3  // BMI1
+                        | (BOX64ENV(avx)?1:0)<<3  // BMI1
                         | (BOX64ENV(avx) == 2)<<5  //AVX2
                         | (BOX64ENV(cputype)?0:1)<<6 // FDP_EXCPTN_ONLY
                         | 1<<7 // SMEP
