@@ -1517,9 +1517,9 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("SHLD Ed, Gd, CL");
             if (BOX64DRENV(dynarec_safeflags) > 1) {
                 READFLAGS(X_ALL);
-                SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_FUSION);
+                SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
             } else
-                SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+                SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
             GETGD;
             GETED(0);
             if (!rex.w && !rex.is32bits && MODREG) { ZEROUP(ed); }
@@ -1603,9 +1603,9 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("SHRD Ed, Gd, CL");
             if (BOX64DRENV(dynarec_safeflags) > 1) {
                 READFLAGS(X_ALL);
-                SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_FUSION);
+                SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
             } else
-                SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+                SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
             GETGD;
             GETED(0);
             if (!rex.w && !rex.is32bits && MODREG) { ZEROUP(ed); }

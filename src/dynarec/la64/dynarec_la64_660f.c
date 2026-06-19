@@ -2169,9 +2169,9 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             INST_NAME("SHLD Ew, Gw, CL");
             if (BOX64DRENV(dynarec_safeflags) > 1) {
                 READFLAGS(X_ALL);
-                SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_FUSION);
+                SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
             } else
-                SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+                SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
             GETGWEW(x1, x2, 0);
             ANDI(x4, xRCX, 0x1f);
             UFLAG_IF { CBZ_NEXT(x4); }
@@ -2237,9 +2237,9 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             INST_NAME("SHRD Ew, Gw, CL");
             if (BOX64DRENV(dynarec_safeflags) > 1) {
                 READFLAGS(X_ALL);
-                SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_FUSION);
+                SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
             } else
-                SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+                SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
             GETGWEW(x1, x2, 0);
             ANDI(x4, xRCX, 0x1f);
             UFLAG_IF { CBZ_NEXT(x4); }
