@@ -1269,7 +1269,7 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     if (BOX64DRENV(dynarec_safeflags) > 1) {
                         READFLAGS(X_OF | X_CF);
                     }
-                    SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
+                    SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION);
                     ANDI(x2, xRCX, 0x1f);
                     CBZ_NEXT(x2);
                     GETEW(x1, 0);
@@ -1281,7 +1281,7 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     if (BOX64DRENV(dynarec_safeflags) > 1) {
                         READFLAGS(X_OF | X_CF);
                     }
-                    SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
+                    SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION);
                     ANDI(x2, xRCX, 0x1f);
                     CBZ_NEXT(x2);
                     GETEW(x1, 0);
@@ -1295,7 +1295,7 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     } else {
                         READFLAGS(X_CF);
                     }
-                    SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
+                    SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION);
                     ANDI(x2, xRCX, 0x1f);
                     CBZ_NEXT(x2);
                     GETEW(x1, 0);
@@ -1309,7 +1309,7 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     } else {
                         READFLAGS(X_CF);
                     }
-                    SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
+                    SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION);
                     ANDI(x2, xRCX, 0x1f);
                     CBZ_NEXT(x2);
                     GETEW(x1, 0);
@@ -1320,9 +1320,9 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     INST_NAME("SHR Ew, CL");
                     if (BOX64DRENV(dynarec_safeflags) > 1) {
                         READFLAGS(X_ALL);
-                        SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_FUSION);
+                        SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
                     } else
-                        SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
+                        SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION); // some flags are left undefined
                     ANDI(x2, xRCX, 0x1f);
                     CBZ_NEXT(x2);
                     GETEW(x1, 0);
@@ -1334,9 +1334,9 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     INST_NAME("SHL Ew, CL");
                     if (BOX64DRENV(dynarec_safeflags) > 1) {
                         READFLAGS(X_ALL);
-                        SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_FUSION);
+                        SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
                     } else
-                        SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
+                        SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION); // some flags are left undefined
                     ANDI(x2, xRCX, 0x1f);
                     CBZ_NEXT(x2);
                     GETEW(x1, 0);
@@ -1347,9 +1347,9 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     INST_NAME("SAR Ew, CL");
                     if (BOX64DRENV(dynarec_safeflags) > 1) {
                         READFLAGS(X_ALL);
-                        SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_FUSION);
+                        SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
                     } else
-                        SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
+                        SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION); // some flags are left undefined
                     ANDI(x2, xRCX, 0x1f);
                     CBZ_NEXT(x2);
                     GETSEW(x1, 0);
