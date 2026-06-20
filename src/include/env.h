@@ -151,7 +151,6 @@ extern char* ftrace_name;
     BOOLEAN(BOX64_X87_NO80BITS, x87_no80bits, 0, 1, 1)                           \
     BOOLEAN(BOX64_NOPERSONA32BITS, nopersona32bits, 0, 0, 0)                     \
     BOOLEAN(BOX64_NOVULKANOVERLAY, novulkanoverlay, 0, 0, 0)                     \
-    INTEGER(BOX64_DYNACACHE, dynacache, 1, 0, 2, 0, 0)                           \
     STRING(BOX64_DYNACACHE_FOLDER, dynacache_folder, 0, 0)                       \
     INTEGER(BOX64_DYNACACHE_COMPRESS, dynacache_compress, 1, 0, 2, 0, 0)         \
     INTEGER(BOX64_DYNACACHE_LIMIT, dynacache_limit, 2048, 0, 1048576, 0, 0)      \
@@ -173,10 +172,19 @@ extern char* ftrace_name;
     BOOLEAN(BOX64_DYNAREC, dynarec, 0, 1, 0)
 #endif
 
+#ifdef WINLATOR_GLIBC
+#define ENVSUPER4() \
+        INTEGER(BOX64_DYNACACHE, dynacache, 0, 0, 2, 0, 0)
+#else
+#define ENVSUPER4() \
+        INTEGER(BOX64_DYNACACHE, dynacache, 1, 0, 2, 0, 0)
+#endif
+
 #define ENVSUPER() \
     ENVSUPER1()    \
     ENVSUPER2()    \
-    ENVSUPER3()
+    ENVSUPER3()    \
+    ENVSUPER4()
 
 typedef struct box64env_s {
 #define INTEGER(NAME, name, default, min, max, wine, dynacache) int name;
