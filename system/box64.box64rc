@@ -1152,6 +1152,17 @@ BOX64_DYNAREC_CALLRET=1
 BOX64_DYNAREC_SAFEFLAGS=0
 BOX64_DYNAREC_FASTROUND=0
 
+[steep.exe]
+# This is the UbiSoft Launcher version, but the Steam version probably needs the same settings
+BOX64_DYNAREC_SAFEFLAGS=2
+BOX64_DYNAREC_DIV0=1
+BOX64_NODYNAREC=0x6fffff000000-0x700000000000 #there is probbaly some time-based anti-debug that
+BOX64_NODYNAREC_DELAY=1                       #needs this hack. It will not work on 39bits address space machines....
+BOX64_DYNAREC_DIRTY=2
+BOX64_DYNAREC_CALLRET=1
+BOX64_CPUTYPE=1
+
+
 [starwarsjedifallenorder.exe]
 BOX64_DYNAREC_SAFEFLAGS=2
 BOX64_DYNAREC_STRONGMEM=1
