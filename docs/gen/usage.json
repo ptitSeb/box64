@@ -280,7 +280,7 @@
       },
       {
         "key": "3",
-        "description": "Build DynaRec block bigger, do not stop when block overlaps, for all type of memory, useful for wine programs.",
+        "description": "Build DynaRec block bigger, do not stop when block overlaps, for all type of memory, useful for Wine programs.",
         "default": false
       }
     ]
@@ -1029,7 +1029,7 @@
   },
   {
     "name": "BOX64_DYNACACHE",
-    "description": "Enable/disable the Dynamic Recompiler Cache (a.k.a DynaCache). This option defaults to 2 (to read cache if present but not generate any). DynaCache writes files to the home folder by default, and keeps its folder below BOX64_DYNACACHE_LIMIT when generating new cache files.",
+    "description": "Enable/disable the Dynamic Recompiler Cache (a.k.a DynaCache). This option defaults to 1 (enable). DynaCache writes files to the home folder by default, and keeps its folder below BOX64_DYNACACHE_LIMIT when generating new cache files.",
     "category": "Performance",
     "wine": false,
     "configurator": true,

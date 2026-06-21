@@ -165,7 +165,7 @@ Enable building bigger DynaRec code blocks for better performance. Available in 
  * 0 : Do not try to build block as big as possible, suitable for programs using lots of threads and JIT, like Unity. 
  * 1 : Build DynaRec block as big as possible. 
  * 2 : Build DynaRec block bigger, do not stop when block overlaps, but only for blocks in elf memory. [Default]
- * 3 : Build DynaRec block bigger, do not stop when block overlaps, for all type of memory, useful for wine programs. 
+ * 3 : Build DynaRec block bigger, do not stop when block overlaps, for all type of memory, useful for Wine programs. 
 
 
 =item B<BOX64_DYNAREC_BLEEDING_EDGE> =I<0|1>
@@ -457,7 +457,7 @@ Allow the use of DynaRec in Signal Handlers.
 
 =item B<BOX64_DYNACACHE> =I<0|1|2>
 
-Enable/disable the Dynamic Recompiler Cache (a.k.a DynaCache). This option defaults to 2 (to read cache if present but not generate any). DynaCache writes files to the home folder by default, and keeps its folder below BOX64_DYNACACHE_LIMIT when generating new cache files.
+Enable/disable the Dynamic Recompiler Cache (a.k.a DynaCache). This option defaults to 1 (enable). DynaCache writes files to the home folder by default, and keeps its folder below BOX64_DYNACACHE_LIMIT when generating new cache files.
 
  * 0 : Disable DynaCache. 
  * 1 : Enable DynaCache. [Default]
