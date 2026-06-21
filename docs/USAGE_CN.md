@@ -71,7 +71,7 @@ BOX64_DYNAREC_CALLRET=1
  * 0: 不尝试构建尽可能大的代码块，适用于使用大量线程和 JIT 的程序（如 Unity）。
  * 1: 尽可能构建大的代码块。
  * 2: 构建更大的代码块，代码块重叠时不停止，但仅针对 elf 内存中的代码块。 [默认值]
- * 3: 构建更大的代码块，代码块重叠时不停止，适用于所有类型的内存，因此也对 wine 程序有用。
+ * 3: 构建更大的代码块，代码块重叠时不停止，适用于所有类型的内存，因此也对 Wine 程序有用。
 
 ### BOX64_DYNAREC_CALLRET
 
@@ -179,7 +179,7 @@ BOX64_DYNAREC_CALLRET=1
 
 ### BOX64_DYNACACHE
 
-启用或禁用动态重编译器缓存（DynaCache）。此选项默认为 2（读取已有缓存但不生成新的）。DynaCache 默认将文件写入 home 文件夹，生成新缓存文件时会根据 BOX64_DYNACACHE_LIMIT 控制文件夹大小。
+启用或禁用动态重编译器缓存（DynaCache）。此选项默认为 1（启用）。DynaCache 默认将文件写入 home 文件夹，生成新缓存文件时会根据 BOX64_DYNACACHE_LIMIT 控制文件夹大小。
 
  * 0: 禁用 DynaCache。
  * 1: 启用 DynaCache。 [默认值]
@@ -318,7 +318,7 @@ DynaCache 写入磁盘的最小大小（KB）。默认大小为 30KB。
 检测 MonoBleedingEdge 并应用保守设置（仅 Linux）。
 
  * 0: 不检测 MonoBleedingEdge。
- * 1: 检测 MonoBleedingEdge，并在检测到时应用 BOX64_DYNAREC_BIGBLOCK=0 和 BOX64_DYNAREC_强内存模型=1。 [默认值]
+ * 1: 检测 MonoBleedingEdge，并在检测到时应用 BOX64_DYNAREC_BIGBLOCK=0 和 BOX64_DYNAREC_STRONGMEM=1。 [默认值]
 
 ### BOX64_DYNAREC_DIV0
 
@@ -382,7 +382,7 @@ DynaCache 写入磁盘的最小大小（KB）。默认大小为 30KB。
 检测 libjvm 并应用保守设置。
 
  * 0: 不执行任何操作。
- * 1: 检测 libjvm，并在检测到时应用 BOX64_DYNAREC_BIGBLOCK=0 BOX64_DYNAREC_强内存模型=1 BOX64_SSE42=0。 [默认值]
+ * 1: 检测 libjvm，并在检测到时应用 BOX64_DYNAREC_BIGBLOCK=0 BOX64_DYNAREC_STRONGMEM=1 BOX64_SSE42=0。 [默认值]
 
 ### BOX64_LIBCEF
 
@@ -478,10 +478,10 @@ python3 可执行文件的路径。
 
 ### BOX64_SSE_FLUSHTO0
 
-SSE Flush to 0 FLAGS的行为，同时追踪 SSE 异常FLAGS。 在 WowBox64 中可用。
+SSE Flush to 0 FLAGS的行为，同时追踪 SSE 异常 FLAGS。 在 WowBox64 中可用。
 
- * 0: 仅追踪FLAGS。 [默认值]
- * 1: 直接应用 SSE Flush to 0 FLAGS。同时在 DynaRec 中反映 SSE 异常FLAGS（如果可用）。
+ * 0: 仅追踪 FLAGS。 [默认值]
+ * 1: 直接应用 SSE Flush to 0 FLAGS。同时在 DynaRec 中反映 SSE 异常 FLAGS（如果可用）。
 
 ### BOX64_SSE42
 
@@ -516,7 +516,7 @@ SSE Flush to 0 FLAGS的行为，同时追踪 SSE 异常FLAGS。 在 WowBox64 中
 告诉 Box64 这是一个 Unity 游戏。
 
  * 0: 不执行任何操作。
- * 1: 这是 Unity 游戏，对 Windows 使用特殊的检测代码，对 Linux 应用 BOX64_DYNAREC_强内存模型=1。 [默认值]
+ * 1: 这是 Unity 游戏，对 Windows 使用特殊的检测代码，对 Linux 应用 BOX64_DYNAREC_STRONGMEM=1。 [默认值]
 
 ### BOX64_X11GLX
 
