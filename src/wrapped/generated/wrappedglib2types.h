@@ -87,6 +87,7 @@ typedef int32_t (*iFpppuppppppp_t)(void*, void*, void*, uint32_t, void*, void*, 
 	GO(g_completion_set_compare, vFpp_t) \
 	GO(g_list_free_full, vFpp_t) \
 	GO(g_main_context_set_poll_func, vFpp_t) \
+	GO(g_option_group_add_entries, vFpp_t) \
 	GO(g_ptr_array_set_free_func, vFpp_t) \
 	GO(g_ptr_array_sort, vFpp_t) \
 	GO(g_ptr_array_sort_values, vFpp_t) \

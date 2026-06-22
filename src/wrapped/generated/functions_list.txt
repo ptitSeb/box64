@@ -4788,6 +4788,7 @@ wrappedglib2:
   - g_completion_set_compare
   - g_list_free_full
   - g_main_context_set_poll_func
+  - g_option_group_add_entries
   - g_ptr_array_set_free_func
   - g_ptr_array_sort
   - g_ptr_array_sort_values
