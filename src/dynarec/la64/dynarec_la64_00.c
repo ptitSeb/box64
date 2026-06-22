@@ -2258,11 +2258,16 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     INST_NAME("ROL Eb, Ib");
                     u8 = geted_ib(dyn, addr, ninst, nextop) & 0x1f;
                     if (u8) {
-                        SETFLAGS((u8 > 1) ? X_CF : (X_OF | X_CF), SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
-                    GETEB(x1, 1);
-                    u8 = F8 & 0x1f;
-                    emit_rol8c(dyn, ninst, ed, u8, x4, x5, x6);
-                    EBBACK();
+                        if (MODREG && u8 > 1) {
+                            READFLAGS(X_OF);
+                            SETFLAGS(X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
+                        } else {
+                            SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
+                        }
+                        GETEB(x1, 1);
+                        u8 = F8 & 0x1f;
+                        emit_rol8c(dyn, ninst, ed, u8, x4, x5, x6);
+                        EBBACK();
                     } else {
                         FAKEED;
                         F8;
@@ -2272,7 +2277,12 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     INST_NAME("ROR Eb, Ib");
                     u8 = geted_ib(dyn, addr, ninst, nextop) & 0x1f;
                     if (u8) {
-                        SETFLAGS((u8 > 1) ? X_CF : (X_OF | X_CF), SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
+                        if (MODREG && u8 > 1) {
+                            READFLAGS(X_OF);
+                            SETFLAGS(X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
+                        } else {
+                            SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
+                        }
                         GETEB(x1, 1);
                         u8 = F8 & 0x1f;
                         emit_ror8c(dyn, ninst, x1, u8, x4, x5);
@@ -2366,7 +2376,12 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     INST_NAME("ROL Ed, Ib");
                     u8 = geted_ib(dyn, addr, ninst, nextop) & (0x1f + (rex.w * 0x20));
                     if (u8) {
-                        SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
+                        if (MODREG && u8 > 1) {
+                            READFLAGS(X_OF);
+                            SETFLAGS(X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
+                        } else {
+                            SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
+                        }
                         GETED(1);
                         u8 = (F8) & (rex.w ? 0x3f : 0x1f);
                         emit_rol32c(dyn, ninst, rex, ed, u8, x3, x4);
@@ -2385,7 +2400,12 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     INST_NAME("ROR Ed, Ib");
                     u8 = geted_ib(dyn, addr, ninst, nextop) & (0x1f + (rex.w * 0x20));
                     if (u8) {
-                        SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
+                        if (MODREG && u8 > 1) {
+                            READFLAGS(X_OF);
+                            SETFLAGS(X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
+                        } else {
+                            SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
+                        }
                         GETED(1);
                         u8 = (F8) & (rex.w ? 0x3f : 0x1f);
                         emit_ror32c(dyn, ninst, rex, ed, u8, x3, x4);
@@ -3773,8 +3793,6 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SKIPTEST(x1);
                     if (!BOX64DRENV(dynarec_safeflags)) {
                         SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
-                    } else if (BOX64ENV(cputype)) {
-                        SETFLAGS(X_SF | X_PF | X_ZF | X_AF, SF_SUBSET, NAT_FLAGS_NOFUSION);
                     }
                     GETSEB(x1, 0);
                     if (BOX64ENV(dynarec_div0)) {
@@ -3981,8 +3999,6 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SKIPTEST(x1);
                     if (!BOX64DRENV(dynarec_safeflags)) {
                         SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
-                    } else if (BOX64ENV(cputype)) {
-                        SETFLAGS(X_SF | X_PF | X_ZF | X_AF, SF_SUBSET, NAT_FLAGS_NOFUSION);
                     }
                     // TODO: handle zero divisor
                     if (!rex.w) {

@@ -1226,40 +1226,48 @@ void emit_ror32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
 {
     if (!c) return;
 
-    IFXA ((X_CF | X_OF), cpuext.lbt) {
-        if (rex.w)
-            X64_ROTRI_D(s1, c);
-        else
-            X64_ROTRI_W(s1, c);
-    }
+    int preserve_of = c > 1 && !(dyn->insts[ninst].x64.gen_flags & X_OF);
 
-    IFXA (X_CF | X_OF, !cpuext.lbt) {
-        MOV64x(s4, ((1UL << F_CF) | (1UL << F_OF)));
-        ANDN(xFlags, xFlags, s4);
-    }
-
-    IFXA (X_OF, (!cpuext.lbt || BOX64DRENV(dynarec_safeflags))) {
-        SRLIxw(s3, s1, rex.w ? 63 : 31);
-        XOR(s3, s3, s1);
-        if (cpuext.lbt) {
+    if (cpuext.lbt && !preserve_of) {
+        IFX (X_CF | X_OF) {
+            if (rex.w)
+                X64_ROTRI_D(s1, c);
+            else
+                X64_ROTRI_W(s1, c);
+        }
+        IFXA (X_OF, BOX64DRENV(dynarec_safeflags)) {
+            SRLIxw(s3, s1, rex.w ? 63 : 31);
+            XOR(s3, s3, s1);
             SLLI_D(s3, s3, F_OF);
             X64_SET_EFLAGS(s3, X_OF);
-        } else
-            BSTRINS_D(xFlags, s3, F_OF, F_OF);
+        }
+
+        ROTRIxw(s1, s1, c);
+        if (!rex.w) ZEROUP(s1);
+
+        if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
+        return;
+    }
+
+    if (preserve_of) RESTORE_EFLAGS(s3);
+
+    IFX (X_CF) BSTRINS_D(xFlags, xZR, F_CF, F_CF);
+    IFX (X_OF) BSTRINS_D(xFlags, xZR, F_OF, F_OF);
+
+    IFX (X_OF) {
+        SRLIxw(s3, s1, rex.w ? 63 : 31);
+        XOR(s3, s3, s1);
+        BSTRINS_D(xFlags, s3, F_OF, F_OF);
     }
 
     ROTRIxw(s1, s1, c);
     if (!rex.w) ZEROUP(s1);
 
-    if (cpuext.lbt) {
-        if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
-        return;
-    }
-
     IFX (X_CF) {
         SRLIxw(s3, s1, rex.w ? 63 : 31);
         OR(xFlags, xFlags, s3);
     }
+    IFXA (X_ALL, cpuext.lbt) SPILL_EFLAGS();
     if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
 }
 
@@ -1341,7 +1349,7 @@ void emit_rol16c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int
     if (!c) return;
     RESTORE_EFLAGS(s3);
 
-    IFXA (X_OF, c == 1) {
+    IFX (X_OF) {
         SRLI_D(s3, s1, 14);
         SRLI_D(s4, s3, 1);
         XOR(s3, s4, s3);
@@ -1465,41 +1473,50 @@ void emit_rol32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
 {
     if (!c) return;
 
-    IFXA (X_CF | X_OF, !cpuext.lbt) {
-        MOV64x(s3, ((1UL << F_CF) | (1UL << F_OF)));
-        ANDN(xFlags, xFlags, s3);
+    int preserve_of = c > 1 && !(dyn->insts[ninst].x64.gen_flags & X_OF);
+
+    if (cpuext.lbt && !preserve_of) {
+        IFX (X_CF | X_OF) {
+            if (rex.w)
+                X64_ROTLI_D(s1, c);
+            else
+                X64_ROTLI_W(s1, c);
+        }
+        IFXA (X_OF, BOX64DRENV(dynarec_safeflags)) {
+            SRLIxw(s3, s1, rex.w ? 62 : 30);
+            SRLI_D(s4, s3, 1);
+            XOR(s3, s3, s4);
+            SLLI_D(s3, s3, F_OF);
+            X64_SET_EFLAGS(s3, X_OF);
+        }
+
+        ROTRIxw(s1, s1, (rex.w ? 64 : 32) - c);
+        if (!rex.w) ZEROUP(s1);
+
+        if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
+        return;
     }
 
-    IFXA ((X_CF | X_OF), cpuext.lbt) {
-        if (rex.w)
-            X64_ROTLI_D(s1, c);
-        else
-            X64_ROTLI_W(s1, c);
-    }
+    if (preserve_of) RESTORE_EFLAGS(s3);
 
-    IFXA (X_OF, (!cpuext.lbt || BOX64DRENV(dynarec_safeflags))) {
+    IFX (X_CF) BSTRINS_D(xFlags, xZR, F_CF, F_CF);
+    IFX (X_OF) BSTRINS_D(xFlags, xZR, F_OF, F_OF);
+
+    IFX (X_OF) {
         SRLIxw(s3, s1, rex.w ? 62 : 30);
         SRLI_D(s4, s3, 1);
         XOR(s3, s3, s4);
-        if (cpuext.lbt) {
-            SLLI_D(s3, s3, F_OF);
-            X64_SET_EFLAGS(s3, X_OF);
-        } else
-            BSTRINS_D(xFlags, s3, F_OF, F_OF);
+        BSTRINS_D(xFlags, s3, F_OF, F_OF);
     }
 
     ROTRIxw(s1, s1, (rex.w ? 64 : 32) - c);
     if (!rex.w) ZEROUP(s1);
 
-    if (cpuext.lbt) {
-        if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
-        return;
-    }
-
     IFX (X_CF) {
         ANDI(s4, s1, 1 << F_CF);
         OR(xFlags, xFlags, s4);
     }
+    IFXA (X_ALL, cpuext.lbt) SPILL_EFLAGS();
     if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
 }
 
@@ -2104,7 +2121,7 @@ void emit_ror16c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int
 {
     if (!c) return;
     RESTORE_EFLAGS(s3);
-    IFXA (X_OF, (c == 1)) {
+    IFX (X_OF) {
         SRLI_D(s3, s1, 15);
         XOR(s3, s3, s1);
         BSTRINS_D(xFlags, s3, F_OF, F_OF);
