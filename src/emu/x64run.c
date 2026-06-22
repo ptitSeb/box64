@@ -1445,11 +1445,13 @@ x64emurun:
             nextop = F8;
             GETEB(1);
             tmp8u = F8/* & 0x1f*/; // masking done in each functions
-            if (!BOX64ENV(cputype) && MODREG && ((nextop>>3)&7) <= 1 && ((tmp8u&0x1f)>1))
+            if (!BOX64ENV(cputype) && MODREG && ((nextop>>3)&7) <= 1 && ((tmp8u&0x1f)>1)) {
                 CHECK_FLAGS(emu);
+                tmp8u2=ACCESS_FLAG(F_OF);
+            }
             switch((nextop>>3)&7) {
-                case 0: tmp8u2=ACCESS_FLAG(F_OF); EB->byte[0] = rol8(emu, EB->byte[0], tmp8u); break;
-                case 1: tmp8u2=ACCESS_FLAG(F_OF); EB->byte[0] = ror8(emu, EB->byte[0], tmp8u); break;
+                case 0: EB->byte[0] = rol8(emu, EB->byte[0], tmp8u); break;
+                case 1: EB->byte[0] = ror8(emu, EB->byte[0], tmp8u); break;
                 case 2: EB->byte[0] = rcl8(emu, EB->byte[0], tmp8u); break;
                 case 3: EB->byte[0] = rcr8(emu, EB->byte[0], tmp8u); break;
                 case 4:
@@ -1463,12 +1465,14 @@ x64emurun:
             nextop = F8;
             GETED(1);
             tmp8u = F8/* & 0x1f*/; // masking done in each functions
-            if (!BOX64ENV(cputype) && MODREG && ((nextop>>3)&7) <= 1 && ((tmp8u&(rex.w?0x3f:0x1f))>1))
+            if (!BOX64ENV(cputype) && MODREG && ((nextop>>3)&7) <= 1 && ((tmp8u&(rex.w?0x3f:0x1f))>1)) {
                 CHECK_FLAGS(emu);
+                tmp8u2=ACCESS_FLAG(F_OF);
+            }
             if(rex.w) {
                 switch((nextop>>3)&7) {
-                    case 0: tmp8u2=ACCESS_FLAG(F_OF); ED->q[0] = rol64(emu, ED->q[0], tmp8u); break;
-                    case 1: tmp8u2=ACCESS_FLAG(F_OF); ED->q[0] = ror64(emu, ED->q[0], tmp8u); break;
+                    case 0: ED->q[0] = rol64(emu, ED->q[0], tmp8u); break;
+                    case 1: ED->q[0] = ror64(emu, ED->q[0], tmp8u); break;
                     case 2: ED->q[0] = rcl64(emu, ED->q[0], tmp8u); break;
                     case 3: ED->q[0] = rcr64(emu, ED->q[0], tmp8u); break;
                     case 4:
@@ -1479,8 +1483,8 @@ x64emurun:
             } else {
                 if(MODREG)
                     switch((nextop>>3)&7) {
-                        case 0: tmp8u2=ACCESS_FLAG(F_OF); ED->q[0] = rol32(emu, ED->dword[0], tmp8u); break;
-                        case 1: tmp8u2=ACCESS_FLAG(F_OF); ED->q[0] = ror32(emu, ED->dword[0], tmp8u); break;
+                        case 0: ED->q[0] = rol32(emu, ED->dword[0], tmp8u); break;
+                        case 1: ED->q[0] = ror32(emu, ED->dword[0], tmp8u); break;
                         case 2: ED->q[0] = rcl32(emu, ED->dword[0], tmp8u); break;
                         case 3: ED->q[0] = rcr32(emu, ED->dword[0], tmp8u); break;
                         case 4:

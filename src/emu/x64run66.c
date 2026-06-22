@@ -598,11 +598,13 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         nextop = F8;
         GETEW(1);
         tmp8u = F8 /*& 0x1f*/;
-        if (!BOX64ENV(cputype) && MODREG && ((nextop>>3)&7) <= 1 && ((tmp8u&0x1f)>1))
+        if (!BOX64ENV(cputype) && MODREG && ((nextop>>3)&7) <= 1 && ((tmp8u&0x1f)>1)) {
             CHECK_FLAGS(emu);
+            tmp8u2=ACCESS_FLAG(F_OF);
+        }
         switch((nextop>>3)&7) {
-            case 0: tmp8u2=ACCESS_FLAG(F_OF); EW->word[0] = rol16(emu, EW->word[0], tmp8u); break;
-            case 1: tmp8u2=ACCESS_FLAG(F_OF); EW->word[0] = ror16(emu, EW->word[0], tmp8u); break;
+            case 0: EW->word[0] = rol16(emu, EW->word[0], tmp8u); break;
+            case 1: EW->word[0] = ror16(emu, EW->word[0], tmp8u); break;
             case 2: EW->word[0] = rcl16(emu, EW->word[0], tmp8u); break;
             case 3: EW->word[0] = rcr16(emu, EW->word[0], tmp8u); break;
             case 4:
