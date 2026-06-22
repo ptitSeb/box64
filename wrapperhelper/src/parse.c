@@ -3447,7 +3447,7 @@ file_t *parse_file(machine_t *target, const char *filename, FILE *file) {
 					su = kh_val(ret->struct_map, it);
 				} else {
 					it = kh_get(type_map, ret->type_map, string_content(sutag));
-					if (it != kh_end(ret->struct_map)) {
+					if (it != kh_end(ret->type_map)) {
 						type_t *typ2 = kh_val(ret->type_map, it);
 						if (typ2->typ != TYPE_STRUCT_UNION) {
 							log_error(&tok.loginfo, "failed to find struct/union named %s\n", string_content(sutag));
