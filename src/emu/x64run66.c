@@ -598,7 +598,7 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         nextop = F8;
         GETEW(1);
         tmp8u = F8 /*& 0x1f*/;
-        if (!BOX64ENV(cputype) && ((nextop>>3)&7) <= 1 && ((tmp8u&0x1f)>1))
+        if (!BOX64ENV(cputype) && MODREG && ((nextop>>3)&7) <= 1 && ((tmp8u&0x1f)>1))
             CHECK_FLAGS(emu);
         switch((nextop>>3)&7) {
             case 0: tmp8u2=ACCESS_FLAG(F_OF); EW->word[0] = rol16(emu, EW->word[0], tmp8u); break;
@@ -610,7 +610,7 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             case 5: EW->word[0] = shr16(emu, EW->word[0], tmp8u); break;
             case 7: EW->word[0] = sar16(emu, EW->word[0], tmp8u); break;
         }
-        if (!BOX64ENV(cputype) && ((nextop>>3)&7) <= 1 && ((tmp8u&0x1f)>1)) CONDITIONAL_SET_FLAG(tmp8u2, F_OF);
+        if (!BOX64ENV(cputype) && MODREG && ((nextop>>3)&7) <= 1 && ((tmp8u&0x1f)>1)) CONDITIONAL_SET_FLAG(tmp8u2, F_OF);
         break;
 
     case 0xC7:                              /* MOV Ew,Iw */
