@@ -621,6 +621,10 @@ static void* reverseGPrintFuncFct(void* fct)
     #undef GO
     return NULL;
 }
+
+#undef SUPER
+#include "super80.h"
+
 // GOptionArg ...
 #define GO(A)   \
 static uintptr_t my_GOptionArg_fct_##A = 0;                                            \
@@ -651,6 +655,25 @@ static void* reverseGOptionArgFct(void* fct)
     #undef GO
     return (void*)AddCheckBridge(my_lib->w.bridge, iFpppp, fct, 0, "GOptionArgFunc");
 }
+
+#undef SUPER
+#define SUPER() \
+GO(0)   \
+GO(1)   \
+GO(2)   \
+GO(3)   \
+GO(4)   \
+GO(5)   \
+GO(6)   \
+GO(7)   \
+GO(8)   \
+GO(9)   \
+GO(10)  \
+GO(11)  \
+GO(12)  \
+GO(13)  \
+GO(14)  \
+
 // GOptionParse ...
 #define GO(A)   \
 static uintptr_t my_GOptionParse_fct_##A = 0;                                            \
@@ -1530,28 +1553,40 @@ typedef struct my_GOptionEntry_s {
   void*     arg_description;
 } my_GOptionEntry_t;
 
+static int countGOptionEntries(my_GOptionEntry_t* entries)
+{
+    int idx = 0;
+    while (entries && entries[idx].long_name)
+        ++idx;
+    return idx;
+}
+
+static void wrapGOptionEntries(my_GOptionEntry_t* dst, my_GOptionEntry_t* src, int count)
+{
+    for (int i = 0; i < count; ++i) {
+        dst[i] = src[i];
+        if (src[i].arg == 3)
+            dst[i].arg_data = findGOptionArgFct(src[i].arg_data);
+    }
+    dst[count] = src[count];
+}
+
 EXPORT void my_g_option_context_add_main_entries(x64emu_t* emu, void* context, my_GOptionEntry_t* entries, void* domain)
 {
-    my_GOptionEntry_t* p = entries;
-    int idx = 0;
-    while (p && p->long_name) {
-        // wrap Callbacks
-        ++p;
-        ++idx;
-    }
-    p = entries;
-    my_GOptionEntry_t my_entries[idx+1];
-    idx = 0;
-    while (p && p->long_name) {
-        // wrap Callbacks
-        my_entries[idx] = *p;
-        if (p->arg == 3)
-            my_entries[idx].arg_data = findGOptionArgFct(p->arg_data);
-        ++p;
-        ++idx;
-    }
-    if(p) my_entries[idx] = *p;
+    int count = countGOptionEntries(entries);
+    my_GOptionEntry_t my_entries[count+1];
+    if(entries)
+        wrapGOptionEntries(my_entries, entries, count);
     my->g_option_context_add_main_entries(context, entries?my_entries:NULL, domain);
+}
+
+EXPORT void my_g_option_group_add_entries(x64emu_t* emu, void* group, my_GOptionEntry_t* entries)
+{
+    int count = countGOptionEntries(entries);
+    my_GOptionEntry_t my_entries[count+1];
+    if(entries)
+        wrapGOptionEntries(my_entries, entries, count);
+    my->g_option_group_add_entries(group, entries?my_entries:NULL);
 }
 
 EXPORT void* my_g_strconcat(x64emu_t* emu, void* first, uintptr_t* data)

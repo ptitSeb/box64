@@ -790,7 +790,7 @@ GO(g_option_context_set_summary, vFpp)
 //GOM(g_option_context_set_translate_func, vFEpppp)
 GO(g_option_context_set_translation_domain, vFpp)
 GO(g_option_error_quark, uFv)
-GO(g_option_group_add_entries, vFpp)
+GOM(g_option_group_add_entries, vFEpp)
 GO(g_option_group_free, vFp)
 GOM(g_option_group_new, pFEppppp)
 GO(g_option_group_ref, pFp) // 2.44+
