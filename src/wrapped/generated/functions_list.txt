@@ -2262,6 +2262,7 @@
 #() LFppLuu
 #() LFppLLp
 #() LFppLpL
+#() LFppLpp
 #() LFpppii
 #() LFppplL
 #() LFppplp
@@ -2741,6 +2742,7 @@
 #() iFppLLpp
 #() iFppLpLp
 #() iFppLppp
+#() iFpppiii
 #() iFpppiup
 #() iFpppipi
 #() iFpppipu
@@ -2758,6 +2760,7 @@
 #() iFpppLip
 #() iFpppLpi
 #() iFpppLpp
+#() iFppppii
 #() iFppppiu
 #() iFppppip
 #() iFppppui
@@ -2866,6 +2869,7 @@
 #() LFppLLpL
 #() LFppLpLi
 #() LFppLpLp
+#() LFpppppp
 #() LFSpLiip
 #() pFELpppV
 #() pFELpApp
@@ -3195,6 +3199,7 @@
 #() iFpLppiii
 #() iFpLppiip
 #() iFppiiiii
+#() iFppiiipi
 #() iFppiiLll
 #() iFppiipii
 #() iFppiipiL
@@ -3293,6 +3298,7 @@
 #() LFpLLppuu
 #() LFpLppuuu
 #() LFppLpLpL
+#() LFppLpLpp
 #() LFppLppLp
 #() pFEpupppp
 #() pFEpLiiiI
@@ -3585,6 +3591,7 @@
 #() LFpLpLppuH
 #() LFppLpLpLi
 #() LFppLppLpu
+#() LFppppppLp
 #() pFEupLLLpp
 #() pFEpiipupp
 #() pFEpiipppp
@@ -6751,6 +6758,7 @@ wrappedlibz:
   - inflateBackInit_
 - iFpiiiiipi:
   - deflateInit2_
+wrappedlz4:
 wrappedlzma:
 - vFp:
   - lzma_end
