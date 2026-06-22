@@ -1113,7 +1113,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         SETFLAGS((!BOX64ENV(cputype) && (u8 > 1)) ? X_CF : (X_OF | X_CF), SF_SUBSET); // removed PENDING on purpose
                         GETEW(x1, 1);
                         u8 = (F8)&0x1f;
-                        emit_rol16c(dyn, ninst, x1, u8, x4, x5);
+                        emit_rol16c(dyn, ninst, x1, u8, x4, x5, MODREG);
                         EWBACK;
                     } else {
                         FAKEED;
@@ -1126,7 +1126,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         SETFLAGS((!BOX64ENV(cputype) && (u8 > 1)) ? X_CF : (X_OF | X_CF), SF_SUBSET); // removed PENDING on purpose
                         GETEW(x1, 1);
                         u8 = (F8)&0x1f;
-                        emit_ror16c(dyn, ninst, x1, u8, x4, x5);
+                        emit_ror16c(dyn, ninst, x1, u8, x4, x5, MODREG);
                         EWBACK;
                     } else {
                         FAKEED;
@@ -1241,14 +1241,14 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     INST_NAME("ROL Ew, 1");
                     SETFLAGS(X_OF|X_CF, SF_SUBSET); // removed PENDING on purpose
                     GETEW(x1, 0);
-                    emit_rol16c(dyn, ninst, x1, 1, x5, x4);
+                    emit_rol16c(dyn, ninst, x1, 1, x5, x4, 0);
                     EWBACK;
                     break;
                 case 1:
                     INST_NAME("ROR Ew, 1");
                     SETFLAGS(X_OF|X_CF, SF_SUBSET); // removed PENDING on purpose
                     GETEW(x1, 0);
-                    emit_ror16c(dyn, ninst, x1, 1, x5, x4);
+                    emit_ror16c(dyn, ninst, x1, 1, x5, x4, 0);
                     EWBACK;
                     break;
                 case 2:
