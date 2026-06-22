@@ -1093,8 +1093,13 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             switch ((nextop >> 3) & 7) {
                 case 0:
                     INST_NAME("ROL Ew, Ib");
-                    if (geted_ib(dyn, addr, ninst, nextop) & 0x1f) {
-                        SETFLAGS((u8 > 1) ? X_CF : (X_OF | X_CF), SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
+                    u8 = geted_ib(dyn, addr, ninst, nextop) & 0x1f;
+                    if (u8) {
+                        if (MODREG && u8 > 1) {
+                            SETFLAGS(X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
+                        } else {
+                            SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
+                        }
                         GETEW(x1, 1);
                         u8 = (F8) & 0x1f;
                         emit_rol16c(dyn, ninst, x1, u8, x4, x5, x6);
@@ -1106,8 +1111,13 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
                 case 1:
                     INST_NAME("ROR Ew, Ib");
-                    if (geted_ib(dyn, addr, ninst, nextop) & 0x1f) {
-                        SETFLAGS((u8 > 1) ? X_CF : (X_OF | X_CF), SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
+                    u8 = geted_ib(dyn, addr, ninst, nextop) & 0x1f;
+                    if (u8) {
+                        if (MODREG && u8 > 1) {
+                            SETFLAGS(X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
+                        } else {
+                            SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION); // removed PENDING on purpose
+                        }
                         GETEW(x1, 1);
                         u8 = (F8) & 0x1f;
                         emit_ror16c(dyn, ninst, x1, u8, x4, x5);
@@ -1473,8 +1483,6 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     NOTEST(x1);
                     if (!BOX64DRENV(dynarec_safeflags)) {
                         SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
-                    } else if (BOX64ENV(cputype)) {
-                        SETFLAGS(X_SF | X_PF | X_ZF | X_AF, SF_SUBSET, NAT_FLAGS_NOFUSION);
                     }
                     SET_DFNONE();
                     GETSEW(x1, 0);
