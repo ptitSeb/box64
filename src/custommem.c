@@ -2591,11 +2591,16 @@ void CheckHotPage(uintptr_t addr, uint32_t prot)
 {
     if(addr>=0x1000000000000LL) // more than 48bits
         return;
-    if(prot&PROT_NEVERCLEAN && BOX64ENV(dynarec_dirty)==2)
-        return;
-    if(BOX64ENV(dynarec_nohotpage))
+    if((prot&PROT_NEVERCLEAN) && BOX64ENV(dynarec_dirty)==2)
         return;
     uintptr_t page = addr>>12;
+    if(BOX64ENV(dynarec_nohotpage)) {
+        if(BOX64ENV(dynarec_dirty)==2) {
+            dynarec_log(LOG_INFO, "Switching page at %p to NEVERCLEAN\n", (void*)(page<<12));
+            neverprotectDB(page<<12, box64_pagesize, 2);
+        }
+        return;
+    }
     // look for idx
     int idx = IdxHotPage(page);
     if(idx!=-1 && (BOX64ENV(dynarec_dirty)>1)) {
