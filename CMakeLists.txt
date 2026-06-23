@@ -780,7 +780,6 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedpcap.c"
     "${BOX64_ROOT}/src/wrapped/wrappedplc4.c"
     "${BOX64_ROOT}/src/wrapped/wrappedplds4.c"
-    "${BOX64_ROOT}/src/wrapped/wrappedpipewire03.c"
     "${BOX64_ROOT}/src/wrapped/wrappedpng16.c"
     "${BOX64_ROOT}/src/wrapped/wrappedpulse.c"
     "${BOX64_ROOT}/src/wrapped/wrappedpulsemainloopglib.c"
