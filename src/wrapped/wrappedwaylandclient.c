@@ -1143,10 +1143,117 @@ static void* find_zxdg_toplevel_decoration_v1_listener_Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for wayland-client zxdg_toplevel_decoration_v1_listener_listener callback\n");
     return NULL;
 }
+// wp_color_manager_v1 ...
+typedef struct my_wp_color_manager_v1_listener_s {
+    uintptr_t supported_intent;          // vFppu
+    uintptr_t supported_feature;         // vFppu
+    uintptr_t supported_tf_named;        // vFppu
+    uintptr_t supported_primaries_named; // vFppu
+    uintptr_t done;                      // vFpp
+} my_wp_color_manager_v1_listener_t;
+#define GO(A)                                                                                               \
+    static my_wp_color_manager_v1_listener_t* ref_wp_color_manager_v1_listener_##A = NULL;                  \
+    static void my_wp_color_manager_v1_listener_supported_intent_##A(void* a, void* b, uint32_t c)          \
+    {                                                                                                       \
+        RunFunctionFmt(ref_wp_color_manager_v1_listener_##A->supported_intent, "ppu", a, b, c);             \
+    }                                                                                                       \
+    static void my_wp_color_manager_v1_listener_supported_feature_##A(void* a, void* b, uint32_t c)         \
+    {                                                                                                       \
+        RunFunctionFmt(ref_wp_color_manager_v1_listener_##A->supported_feature, "ppu", a, b, c);            \
+    }                                                                                                       \
+    static void my_wp_color_manager_v1_listener_supported_tf_named_##A(void* a, void* b, uint32_t c)        \
+    {                                                                                                       \
+        RunFunctionFmt(ref_wp_color_manager_v1_listener_##A->supported_tf_named, "ppu", a, b, c);           \
+    }                                                                                                       \
+    static void my_wp_color_manager_v1_listener_supported_primaries_named_##A(void* a, void* b, uint32_t c) \
+    {                                                                                                       \
+        RunFunctionFmt(ref_wp_color_manager_v1_listener_##A->supported_primaries_named, "ppu", a, b, c);    \
+    }                                                                                                       \
+    static void my_wp_color_manager_v1_listener_done_##A(void* a, void* b)                                  \
+    {                                                                                                       \
+        RunFunctionFmt(ref_wp_color_manager_v1_listener_##A->done, "pp", a, b);                             \
+    }                                                                                                       \
+    static my_wp_color_manager_v1_listener_t my_wp_color_manager_v1_listener_fct_##A = {                    \
+        (uintptr_t)my_wp_color_manager_v1_listener_supported_intent_##A,                                    \
+        (uintptr_t)my_wp_color_manager_v1_listener_supported_feature_##A,                                   \
+        (uintptr_t)my_wp_color_manager_v1_listener_supported_tf_named_##A,                                  \
+        (uintptr_t)my_wp_color_manager_v1_listener_supported_primaries_named_##A,                           \
+        (uintptr_t)my_wp_color_manager_v1_listener_done_##A,                                                \
+    };
+SUPER()
+#undef GO
+static void* find_wp_color_manager_v1_listener_Fct(void* fct)
+{
+    if (!fct) return fct;
+#define GO(A) \
+    if (ref_wp_color_manager_v1_listener_##A == fct) return &my_wp_color_manager_v1_listener_fct_##A;
+    SUPER()
+#undef GO
+#define GO(A)                                            \
+    if (ref_wp_color_manager_v1_listener_##A == 0) {     \
+        ref_wp_color_manager_v1_listener_##A = fct;      \
+        return &my_wp_color_manager_v1_listener_fct_##A; \
+    }
+    SUPER()
+#undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for wayland-client wp_color_manager_v1_listener callback\n");
+    return NULL;
+}
+// ext_data_control_device_v1 ...
+typedef struct my_ext_data_control_device_v1_listener_s {
+    uintptr_t data_offer;        // vFppp
+    uintptr_t selection;         // vFppp
+    uintptr_t finished;          // vFpp
+    uintptr_t primary_selection; // vFppp
+} my_ext_data_control_device_v1_listener_t;
+#define GO(A)                                                                                            \
+    static my_ext_data_control_device_v1_listener_t* ref_ext_data_control_device_v1_listener_##A = NULL; \
+    static void my_ext_data_control_device_v1_listener_data_offer_##A(void* a, void* b, void* c)         \
+    {                                                                                                    \
+        RunFunctionFmt(ref_ext_data_control_device_v1_listener_##A->data_offer, "ppp", a, b, c);         \
+    }                                                                                                    \
+    static void my_ext_data_control_device_v1_listener_selection_##A(void* a, void* b, void* c)          \
+    {                                                                                                    \
+        RunFunctionFmt(ref_ext_data_control_device_v1_listener_##A->selection, "ppp", a, b, c);          \
+    }                                                                                                    \
+    static void my_ext_data_control_device_v1_listener_finished_##A(void* a, void* b)                    \
+    {                                                                                                    \
+        RunFunctionFmt(ref_ext_data_control_device_v1_listener_##A->finished, "pp", a, b);               \
+    }                                                                                                    \
+    static void my_ext_data_control_device_v1_listener_primary_selection_##A(void* a, void* b, void* c)  \
+    {                                                                                                    \
+        RunFunctionFmt(ref_ext_data_control_device_v1_listener_##A->primary_selection, "ppp", a, b, c);  \
+    }                                                                                                    \
+    static my_ext_data_control_device_v1_listener_t my_ext_data_control_device_v1_listener_fct_##A = {   \
+        (uintptr_t)my_ext_data_control_device_v1_listener_data_offer_##A,                                \
+        (uintptr_t)my_ext_data_control_device_v1_listener_selection_##A,                                 \
+        (uintptr_t)my_ext_data_control_device_v1_listener_finished_##A,                                  \
+        (uintptr_t)my_ext_data_control_device_v1_listener_primary_selection_##A,                         \
+    };
+SUPER()
+#undef GO
+static void* find_ext_data_control_device_v1_listener_Fct(void* fct)
+{
+    if (!fct) return fct;
+#define GO(A) \
+    if (ref_ext_data_control_device_v1_listener_##A == fct) return &my_ext_data_control_device_v1_listener_fct_##A;
+    SUPER()
+#undef GO
+#define GO(A)                                                   \
+    if (ref_ext_data_control_device_v1_listener_##A == 0) {     \
+        ref_ext_data_control_device_v1_listener_##A = fct;      \
+        return &my_ext_data_control_device_v1_listener_fct_##A; \
+    }
+    SUPER()
+#undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for wayland-client ext_data_control_device_v1_listener callback\n");
+    return NULL;
+}
 #undef SUPER
 
 EXPORT int my_wl_proxy_add_listener(x64emu_t* emu, void* proxy, void** l, void* data)
 {
+    if (!proxy) return -1;
     const char* proxy_name = **(const char***)proxy;
     if(!strcmp(proxy_name, "wl_registry")) {
         l = find_wl_registry_listener_Fct(l);
@@ -1200,6 +1307,10 @@ EXPORT int my_wl_proxy_add_listener(x64emu_t* emu, void* proxy, void** l, void* 
         l = find_wp_image_description_info_v1_listener_Fct(l);
     } else if (!strcmp(proxy_name, "zxdg_toplevel_decoration_v1")) {
         l = find_zxdg_toplevel_decoration_v1_listener_Fct(l);
+    } else if (!strcmp(proxy_name, "wp_color_manager_v1")) {
+        l = find_wp_color_manager_v1_listener_Fct(l);
+    } else if (!strcmp(proxy_name, "ext_data_control_device_v1")) {
+        l = find_ext_data_control_device_v1_listener_Fct(l);
     } else
         printf_log(LOG_INFO, "Error, Wayland-client, add_listener to %s unknown, will crash soon!\n", proxy_name);
     return my->wl_proxy_add_listener(proxy, l, data);
