@@ -872,7 +872,7 @@ int ReadDynaCache(const char* folder, const char* name, mapping_t* mapping, int 
                 (void*)file_header->map_addr, (void*)file_header->map_addr+file_header->map_len,
                 file_header->nLockAddresses, file_header->nUnalignedAddresses);
             if(total_compressed && n>0 && n<(int)sizeof(buf)) {
-                n += snprintf(buf+n, sizeof(buf)-n, "\n\tCompression: %s compressed", NicePrintSize(total_compressed));
+                n += snprintf(buf+n, sizeof(buf)-n, "\n\tCompression: %d%% / %s compressed", 100ULL-total_compressed*100ULL/total_blocks ,NicePrintSize(total_compressed));
                 if(total_uncompressed && n>0 && n<(int)sizeof(buf))
                     n += snprintf(buf+n, sizeof(buf)-n, ", %s uncompressed", NicePrintSize(total_uncompressed));
             }
