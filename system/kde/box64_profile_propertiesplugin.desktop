@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Service
+Name=Box64 Profile
+Name[zh_CN]=Box64 预设
+Comment=Select the Box64 profile for an executable from Dolphin
+Comment[zh_CN]=从 Dolphin 为可执行文件选择 Box64 预设
+Icon=application-x-executable
+X-KDE-Library=box64_profile_propertiesplugin
+X-KDE-ServiceTypes=KPropertiesDialog/Plugin
+MimeType=application/x-executable;application/x-pie-executable;application/x-sharedlib;application/x-dosexec;application/x-msdownload;application/vnd.microsoft.portable-executable;application/vnd.appimage;application/octet-stream;

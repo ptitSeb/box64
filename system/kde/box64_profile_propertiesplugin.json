@@ -1,0 +1,26 @@
+{
+    "KPlugin": {
+        "Description": "Select the Box64 profile for an executable from Dolphin",
+        "Description[zh_CN]": "从 Dolphin 为可执行文件选择 Box64 预设",
+        "Icon": "application-x-executable",
+        "MimeTypes": [
+            "application/x-executable",
+            "application/x-pie-executable",
+            "application/x-sharedlib",
+            "application/x-dosexec",
+            "application/x-msdownload",
+            "application/vnd.microsoft.portable-executable",
+            "application/vnd.appimage",
+            "application/octet-stream"
+        ],
+        "Name": "Box64 Profile",
+        "Name[zh_CN]": "Box64 预设",
+        "ServiceTypes": [
+            "KPropertiesDialog/Plugin"
+        ]
+    },
+    "MimeType": "application/x-executable;application/x-pie-executable;application/x-sharedlib;application/x-dosexec;application/x-msdownload;application/vnd.microsoft.portable-executable;application/vnd.appimage;application/octet-stream;",
+    "X-KDE-Protocols": [
+        "file"
+    ]
+}

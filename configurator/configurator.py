@@ -20,14 +20,18 @@ gi.require_version("Gdk", "3.0")
 from gi.repository import Gio, Gdk, GLib, Gtk, Pango
 
 try:
+    from .box64rc import SectionKey
     from .model import ConfigStore, EntryRecord, ValueState, box64_arch_from_machine
     from .usage import EnvOption, load_default_usage_catalog, load_usage_catalog
 except ImportError:
+    from box64rc import SectionKey
     from model import ConfigStore, EntryRecord, ValueState, box64_arch_from_machine
     from usage import EnvOption, load_default_usage_catalog, load_usage_catalog
 
 
 APP_ID = "org.box64.Configurator"
+PROFILE_CHOICES = ("default", "safest", "safe", "fast", "fastest")
+PROFILE_OPTION_NAME = "BOX64_PROFILE"
 
 
 _EMBEDDED_TEXTS: Optional[Dict[str, Dict[str, str]]] = globals().get("_EMBEDDED_TEXTS")
@@ -246,6 +250,66 @@ def dropped_executable_entry(path: Path) -> str:
     if detect_supported_executable(resolved) is None:
         raise ValueError(f"Unsupported file: {path}")
     return resolved.name
+
+
+def profile_menu_entry(path: Path) -> str:
+    resolved = path.expanduser().resolve(strict=True)
+    if not resolved.is_file():
+        raise ValueError(f"Not a file: {path}")
+    name = resolved.name
+    if not name or any(char in name for char in "\r\n[]#"):
+        raise ValueError(f"Invalid executable name for rcfile section: {name}")
+    return name
+
+
+def entry_for_profile_menu(store: ConfigStore, name: str) -> Optional[EntryRecord]:
+    normalized = name.lower()
+    matches = [
+        entry
+        for entry in store.entries()
+        if entry.key.kind == "exact" and entry.key.name == normalized
+    ]
+    return next((entry for entry in matches if not entry.key.arch), matches[0] if matches else None)
+
+
+def get_profile_from_menu(store: ConfigStore, executable: Path) -> str:
+    name = profile_menu_entry(executable)
+    entry = entry_for_profile_menu(store, name)
+    if entry is None:
+        entry = EntryRecord(SectionKey("exact", name.lower()), name, None, None)
+
+    active, _often_used, _defaults = store.effective_values(entry)
+    profile = next(
+        (state.value.strip().lower() for state in active if state.option.name == PROFILE_OPTION_NAME),
+        "default",
+    )
+    return profile if profile in PROFILE_CHOICES else "default"
+
+
+def profile_only_user_entry(entry: EntryRecord) -> bool:
+    return (
+        entry.user_section is not None
+        and entry.system_section is None
+        and all(assignment.key == PROFILE_OPTION_NAME for assignment in entry.user_section.assignments)
+    )
+
+
+def set_profile_from_menu(store: ConfigStore, executable: Path, profile: str) -> None:
+    name = profile_menu_entry(executable)
+    entry = entry_for_profile_menu(store, name)
+    if entry is None:
+        if profile == "default":
+            return
+        new_key = store.create_entry(name)
+        entry = store.entry_for_key(new_key)
+        if entry is None:
+            raise KeyError(new_key)
+
+    remove_profile_only_section = profile == "default" and profile_only_user_entry(entry)
+    updated_key, _forked = store.set_option(entry, PROFILE_OPTION_NAME, profile)
+    if remove_profile_only_section:
+        store.delete_user_entry(updated_key)
+    store.save()
 
 
 class EntryRow(Gtk.ListBoxRow):
@@ -575,6 +639,25 @@ class ConfiguratorWindow(Gtk.ApplicationWindow):
                 self._push_status(tr(self.language, "dirty"))
         elif errors:
             self._show_error(ValueError("\n".join(errors)))
+
+    def open_executable(self, path: Path) -> None:
+        try:
+            name = dropped_executable_entry(path)
+        except Exception as error:
+            self._show_error(error)
+            return
+
+        try:
+            new_key = self.store.create_entry(name)
+        except Exception as error:
+            self._show_error(error)
+            return
+
+        self.selected_option_name = None
+        self.current_key = new_key
+        self._refresh_view(new_key)
+        if self.store.dirty:
+            self._push_status(tr(self.language, "dirty"))
 
     def _on_entry_list_button_press(self, _listbox: Gtk.ListBox, event) -> bool:
         if event.button != 3:
@@ -1217,11 +1300,15 @@ class ConfiguratorApplication(Gtk.Application):
         super().__init__(application_id=APP_ID, flags=Gio.ApplicationFlags.FLAGS_NONE)
         self.store = store
         self.window: Optional[ConfiguratorWindow] = None
+        self.open_executable: Optional[Path] = None
 
     def do_activate(self) -> None:
         if self.window is None:
             self.window = ConfiguratorWindow(self, self.store)
         self.window.present()
+        if self.open_executable is not None:
+            self.window.open_executable(self.open_executable)
+            self.open_executable = None
 
 
 def parse_args(argv: Optional[Sequence[str]]) -> argparse.Namespace:
@@ -1230,7 +1317,16 @@ def parse_args(argv: Optional[Sequence[str]]) -> argparse.Namespace:
     parser.add_argument("--usage-cn", type=Path)
     parser.add_argument("--system-rc", type=Path, default=default_system_rc())
     parser.add_argument("--user-rc", type=Path, default=default_user_rc())
-    return parser.parse_args(argv)
+    parser.add_argument("--set-profile", choices=PROFILE_CHOICES)
+    parser.add_argument("--get-profile", action="store_true")
+    parser.add_argument("executable", nargs="?", type=Path)
+    args = parser.parse_args(argv)
+    profile_mode_count = int(args.set_profile is not None) + int(args.get_profile)
+    if profile_mode_count > 1:
+        parser.error("--set-profile and --get-profile cannot be used together")
+    if profile_mode_count > 0 and args.executable is None:
+        parser.error("--set-profile and --get-profile require an executable")
+    return args
 
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
@@ -1242,7 +1338,15 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     else:
         catalog = load_default_usage_catalog()
     store = ConfigStore(args.system_rc, args.user_rc, catalog, box64_arch_from_machine(platform.machine()))
+    if args.set_profile is not None:
+        set_profile_from_menu(store, args.executable, args.set_profile)
+        return 0
+    if args.get_profile:
+        print(get_profile_from_menu(store, args.executable))
+        return 0
     app = ConfiguratorApplication(store)
+    if args.executable is not None:
+        app.open_executable = args.executable
     return app.run([sys.argv[0]])
 
 
