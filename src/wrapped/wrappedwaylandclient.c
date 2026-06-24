@@ -142,10 +142,12 @@ static void* find_xdg_surface_listener_Fct(void* fct)
 }
 // xdg_toplevel_listener ...
 typedef struct my_xdg_toplevel_listener_s {
-    uintptr_t   configure; //vFppiip
-    uintptr_t   close;  //vFpp
+    uintptr_t configure;        // vFppiip
+    uintptr_t close;            // vFpp
+    uintptr_t configure_bounds; // vFppii
+    uintptr_t wm_capabilities;  // vFppp
 } my_xdg_toplevel_listener_t;
-#define GO(A)   \
+#define GO(A)                                                                                       \
 static my_xdg_toplevel_listener_t* ref_xdg_toplevel_listener_##A = NULL;                            \
 static void my_xdg_toplevel_listener_configure_##A(void* a, void* b, int c, int d, void* e)         \
 {                                                                                                   \
@@ -155,9 +157,19 @@ static void my_xdg_toplevel_listener_close_##A(void* a, void* b)                
 {                                                                                                   \
     RunFunctionFmt(ref_xdg_toplevel_listener_##A->close, "pp", a, b);                               \
 }                                                                                                   \
+static void my_xdg_toplevel_listener_configure_bounds_##A(void* a, void* b, int c, int d)           \
+{                                                                                                   \
+    RunFunctionFmt(ref_xdg_toplevel_listener_##A->configure_bounds, "ppii", a, b, c, d);            \
+}                                                                                                   \
+static void my_xdg_toplevel_listener_wm_capabilities_##A(void* a, void* b, void* c)                 \
+{                                                                                                   \
+    RunFunctionFmt(ref_xdg_toplevel_listener_##A->wm_capabilities, "ppp", a, b, c);                 \
+}                                                                                                   \
 static my_xdg_toplevel_listener_t my_xdg_toplevel_listener_fct_##A = {                              \
     (uintptr_t)my_xdg_toplevel_listener_configure_##A,                                              \
-    (uintptr_t)my_xdg_toplevel_listener_close_##A                                                   \
+    (uintptr_t)my_xdg_toplevel_listener_close_##A,                                                  \
+    (uintptr_t)my_xdg_toplevel_listener_configure_bounds_##A,                                       \
+    (uintptr_t)my_xdg_toplevel_listener_wm_capabilities_##A                                         \
 };
 SUPER()
 #undef GO
@@ -832,13 +844,13 @@ static void* find_wl_surface_listener_Fct(void* fct)
 }
 // wl_callback_listener ...
 typedef struct my_wl_callback_listener_s {
-    uintptr_t   done; //vFppp
+    uintptr_t done; // vFppu
 } my_wl_callback_listener_t;
-#define GO(A)   \
+#define GO(A)                                                               \
 static my_wl_callback_listener_t* ref_wl_callback_listener_##A = NULL;      \
-static void my_wl_callback_listener_done_##A(void* a, void* b, void* c)     \
+static void my_wl_callback_listener_done_##A(void* a, void* b, uint32_t c)  \
 {                                                                           \
-    RunFunctionFmt(ref_wl_callback_listener_##A->done, "ppp", a, b, c);     \
+    RunFunctionFmt(ref_wl_callback_listener_##A->done, "ppu", a, b, c);     \
 }                                                                           \
 static my_wl_callback_listener_t my_wl_callback_listener_fct_##A = {        \
     (uintptr_t)my_wl_callback_listener_done_##A,                            \
@@ -1015,6 +1027,44 @@ static void* find_wp_color_management_output_v1_listener_Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for wayland-client wp_color_management_output_v1_listener callback\n");
     return NULL;
 }
+// wp_color_management_surface_feedback_v1 ...
+typedef struct my_wp_color_management_surface_feedback_v1_listener_s {
+    uintptr_t preferred_changed;  // vFppu
+    uintptr_t preferred_changed2; // vFppuu
+} my_wp_color_management_surface_feedback_v1_listener_t;
+#define GO(A)                                                                                                                        \
+    static my_wp_color_management_surface_feedback_v1_listener_t* ref_wp_color_management_surface_feedback_v1_listener_##A = NULL;   \
+    static void my_wp_color_management_surface_feedback_v1_listener_preferred_changed_##A(void* a, void* b, uint32_t c)              \
+    {                                                                                                                                \
+        RunFunctionFmt(ref_wp_color_management_surface_feedback_v1_listener_##A->preferred_changed, "ppu", a, b, c);                 \
+    }                                                                                                                                \
+    static void my_wp_color_management_surface_feedback_v1_listener_preferred_changed2_##A(void* a, void* b, uint32_t c, uint32_t d) \
+    {                                                                                                                                \
+        RunFunctionFmt(ref_wp_color_management_surface_feedback_v1_listener_##A->preferred_changed2, "ppuu", a, b, c, d);            \
+    }                                                                                                                                \
+    static my_wp_color_management_surface_feedback_v1_listener_t my_wp_color_management_surface_feedback_v1_listener_fct_##A = {     \
+        (uintptr_t)my_wp_color_management_surface_feedback_v1_listener_preferred_changed_##A,                                        \
+        (uintptr_t)my_wp_color_management_surface_feedback_v1_listener_preferred_changed2_##A,                                       \
+    };
+SUPER()
+#undef GO
+static void* find_wp_color_management_surface_feedback_v1_listener_Fct(void* fct)
+{
+    if (!fct) return fct;
+#define GO(A) \
+    if (ref_wp_color_management_surface_feedback_v1_listener_##A == fct) return &my_wp_color_management_surface_feedback_v1_listener_fct_##A;
+    SUPER()
+#undef GO
+#define GO(A)                                                                \
+    if (ref_wp_color_management_surface_feedback_v1_listener_##A == 0) {     \
+        ref_wp_color_management_surface_feedback_v1_listener_##A = fct;      \
+        return &my_wp_color_management_surface_feedback_v1_listener_fct_##A; \
+    }
+    SUPER()
+#undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for wayland-client wp_color_management_surface_feedback_v1_listener callback\n");
+    return NULL;
+}
 // wp_image_description_info_v1 ...
 typedef struct my_wp_image_description_info_v1_listener_s {
     uintptr_t done;             // vFpp
@@ -1143,6 +1193,70 @@ static void* find_zxdg_toplevel_decoration_v1_listener_Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for wayland-client zxdg_toplevel_decoration_v1_listener_listener callback\n");
     return NULL;
 }
+// zxdg_exported_v2 ...
+typedef struct my_zxdg_exported_v2_listener_s {
+    uintptr_t handle; // vFppp
+} my_zxdg_exported_v2_listener_t;
+#define GO(A)                                                                        \
+    static my_zxdg_exported_v2_listener_t* ref_zxdg_exported_v2_listener_##A = NULL; \
+    static void my_zxdg_exported_v2_listener_handle_##A(void* a, void* b, void* c)   \
+    {                                                                                \
+        RunFunctionFmt(ref_zxdg_exported_v2_listener_##A->handle, "ppp", a, b, c);   \
+    }                                                                                \
+    static my_zxdg_exported_v2_listener_t my_zxdg_exported_v2_listener_fct_##A = {   \
+        (uintptr_t)my_zxdg_exported_v2_listener_handle_##A,                          \
+    };
+SUPER()
+#undef GO
+static void* find_zxdg_exported_v2_listener_Fct(void* fct)
+{
+    if (!fct) return fct;
+#define GO(A) \
+    if (ref_zxdg_exported_v2_listener_##A == fct) return &my_zxdg_exported_v2_listener_fct_##A;
+    SUPER()
+#undef GO
+#define GO(A)                                         \
+    if (ref_zxdg_exported_v2_listener_##A == 0) {     \
+        ref_zxdg_exported_v2_listener_##A = fct;      \
+        return &my_zxdg_exported_v2_listener_fct_##A; \
+    }
+    SUPER()
+#undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for wayland-client zxdg_exported_v2_listener callback\n");
+    return NULL;
+}
+// zxdg_imported_v2 ...
+typedef struct my_zxdg_imported_v2_listener_s {
+    uintptr_t destroyed; // vFpp
+} my_zxdg_imported_v2_listener_t;
+#define GO(A)                                                                        \
+    static my_zxdg_imported_v2_listener_t* ref_zxdg_imported_v2_listener_##A = NULL; \
+    static void my_zxdg_imported_v2_listener_destroyed_##A(void* a, void* b)         \
+    {                                                                                \
+        RunFunctionFmt(ref_zxdg_imported_v2_listener_##A->destroyed, "pp", a, b);    \
+    }                                                                                \
+    static my_zxdg_imported_v2_listener_t my_zxdg_imported_v2_listener_fct_##A = {   \
+        (uintptr_t)my_zxdg_imported_v2_listener_destroyed_##A,                       \
+    };
+SUPER()
+#undef GO
+static void* find_zxdg_imported_v2_listener_Fct(void* fct)
+{
+    if (!fct) return fct;
+#define GO(A) \
+    if (ref_zxdg_imported_v2_listener_##A == fct) return &my_zxdg_imported_v2_listener_fct_##A;
+    SUPER()
+#undef GO
+#define GO(A)                                         \
+    if (ref_zxdg_imported_v2_listener_##A == 0) {     \
+        ref_zxdg_imported_v2_listener_##A = fct;      \
+        return &my_zxdg_imported_v2_listener_fct_##A; \
+    }
+    SUPER()
+#undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for wayland-client zxdg_imported_v2_listener callback\n");
+    return NULL;
+}
 // wp_color_manager_v1 ...
 typedef struct my_wp_color_manager_v1_listener_s {
     uintptr_t supported_intent;          // vFppu
@@ -1249,6 +1363,94 @@ static void* find_ext_data_control_device_v1_listener_Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for wayland-client ext_data_control_device_v1_listener callback\n");
     return NULL;
 }
+// wp_image_description_v1 ...
+typedef struct my_wp_image_description_v1_listener_s {
+    uintptr_t failed; // vFppup
+    uintptr_t ready;  // vFppu
+    uintptr_t ready2; // vFppuu
+} my_wp_image_description_v1_listener_t;
+#define GO(A)                                                                                            \
+    static my_wp_image_description_v1_listener_t* ref_wp_image_description_v1_listener_##A = NULL;       \
+    static void my_wp_image_description_v1_listener_failed_##A(void* a, void* b, uint32_t c, void* d)    \
+    {                                                                                                    \
+        RunFunctionFmt(ref_wp_image_description_v1_listener_##A->failed, "ppup", a, b, c, d);            \
+    }                                                                                                    \
+    static void my_wp_image_description_v1_listener_ready_##A(void* a, void* b, uint32_t c)              \
+    {                                                                                                    \
+        RunFunctionFmt(ref_wp_image_description_v1_listener_##A->ready, "ppu", a, b, c);                 \
+    }                                                                                                    \
+    static void my_wp_image_description_v1_listener_ready2_##A(void* a, void* b, uint32_t c, uint32_t d) \
+    {                                                                                                    \
+        RunFunctionFmt(ref_wp_image_description_v1_listener_##A->ready2, "ppuu", a, b, c, d);            \
+    }                                                                                                    \
+    static my_wp_image_description_v1_listener_t my_wp_image_description_v1_listener_fct_##A = {         \
+        (uintptr_t)my_wp_image_description_v1_listener_failed_##A,                                       \
+        (uintptr_t)my_wp_image_description_v1_listener_ready_##A,                                        \
+        (uintptr_t)my_wp_image_description_v1_listener_ready2_##A,                                       \
+    };
+SUPER()
+#undef GO
+static void* find_wp_image_description_v1_listener_Fct(void* fct)
+{
+    if (!fct) return fct;
+#define GO(A) \
+    if (ref_wp_image_description_v1_listener_##A == fct) return &my_wp_image_description_v1_listener_fct_##A;
+    SUPER()
+#undef GO
+#define GO(A)                                                \
+    if (ref_wp_image_description_v1_listener_##A == 0) {     \
+        ref_wp_image_description_v1_listener_##A = fct;      \
+        return &my_wp_image_description_v1_listener_fct_##A; \
+    }
+    SUPER()
+#undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for wayland-client wp_image_description_v1_listener callback\n");
+    return NULL;
+}
+// zwp_pointer_gesture_pinch_v1 ...
+typedef struct my_zwp_pointer_gesture_pinch_v1_listener_s {
+    uintptr_t begin;  // vFppuuup
+    uintptr_t update; // vFppuiiii
+    uintptr_t end;    // vFppuui
+} my_zwp_pointer_gesture_pinch_v1_listener_t;
+#define GO(A)                                                                                                                                 \
+    static my_zwp_pointer_gesture_pinch_v1_listener_t* ref_zwp_pointer_gesture_pinch_v1_listener_##A = NULL;                                  \
+    static void my_zwp_pointer_gesture_pinch_v1_listener_begin_##A(void* a, void* b, uint32_t c, uint32_t d, void* e, uint32_t f)             \
+    {                                                                                                                                         \
+        RunFunctionFmt(ref_zwp_pointer_gesture_pinch_v1_listener_##A->begin, "ppuuup", a, b, c, d, e, f);                                     \
+    }                                                                                                                                         \
+    static void my_zwp_pointer_gesture_pinch_v1_listener_update_##A(void* a, void* b, uint32_t c, int32_t d, int32_t e, int32_t f, int32_t g) \
+    {                                                                                                                                         \
+        RunFunctionFmt(ref_zwp_pointer_gesture_pinch_v1_listener_##A->update, "ppuiiii", a, b, c, d, e, f, g);                                \
+    }                                                                                                                                         \
+    static void my_zwp_pointer_gesture_pinch_v1_listener_end_##A(void* a, void* b, uint32_t c, uint32_t d, int32_t e)                         \
+    {                                                                                                                                         \
+        RunFunctionFmt(ref_zwp_pointer_gesture_pinch_v1_listener_##A->end, "ppuui", a, b, c, d, e);                                           \
+    }                                                                                                                                         \
+    static my_zwp_pointer_gesture_pinch_v1_listener_t my_zwp_pointer_gesture_pinch_v1_listener_fct_##A = {                                    \
+        (uintptr_t)my_zwp_pointer_gesture_pinch_v1_listener_begin_##A,                                                                        \
+        (uintptr_t)my_zwp_pointer_gesture_pinch_v1_listener_update_##A,                                                                       \
+        (uintptr_t)my_zwp_pointer_gesture_pinch_v1_listener_end_##A,                                                                          \
+    };
+SUPER()
+#undef GO
+static void* find_zwp_pointer_gesture_pinch_v1_listener_Fct(void* fct)
+{
+    if (!fct) return fct;
+#define GO(A) \
+    if (ref_zwp_pointer_gesture_pinch_v1_listener_##A == fct) return &my_zwp_pointer_gesture_pinch_v1_listener_fct_##A;
+    SUPER()
+#undef GO
+#define GO(A)                                                     \
+    if (ref_zwp_pointer_gesture_pinch_v1_listener_##A == 0) {     \
+        ref_zwp_pointer_gesture_pinch_v1_listener_##A = fct;      \
+        return &my_zwp_pointer_gesture_pinch_v1_listener_fct_##A; \
+    }
+    SUPER()
+#undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for wayland-client zwp_pointer_gesture_pinch_v1_listener callback\n");
+    return NULL;
+}
 #undef SUPER
 
 EXPORT int my_wl_proxy_add_listener(x64emu_t* emu, void* proxy, void** l, void* data)
@@ -1303,14 +1505,24 @@ EXPORT int my_wl_proxy_add_listener(x64emu_t* emu, void* proxy, void** l, void* 
         l = find_zwp_primary_selection_offer_v1_listener_Fct(l);
     } else if (!strcmp(proxy_name, "wp_color_management_output_v1")) {
         l = find_wp_color_management_output_v1_listener_Fct(l);
+    } else if (!strcmp(proxy_name, "wp_color_management_surface_feedback_v1")) {
+        l = find_wp_color_management_surface_feedback_v1_listener_Fct(l);
     } else if (!strcmp(proxy_name, "wp_image_description_info_v1")) {
         l = find_wp_image_description_info_v1_listener_Fct(l);
     } else if (!strcmp(proxy_name, "zxdg_toplevel_decoration_v1")) {
         l = find_zxdg_toplevel_decoration_v1_listener_Fct(l);
+    } else if (!strcmp(proxy_name, "zxdg_exported_v2")) {
+        l = find_zxdg_exported_v2_listener_Fct(l);
+    } else if (!strcmp(proxy_name, "zxdg_imported_v2")) {
+        l = find_zxdg_imported_v2_listener_Fct(l);
     } else if (!strcmp(proxy_name, "wp_color_manager_v1")) {
         l = find_wp_color_manager_v1_listener_Fct(l);
     } else if (!strcmp(proxy_name, "ext_data_control_device_v1")) {
         l = find_ext_data_control_device_v1_listener_Fct(l);
+    } else if (!strcmp(proxy_name, "wp_image_description_v1")) {
+        l = find_wp_image_description_v1_listener_Fct(l);
+    } else if (!strcmp(proxy_name, "zwp_pointer_gesture_pinch_v1")) {
+        l = find_zwp_pointer_gesture_pinch_v1_listener_Fct(l);
     } else
         printf_log(LOG_INFO, "Error, Wayland-client, add_listener to %s unknown, will crash soon!\n", proxy_name);
     return my->wl_proxy_add_listener(proxy, l, data);
