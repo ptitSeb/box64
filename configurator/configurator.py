@@ -470,10 +470,12 @@ class ConfiguratorWindow(Gtk.ApplicationWindow):
         self.detail_box.set_border_width(18)
         self.detail_header = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
         self.effective_group = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        self.often_used_group = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         self.unsupported_group = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         self.defaults_group = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         self.detail_box.pack_start(self.detail_header, False, False, 0)
         self.detail_box.pack_start(self.effective_group, False, False, 0)
+        self.detail_box.pack_start(self.often_used_group, False, False, 0)
         self.detail_box.pack_start(self.unsupported_group, False, False, 0)
         self.detail_box.pack_start(self.defaults_group, False, False, 0)
         detail_scroll.add(self.detail_box)
@@ -662,6 +664,7 @@ class ConfiguratorWindow(Gtk.ApplicationWindow):
         for container in (
             self.detail_header,
             self.effective_group,
+            self.often_used_group,
             self.unsupported_group,
             self.defaults_group,
         ):
@@ -669,6 +672,7 @@ class ConfiguratorWindow(Gtk.ApplicationWindow):
                 child.destroy()
 
         self.effective_group.hide()
+        self.often_used_group.hide()
         self.unsupported_group.hide()
         self.defaults_group.hide()
 
@@ -684,13 +688,21 @@ class ConfiguratorWindow(Gtk.ApplicationWindow):
             return
 
         self._add_entry_header(entry)
-        active, defaults = self.store.effective_values(entry)
-        visible_names = {state.option.name for state in (*active, *defaults)}
+        active, often_used, defaults = self.store.effective_values(entry)
+        visible_names = {state.option.name for state in (*active, *often_used, *defaults)}
         if self.selected_option_name not in visible_names:
             self.selected_option_name = None
         self._add_option_group(
             self.effective_group, tr(self.language, "effective"), active, entry, default_rows=False
         )
+        if often_used:
+            self._add_option_group(
+                self.often_used_group,
+                tr(self.language, "often_used"),
+                often_used,
+                entry,
+                default_rows=True,
+            )
         self._add_unsupported(entry)
         self._add_option_group(
             self.defaults_group, tr(self.language, "defaults"), defaults, entry, default_rows=True
@@ -698,6 +710,10 @@ class ConfiguratorWindow(Gtk.ApplicationWindow):
 
         self.detail_header.show_all()
         self.effective_group.show_all()
+        if often_used:
+            self.often_used_group.show_all()
+        else:
+            self.often_used_group.hide()
         self.defaults_group.show_all()
         if self.unsupported_group.get_children():
             self.unsupported_group.show_all()
@@ -878,8 +894,8 @@ class ConfiguratorWindow(Gtk.ApplicationWindow):
         self._insert_option_editor_after(row.get_parent(), row, entry, state)
 
     def _state_for_option(self, entry: EntryRecord, option_name: str) -> Optional[ValueState]:
-        active, defaults = self.store.effective_values(entry)
-        for state in (*active, *defaults):
+        active, often_used, defaults = self.store.effective_values(entry)
+        for state in (*active, *often_used, *defaults):
             if state.option.name == option_name:
                 return state
         return None

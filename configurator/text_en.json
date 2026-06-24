@@ -9,6 +9,7 @@
   "save": "Save",
   "select_entry": "Select an entry on the left.",
   "effective": "Effective options",
+  "often_used": "Often used options",
   "defaults": "Default values",
   "unsupported": "Other rcfile keys",
   "unsupported_help": "These keys are preserved when a system entry is forked, but this tool does not edit them.",

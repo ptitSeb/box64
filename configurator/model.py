@@ -81,6 +81,17 @@ class ValueState:
 SectionIdentity = Tuple[str, str]
 
 
+OFTEN_USED_OPTION_NAMES = {
+    "BOX64_DYNAREC_BIGBLOCK",
+    "BOX64_DYNAREC_CALLRET",
+    "BOX64_DYNAREC_DIRTY",
+    "BOX64_DYNAREC_FASTNAN",
+    "BOX64_DYNAREC_FASTROUND",
+    "BOX64_DYNAREC_SAFEFLAGS",
+    "BOX64_DYNAREC_STRONGMEM",
+}
+
+
 class ConfigStore:
     def __init__(
         self, system_path: Path, user_path: Path, catalog: UsageCatalog, machine_arch: str = ""
@@ -210,7 +221,9 @@ class ConfigStore:
             assignment for assignment in direct_box64_assignments(section) if assignment.key not in self.catalog
         )
 
-    def effective_values(self, entry: EntryRecord) -> Tuple[List[ValueState], List[ValueState]]:
+    def effective_values(
+        self, entry: EntryRecord
+    ) -> Tuple[List[ValueState], List[ValueState], List[ValueState]]:
         states: Dict[str, ValueState] = {}
 
         if entry.key.kind != "shared":
@@ -220,21 +233,24 @@ class ConfigStore:
         self._apply_direct(states, entry)
 
         active: List[ValueState] = []
+        often_used: List[ValueState] = []
         defaults: List[ValueState] = []
         for option in self.catalog.options:
             state = states.get(option.name)
             if state is None:
-                defaults.append(
-                    ValueState(
-                        option=option,
-                        value=option.default_value,
-                        source="default",
-                    )
+                default_state = ValueState(
+                    option=option,
+                    value=option.default_value,
+                    source="default",
                 )
+                if option.name in OFTEN_USED_OPTION_NAMES:
+                    often_used.append(default_state)
+                else:
+                    defaults.append(default_state)
             else:
                 active.append(state)
 
-        return active, defaults
+        return active, often_used, defaults
 
     def _ensure_user_section(self, entry: EntryRecord) -> Tuple[RcSection, bool]:
         user_section = self.user.section_for_key(entry.key)

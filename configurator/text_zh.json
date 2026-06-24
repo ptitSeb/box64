@@ -9,6 +9,7 @@
   "save": "保存",
   "select_entry": "请在左侧选择一个条目。",
   "effective": "生效选项",
+  "often_used": "常用选项",
   "defaults": "默认值",
   "unsupported": "其他配置项",
   "unsupported_help": "系统条目复制到用户时会保留这些项，但此工具不会编辑它们。",
