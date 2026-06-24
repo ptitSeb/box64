@@ -24,6 +24,7 @@
   "source_shared-system": "System shared",
   "source_wildcard-user": "User wildcard",
   "source_wildcard-system": "System wildcard",
+  "source_profile": "Profile",
   "source_default": "Default",
   "default_dynamic": "build dependent",
   "apply": "Apply",

@@ -139,6 +139,10 @@ headerbar:backdrop image {
     background: alpha(@theme_fg_color, 0.12);
     font-size: 0.85em;
 }
+.option-value {
+    font-size: 1.35em;
+    font-weight: 700;
+}
 .selected-option {
     background: alpha(@theme_selected_bg_color, 0.10);
 }
@@ -330,8 +334,16 @@ class OptionRow(Gtk.EventBox):
         self.description = make_label(css_class="choice-doc", ellipsize=True)
         text_box.pack_start(self.description, False, False, 0)
 
+        value_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
+        box.pack_end(value_box, False, False, 0)
+
+        self.value = make_label(css_class="option-value", selectable=True, ellipsize=True)
+        self.value.set_xalign(1)
+        self.value.set_max_width_chars(28)
+        value_box.pack_start(self.value, False, False, 0)
+
         self.chevron = Gtk.Image.new_from_icon_name("pan-end-symbolic", Gtk.IconSize.MENU)
-        box.pack_end(self.chevron, False, False, 0)
+        value_box.pack_start(self.chevron, False, False, 0)
 
     def update(
         self,
@@ -356,7 +368,8 @@ class OptionRow(Gtk.EventBox):
             value_label = tr(language, "default_dynamic")
         else:
             value_label = state.value if state.value != "" else "<empty>"
-        self.badge.set_text(f"{source_label}: {value_label}")
+        self.badge.set_text(source_label)
+        self.value.set_text(value_label)
 
         if language != self.language:
             self.language = language

@@ -18,6 +18,7 @@ PLACEHOLDER_MARKERS = (
 
 _EMBEDDED_USAGE_DATA: Optional[List[Dict[str, Any]]] = globals().get("_EMBEDDED_USAGE_DATA")
 _EMBEDDED_USAGE_CN_DATA: Optional[Dict[str, Any]] = globals().get("_EMBEDDED_USAGE_CN_DATA")
+ALWAYS_CONFIGURATOR_OPTIONS = {"BOX64_PROFILE"}
 
 
 def clean_choice_value(raw_key: str) -> str:
@@ -111,10 +112,10 @@ def load_usage_catalog_from_data(
 ) -> UsageCatalog:
     options: List[EnvOption] = []
     for entry in english_data:
-        if not entry.get("configurator", False):
+        name = entry["name"]
+        if not entry.get("configurator", False) and name not in ALWAYS_CONFIGURATOR_OPTIONS:
             continue
 
-        name = entry["name"]
         chinese_entry = chinese_data.get(name, {})
         chinese_choices = chinese_entry.get("options", {})
         choices = []

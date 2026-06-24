@@ -24,6 +24,7 @@
   "source_shared-system": "系统共享",
   "source_wildcard-user": "用户通配",
   "source_wildcard-system": "系统通配",
+  "source_profile": "预设",
   "source_default": "默认",
   "default_dynamic": "随构建而定",
   "apply": "应用",

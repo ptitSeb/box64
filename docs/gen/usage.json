@@ -1821,7 +1821,7 @@
     "description": "Predefined sets of environment variables with compatibility or performance in mind.",
     "category": "Compatibility",
     "wine": true,
-    "configurator": false,
+    "configurator": true,
     "options": [
       {
         "key": "safest",
