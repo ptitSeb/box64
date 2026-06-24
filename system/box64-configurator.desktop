@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Box64 Configurator
+Comment=Configure Box64 rcfile entries
+Exec=box64-configurator
+Icon=application-x-executable
+Terminal=false
+Categories=Settings;
