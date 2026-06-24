@@ -926,10 +926,10 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
             }
             void* s2 = dlsym(lib->w.lib, name);
             if(s2) {
-                s->addr = AddBridge2(lib->w.bridge, s->w, symbol, s2, 0, name);
+                s->addr = AddCheckBridge2(lib->w.bridge, s->w, symbol, s2, 0, name);
                 // don't resolve the symbol here, it may change
             } else {
-                s->addr = AddBridge(lib->w.bridge, s->w, symbol, 0, name);
+                s->addr = AddCheckBridge(lib->w.bridge, s->w, symbol, 0, name);
                 s->resolved = 1;
             }
         }
@@ -958,7 +958,7 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
                 printf_log(LOG_NONE, "Warning, function %s not found\n", buff);
                 return 0;
             }
-            s->addr = AddBridge(lib->w.bridge, s->w, symbol, box64_is32bits?4:sizeof(void*), name);
+            s->addr = AddCheckBridge(lib->w.bridge, s->w, symbol, box64_is32bits?4:sizeof(void*), name);
             s->resolved = 1;
         }
         *addr = s->addr;
@@ -994,7 +994,7 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
                 printf_dump(LOG_INFO, "Warning, function %s not found in lib %s\n", name, lib->name);
                 return 0;
             }
-            s->addr = AddBridge(lib->w.bridge, s->w, symbol, 0, name);
+            s->addr = AddCheckBridge(lib->w.bridge, s->w, symbol, 0, name);
             s->resolved = 1;
         }
         *addr = s->addr;
@@ -1025,10 +1025,10 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
                 }
             void* s2 = dlsym(lib->w.lib, name);
             if(s2) {
-                s->addr = AddBridge2(lib->w.bridge, s->w, symbol, s2, 0, name);
+                s->addr = AddCheckBridge2(lib->w.bridge, s->w, symbol, s2, 0, name);
                 // don't resolve the symbol here, it may change
             } else {
-                s->addr = AddBridge(lib->w.bridge, s->w, symbol, 0, name);
+                s->addr = AddCheckBridge(lib->w.bridge, s->w, symbol, 0, name);
                 s->resolved = 1;
             }
             }
@@ -1064,7 +1064,7 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
                     printf_dump(LOG_INFO, "Warning, function %s not found in lib %s\n", name, lib->name);
                     return 0;
                 }
-                s->addr = AddBridge(lib->w.bridge, s->w, symbol, 0, name);
+                s->addr = AddCheckBridge(lib->w.bridge, s->w, symbol, 0, name);
                 s->resolved = 1;
             }
             *addr = s->addr;
@@ -1095,7 +1095,7 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
                     printf_dump(LOG_INFO, "Warning, function %s not found in lib %s\n", kh_value(lib->w.symbol2map, k).name, lib->name);
                     return 0;
                 }
-                s->addr = AddBridge(lib->w.bridge, s->w, symbol, 0, name);
+                s->addr = AddCheckBridge(lib->w.bridge, s->w, symbol, 0, name);
                 s->resolved = 1;
             }
             *addr = s->addr;
