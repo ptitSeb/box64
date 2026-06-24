@@ -139,6 +139,10 @@ headerbar:backdrop image {
     background: alpha(@theme_fg_color, 0.12);
     font-size: 0.85em;
 }
+.option-value {
+    font-size: 1.35em;
+    font-weight: 700;
+}
 .selected-option {
     background: alpha(@theme_selected_bg_color, 0.10);
 }
@@ -330,8 +334,16 @@ class OptionRow(Gtk.EventBox):
         self.description = make_label(css_class="choice-doc", ellipsize=True)
         text_box.pack_start(self.description, False, False, 0)
 
+        value_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
+        box.pack_end(value_box, False, False, 0)
+
+        self.value = make_label(css_class="option-value", selectable=True, ellipsize=True)
+        self.value.set_xalign(1)
+        self.value.set_max_width_chars(28)
+        value_box.pack_start(self.value, False, False, 0)
+
         self.chevron = Gtk.Image.new_from_icon_name("pan-end-symbolic", Gtk.IconSize.MENU)
-        box.pack_end(self.chevron, False, False, 0)
+        value_box.pack_start(self.chevron, False, False, 0)
 
     def update(
         self,
@@ -356,7 +368,8 @@ class OptionRow(Gtk.EventBox):
             value_label = tr(language, "default_dynamic")
         else:
             value_label = state.value if state.value != "" else "<empty>"
-        self.badge.set_text(f"{source_label}: {value_label}")
+        self.badge.set_text(source_label)
+        self.value.set_text(value_label)
 
         if language != self.language:
             self.language = language
@@ -470,10 +483,12 @@ class ConfiguratorWindow(Gtk.ApplicationWindow):
         self.detail_box.set_border_width(18)
         self.detail_header = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6)
         self.effective_group = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        self.often_used_group = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         self.unsupported_group = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         self.defaults_group = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         self.detail_box.pack_start(self.detail_header, False, False, 0)
         self.detail_box.pack_start(self.effective_group, False, False, 0)
+        self.detail_box.pack_start(self.often_used_group, False, False, 0)
         self.detail_box.pack_start(self.unsupported_group, False, False, 0)
         self.detail_box.pack_start(self.defaults_group, False, False, 0)
         detail_scroll.add(self.detail_box)
@@ -662,6 +677,7 @@ class ConfiguratorWindow(Gtk.ApplicationWindow):
         for container in (
             self.detail_header,
             self.effective_group,
+            self.often_used_group,
             self.unsupported_group,
             self.defaults_group,
         ):
@@ -669,6 +685,7 @@ class ConfiguratorWindow(Gtk.ApplicationWindow):
                 child.destroy()
 
         self.effective_group.hide()
+        self.often_used_group.hide()
         self.unsupported_group.hide()
         self.defaults_group.hide()
 
@@ -684,13 +701,21 @@ class ConfiguratorWindow(Gtk.ApplicationWindow):
             return
 
         self._add_entry_header(entry)
-        active, defaults = self.store.effective_values(entry)
-        visible_names = {state.option.name for state in (*active, *defaults)}
+        active, often_used, defaults = self.store.effective_values(entry)
+        visible_names = {state.option.name for state in (*active, *often_used, *defaults)}
         if self.selected_option_name not in visible_names:
             self.selected_option_name = None
         self._add_option_group(
             self.effective_group, tr(self.language, "effective"), active, entry, default_rows=False
         )
+        if often_used:
+            self._add_option_group(
+                self.often_used_group,
+                tr(self.language, "often_used"),
+                often_used,
+                entry,
+                default_rows=True,
+            )
         self._add_unsupported(entry)
         self._add_option_group(
             self.defaults_group, tr(self.language, "defaults"), defaults, entry, default_rows=True
@@ -698,6 +723,10 @@ class ConfiguratorWindow(Gtk.ApplicationWindow):
 
         self.detail_header.show_all()
         self.effective_group.show_all()
+        if often_used:
+            self.often_used_group.show_all()
+        else:
+            self.often_used_group.hide()
         self.defaults_group.show_all()
         if self.unsupported_group.get_children():
             self.unsupported_group.show_all()
@@ -878,8 +907,8 @@ class ConfiguratorWindow(Gtk.ApplicationWindow):
         self._insert_option_editor_after(row.get_parent(), row, entry, state)
 
     def _state_for_option(self, entry: EntryRecord, option_name: str) -> Optional[ValueState]:
-        active, defaults = self.store.effective_values(entry)
-        for state in (*active, *defaults):
+        active, often_used, defaults = self.store.effective_values(entry)
+        for state in (*active, *often_used, *defaults):
             if state.option.name == option_name:
                 return state
         return None

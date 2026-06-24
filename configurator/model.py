@@ -81,6 +81,54 @@ class ValueState:
 SectionIdentity = Tuple[str, str]
 
 
+OFTEN_USED_OPTION_NAMES = {
+    "BOX64_DYNAREC_BIGBLOCK",
+    "BOX64_DYNAREC_CALLRET",
+    "BOX64_DYNAREC_SAFEFLAGS",
+    "BOX64_DYNAREC_STRONGMEM",
+    "BOX64_DYNAREC_DIRTY",
+    "BOX64_DYNAREC_FASTROUND",
+    "BOX64_DYNAREC_FASTNAN",
+    "BOX64_MAXCPU",
+}
+
+
+PROFILE_OPTION_NAME = "BOX64_PROFILE"
+PROFILE_DEFAULT_VALUE = "default"
+PROFILE_SETTINGS = {
+    "safest": (
+        ("BOX64_DYNAREC_FASTNAN", "0"),
+        ("BOX64_DYNAREC_FASTROUND", "0"),
+        ("BOX64_DYNAREC_BIGBLOCK", "0"),
+        ("BOX64_DYNAREC_SAFEFLAGS", "2"),
+        ("BOX64_DYNAREC_STRONGMEM", "2"),
+    ),
+    "safe": (
+        ("BOX64_DYNAREC_BIGBLOCK", "0"),
+        ("BOX64_DYNAREC_SAFEFLAGS", "2"),
+        ("BOX64_DYNAREC_STRONGMEM", "1"),
+    ),
+    "fast": (
+        ("BOX64_DYNAREC_CALLRET", "1"),
+        ("BOX64_DYNAREC_SEP", "1"),
+        ("BOX64_DYNAREC_BIGBLOCK", "3"),
+        ("BOX64_DYNAREC_SAFEFLAGS", "0"),
+        ("BOX64_DYNAREC_STRONGMEM", "1"),
+        ("BOX64_DYNAREC_DIRTY", "1"),
+        ("BOX64_DYNAREC_FORWARD", "1024"),
+    ),
+    "fastest": (
+        ("BOX64_DYNAREC_CALLRET", "1"),
+        ("BOX64_DYNAREC_SEP", "2"),
+        ("BOX64_DYNAREC_BIGBLOCK", "3"),
+        ("BOX64_DYNAREC_SAFEFLAGS", "0"),
+        ("BOX64_DYNAREC_STRONGMEM", "0"),
+        ("BOX64_DYNAREC_DIRTY", "1"),
+        ("BOX64_DYNAREC_FORWARD", "1024"),
+    ),
+}
+
+
 class ConfigStore:
     def __init__(
         self, system_path: Path, user_path: Path, catalog: UsageCatalog, machine_arch: str = ""
@@ -183,7 +231,10 @@ class ConfigStore:
 
     def set_option(self, entry: EntryRecord, option_name: str, value: str) -> Tuple[SectionKey, bool]:
         section, forked = self._ensure_user_section(entry)
-        new_key = self.user.set_assignment(section.key, option_name, value)
+        if self._is_default_profile(option_name, value):
+            new_key = self.user.remove_assignment(section.key, option_name)
+        else:
+            new_key = self.user.set_assignment(section.key, option_name, value)
         self._mark_dirty()
         return new_key, forked
 
@@ -196,11 +247,10 @@ class ConfigStore:
         if entry.system_section is not None:
             system_value = entry.system_section.last_value(option_name)
 
-        new_key = (
-            self.user.set_assignment(user_section.key, option_name, system_value)
-            if system_value is not None
-            else self.user.remove_assignment(user_section.key, option_name)
-        )
+        if system_value is not None and not self._is_default_profile(option_name, system_value):
+            new_key = self.user.set_assignment(user_section.key, option_name, system_value)
+        else:
+            new_key = self.user.remove_assignment(user_section.key, option_name)
         self._mark_dirty()
         return new_key
 
@@ -210,7 +260,9 @@ class ConfigStore:
             assignment for assignment in direct_box64_assignments(section) if assignment.key not in self.catalog
         )
 
-    def effective_values(self, entry: EntryRecord) -> Tuple[List[ValueState], List[ValueState]]:
+    def effective_values(
+        self, entry: EntryRecord
+    ) -> Tuple[List[ValueState], List[ValueState], List[ValueState]]:
         states: Dict[str, ValueState] = {}
 
         if entry.key.kind != "shared":
@@ -218,23 +270,60 @@ class ConfigStore:
             self._apply_matching_wildcards(states, entry)
 
         self._apply_direct(states, entry)
+        self._apply_profile(states)
 
         active: List[ValueState] = []
+        often_used: List[ValueState] = []
         defaults: List[ValueState] = []
         for option in self.catalog.options:
             state = states.get(option.name)
             if state is None:
-                defaults.append(
-                    ValueState(
-                        option=option,
-                        value=option.default_value,
-                        source="default",
-                    )
+                default_state = ValueState(
+                    option=option,
+                    value=option.default_value,
+                    source="default",
                 )
+                if option.name in OFTEN_USED_OPTION_NAMES:
+                    often_used.append(default_state)
+                else:
+                    defaults.append(default_state)
             else:
                 active.append(state)
 
-        return active, defaults
+        active.sort(key=lambda state: state.option.name != PROFILE_OPTION_NAME)
+        return active, often_used, defaults
+
+    def _apply_profile(self, states: Dict[str, ValueState]) -> None:
+        profile_option = self.catalog.by_name.get(PROFILE_OPTION_NAME)
+        if profile_option is None:
+            return
+
+        profile_state = states.get(PROFILE_OPTION_NAME)
+        if profile_state is None:
+            profile_state = ValueState(
+                option=profile_option,
+                value=PROFILE_DEFAULT_VALUE,
+                source="default",
+            )
+            states[PROFILE_OPTION_NAME] = profile_state
+
+        for option_name, value in PROFILE_SETTINGS.get(profile_state.value.lower(), ()):
+            if option_name in states:
+                continue
+            option = self.catalog.by_name.get(option_name)
+            if option is None:
+                continue
+            states[option_name] = ValueState(
+                option=option,
+                value=value,
+                source="profile",
+            )
+
+    def _is_default_profile(self, option_name: str, value: Optional[str]) -> bool:
+        return (
+            option_name == PROFILE_OPTION_NAME
+            and (value or "").strip().lower() == PROFILE_DEFAULT_VALUE
+        )
 
     def _ensure_user_section(self, entry: EntryRecord) -> Tuple[RcSection, bool]:
         user_section = self.user.section_for_key(entry.key)
