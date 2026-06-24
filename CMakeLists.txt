@@ -49,7 +49,7 @@ option(BOX32_BINFMT "Also setup binfmt integration for box32" ${BOX32_BINFMT})
 option(LARCH64_ABI_1 "Set to ON if building for Loongarch64 ABI 1.0 system" ${LARCH64_ABI_1})
 option(GDBJIT "Set to ON to enable GDB JIT support" ${GDBJIT})
 option(WOW64 "Set to ON if you want a WOW64 PE build in addition")
-option(BOX64_KDE_PROFILE_PLUGIN "Build the Dolphin/KIO Box64 profile context menu plugin when KF6 is available" ON)
+option(BOX64_KDE_PROFILE_PLUGIN "Build the Dolphin/KIO Box64 profile context menu plugin when KF6 is available" OFF)
 
 if(TERMUX)
     set(TERMUX_PATH "/data/data/com.termux/files")
