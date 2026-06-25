@@ -473,8 +473,9 @@ dynablock_t* FillBlock64(uintptr_t addr, int is32bits, int inst_max, int is_new,
         dynarec_log(LOG_DEBUG, "Not creating dynablock at %p as in a HotPage\n", (void*)addr);
         return NULL;
     }
+    uint32_t prot = getProtection_fast(addr);
 #ifndef _WIN32
-    if((getProtection_fast(addr)&req_prot)!=req_prot) {// cannot be run, get out of the Dynarec
+    if((prot&req_prot)!=req_prot) {// cannot be run, get out of the Dynarec
         dynarec_log(LOG_DEBUG, "Not creating dynablock at %p because EXEC protection is missing\n", (void*)addr);
         return NULL;
     }
@@ -512,7 +513,7 @@ dynablock_t* FillBlock64(uintptr_t addr, int is32bits, int inst_max, int is_new,
     helper.next_cap = MAX_INSTS;
     helper.table64 = NULL;
     helper.env = GetCurEnvByAddr(addr);
-    if(getProtection(addr)&PROT_NEVERCLEAN) {
+    if(prot&PROT_NEVERCLEAN) {
         helper.always_test = 1;
     }
     ResetTable64(&helper);
