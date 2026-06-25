@@ -85,18 +85,18 @@ void* GetSegmentBase(void* emu, uint32_t desc)
     }
     int base = desc >> 3;
     int is_ldt = !!(desc&4);
-    base_segment_t* segs = is_ldt?((x64emu_t*)emu)->segldt:((base>5)?((x64emu_t*)emu)->seggdt:my_context->seggdt);
     if(!box64_nolibs) {
         if (!box64_is32bits && (base == 0x8) )
             return GetSeg43Base((x64emu_t*)emu);
         if (box64_is32bits && (base == 0x6))
             return GetSeg43Base((x64emu_t*)emu);
-        }
+    }
     if (base > 15) {
         printf_log(LOG_NONE, "Warning, accessing segment unknown 0x%x or unset\n", desc);
         return NULL;
     }
-
+    
+    base_segment_t* segs = is_ldt?((x64emu_t*)emu)->segldt:((base>5)?((x64emu_t*)emu)->seggdt:my_context->seggdt);
     void* ptr = (void*)segs[base].base;
     return ptr;
 }
