@@ -244,22 +244,20 @@ void EmuRun(x64emu_t* emu, int use_dynarec, int no_alt)
         }
         if(emu->flags.need_jmpbuf)
             emu->flags.need_jmpbuf = 0;
-        if(no_alt)
-            {
-                // the Dynarec will shadow the Entry Point, so using Intperter to enter the function
-                #if defined(DYNAREC) && defined(HAVE_ALTJUMP)
-                if(!BOX64ENV(dynarec))
-                #endif
-                    no_alt = 0;
-                skip = 1;
-            }
-        else
+#ifndef DYNAREC
+        Run(emu, 0);
+#else
+        if(no_alt) {
+            // the Dynarec will shadow the Entry Point, so using Intperter to enter the function
+            #if defined(DYNAREC) && defined(HAVE_ALTJUMP)
+            if(!BOX64ENV(dynarec))
+            #endif
+                no_alt = 0;
+            skip = 1;
+        } else
             R_RIP = (uintptr_t)getAlternate((void*)R_RIP);
-#ifdef DYNAREC
         if(!BOX64ENV(dynarec) || !use_dynarec)
-#endif
             Run(emu, 0);
-#ifdef DYNAREC
         else {
             int newis32bits = (emu->segs[_CS]==0x23);
             if(newis32bits!=is32bits) {
@@ -281,7 +279,7 @@ void EmuRun(x64emu_t* emu, int use_dynarec, int no_alt)
             #ifdef HAVE_ALTJUMP
             if(skip && no_alt) {
                 block = getDBnoAlt(emu, R_RIP, is32bits);
-                no_alt = 0;
+                skip = no_alt = 0;
             }
             #endif
             if(!block || !block->block || !block->done || ACCESS_FLAG(F_TF)) {
