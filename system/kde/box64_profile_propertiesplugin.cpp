@@ -2,6 +2,8 @@
 
 #include <KPluginFactory>
 
+#include <kio_version.h>
+
 #include <QByteArray>
 #include <QComboBox>
 #include <QFile>
@@ -18,6 +20,7 @@
 #include <QStandardPaths>
 #include <QString>
 #include <QUrl>
+#include <QVariantList>
 #include <QVBoxLayout>
 #include <QWidget>
 
@@ -247,7 +250,11 @@ class Box64ProfilePropertiesPlugin : public KPropertiesDialogPlugin {
 
 public:
     explicit Box64ProfilePropertiesPlugin(QObject *parent = nullptr)
+#if KIO_VERSION_MAJOR < 6
+        : KPropertiesDialogPlugin(qobject_cast<KPropertiesDialog *>(parent))
+#else
         : KPropertiesDialogPlugin(parent)
+#endif
         , m_command(configuratorCommand())
     {
         const KFileItemList items = properties->items();
@@ -330,6 +337,11 @@ public:
         layout->addStretch();
 
         properties->addPage(page, localizedText("Box64", "Box64"));
+    }
+
+    Box64ProfilePropertiesPlugin(QObject *parent, const QVariantList &)
+        : Box64ProfilePropertiesPlugin(parent)
+    {
     }
 
     void applyChanges() override
