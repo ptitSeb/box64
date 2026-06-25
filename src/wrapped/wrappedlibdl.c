@@ -589,9 +589,10 @@ EXPORT int my__dl_find_object(x64emu_t* emu, void* addr, my_dl_find_object_t* re
     elfheader_t* h = FindElfAddress(my_context, (uintptr_t)addr);
     if(h) {
         // find an actual elf
-        /*const char* name =*/ FindNearestSymbolName(h, addr, &start, &sz);
-        result->dlfo_map_start = (void*)start;
-        result->dlfo_map_end = (void*)(start+sz-1);
+        /*const char* name =*/ //FindNearestSymbolName(h, addr, &start, &sz);
+        // simplified version
+        result->dlfo_map_start = (void*)GetBaseAddress(h);
+        result->dlfo_map_end = result->dlfo_map_start+GetBaseSize(h);
         result->dlfo_eh_frame = (void*)(h->ehframehdr+h->delta);
         result->dlfo_flags = 0;   // unused it seems
         result->dlf_link_map = (struct link_map *)getLinkMapElf(h);
