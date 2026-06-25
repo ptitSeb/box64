@@ -3155,29 +3155,27 @@ void init_custommem_helper(box64context_t* ctx)
             rb_set(blockstree, (uintptr_t)p_blocks[i].block, (uintptr_t)p_blocks[i].block+p_blocks[i].size, i);
     memprot = rbtree_init("memprot");
 #ifdef DYNAREC
-    if(BOX64ENV(dynarec)) {
-        #ifdef JMPTABL_SHIFT4
-        for(int i=0; i<(1<<JMPTABL_SHIFT4); ++i)
-            box64_jmptbl4[i] = box64_jmptbldefault3;
-        for(int i=0; i<(1<<JMPTABL_SHIFT3); ++i) {
-            box64_jmptbldefault3[i] = box64_jmptbldefault2;
-            box64_jmptbl_48[i] = box64_jmptbldefault2;
-        }
-        box64_jmptbl4[0] = box64_jmptbl_48;
-        #else
-        for(int i=0; i<(1<<JMPTABL_SHIFT3); ++i) {
-                box64_jmptbl3[i] = box64_jmptbldefault2;
-                box64_jmptbl_48[i] = box64_jmptbldefault1;
-            }
-        box64_jmptbl3[0] = box64_jmptbl_48;
-        #endif
-        for(int i=0; i<(1<<JMPTABL_SHIFT2); ++i)
-            box64_jmptbldefault2[i] = box64_jmptbldefault1;
-        for(int i=0; i<(1<<JMPTABL_SHIFT1); ++i)
-            box64_jmptbldefault1[i] = box64_jmptbldefault0;
-        for(int i=0; i<(1<<JMPTABL_SHIFT0); ++i)
-            box64_jmptbldefault0[i] = (uintptr_t)native_next;
+    #ifdef JMPTABL_SHIFT4
+    for(int i=0; i<(1<<JMPTABL_SHIFT4); ++i)
+        box64_jmptbl4[i] = box64_jmptbldefault3;
+    for(int i=0; i<(1<<JMPTABL_SHIFT3); ++i) {
+        box64_jmptbldefault3[i] = box64_jmptbldefault2;
+        box64_jmptbl_48[i] = box64_jmptbldefault2;
     }
+    box64_jmptbl4[0] = box64_jmptbl_48;
+    #else
+    for(int i=0; i<(1<<JMPTABL_SHIFT3); ++i) {
+            box64_jmptbl3[i] = box64_jmptbldefault2;
+            box64_jmptbl_48[i] = box64_jmptbldefault1;
+        }
+    box64_jmptbl3[0] = box64_jmptbl_48;
+    #endif
+    for(int i=0; i<(1<<JMPTABL_SHIFT2); ++i)
+        box64_jmptbldefault2[i] = box64_jmptbldefault1;
+    for(int i=0; i<(1<<JMPTABL_SHIFT1); ++i)
+        box64_jmptbldefault1[i] = box64_jmptbldefault0;
+    for(int i=0; i<(1<<JMPTABL_SHIFT0); ++i)
+        box64_jmptbldefault0[i] = (uintptr_t)native_next;
     lockaddress = kh_init(lockaddress);
     rbt_dynmem = rbtree_init("rbt_dynmem");
 #endif
