@@ -128,7 +128,6 @@ void protectDB(uintptr_t addr, size_t size);
 void protectDBJumpTable(uintptr_t addr, size_t size, void* jump, void* ref);
 void unprotectDB(uintptr_t addr, size_t size, int mark);    // if mark==0, the blocks are not marked as potentially dirty
 void neverprotectDB(uintptr_t addr, size_t size, int mark);
-void unneverprotectDB(uintptr_t addr, size_t size);
 int isprotectedDB(uintptr_t addr, size_t size);
 #endif
 void* find32bitBlock(size_t size);

@@ -2483,36 +2483,6 @@ void neverprotectDB(uintptr_t addr, size_t size, int mark)
     UNLOCK_PROT();
 }
 
-// Remove the NEVERCLEAN flag for an adress range
-void unneverprotectDB(uintptr_t addr, size_t size)
-{
-    dynarec_log(LOG_DEBUG, "unneverprotectDB %p -> %p\n", (void*)addr, (void*)(addr+size-1));
-
-    uintptr_t cur = addr&~(box64_pagesize-1);
-    uintptr_t end = ALIGN(addr+size);
-
-    LOCK_PROT();
-    while(cur!=end) {
-        uint32_t prot = 0, oprot;
-        uintptr_t bend = 0;
-        if (!rb_get_end(memprot, cur, &prot, &bend)) {
-            if(bend>=end) break;
-            else {
-                cur = bend;
-                continue;
-            }
-        }
-        oprot = prot;
-        if(bend>end)
-            bend = end;
-        prot &= ~PROT_NEVERCLEAN;
-        if (prot != oprot)
-            rb_set(memprot, cur, bend, prot);
-        cur = bend;
-    }
-    UNLOCK_PROT();
-}
-
 int isprotectedDB(uintptr_t addr, size_t size)
 {
     dynarec_log(LOG_DEBUG, "isprotectedDB %p -> %p => ", (void*)addr, (void*)(addr+size-1));
@@ -2671,16 +2641,17 @@ void updateProtection(uintptr_t addr, size_t size, uint32_t prot)
             cur = bend;
             continue;
         }
+        uint32_t never = dyn & PROT_NEVERCLEAN;
         #ifdef DYNAREC
-        if(check && ((prot ^ oprot) & PROT_EXEC)) { // prot_exec changed
+        if(check && ((prot ^ oprot) & PROT_EXEC) && !never) { // prot_exec changed
             if(prot & PROT_EXEC) {
-                if(!IsAddrMappingLoadAndClean(cur))
-                    addDBFromAddressRange(cur, bend-cur);
+                // no need to do anything
+                /*if(!IsAddrMappingLoadAndClean(cur))
+                    addDBFromAddressRange(cur, bend-cur);*/
             } else
                 cleanDBFromAddressRange(cur, bend-cur, (!prot)?1:0);
         }
         #endif
-        uint32_t never = dyn & PROT_NEVERCLEAN;
         if(!(never)) {
             if(dyn && (prot&PROT_WRITE)) {   // need to remove the write protection from this block
                 dyn = PROT_DYNAREC;
