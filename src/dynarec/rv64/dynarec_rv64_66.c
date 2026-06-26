@@ -1294,7 +1294,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     INST_NAME("ROR Ew, 1");
                     // removed PENDING on purpose
                     SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
-                    GETEW(x1, 1);
+                    GETEW(x1, 0);
                     emit_ror16c(dyn, ninst, x1, 1, x5, x4);
                     EWBACK;
                     break;
@@ -1350,7 +1350,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     SETFLAGS(X_OF | X_CF, SF_SET_DF, NAT_FLAGS_NOFUSION);
                     if (BOX64DRENV(dynarec_safeflags) > 1) MAYSETFLAGS();
-                    GETEW(x1, 1);
+                    GETEW(x1, 0);
                     CALL_(const_rol16, x1, x3, x1, x2);
                     EWBACK;
                     break;
@@ -1360,7 +1360,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     SETFLAGS(X_OF | X_CF, SF_SET_DF, NAT_FLAGS_NOFUSION);
                     if (BOX64DRENV(dynarec_safeflags) > 1) MAYSETFLAGS();
-                    GETEW(x1, 1);
+                    GETEW(x1, 0);
                     CALL_(const_ror16, x1, x3, x1, x2);
                     EWBACK;
                     break;
@@ -1371,7 +1371,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     READFLAGS(X_CF);
                     SETFLAGS(X_OF | X_CF, SF_SET_DF, NAT_FLAGS_NOFUSION);
                     if (BOX64DRENV(dynarec_safeflags) > 1) MAYSETFLAGS();
-                    GETEW(x1, 1);
+                    GETEW(x1, 0);
                     CALL_(const_rcl16, x1, x3, x1, x2);
                     EWBACK;
                     break;
@@ -1382,7 +1382,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     READFLAGS(X_CF);
                     SETFLAGS(X_OF | X_CF, SF_SET_DF, NAT_FLAGS_NOFUSION);
                     if (BOX64DRENV(dynarec_safeflags) > 1) MAYSETFLAGS();
-                    GETEW(x1, 1);
+                    GETEW(x1, 0);
                     CALL_(const_rcr16, x1, x3, x1, x2);
                     EWBACK;
                     break;
