@@ -715,7 +715,6 @@
 #() lFEpi -> lFEpi
 #() lFEpp -> lFEpp
 #() lEili -> lEili
-#() lEipi -> lEipi
 #() lEipL -> lEipL
 #() lFlll -> lFlll
 #() lElpi -> lElpi
@@ -2607,6 +2606,7 @@ wrappedlibc:
   - _ITM_addUserCommitAction
 - vEppu:
 - iEiip:
+  - __shmctl64
 - iEiiN:
   - __fcntl_time64
 - iEiLp:

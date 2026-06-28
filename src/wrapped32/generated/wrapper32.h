@@ -756,7 +756,6 @@ void lEEuV_32(x64emu_t *emu, uintptr_t fnc);
 void lFEpi_32(x64emu_t *emu, uintptr_t fnc);
 void lFEpp_32(x64emu_t *emu, uintptr_t fnc);
 void lEili_32(x64emu_t *emu, uintptr_t fnc);
-void lEipi_32(x64emu_t *emu, uintptr_t fnc);
 void lEipL_32(x64emu_t *emu, uintptr_t fnc);
 void lFlll_32(x64emu_t *emu, uintptr_t fnc);
 void lElpi_32(x64emu_t *emu, uintptr_t fnc);

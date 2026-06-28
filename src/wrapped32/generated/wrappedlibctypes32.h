@@ -241,6 +241,7 @@ typedef int32_t (*iFpuippupp_t)(void*, uint32_t, int32_t, void*, void*, uint32_t
 	GO(vsyslog, vEipp_t) \
 	GO(syslog, vEipV_t) \
 	GO(_ITM_addUserCommitAction, vEpup_t) \
+	GO(__shmctl64, iEiip_t) \
 	GO(__fcntl_time64, iEiiN_t) \
 	GO(__ioctl_time64, iEiLp_t) \
 	GO(ioctl, iEiLp_t) \

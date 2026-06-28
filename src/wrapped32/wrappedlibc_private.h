@@ -1411,7 +1411,7 @@ GOW(recvfrom, lEipLipp)
 // __recvfrom_chk
 GOM(recvmmsg, iEEipuurLL_)
 GOWM(recvmsg, lEEipi)
-GO2(__recvmsg64, lEipi, recvmsg)
+GO2(__recvmsg64, lEEipi, my32_recvmsg)
 // re_exec  // Weak
 GOWM(regcomp, iEEppi)
 GOWM(regerror, uEEippu)
@@ -1511,7 +1511,7 @@ GOW(send, lEipLi)
 GO(sendfile, lEiibl_L)
 GO(sendfile64, lEiipL)
 GOWM(sendmsg, lEEipi)
-GO2(__sendmsg64, lEipi, sendmsg)
+GO2(__sendmsg64, lEEipi, my32_sendmsg)
 GOM(sendmmsg, iEEipuu)
 GOW(sendto, lEipLipu)
 // setaliasent
@@ -1583,7 +1583,8 @@ GOW(shmdt, iEp)
 GOWM(shmat, pEEipi)
 GOWM(shmdt, iEEp)
 #endif
-GOW(shmctl, iEiip)
+GOW(shmctl, iEiip) // this probably needs some wrapping
+GO2(__shmctl64, iEiip, shmctl)
 GOW(shmget, iEiLi)
 GOW(shutdown, iEii)
 GOWM(sigaction, iEEipp)    //%%
