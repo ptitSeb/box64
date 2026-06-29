@@ -2113,9 +2113,10 @@ EXPORT ssize_t my_readlink(x64emu_t* emu, void* path, void* buf, size_t sz)
             sprintf(cmdline_name, "/proc/%d/cmdline", pid);
             FILE* cmdline = fopen(cmdline_name, "r");
             if(cmdline) {
-                ssize_t sz = 0;
+                ssize_t sz_cmd = 0;
                 char filename[4096] = {0};  // first arg should be the program name
-                sz = fread(filename, 1, 4095, cmdline); // keep last char to end the string
+                sz_cmd = fread(filename, 1, 4095, cmdline); // keep last char to end the string
+                sz = sz_cmd > sz ? sz : sz_cmd;
                 fclose(cmdline);
                 if(filename[0]=='/') {
                     // absolute path, easy...
