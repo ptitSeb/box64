@@ -780,7 +780,8 @@
       "0": "禁用追踪输出。",
       "1": "启用追踪输出。追踪在依赖项初始化之前开始。",
       "symbolname": "仅对 `symbolname` 启用追踪输出。追踪在依赖项初始化之前开始。",
-      "0xXXXXXXX-0xYYYYYYY": "对指定地址范围（左闭右开）启用追踪输出。追踪在依赖项初始化之前开始。"
+      "0xXXXXXXX-0xYYYYYYY": "对指定地址范围（左闭右开）启用追踪输出。追踪在依赖项初始化之前开始。",
+      "0xXXXXXXX:0xYYYYYYY:0xZZZZZZZ": "对指定的地址列表启用追踪输出。追踪在依赖项初始化之前开始。"
     }
   },
   "BOX64_TRACE_START": {
@@ -804,7 +805,8 @@
       "0": "禁用追踪输出。",
       "1": "启用追踪输出。",
       "symbolname": "仅对 `symbolname` 启用追踪输出。",
-      "0xXXXXXXX-0xYYYYYYY": "对指定地址范围（左闭右开）启用追踪输出。"
+      "0xXXXXXXX-0xYYYYYYY": "对指定地址范围（左闭右开）启用追踪输出。",
+      "0xXXXXXXX:0xYYYYYYY:0xZZZZZZZ": "对指定地址列表启用追踪输出。"
     }
   },
   "BOX64_UNITYPLAYER": {

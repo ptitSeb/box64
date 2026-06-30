@@ -41,9 +41,7 @@ void PrintTrace(x64emu_t* emu, uintptr_t ip, int dynarec)
 {
     int is32bits = (emu->segs[_CS]==0x23);
     if(BOX64ENV(start_cnt)) SET_BOX64ENV(start_cnt, BOX64ENV(start_cnt)-1);
-    if(!BOX64ENV(start_cnt) && my_context->dec && (
-            (trace_end == 0)
-            || ((ip >= trace_start) && (ip < trace_end))) ) {
+    if(!BOX64ENV(start_cnt) && my_context->dec && IsTraceAddr(ip)) {
         int tid = GetTID();
         mutex_lock(&my_context->mutex_trace);
 #ifdef DYNAREC

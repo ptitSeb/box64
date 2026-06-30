@@ -933,7 +933,7 @@ Send all log and trace to a file instead of `stdout`.
  * stdout : Send all log and trace to `stdout`. 
 
 
-=item B<BOX64_TRACE_INIT> =I<0|1|symbolname|0xXXXXXXX-0xYYYYYYY>
+=item B<BOX64_TRACE_INIT> =I<0|1|symbolname|0xXXXXXXX-0xYYYYYYY|0xXXXXXXX:0xYYYYYYY:0xZZZZZZZ>
 
 Same as BOX64_TRACE but starts the trace immediately.
 
@@ -941,6 +941,7 @@ Same as BOX64_TRACE but starts the trace immediately.
  * 1 : Enable trace output. Trace starts before the initialization of dependencies. 
  * symbolname : Enable trace output for `symbolname` only. Trace starts before the initialization of dependencies. 
  * 0xXXXXXXX-0xYYYYYYY : Enable trace output for the range of address (inclusive-exclusive). Trace starts before the initialization of dependencies. 
+ * 0xXXXXXXX:0xYYYYYYY:0xZZZZZZZ : Enable trace output only for the specified address list. Trace starts before the initialization of dependencies. 
 
 
 =item B<BOX64_TRACE_START> =I<0|1|XXXX>
@@ -960,7 +961,7 @@ Enable or disable XMM (i.e. SSE) trace output.
  * 1 : Enable XMM trace output. 
 
 
-=item B<BOX64_TRACE> =I<0|1|symbolname|0xXXXXXXX-0xYYYYYYY>
+=item B<BOX64_TRACE> =I<0|1|symbolname|0xXXXXXXX-0xYYYYYYY|0xXXXXXXX:0xYYYYYYY:0xZZZZZZZ>
 
 Only available on box64 build with trace. Adds trace of all instructions executed, along with a register dump.
 
@@ -968,6 +969,7 @@ Only available on box64 build with trace. Adds trace of all instructions execute
  * 1 : Enable trace output. 
  * symbolname : Enable trace output for `symbolname` only. 
  * 0xXXXXXXX-0xYYYYYYY : Enable trace output for the range of address (inclusive-exclusive). 
+ * 0xXXXXXXX:0xYYYYYYY:0xZZZZZZZ : Enable trace output only for the specified address list. 
 
 
 =item B<BOX64_UNITYPLAYER> =I<0|1>

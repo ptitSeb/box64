@@ -143,6 +143,12 @@ void SetupX64Emu(x64emu_t *emu, x64emu_t *ref)
 #ifdef HAVE_TRACE
 void SetTraceEmu(uintptr_t start, uintptr_t end)
 {
+    if (trace_addrs) {
+        box_free(trace_addrs);
+        trace_addrs = NULL;
+    }
+    trace_addrs_count = 0;
+
     if(my_context->zydis) {
         if (end == 0) {
             printf_log(LOG_INFO, "Setting trace\n");
@@ -154,6 +160,22 @@ void SetTraceEmu(uintptr_t start, uintptr_t end)
     }
     trace_start = start;
     trace_end = end;
+}
+
+void SetTraceAddrs(uintptr_t* addrs, int count)
+{
+    trace_start = 0;
+    trace_end = 1;
+
+    if (trace_addrs)
+        box_free(trace_addrs);
+
+    trace_addrs = (uintptr_t*)box_malloc(count * sizeof(uintptr_t));
+    memcpy(trace_addrs, addrs, count * sizeof(uintptr_t));
+    trace_addrs_count = count;
+
+    if(my_context->zydis)
+        printf_log(LOG_INFO, "Setting trace on %d specific address(es)\n", count);
 }
 #endif
 

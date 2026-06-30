@@ -254,8 +254,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         }
         #ifdef HAVE_TRACE
         else if(my_context->dec && BOX64ENV(dynarec_trace)) {
-        if((trace_end == 0)
-            || ((ip >= trace_start) && (ip < trace_end)))  {
+            if(IsTraceAddr(ip))  {
                 MESSAGE(LOG_DUMP, "TRACE ----\n");
                 #if defined (SPILL_NF_REGISTERS)
                 if (BOX64ENV(dynarec_nativeflags)) SPILL_NF_REGISTERS;

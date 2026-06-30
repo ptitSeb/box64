@@ -2204,6 +2204,11 @@
         "key": "0xXXXXXXX-0xYYYYYYY",
         "description": "Enable trace output for the range of address (inclusive-exclusive). Trace starts before the initialization of dependencies.",
         "default": false
+      },
+      {
+        "key": "0xXXXXXXX:0xYYYYYYY:0xZZZZZZZ",
+        "description": "Enable trace output only for the specified address list. Trace starts before the initialization of dependencies.",
+        "default": false
       }
     ]
   },
@@ -2275,6 +2280,11 @@
       {
         "key": "0xXXXXXXX-0xYYYYYYY",
         "description": "Enable trace output for the range of address (inclusive-exclusive).",
+        "default": false
+      },
+      {
+        "key": "0xXXXXXXX:0xYYYYYYY:0xZZZZZZZ",
+        "description": "Enable trace output only for the specified address list.",
         "default": false
       }
     ]

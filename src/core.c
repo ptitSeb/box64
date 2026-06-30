@@ -90,6 +90,8 @@ const char* box64_wine_guest_name = NULL;
 
 #ifdef HAVE_TRACE
 uintptr_t trace_start = 0, trace_end = 0;
+uintptr_t* trace_addrs = NULL;
+int trace_addrs_count = 0;
 char* trace_func = NULL;
 #endif
 
@@ -542,6 +544,39 @@ void LoadLDPath(box64context_t *context)
         PrependList(&context->box64_ld_lib, getenv("LD_LIBRARY_PATH"), 1);   // in case some of the path are for x86 world
 }
 
+#ifdef HAVE_TRACE
+static void setupTraceAddrList(char *p)
+{
+    int cap = 16;
+    int count = 0;
+    char *saveptr = NULL;
+
+    uintptr_t* addrs = (uintptr_t*)box_malloc(cap * sizeof(uintptr_t));
+    char* tmp = box_strdup(p);
+    char* tok = strtok_r(tmp, ":", &saveptr);
+
+    while (tok) {
+        if (count >= cap) {
+            cap *= 2;
+            addrs = (uintptr_t*)box_realloc(addrs, cap * sizeof(uintptr_t));
+        }
+
+        char* endptr;
+        uintptr_t addr = (uintptr_t)strtoul(tok, &endptr, 0);
+        if (endptr != tok)
+            addrs[count++] = addr;
+
+        tok = strtok_r(NULL, ":", &saveptr);
+    }
+
+    if (count > 0)
+        SetTraceAddrs(addrs, count);
+
+    box_free(tmp);
+    box_free(addrs);
+}
+#endif
+
 EXPORTDYN
 void setupTraceInit()
 {
@@ -561,6 +596,9 @@ void setupTraceInit()
             }
             if(s_trace_start || s_trace_end)
                 SetTraceEmu(s_trace_start, s_trace_end);
+        } else if (strchr(p,':')) {
+            // Parse BOX64_TRACE=0x1000:0x2000:0x3000 format.
+            setupTraceAddrList(p);
         } else {
             int veropt = 1;
             int ver = 0;
@@ -638,6 +676,9 @@ void setupTrace()
                     printf_log(LOG_INFO, "TRACE on %s only (%p-%p)\n", p, (void*)s_trace_start, (void*)s_trace_end);
                 }
             }
+        } else if (strchr(p,':')) {
+            // Parse BOX64_TRACE=0x1000:0x2000:0x3000 format.
+            setupTraceAddrList(p);
         } else {
             int search = 0;
             if (my_context->elfs) {

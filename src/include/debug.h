@@ -22,7 +22,21 @@ extern cpu_ext_t cpuext;
 #endif
 #ifdef HAVE_TRACE
 extern uintptr_t trace_start, trace_end;
+extern uintptr_t* trace_addrs;
+extern int trace_addrs_count;
 extern char* trace_func;
+
+static inline int IsTraceAddr(uintptr_t addr) {
+    if (trace_end == 0)
+        return 1;
+    if (trace_addrs_count > 0) {
+        for (int i = 0; i < trace_addrs_count; i++)
+            if (addr == trace_addrs[i])
+                return 1;
+        return 0;
+    }
+    return (addr >= trace_start) && (addr < trace_end);
+}
 #endif
 extern int box64_mapclean;
 extern int box64_steam;
