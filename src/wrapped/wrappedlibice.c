@@ -81,8 +81,8 @@ static void* findIceErrorHandlerFct(void* fct)
 static void* reverse_IceErrorHandler_Fct(void* fct)
 {
     if(!fct) return fct;
-    if(CheckBridged(my_lib->w.bridge, fct))
-        return (void*)CheckBridged(my_lib->w.bridge, fct);
+    if(CheckBridged(my_lib->w.bridge, vFpiiLiip, fct))
+        return (void*)CheckBridged(my_lib->w.bridge, vFpiiLiip, fct);
     #define GO(A) if(my_IceErrorHandler_##A == fct) return (void*)my_IceErrorHandler_fct_##A;
     SUPER()
     #undef GO
@@ -114,8 +114,8 @@ static void* findIceIOErrorHandlerFct(void* fct)
 static void* reverse_IceIOErrorHandler_Fct(void* fct)
 {
     if(!fct) return fct;
-    if(CheckBridged(my_lib->w.bridge, fct))
-        return (void*)CheckBridged(my_lib->w.bridge, fct);
+    if(CheckBridged(my_lib->w.bridge, vFp, fct))
+        return (void*)CheckBridged(my_lib->w.bridge, vFp, fct);
     #define GO(A) if(my_IceIOErrorHandler_##A == fct) return (void*)my_IceIOErrorHandler_fct_##A;
     SUPER()
     #undef GO

@@ -146,8 +146,8 @@ static void* findSmcErrorHandlerFct(void* fct)
 static void* reverse_SmcErrorHandler_Fct(void* fct)
 {
     if(!fct) return fct;
-    if(CheckBridged(my_lib->w.bridge, fct))
-        return (void*)CheckBridged(my_lib->w.bridge, fct);
+    if(CheckBridged(my_lib->w.bridge, vFpiiLiip, fct))
+        return (void*)CheckBridged(my_lib->w.bridge, vFpiiLiip, fct);
     #define GO(A) if(my_SmcErrorHandler_##A == fct) return (void*)my_SmcErrorHandler_fct_##A;
     SUPER()
     #undef GO

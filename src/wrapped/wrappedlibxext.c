@@ -78,8 +78,8 @@ static void* find_exterrorhandle_Fct(void* fct)
 static void* reverse_exterrorhandleFct(void* fct)
 {
     if(!fct) return fct;
-    if(CheckBridged(my_lib->w.bridge, fct))
-        return (void*)CheckBridged(my_lib->w.bridge, fct);
+    if(CheckBridged(my_lib->w.bridge, iFppp, fct))
+        return (void*)CheckBridged(my_lib->w.bridge, iFppp, fct);
     #define GO(A) if(my_exterrorhandle_##A == fct) return (void*)my_exterrorhandle_fct_##A;
     SUPER()
     #undef GO

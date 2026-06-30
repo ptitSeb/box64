@@ -141,8 +141,8 @@ static void* find_EvtFilter_Fct(void* fct)
 static void* reverse_EvtFilterFct(void* fct)
 {
     if(!fct) return fct;
-    if(CheckBridged(my_lib->w.bridge, fct))
-        return (void*)CheckBridged(my_lib->w.bridge, fct);
+    if(CheckBridged(my_lib->w.bridge, iFp, fct))
+        return (void*)CheckBridged(my_lib->w.bridge, iFp, fct);
     #define GO(A) if(my_EvtFilter_##A == fct) return (void*)my_EvtFilter_fct_##A;
     SUPER()
     #undef GO

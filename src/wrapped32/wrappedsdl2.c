@@ -109,8 +109,8 @@ static void* find_eventfilter_Fct(void* fct)
 static void* reverse_eventfilter_Fct(void* fct)
 {
     if(!fct) return fct;
-    if(CheckBridged(my_lib->w.bridge, fct))
-        return (void*)CheckBridged(my_lib->w.bridge, fct);
+    if(CheckBridged(my_lib->w.bridge, iFpp_32, fct))
+        return (void*)CheckBridged(my_lib->w.bridge, iFpp_32, fct);
     #define GO(A) if(my_eventfilter_##A == fct) return (void*)my_eventfilter_fct_##A;
     SUPER()
     #undef GO

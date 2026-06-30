@@ -92,8 +92,8 @@ static void* findtransfertFct(void* fct)
 static void* reverse_transfert_Fct(void* fct)
 {
     if(!fct) return fct;
-    if(CheckBridged(my_lib->w.bridge, fct))
-        return (void*)CheckBridged(my_lib->w.bridge, fct);
+    if(CheckBridged(my_lib->w.bridge, vFp, fct))
+        return (void*)CheckBridged(my_lib->w.bridge, vFp, fct);
     #define GO(A) if(my_transfert_##A == fct) return (void*)my_transfert_fct_##A;
     SUPER()
     #undef GO

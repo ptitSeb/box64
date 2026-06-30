@@ -56,8 +56,8 @@ static void* find_alloc_Fct(void* fct)
 static void* reverse_alloc_Fct(void* fct)
 {
     if(!fct) return fct;
-    if(CheckBridged(my_lib->w.bridge, fct))
-        return (void*)CheckBridged(my_lib->w.bridge, fct);
+    if(CheckBridged(my_lib->w.bridge, pFpuu, fct))
+        return (void*)CheckBridged(my_lib->w.bridge, pFpuu, fct);
     #define GO(A) if(my_alloc_##A == fct) return (void*)my_alloc_fct_##A;
     SUPER()
     #undef GO
@@ -88,8 +88,8 @@ static void* find_free_Fct(void* fct)
 static void* reverse_free_Fct(void* fct)
 {
     if(!fct) return fct;
-    if(CheckBridged(my_lib->w.bridge, fct))
-        return (void*)CheckBridged(my_lib->w.bridge, fct);
+    if(CheckBridged(my_lib->w.bridge, vFpp, fct))
+        return (void*)CheckBridged(my_lib->w.bridge, vFpp, fct);
     #define GO(A) if(my_free_##A == fct) return (void*)my_free_fct_##A;
     SUPER()
     #undef GO

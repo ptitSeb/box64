@@ -62,8 +62,8 @@ static void* find_alloc_func_Fct(void* fct)
 static void* reverse_alloc_func_Fct(void* fct)
 {
     if(!fct) return fct;
-    if(CheckBridged(my_lib->w.bridge, fct))
-        return (void*)CheckBridged(my_lib->w.bridge, fct);
+    if(CheckBridged(my_lib->w.bridge, pFL, fct))
+        return (void*)CheckBridged(my_lib->w.bridge, pFL, fct);
     #define GO(A) if(my_alloc_func_##A == fct) return (void*)my_alloc_func_fct_##A;
     SUPER()
     #undef GO
@@ -95,8 +95,8 @@ static void* find_realloc_func_Fct(void* fct)
 static void* reverse_realloc_func_Fct(void* fct)
 {
     if(!fct) return fct;
-    if(CheckBridged(my_lib->w.bridge, fct))
-        return (void*)CheckBridged(my_lib->w.bridge, fct);
+    if(CheckBridged(my_lib->w.bridge, pFpL, fct))
+        return (void*)CheckBridged(my_lib->w.bridge, pFpL, fct);
     #define GO(A) if(my_realloc_func_##A == fct) return (void*)my_realloc_func_fct_##A;
     SUPER()
     #undef GO
@@ -128,8 +128,8 @@ static void* find_free_func_Fct(void* fct)
 static void* reverse_free_func_Fct(void* fct)
 {
     if(!fct) return fct;
-    if(CheckBridged(my_lib->w.bridge, fct))
-        return (void*)CheckBridged(my_lib->w.bridge, fct);
+    if(CheckBridged(my_lib->w.bridge, vFp, fct))
+        return (void*)CheckBridged(my_lib->w.bridge, vFp, fct);
     #define GO(A) if(my_free_func_##A == fct) return (void*)my_free_func_fct_##A;
     SUPER()
     #undef GO

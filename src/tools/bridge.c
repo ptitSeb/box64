@@ -28,17 +28,6 @@
 
 KHASH_MAP_INIT_INT128(bridgemap, uintptr_t)
 
-typedef struct bridgekey_s {
-    uintptr_t fnc;
-    uintptr_t w;
-    uintptr_t fnc2;
-    uint16_t n;
-} bridgekey_t;
-
-#define kh_bridgekey_hash_func(key) (khint32_t)((key).fnc ^ ((key).fnc >> 33) ^ ((key).w << 7) ^ ((key).w >> 29) ^ ((key).fnc2 << 13) ^ ((key).fnc2 >> 37) ^ (key).n)
-#define kh_bridgekey_hash_equal(a, b) ((a).fnc == (b).fnc && (a).w == (b).w && (a).fnc2 == (b).fnc2 && (a).n == (b).n)
-KHASH_INIT(bridgewmap, bridgekey_t, uintptr_t, 1, kh_bridgekey_hash_func, kh_bridgekey_hash_equal)
-
 typedef struct brick_s brick_t;
 typedef struct brick_s {
     onebridge_t *b;
@@ -52,7 +41,6 @@ typedef struct bridge_s {
     brick_t         *head;
     brick_t         *last;      // to speed up
     kh_bridgemap_t  *bridgemap;
-    kh_bridgewmap_t *bridgewmap;
 } bridge_t;
 
 brick_t* NewBrick(void* old, int is32bits)
@@ -91,7 +79,6 @@ bridge_t *NewBridge()
     b->head = NewBrick(load_addr, box64_is32bits);
     b->last = b->head;
     b->bridgemap = kh_init(bridgemap);
-    b->bridgewmap = kh_init(bridgewmap);
 
     return b;
 }
@@ -109,14 +96,14 @@ void FreeBridge(bridge_t** bridge)
         b = n;
     }
     kh_destroy(bridgemap, (*bridge)->bridgemap);
-    kh_destroy(bridgewmap, (*bridge)->bridgewmap);
     box_free(*bridge);
     *bridge = NULL;
 }
 
-static bridgekey_t make_bridgekey(wrapper_t w, void* fnc, void* fnc2, int N)
+static khint128_t getKey(wrapper_t w, void* fnc, void* fnc2)
 {
-    return (bridgekey_t){(uintptr_t)fnc, (uintptr_t)w, (uintptr_t)fnc2, N};
+    // addresses are 48bits max, and the wrapper, being part of box64, is expected to be 32bits, so the key is constitute as fnc2(48)fnc(48)wrap(32)
+    return ((((uintptr_t)fnc)&0xffffffffffffULL)<<32) | (khint128_t)((uintptr_t)fnc2&0xffffffffffffULL)<<(64+16) | ((uintptr_t)w&0xffffffffULL);
 }
 
 //static const char* default_bridge = "bridge???";
@@ -136,12 +123,9 @@ uintptr_t AddBridge2(bridge_t* bridge, wrapper_t w, void* fnc, void* fnc2, int N
     sz = b->sz;
     b->sz++;
     // add bridge to map, for fast recovery
-    khint128_t key = (uintptr_t)fnc | (khint128_t)((uintptr_t)fnc2)<<64;
+    khint128_t key = getKey(w, fnc, fnc2);
     khint_t k = kh_put(bridgemap, bridge->bridgemap, key, &ret);
     kh_value(bridge->bridgemap, k) = (uintptr_t)&b->b[sz].CC;
-    bridgekey_t wkey = make_bridgekey(w, fnc, fnc2, N);
-    k = kh_put(bridgewmap, bridge->bridgewmap, wkey, &ret);
-    kh_value(bridge->bridgewmap, k) = (uintptr_t)&b->b[sz].CC;
     mutex_unlock(&my_context->mutex_bridge);
 
     b->b[sz].CC = 0xCC;
@@ -161,39 +145,30 @@ uintptr_t AddBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N, const char*
     return AddBridge2(bridge, w, fnc, NULL, N, name);
 }
 
-uintptr_t CheckBridged(bridge_t* bridge, void* fnc)
+uintptr_t CheckBridged(bridge_t* bridge, wrapper_t w, void* fnc)
 {
     // check if function alread have a bridge (the function wrapper will not be tested)
-    khint_t k = kh_get(bridgemap, bridge->bridgemap, (uintptr_t)fnc);
+    khint_t k = kh_get(bridgemap, bridge->bridgemap, getKey(w, fnc, NULL));
     if(k==kh_end(bridge->bridgemap))
         return 0;
     return kh_value(bridge->bridgemap, k);
 }
 
-uintptr_t CheckBridged2(bridge_t* bridge, void* fnc, void* fnc2)
+uintptr_t CheckBridged2(bridge_t* bridge, wrapper_t w, void* fnc, void* fnc2)
 {
     // check if function alread have a bridge (the function wrapper will not be tested)
-    khint128_t key = (uintptr_t)fnc | (khint128_t)((uintptr_t)fnc2)<<64;
+    khint128_t key = getKey(w, fnc, fnc2);
     khint_t k = kh_get(bridgemap, bridge->bridgemap, key);
     if(k==kh_end(bridge->bridgemap))
         return 0;
     return kh_value(bridge->bridgemap, k);
 }
 
-static uintptr_t CheckBridgedExact(bridge_t* bridge, wrapper_t w, void* fnc, void* fnc2, int N)
-{
-    bridgekey_t key = make_bridgekey(w, fnc, fnc2, N);
-    khint_t k = kh_get(bridgewmap, bridge->bridgewmap, key);
-    if(k==kh_end(bridge->bridgewmap))
-        return 0;
-    return kh_value(bridge->bridgewmap, k);
-}
-
 uintptr_t AddCheckBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N, const char* name)
 {
     if(!fnc && w)
         return 0;
-    uintptr_t ret = CheckBridgedExact(bridge, w, fnc, NULL, N);
+    uintptr_t ret = CheckBridged(bridge, w, fnc);
     if(!ret)
         ret = AddBridge(bridge, w, fnc, N, name);
     return ret;
@@ -203,7 +178,7 @@ uintptr_t AddCheckBridge2(bridge_t* bridge, wrapper_t w, void* fnc, void* fnc2, 
 {
     if(!fnc && w)
         return 0;
-    uintptr_t ret = CheckBridgedExact(bridge, w, fnc, fnc2, N);
+    uintptr_t ret = CheckBridged2(bridge, w, fnc, fnc2);
     if(!ret)
         ret = AddBridge2(bridge, w, fnc, fnc2, N, name);
     return ret;
@@ -213,7 +188,7 @@ uintptr_t AddAutomaticBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N, co
 {
     if(!fnc)
         return 0;
-    uintptr_t ret = CheckBridgedExact(bridge, w, fnc, NULL, N);
+    uintptr_t ret = CheckBridged(bridge, w, fnc);
     if(!ret)
         ret = AddBridge(bridge, w, fnc, N, name);
     if(!hasAlternate(fnc)) {
@@ -227,7 +202,7 @@ uintptr_t AddAutomaticBridgeAlt(bridge_t* bridge, wrapper_t w, void* fnc, void* 
 {
     if(!fnc)
         return 0;
-    uintptr_t ret = CheckBridgedExact(bridge, w, alt, NULL, N);
+    uintptr_t ret = CheckBridged(bridge, w, alt);
     if(!ret)
         ret = AddBridge(bridge, w, alt, N, name);
     if(!hasAlternate(fnc)) {

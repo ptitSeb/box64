@@ -1088,8 +1088,8 @@ static void* find_xmlExternalEntityLoaderFct(void* fct)
 static void* reverse_xmlExternalEntityLoaderFct(void* fct)
 {
     if(!fct) return fct;
-    if(CheckBridged(my_lib->w.bridge, fct))
-        return (void*)CheckBridged(my_lib->w.bridge, fct);
+    if(CheckBridged(my_lib->w.bridge, pFppp, fct))
+        return (void*)CheckBridged(my_lib->w.bridge, pFppp, fct);
     #define GO(A) if(my_xmlExternalEntityLoader_##A == fct) return (void*)my_xmlExternalEntityLoader_fct_##A;
     SUPER()
     #undef GO
@@ -1127,8 +1127,8 @@ static void* find_xmlGenericErrorFunc_Fct(void* fct)
 static void* reverse_xmlGenericErrorFunc_Fct(void* fct)
 {
     if(!fct) return fct;
-    if(CheckBridged(my_lib->w.bridge, fct))
-        return (void*)CheckBridged(my_lib->w.bridge, fct);
+    if(CheckBridged(my_lib->w.bridge, vFpp, fct))
+        return (void*)CheckBridged(my_lib->w.bridge, vFpp, fct);
     #define GO(A) if(my_xmlGenericErrorFunc_##A == fct) return (void*)my_xmlGenericErrorFunc_fct_##A;
     SUPER()
     #undef GO
@@ -1160,8 +1160,8 @@ static void* find_xmlStructuredErrorFunc_Fct(void* fct)
 static void* reverse_xmlStructuredErrorFunc_Fct(void* fct)
 {
     if(!fct) return fct;
-    if(CheckBridged(my_lib->w.bridge, fct))
-        return (void*)CheckBridged(my_lib->w.bridge, fct);
+    if(CheckBridged(my_lib->w.bridge, vFpp, fct))
+        return (void*)CheckBridged(my_lib->w.bridge, vFpp, fct);
     #define GO(A) if(my_xmlStructuredErrorFunc_##A == fct) return (void*)my_xmlStructuredErrorFunc_fct_##A;
     SUPER()
     #undef GO

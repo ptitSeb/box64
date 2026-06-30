@@ -80,8 +80,8 @@ static void* find_CERT_StringFromCertFcn_Fct(void* fct)
 static void* reverse_CERT_StringFromCertFcn_Fct(library_t* lib, void* fct)
 {
     if(!fct) return fct;
-    if(CheckBridged(lib->w.bridge, fct))
-        return (void*)CheckBridged(lib->w.bridge, fct);
+    if(CheckBridged(lib->w.bridge, pFp, fct))
+        return (void*)CheckBridged(lib->w.bridge, pFp, fct);
     #define GO(A) if(my_CERT_StringFromCertFcn_##A == fct) return (void*)my_CERT_StringFromCertFcn_fct_##A;
     SUPER()
     #undef GO
@@ -112,8 +112,8 @@ static void* find_CERTChainVerifyCallbackFunc_Fct(void* fct)
 static void* reverse_CERTChainVerifyCallbackFunc_Fct(library_t* lib, void* fct)
 {
     if(!fct) return fct;
-    if(CheckBridged(lib->w.bridge, fct))
-        return (void*)CheckBridged(lib->w.bridge, fct);
+    if(CheckBridged(lib->w.bridge, iFppp, fct))
+        return (void*)CheckBridged(lib->w.bridge, iFppp, fct);
     #define GO(A) if(my_CERTChainVerifyCallbackFunc_##A == fct) return (void*)my_CERTChainVerifyCallbackFunc_fct_##A;
     SUPER()
     #undef GO

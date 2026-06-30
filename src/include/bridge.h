@@ -11,8 +11,8 @@ bridge_t *NewBridge(void);
 void FreeBridge(bridge_t** bridge);
 
 uintptr_t AddBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N, const char* name);
-uintptr_t CheckBridged(bridge_t* bridge, void* fnc);
-uintptr_t CheckBridged2(bridge_t* bridge, void* fnc, void* fnc2);
+uintptr_t CheckBridged(bridge_t* bridge, wrapper_t w, void* fnc);
+uintptr_t CheckBridged2(bridge_t* bridge, wrapper_t w, void* fnc, void* fnc2);
 uintptr_t AddBridge2(bridge_t* bridge, wrapper_t w, void* fnc, void* fnc2, int N, const char* name);
 uintptr_t AddCheckBridge(bridge_t* bridge, wrapper_t w, void* fnc, int N, const char* name);
 uintptr_t AddCheckBridge2(bridge_t* bridge, wrapper_t w, void* fnc, void* fnc2, int N, const char* name);

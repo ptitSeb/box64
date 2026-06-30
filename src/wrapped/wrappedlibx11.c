@@ -138,8 +138,8 @@ static void* findwire_to_eventFct(void* fct)
 static void* reverse_wire_to_eventFct(library_t* lib, void* fct)
 {
     if(!fct) return fct;
-    if(CheckBridged(lib->w.bridge, fct))
-        return (void*)CheckBridged(lib->w.bridge, fct);
+    if(CheckBridged(lib->w.bridge, iFppp, fct))
+        return (void*)CheckBridged(lib->w.bridge, iFppp, fct);
     #define GO(A) if(my_wire_to_event_##A == fct) return (void*)my_wire_to_event_fct_##A;
     SUPER()
     #undef GO
@@ -171,8 +171,8 @@ static void* findevent_to_wireFct(void* fct)
 static void* reverse_event_to_wireFct(library_t* lib, void* fct)
 {
     if(!fct) return fct;
-    if(CheckBridged(lib->w.bridge, fct))
-        return (void*)CheckBridged(lib->w.bridge, fct);
+    if(CheckBridged(lib->w.bridge, iFppp, fct))
+        return (void*)CheckBridged(lib->w.bridge, iFppp, fct);
     #define GO(A) if(my_event_to_wire_##A == fct) return (void*)my_event_to_wire_fct_##A;
     SUPER()
     #undef GO
@@ -204,8 +204,8 @@ static void* finderror_handlerFct(void* fct)
 static void* reverse_error_handlerFct(library_t* lib, void* fct)
 {
     if(!fct) return fct;
-    if(CheckBridged(lib->w.bridge, fct))
-        return (void*)CheckBridged(lib->w.bridge, fct);
+    if(CheckBridged(lib->w.bridge, iFpp, fct))
+        return (void*)CheckBridged(lib->w.bridge, iFpp, fct);
     #define GO(A) if(my_error_handler_##A == fct) return (void*)my_error_handler_fct_##A;
     SUPER()
     #undef GO
@@ -237,8 +237,8 @@ static void* findioerror_handlerFct(void* fct)
 static void* reverse_ioerror_handlerFct(library_t* lib, void* fct)
 {
     if(!fct) return fct;
-    if(CheckBridged(lib->w.bridge, fct))
-        return (void*)CheckBridged(lib->w.bridge, fct);
+    if(CheckBridged(lib->w.bridge, iFp, fct))
+        return (void*)CheckBridged(lib->w.bridge, iFp, fct);
     #define GO(A) if(my_ioerror_handler_##A == fct) return (void*)my_ioerror_handler_fct_##A;
     SUPER()
     #undef GO
@@ -270,8 +270,8 @@ static void* findexterror_handlerFct(void* fct)
 static void* reverse_exterror_handlerFct(library_t* lib, void* fct)
 {
     if(!fct) return fct;
-    if(CheckBridged(lib->w.bridge, fct))
-        return (void*)CheckBridged(lib->w.bridge, fct);
+    if(CheckBridged(lib->w.bridge, iFpppp, fct))
+        return (void*)CheckBridged(lib->w.bridge, iFpppp, fct);
     #define GO(A) if(my_exterror_handler_##A == fct) return (void*)my_exterror_handler_fct_##A;
     SUPER()
     #undef GO
@@ -303,8 +303,8 @@ static void* findclose_displayFct(void* fct)
 static void* reverse_close_displayFct(library_t* lib, void* fct)
 {
     if(!fct) return fct;
-    if(CheckBridged(lib->w.bridge, fct))
-        return (void*)CheckBridged(lib->w.bridge, fct);
+    if(CheckBridged(lib->w.bridge, iFpp, fct))
+        return (void*)CheckBridged(lib->w.bridge, iFpp, fct);
     #define GO(A) if(my_close_display_##A == fct) return (void*)my_close_display_fct_##A;
     SUPER()
     #undef GO
@@ -336,8 +336,8 @@ static void* findregister_imFct(void* fct)
 static void* reverse_register_imFct(library_t* lib, void* fct)
 {
     if(!fct) return fct;
-    if(CheckBridged(lib->w.bridge, fct))
-        return (void*)CheckBridged(lib->w.bridge, fct);
+    if(CheckBridged(lib->w.bridge, iFppp, fct))
+        return (void*)CheckBridged(lib->w.bridge, iFppp, fct);
     #define GO(A) if(my_register_im_##A == fct) return (void*)my_register_im_fct_##A;
     SUPER()
     #undef GO
@@ -436,8 +436,8 @@ static void* findXSynchronizeProcFct(void* fct)
 static void* reverse_XSynchronizeProcFct(library_t* lib, void* fct)
 {
     if(!fct) return fct;
-    if(CheckBridged(lib->w.bridge, fct))
-        return (void*)CheckBridged(lib->w.bridge, fct);
+    if(CheckBridged(lib->w.bridge, iFp, fct))
+        return (void*)CheckBridged(lib->w.bridge, iFp, fct);
     #define GO(A) if(my_XSynchronizeProc_##A == fct) return (void*)my_XSynchronizeProc_fct_##A;
     SUPER()
     #undef GO
@@ -514,8 +514,8 @@ static void* find_create_image_Fct(void* fct)
 static void* reverse_create_image_Fct(library_t* lib, void* fct)
 {
     if(!fct) return fct;
-    if(CheckBridged(lib->w.bridge, fct))
-        return (void*)CheckBridged(lib->w.bridge, fct);
+    if(CheckBridged(lib->w.bridge, pFppuiipuuii, fct))
+        return (void*)CheckBridged(lib->w.bridge, pFppuiipuuii, fct);
     #define GO(A) if(my_create_image_##A == fct) return (void*)my_create_image_fct_##A;
     SUPER()
     #undef GO
@@ -546,8 +546,8 @@ static void* find_destroy_image_Fct(void* fct)
 static void* reverse_destroy_image_Fct(library_t* lib, void* fct)
 {
     if(!fct) return fct;
-    if(CheckBridged(lib->w.bridge, fct))
-        return (void*)CheckBridged(lib->w.bridge, fct);
+    if(CheckBridged(lib->w.bridge, iFp, fct))
+        return (void*)CheckBridged(lib->w.bridge, iFp, fct);
     #define GO(A) if(my_destroy_image_##A == fct) return (void*)my_destroy_image_fct_##A;
     SUPER()
     #undef GO
@@ -578,8 +578,8 @@ static void* find_get_pixel_Fct(void* fct)
 static void* reverse_get_pixel_Fct(library_t* lib, void* fct)
 {
     if(!fct) return fct;
-    if(CheckBridged(lib->w.bridge, fct))
-        return (void*)CheckBridged(lib->w.bridge, fct);
+    if(CheckBridged(lib->w.bridge, LFpii, fct))
+        return (void*)CheckBridged(lib->w.bridge, LFpii, fct);
     #define GO(A) if(my_get_pixel_##A == fct) return (void*)my_get_pixel_fct_##A;
     SUPER()
     #undef GO
@@ -610,8 +610,8 @@ static void* find_put_pixel_Fct(void* fct)
 static void* reverse_put_pixel_Fct(library_t* lib, void* fct)
 {
     if(!fct) return fct;
-    if(CheckBridged(lib->w.bridge, fct))
-        return (void*)CheckBridged(lib->w.bridge, fct);
+    if(CheckBridged(lib->w.bridge, iFpiiL, fct))
+        return (void*)CheckBridged(lib->w.bridge, iFpiiL, fct);
     #define GO(A) if(my_put_pixel_##A == fct) return (void*)my_put_pixel_fct_##A;
     SUPER()
     #undef GO
@@ -642,8 +642,8 @@ static void* find_sub_image_Fct(void* fct)
 static void* reverse_sub_image_Fct(library_t* lib, void* fct)
 {
     if(!fct) return fct;
-    if(CheckBridged(lib->w.bridge, fct))
-        return (void*)CheckBridged(lib->w.bridge, fct);
+    if(CheckBridged(lib->w.bridge, pFpiiuu, fct))
+        return (void*)CheckBridged(lib->w.bridge, pFpiiuu, fct);
     #define GO(A) if(my_sub_image_##A == fct) return (void*)my_sub_image_fct_##A;
     SUPER()
     #undef GO
@@ -674,8 +674,8 @@ static void* find_add_pixel_Fct(void* fct)
 static void* reverse_add_pixel_Fct(library_t* lib, void* fct)
 {
     if(!fct) return fct;
-    if(CheckBridged(lib->w.bridge, fct))
-        return (void*)CheckBridged(lib->w.bridge, fct);
+    if(CheckBridged(lib->w.bridge, iFpl, fct))
+        return (void*)CheckBridged(lib->w.bridge, iFpl, fct);
     #define GO(A) if(my_add_pixel_##A == fct) return (void*)my_add_pixel_fct_##A;
     SUPER()
     #undef GO
@@ -1580,12 +1580,12 @@ EXPORT void* my_XOpenDisplay(x64emu_t* emu, void* d)
 
     #define GO(A, W)\
     if(dpy->A)      \
-        if(!CheckBridged(system, dpy->A)) \
+        if(!CheckBridged(system, W, dpy->A)) \
             AddAutomaticBridge(system, W, dpy->A, 0, #A); \
 
     #define GO2(A, B, W) \
     if(dpy->A && dpy->A->B)  \
-        if(!CheckBridged(system, dpy->A->B)) \
+        if(!CheckBridged(system, W, dpy->A->B)) \
             AddAutomaticBridge(system, W, dpy->A->B, 0, #B "_" #A); \
 
 
@@ -1653,7 +1653,7 @@ EXPORT void* my_XOpenIM(x64emu_t* emu, my_XDisplay_t* dpy, void* v2, void* v3, v
 
     #define GO(A, W)\
     if(dpy->A)      \
-        if(!CheckBridged(system, dpy->A)) \
+        if(!CheckBridged(system, W, dpy->A)) \
             AddAutomaticBridge(system, W, dpy->A, 0, #A); \
 
     GO(resource_alloc, LFp)

@@ -58,8 +58,8 @@ static void* find_pem_passwd_cb_Fct(void* fct)
 static void* reverse_pem_passwd_cb_Fct(void* fct)
 {
     if(!fct) return fct;
-    if(CheckBridged(my_lib->w.bridge, fct))
-        return (void*)CheckBridged(my_lib->w.bridge, fct);
+    if(CheckBridged(my_lib->w.bridge, pFp, fct))
+        return (void*)CheckBridged(my_lib->w.bridge, pFp, fct);
     #define GO(A) if(my3_pem_passwd_cb_##A == fct) return (void*)my3_pem_passwd_cb_fct_##A;
     SUPER()
     #undef GO
@@ -117,8 +117,8 @@ static void* find_verify_Fct(void* fct)
 static void* reverse_verify_Fct(void* fct)
 {
     if(!fct) return fct;
-    if(CheckBridged(my_lib->w.bridge, fct))
-        return (void*)CheckBridged(my_lib->w.bridge, fct);
+    if(CheckBridged(my_lib->w.bridge, iFip, fct))
+        return (void*)CheckBridged(my_lib->w.bridge, iFip, fct);
     #define GO(A) if(my3_verify_##A == fct) return (void*)my3_verify_fct_##A;
     SUPER()
     #undef GO

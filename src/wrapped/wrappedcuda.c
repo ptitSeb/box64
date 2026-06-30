@@ -147,8 +147,8 @@ static void* find_CuHostFn_Fct(void* fct)
 static void* reverse_CuHostFn_Fct(void* fct)
 {
     if(!fct) return fct;
-    if(CheckBridged(my_lib->w.bridge, fct))
-        return (void*)CheckBridged(my_lib->w.bridge, fct);
+    if(CheckBridged(my_lib->w.bridge, vFp, fct))
+        return (void*)CheckBridged(my_lib->w.bridge, vFp, fct);
     #define GO(A) if(my_CuHostFn_##A == fct) return (void*)my_CuHostFn_fct_##A;
     SUPER()
     #undef GO

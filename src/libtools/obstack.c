@@ -68,8 +68,8 @@ static void* findchunkfunFct(void* fct)
 static void* reverse_chunkfunFct(library_t* lib, void* fct)
 {
     if(!fct) return fct;
-    if(CheckBridged(lib->w.bridge, fct))
-        return (void*)CheckBridged(lib->w.bridge, fct);
+    if(CheckBridged(lib->w.bridge, pFL, fct))
+        return (void*)CheckBridged(lib->w.bridge, pFL, fct);
     #define GO(A) if(my_chunkfun_##A == fct) return (void*)my_chunkfun_fct_##A;
     SUPER()
     #undef GO
@@ -101,8 +101,8 @@ static void* findfreefunFct(void* fct)
 static void* reverse_freefunFct(library_t* lib, void* fct)
 {
     if(!fct) return fct;
-    if(CheckBridged(lib->w.bridge, fct))
-        return (void*)CheckBridged(lib->w.bridge, fct);
+    if(CheckBridged(lib->w.bridge, vFp, fct))
+        return (void*)CheckBridged(lib->w.bridge, vFp, fct);
     #define GO(A) if(my_freefun_##A == fct) return (void*)my_freefun_fct_##A;
     SUPER()
     #undef GO

@@ -199,8 +199,8 @@ EXPORT void my_selinux_set_callback(x64emu_t* emu, int type, union selinux_callb
 static void* reverse_setenforce_Fct(void* fct)
 {
     if(!fct) return NULL;
-    if(CheckBridged(my_lib->w.bridge, fct))
-        return (void*)CheckBridged(my_lib->w.bridge, fct);
+    if(CheckBridged(my_lib->w.bridge, iFi, fct))
+        return (void*)CheckBridged(my_lib->w.bridge, iFi, fct);
     #define GO(A) if(my_setenforce_##A == fct) return (void*)my_setenforce_fct_##A;
     SUPER()
     #undef GO
@@ -219,8 +219,8 @@ static void* reverse_log_Fct(void* fct)
 static void* reverse_audit_Fct(void* fct)
 {
     if(!fct) return NULL;
-    if(CheckBridged(my_lib->w.bridge, fct))
-        return (void*)CheckBridged(my_lib->w.bridge, fct);
+    if(CheckBridged(my_lib->w.bridge, iFpipL, fct))
+        return (void*)CheckBridged(my_lib->w.bridge, iFpipL, fct);
     #define GO(A) if(my_audit_##A == fct) return (void*)my_audit_fct_##A;
     SUPER()
     #undef GO
@@ -230,8 +230,8 @@ static void* reverse_audit_Fct(void* fct)
 static void* reverse_validate_Fct(void* fct)
 {
     if(!fct) return NULL;
-    if(CheckBridged(my_lib->w.bridge, fct))
-        return (void*)CheckBridged(my_lib->w.bridge, fct);
+    if(CheckBridged(my_lib->w.bridge, iFp, fct))
+        return (void*)CheckBridged(my_lib->w.bridge, iFp, fct);
     #define GO(A) if(my_validate_##A == fct) return (void*)my_validate_fct_##A;
     SUPER()
     #undef GO
@@ -241,8 +241,8 @@ static void* reverse_validate_Fct(void* fct)
 static void* reverse_policyload_Fct(void* fct)
 {
     if(!fct) return NULL;
-    if(CheckBridged(my_lib->w.bridge, fct))
-        return (void*)CheckBridged(my_lib->w.bridge, fct);
+    if(CheckBridged(my_lib->w.bridge, iFi, fct))
+        return (void*)CheckBridged(my_lib->w.bridge, iFi, fct);
     #define GO(A) if(my_policyload_##A == fct) return (void*)my_policyload_fct_##A;
     SUPER()
     #undef GO

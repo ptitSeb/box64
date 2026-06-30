@@ -366,8 +366,8 @@ static void* findclose_displayFct(void* fct)
 static void* reverse_close_displayFct(library_t* lib, void* fct)
 {
     if(!fct) return fct;
-    if(CheckBridged(lib->w.bridge, fct))
-        return (void*)CheckBridged(lib->w.bridge, fct);
+    if(CheckBridged(lib->w.bridge, iFpp_32, fct))
+        return (void*)CheckBridged(lib->w.bridge, iFpp_32, fct);
     #define GO(A) if(my32_close_display_##A == fct) return (void*)my32_close_display_fct_##A;
     SUPER()
     #undef GO
@@ -399,8 +399,8 @@ static void* findregister_imFct(void* fct)
 static void* reverse_register_imFct(library_t* lib, void* fct)
 {
     if(!fct) return fct;
-    if(CheckBridged(lib->w.bridge, fct))
-        return (void*)CheckBridged(lib->w.bridge, fct);
+    if(CheckBridged(lib->w.bridge, iFppp_32, fct))
+        return (void*)CheckBridged(lib->w.bridge, iFppp_32, fct);
     #define GO(A) if(my32_register_im_##A == fct) return (void*)my32_register_im_fct_##A;
     SUPER()
     #undef GO
@@ -501,8 +501,8 @@ static void* findXSynchronizeProcFct(void* fct)
 static void* reverse_XSynchronizeProcFct(library_t* lib, void* fct)
 {
     if(!fct) return fct;
-    if(CheckBridged(lib->w.bridge, fct))
-        return (void*)CheckBridged(lib->w.bridge, fct);
+    if(CheckBridged(lib->w.bridge, iFppp_32, fct))
+        return (void*)CheckBridged(lib->w.bridge, iFppp_32, fct);
     #define GO(A) if(my32_XSynchronizeProc_##A == fct) return (void*)my32_XSynchronizeProc_fct_##A;
     SUPER()
     #undef GO

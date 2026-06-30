@@ -57,8 +57,8 @@ static void* findVAMessageCallbackFct(void* fct)
 static void* reverse_VAMessageCallbackFct(void* fct)
 {
     if(!fct) return fct;
-    if(CheckBridged(my_lib->w.bridge, fct))
-        return (void*)CheckBridged(my_lib->w.bridge, fct);
+    if(CheckBridged(my_lib->w.bridge, vFpp, fct))
+        return (void*)CheckBridged(my_lib->w.bridge, vFpp, fct);
     #define GO(A) if(my_VAMessageCallback_##A == fct) return (void*)my_VAMessageCallback_fct_##A;
     SUPER()
     #undef GO

@@ -183,8 +183,8 @@ static void* find_eventfilter_Fct(void* fct)
 static void* reverse_eventfilter_Fct(void* fct)
 {
     if(!fct) return fct;
-    if(CheckBridged(my_lib->w.bridge, fct))
-        return (void*)CheckBridged(my_lib->w.bridge, fct);
+    if(CheckBridged(my_lib->w.bridge, iFpp, fct))
+        return (void*)CheckBridged(my_lib->w.bridge, iFpp, fct);
     #define GO(A) if(my_eventfilter_##A == fct) return (void*)my_eventfilter_fct_##A;
     SUPER()
     #undef GO
@@ -216,8 +216,8 @@ static void* find_LogOutput_Fct(void* fct)
 static void* reverse_LogOutput_Fct(void* fct)
 {
     if(!fct) return fct;
-    if(CheckBridged(my_lib->w.bridge, fct))
-        return (void*)CheckBridged(my_lib->w.bridge, fct);
+    if(CheckBridged(my_lib->w.bridge, vFpiip, fct))
+        return (void*)CheckBridged(my_lib->w.bridge, vFpiip, fct);
     #define GO(A) if(my_LogOutput_##A == fct) return (void*)my_LogOutput_fct_##A;
     SUPER()
     #undef GO
@@ -249,8 +249,8 @@ static void* find_Hint_Fct(void* fct)
 static void* reverse_Hint_Fct(void* fct)
 {
     if(!fct) return fct;
-    if(CheckBridged(my_lib->w.bridge, fct))
-        return (void*)CheckBridged(my_lib->w.bridge, fct);
+    if(CheckBridged(my_lib->w.bridge, vFpppp, fct))
+        return (void*)CheckBridged(my_lib->w.bridge, vFpppp, fct);
     #define GO(A) if(my_Hint_##A == fct) return (void*)my_Hint_fct_##A;
     SUPER()
     #undef GO
