@@ -205,31 +205,39 @@ uintptr_t RunD9(x64emu_t *emu, rex_t rex, uintptr_t addr)
             break;
         case 0xF8:  /* FPREM */
             {
-                double x = ST0.d, y = ST1.d;
-                int64_t q = 0;
-                if (isnan(x) || isnan(y)) {
-                    ST0.d = NAN;
-                    q = 0;
-                } else if (isinf(x) || y == 0.0) {
-#if !defined(_WIN32) && !defined(__MINGW32__)
-                    feraiseexcept(FE_INVALID);
-#endif
-                    ST0.d = NAN;
-                    q = 0;
-                } else {
-#if defined(_WIN32) || defined(__MINGW32__)
-                    q = (int64_t)trunc(x / y);
-                    ST0.d = x - (y * q);
-#else
-                    ST0.d = fmod(x, y);
-                    q = (int64_t)trunc(x / y);
-#endif
+                int go = 1;
+                if(STld(0).uref==ST0.q && STld(1).uref==ST1.q) {
+                    // try a full precision fpre alternative
+                    if(full_ld_fprem(emu))
+                        go = 0;
                 }
-                q &= 7;
-                emu->sw.f.F87_C2 = 0;
-                emu->sw.f.F87_C1 = q & 1;
-                emu->sw.f.F87_C3 = (q >> 1) & 1;
-                emu->sw.f.F87_C0 = (q >> 2) & 1;
+                if(go) {
+                    double x = ST0.d, y = ST1.d;
+                    int64_t q = 0;
+                    if (isnan(x) || isnan(y)) {
+                        ST0.d = NAN;
+                        q = 0;
+                    } else if (isinf(x) || y == 0.0) {
+#if !defined(_WIN32) && !defined(__MINGW32__)
+                        feraiseexcept(FE_INVALID);
+#endif
+                        ST0.d = NAN;
+                        q = 0;
+                    } else {
+#if defined(_WIN32) || defined(__MINGW32__)
+                        q = (int64_t)trunc(x / y);
+                        ST0.d = x - (y * q);
+#else
+                        ST0.d = fmod(x, y);
+                        q = (int64_t)trunc(x / y);
+#endif
+                    }
+                    q &= 7;
+                    emu->sw.f.F87_C2 = 0;
+                    emu->sw.f.F87_C1 = q & 1;
+                    emu->sw.f.F87_C3 = (q >> 1) & 1;
+                    emu->sw.f.F87_C0 = (q >> 2) & 1;
+                }
             }
             break;
         case 0xF9:  /* FYL2XP1 */

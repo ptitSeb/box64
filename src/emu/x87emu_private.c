@@ -260,6 +260,36 @@ const char* PrintLD(void* ld, const char* prefix)
     return buf;
 }
 
+int full_ld_fprem(x64emu_t* emu)
+{
+    #pragma pack(push, 1)
+    struct {
+        FPU_t f;
+        int16_t b;
+    } a;
+    struct {
+        FPU_t f;
+        int16_t b;
+    } b;
+    #pragma pack(pop)
+    memcpy(&a, &STld(0).ld, sizeof(a));
+    memcpy(&b, &STld(1).ld, sizeof(b));
+    if((a.b&0x8000) || (b.b&0x8000))
+        return 0;   // one value is negative, abort (not that if both values are engative, it should be doable, but not handled for now)
+    if((a.b==0x7fff) || (b.b==0x7fff))
+        return 0;   // one value is inf or nan, abort
+    if(!a.b || !b.b)
+        return 0;   // one value is denormal, abort
+    if((a.b<BIAS80) || (b.b<BIAS80) ||  (a.b>=b.b))
+        return 0;   // only case corectly computed is when a mod b = a becasue b is bigger than a, and the value is big already
+    //ST0 will not change in that case...
+    emu->sw.f.F87_C2 = 0;
+    emu->sw.f.F87_C1 = a.f.q & 1;
+    emu->sw.f.F87_C3 = (a.f.q >> 1) & 1;
+    emu->sw.f.F87_C0 = (a.f.q >> 2) & 1;
+    return 1;
+}
+
 void fpu_loadenv(x64emu_t* emu, char* p, int b16)
 {
     if(b16) {

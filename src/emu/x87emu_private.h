@@ -221,6 +221,8 @@ void fpu_xsave_mask(x64emu_t* emu, void* ed, int is32bits, uint64_t mask);
 void fpu_xrstor(x64emu_t* emu, void* ed, int is32bits);
 void fpu_xrstor_mask(x64emu_t* emu, void* ed, int is32bits, uint64_t mask);
 
+int full_ld_fprem(x64emu_t* emu);    // try full precision fprem on ST0/ST1, result in ST0. Return 0 if it fails
+
 uint32_t cvtf16_32(uint16_t v);
 uint16_t cvtf32_16(uint32_t v, uint8_t rounding);
 

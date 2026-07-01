@@ -80,6 +80,11 @@ void native_fxtract(x64emu_t* emu)
 }
 void native_fprem(x64emu_t* emu)
 {
+    if(STld(0).uref==ST0.q && STld(1).uref==ST1.q) {
+        // try a full precision fpre alternative
+        if(full_ld_fprem(emu))
+            return;
+    }
     double x = ST0.d, y = ST1.d;
     int64_t q = 0;
     if (isnan(x) || isnan(y)) {

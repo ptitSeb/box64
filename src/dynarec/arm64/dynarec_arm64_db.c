@@ -312,7 +312,7 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, &unscaled, 0xfff<<3, 7, rex, NULL, 0, 0);
                     VST64(v1, wback, fixedaddress);
                 } else {
-                    if(!BOX64ENV(dynarec_fastround)) {
+                    if(!BOX64ENV(dynarec_fastround) || !rex.is32bits) {
                         x87_forget(dyn, ninst, x1, x3, 0);
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                         if(ed!=x1) {MOVx_REG(x1, ed);}
