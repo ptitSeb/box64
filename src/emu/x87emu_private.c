@@ -246,6 +246,20 @@ long double LD2localLD(void* ld)
 }
 #endif
 
+const char* PrintLD(void* ld, const char* prefix)
+{
+    #pragma pack(push, 1)
+    struct {
+        FPU_t f;
+        int16_t b;
+    } val;
+    #pragma pack(pop)
+    memcpy(&val, ld, 10);
+    static char buf[64];
+    snprintf(buf, sizeof(buf), "%s%04x %016llx", prefix?prefix:"", val.b, val.f.q);
+    return buf;
+}
+
 void fpu_loadenv(x64emu_t* emu, char* p, int b16)
 {
     if(b16) {

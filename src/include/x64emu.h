@@ -29,6 +29,7 @@ double FromLD(void* ld);        // long double (80bits pointer) -> double
 long double LD2localLD(void* ld);        // long double (80bits pointer) -> long double (80 or 128bits)
 void LD2D(void* ld, void* d);   // long double (80bits) -> double (64bits)
 void D2LD(void* d, void* ld);   // double (64bits) -> long double (64bits)
+const char* PrintLD(void* ld, const char* prefix);
 
 uintptr_t GetSegmentBaseEmu(x64emu_t* emu, int seg);
 void UpdateFlags(x64emu_t* emu);
