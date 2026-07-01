@@ -3980,6 +3980,7 @@ GO(eglGetCurrentContext, pFv)
 GO(eglGetCurrentDisplay, pFv)
 GO(eglGetCurrentSurface, pFi)
 GO(eglGetDisplay, pFp)
+GO(eglGetDisplayDriverName, pFp)
 GO(eglGetError, iFv)
 GO(eglGetPlatformDisplay, pFupp)
 //GOM(eglGetProcAddress, pFEp)
@@ -4083,6 +4084,99 @@ GO(glGetBufferPointervOES, vFuup)
 GO(glMapBufferOES, pFuu)
 GO(glUnmapBufferOES, CFu)
 
+// GL_EXT_primitive_bounding_box
+GO(glPrimitiveBoundingBoxEXT, vFffffffff)
+
+// GL_EXT_robustness
+GO(glGetGraphicsResetStatusEXT, uFv)
+GO(glGetnUniformfvEXT, vFuiip)
+GO(glGetnUniformivEXT, vFuiip)
+GO(glReadnPixelsEXT, vFiiiiuuip)
+
+// GL_EXT_tessellation_shader
+GO(glPatchParameteriEXT, vFui)
+
+// GL_EXT_texture_buffer
+GO(glTexBufferRangeEXT, vFuuull)
+
+// GL_EXT_texture_integer
+GO(glGetSamplerParameterIivEXT, vFuup)
+GO(glGetSamplerParameterIuivEXT, vFuup)
+GO(glSamplerParameterIivEXT, vFuup)
+GO(glSamplerParameterIuivEXT, vFuup)
+
+// GL_OES_copy_image
+GO(glCopyImageSubDataOES, vFuuiiiiuuiiiiiii)
+
+// GL_OES_draw_buffers_indexed
+GO(glBlendEquationSeparateiOES, vFuuu)
+GO(glBlendEquationiOES, vFuu)
+GO(glBlendFuncSeparateiOES, vFuuuuu)
+GO(glBlendFunciOES, vFuuu)
+GO(glColorMaskiOES, vFuCCCC)
+GO(glDisableiOES, vFuu)
+GO(glEnableiOES, vFuu)
+GO(glIsEnablediOES, CFuu)
+
+// GL_OES_geometry_shader
+GO(glFramebufferTextureOES, vFuuui)
+GO(glFramebufferTexture3DOES, vFuuuuii)
+
+// GL_OES_get_program_binary
+GO(glGetProgramBinaryOES, vFuippp)
+GO(glProgramBinaryOES, vFuupi)
+
+// GL_OES_primitive_bounding_box
+GO(glPrimitiveBoundingBoxOES, vFffffffff)
+
+// GL_OES_sample_shading
+GO(glMinSampleShadingOES, vFf)
+
+// GL_OES_tessellation_shader
+GO(glPatchParameteriOES, vFui)
+
+// GL_OES_texture_3D
+GO(glCompressedTexImage3DOES, vFuiuiiiiip)
+GO(glCompressedTexSubImage3DOES, vFuiiiiiiiuip)
+GO(glCopyTexSubImage3DOES, vFuiiiiiiii)
+GO(glTexImage3DOES, vFuiuiiiiuup)
+GO(glTexSubImage3DOES, vFuiiiiiiiuup)
+
+// GL_OES_texture_buffer
+GO(glTexBufferOES, vFuuu)
+GO(glTexBufferRangeOES, vFuuull)
+
+// GL_OES_texture_integer
+GO(glGetSamplerParameterIivOES, vFuup)
+GO(glGetSamplerParameterIuivOES, vFuup)
+GO(glGetTexParameterIivOES, vFuup)
+GO(glGetTexParameterIuivOES, vFuup)
+GO(glSamplerParameterIivOES, vFuup)
+GO(glSamplerParameterIuivOES, vFuup)
+GO(glTexParameterIivOES, vFuup)
+GO(glTexParameterIuivOES, vFuup)
+
+// GL_OES_texture_storage_multisample_2d_array
+GO(glTexStorage3DMultisampleOES, vFuiuiiiC)
+
+// GL_OES_texture_view
+GO(glTextureViewOES, vFuuuuuuuu)
+
+// GL_OES_vertex_array_object
+GO(glBindVertexArrayOES, vFu)
+GO(glDeleteVertexArraysOES, vFip)
+GO(glGenVertexArraysOES, vFip)
+GO(glIsVertexArrayOES, CFu)
+
+// GL_OES_viewport_array
+GO(glGetFloati_vOES, vFuup)
+GO(glScissorArrayvOES, vFuip)
+GO(glScissorIndexedOES, vFuiiii)
+GO(glScissorIndexedvOES, vFup)
+GO(glViewportArrayvOES, vFuip)
+GO(glViewportIndexedfOES, vFuffff)
+GO(glViewportIndexedfvOES, vFup)
+
 // GLX_NV_copy_buffer
 GO(glXCopyBufferSubDataNV, vFpppuulll)
 GO(glXNamedCopyBufferSubDataNV, vFpppuulll)
@@ -4096,7 +4190,76 @@ GO(glDepthRangeIndexeddNV, vFudd)
 
 // GLX_EXT_import_context
 GO(glXGetCurrentDisplayEXT, pFv)
-GO(glXQueryContextInfoEXT, iFpLip)
-GO(glXGetContextIDEXT, LFL)
-GO(glXImportContextEXT, LFpL)
-GO(glXFreeContextEXT, vFpL)
+GO(glXQueryContextInfoEXT, iFppip)
+GO(glXGetContextIDEXT, LFp)
+GO(glXImportContextEXT, pFpL)
+GO(glXFreeContextEXT, vFpp)
+
+GO(glBindFramebufferOES, vFuu)
+GO(glBindRenderbufferOES, vFuu)
+GO(glBlendEquationOES, vFu)
+GO(glBlendEquationSeparateOES, vFuu)
+GO(glBlendFuncSeparateOES, vFuuuu)
+GO(glCheckFramebufferStatusOES, uFu)
+GO(glClipPlanefIMG, vFup)
+GO(glClipPlanexIMG, vFup)
+GO(glCoverageMaskNV, vFC)
+GO(glCoverageOperationNV, vFu)
+GO(glCurrentPaletteMatrixOES, vFu)
+GO(glDeleteFramebuffersOES, vFip)
+GO(glDeleteRenderbuffersOES, vFip)
+GO(glDepthRangeArrayfvOES, vFuip)
+GO(glDepthRangeIndexedfOES, vFuff)
+GO(glDrawTexfOES, vFffff)
+GO(glDrawTexfvOES, vFp)
+GO(glDrawTexiOES, vFiiii)
+GO(glDrawTexivOES, vFp)
+GO(glDrawTexsOES, vFwwww)
+GO(glDrawTexsvOES, vFp)
+GO(glDrawTexxOES, vFiiii)
+GO(glDrawTexxvOES, vFp)
+GO(glDrawTransformFeedbackEXT, vFuu)
+GO(glDrawTransformFeedbackInstancedEXT, vFuui)
+GO(glExtrapolateTex2DQCOM, vFuuuf)
+GO(glFramebufferRenderbufferOES, vFuuuu)
+GO(glFramebufferShadingRateEXT, vFuuuiiii)
+GO(glFramebufferTexture2DDownsampleIMG, vFuuuuiii)
+GO(glFramebufferTexture2DOES, vFuuuui)
+GO(glFramebufferTextureLayerDownsampleIMG, vFuuuiiii)
+GO(glGenFramebuffersOES, vFip)
+GO(glGenRenderbuffersOES, vFip)
+GO(glGenerateMipmapOES, vFu)
+GO(glGetFragmentShadingRatesEXT, vFiipp)
+GO(glGetFramebufferAttachmentParameterivOES, vFuuup)
+GO(glGetLightxv, vFuup)
+GO(glGetMaterialxv, vFuup)
+GO(glGetRenderbufferParameterivOES, vFuup)
+GO(glGetTexGenfvOES, vFuup)
+GO(glGetTexGenivOES, vFuup)
+GO(glGetTextureHandleIMG, UFu)
+GO(glGetTextureSamplerHandleIMG, UFuu)
+GO(glIsFramebufferOES, CFu)
+GO(glRenderbufferStorageOES, vFuuii)
+GO(glIsRenderbufferOES, CFu)
+GO(glLoadPaletteFromModelViewMatrixOES, vFv)
+GO(glMatrixIndexPointerOES, vFiuip)
+GO(glPointParameterx, vFui)
+GO(glProgramUniformHandleui64IMG, vFuiU)
+GO(glProgramUniformHandleui64vIMG, vFuiip)
+GO(glReadBufferNV, vFu)
+GO(glSampleCoveragex, vFiC)
+GO(glShadingRateCombinerOpsEXT, vFuu)
+GO(glShadingRateEXT, vFu)
+GO(glShadingRateQCOM, vFu)
+GO(glTexEstimateMotionQCOM, vFuuu)
+GO(glTexEstimateMotionRegionsQCOM, vFuuuu)
+GO(glTexGenfOES, vFuuf)
+GO(glTexGenfvOES, vFuup)
+GO(glTexGeniOES, vFuui)
+GO(glTexGenivOES, vFuup)
+GO(glTexStorageAttribs2DEXT, vFuiuiip)
+GO(glTexStorageAttribs3DEXT, vFuiuiiip)
+GO(glTextureFoveationParametersQCOM, vFuuufffff)
+GO(glUniformHandleui64IMG, vFiU)
+GO(glUniformHandleui64vIMG, vFiip)
+GO(glWeightPointerOES, vFiuip)
