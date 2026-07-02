@@ -3953,9 +3953,14 @@ void obstackSetup() {
 void obstackSetup();
 #endif
 
+extern void* my1_calloc(size_t n, size_t s);
 EXPORT void* my_malloc(unsigned long size)
 {
+#if !defined(TERMUX) && !defined(ANDROID) && !defined(STATICBUILD)
+    return my1_calloc(1, size);
+#else
     return calloc(1, size);
+#endif
 }
 
 EXPORT int my_setrlimit(x64emu_t* emu, int ressource, const struct rlimit *rlim)
