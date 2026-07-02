@@ -110,6 +110,8 @@ if(BOX64ENV(showsegv)) printf_log(LOG_INFO, "Marked db %p as dirty, and address 
 #include "dynarec/arm64/arm64_printer.h"
 #elif RV64
 #include "dynarec/rv64/rv64_printer.h"
+#elif PPC64LE
+#include "dynarec/ppc64le/ppc64le_printer.h"
 #endif
 #endif
 int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd, dynablock_t* db, uintptr_t x64pc, int is32bits)
@@ -497,6 +499,111 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd, 
 
 #undef GET_FIELD
 #undef SIGN_EXT
+#elif PPC64LE
+    ucontext_t *p = (ucontext_t *)ucntx;
+    uint32_t inst = *(uint32_t*)pc;
+    uint32_t opcd = (inst >> 26) & 0x3F;
+    uint32_t rt_rs = (inst >> 21) & 0x1F;
+    uint32_t ra = (inst >> 16) & 0x1F;
+
+    // D-form stores: STH (44), STW (36)
+    if(opcd == 44 || opcd == 36) {
+        int16_t disp = (int16_t)(inst & 0xFFFF);
+        int size = (opcd == 44) ? 2 : 4;
+        volatile uint8_t* addr = (void*)(p->uc_mcontext.gp_regs[ra] + disp);
+        if(is32bits) addr = (uint8_t*)(((uintptr_t)addr)&0xffffffff);
+        uint64_t value = p->uc_mcontext.gp_regs[rt_rs];
+        for(int i=0; i<size; ++i)
+            addr[i] = (value>>(i*8))&0xff;
+        p->uc_mcontext.gp_regs[PT_NIP]+=4;
+        return 1;
+    }
+    // DS-form store: STD (opcd=62, xo=0)
+    if(opcd == 62 && (inst & 0x3) == 0) {
+        int16_t ds = (int16_t)(inst & 0xFFFC);
+        volatile uint8_t* addr = (void*)(p->uc_mcontext.gp_regs[ra] + ds);
+        if(is32bits) addr = (uint8_t*)(((uintptr_t)addr)&0xffffffff);
+        uint64_t value = p->uc_mcontext.gp_regs[rt_rs];
+        if((((uintptr_t)addr)&3)==0) {
+            for(int i=0; i<2; ++i)
+                ((volatile uint32_t*)addr)[i] = (value>>(i*32))&0xffffffff;
+        } else
+            for(int i=0; i<8; ++i)
+                addr[i] = (value>>(i*8))&0xff;
+        p->uc_mcontext.gp_regs[PT_NIP]+=4;
+        return 1;
+    }
+    // D-form loads: LHZ (40), LWZ (32)
+    if(opcd == 40 || opcd == 32) {
+        int16_t disp = (int16_t)(inst & 0xFFFF);
+        int size = (opcd == 40) ? 2 : 4;
+        volatile uint8_t* addr = (void*)(p->uc_mcontext.gp_regs[ra] + disp);
+        if(is32bits) addr = (uint8_t*)(((uintptr_t)addr)&0xffffffff);
+        uint64_t value = 0;
+        for(int i=0; i<size; ++i)
+            value |= ((uint64_t)addr[i]) << (i*8);
+        p->uc_mcontext.gp_regs[rt_rs] = value;
+        p->uc_mcontext.gp_regs[PT_NIP]+=4;
+        return 1;
+    }
+    // DS-form load: LD (opcd=58, xo=0)
+    if(opcd == 58 && (inst & 0x3) == 0) {
+        int16_t ds = (int16_t)(inst & 0xFFFC);
+        volatile uint8_t* addr = (void*)(p->uc_mcontext.gp_regs[ra] + ds);
+        if(is32bits) addr = (uint8_t*)(((uintptr_t)addr)&0xffffffff);
+        uint64_t value = 0;
+        if((((uintptr_t)addr)&3)==0) {
+            for(int i=0; i<2; ++i)
+                value |= ((uint64_t)((volatile uint32_t*)addr)[i]) << (i*32);
+        } else
+            for(int i=0; i<8; ++i)
+                value |= ((uint64_t)addr[i]) << (i*8);
+        p->uc_mcontext.gp_regs[rt_rs] = value;
+        p->uc_mcontext.gp_regs[PT_NIP]+=4;
+        return 1;
+    }
+    // X-form (opcd=31): indexed loads/stores
+    if(opcd == 31) {
+        uint32_t xo = (inst >> 1) & 0x3FF;
+        uint32_t rb = (inst >> 11) & 0x1F;
+        uint64_t ea = p->uc_mcontext.gp_regs[ra] + p->uc_mcontext.gp_regs[rb];
+        volatile uint8_t* addr = (void*)ea;
+        if(is32bits) addr = (uint8_t*)(((uintptr_t)addr)&0xffffffff);
+        int size = 0;
+        int is_store = 0;
+        switch(xo) {
+            case 279: size = 2; is_store = 0; break;  // LHZX
+            case 23:  size = 4; is_store = 0; break;  // LWZX
+            case 21:  size = 8; is_store = 0; break;  // LDX
+            case 407: size = 2; is_store = 1; break;  // STHX
+            case 151: size = 4; is_store = 1; break;  // STWX
+            case 149: size = 8; is_store = 1; break;  // STDX
+            default: size = 0; break;
+        }
+        if(size) {
+            if(is_store) {
+                uint64_t value = p->uc_mcontext.gp_regs[rt_rs];
+                if(size==8 && (((uintptr_t)addr)&3)==0) {
+                    for(int i=0; i<2; ++i)
+                        ((volatile uint32_t*)addr)[i] = (value>>(i*32))&0xffffffff;
+                } else
+                    for(int i=0; i<size; ++i)
+                        addr[i] = (value>>(i*8))&0xff;
+            } else {
+                uint64_t value = 0;
+                if(size==8 && (((uintptr_t)addr)&3)==0) {
+                    for(int i=0; i<2; ++i)
+                        value |= ((uint64_t)((volatile uint32_t*)addr)[i]) << (i*32);
+                } else
+                    for(int i=0; i<size; ++i)
+                        value |= ((uint64_t)addr[i]) << (i*8);
+                p->uc_mcontext.gp_regs[rt_rs] = value;
+            }
+            p->uc_mcontext.gp_regs[PT_NIP]+=4;
+            return 1;
+        }
+    }
+    printf_log(LOG_INFO, "Unsupported SIGBUS special cases with pc=%p, opcode=%x (%s)\n", pc, inst, ppc64le_print(inst, (uintptr_t)pc));
 #endif
     return 0;
 #undef CHECK
