@@ -30,6 +30,36 @@
 #define from_ptrv(A) ((void*)(uintptr_t)(A))
 #endif
 
+const uint8_t x64_prefix_kind_table[256] = {
+    [0x26] = X64_PREFIX_SEG0,
+    [0x2e] = X64_PREFIX_SEG0,
+    [0x36] = X64_PREFIX_SEG0,
+    [0x3e] = X64_PREFIX_SEG0,
+    [0x40] = X64_PREFIX_REX,
+    [0x41] = X64_PREFIX_REX,
+    [0x42] = X64_PREFIX_REX,
+    [0x43] = X64_PREFIX_REX,
+    [0x44] = X64_PREFIX_REX,
+    [0x45] = X64_PREFIX_REX,
+    [0x46] = X64_PREFIX_REX,
+    [0x47] = X64_PREFIX_REX,
+    [0x48] = X64_PREFIX_REX,
+    [0x49] = X64_PREFIX_REX,
+    [0x4a] = X64_PREFIX_REX,
+    [0x4b] = X64_PREFIX_REX,
+    [0x4c] = X64_PREFIX_REX,
+    [0x4d] = X64_PREFIX_REX,
+    [0x4e] = X64_PREFIX_REX,
+    [0x4f] = X64_PREFIX_REX,
+    [0x64] = X64_PREFIX_FS,
+    [0x65] = X64_PREFIX_GS,
+    [0x66] = X64_PREFIX_66,
+    [0x67] = X64_PREFIX_67,
+    [0xf0] = X64_PREFIX_LOCK,
+    [0xf2] = X64_PREFIX_REP_F2,
+    [0xf3] = X64_PREFIX_REP_F3,
+};
+
 
 #ifdef HAVE_TRACE
 #define PK(a)     (*(uint8_t*)(ip+a))
