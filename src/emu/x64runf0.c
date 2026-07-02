@@ -1303,19 +1303,28 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
             tmp8u = (nextop>>3)&7;
             GETED((tmp8u<2)?4:0);
             switch(tmp8u) {
-                case 2:                 /* NOT Ed */
+                case 2: /* NOT Ed */
 #if defined(DYNAREC) && !defined(TEST_INTERPRETER)
-                    if(rex.w)
-                        do {
-                            tmp64u = native_lock_read_dd(ED); 
-                            tmp64u = not64(emu, tmp64u);
-                        } while(native_lock_write_dd(ED, tmp64u));
-                    else {
-                        do {
-                            tmp32u = native_lock_read_d(ED); 
-                            tmp32u = not32(emu, tmp32u);
-                        } while(native_lock_write_d(ED, tmp32u));
+                {
+                    int aligned = rex.w ? (((uintptr_t)ED) & 7) == 0 : (((uintptr_t)ED) & 3) == 0;
+                    if (!aligned) pthread_mutex_lock(&my_context->mutex_lock);
+                    if (rex.w) {
+                        if (aligned) do {
+                                tmp64u = native_lock_read_dd(ED);
+                                tmp64u = not64(emu, tmp64u);
+                            } while (native_lock_write_dd(ED, tmp64u));
+                        else
+                            ED->q[0] = not64(emu, ED->q[0]);
+                    } else {
+                        if (aligned) do {
+                                tmp32u = native_lock_read_d(ED);
+                                tmp32u = not32(emu, tmp32u);
+                            } while (native_lock_write_d(ED, tmp32u));
+                        else
+                            ED->dword[0] = not32(emu, ED->dword[0]);
                     }
+                    if (!aligned) pthread_mutex_unlock(&my_context->mutex_lock);
+                }
 #else
                     if(rex.w) {
                         pthread_mutex_lock(&my_context->mutex_lock);
@@ -1327,20 +1336,29 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                         pthread_mutex_unlock(&my_context->mutex_lock);
                     }
 #endif
-                    break;
+                break;
                 case 3: /* NEG Ed */
 #if defined(DYNAREC) && !defined(TEST_INTERPRETER)
-                    if (rex.w)
-                        do {
-                            tmp64u = native_lock_read_dd(ED);
-                            tmp64u = neg64(emu, tmp64u);
-                        } while (native_lock_write_dd(ED, tmp64u));
-                    else {
-                        do {
-                            tmp32u = native_lock_read_d(ED);
-                            tmp32u = neg32(emu, tmp32u);
-                        } while (native_lock_write_d(ED, tmp32u));
+                {
+                    int aligned = rex.w ? (((uintptr_t)ED) & 7) == 0 : (((uintptr_t)ED) & 3) == 0;
+                    if (!aligned) pthread_mutex_lock(&my_context->mutex_lock);
+                    if (rex.w) {
+                        if (aligned) do {
+                                tmp64u = native_lock_read_dd(ED);
+                                tmp64u = neg64(emu, tmp64u);
+                            } while (native_lock_write_dd(ED, tmp64u));
+                        else
+                            ED->q[0] = neg64(emu, ED->q[0]);
+                    } else {
+                        if (aligned) do {
+                                tmp32u = native_lock_read_d(ED);
+                                tmp32u = neg32(emu, tmp32u);
+                            } while (native_lock_write_d(ED, tmp32u));
+                        else
+                            ED->dword[0] = neg32(emu, ED->dword[0]);
                     }
+                    if (!aligned) pthread_mutex_unlock(&my_context->mutex_lock);
+                }
 #else
                     if (rex.w) {
                         pthread_mutex_lock(&my_context->mutex_lock);
@@ -1352,7 +1370,7 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                         pthread_mutex_unlock(&my_context->mutex_lock);
                     }
 #endif
-                    break;
+                break;
                 default:
                     return 0;
             }
