@@ -281,21 +281,33 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
             break;
 
 #if defined(DYNAREC) && !defined(TEST_INTERPRETER)
-        #define GO(B, OP, F)                                        \
-        case B+1:                                                   \
-            nextop = F8;                                            \
-            if(MODREG) {                                            \
-                emu->error |= ERR_ILLEGAL;                          \
-                return 0;                                           \
-            }                                                       \
-            GETEW(0);                                               \
-            GETGW;                                                  \
-            if(F) {CHECK_FLAGS(emu); eflags=emu->eflags;}           \
-            do {                                                    \
-                if(F) emu->eflags = eflags;                         \
-                tmp16u = native_lock_read_h(ED);                    \
-                tmp16u = OP##16(emu, tmp16u, GW->word[0]);          \
-            } while (native_lock_write_h(ED, tmp16u));              \
+        #define GO(B, OP, F)                                                 \
+        case B + 1:                                                          \
+            nextop = F8;                                                     \
+            if (MODREG) {                                                    \
+                emu->error |= ERR_ILLEGAL;                                   \
+                return 0;                                                    \
+            }                                                                \
+            GETEW(0);                                                        \
+            GETGW;                                                           \
+            {                                                                \
+                int aligned = (((uintptr_t)ED) & 1) == 0;                    \
+                if (!aligned) pthread_mutex_lock(&my_context->mutex_lock);   \
+                if (F) {                                                     \
+                    CHECK_FLAGS(emu);                                        \
+                    eflags = emu->eflags;                                    \
+                }                                                            \
+                if (aligned) {                                               \
+                    do {                                                     \
+                        if (F) emu->eflags = eflags;                         \
+                        tmp16u = native_lock_read_h(ED);                     \
+                        tmp16u = OP##16(emu, tmp16u, GW->word[0]);           \
+                    } while (native_lock_write_h(ED, tmp16u));               \
+                } else {                                                     \
+                    EW->word[0] = OP##16(emu, EW->word[0], GW->word[0]);     \
+                }                                                            \
+                if (!aligned) pthread_mutex_unlock(&my_context->mutex_lock); \
+            }                                                                \
             break;
 #else
         #define GO(B, OP, F)                                        \
@@ -332,15 +344,80 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
             tmp16s = (opcode==0x83)?(F8S):(F16S);
             tmp16u = (uint16_t)tmp16s;
 #if defined(DYNAREC) && !defined(TEST_INTERPRETER)
-            switch((nextop>>3)&7) {
-                case 0: do { tmp16u2 = native_lock_read_h(EW); tmp16u2 = add16(emu, tmp16u2, tmp16u);} while(native_lock_write_h(ED, tmp16u2)); break;
-                case 1: do { tmp16u2 = native_lock_read_h(EW); tmp16u2 =  or16(emu, tmp16u2, tmp16u);} while(native_lock_write_h(ED, tmp16u2)); break;
-                case 2: CHECK_FLAGS(emu); eflags=emu->eflags; do { emu->eflags=eflags; tmp16u2 = native_lock_read_h(EW); tmp16u2 = adc16(emu, tmp16u2, tmp16u);} while(native_lock_write_h(ED, tmp16u2)); break;
-                case 3: CHECK_FLAGS(emu); eflags=emu->eflags; do { emu->eflags=eflags; tmp16u2 = native_lock_read_h(EW); tmp16u2 = sbb16(emu, tmp16u2, tmp16u);} while(native_lock_write_h(ED, tmp16u2)); break;
-                case 4: do { tmp16u2 = native_lock_read_h(EW); tmp16u2 = and16(emu, tmp16u2, tmp16u);} while(native_lock_write_h(ED, tmp16u2)); break;
-                case 5: do { tmp16u2 = native_lock_read_h(EW); tmp16u2 = sub16(emu, tmp16u2, tmp16u);} while(native_lock_write_h(ED, tmp16u2)); break;
-                case 6: do { tmp16u2 = native_lock_read_h(EW); tmp16u2 = xor16(emu, tmp16u2, tmp16u);} while(native_lock_write_h(ED, tmp16u2)); break;
-                case 7: emu->error |= ERR_ILLEGAL; return 0;
+            {
+                int aligned = (((uintptr_t)ED) & 1) == 0;
+                if (!aligned) pthread_mutex_lock(&my_context->mutex_lock);
+                switch ((nextop >> 3) & 7) {
+                    case 0:
+                        if (aligned) do {
+                                tmp16u2 = native_lock_read_h(EW);
+                                tmp16u2 = add16(emu, tmp16u2, tmp16u);
+                            } while (native_lock_write_h(ED, tmp16u2));
+                        else
+                            EW->word[0] = add16(emu, EW->word[0], tmp16u);
+                        break;
+                    case 1:
+                        if (aligned) do {
+                                tmp16u2 = native_lock_read_h(EW);
+                                tmp16u2 = or16(emu, tmp16u2, tmp16u);
+                            } while (native_lock_write_h(ED, tmp16u2));
+                        else
+                            EW->word[0] = or16(emu, EW->word[0], tmp16u);
+                        break;
+                    case 2:
+                        if (aligned) {
+                            CHECK_FLAGS(emu);
+                            eflags = emu->eflags;
+                            do {
+                                emu->eflags = eflags;
+                                tmp16u2 = native_lock_read_h(EW);
+                                tmp16u2 = adc16(emu, tmp16u2, tmp16u);
+                            } while (native_lock_write_h(ED, tmp16u2));
+                        } else
+                            EW->word[0] = adc16(emu, EW->word[0], tmp16u);
+                        break;
+                    case 3:
+                        if (aligned) {
+                            CHECK_FLAGS(emu);
+                            eflags = emu->eflags;
+                            do {
+                                emu->eflags = eflags;
+                                tmp16u2 = native_lock_read_h(EW);
+                                tmp16u2 = sbb16(emu, tmp16u2, tmp16u);
+                            } while (native_lock_write_h(ED, tmp16u2));
+                        } else
+                            EW->word[0] = sbb16(emu, EW->word[0], tmp16u);
+                        break;
+                    case 4:
+                        if (aligned) do {
+                                tmp16u2 = native_lock_read_h(EW);
+                                tmp16u2 = and16(emu, tmp16u2, tmp16u);
+                            } while (native_lock_write_h(ED, tmp16u2));
+                        else
+                            EW->word[0] = and16(emu, EW->word[0], tmp16u);
+                        break;
+                    case 5:
+                        if (aligned) do {
+                                tmp16u2 = native_lock_read_h(EW);
+                                tmp16u2 = sub16(emu, tmp16u2, tmp16u);
+                            } while (native_lock_write_h(ED, tmp16u2));
+                        else
+                            EW->word[0] = sub16(emu, EW->word[0], tmp16u);
+                        break;
+                    case 6:
+                        if (aligned) do {
+                                tmp16u2 = native_lock_read_h(EW);
+                                tmp16u2 = xor16(emu, tmp16u2, tmp16u);
+                            } while (native_lock_write_h(ED, tmp16u2));
+                        else
+                            EW->word[0] = xor16(emu, EW->word[0], tmp16u);
+                        break;
+                    case 7:
+                        if (!aligned) pthread_mutex_unlock(&my_context->mutex_lock);
+                        emu->error |= ERR_ILLEGAL;
+                        return 0;
+                }
+                if (!aligned) pthread_mutex_unlock(&my_context->mutex_lock);
             }
 #else
             pthread_mutex_lock(&my_context->mutex_lock);
@@ -366,19 +443,28 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
             }
             GETEW((((nextop>>3)&7)<2)?2:0);
             switch((nextop>>3)&7) {
-                case 2:                 /* NOT Ed */
+                case 2: /* NOT Ed */
 #if defined(DYNAREC) && !defined(TEST_INTERPRETER)
-                    if(rex.w)
-                        do {
-                            tmp64u = native_lock_read_dd(ED); 
-                            tmp64u = not64(emu, tmp64u);
-                        } while(native_lock_write_dd(ED, tmp64u));
-                    else {
-                        do {
-                            tmp16u = native_lock_read_h(ED); 
-                            tmp16u = not16(emu, tmp16u);
-                        } while(native_lock_write_h(ED, tmp16u));
+                {
+                    int aligned = rex.w ? (((uintptr_t)ED) & 7) == 0 : (((uintptr_t)ED) & 1) == 0;
+                    if (!aligned) pthread_mutex_lock(&my_context->mutex_lock);
+                    if (rex.w) {
+                        if (aligned) do {
+                                tmp64u = native_lock_read_dd(ED);
+                                tmp64u = not64(emu, tmp64u);
+                            } while (native_lock_write_dd(ED, tmp64u));
+                        else
+                            ED->q[0] = not64(emu, ED->q[0]);
+                    } else {
+                        if (aligned) do {
+                                tmp16u = native_lock_read_h(ED);
+                                tmp16u = not16(emu, tmp16u);
+                            } while (native_lock_write_h(ED, tmp16u));
+                        else
+                            ED->word[0] = not16(emu, ED->word[0]);
                     }
+                    if (!aligned) pthread_mutex_unlock(&my_context->mutex_lock);
+                }
 #else
                     if(rex.w) {
                         pthread_mutex_lock(&my_context->mutex_lock);
@@ -390,20 +476,29 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                         pthread_mutex_unlock(&my_context->mutex_lock);
                     }
 #endif
-                    break;
+                break;
                 case 3: /* NEG Ed */
 #if defined(DYNAREC) && !defined(TEST_INTERPRETER)
-                    if (rex.w)
-                        do {
-                            tmp64u = native_lock_read_dd(ED);
-                            tmp64u = neg64(emu, tmp64u);
-                        } while (native_lock_write_dd(ED, tmp64u));
-                    else {
-                        do {
-                            tmp16u = native_lock_read_h(ED);
-                            tmp16u = neg16(emu, tmp16u);
-                        } while (native_lock_write_h(ED, tmp16u));
+                {
+                    int aligned = rex.w ? (((uintptr_t)ED) & 7) == 0 : (((uintptr_t)ED) & 1) == 0;
+                    if (!aligned) pthread_mutex_lock(&my_context->mutex_lock);
+                    if (rex.w) {
+                        if (aligned) do {
+                                tmp64u = native_lock_read_dd(ED);
+                                tmp64u = neg64(emu, tmp64u);
+                            } while (native_lock_write_dd(ED, tmp64u));
+                        else
+                            ED->q[0] = neg64(emu, ED->q[0]);
+                    } else {
+                        if (aligned) do {
+                                tmp16u = native_lock_read_h(ED);
+                                tmp16u = neg16(emu, tmp16u);
+                            } while (native_lock_write_h(ED, tmp16u));
+                        else
+                            ED->word[0] = neg16(emu, ED->word[0]);
                     }
+                    if (!aligned) pthread_mutex_unlock(&my_context->mutex_lock);
+                }
 #else
                     if (rex.w) {
                         pthread_mutex_lock(&my_context->mutex_lock);
@@ -415,7 +510,7 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                         pthread_mutex_unlock(&my_context->mutex_lock);
                     }
 #endif
-                    break;
+                break;
                 default:
                     return 0;
             }
@@ -429,45 +524,52 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
             }
             GETEW(0);
             switch((nextop>>3)&7) {
-                case 0:                 /* INC Ed */
+                case 0: /* INC Ed */
 #if defined(DYNAREC) && !defined(TEST_INTERPRETER)
-                    if(((uintptr_t)EW)&1) { 
-                        //meh.
-                        do {
-                            tmp16u = EW->word[0];
-                            tmp16u &=~0xff;
-                            tmp16u |= native_lock_read_b(EW);
-                            tmp16u = inc16(emu, tmp16u);
-                        } while(native_lock_write_b(EW, tmp16u&0xff));
-                        EW->word[0] = tmp16u;
-                    } else {
+                {
+                    int aligned = (((uintptr_t)EW) & 1) == 0;
+                    if (!aligned) pthread_mutex_lock(&my_context->mutex_lock);
+                    if (aligned) {
                         do {
                             tmp16u = native_lock_read_h(EW);
                             tmp16u = inc16(emu, tmp16u);
-                        } while(native_lock_write_h(EW, tmp16u));
+                        } while (native_lock_write_h(EW, tmp16u));
+                    } else {
+                        tmp16u = EW->word[0] = inc16(emu, EW->word[0]);
                     }
-                    #else
+                    if (!aligned) pthread_mutex_unlock(&my_context->mutex_lock);
+                }
+#else
                     pthread_mutex_lock(&my_context->mutex_lock);
                     tmp64u2 = EW->word[0];
                     tmp16u = EW->word[0] = inc16(emu, EW->word[0]);
                     pthread_mutex_unlock(&my_context->mutex_lock);
 #endif
-                    break;
-                case 1:                 /* DEC Ed */
+                break;
+                case 1: /* DEC Ed */
 #if defined(DYNAREC) && !defined(TEST_INTERPRETER)
-                    do {
-                        tmp16u = native_lock_read_h(EW);
-                        tmp16u = dec16(emu, tmp16u);
-                    } while(native_lock_write_h(EW, tmp16u));
+                {
+                    int aligned = (((uintptr_t)EW) & 1) == 0;
+                    if (!aligned) pthread_mutex_lock(&my_context->mutex_lock);
+                    if (aligned) {
+                        do {
+                            tmp16u = native_lock_read_h(EW);
+                            tmp16u = dec16(emu, tmp16u);
+                        } while (native_lock_write_h(EW, tmp16u));
+                    } else {
+                        EW->word[0] = dec16(emu, EW->word[0]);
+                    }
+                    if (!aligned) pthread_mutex_unlock(&my_context->mutex_lock);
+                    }
 #else
-                    pthread_mutex_lock(&my_context->mutex_lock);
-                    ED->word[0] = dec16(emu, ED->word[0]);
-                    pthread_mutex_unlock(&my_context->mutex_lock);
+                        pthread_mutex_lock(&my_context->mutex_lock);
+                        ED->word[0] = dec16(emu, ED->word[0]);
+                        pthread_mutex_unlock(&my_context->mutex_lock);
 #endif
                     break;
-                default:
-                    emu->error |= ERR_ILLEGAL;
-                    return 0;
+                    default:
+                        emu->error |= ERR_ILLEGAL;
+                        return 0;
             }
             break;
        default:
