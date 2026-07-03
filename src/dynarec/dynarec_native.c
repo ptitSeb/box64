@@ -489,6 +489,8 @@ dynablock_t* FillBlock64(uintptr_t addr, int is32bits, int inst_max, int is_new,
     }
     // protect the 1st page
     protectDB(addr, 1);
+    if(box64_pagesize>4096)
+        prot = getProtection_fast(addr);    // update protection as it might got a NEVERCLEAN tag because of the protectDB for large pagesize
     // init the helper
     dynarec_native_t helper = {0};
     dynarec_native_t* dyn = &helper;
