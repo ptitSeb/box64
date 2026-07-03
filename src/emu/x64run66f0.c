@@ -64,16 +64,31 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                     GETEW(0);
                     GETGW;
 #if defined(DYNAREC) && !defined(TEST_INTERPRETER)
-                    do {
-                        tmp16u = native_lock_read_h(EW);
-                        cmp16(emu, R_AX, tmp16u);
-                        if(ACCESS_FLAG(F_ZF)) {
-                            tmp32s = native_lock_write_h(EW, GW->word[0]);
+                    {
+                        int aligned = (((uintptr_t)EW) & 1) == 0;
+                        if (!aligned) pthread_mutex_lock(&my_context->mutex_lock);
+                        if (aligned) {
+                            do {
+                                tmp16u = native_lock_read_h(EW);
+                                cmp16(emu, R_AX, tmp16u);
+                                if(ACCESS_FLAG(F_ZF)) {
+                                    tmp32s = native_lock_write_h(EW, GW->word[0]);
+                                } else {
+                                    R_AX = tmp16u;
+                                    tmp32s = 0;
+                                }
+                            } while(tmp32s);
                         } else {
-                            R_AX = tmp16u;
-                            tmp32s = 0;
+                            tmp16u = EW->word[0];
+                            cmp16(emu, R_AX, tmp16u);
+                            if(ACCESS_FLAG(F_ZF)) {
+                                EW->word[0] = GW->word[0];
+                            } else {
+                                R_AX = tmp16u;
+                            }
                         }
-                    } while(tmp32s);
+                        if (!aligned) pthread_mutex_unlock(&my_context->mutex_lock);
+                    }
 #else
                     pthread_mutex_lock(&my_context->mutex_lock);
                     cmp16(emu, R_AX, EW->word[0]);
@@ -252,20 +267,22 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                     GETEW(0);
                     GETGW;
 #if defined(DYNAREC) && !defined(TEST_INTERPRETER)
-                    if(((uintptr_t)ED)&1) {
-                        do {
-                            tmp16u = ED->word[0] & ~0xff;
-                            tmp16u |= native_lock_read_h(ED);
+                    {
+                        int aligned = (((uintptr_t)ED) & 1) == 0;
+                        if (!aligned) pthread_mutex_lock(&my_context->mutex_lock);
+                        if (aligned) {
+                            do {
+                                tmp16u = native_lock_read_h(ED);
+                                tmp16u2 = add16(emu, tmp16u, GD->word[0]);
+                            } while(native_lock_write_h(ED, tmp16u2));
+                        } else {
+                            tmp16u = ED->word[0];
                             tmp16u2 = add16(emu, tmp16u, GD->word[0]);
-                        } while(native_lock_write_h(ED, tmp16u2&0xff));
-                        ED->word[0] = tmp16u2;
-                    } else {
-                        do {
-                            tmp16u = native_lock_read_h(ED);
-                            tmp16u2 = add16(emu, tmp16u, GD->word[0]);
-                        } while(native_lock_write_h(ED, tmp16u2));
+                            ED->word[0] = tmp16u2;
+                        }
+                        GD->word[0] = tmp16u;
+                        if (!aligned) pthread_mutex_unlock(&my_context->mutex_lock);
                     }
-                    GD->word[0] = tmp16u;
 #else
                     pthread_mutex_lock(&my_context->mutex_lock);
                     tmp16u = add16(emu, ED->word[0], GD->word[0]);
