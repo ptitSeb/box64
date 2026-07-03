@@ -77,7 +77,7 @@ uintptr_t dynarec64_66F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     BSTRPICK_D(x3, x1, 15, 0);
                     SRLI_W(x1, x1, 16);
                     ADD_D(x4, x1, x5);
-                    BSTRINS_D(x3, x4, 31, 15);
+                    BSTRINS_D(x3, x4, 31, 16);
                     SC_W(x3, wback, 0);
                     BEQZ_MARK2(x3);
                     MARK3;
@@ -120,7 +120,7 @@ uintptr_t dynarec64_66F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 BSTRPICK_D(x3, x1, 15, 0);
                 SRLI_W(x1, x1, 16);
                 OR(x4, x1, x5);
-                BSTRINS_D(x3, x4, 31, 15);
+                BSTRINS_D(x3, x4, 31, 16);
                 SC_W(x3, wback, 0);
                 BEQZ_MARK2(x3);
                 MARK3;
@@ -374,7 +374,7 @@ uintptr_t dynarec64_66F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             BSTRPICK_D(x3, x1, 15, 0);
                             SRLI_W(x1, x1, 16);
                             ADD_D(x4, x1, x5);
-                            BSTRINS_D(x3, x4, 31, 15);
+                            BSTRINS_D(x3, x4, 31, 16);
                             SC_W(x3, wback, 0);
                             BEQZ_MARK2(x3);
                             MARK3;
@@ -436,7 +436,7 @@ uintptr_t dynarec64_66F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             BSTRPICK_D(x3, x1, 15, 0);
                             SRLI_W(x1, x1, 16);
                             ADD_D(x4, x1, x5);
-                            BSTRINS_D(x3, x4, 31, 15);
+                            BSTRINS_D(x3, x4, 31, 16);
                             SC_W(x3, wback, 0);
                             BEQZ_MARK2(x3);
                             MARK3;
@@ -488,7 +488,7 @@ uintptr_t dynarec64_66F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             BSTRPICK_D(x3, x1, 15, 0);
                             SRLI_W(x1, x1, 16);
                             ADDI_D(x4, x1, 1);
-                            BSTRINS_D(x3, x4, 31, 15);
+                            BSTRINS_D(x3, x4, 31, 16);
                             SC_W(x3, wback, 0);
                             BEQZ_MARK2(x3);
                             MARK3;
@@ -534,7 +534,7 @@ uintptr_t dynarec64_66F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             BSTRPICK_D(x3, x1, 15, 0);
                             SRLI_W(x1, x1, 16);
                             ADDI_D(x4, x1, -1);
-                            BSTRINS_D(x3, x4, 31, 15);
+                            BSTRINS_D(x3, x4, 31, 16);
                             SC_W(x3, wback, 0);
                             BEQZ_MARK2(x3);
                             MARK3;
