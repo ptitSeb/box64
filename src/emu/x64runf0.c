@@ -455,13 +455,13 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                                     tmp8u&=31;
                                     if((uintptr_t)ED&3) {
                                         do {
-                                            tmp32u = native_lock_read_b(ED+(tmp8u>>3));
+                                            tmp32u = native_lock_read_b(&ED->byte[tmp8u>>3]);
                                             if(tmp32u & (1<<(tmp8u&7))) {
                                                 SET_FLAG(F_CF);
                                                 tmp32s = 0;
                                             } else {
                                                 tmp32u ^= (1<<(tmp8u&7));
-                                                tmp32s = native_lock_write_b(ED+(tmp8u>>3), tmp32u);
+                                                tmp32s = native_lock_write_b(&ED->byte[tmp8u>>3], tmp32u);
                                                 CLEAR_FLAG(F_CF);
                                             }
                                         } while(tmp32s);
@@ -585,13 +585,13 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                                     tmp8u&=31;
                                     if((uintptr_t)ED&3) {
                                         do {
-                                            tmp32u = native_lock_read_b(ED+(tmp8u>>3));
+                                            tmp32u = native_lock_read_b(&ED->byte[tmp8u>>3]);
                                             if(tmp32u & (1<<(tmp8u&7)))
                                                 SET_FLAG(F_CF);
                                             else
                                                 CLEAR_FLAG(F_CF);
                                             tmp32u ^= (1<<(tmp8u&7));
-                                            tmp32s = native_lock_write_b(ED+(tmp8u>>3), tmp32u);
+                                            tmp32s = native_lock_write_b(&ED->byte[tmp8u>>3], tmp32u);
                                         } while(tmp32s);
                                     } else {
                                         do {
