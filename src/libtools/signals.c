@@ -906,31 +906,22 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
                     return;
                 } else {
                     // dynablock got dirty! need to get out of it!!!
-                    if(emu->jmpbuf) {
-                        copyUCTXreg2Emu(emu, p, x64pc);
-                        // only copy as it's a return address, so there is just the "epilog" to mimic here on "ret" type. "loop" type need everything
-                        if(type_callret) {
-                            adjustregs(emu, pc);
-                            if(db && db->arch_size)
-                                ARCH_ADJUST(db, emu, p, x64pc);
-                        }
-                        dynarec_log(LOG_INFO, "Dynablock (%p, x64addr=%p) %s, getting out at %s %p (%p)!\n", db, db->x64_addr, is_hotpage?"in HotPage":"dirty", getAddrFunctionName(R_RIP), (void*)R_RIP, type_callret?"self-loop":"ret from callret", (void*)addr);
-                        emu->test.clean = 0;
-                        // use "3" to regen a dynablock at current pc (else it will first do an interp run)
-                        dynablock_leave_runtime(db);
-                        #if defined(RV64) || defined(PPC64LE)
-                        emu->xSPSave = emu->old_savedsp;
-                        #endif
-                        cancel_deferred_signal_processing(emu);
-                        #ifdef ANDROID
-                        siglongjmp(*(JUMPBUFF*)emu->jmpbuf, 3);
-                        #else
-                        siglongjmp(emu->jmpbuf, 3);
-                        #endif
+                    copyUCTXreg2Emu(emu, p, x64pc);
+                    // only copy as it's a return address, so there is just the "epilog" to mimic here on "ret" type. "loop" type need everything
+                    if(type_callret) {
+                        adjustregs(emu, pc);
+                        if(db && db->arch_size)
+                            ARCH_ADJUST(db, emu, p, x64pc);
                     }
-                    dynarec_log(LOG_INFO, "Warning, Dirty %s (%p for db %p/%p) detected, but jmpbuffer not ready!\n", type_callret?"self-loop":"ret from callret", (void*)addr, db, (void*)db->x64_addr);
+                    dynarec_log(LOG_INFO, "Dynablock (%p, x64addr=%p) %s, getting out at %s %p (%p)!\n", db, db->x64_addr, is_hotpage?"in HotPage":"dirty", getAddrFunctionName(R_RIP), (void*)R_RIP, type_callret?"self-loop":"ret from callret", (void*)addr);
+                    emu->test.clean = 0;
+                    // use "3" to regen a dynablock at current pc (else it will first do an interp run)
+                    dynablock_leave_runtime(db);
+                    copyEmu2USignalCTXreg(p, emu, native_epilog);
+                    return;
                 }
             }
+else dynarec_log(LOG_INFO, "SIGILL at %p/%p for Dynablock (%p, x64addr=%p) with %d callrets info, but not a callret offset\n", pc, addr, db, db->x64_addr, db->callret_size);
         }
     }
     #endif
@@ -967,43 +958,33 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
         if(db && ((addr>=db->x64_addr && addr<(db->x64_addr+db->x64_size)) || db_need_test)) {
             emu = getEmuSignal(emu, p, db);
             // dynablock got auto-dirty! need to get out of it!!!
-            if(emu->jmpbuf) {
-                uintptr_t x64pc = getX64Address(db, (uintptr_t)pc);
-                copyUCTXreg2Emu(emu, p, x64pc);
-                adjustregs(emu, pc);
-                if(db && db->arch_size)
-                    ARCH_ADJUST(db, emu, p, x64pc);
-                int autosmc = (addr>=db->x64_addr && addr<(db->x64_addr+db->x64_size));
-                if(autosmc && BOX64ENV(dynarec_dirty)) {
-                    // check if current block should be cut there
-                    int inst = getX64AddressInst(db, (uintptr_t)pc);
-                    // is it the last instruction
-                    uintptr_t next = getX64InstAddress(db, inst+1);
-                    if(next!=(uintptr_t)-1LL) {
-                        // there is a next, so lets mark the address and dirty the block
-                        mark_db_autosmc(db, x64pc);
-                    }
-
+            uintptr_t x64pc = getX64Address(db, (uintptr_t)pc);
+            copyUCTXreg2Emu(emu, p, x64pc);
+            adjustregs(emu, pc);
+            if(db && db->arch_size)
+                ARCH_ADJUST(db, emu, p, x64pc);
+            int autosmc = (addr>=db->x64_addr && addr<(db->x64_addr+db->x64_size));
+            if(autosmc && BOX64ENV(dynarec_dirty)) {
+                // check if current block should be cut there
+                int inst = getX64AddressInst(db, (uintptr_t)pc);
+                // is it the last instruction
+                uintptr_t next = getX64InstAddress(db, inst+1);
+                if(next!=(uintptr_t)-1LL) {
+                    // there is a next, so lets mark the address and dirty the block
+                    mark_db_autosmc(db, x64pc);
                 }
-                dynarec_log(LOG_INFO, "Dynablock (%p, x64addr=%p, need_test=%d/%d/%d) %s, getting out at %p (%p)!\n", db, db->x64_addr, db_need_test, db->dirty, db->always_test, autosmc?"Auto-SMC":"unprotected", (void*)R_RIP, (void*)addr);
-                //relockMutex(Locks);
-                unlock_signal();
-                if(Locks & is_dyndump_locked)
-                    CancelBlock64(1);
-                emu->test.clean = 0;
-                // will restore unblocked Signal flags too
-                dynablock_leave_runtime(db);
-                #if defined(RV64) || defined(PPC64LE)
-                emu->xSPSave = emu->old_savedsp;
-                #endif
-                cancel_deferred_signal_processing(emu);
-                #ifdef ANDROID
-                siglongjmp(*(JUMPBUFF*)emu->jmpbuf, 2);
-                #else
-                siglongjmp(emu->jmpbuf, 2);
-                #endif
+
             }
-            dynarec_log(LOG_INFO, "Warning, Auto-SMC (%p for db %p/%p) detected, but jmpbuffer not ready!\n", (void*)addr, db, (void*)db->x64_addr);
+            dynarec_log(LOG_INFO, "Dynablock (%p, x64addr=%p, need_test=%d/%d/%d) %s, getting out at %p (%p)!\n", db, db->x64_addr, db_need_test, db->dirty, db->always_test, autosmc?"Auto-SMC":"unprotected", (void*)R_RIP, (void*)addr);
+            //relockMutex(Locks);
+            unlock_signal();
+            if(Locks & is_dyndump_locked)
+                CancelBlock64(1);
+            emu->test.clean = 0;
+            // will restore unblocked Signal flags too
+            dynablock_leave_runtime(db);
+            copyEmu2USignalCTXreg(p, emu, native_epilog);
+            return;
         }
         // done
         if((prot&PROT_WRITE)/*|| (prot&PROT_DYNAREC)*/) {
