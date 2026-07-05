@@ -505,14 +505,7 @@ EXPORT int my_pthread_attr_setaffinity_np(x64emu_t* emu, pthread_attr_t* attr, s
 }
 EXPORT int my_pthread_attr_setaffinity_np_old(x64emu_t* emu, pthread_attr_t* attr, void* cpuset)
 {
-	uint8_t mask_[128];
-	cpu_set_t* cpuset_ = BOX64ENV(skipcpu)?(void*)mask_:cpuset;
-	if(BOX64ENV(skipcpu)) {
-		memcpy(mask_, cpuset, 128);
-		cpumask_maxcpu(mask_, 128, BOX64ENV(maxcpu));
-		cpumask_shiftleft(mask_, 128, BOX64ENV(skipcpu));
-	}
-	return my_pthread_attr_setaffinity_np(emu, attr, 128, cpuset_);
+	return my_pthread_attr_setaffinity_np(emu, attr, 128, cpuset);
 }
 #endif
 EXPORT int my_pthread_attr_setdetachstate(x64emu_t* emu, pthread_attr_t* attr, int state)
@@ -970,14 +963,7 @@ EXPORT int my_pthread_setaffinity_np(x64emu_t* emu, pthread_t thread, size_t cpu
 }
 EXPORT int my_pthread_setaffinity_np_old(x64emu_t* emu, pthread_t thread, void* cpuset)
 {
-	uint8_t mask_[128];
-	cpu_set_t* cpuset_ = BOX64ENV(skipcpu)?(void*)mask_:cpuset;
-	if(BOX64ENV(skipcpu)) {
-		memcpy(mask_, cpuset, 128);
-		cpumask_maxcpu(mask_, 128, BOX64ENV(maxcpu));
-		cpumask_shiftleft(mask_, 128, BOX64ENV(skipcpu));
-	}
-	return my_pthread_setaffinity_np(emu, thread, 128, cpuset_);
+	return my_pthread_setaffinity_np(emu, thread, 128, cpuset);
 }
 #endif
 

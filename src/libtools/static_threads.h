@@ -20,6 +20,7 @@ int my_pthread_attr_getscope(x64emu_t* emu, pthread_attr_t* attr, int* scope);
 int my_pthread_attr_getstackaddr(x64emu_t* emu, pthread_attr_t* attr, void* addr);
 int my_pthread_attr_getstacksize(x64emu_t* emu, pthread_attr_t* attr, size_t* size);
 int my_pthread_attr_init(x64emu_t* emu, pthread_attr_t* attr);
+int my_pthread_attr_getaffinity_np(x64emu_t* emu, pthread_attr_t* attr, size_t cpusize, void* cpuset);
 int my_pthread_attr_setaffinity_np(x64emu_t* emu, pthread_attr_t* attr, size_t cpusize, void* cpuset);
 int my_pthread_attr_setdetachstate(x64emu_t* emu, pthread_attr_t* attr, int state);
 int my_pthread_attr_setguardsize(x64emu_t* emu, pthread_attr_t* attr, size_t size);
