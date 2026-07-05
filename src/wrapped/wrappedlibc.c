@@ -63,6 +63,7 @@ extern int _nl_msg_cat_cntr __attribute__((weak));
 #include <sys/uio.h>
 #include <sys/wait.h>
 #include <error.h>
+#include <sched.h>
 #undef LOG_INFO
 #undef LOG_DEBUG
 
@@ -93,6 +94,7 @@ extern int _nl_msg_cat_cntr __attribute__((weak));
 #include "pe_tools.h"
 #include "cleanup.h"
 #include "random.h"
+#include "cpumask.h"
 #ifndef LOG_INFO
 #define LOG_INFO 1
 #endif
@@ -4834,6 +4836,39 @@ EXPORT long my_sysconf(x64emu_t* emu, int what) {
     return sysconf(what);
 }
 EXPORT long my___sysconf(x64emu_t* emu, int what) __attribute__((alias("my_sysconf")));
+
+EXPORT int my_sched_getaffinity(x64emu_t* emu, pid_t pid, size_t sz, cpu_set_t* mask)
+{
+    if(!BOX64ENV(skipcpu))
+        return sched_getaffinity(pid, sz, mask);
+    uint8_t mask_[sz];
+    int ret = sched_getaffinity(pid, sz, (cpu_set_t*)mask_);
+    if(ret>=0) {
+        cpumask_shiftright(mask_, sz, BOX64ENV(skipcpu));
+        cpumask_maxcpu(mask, sz, BOX64ENV(maxcpu));
+        memcpy(mask, mask_, sz);
+    }
+    return ret;
+}
+EXPORT int my_sched_getcpu(x64emu_t* emu)
+{
+    int ret = sched_getcpu();
+    if(ret>=0 && BOX64ENV(skipcpu)) {
+        ret -= BOX64ENV(skipcpu);
+        if(ret<0) ret = 0;
+    }
+    return ret;
+}
+EXPORT int my_sched_setaffinity(x64emu_t* emu, pid_t pid, size_t sz, cpu_set_t* mask)
+{
+    if(!BOX64ENV(skipcpu))
+        return sched_setaffinity(pid, sz, mask);
+    uint8_t mask_[sz];
+    memcpy(mask_, mask, sz);
+    cpumask_maxcpu(mask, sz, BOX64ENV(maxcpu));
+    cpumask_shiftleft(mask_, sz, BOX64ENV(skipcpu));
+    return sched_setaffinity(pid, sz, (cpu_set_t*)mask_);
+}
 
 EXPORT char* my___progname = NULL;
 EXPORT char* my___progname_full = NULL;

@@ -102,6 +102,7 @@ set(WOW64_BOX64CPU_SRC
     "${BOX64_ROOT}/src/tools/env.c"
     "${BOX64_ROOT}/src/tools/dynacache.c"
     "${BOX64_ROOT}/src/tools/rbtree.c"
+    "${BOX64_ROOT}/src/tools/cpumask.c"
 )
 
 add_library(wowbox64 SHARED ${WOW64_MAIN_SRC} ${MUSL_SRC} ${WOW64_BOX64CPU_SRC} ${INTERPRETER} ${DYNAREC_ASM}

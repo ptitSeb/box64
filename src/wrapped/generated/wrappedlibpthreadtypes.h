@@ -104,6 +104,7 @@ typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 	GO(pthread_setaffinity_np@GLIBC_2.3.3, iFpp_t) \
 	GO(_pthread_cleanup_push, vFppp_t) \
 	GO(_pthread_cleanup_push_defer, vFppp_t) \
+	GO(pthread_attr_getaffinity_np, iFpLp_t) \
 	GO(pthread_attr_setaffinity_np, iFpLp_t) \
 	GO(pthread_getaffinity_np, iFpLp_t) \
 	GO(pthread_setaffinity_np, iFpLp_t) \

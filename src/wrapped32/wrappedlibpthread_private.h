@@ -18,7 +18,7 @@
 GOM(pthread_atfork, iEEppp)
 GOM(__pthread_atfork, iEEppp)
 GOM(pthread_attr_destroy, iEEp)
-// pthread_attr_getaffinity_np
+GOM(pthread_attr_getaffinity_np, iEEpup)
 GOM(pthread_attr_getdetachstate, iEEpp)
 GOM(pthread_attr_getguardsize, iEEpp)
 GOM(pthread_attr_getinheritsched, iEEpp)

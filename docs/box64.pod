@@ -650,6 +650,14 @@ Maximum CPU cores exposed. Available in WowBox64.
  * XXXX : Use XXXX CPU cores. 
 
 
+=item B<BOX64_SKIPCPU> =I<0|XXXX>
+
+Skip N first CPU cores (Is apply before MAXCPU) Available in WowBox64.
+
+ * 0 : Do not skip any CPU cores. [Default]
+ * XXXX : Skip XXXX first CPU cores (usefull for big.LITTLE configurations). 
+
+
 =item B<BOX64_MMAP32> =I<0|1>
 
 Force 32-bit compatible memory mappings on 64-bit programs that run 32-bit code (like Wine WOW64), can improve performance.

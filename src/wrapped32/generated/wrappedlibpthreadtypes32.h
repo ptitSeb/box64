@@ -106,6 +106,7 @@ typedef int32_t (*iEBh_ppp_t)(struct_h_t*, void*, void*, void*);
 	GO(_pthread_cleanup_push, vEppp_t) \
 	GO(_pthread_cleanup_push_defer, vEppp_t) \
 	GO(sem_init, iEpiu_t) \
+	GO(pthread_attr_getaffinity_np, iEpup_t) \
 	GO(pthread_attr_setaffinity_np, iEpup_t) \
 	GO(pthread_attr_setstack, iEppL_t) \
 	GO(__pthread_atfork, iEppp_t) \

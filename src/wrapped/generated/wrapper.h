@@ -1210,6 +1210,7 @@ void cFpipp(x64emu_t *emu, uintptr_t fnc);
 void iFEiiu(x64emu_t *emu, uintptr_t fnc);
 void iFEiip(x64emu_t *emu, uintptr_t fnc);
 void iFEiiN(x64emu_t *emu, uintptr_t fnc);
+void iFEiLp(x64emu_t *emu, uintptr_t fnc);
 void iFEipp(x64emu_t *emu, uintptr_t fnc);
 void iFEipV(x64emu_t *emu, uintptr_t fnc);
 void iFEipA(x64emu_t *emu, uintptr_t fnc);
@@ -4256,10 +4257,6 @@ void iFEiipup(x64emu_t *emu, uintptr_t fnc);
 void iFEpipppL(x64emu_t *emu, uintptr_t fnc);
 void iFiiULippp(x64emu_t *emu, uintptr_t fnc);
 void lFpLpdddddd(x64emu_t *emu, uintptr_t fnc);
-#endif
-
-#if defined(PPC64LE)
-void iFEiLp(x64emu_t *emu, uintptr_t fnc);
 #endif
 
 #if !defined(PPC64LE)

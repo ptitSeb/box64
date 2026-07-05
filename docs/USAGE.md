@@ -214,6 +214,13 @@ Minimum size, in KB, for a DynaCache to be written to disk. Default size is 30KB
  * XXXX: Set a minimum size of XXXX KB of DynaRec code to write the dynacache to disk. Will not be saved to disk else.
  * 30: A size of 30 KB is the default value. [Default]
 
+### BOX64_SKIPCPU
+
+Skip N first CPU cores (Is apply before MAXCPU) Available in WowBox64.
+
+ * 0: Do not skip any CPU cores. [Default]
+ * XXXX: Skip XXXX first CPU cores (usefull for big.LITTLE configurations).
+
 ### BOX64_MMAP32
 
 Force 32-bit compatible memory mappings on 64-bit programs that run 32-bit code (like Wine WOW64), can improve performance.

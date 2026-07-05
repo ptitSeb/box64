@@ -1499,6 +1499,25 @@
     ]
   },
   {
+    "name": "BOX64_SKIPCPU",
+    "description": "Skip N first CPU cores (Is apply before MAXCPU)",
+    "category": "Performance",
+    "wine": true,
+    "configurator": true,
+    "options": [
+      {
+        "key": "0",
+        "description": "Do not skip any CPU cores.",
+        "default": true
+      },
+      {
+        "key": "XXXX",
+        "description": "Skip XXXX first CPU cores (usefull for big.LITTLE configurations).",
+        "default": false
+      }
+    ]
+  },
+  {
     "name": "BOX64_MMAP32",
     "description": "Force 32-bit compatible memory mappings on 64-bit programs that run 32-bit code (like Wine WOW64), can improve performance.",
     "category": "Performance",

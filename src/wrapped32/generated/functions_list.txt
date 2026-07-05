@@ -587,7 +587,6 @@
 #() iEiuu -> iEiuu
 #() iFiuu -> iFiuu
 #() iFiuL -> iFiuL
-#() iEiup -> iEiup
 #() iFiup -> iFiup
 #() iFiUU -> iFiUU
 #() iFiUp -> iFiUp
@@ -2473,6 +2472,7 @@ wrappedlibc:
 - vFp:
   - _ZGTtdlPv
 - iEv:
+  - sched_getcpu
 - iEi:
   - __close_nocancel
 - iEL:
@@ -2612,6 +2612,8 @@ wrappedlibc:
 - iEiLp:
   - __ioctl_time64
   - ioctl
+  - sched_getaffinity
+  - sched_setaffinity
 - iEipp:
 - iEipV:
 - iEpii:
@@ -3159,6 +3161,7 @@ wrappedlibpthread:
 - iEpiu:
   - sem_init
 - iEpup:
+  - pthread_attr_getaffinity_np
   - pthread_attr_setaffinity_np
 - iEppL:
   - pthread_attr_setstack

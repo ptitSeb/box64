@@ -29,6 +29,7 @@
 #include "threads32.h"
 #include "x64tls.h"
 #include "x64_signals.h"
+#include "cpumask.h"
 #ifdef DYNAREC
 #include "dynablock.h"
 #endif
@@ -833,12 +834,17 @@ EXPORT int my32_pthread_getaffinity_np(x64emu_t* emu, pthread_t thread, int cpus
     if(cpusetsize>0x1000) {
         // probably old version of the function, that didn't have cpusetsize....
         cpuset = from_ptrv(cpusetsize);
-        cpusetsize = sizeof(cpu_set_t);
+        cpusetsize = 128;//sizeof(cpu_set_t);
     } 
 
     int ret = pthread_getaffinity_np(thread, cpusetsize, cpuset);
     if(ret<0) {
         printf_log(LOG_INFO, "Warning, pthread_getaffinity_np(%p, %d, %p) errored, with errno=%d\n", (void*)thread, cpusetsize, cpuset, errno);
+    } else {
+		if(BOX64ENV(skipcpu)) {
+			cpumask_shiftright(cpuset, 128, BOX64ENV(skipcpu));
+			cpumask_maxcpu(cpuset, 128, BOX64ENV(maxcpu));
+		}
     }
 
     return ret;
@@ -849,10 +855,17 @@ EXPORT int my32_pthread_setaffinity_np(x64emu_t* emu, pthread_t thread, int cpus
     if(cpusetsize>0x1000) {
         // probably old version of the function, that didn't have cpusetsize....
         cpuset = from_ptrv(cpusetsize);
-        cpusetsize = sizeof(cpu_set_t);
+        cpusetsize = 128; //sizeof(cpu_set_t);
     } 
+	uint8_t mask_[cpusetsize];
+	cpu_set_t* cpuset_ = BOX64ENV(skipcpu)?(void*)mask_:cpuset;
+	if(BOX64ENV(skipcpu)) {
+		memcpy(mask_, cpuset, cpusetsize);
+		cpumask_maxcpu(mask_, cpusetsize, BOX64ENV(maxcpu));
+		cpumask_shiftleft(mask_, cpusetsize, BOX64ENV(skipcpu));
+	}
 
-    int ret = pthread_setaffinity_np(thread, cpusetsize, cpuset);
+    int ret = pthread_setaffinity_np(thread, cpusetsize, cpuset_);
     if(ret<0) {
         printf_log(LOG_INFO, "Warning, pthread_setaffinity_np(%p, %d, %p) errored, with errno=%d\n", (void*)thread, cpusetsize, cpuset, errno);
     }
@@ -865,16 +878,37 @@ EXPORT int my32_pthread_attr_setaffinity_np(x64emu_t* emu, void* attr, uint32_t 
     if(cpusetsize>0x1000) {
         // probably old version of the function, that didn't have cpusetsize....
         cpuset = from_ptrv(cpusetsize);
-        cpusetsize = sizeof(cpu_set_t);
+        cpusetsize = 128; //sizeof(cpu_set_t);
     } 
-
-    int ret = pthread_attr_setaffinity_np(get_attr(attr), cpusetsize, cpuset);
+	uint8_t mask_[cpusetsize];
+	cpu_set_t* cpuset_ = BOX64ENV(skipcpu)?(void*)mask_:cpuset;
+	if(BOX64ENV(skipcpu)) {
+		memcpy(mask_, cpuset, cpusetsize);
+		cpumask_maxcpu(mask_, cpusetsize, BOX64ENV(maxcpu));
+		cpumask_shiftleft(mask_, cpusetsize, BOX64ENV(skipcpu));
+	}
+    int ret = pthread_attr_setaffinity_np(get_attr(attr), cpusetsize, cpuset_);
     if(ret<0) {
         printf_log(LOG_INFO, "Warning, pthread_attr_setaffinity_np(%p, %d, %p) errored, with errno=%d\n", attr, cpusetsize, cpuset, errno);
     }
 
     return ret;
 }
+EXPORT int my32_pthread_attr_getaffinity_np(x64emu_t* emu, void* attr, uint32_t cpusetsize, void* cpuset)
+{
+    if(cpusetsize>0x1000) {
+        // probably old version of the function, that didn't have cpusetsize....
+        cpuset = from_ptrv(cpusetsize);
+        cpusetsize = 128; //sizeof(cpu_set_t);
+    } 
+	int ret = pthread_attr_getaffinity_np(get_attr(attr), cpusetsize, cpuset);
+	if(BOX64ENV(skipcpu)) {
+		cpumask_shiftright(cpuset, cpusetsize, BOX64ENV(skipcpu));
+		cpumask_maxcpu(cpuset, cpusetsize, BOX64ENV(maxcpu));
+	}
+	return ret;
+}
+
 #endif
 
 EXPORT int my32_pthread_kill(x64emu_t* emu, void* thread, int sig)

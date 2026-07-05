@@ -234,7 +234,9 @@ static void displayMiscInfo(void)
 
     printf_log(LOG_INFO, "Running on %s with %d core%s, pagesize: %zd", box64_sysinfo.cpuname, box64_sysinfo.ncpu, box64_sysinfo.ncpu > 1 ? "s" : "", box64_pagesize);
     if (BOX64ENV(maxcpu))
-        printf_log_prefix(0, LOG_INFO, ", emulating %d core%s\n", BOX64ENV(maxcpu), BOX64ENV(maxcpu) > 1 ? "s" : "");
+        printf_log_prefix(0, LOG_INFO, ", emulating %d core%s", BOX64ENV(maxcpu), BOX64ENV(maxcpu) > 1 ? "s" : "");
+    if (BOX64ENV(skipcpu))
+        printf_log_prefix(0, LOG_INFO, " skipping %d core%s\n", BOX64ENV(skipcpu), BOX64ENV(skipcpu)>1? "s":"");
     else
         printf_log_prefix(0, LOG_INFO, "\n");
     computeRDTSC();

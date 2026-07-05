@@ -165,6 +165,7 @@ typedef int32_t (*iFpuippupp_t)(void*, uint32_t, int32_t, void*, void*, uint32_t
 	GO(freeaddrinfo, vEp_t) \
 	GO(regfree, vEp_t) \
 	GO(_ZGTtdlPv, vFp_t) \
+	GO(sched_getcpu, iEv_t) \
 	GO(__close_nocancel, iEi_t) \
 	GO(shmdt, iEp_t) \
 	GO(sysinfo, iEp_t) \
@@ -245,6 +246,8 @@ typedef int32_t (*iFpuippupp_t)(void*, uint32_t, int32_t, void*, void*, uint32_t
 	GO(__fcntl_time64, iEiiN_t) \
 	GO(__ioctl_time64, iEiLp_t) \
 	GO(ioctl, iEiLp_t) \
+	GO(sched_getaffinity, iEiLp_t) \
+	GO(sched_setaffinity, iEiLp_t) \
 	GO(regcomp, iEppi_t) \
 	GO(__isoc23_vsscanf, iEppp_t) \
 	GO(vswscanf, iEppp_t) \

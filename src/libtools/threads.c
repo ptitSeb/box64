@@ -25,6 +25,7 @@
 #include "bridge.h"
 #include "myalign.h"
 #include "x64tls.h"
+#include "cpumask.h"
 #ifdef DYNAREC
 #include "dynablock.h"
 #include "dynarec/native_lock.h"
@@ -475,17 +476,43 @@ EXPORT int my_pthread_attr_init(x64emu_t* emu, pthread_attr_t* attr)
 	return ret;
 }
 #ifndef ANDROID
-EXPORT int my_pthread_attr_setaffinity_np(x64emu_t* emu, pthread_attr_t* attr, size_t cpusize, void* cpuset)
+EXPORT int my_pthread_attr_getaffinity_np(x64emu_t* emu, pthread_attr_t* attr, size_t cpusize, void* cpuset)
 {
 	(void)emu;
 	PTHREAD_ATTR_ALIGN(attr);
-	int ret = pthread_attr_setaffinity_np(PTHREAD_ATTR(attr), cpusize, cpuset);
+	int ret = pthread_attr_getaffinity_np(PTHREAD_ATTR(attr), cpusize, cpuset);
+	PTHREAD_ATTR_UNALIGN(attr);
+	if(BOX64ENV(skipcpu)) {
+		cpumask_shiftright(cpuset, cpusize, BOX64ENV(skipcpu));
+		cpumask_maxcpu(cpuset, cpusize, BOX64ENV(maxcpu));
+	}
+	return ret;
+}
+EXPORT int my_pthread_attr_setaffinity_np(x64emu_t* emu, pthread_attr_t* attr, size_t cpusize, void* cpuset)
+{
+	(void)emu;
+	uint8_t mask_[cpusize];
+	cpu_set_t* cpuset_ = BOX64ENV(skipcpu)?(void*)mask_:cpuset;
+	if(BOX64ENV(skipcpu)) {
+		memcpy(mask_, cpuset, cpusize);
+		cpumask_maxcpu(mask_, cpusize, BOX64ENV(maxcpu));
+		cpumask_shiftleft(mask_, cpusize, BOX64ENV(skipcpu));
+	}
+	PTHREAD_ATTR_ALIGN(attr);
+	int ret = pthread_attr_setaffinity_np(PTHREAD_ATTR(attr), cpusize, cpuset_);
 	PTHREAD_ATTR_UNALIGN(attr);
 	return ret;
 }
 EXPORT int my_pthread_attr_setaffinity_np_old(x64emu_t* emu, pthread_attr_t* attr, void* cpuset)
 {
-	return my_pthread_attr_setaffinity_np(emu, attr, 128, cpuset);
+	uint8_t mask_[128];
+	cpu_set_t* cpuset_ = BOX64ENV(skipcpu)?(void*)mask_:cpuset;
+	if(BOX64ENV(skipcpu)) {
+		memcpy(mask_, cpuset, 128);
+		cpumask_maxcpu(mask_, 128, BOX64ENV(maxcpu));
+		cpumask_shiftleft(mask_, 128, BOX64ENV(skipcpu));
+	}
+	return my_pthread_attr_setaffinity_np(emu, attr, 128, cpuset_);
 }
 #endif
 EXPORT int my_pthread_attr_setdetachstate(x64emu_t* emu, pthread_attr_t* attr, int state)
@@ -903,20 +930,38 @@ EXPORT int my_pthread_getaffinity_np(x64emu_t* emu, pthread_t thread, size_t cpu
 	int ret = pthread_getaffinity_np(thread, cpusetsize, cpuset);
 	if(ret<0) {
 		printf_log(LOG_INFO, "Warning, pthread_getaffinity_np(%p, %zd, %p) errored, with errno=%d\n", (void*)thread, cpusetsize, cpuset, errno);
+	} else {
+		if(BOX64ENV(skipcpu)) {
+			cpumask_shiftright(cpuset, cpusetsize, BOX64ENV(skipcpu));
+			cpumask_maxcpu(cpuset, cpusetsize, BOX64ENV(maxcpu));
+		}
 	}
 
     return ret;
 }
 EXPORT int my_pthread_getaffinity_np_old(x64emu_t* emu, pthread_t thread, void* cpuset)
 {
-	return my_pthread_getaffinity_np(emu, thread, 128, cpuset);
+	int ret = my_pthread_getaffinity_np(emu, thread, 128, cpuset);
+	if(ret>=0) {
+		if(BOX64ENV(skipcpu)) {
+			cpumask_shiftright(cpuset, 128, BOX64ENV(skipcpu));
+			cpumask_maxcpu(cpuset, 128, BOX64ENV(maxcpu));
+		}
+	}
 }
 
 
 EXPORT int my_pthread_setaffinity_np(x64emu_t* emu, pthread_t thread, size_t cpusetsize, void* cpuset)
 {
 	(void)emu;
-	int ret = pthread_setaffinity_np(thread, cpusetsize, cpuset);
+	uint8_t mask_[cpusetsize];
+	cpu_set_t* cpuset_ = BOX64ENV(skipcpu)?(void*)mask_:cpuset;
+	if(BOX64ENV(skipcpu)) {
+		memcpy(mask_, cpuset, cpusetsize);
+		cpumask_maxcpu(mask_, cpusetsize, BOX64ENV(maxcpu));
+		cpumask_shiftleft(mask_, cpusetsize, BOX64ENV(skipcpu));
+	}
+	int ret = pthread_setaffinity_np(thread, cpusetsize, cpuset_);
 	if(ret<0) {
 		printf_log(LOG_INFO, "Warning, pthread_setaffinity_np(%p, %zd, %p) errored, with errno=%d\n", (void*)thread, cpusetsize, cpuset, errno);
 	}
@@ -925,7 +970,14 @@ EXPORT int my_pthread_setaffinity_np(x64emu_t* emu, pthread_t thread, size_t cpu
 }
 EXPORT int my_pthread_setaffinity_np_old(x64emu_t* emu, pthread_t thread, void* cpuset)
 {
-	return my_pthread_setaffinity_np(emu, thread, 128, cpuset);
+	uint8_t mask_[128];
+	cpu_set_t* cpuset_ = BOX64ENV(skipcpu)?(void*)mask_:cpuset;
+	if(BOX64ENV(skipcpu)) {
+		memcpy(mask_, cpuset, 128);
+		cpumask_maxcpu(mask_, 128, BOX64ENV(maxcpu));
+		cpumask_shiftleft(mask_, 128, BOX64ENV(skipcpu));
+	}
+	return my_pthread_setaffinity_np(emu, thread, 128, cpuset_);
 }
 #endif
 

@@ -107,6 +107,7 @@ extern char* ftrace_name;
     INTEGER(BOX64_LOG, log, DEFAULT_LOG_LEVEL, 0, 3, 1, 0)                       \
     INTEGER(BOX64_MALLOC_HACK, malloc_hack, 0, 0, 2, 0, 0)                       \
     INTEGER(BOX64_MAXCPU, new_maxcpu, 0, 0, 100, 1, 0)                           \
+    INTEGER(BOX64_SKIPCPU, new_skipcpu, 0, 0, 100, 1, 0)                         \
     BOOLEAN(BOX64_MMAP32, mmap32, 1, 0, 0)                                       \
     BOOLEAN(BOX64_NOBANNER, nobanner, BOX64_NOBANNER_DEFAULT, 1, 0)              \
     STRING(BOX64_NODYNAREC, nodynarec, 1, 0)                                     \
@@ -214,6 +215,7 @@ typedef struct box64env_s {
     int priority;
     /******** Custom ones ********/
     int maxcpu;
+    int skipcpu;
     int dynarec_test;
     int rolling_log;
     int dynarec_perf_map_fd;

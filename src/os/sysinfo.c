@@ -7,6 +7,7 @@
 #include "debug.h"
 #include "sysinfo.h"
 #include "build_info.h"
+#include "cpumask.h"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -212,9 +213,18 @@ void InitializeSystemInfo(void)
 #endif
 
     box64_sysinfo.box64_ncpu = box64_sysinfo.ncpu;
-    if (BOX64ENV(maxcpu) && box64_sysinfo.ncpu > (uint64_t)BOX64ENV(maxcpu)) {
+    if (BOX64ENV(skipcpu) && box64_sysinfo.box64_ncpu > (uint64_t)BOX64ENV(skipcpu)) {
+        box64_sysinfo.box64_ncpu -= (uint64_t)BOX64ENV(skipcpu);
+    }
+    if (BOX64ENV(maxcpu) && box64_sysinfo.box64_ncpu > (uint64_t)BOX64ENV(maxcpu)) {
         box64_sysinfo.box64_ncpu = (uint64_t)BOX64ENV(maxcpu);
     }
+    while(box64env.skipcpu && box64_sysinfo.box64_ncpu+box64env.skipcpu>box64_sysinfo.ncpu) {
+        --box64_sysinfo.box64_ncpu;
+        box64env.maxcpu = box64_sysinfo.box64_ncpu;
+    }
+    if(box64env.skipcpu)
+        cpumask_apply(box64env.skipcpu, box64env.maxcpu);
 }
 
 uint32_t helper_getcpu(x64emu_t* emu)

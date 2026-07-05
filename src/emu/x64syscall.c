@@ -42,6 +42,7 @@
 #include "elfloader.h"
 #include "x64int_private.h"
 #include "syscall_user_dispatch.h"
+#include "cpumask.h"
 
 typedef struct x64_sigaction_s x64_sigaction_t;
 typedef struct x64_stack_s x64_stack_t;
@@ -255,8 +256,8 @@ static const scwrap_t syscallwrap[] = {
     [201] = {__NR_time, 1},
     #endif
     [202] = {__NR_futex, 6},
-    [203] = {__NR_sched_setaffinity, 3},
-    [204] = {__NR_sched_getaffinity, 3},
+    //[203] = {__NR_sched_setaffinity, 3},
+    //[204] = {__NR_sched_getaffinity, 3},
     [206] = {__NR_io_setup, 2},
     [207] = {__NR_io_destroy, 1},
     [208] = {__NR_io_getevents, 4},
@@ -881,6 +882,30 @@ void EXPORT x64Syscall_linux(x64emu_t *emu)
                 S_RAX = -errno;
             break;
         #endif
+        case 203:   // sys_sched_setaffinity
+            {
+                uint8_t new_mask[R_ESI];
+                memcpy(new_mask, (void*)R_RDX, R_ESI);
+                cpumask_maxcpu(new_mask, R_ESI, BOX64ENV(maxcpu));
+                cpumask_shiftleft(new_mask, R_ESI, BOX64ENV(skipcpu));
+                R_RAX = syscall(__NR_sched_setaffinity, S_EDI, R_ESI, new_mask);
+            }
+            if(S_RAX==-1)
+                S_RAX = -errno;
+            break;
+        case 204:   // sys_sched_getaffinity
+            {
+                uint8_t new_mask[R_ESI];
+                R_RAX = syscall(__NR_sched_getaffinity, S_EDI, R_ESI, new_mask);
+                if(S_RAX==-1)
+                    S_RAX = -errno;
+                else {
+                    cpumask_shiftright(new_mask, R_ESI, BOX64ENV(skipcpu));
+                    cpumask_maxcpu(new_mask, R_ESI, BOX64ENV(maxcpu));
+                    memcpy((void*)R_RDX, new_mask, R_ESI);
+                }
+            }
+            break;
         #if !defined(__NR_epoll_wait) || !defined(NOALIGN)
         case 232:
             R_RAX = my_epoll_wait(emu, S_EDI, (void*)R_RSI, S_EDX, S_R10d);
@@ -1259,6 +1284,30 @@ long EXPORT my_syscall(x64emu_t *emu)
         case 201: // sys_time
             return (intptr_t)time((void*)R_RSI);
         #endif
+        case 203:   // sys_sched_setaffinity
+            {
+                uint8_t new_mask[R_EDX];
+                memcpy(new_mask, (void*)R_RCX, R_EDX);
+                cpumask_maxcpu(new_mask, R_EDX, BOX64ENV(maxcpu));
+                cpumask_shiftleft(new_mask, R_EDX, BOX64ENV(skipcpu));
+                R_RAX = syscall(__NR_sched_setaffinity, S_ESI, R_EDX, new_mask);
+            }
+            if(S_RAX==-1)
+                S_RAX = -errno;
+            break;
+        case 204:   // sys_sched_getaffinity
+            {
+                uint8_t new_mask[R_EDX];
+                R_RAX = syscall(__NR_sched_getaffinity, S_ESI, R_EDX, new_mask);
+                if(S_RAX==-1)
+                    S_RAX = -errno;
+                else {
+                    cpumask_shiftright(new_mask, R_EDX, BOX64ENV(skipcpu));
+                    cpumask_maxcpu(new_mask, R_EDX, BOX64ENV(maxcpu));
+                    memcpy((void*)R_RCX, new_mask, R_EDX);
+                }
+            }
+            break;
         #ifndef __NR_epoll_create
         case 213:
             return epoll_create(S_ESI);

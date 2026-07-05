@@ -214,6 +214,13 @@ DynaCache 写入磁盘的最小大小（KB）。默认大小为 30KB。
  * XXXX: 设置将缓存写入磁盘的最小 DynaRec 代码大小（XXXX KB），小于此值将不会保存到磁盘。
  * 30: 默认值为 30 KB。 [默认值]
 
+### BOX64_SKIPCPU
+
+Skip N first CPU cores (Is apply before MAXCPU) 在 WowBox64 中可用。
+
+ * 0: Do not skip any CPU cores. [默认值]
+ * XXXX: Skip XXXX first CPU cores (usefull for big.LITTLE configurations).
+
 ### BOX64_MMAP32
 
 在运行 32 位代码的 64 位程序（如 Wine WOW64）上强制使用 32 位兼容的内存映射，可提高性能。

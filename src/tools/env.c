@@ -22,6 +22,7 @@
 #include "pe_tools.h"
 #include "dynacache.h"
 #include "env_private.h"
+#include "cpumask.h"
 
 box64env_t box64env = { 0 };
 
@@ -261,8 +262,16 @@ static void applyCustomRules()
         if (box64env.maxcpu && box64_sysinfo.ncpu > (uint64_t)box64env.maxcpu) {
             box64_sysinfo.box64_ncpu = (uint64_t)box64env.maxcpu;
         }
-
     }
+    if (box64env.new_skipcpu && (box64env.new_skipcpu < box64_sysinfo.ncpu)) {
+        box64env.skipcpu = box64env.new_skipcpu;
+    }
+    while(box64env.skipcpu && box64_sysinfo.box64_ncpu+box64env.skipcpu>box64_sysinfo.ncpu) {
+        --box64_sysinfo.box64_ncpu;
+        box64env.maxcpu = box64_sysinfo.box64_ncpu;
+    }
+    if(box64env.skipcpu)
+        cpumask_apply(box64env.skipcpu, box64env.maxcpu);
 
 #ifndef _WIN32
     if (box64env.dynarec_perf_map) {

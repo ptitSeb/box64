@@ -1173,6 +1173,7 @@
 #() iFEiiu
 #() iFEiip
 #() iFEiiN
+#() iFEiLp
 #() iFEipp
 #() iFEipV
 #() iFEipA
@@ -4211,7 +4212,6 @@
 #!defined(STATICBUILD) iFEpipppL
 #!defined(STATICBUILD) iFiiULippp
 #!defined(STATICBUILD) lFpLpdddddd
-#defined(PPC64LE) iFEiLp
 #!defined(PPC64LE) iFiLN
 #() vFEv -> vFE
 #() iFEv -> iFE
@@ -5486,6 +5486,7 @@ wrappedlibc:
   - __cxa_finalize
 - iFv:
   - fork
+  - sched_getcpu
   - vfork
 - iFi:
   - iopl
@@ -5632,6 +5633,8 @@ wrappedlibc:
   - fsmount
 - iFiLp:
   - ioctl
+  - sched_getaffinity
+  - sched_setaffinity
 - iFipu:
   - fspick
 - iFipp:
@@ -6359,6 +6362,7 @@ wrappedlibpthread:
   - _pthread_cleanup_push
   - _pthread_cleanup_push_defer
 - iFpLp:
+  - pthread_attr_getaffinity_np
   - pthread_attr_setaffinity_np
   - pthread_getaffinity_np
   - pthread_setaffinity_np

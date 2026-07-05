@@ -47,6 +47,7 @@
 #include <sys/shm.h>
 #endif
 #include <sys/wait.h>
+#include <sched.h>
 
 #include "wrappedlibs.h"
 
@@ -73,6 +74,7 @@
 #include "cleanup.h"
 #include "box32_inputevent.h"
 #include "syscall_user_dispatch.h"
+#include "cpumask.h"
 
 // need to undef all read / read64 stuffs!
 #undef pread
@@ -3484,6 +3486,40 @@ EXPORT int my32_shmdt(x64emu_t* emu, void* addr)
     return shmdt(addr);
 }
 #endif
+
+EXPORT int my32_sched_getaffinity(x64emu_t* emu, pid_t pid, size_t sz, cpu_set_t* mask)
+{
+    if(!BOX64ENV(skipcpu))
+        return sched_getaffinity(pid, sz, mask);
+    uint8_t mask_[sz];
+    int ret = sched_getaffinity(pid, sz, (cpu_set_t*)mask_);
+    if(ret>=0) {
+        cpumask_shiftright(mask_, sz, BOX64ENV(skipcpu));
+        cpumask_maxcpu(mask, sz, BOX64ENV(maxcpu));
+        memcpy(mask, mask_, sz);
+    }
+    return ret;
+}
+EXPORT int my32_sched_getcpu(x64emu_t* emu)
+{
+    int ret = sched_getcpu();
+    if(ret>=0 && BOX64ENV(skipcpu)) {
+        ret -= BOX64ENV(skipcpu);
+        if(ret<0) ret = 0;
+    }
+    return ret;
+}
+EXPORT int my32_sched_setaffinity(x64emu_t* emu, pid_t pid, size_t sz, cpu_set_t* mask)
+{
+    if(!BOX64ENV(skipcpu))
+        return sched_setaffinity(pid, sz, mask);
+    uint8_t mask_[sz];
+    memcpy(mask_, mask, sz);
+    cpumask_maxcpu(mask, sz, BOX64ENV(maxcpu));
+    cpumask_shiftleft(mask_, sz, BOX64ENV(skipcpu));
+    return sched_setaffinity(pid, sz, (cpu_set_t*)mask_);
+}
+
 
 #if 0
 #ifndef __NR_memfd_create

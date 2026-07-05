@@ -477,6 +477,7 @@ set(ELFLOADER_SRC
     "${BOX64_ROOT}/src/tools/alternate.c"
     "${BOX64_ROOT}/src/tools/callback.c"
     "${BOX64_ROOT}/src/tools/cleanup.c"
+    "${BOX64_ROOT}/src/tools/cpumask.c"
     "${BOX64_ROOT}/src/tools/gdbjit.c"
     "${BOX64_ROOT}/src/tools/fileutils.c"
     "${BOX64_ROOT}/src/tools/pathcoll.c"
