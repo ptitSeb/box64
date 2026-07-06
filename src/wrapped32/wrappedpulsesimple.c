@@ -20,6 +20,6 @@ static const char* pulsesimpleName = "libpulse-simple.so.0";
     if(BOX64ENV(nopulse)) \
         return -1;
 
-#define NEEDED_LIBS "libpulse.so.0"
+//#define NEEDED_LIBS "libpulse.so.0"
 
 #include "wrappedlib_init32.h"
