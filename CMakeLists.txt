@@ -1526,7 +1526,7 @@ if(NOT _x86 AND NOT _x86_64)
 	  endif()
 
   endif()
-  set(INSTALL_PATH "/usr/lib/box64-x86_64-linux-gnu/")
+  set(INSTALL_PATH "/usr/lib/box64-x86_64-linux-gnu")
   if(NOT NO_LIB_INSTALL)
 	if(NOT TERMUX AND NOT ANDROID)
         install(FILES ${CMAKE_SOURCE_DIR}/x64lib/libstdc++.so.5 DESTINATION ${INSTALL_PATH})
