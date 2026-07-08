@@ -48,10 +48,107 @@
 // LOCK_* define
 #define LOCK_LOCK (int*)1
 
+#if STEP == 0
+#define UP32_READ(r)                                                                \
+    do {                                                                            \
+        if (IS_GPR(r)) dyn->insts[ninst].up32_read |= (uint16_t)(1 << (TO_X64(r))); \
+    } while (0)
+#define UP32_WRITE64(r)                                                                \
+    do {                                                                               \
+        if (IS_GPR(r)) dyn->insts[ninst].up32_write64 |= (uint16_t)(1 << (TO_X64(r))); \
+    } while (0)
+#define UP32_WRITE32(r)                                                     \
+    do {                                                                    \
+        if (IS_GPR(r)) {                                                    \
+            UP32_WRITE64(r);                                                \
+            dyn->insts[ninst].up32_write32 |= (uint16_t)(1 << (TO_X64(r))); \
+        }                                                                   \
+    } while (0)
+#define UP32_READALL()                                   \
+    do {                                                 \
+        dyn->insts[ninst].up32_read |= (uint16_t)0xFFFF; \
+    } while (0)
+#else
+#define UP32_READ(r)    ((void)(r))
+#define UP32_WRITE64(r) ((void)(r))
+#define UP32_WRITE32(r) ((void)(r))
+#define UP32_READALL() ((void)0)
+#endif
+
+#define MARKREGd(r)          \
+    do {                     \
+        if (rex.w)           \
+            UP32_WRITE64(r); \
+        else                 \
+            UP32_WRITE32(r); \
+    } while (0)
+
+#define MARKREGdz(r)         \
+    do {                     \
+        if (!rex.is32bits)   \
+            UP32_WRITE64(r); \
+        else                 \
+            UP32_WRITE32(r); \
+    } while (0)
+
+#define MARKREGs(r)              \
+    do {                         \
+        if (rex.w) UP32_READ(r); \
+    } while (0)
+
+#define MARKREGsz(r)                     \
+    do {                                 \
+        if (!rex.is32bits) UP32_READ(r); \
+    } while (0)
+
+#define MARKREGsd(r) \
+    do {             \
+        MARKREGs(r); \
+        MARKREGd(r); \
+    } while (0)
+
+#define MARKREGsdz(r) \
+    do {              \
+        MARKREGsz(r); \
+        MARKREGdz(r); \
+    } while (0)
+
+#define NEED_ZEROUP32(r) \
+    (!(IS_GPR(r)) || !((dyn->insts[ninst].up32_skip >> (TO_X64(r))) & 1))
+#define NEED_ZEROUP(r) (!rex.w && NEED_ZEROUP32(r))
+
 // GETGD    get x64 register in gd
-#define GETGD gd = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3));
-// GETVD    get x64 register in vd
-#define GETVD vd = TO_NAT(vex.v)
+#define GETGDw                                              \
+    do {                                                    \
+        gd = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3)); \
+    } while (0)
+#define GETGDs        \
+    do {              \
+        GETGDw;       \
+        MARKREGs(gd); \
+    } while (0)
+#define GETGD GETGDs
+#define GETGDd        \
+    do {              \
+        GETGDw;       \
+        MARKREGd(gd); \
+    } while (0)
+#define GETGDsd       \
+    do {              \
+        GETGDs;       \
+        MARKREGd(gd); \
+    } while (0)
+#define GETVDs                   \
+    do {                         \
+        vd = TO_NAT(vex.v);      \
+        if (rex.w) MARKREGs(vd); \
+    } while(0)
+
+#define GETVDsd                  \
+    do {                         \
+        vd = TO_NAT(vex.v);      \
+        if (rex.w) MARKREGsd(vd); \
+    } while(0)
 
 // GETGW extract x64 register in gd, that is i
 #define GETGW(i)                                        \
@@ -63,6 +160,7 @@
 #define GETED(D)                                                                                \
     if (MODREG) {                                                                               \
         ed = TO_NAT((nextop & 7) + (rex.b << 3));                                               \
+        MARKREGs(ed);                                                                           \
         wback = 0;                                                                              \
     } else {                                                                                    \
         SMREAD();                                                                               \
@@ -71,9 +169,16 @@
         ed = x1;                                                                                \
     }
 
+#define GETEDsd(D)                \
+    do {                          \
+        GETED(D);                 \
+        if (MODREG) MARKREGd(ed); \
+    } while (0)
+
 #define GETEDz(D)                                                                               \
     if (MODREG) {                                                                               \
         ed = TO_NAT((nextop & 7) + (rex.b << 3));                                               \
+        MARKREGs(ed);                                                                           \
         wback = 0;                                                                              \
     } else {                                                                                    \
         SMREAD();                                                                               \
@@ -86,6 +191,7 @@
 #define GETEDH(hint, ret, D)                                                                       \
     if (MODREG) {                                                                                  \
         ed = TO_NAT((nextop & 7) + (rex.b << 3));                                                  \
+        MARKREGs(ed);                                                                              \
         wback = 0;                                                                                 \
     } else {                                                                                       \
         SMREAD();                                                                                  \
@@ -96,6 +202,7 @@
 #define GETEDW(hint, ret, D)                                                                       \
     if (MODREG) {                                                                                  \
         ed = TO_NAT((nextop & 7) + (rex.b << 3));                                                  \
+        MARKREGs(ed);                                                                              \
         MV(ret, ed);                                                                               \
         wback = 0;                                                                                 \
     } else {                                                                                       \
@@ -138,6 +245,7 @@
 #define GETSED(D)                                                                               \
     if (MODREG) {                                                                               \
         ed = TO_NAT((nextop & 7) + (rex.b << 3));                                               \
+        MARKREGs(ed);                                                                           \
         wback = 0;                                                                              \
         if (!rex.w) {                                                                           \
             ADD_W(x1, ed, xZR);                                                                 \

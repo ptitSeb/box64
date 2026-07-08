@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
+#include <alloca.h>
 #include <math.h>
 #include <signal.h>
 #include <sys/types.h>
@@ -929,4 +930,99 @@ void propagateFpuBarrier(dynarec_la64_t* dyn)
             last_fpu_used = -1; // reset the last_fpu_used...
         }
     }
+}
+
+void updateUp32(dynarec_la64_t* dyn)
+{
+    int n = dyn->size;
+    if (n <= 0)
+        return;
+
+    uint16_t* in = (uint16_t*)alloca((size_t)n * sizeof(uint16_t));
+    uint16_t* out = (uint16_t*)alloca((size_t)n * sizeof(uint16_t));
+    int* pred_count = (int*)alloca((size_t)n * sizeof(int));
+    memset(in, 0, (size_t)n * sizeof(uint16_t));
+    memset(out, 0, (size_t)n * sizeof(uint16_t));
+    memset(pred_count, 0, (size_t)n * sizeof(int));
+
+    for (int i = 0; i < n; ++i) {
+        if (!dyn->insts[i].x64.alive)
+            continue;
+        if (dyn->insts[i].x64.has_next && i + 1 < n && dyn->insts[i + 1].x64.alive)
+            ++pred_count[i + 1];
+        if (dyn->insts[i].x64.jmp && dyn->insts[i].x64.jmp_insts >= 0 && dyn->insts[i].x64.jmp_insts < n)
+            ++pred_count[dyn->insts[i].x64.jmp_insts];
+    }
+    int* pred_off = (int*)alloca((size_t)(n + 1) * sizeof(int));
+    {
+        int total = 0;
+        for (int i = 0; i < n; ++i) {
+            pred_off[i] = total;
+            total += pred_count[i];
+        }
+        pred_off[n] = total;
+    }
+    int* pred_list = (int*)alloca((size_t)(pred_off[n] > 0 ? pred_off[n] : 1) * sizeof(int));
+    memset(pred_list, 0, (size_t)(pred_off[n] > 0 ? pred_off[n] : 1) * sizeof(int));
+    for (int i = 0; i < n; ++i) {
+        if (!dyn->insts[i].x64.alive)
+            continue;
+        if (dyn->insts[i].x64.has_next && i + 1 < n && dyn->insts[i + 1].x64.alive)
+            pred_list[pred_off[i + 1]++] = i;
+        if (dyn->insts[i].x64.jmp && dyn->insts[i].x64.jmp_insts >= 0 && dyn->insts[i].x64.jmp_insts < n)
+            pred_list[pred_off[dyn->insts[i].x64.jmp_insts]++] = i;
+    }
+    {
+        int total = 0;
+        for (int i = 0; i < n; ++i) {
+            pred_off[i] = total;
+            total += pred_count[i];
+        }
+        pred_off[n] = total;
+    }
+
+    uint8_t* on_list = (uint8_t*)alloca((size_t)n * sizeof(uint8_t));
+    int* work = (int*)alloca((size_t)n * sizeof(int));
+    memset(on_list, 0, (size_t)n * sizeof(uint8_t));
+    memset(work, 0, (size_t)n * sizeof(int));
+    int sp = 0;
+    for (int i = n - 1; i >= 0; --i) {
+        if (dyn->insts[i].x64.alive) {
+            work[sp++] = i;
+            on_list[i] = 1;
+        }
+    }
+    while (sp > 0) {
+        int i = work[--sp];
+        on_list[i] = 0;
+        const instruction_la64_t* inst = &dyn->insts[i];
+        if (!inst->x64.alive)
+            continue;
+        uint16_t o = 0;
+        if (inst->x64.has_next && i + 1 < n && dyn->insts[i + 1].x64.alive)
+            o |= in[i + 1];
+        if (inst->x64.jmp) {
+            if (inst->x64.jmp_insts >= 0 && inst->x64.jmp_insts < n)
+                o |= in[inst->x64.jmp_insts];
+            else
+                o |= 0xFFFF;
+        }
+        if (!inst->x64.has_next || (i == n - 1))
+            o |= 0xFFFF;
+        out[i] = o;
+        uint16_t ii = inst->up32_read | (out[i] & (uint16_t)~inst->up32_write64);
+        if (ii != in[i]) {
+            in[i] = ii;
+            for (int p = pred_off[i]; p < pred_off[i + 1]; ++p) {
+                int j = pred_list[p];
+                if (!on_list[j]) {
+                    work[sp++] = j;
+                    on_list[j] = 1;
+                }
+            }
+        }
+    }
+
+    for (int i = 0; i < n; ++i)
+        dyn->insts[i].up32_skip = dyn->insts[i].up32_write32 & (uint16_t)~out[i];
 }

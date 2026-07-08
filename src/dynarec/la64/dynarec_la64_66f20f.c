@@ -56,9 +56,9 @@ uintptr_t dynarec64_66F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, in
                     INST_NAME("CRC32 Gd, Ew");
                     nextop = F8;
                     GETEW(x1, 0);
-                    GETGD;
+                    GETGDsd;
                     CRCC_W_H_W(gd, gd, ed);
-                    ZEROUP(gd);
+                    if (NEED_ZEROUP(gd)) ZEROUP(gd);
                     break;
                 default:
                     DEFAULT;

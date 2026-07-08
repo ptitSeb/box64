@@ -145,7 +145,7 @@ uintptr_t dynarec64_66F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         SETFLAGS(X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION);
                         SET_DFNONE();
                         nextop = F8;
-                        GETGD;
+                        GETGDs;
                         addr = geted(dyn, addr, ninst, nextop, &wback, x3, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
                         if (rex.w) {
                             SRAI_D(x1, gd, 3);
@@ -183,7 +183,7 @@ uintptr_t dynarec64_66F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         INST_NAME("LOCK CMPXCHG Ew, Gw");
                         SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
                         nextop = F8;
-                        GETGD;
+                        GETGDs;
                         BSTRPICK_D(x6, xRAX, 15, 0);
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
                         // Aligned
@@ -231,7 +231,7 @@ uintptr_t dynarec64_66F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         SETFLAGS(X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION);
                         SET_DFNONE();
                         nextop = F8;
-                        GETGD;
+                        GETGDs;
                         addr = geted(dyn, addr, ninst, nextop, &wback, x3, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
                         if (rex.w) {
                             SRAI_D(x1, gd, 3);
@@ -311,7 +311,6 @@ uintptr_t dynarec64_66F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                                 INST_NAME("LOCK BTR Ew, Ib");
                                 SETFLAGS(X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION);
                                 SET_DFNONE();
-                                GETGD;
                                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, x1, &fixedaddress, rex, NULL, 0, 1);
                                 u8 = F8;
                                 u8 &= (rex.w ? 0x3f : 0xf);
@@ -349,7 +348,7 @@ uintptr_t dynarec64_66F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     } else {
                         INST_NAME("LOCK XADD Gw, Ew");
                         SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
-                        GETGD;
+                        GETGDw;
                         BSTRPICK_D(x5, gd, 15, 0);
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
                         if (cpuext.lam_bh) {

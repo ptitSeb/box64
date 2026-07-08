@@ -602,13 +602,13 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("(LOCK) XCHG Ew, Gw");
             nextop = F8;
             if (MODREG) {
-                GETGD;
+                GETGDw;
                 GETED(0);
                 MV(x1, gd);
                 BSTRINS_D(gd, ed, 15, 0);
                 BSTRINS_D(ed, x1, 15, 0);
             } else {
-                GETGD;
+                GETGDw;
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
                 ANDI(x3, wback, 1);
                 BEQ_MARK(x3, xZR);
@@ -652,7 +652,7 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x89:
             INST_NAME("MOV Ew, Gw");
             nextop = F8;
-            GETGD;
+            GETGDs;
             SCRATCH_USAGE(0);
             if (MODREG) {
                 ed = TO_NAT((nextop & 7) + (rex.b << 3));
@@ -666,7 +666,7 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x8B:
             INST_NAME("MOV Gw, Ew");
             nextop = F8;
-            GETGD;
+            GETGDw;
             if (MODREG) {
                 SCRATCH_USAGE(0);
                 ed = TO_NAT((nextop & 7) + (rex.b << 3));
@@ -693,7 +693,7 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x8D:
             INST_NAME("LEA Gd, Ed");
             nextop = F8;
-            GETGD;
+            GETGDw;
             if (MODREG) {
                 INST_NAME("Invalid 8D");
                 UDF();

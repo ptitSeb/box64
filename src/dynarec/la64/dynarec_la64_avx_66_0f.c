@@ -267,7 +267,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             nextop = F8;
             INST_NAME("VMOVMSKPD Gd, Ex");
             GETEYxy(v0, 0, 0);
-            GETGD;
+            GETGDd;
             d1 = fpu_get_scratch(dyn);
             if (vex.l) {
                 XVMSKLTZ_D(d1, v0);
@@ -939,7 +939,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
         case 0xC5:
             INST_NAME("VPEXTRW Gd, Ex, Ib");
             nextop = F8;
-            GETGD;
+            GETGDd;
             if (MODREG) {
                 GETEYx(v0, 0, 1);
                 u8 = (F8) & 7;
@@ -1069,7 +1069,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             nextop = F8;
             INST_NAME("VPMOVMSKB Gd, Ex");
             GETEYxy(v0, 0, 0);
-            GETGD;
+            GETGDd;
             d1 = fpu_get_scratch(dyn);
             if (vex.l) {
                 XVMSKLTZ_B(d1, v0);
