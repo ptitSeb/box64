@@ -114,7 +114,7 @@
     } while (0)
 
 #define NEED_ZEROUP32(r) \
-    (!(IS_GPR(r)) || !((dyn->insts[ninst].up32_skip >> (TO_X64(r))) & 1))
+    (!BOX64ENV(dynarec_la64up32) || !(IS_GPR(r)) || !((dyn->insts[ninst].up32_skip >> (TO_X64(r))) & 1))
 #define NEED_ZEROUP(r) (!rex.w && NEED_ZEROUP32(r))
 
 // GETGD    get x64 register in gd
