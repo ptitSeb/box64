@@ -314,7 +314,7 @@
       {
         "key": "0",
         "description": "Do not optimize CALL/RET, use jump table.",
-        "default": true
+        "default": false
       },
       {
         "key": "1",
@@ -324,7 +324,7 @@
       {
         "key": "2",
         "description": "Try to optimize CALL/RET, skipping the jump table when possible, adding code to handle return to dirty/modified block. Does not work on WowBox64.",
-        "default": false
+        "default": true
       }
     ]
   },
