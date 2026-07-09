@@ -2313,7 +2313,8 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 MOV64x(gd, u64);
             } else {
                 u32 = F32;
-                MOV32w(gd, u32);
+                la64_move32(dyn, ninst, gd, u32, 0);
+                if (NEED_ZEROUP(gd) && (int32_t)u32 < 0) ZEROUP(gd);
             }
             break;
         case 0xC0:

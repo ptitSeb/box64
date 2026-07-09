@@ -1226,21 +1226,23 @@ void emit_adc32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     }
 
     if (cpuext.lbt) {
-        if (rex.w)
-            ADC_D(s3, s1, s2);
-        else
-            ADC_W(s3, s1, s2);
-
         IFX (X_ALL) {
-            if (rex.w)
+            if (rex.w) {
+                ADC_D(s3, s1, s2);
                 X64_ADC_D(s1, s2);
-            else
+                MV(s1, s3);
+            } else {
+                ADC_W(s3, s1, s2);
                 X64_ADC_W(s1, s2);
+                ZEROUP2(s1, s3);
+            }
+        } else {
+            if (rex.w)
+                ADC_D(s1, s1, s2);
+            else
+                ADC_W(s1, s1, s2);
+            if (NEED_ZEROUP(s1)) ZEROUP(s1);
         }
-        if (rex.w)
-            MV(s1, s3);
-        else
-            ZEROUP2(s1, s3);
         IFX (X_PEND) {
             SDxw(s1, xEmu, offsetof(x64emu_t, res));
         }
