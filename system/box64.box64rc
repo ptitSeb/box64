@@ -1,4 +1,4 @@
-# System-wide .box64rc 
+# System-wide .box64rc
 
 # Note that process name are case insensitive!
 
@@ -48,7 +48,7 @@ BOX64_DYNAREC_SAFEFLAGS=0
 
 #
 # Linux process
-# 
+#
 [3dSen.x86_64]
 BOX64_DYNAREC_BLEEDING_EDGE=0   # avoid the use of STRONGMEM for much better performances
 BOX64_DYNAREC_SAFEFLAGS=0
@@ -621,7 +621,7 @@ BOX64_DYNAREC_FASTROUND=0
 BOX64_SSE_FLUSHTO0=1
 
 [DaveTheDiver.exe]
-BOX64_DYNAREC_SAFEFLAGS=2
+BOX64_DYNAREC_SAFEFLAGS=1
 
 [Deliver At All Costs.exe]
 BOX64_DYNAREC_SAFEFLAGS=0
@@ -799,7 +799,7 @@ BOX64_DYNAREC_PURGE=1
 [GCU2.exe]
 BOX64_DYNAREC_BIGBLOCK=3
 BOX64_DYNAREC_CALLRET=1
-    
+
 [GenshinImpact.exe]
 BOX64_DYNAREC_STRONGMEM=1
 BOX64_DYNAREC_SAFEFLAGS=2
@@ -1399,7 +1399,7 @@ BOX64_DYNAREC_SAFEFLAGS=2
 
 #
 # 32bits Linux process
-# 
+#
 [BorderlandsPreSequel]
 BOX64_DYNAREC_SAFEFLAGS=1
 BOX64_DYNAREC_BIGBLOCK=3
