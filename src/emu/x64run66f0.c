@@ -255,9 +255,9 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                     if(((uintptr_t)ED)&1) {
                         do {
                             tmp16u = ED->word[0] & ~0xff;
-                            tmp16u |= native_lock_read_h(ED);
+                            tmp16u |= native_lock_read_b(ED);
                             tmp16u2 = add16(emu, tmp16u, GD->word[0]);
-                        } while(native_lock_write_h(ED, tmp16u2&0xff));
+                        } while(native_lock_write_b(ED, tmp16u2&0xff));
                         ED->word[0] = tmp16u2;
                     } else {
                         do {
