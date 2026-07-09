@@ -38,7 +38,7 @@ int MmaplistIsDirty(mmaplist_t* list);
 
 static rbtree_t* envmap = NULL;
 
-static const char default_rcfile[] = 
+static const char default_rcfile[] =
 "[bash]\n"
 "BOX64_LOG=0\n"
 "\n"
@@ -840,8 +840,8 @@ void RecordEnvMappings(uintptr_t addr, size_t length, int fd)
     } else
         mapping = kh_value(mapping_entries, k);
 
-    if(mapping && mapping->start>addr) { 
-        dynarec_log(LOG_INFO, "Ignoring Mapping of fd:%d %s (%s) adjusted start: %p from %p\n", fd, fullname, lowercase_filename, (void*)addr, (void*)(mapping->start)); 
+    if(mapping && mapping->start>addr) {
+        dynarec_log(LOG_INFO, "Ignoring Mapping of fd:%d %s (%s) adjusted start: %p from %p\n", fd, fullname, lowercase_filename, (void*)addr, (void*)(mapping->start));
         box_free(lowercase_filename);
         mutex_unlock(&my_context->mutex_dyndump);
         return;
@@ -940,7 +940,7 @@ void SerializeAllMapping()
 #ifdef DYNAREC
     mapping_t* mapping;
     mutex_lock(&my_context->mutex_dyndump);
-    kh_foreach_value(mapping_entries, mapping, 
+    kh_foreach_value(mapping_entries, mapping,
         if(MmaplistHasNew(mapping->mmaplist, 1))
             SerializeMmaplist(mapping);
     );

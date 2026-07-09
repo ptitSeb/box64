@@ -77,9 +77,9 @@ Enable building bigger DynaRec code blocks for better performance. Available in 
 
 Optimize CALL/RET opcodes. Available in WowBox64.
 
- * 0: Do not optimize CALL/RET, use jump table. [Default]
+ * 0: Do not optimize CALL/RET, use jump table.
  * 1: Try to optimize CALL/RET, skipping the jump table when possible.
- * 2: Try to optimize CALL/RET, skipping the jump table when possible, adding code to handle return to dirty/modified block. Does not work on WowBox64.
+ * 2: Try to optimize CALL/RET, skipping the jump table when possible, adding code to handle return to dirty/modified block. Does not work on WowBox64. [Default]
 
 ### BOX64_DYNAREC_SEP
 
