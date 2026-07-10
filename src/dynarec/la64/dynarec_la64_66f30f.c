@@ -52,7 +52,7 @@ uintptr_t dynarec64_66F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, in
             SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
             SET_DFNONE();
             nextop = F8;
-            GETGD;
+            GETGDw;
             GETEW(x4, 0);
             v0 = fpu_get_scratch(dyn);
             VINSGR2VR_H(v0, ed, 0);

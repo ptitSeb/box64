@@ -60,7 +60,7 @@ uintptr_t dynarec64_AVX_F2_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
         case 0xF0:
             INST_NAME("RORX Gd, Ed, Ib");
             nextop = F8;
-            GETGD;
+            GETGDsd;
             GETED(1);
             u8 = F8;
             ROTRIxw(gd, ed, u8 & (rex.w ? 0x3f : 0x1f));

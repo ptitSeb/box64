@@ -24,6 +24,7 @@
 #include "dynarec_la64_private.h"
 #include "dynarec_la64_functions.h"
 #include "../dynarec_helper.h"
+#include "dynarec_la64_helper.h"
 
 /* setup r2 to address pointed by ED, also fixaddress is an optionnal delta in the range [-absmax, +absmax], with delta&mask==0 to be added to ed for LDR/STR */
 uintptr_t geted(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, uint8_t scratch, int64_t* fixaddress, rex_t rex, int* l, int i12, int delta)
@@ -41,6 +42,14 @@ uintptr_t geted(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
 
     if (rex.is32bits && rex.is67)
         return geted16(dyn, addr, ninst, nextop, ed, hint, scratch, fixaddress, rex, i12);
+
+    if ((nextop & 7) == 4) {
+        uint8_t sib = PK(0);
+        if (((sib & 7) != 5) || ((nextop & 0xC0) != 0)) UP32_READ(TO_NAT((sib & 7) + (rex.b << 3)));
+        if ((((sib >> 3) & 7) + (rex.x << 3)) != 4) UP32_READ(TO_NAT(((sib >> 3) & 7) + (rex.x << 3)));
+    } else if (((nextop & 7) != 5) || ((nextop & 0xC0) != 0)) {
+        UP32_READ(TO_NAT((nextop & 7) + (rex.b << 3)));
+    }
 
     uint8_t ret = x2;
     *fixaddress = 0;
@@ -538,6 +547,7 @@ void iret_to_next(dynarec_la64_t* dyn, uintptr_t ip, int ninst, int is32bits, in
 void call_c(dynarec_la64_t* dyn, int ninst, la64_consts_t fnc, int reg, int ret, int saveflags, int savereg, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6)
 {
     MAYUSE(fnc);
+    UP32_READALL();
     CHECK_DFNONE(1);
     if (savereg == 0)
         savereg = x87pc;
@@ -608,6 +618,7 @@ void call_c(dynarec_la64_t* dyn, int ninst, la64_consts_t fnc, int reg, int ret,
 void call_n(dynarec_la64_t* dyn, int ninst, void* fnc, int w)
 {
     MAYUSE(fnc);
+    UP32_READALL();
     CHECK_DFNONE(1);
     fpu_pushcache(dyn, ninst, x3, 1);
     ST_D(xRSP, xEmu, offsetof(x64emu_t, regs[_SP]));
@@ -622,7 +633,7 @@ void call_n(dynarec_la64_t* dyn, int ninst, void* fnc, int w)
     }
     // native call
     TABLE64_(x3, *(uintptr_t*)fnc); // using x16 as scratch regs for call address
-    // Note that if need_reloc is active, the TABLE64 will trigger cancel block, 
+    // Note that if need_reloc is active, the TABLE64 will trigger cancel block,
     // because native function might be very different on a next run: different function address, different brick, different everything basicaly
     // and we don't have a relocation mecanism here, it's too complex
     JIRL(xRA, x3, 0x0);

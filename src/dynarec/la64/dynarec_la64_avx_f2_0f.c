@@ -136,7 +136,7 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
         case 0x2C:
             INST_NAME("VCVTTSD2SI Gd, Ex");
             nextop = F8;
-            GETGD;
+            GETGDd;
             GETEYSD(q0, 0, 0);
             if (!BOX64ENV(dynarec_fastround)) {
                 MOVGR2FCSR(FCSR2, xZR); // reset all bits
@@ -165,7 +165,7 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
         case 0x2D:
             INST_NAME("VCVTSD2SI Gd, Ex");
             nextop = F8;
-            GETGD;
+            GETGDd;
             GETEYSD(q0, 0, 0);
             if (!BOX64ENV(dynarec_fastround)) {
                 MOVGR2FCSR(FCSR2, xZR); // reset all bits

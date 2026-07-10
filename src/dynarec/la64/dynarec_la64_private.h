@@ -128,6 +128,10 @@ typedef struct instruction_la64_s {
     unsigned            fpu_used:1; // any xmm/ymm/x87/mmx reg used
     unsigned            fpupurge:1;   // this opcode will purge all fpu regs
     uint16_t            nat_next_inst;
+    uint16_t            up32_read;      // bitmask of GPRs whose upper 32 bits are read by this instruction
+    uint16_t            up32_write64;   // bitmask of GPRs written as 64-bit by this instruction (upper 32 become defined)
+    uint16_t            up32_write32;   // bitmask of GPRs written as 32-bit by this instruction
+    uint16_t            up32_skip;      // bitmask of GPRs where the implicit zero-up after a 32-bit write can be skipped
     flagcache_t         f_exit;     // flags status at end of instruction
     lsxcache_t          lsx;        // lsxcache at end of instruction (but before poping)
     flagcache_t         f_entry;    // flags status before the instruction begin

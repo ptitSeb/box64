@@ -692,6 +692,9 @@ dynablock_t* FillBlock64(uintptr_t addr, int is32bits, int inst_max, int is_new,
             int pos = helper.size-1;
             while (pos>=0)
                 pos = updateNeed(&helper, pos, 0);
+            #if defined(LA64)
+            updateUp32(&helper);
+            #endif
             // remove fpu stuff on non-executed code
             for(int i=1; i<helper.size-1; ++i)
                 if(!helper.insts[i].pred_sz) {

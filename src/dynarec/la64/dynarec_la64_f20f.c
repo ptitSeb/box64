@@ -116,7 +116,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x2C:
             INST_NAME("CVTTSD2SI Gd, Ex");
             nextop = F8;
-            GETGD;
+            GETGDd;
             GETEXSD(q0, 0, 0);
             if (!BOX64ENV(dynarec_fastround)) {
                 MOVGR2FCSR(FCSR2, xZR); // reset all bits
@@ -128,9 +128,8 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             } else {
                 FTINTRZ_W_D(d1, q0);
                 MOVFR2GR_S(gd, d1);
-                ZEROUP(gd);
+                if (NEED_ZEROUP(gd)) ZEROUP(gd);
             }
-            if (!rex.w) ZEROUP(gd);
             if (!BOX64ENV(dynarec_fastround)) {
                 MOVFCSR2GR(x5, FCSR2); // get back FPSR to check
                 MOV32w(x3, (1 << FR_V) | (1 << FR_O));
@@ -146,7 +145,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x2D:
             INST_NAME("CVTSD2SI Gd, Ex");
             nextop = F8;
-            GETGD;
+            GETGDd;
             GETEXSD(q0, 0, 0);
             if (!BOX64ENV(dynarec_fastround)) {
                 MOVGR2FCSR(FCSR2, xZR); // reset all bits
@@ -159,7 +158,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             } else {
                 FTINT_W_D(d1, q0);
                 MOVFR2GR_S(gd, d1);
-                ZEROUP(gd);
+                if (NEED_ZEROUP(gd)) ZEROUP(gd);
             }
             x87_restoreround(dyn, ninst, u8);
             if (!BOX64ENV(dynarec_fastround)) {
@@ -182,21 +181,23 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     INST_NAME("CRC32 Gd, Eb");
                     nextop = F8;
                     GETEB(x1, 0);
-                    GETGD;
+                    GETGDw;
+                    UP32_WRITE32(gd);
                     CRCC_W_B_W(gd, gd, ed);
-                    ZEROUP(gd);
+                    if (NEED_ZEROUP32(gd)) ZEROUP(gd);
                     break;
                 case 0xF1:
                     INST_NAME("CRC32 Gd, Ed");
                     nextop = F8;
+                    GETGDw;
+                    UP32_WRITE32(gd);
                     GETED(0);
-                    GETGD;
                     if (rex.w) {
                         CRCC_W_D_W(gd, gd, ed);
                     } else {
                         CRCC_W_W_W(gd, gd, ed);
                     }
-                    ZEROUP(gd);
+                    if (NEED_ZEROUP32(gd)) ZEROUP(gd);
                     break;
                 default:
                     DEFAULT;

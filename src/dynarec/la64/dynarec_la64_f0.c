@@ -77,7 +77,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {
                 INST_NAME("LOCK ADD Ed, Gd");
                 SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
-                GETGD;
+                GETGDs;
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
                 if (rex.w) {
                     if (!ALIGNED_ATOMICxw) {
@@ -148,7 +148,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {
                 INST_NAME("LOCK OR Ed, Gd");
                 SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
-                GETGD;
+                GETGDs;
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
                 if (rex.w) {
                     if (!ALIGNED_ATOMICxw) {
@@ -197,7 +197,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         SETFLAGS(X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION);
                         SET_DFNONE();
                         nextop = F8;
-                        GETGD;
+                        GETGDs;
                         addr = geted(dyn, addr, ninst, nextop, &wback, x3, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
                         if (rex.w) {
                             SRAI_D(x1, gd, 3);
@@ -288,7 +288,8 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             } else {
                                 INST_NAME("LOCK CMPXCHG Ed, Gd");
                                 SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
-                                GETGD;
+                                GETGDs;
+                                MARKREGsd(xRAX);
                                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
                                 UFLAG_IF { MVxw(x6, xRAX); }
                                 ANDI(x1, wback, (1 << (rex.w + 2)) - 1);
@@ -339,7 +340,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         SETFLAGS(X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION);
                         SET_DFNONE();
                         nextop = F8;
-                        GETGD;
+                        GETGDs;
                         addr = geted(dyn, addr, ninst, nextop, &wback, x3, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
                         if (rex.w) {
                             SRAI_D(x1, gd, 3);
@@ -419,7 +420,6 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 INST_NAME("LOCK BTR Ed, Ib");
                                 SETFLAGS(X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION);
                                 SET_DFNONE();
-                                GETGD;
                                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, x1, &fixedaddress, rex, NULL, 0, 1);
                                 u8 = F8;
                                 u8 &= (rex.w ? 0x3f : 0x1f);
@@ -489,7 +489,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             } else {
                                 INST_NAME("LOCK XADD Ed, Gd");
                                 SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
-                                GETGD;
+                                GETGDsd;
                                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
                                 if (rex.w) {
                                     if (!ALIGNED_ATOMICxw) {
@@ -556,6 +556,10 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 }
                             }
                             if (rex.w) {
+                                MARKREGsd(xRAX);
+                                MARKREGsd(xRDX);
+                                MARKREGs(xRBX);
+                                MARKREGs(xRCX);
                                 if (cpuext.scq) {
                                     MARKLOCK;
                                     LL_D(x2, wback, 0);
@@ -613,6 +617,8 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                     AMSWAP_DB_W(xZR, xZR, x6);
                                 }
                             } else {
+                                UP32_READ(xRDX);
+                                UP32_READ(xRCX);
                                 BSTRINS_D(x3, xRAX, 31, 0);
                                 BSTRINS_D(x3, xRDX, 63, 32);
                                 BSTRINS_D(x4, xRBX, 31, 0);
@@ -680,7 +686,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 INST_NAME("LOCK ADC Ed, Gd");
                 READFLAGS(X_CF);
                 SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
-                GETGD;
+                GETGDs;
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
                 if (cpuext.lbt) {
                     X64_GET_EFLAGS(x7, X_CF);
@@ -736,7 +742,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 INST_NAME("LOCK SBB Ed, Gd");
                 READFLAGS(X_CF);
                 SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
-                GETGD;
+                GETGDs;
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
                 if (cpuext.lbt) {
                     X64_GET_EFLAGS(x6, X_CF);
@@ -823,7 +829,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {
                 INST_NAME("LOCK AND Ed, Gd");
                 SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
-                GETGD;
+                GETGDs;
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
                 if (rex.w) {
                     if (!ALIGNED_ATOMICxw) {
@@ -868,7 +874,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {
                 INST_NAME("LOCK SUB Ed, Gd");
                 SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
-                GETGD;
+                GETGDs;
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
                 if (rex.w) {
                     if (!ALIGNED_ATOMICxw) {
@@ -915,7 +921,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {
                 INST_NAME("LOCK XOR Ed, Gd");
                 SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
-                GETGD;
+                GETGDs;
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
                 if (rex.w) {
                     if (!ALIGNED_ATOMICxw) {
@@ -1412,7 +1418,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 *ok = 0;
             } else {
                 INST_NAME("LOCK XCHG Ed, Gd");
-                GETGD;
+                GETGDsd;
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
                 if (rex.w) {
                     if (!ALIGNED_ATOMICxw) {

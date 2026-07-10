@@ -61,9 +61,9 @@ uintptr_t dynarec64_AVX_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, 
             INST_NAME("ANDN Gd, Vd, Ed");
             nextop = F8;
             SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
-            GETGD;
+            GETGDd;
             GETED(0);
-            GETVD;
+            GETVDsd;
             ANDN(gd, ed, vd);
             if (!rex.w) {
                 BSTRPICK_D(gd, gd, 31, 0);
@@ -90,7 +90,7 @@ uintptr_t dynarec64_AVX_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, 
                     INST_NAME("BLSR Vd, Ed");
                     SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
                     GETED(0);
-                    GETVD;
+                    GETVDsd;
                     CLEAR_FLAGS(x6);
                     IFX (X_CF) {
                         BNEZ(ed, 8);
@@ -98,9 +98,7 @@ uintptr_t dynarec64_AVX_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, 
                     }
                     ADDIxw(x3, ed, -1);
                     AND(vd, ed, x3);
-                    if (!rex.w) {
-                        BSTRPICK_D(vd, vd, 31, 0);
-                    }
+                    if (NEED_ZEROUP(vd)) ZEROUP(vd);
                     IFX (X_ZF) {
                         BNEZ(vd, 8);
                         ORI(xFlags, xFlags, 1 << F_ZF);
@@ -119,7 +117,7 @@ uintptr_t dynarec64_AVX_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, 
                     INST_NAME("BLSMSK Vd, Ed");
                     SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
                     GETED(0);
-                    GETVD;
+                    GETVDsd;
                     CLEAR_FLAGS(x6);
                     IFX (X_CF) {
                         BNEZ(ed, 8);
@@ -127,9 +125,7 @@ uintptr_t dynarec64_AVX_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, 
                     }
                     ADDIxw(x3, ed, -1);
                     XOR(vd, ed, x3);
-                    if (!rex.w) {
-                        BSTRPICK_D(vd, vd, 31, 0);
-                    }
+                    if (NEED_ZEROUP(vd)) ZEROUP(vd);
                     IFX (X_SF) {
                         BSTRPICK_D(x5, vd, rex.w ? 63 : 31, rex.w ? 63 : 31);
                         SLLI_D(x5, x5, F_SF);
@@ -144,7 +140,7 @@ uintptr_t dynarec64_AVX_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, 
                     INST_NAME("BLSI Vd, Ed");
                     SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
                     GETED(0);
-                    GETVD;
+                    GETVDsd;
                     CLEAR_FLAGS(x6);
                     IFX (X_CF) {
                         BEQZ(ed, 8);
@@ -152,9 +148,7 @@ uintptr_t dynarec64_AVX_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, 
                     }
                     SUBxw(x3, xZR, ed);
                     AND(vd, ed, x3);
-                    if (!rex.w) {
-                        BSTRPICK_D(vd, vd, 31, 0);
-                    }
+                    if (NEED_ZEROUP(vd)) ZEROUP(vd);
                     IFX (X_ZF) {
                         BNEZ(vd, 8);
                         ORI(xFlags, xFlags, 1 << F_ZF);
@@ -178,9 +172,9 @@ uintptr_t dynarec64_AVX_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, 
             INST_NAME("BZHI Gd, Ed, Vd");
             nextop = F8;
             SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
-            GETGD;
+            GETGDd;
             GETED(0);
-            GETVD;
+            GETVDs;
             CLEAR_FLAGS(x6);
             BSTRPICK_D(x4, vd, 7, 0);
             MOV64x(x5, rex.w ? 64 : 32);
@@ -214,9 +208,9 @@ uintptr_t dynarec64_AVX_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, 
             INST_NAME("BEXTR Gd, Ed, Vd");
             nextop = F8;
             SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
-            GETGD;
+            GETGDd;
             GETED(0);
-            GETVD;
+            GETVDs;
             BSTRPICK_D(x4, vd, 7, 0);  // start
             BSTRPICK_D(x3, vd, 15, 8); // length
             XOR(x5, x5, x5);

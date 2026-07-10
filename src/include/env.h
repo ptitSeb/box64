@@ -188,12 +188,21 @@ extern char* ftrace_name;
     INTEGER(BOX64_DYNAREC_CALLRET, dynarec_callret, 0, 0, 2, 1, 2)
 #endif
 
+#ifdef LA64
+// FIXME: temporary env variable for testing.
+#define ENVTEMP1() \
+    BOOLEAN(BOX64_DYNAREC_LA64UP32, dynarec_la64up32, 0, 1, 1)
+#else
+#define ENVTEMP1()
+#endif
+
 #define ENVSUPER() \
     ENVSUPER1()    \
     ENVSUPER2()    \
     ENVSUPER3()    \
     ENVSUPER4()    \
-    ENVSUPER5()
+    ENVSUPER5()    \
+    ENVTEMP1()
 
 typedef struct box64env_s {
 #define INTEGER(NAME, name, default, min, max, wine, dynacache) int name;
