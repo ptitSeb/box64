@@ -1987,7 +1987,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             CLEAR_FLAGS(x2);
             nextop = F8;
             GETED(0);
-            GETGDsd;
+            GETGDw;
             if (!rex.w && MODREG) {
                 ZEROUP2(x4, ed);
                 ed = x4;
@@ -2017,7 +2017,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             CLEAR_FLAGS(x2);
             nextop = F8;
             GETED(0);
-            GETGDsd;
+            GETGDw;
             if (!rex.w && MODREG) {
                 ZEROUP2(x4, ed);
                 ed = x4;
