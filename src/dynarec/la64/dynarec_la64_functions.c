@@ -940,49 +940,10 @@ void updateUp32(dynarec_la64_t* dyn)
 
     uint16_t* in = (uint16_t*)alloca((size_t)n * sizeof(uint16_t));
     uint16_t* out = (uint16_t*)alloca((size_t)n * sizeof(uint16_t));
-    int* pred_count = (int*)alloca((size_t)n * sizeof(int));
-    memset(in, 0, (size_t)n * sizeof(uint16_t));
-    memset(out, 0, (size_t)n * sizeof(uint16_t));
-    memset(pred_count, 0, (size_t)n * sizeof(int));
-
-    for (int i = 0; i < n; ++i) {
-        if (!dyn->insts[i].x64.alive)
-            continue;
-        if (dyn->insts[i].x64.has_next && i + 1 < n && dyn->insts[i + 1].x64.alive)
-            ++pred_count[i + 1];
-        if (dyn->insts[i].x64.jmp && dyn->insts[i].x64.jmp_insts >= 0 && dyn->insts[i].x64.jmp_insts < n)
-            ++pred_count[dyn->insts[i].x64.jmp_insts];
-    }
-    int* pred_off = (int*)alloca((size_t)(n + 1) * sizeof(int));
-    {
-        int total = 0;
-        for (int i = 0; i < n; ++i) {
-            pred_off[i] = total;
-            total += pred_count[i];
-        }
-        pred_off[n] = total;
-    }
-    int* pred_list = (int*)alloca((size_t)(pred_off[n] > 0 ? pred_off[n] : 1) * sizeof(int));
-    memset(pred_list, 0, (size_t)(pred_off[n] > 0 ? pred_off[n] : 1) * sizeof(int));
-    for (int i = 0; i < n; ++i) {
-        if (!dyn->insts[i].x64.alive)
-            continue;
-        if (dyn->insts[i].x64.has_next && i + 1 < n && dyn->insts[i + 1].x64.alive)
-            pred_list[pred_off[i + 1]++] = i;
-        if (dyn->insts[i].x64.jmp && dyn->insts[i].x64.jmp_insts >= 0 && dyn->insts[i].x64.jmp_insts < n)
-            pred_list[pred_off[dyn->insts[i].x64.jmp_insts]++] = i;
-    }
-    {
-        int total = 0;
-        for (int i = 0; i < n; ++i) {
-            pred_off[i] = total;
-            total += pred_count[i];
-        }
-        pred_off[n] = total;
-    }
-
     uint8_t* on_list = (uint8_t*)alloca((size_t)n * sizeof(uint8_t));
     int* work = (int*)alloca((size_t)n * sizeof(int));
+    memset(in, 0, (size_t)n * sizeof(uint16_t));
+    memset(out, 0, (size_t)n * sizeof(uint16_t));
     memset(on_list, 0, (size_t)n * sizeof(uint8_t));
     memset(work, 0, (size_t)n * sizeof(int));
     int sp = 0;
@@ -1013,8 +974,8 @@ void updateUp32(dynarec_la64_t* dyn)
         uint16_t ii = inst->up32_read | (out[i] & (uint16_t)~inst->up32_write64);
         if (ii != in[i]) {
             in[i] = ii;
-            for (int p = pred_off[i]; p < pred_off[i + 1]; ++p) {
-                int j = pred_list[p];
+            for (int p = 0; p < inst->pred_sz; ++p) {
+                int j = inst->pred[p];
                 if (!on_list[j]) {
                     work[sp++] = j;
                     on_list[j] = 1;
