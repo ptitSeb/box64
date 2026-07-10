@@ -972,7 +972,8 @@ void updateUp32(dynarec_la64_t* dyn)
             else
                 o |= 0xFFFF;
         }
-        if (!inst->x64.has_next || (i == n - 1))
+        int has_internal_jump = inst->x64.jmp && inst->x64.jmp_insts >= 0 && inst->x64.jmp_insts < n;
+        if ((inst->x64.has_next && i == n - 1) || (!inst->x64.has_next && !has_internal_jump))
             o |= 0xFFFF;
         out[i] = o;
         uint16_t ii = inst->up32_read | (out[i] & (uint16_t)~inst->up32_write64);
