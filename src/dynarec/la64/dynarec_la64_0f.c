@@ -1149,6 +1149,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             v0 = mmx_get_reg_empty(dyn, ninst, x1, x2, x3, gd);
             if (MODREG) {
                 ed = TO_NAT((nextop & 0x07) + (rex.b << 3));
+                MARKREGs(ed);
                 if (rex.w) {
                     MOVGR2FR_D(v0, ed);
                 } else {
@@ -1987,7 +1988,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             CLEAR_FLAGS(x2);
             nextop = F8;
             GETED(0);
-            GETGDsd;
+            GETGDw;
             if (!rex.w && MODREG) {
                 ZEROUP2(x4, ed);
                 ed = x4;
@@ -2017,7 +2018,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             CLEAR_FLAGS(x2);
             nextop = F8;
             GETED(0);
-            GETGDsd;
+            GETGDw;
             if (!rex.w && MODREG) {
                 ZEROUP2(x4, ed);
                 ed = x4;
