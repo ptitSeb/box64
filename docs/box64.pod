@@ -227,13 +227,14 @@ Enable or disable the generation of division-by-zero exception. Available in Wow
  * 1 : Generate the division-by-zero exception. 
 
 
-=item B<BOX64_DYNAREC_DUMP> =I<0|1|2>
+=item B<BOX64_DYNAREC_DUMP> =I<0|1|2|3>
 
 Enable DynaRec dump. Available in WowBox64.
 
  * 0 : Do not dump DynaRec blocks. [Default]
  * 1 : Dump DynaRec blocks. 
  * 2 : Dump DynaRec blocks with some colors. 
+ * 3 : Dump only x86 and translated native instructions. 
 
 
 =item B<BOX64_DYNAREC_DUMP_RANGE> =I<0xXXXXXXXX-0xYYYYYYYY>

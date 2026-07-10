@@ -1794,7 +1794,7 @@ void fpu_reset_cache(dynarec_la64_t* dyn, int ninst, int reset_n)
     dyn->lsx = dyn->insts[reset_n].lsx;
 #endif
 #if STEP == 0
-    if (dyn->need_dump && dyn->lsx.x87stack) dynarec_log(LOG_NONE, "New x87stack=%d at ResetCache in inst %d with %d\n", dyn->lsx.x87stack, ninst, reset_n);
+    if (dyn->need_dump && dyn->need_dump != 3 && dyn->lsx.x87stack) dynarec_log(LOG_NONE, "New x87stack=%d at ResetCache in inst %d with %d\n", dyn->lsx.x87stack, ninst, reset_n);
 #endif
 #if defined(HAVE_TRACE) && (STEP > 2)
     if (dyn->need_dump && 0) // disable for now

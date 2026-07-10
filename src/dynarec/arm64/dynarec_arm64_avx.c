@@ -73,8 +73,8 @@ uintptr_t dynarec64_AVX(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         DEFAULT;
     }
 
-    if((*ok==-1) && (BOX64ENV(dynarec_log)>=LOG_INFO || dyn->need_dump || BOX64ENV(dynarec_missing)))
-        if(!dyn->size || BOX64ENV(dynarec_log)>LOG_INFO || dyn->need_dump) {
+    if((*ok==-1) && (BOX64ENV(dynarec_log)>=LOG_INFO || (dyn->need_dump && dyn->need_dump != 3) || BOX64ENV(dynarec_missing)))
+        if(!dyn->size || BOX64ENV(dynarec_log)>LOG_INFO || (dyn->need_dump && dyn->need_dump != 3)) {
             dynarec_log(LOG_NONE, "  Dynarec unimplemented %s opcode size %d prefix %s map %s opcode %02X\n",
                 vex.evex ? "EVEX" : "VEX", 128<<vex.l, avx_prefix_string(vex.p), avx_map_string(vex.m), opcode);
     }

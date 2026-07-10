@@ -15,7 +15,7 @@
 
 #define MESSAGE(A, ...)                                         \
     do {                                                        \
-        if (dyn->need_dump) dynarec_log(LOG_NONE, __VA_ARGS__); \
+        if (dyn->need_dump && dyn->need_dump != 3) dynarec_log(LOG_NONE, __VA_ARGS__); \
     } while (0)
 #define NEW_INST                                                                                                  \
     if (ninst) {                                                                                                  \

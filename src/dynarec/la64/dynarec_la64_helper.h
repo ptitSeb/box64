@@ -1052,7 +1052,7 @@
 #else
 #define X87_PUSH_OR_FAIL(var, dyn, ninst, scratch, t)                                                                                                    \
     if ((dyn->lsx.x87stack == 8) || (dyn->lsx.pushed == 8)) {                                                                                            \
-        if (dyn->need_dump) dynarec_log(LOG_NONE, " Warning, suspicious x87 Push, stack=%d/%d on inst %d\n", dyn->lsx.x87stack, dyn->lsx.pushed, ninst); \
+        if (dyn->need_dump && dyn->need_dump != 3) dynarec_log(LOG_NONE, " Warning, suspicious x87 Push, stack=%d/%d on inst %d\n", dyn->lsx.x87stack, dyn->lsx.pushed, ninst); \
         dyn->abort = 1;                                                                                                                                  \
         return addr;                                                                                                                                     \
     }                                                                                                                                                    \
@@ -1060,7 +1060,7 @@
 
 #define X87_PUSH_EMPTY_OR_FAIL(dyn, ninst, scratch)                                                                                                      \
     if ((dyn->lsx.x87stack == 8) || (dyn->lsx.pushed == 8)) {                                                                                            \
-        if (dyn->need_dump) dynarec_log(LOG_NONE, " Warning, suspicious x87 Push, stack=%d/%d on inst %d\n", dyn->lsx.x87stack, dyn->lsx.pushed, ninst); \
+        if (dyn->need_dump && dyn->need_dump != 3) dynarec_log(LOG_NONE, " Warning, suspicious x87 Push, stack=%d/%d on inst %d\n", dyn->lsx.x87stack, dyn->lsx.pushed, ninst); \
         dyn->abort = 1;                                                                                                                                  \
         return addr;                                                                                                                                     \
     }                                                                                                                                                    \
@@ -1068,7 +1068,7 @@
 
 #define X87_POP_OR_FAIL(dyn, ninst, scratch)                                                                                                           \
     if ((dyn->lsx.x87stack == -8) || (dyn->lsx.poped == 8)) {                                                                                          \
-        if (dyn->need_dump) dynarec_log(LOG_NONE, " Warning, suspicious x87 Pop, stack=%d/%d on inst %d\n", dyn->lsx.x87stack, dyn->lsx.poped, ninst); \
+        if (dyn->need_dump && dyn->need_dump != 3) dynarec_log(LOG_NONE, " Warning, suspicious x87 Pop, stack=%d/%d on inst %d\n", dyn->lsx.x87stack, dyn->lsx.poped, ninst); \
         dyn->abort = 1;                                                                                                                                \
         return addr;                                                                                                                                   \
     }                                                                                                                                                  \

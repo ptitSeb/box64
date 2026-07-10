@@ -582,6 +582,7 @@ Enable DynaRec dump. Available in WowBox64.
  * 0: Do not dump DynaRec blocks. [Default]
  * 1: Dump DynaRec blocks.
  * 2: Dump DynaRec blocks with some colors.
+ * 3: Dump only x86 and translated native instructions.
 
 ### BOX64_DYNAREC_DUMP_RANGE
 
