@@ -77,10 +77,10 @@ done
 # reorganize the files
 cd "${dir_tmp}"/bundle-libs
 mkdir -p "${dir_tmp}"/bundle-libs/box64-i386-linux-gnu
-mv lib/*.so* usr/lib/*.so* usr/lib/i386-linux-gnu/*.so* usr/lib32/*.so* \
+mv lib/*.so* usr/lib/*.so* usr/lib/i386-linux-gnu/* usr/lib32/*.so* \
     "${dir_tmp}"/bundle-libs/box64-i386-linux-gnu
 mkdir -p "${dir_tmp}"/bundle-libs/box64-x86_64-linux-gnu
-mv lib64/*.so* usr/lib/x86_64-linux-gnu/*.so* usr/lib64/*.so* \
+mv lib64/*.so* usr/lib/x86_64-linux-gnu/* usr/lib64/*.so* \
     "${dir_tmp}"/bundle-libs/box64-x86_64-linux-gnu
 rm -f ./*.tar.* debian-binary files.xml metadata.xml
 rm -rf ./lib* etc run sbin usr var
