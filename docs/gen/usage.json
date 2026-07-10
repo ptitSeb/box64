@@ -454,6 +454,11 @@
         "key": "2",
         "description": "Dump DynaRec blocks with some colors.",
         "default": false
+      },
+      {
+        "key": "3",
+        "description": "Dump only x86 and translated native instructions.",
+        "default": false
       }
     ]
   },

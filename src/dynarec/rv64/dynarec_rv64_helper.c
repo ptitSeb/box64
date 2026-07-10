@@ -2591,7 +2591,7 @@ void fpu_reset_cache(dynarec_rv64_t* dyn, int ninst, int reset_n)
     dyn->vector_sew = dyn->insts[reset_n].vector_sew_exit;
 #endif
 #if STEP == 0
-    if(dyn->need_dump && dyn->e.x87stack) dynarec_log(LOG_NONE, "New x87stack=%d at ResetCache in inst %d with %d\n", dyn->e.x87stack, ninst, reset_n);
+    if(dyn->need_dump && dyn->need_dump != 3 && dyn->e.x87stack) dynarec_log(LOG_NONE, "New x87stack=%d at ResetCache in inst %d with %d\n", dyn->e.x87stack, ninst, reset_n);
 #endif
 #if defined(HAVE_TRACE) && (STEP > 2)
     if (dyn->need_dump && 0) // disable for now

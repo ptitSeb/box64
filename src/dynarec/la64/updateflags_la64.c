@@ -39,7 +39,7 @@ void* create_updateflags()
     dynarec_la64_t helper = {0};
     instruction_la64_t insts[1] = {0};
     helper.insts = insts;
-    helper.need_dump = BOX64ENV(dynarec_dump);
+    helper.need_dump = BOX64ENV(dynarec_dump) == 3 ? 0 : BOX64ENV(dynarec_dump);
     helper.cap = 1;
     helper.f = status_none;
     helper.insts[0].x64.gen_flags = X_ALL;

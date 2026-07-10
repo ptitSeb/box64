@@ -38,32 +38,32 @@ void printf_x64_instruction(dynarec_native_t* dyn, zydis_dec_t* dec, instruction
     if (ip[0] == 0xcc && IsBridgeSignature(ip[1], ip[2])) {
         uintptr_t a = *(uintptr_t*)(ip+3);
         if(a==0) {
-            dynarec_log(LOG_NONE, "%s%p: Exit x64emu%s\n", (dyn->need_dump>1)?"\e[01;33m":"", (void*)ip, (dyn->need_dump>1)?"\e[m":"");
+            dynarec_log(LOG_NONE, "%s%p: Exit x64emu%s\n", (dyn->need_dump == 2)?"\e[01;33m":"", (void*)ip, (dyn->need_dump == 2)?"\e[m":"");
         } else {
-            dynarec_log(LOG_NONE, "%s%p: Native call to %p%s\n", (dyn->need_dump>1)?"\e[01;33m":"", (void*)ip, (void*)a, (dyn->need_dump>1)?"\e[m":"");
+            dynarec_log(LOG_NONE, "%s%p: Native call to %p%s\n", (dyn->need_dump == 2)?"\e[01;33m":"", (void*)ip, (void*)a, (dyn->need_dump == 2)?"\e[m":"");
         }
     } else {
         if(dec) {
-            dynarec_log(LOG_NONE, "%s%p: %s", (dyn->need_dump > 1) ? "\e[01;33m" : "", ip, DecodeX64Trace(dec, inst->addr, 1));
+            dynarec_log(LOG_NONE, "%s%p: %s", (dyn->need_dump == 2) ? "\e[01;33m" : "", ip, DecodeX64Trace(dec, inst->addr, 1));
         } else {
-            dynarec_log(LOG_NONE, "%s%p: ", (dyn->need_dump>1)?"\e[01;33m":"", ip);
+            dynarec_log(LOG_NONE, "%s%p: ", (dyn->need_dump == 2)?"\e[01;33m":"", ip);
             for(int i=0; i<inst->size; ++i) {
                 dynarec_log_prefix(0, LOG_NONE, "%02X ", ip[i]);
             }
             dynarec_log_prefix(0, LOG_NONE, " %s", name);
         }
         // print Call function name if possible
-        if(ip[0]==0xE8 || ip[0]==0xE9) { // Call / Jmp
+        if(dyn->need_dump != 3 && (ip[0]==0xE8 || ip[0]==0xE9)) { // Call / Jmp
             uintptr_t nextaddr = (uintptr_t)ip + 5 + *((int32_t*)(ip+1));
             PrintFunctionAddr(nextaddr, "=> ");
-        } else if(ip[0]==0xFF) {
+        } else if(dyn->need_dump != 3 && ip[0]==0xFF) {
             if(ip[1]==0x25) {
                 uintptr_t nextaddr = (uintptr_t)ip + 6 + *((int32_t*)(ip+2));
                 PrintFunctionAddr(nextaddr, "=> ");
             }
         }
         // end of line and colors
-        dynarec_log_prefix(0, LOG_NONE, "%s\n", (dyn->need_dump>1)?"\e[m":"");
+        dynarec_log_prefix(0, LOG_NONE, "%s\n", (dyn->need_dump == 2)?"\e[m":"");
     }
 }
 
@@ -463,7 +463,7 @@ dynablock_t* FillBlock64(uintptr_t addr, int is32bits, int inst_max, int is_new,
     }
     #else
     uintptr_t altjump = 0;
-    #endif 
+    #endif
     if(addr>=BOX64ENV(nodynarec_start) && addr<BOX64ENV(nodynarec_end)) {
         dynarec_log(LOG_INFO, "Create empty block in no-dynarec zone\n");
         return BOX64ENV(nodynarec_delay)?NULL:CreateEmptyBlock(old_addr, is32bits, is_new);
@@ -831,7 +831,7 @@ dynablock_t* FillBlock64(uintptr_t addr, int is32bits, int inst_max, int is_new,
             helper.callret_size = 0;
             helper.sep_size = 0;
             // pass 3, emit (log emit native opcode)
-            if(dyn->need_dump) {
+            if(dyn->need_dump && dyn->need_dump != 3) {
                 dynarec_log(LOG_NONE, "%s%04d|Emitting %zu bytes for %u %s bytes (native=%zu, table64=%zu, instsize=%zu, arch=%zu, callrets=%zu, entry=%p)", (dyn->need_dump>1)?"\e[01;36m":"", GetTID(), helper.native_size, helper.isize, is32bits?"x86":"x64", native_size, helper.table64size*sizeof(uint64_t), insts_rsize, arch_size, callret_size, helper.block);
                 PrintFunctionAddr(helper.start, " => ");
                 dynarec_log_prefix(0, LOG_NONE, "%s\n", (dyn->need_dump>1)?"\e[m":"");
