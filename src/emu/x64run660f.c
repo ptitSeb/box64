@@ -1722,17 +1722,17 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
     case 0x78:  /* EXTRQ Ex, ib, ib */
         // AMD only
         nextop = F8;
-        if(!BOX64ENV(cputype) || (nextop&0xC0)>>3) {
+        if(!BOX64ENV(cputype) || !(MODREG) || (nextop&0x38)) {
             #ifndef TEST_INTERPRETER
             EmitSignal(emu, X64_SIGILL, (void*)R_RIP, 0);
             #endif
         } else {
-            //TODO: test /0
             GETEX(2);
             tmp8s = F8&0x3f;
             tmp8u = F8&0x3f;
             EX->q[0]>>=tmp8u;
-            EX->q[0]&=(tmp8s==63)?~0ULL:((1ULL<<(tmp8s+1))-1);
+            EX->q[0]&=(tmp8s==0)?~0ULL:((1ULL<<tmp8s)-1);
+            EX->q[1] = 0;
         }
         break;
     case 0x79:  /* EXTRQ Ex, Gx */
@@ -1743,13 +1743,13 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
             EmitSignal(emu, X64_SIGILL, (void*)R_RIP, 0);
             #endif
         } else {
-            //TODO: test/r
             GETGX;
             GETEX(2);
             tmp8s = EX->ub[0]&0x3f;
             tmp8u = EX->ub[1]&0x3f;
             GX->q[0]>>=tmp8u;
-            GX->q[0]&=(tmp8s==63)?~0ULL:((1ULL<<(tmp8s+1))-1);
+            GX->q[0]&=(tmp8s==0)?~0ULL:((1ULL<<tmp8s)-1);
+            GX->q[1] = 0;
         }
         break;
 
