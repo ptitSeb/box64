@@ -40,6 +40,7 @@ typedef enum arm64_consts_s {
     const_direct_ftan,
     const_direct_fpatan,
     const_native_fprem,
+    const_native_fprem1,
     const_direct_fcos,
     const_direct_fsin,
     const_native_fsincos,

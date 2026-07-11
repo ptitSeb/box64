@@ -343,26 +343,42 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
         case 0xF5:
             INST_NAME("FPREM1");
-            v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
-            v2 = x87_get_st(dyn, ninst, x1, x2, 1, NEON_CACHE_ST_D);
-            s0 = fpu_get_scratch(dyn, ninst);
-            FDIVD(s0, v1, v2);
-            FRINTRRD(s0, s0, 0b00); // Nearest == TieToEven?
-            FCVTZSxD(x4, s0);
-            FMULD(s0, s0, v2);
-            FSUBD(v1, v1, s0);
-            LDRw_U12(x1, xEmu, offsetof(x64emu_t, sw));
-            // set C2 = 0
-            BFCw(x1, 10, 1);
-            // set C1 = Q0
-            BFIw(x1, x4, 9, 1);
-            // set C3 = Q1
-            LSRx_IMM(x4, x4, 1);
-            BFIw(x1, x4, 14, 1);
-            // Set C0 = Q2
-            LSRx(x4, x4, 1);
-            BFIw(x1, x4, 8, 1);
-            STRw_U12(x1, xEmu, offsetof(x64emu_t, sw));
+            if(!BOX64ENV(dynarec_fastround)) {
+                x87_forget(dyn, ninst, x1, x2, 0);
+                x87_forget(dyn, ninst, x1, x2, 1);
+                i1 = x87_stackcount(dyn, ninst, x3);
+                CALL(const_native_fprem1, -1);
+                x87_unstackcount(dyn, ninst, x3, i1);
+            } else {
+                v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
+                v2 = x87_get_st(dyn, ninst, x1, x2, 1, NEON_CACHE_ST_D);
+                s0 = fpu_get_scratch(dyn, ninst);
+                FMOVxD(x4, v2);
+                LSLx(x4, x4, 1);    // remove sign bit
+                RORx(x4, x4, 53);   // put exponant in lower 12bits
+                SUBx_U12(x4, x4, 0x7ff);// test is inifite
+                CBNZx_MARK2(x4);
+                MOV32w(x4, 0);   // force q to 0
+                B_MARK_nocond;
+                MARK2;
+                FDIVD(s0, v1, v2);
+                FRINTRRD(s0, s0, 0b00); // Nearest == TieToEven?
+                FCVTZSxD(x4, s0);
+                FMSUB_64(v1, v1, s0, v2);
+                MARK;
+                LDRw_U12(x1, xEmu, offsetof(x64emu_t, sw));
+                // set C2 = 0
+                BFCw(x1, 10, 1);
+                // set C1 = Q0
+                BFIw(x1, x4, 9, 1);
+                // set C3 = Q1
+                LSRx_IMM(x4, x4, 1);
+                BFIw(x1, x4, 14, 1);
+                // Set C0 = Q2
+                LSRx(x4, x4, 1);
+                BFIw(x1, x4, 8, 1);
+                STRw_U12(x1, xEmu, offsetof(x64emu_t, sw));
+            }
             break;
         case 0xF6:
             INST_NAME("FDECSTP");
@@ -382,7 +398,7 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
         case 0xF8:
             INST_NAME("FPREM");
-            if(!rex.is32bits) {
+            if(!rex.is32bits || !BOX64ENV(dynarec_fastround)) {
                 x87_forget(dyn, ninst, x1, x2, 0);
                 x87_forget(dyn, ninst, x1, x2, 1);
                 i1 = x87_stackcount(dyn, ninst, x3);
@@ -392,11 +408,19 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 v1 = x87_get_st(dyn, ninst, x1, x2, 0, NEON_CACHE_ST_D);
                 v2 = x87_get_st(dyn, ninst, x1, x2, 1, NEON_CACHE_ST_D);
                 s0 = fpu_get_scratch(dyn, ninst);
+                FMOVxD(x4, v2);
+                LSLx(x4, x4, 1);    // remove sign bit
+                RORx(x4, x4, 53);   // put exponant in lower 12bits
+                SUBx_U12(x4, x4, 0x7ff);// test is inifite
+                CBNZx_MARK2(x4);
+                MOV32w(x4, 0);   // force q to 0
+                B_MARK_nocond;
+                MARK2;
                 FDIVD(s0, v1, v2);
                 FRINTZD(s0, s0);
                 FCVTZSxD(x4, s0);
-                FMULD(s0, s0, v2);
-                FSUBD(v1, v1, s0);
+                FMSUB_64(v1, v1, s0, v2);
+                MARK;
                 LDRw_U12(x1, xEmu, offsetof(x64emu_t, sw));
                 // set C2 = 0
                 BFCw(x1, 10, 1);
