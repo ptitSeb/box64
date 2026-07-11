@@ -98,14 +98,18 @@ void native_fprem(x64emu_t* emu)
         q = 0;
     } else {
 #if defined(_WIN32) || defined(__MINGW32__)
-        q = (int64_t)trunc(x / y);
-        ST0.d = x - (y * q);
+        if(isinf(y))
+            q = 0;
+        else {
+            q = (int64_t)trunc(x / y);
+            ST0.d = x - (y * q);
+        }
 #else
         ST0.d = fmod(x, y);
         q = (int64_t)trunc(x / y);
 #endif
     }
-    q &= 7;
+    //q &= 7;   //why forcing all low bits (and so C0, C1 & C3) to 1?
     emu->sw.f.F87_C2 = 0;
     emu->sw.f.F87_C1 = q & 1;
     emu->sw.f.F87_C3 = (q >> 1) & 1;
@@ -351,13 +355,17 @@ void native_fprem1(x64emu_t* emu)
         ST0.d = NAN;
     } else {
 #if defined(_WIN32) || defined(__MINGW32__)
-        q = (int)round(x / y);
-        ST0.d = x - (y * q);
+        if(isinf(y))
+            q = 0;
+        else {
+            q = (int)round(x / y);
+            ST0.d = x - (y * q);
+        }
 #else
         ST0.d = remquo(x, y, &q);
 #endif
     }
-    q &= 7;
+    //q &= 7;   //why forcing all low bits (and so C0, C1 & C3) to 1?
     emu->sw.f.F87_C2 = 0;
     emu->sw.f.F87_C1 = q & 1;
     emu->sw.f.F87_C3 = (q >> 1) & 1;
