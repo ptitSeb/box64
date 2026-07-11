@@ -1904,7 +1904,10 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                     if(vex.l)
                         d1 = fpu_get_scratch(dyn, ninst);
                 } else d0 = -1;
-                if(vex.l) { GETGY_empty_VYEY(v0, v2, v1); }
+                if(vex.l) {
+                    if(!MODREG) v1 = fpu_get_scratch(dyn, ninst);
+                    GETGY_empty_VYEY(v0, v2, v1);
+                }
                 if(d0!=-1) {
                     VMOVQ(d0, q1);
                     if(vex.l) VMOVQ(d1, v1);
@@ -1920,8 +1923,8 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                 GETGX(q0, 1);
                 VEORQ(q0, q0, (d0==-1)?q1:d0);
                 if(vex.l) {
-                    GETGY_empty(v0, (d0==-1)?(nextop&7)+(rex.b<<3):-1, -1, -1);
-                    VEORQ(v0, v0, (d0==-1)?v1:d0);
+                    GETGY(v0, 1, -1, -1, -1);
+                    VEORQ(v0, v0, (d0==-1)?v1:d1);
                 }
             }
             if(!vex.l) YMM0(gd);
@@ -1944,7 +1947,10 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                     if(vex.l)
                         d1 = fpu_get_scratch(dyn, ninst);
                 } else d0 = -1;
-                if(vex.l) { GETGY_empty_VYEY(v0, v2, v1); }
+                if(vex.l) {
+                    if(!MODREG) v1 = fpu_get_scratch(dyn, ninst);
+                    GETGY_empty_VYEY(v0, v2, v1);
+                }
                 if(d0!=-1) {
                     VMOVQ(d0, q1);
                     if(vex.l) VMOVQ(d1, v1);
@@ -1960,8 +1966,8 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                 GETGX(q0, 1);
                 VEORQ(q0, q0, (d0==-1)?q1:d0);
                 if(vex.l) {
-                    GETGY_empty(v0, (d0==-1)?(nextop&7)+(rex.b<<3):-1, -1, -1);
-                    VEORQ(v0, v0, (d0==-1)?v1:d0);
+                    GETGY(v0, 1, -1, -1, -1);
+                    VEORQ(v0, v0, (d0==-1)?v1:d1);
                 }
             }
             if(!vex.l) YMM0(gd);
@@ -1985,7 +1991,10 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                     if(vex.l)
                         d1 = fpu_get_scratch(dyn, ninst);
                 } else d0 = -1;
-                if(vex.l) { GETGY_empty_VYEY(v0, v2, v1); }
+                if(vex.l) {
+                    if(!MODREG) v1 = fpu_get_scratch(dyn, ninst);
+                    GETGY_empty_VYEY(v0, v2, v1);
+                }
                 if(d0!=-1) {
                     VMOVQ(d0, q1);
                     if(vex.l) VMOVQ(d1, v1);
@@ -2001,8 +2010,8 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                 GETGX(q0, 1);
                 VEORQ(q0, q0, (d0==-1)?q1:d0);
                 if(vex.l) {
-                    GETGY_empty(v0, (d0==-1)?(nextop&7)+(rex.b<<3):-1, -1, -1);
-                    VEORQ(v0, v0, (d0==-1)?v1:d0);
+                    GETGY(v0, 1, -1, -1, -1);
+                    VEORQ(v0, v0, (d0==-1)?v1:d1);
                 }
             }
             if(!vex.l) YMM0(gd);
@@ -2025,7 +2034,10 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                     if(vex.l)
                         d1 = fpu_get_scratch(dyn, ninst);
                 } else d0 = -1;
-                if(vex.l) { GETGY_empty_VYEY(v0, v2, v1); }
+                if(vex.l) {
+                    if(!MODREG) v1 = fpu_get_scratch(dyn, ninst);
+                    GETGY_empty_VYEY(v0, v2, v1);
+                }
                 if(d0!=-1) {
                     VMOVQ(d0, q1);
                     if(vex.l) VMOVQ(d1, v1);
@@ -2041,8 +2053,8 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                 GETGX(q0, 1);
                 VEORQ(q0, q0, (d0==-1)?q1:d0);
                 if(vex.l) {
-                    GETGY_empty(v0, (d0==-1)?(nextop&7)+(rex.b<<3):-1, -1, -1);
-                    VEORQ(v0, v0, (d0==-1)?v1:d0);
+                    GETGY(v0, 1, -1, -1, -1);
+                    VEORQ(v0, v0, (d0==-1)?v1:d1);
                 }
             }
             if(!vex.l) YMM0(gd);
