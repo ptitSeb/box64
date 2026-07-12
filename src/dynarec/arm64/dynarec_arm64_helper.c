@@ -2461,45 +2461,59 @@ void CacheTransform(dynarec_arm_t* dyn, int ninst, int cacheupd) {
         nativeFlagsTransform(dyn, ninst, x1, x2);
 }
 
+static void flush_native_flags(dynarec_arm_t* dyn, int ninst, int s1, uint8_t flags, uint8_t ic)
+{
+    // some flags disapear, and need to be saved
+    MESSAGE(LOG_DUMP, "\tPurging native flags %hhx\n", flags);
+    uint8_t nc_before = dyn->insts[ninst].normal_carry;
+    if(flags&NF_EQ) {
+        CSETw(s1, cEQ);
+        BFIw(xFlags, s1, F_ZF, 1);
+    }
+    if(flags&NF_SF) {
+        CSETw(s1, cMI);
+        BFIw(xFlags, s1, F_SF, 1);
+    }
+    if(flags&NF_VF) {
+        CSETw(s1, cVS);
+        BFIw(xFlags, s1, F_OF, 1);
+    }
+    if(flags&NF_PF_V) {
+        CSETw(s1, cVS);
+        BFIw(xFlags, s1, F_PF, 1);
+    }
+    if(flags&NF_CF) {
+        if(ic) // might need to invert carry
+            CSETw(s1, cCS);
+        else
+            CSETw(s1, cCC);
+        BFIw(xFlags, s1, F_CF, 1);
+    }
+}
+
 void additionnal_checks(dynarec_arm_t* dyn, int ninst)
 {
     int s1 = x1;
     // check if a opcode generate partial flags that may clober existing native flags and see need to be "moved" to xFlags
-    if(dyn->insts[ninst].nat_flags_op || dyn->insts[ninst].nat_flags_op_before) {
+    if(dyn->insts[ninst].nat_flags_op || dyn->insts[ninst].nat_flags_op_before || (dyn->insts[ninst].nat_flags_in!=dyn->insts[ninst].need_nat_flags)) {
         uint8_t nat_flags = dyn->insts[ninst].need_nat_flags; // that's the native flags that will be generated
         uint8_t nat_flags_gen = dyn->insts[ninst].set_nat_flags;
         //TODO: does it need to fetch previous state with getPred?
-        uint8_t nat_flags_before = dyn->insts[ninst].before_nat_flags; //flags before the opcode, but it's only there when opcode also consume natflags
+        uint8_t nat_flags_before = dyn->insts[ninst].nat_flags_in; //flags before the opcode
         uint8_t nat_flags_flush = nat_flags_before&~nat_flags_gen;  // flags present before bu not after the operation and so that needs to be spared
-        if(nat_flags_before && nat_flags_flush) {
-            // some flags disapear, and need to be saved
-            MESSAGE(LOG_DUMP, "\tPurging native flags %hhx\n", nat_flags_flush);
-            uint8_t nc_before = dyn->insts[ninst].normal_carry;
-            if(nat_flags_flush&NF_EQ) {
-                CSETw(s1, cEQ);
-                BFIw(xFlags, s1, F_ZF, 1);
-            }
-            if(nat_flags_flush&NF_SF) {
-                CSETw(s1, cMI);
-                BFIw(xFlags, s1, F_SF, 1);
-            }
-            if(nat_flags_flush&NF_VF) {
-                CSETw(s1, cVS);
-                BFIw(xFlags, s1, F_OF, 1);
-            }
-            if(nat_flags_flush&NF_PF_V) {
-                CSETw(s1, cVS);
-                BFIw(xFlags, s1, F_PF, 1);
-            }
-            if(nat_flags_flush&NF_CF) {
-                if(nc_before) // might need to invert carry
-                    CSETw(s1, cCS);
-                else
-                    CSETw(s1, cCC);
-                BFIw(xFlags, s1, F_CF, 1);
-            }
-        }
+        if(nat_flags_before && nat_flags_flush)
+            flush_native_flags(dyn, ninst, s1, nat_flags_flush, dyn->insts[ninst].normal_carry_in);
     }
+}
+
+void flushNative(dynarec_arm_t* dyn, int ninst)
+{
+    int s1 = x1;
+    uint8_t nat_flags = dyn->insts[ninst].need_nat_flags; // that's the native flags that is needed after
+    uint8_t nat_flags_before = dyn->insts[ninst].nat_flags_in; //flags before the opcode
+    uint8_t nat_flags_flush = nat_flags_before&~nat_flags;  // flags present before bu not after the operation and so that needs to be spared
+    if(nat_flags_flush)
+        flush_native_flags(dyn, ninst, s1, nat_flags_flush, dyn->insts[ninst].normal_carry_in);
 }
 
 void fpu_reflectcache(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3)

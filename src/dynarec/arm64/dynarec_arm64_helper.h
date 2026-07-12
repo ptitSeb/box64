@@ -1005,7 +1005,7 @@
         TABLE64C(x6, const_updateflags_arm64);              \
         BLR(x6);                                            \
         dyn->f = status_none;                               \
-    }
+    } else if((A)==X_ALL) flushNative(dyn, ninst);
 #endif
 
 #define GRABFLAGS(A) \
@@ -1342,6 +1342,7 @@
 
 #define CacheTransform       STEPNAME(CacheTransform)
 #define additionnal_checks   STEPNAME(additionnal_checks)
+#define flushNative         STEPNAME(flushNative)
 
 #define arm64_move32        STEPNAME(arm64_move32)
 #define arm64_move64        STEPNAME(arm64_move64)
@@ -1509,6 +1510,7 @@ void avx_purge_ymm(dynarec_arm_t* dyn, int ninst, uint16_t mask, int s1);
 
 void CacheTransform(dynarec_arm_t* dyn, int ninst, int cacheupd);
 void additionnal_checks(dynarec_arm_t* dyn, int ninst);
+void flushNative(dynarec_arm_t* dyn, int ninst);
 
 void arm64_move32(dynarec_arm_t* dyn, int ninst, int reg, uint32_t val);
 void arm64_move64(dynarec_arm_t* dyn, int ninst, int reg, uint64_t val);

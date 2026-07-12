@@ -810,8 +810,8 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
         else
             length += sprintf(buf + length, " NF:%d", dyn->insts[ninst].nat_flags_op);
     }
-    if (dyn->insts[ninst].use_nat_flags || dyn->insts[ninst].set_nat_flags || dyn->insts[ninst].need_nat_flags) {
-        length += sprintf(buf + length, " nf:%hhx/%hhx/%hhx", dyn->insts[ninst].set_nat_flags, dyn->insts[ninst].use_nat_flags, dyn->insts[ninst].need_nat_flags);
+    if (dyn->insts[ninst].use_nat_flags || dyn->insts[ninst].set_nat_flags || dyn->insts[ninst].need_nat_flags || dyn->insts[ninst].nat_flags_in) {
+        length += sprintf(buf + length, " nf:%hhx/%hhx/%hhx->%hhx", dyn->insts[ninst].set_nat_flags, dyn->insts[ninst].use_nat_flags, dyn->insts[ninst].nat_flags_in, dyn->insts[ninst].need_nat_flags);
     }
     if (dyn->insts[ninst].invert_carry)
         length += sprintf(buf + length, " CI");
@@ -1115,6 +1115,7 @@ static void propagateNativeFlags(dynarec_arm_t* dyn, int start)
 //printf_log(LOG_INFO, " will use:%x, carry:%d, generate inverted carry:%d\n", used_flags, used_flags&NF_CF, dyn->insts[ninst].gen_inverted_carry);
     if(!used_flags) return; // the flags wont be used, so just cancel
     int nc = dyn->insts[ninst].gen_inverted_carry?0:1;
+    int oldnc = nc;
     int carry = used_flags&NF_CF;
     // propagate
     while(ninst<dyn->size) {
@@ -1150,6 +1151,10 @@ static void propagateNativeFlags(dynarec_arm_t* dyn, int start)
                 return;
         } else
             ++ninst;
+        if(ninst<dyn->size) {
+            dyn->insts[ninst].nat_flags_in |= used_flags&use_flags;
+            if(carry) dyn->insts[ninst].normal_carry_in = oldnc;
+        }
     }
 }
 

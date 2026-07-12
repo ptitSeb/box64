@@ -135,8 +135,10 @@ typedef struct instruction_arm64_s {
     uint8_t             nat_flags_op_before:4;// what happens to native flags here
     uint8_t             before_nat_flags;  // 0 or combinaison of native flags define
     uint8_t             need_nat_flags;
+    uint8_t             nat_flags_in;   // native flags at the entry of the opcode
     unsigned            gen_inverted_carry:1;
     unsigned            normal_carry:1;
+    unsigned            normal_carry_in:1;
     unsigned            normal_carry_before:1;
     unsigned            invert_carry:1; // this opcode force an inverted carry
     unsigned            df_needed:1;
