@@ -841,6 +841,7 @@ void updateNativeFlags(dynarec_la64_t* dyn)
                         }
                         dyn->insts[i].x64.use_flags = 0;
                         dyn->insts[j].nat_next_inst = i;
+                        dyn->insts[i].up32_read |= dyn->insts[j].up32_write32;
                         found = 1;
                         break;
                     } else if (j && dyn->insts[j].pred_sz == 1 && dyn->insts[j].pred[0] == j - 1
