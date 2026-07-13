@@ -649,6 +649,12 @@ uintptr_t dynarec64_AVX_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
             GETEX(x2, 0, vex.l ? 12 : 4);
             s0 = fpu_get_scratch(dyn);
             s1 = fpu_get_scratch(dyn);
+            if (vex.l && MODREG && gd == ed) {
+                d0 = fpu_get_scratch(dyn);
+                d1 = fpu_get_scratch(dyn);
+                FLW(d0, wback, fixedaddress + 8);
+                FLW(d1, wback, fixedaddress + 12);
+            }
             FLW(s0, wback, fixedaddress);
             FLW(s1, wback, fixedaddress + 4);
             FCVTDS(s0, s0);
@@ -656,12 +662,19 @@ uintptr_t dynarec64_AVX_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
             FSD(s0, gback, gdoffset + 0);
             FSD(s1, gback, gdoffset + 8);
             if (vex.l) {
-                FLW(s0, wback, fixedaddress + 8);
-                FLW(s1, wback, fixedaddress + 12);
-                FCVTDS(s0, s0);
-                FCVTDS(s1, s1);
-                FSD(s0, gback, gyoffset + 0);
-                FSD(s1, gback, gyoffset + 8);
+                if (MODREG && gd == ed) {
+                    FCVTDS(d0, d0);
+                    FCVTDS(d1, d1);
+                    FSD(d0, gback, gyoffset + 0);
+                    FSD(d1, gback, gyoffset + 8);
+                } else {
+                    FLW(s0, wback, fixedaddress + 8);
+                    FLW(s1, wback, fixedaddress + 12);
+                    FCVTDS(s0, s0);
+                    FCVTDS(s1, s1);
+                    FSD(s0, gback, gyoffset + 0);
+                    FSD(s1, gback, gyoffset + 8);
+                }
             } else
                 YMM0(gd);
             break;
