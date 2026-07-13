@@ -282,12 +282,27 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             gd = ((nextop & 0x38) >> 3) + (rex.r << 3);
             GETEXSS(v1, 0);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                FEQS(x3, v1, v1);
+                FMVXW(x4, v1);
+            }
             if (MODREG && gd == (nextop & 7) + (rex.b << 3)) {
                 v0 = sse_get_reg_size_changed(dyn, ninst, x2, gd, 0);
-                FCVTDS(v0, v0);
             } else {
                 GETGXSD_empty(v0);
-                FCVTDS(v0, v1);
+            }
+            FCVTDS(v0, v1);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                BNEZ_MARK(x3);
+                SRLIW(x5, x4, 31);
+                SLLI(x5, x5, 63);
+                SLLI(x4, x4, 41);
+                SRLI(x4, x4, 12);
+                OR(x4, x4, x5);
+                MOV64x(x5, 0x7ff8000000000000ULL);
+                OR(x4, x4, x5);
+                FMVDX(v0, x4);
+                MARK;
             }
             break;
         case 0x5B:

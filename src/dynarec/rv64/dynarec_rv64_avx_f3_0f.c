@@ -93,7 +93,23 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETGY();
             s0 = fpu_get_scratch(dyn);
             FLW(s0, wback, fixedaddress);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                FEQS(x3, s0, s0);
+                FMVXW(x4, s0);
+            }
             FCVTDS(s0, s0);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                BNEZ_MARK(x3);
+                SRLIW(x5, x4, 31);
+                SLLI(x5, x5, 63);
+                SLLI(x4, x4, 41);
+                SRLI(x4, x4, 12);
+                OR(x4, x4, x5);
+                MOV64x(x5, 0x7ff8000000000000ULL);
+                OR(x4, x4, x5);
+                FMVDX(s0, x4);
+                MARK;
+            }
             FSD(s0, gback, gdoffset);
             if (gd != vex.v) {
                 LD(x2, vback, vxoffset + 8);
