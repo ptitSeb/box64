@@ -1337,6 +1337,7 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             if (MODREG) {
                 DEFAULT;
             } else {
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
                 GETGM_vector(v0);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, x3, &fixedaddress, rex, NULL, 1, 0);
                 PUTEM_vector(v0);
