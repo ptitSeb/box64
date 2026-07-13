@@ -480,29 +480,33 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEX(x2, 0, 12);
             d0 = fpu_get_scratch(dyn);
             d1 = fpu_get_scratch(dyn);
-            // GX->f[0] -= EX->f[0];
-            FLW(d0, wback, fixedaddress + 0);
-            FLW(d1, gback, gdoffset + 0);
-            FSUBS(d1, d1, d0);
-            FSW(d1, gback, gdoffset + 0);
-
-            // GX->f[1] += EX->f[1];
-            FLW(d0, wback, fixedaddress + 4);
-            FLW(d1, gback, gdoffset + 4);
-            FADDS(d1, d1, d0);
-            FSW(d1, gback, gdoffset + 4);
-
-            // GX->f[2] -= EX->f[2];
-            FLW(d0, wback, fixedaddress + 8);
-            FLW(d1, gback, gdoffset + 8);
-            FSUBS(d1, d1, d0);
-            FSW(d1, gback, gdoffset + 8);
-
-            // GX->f[3] += EX->f[3];
-            FLW(d0, wback, fixedaddress + 12);
-            FLW(d1, gback, gdoffset + 12);
-            FADDS(d1, d1, d0);
-            FSW(d1, gback, gdoffset + 12);
+            if (!BOX64ENV(dynarec_fastnan)) MOV32w(x6, 0x00400000);
+            for (int i = 0; i < 4; ++i) {
+                FLW(d0, wback, fixedaddress + 4 * i);
+                FLW(d1, gback, gdoffset + 4 * i);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    FEQS(x3, d0, d0);
+                    FEQS(x4, d1, d1);
+                    AND(x5, x3, x4);
+                    BEQZ(x5, 6 * 4);
+                }
+                if (i & 1)
+                    FADDS(d1, d1, d0);
+                else
+                    FSUBS(d1, d1, d0);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    FEQS(x5, d1, d1);
+                    BNEZ(x5, 8 * 4);
+                    FNEGS(d1, d1);
+                    J(6 * 4);
+                    BNEZ(x4, 2 * 4);
+                    FMVS(d0, d1);
+                    FMVXW(x5, d0);
+                    OR(x5, x5, x6);
+                    FMVWX(d1, x5);
+                }
+                FSW(d1, gback, gdoffset + 4 * i);
+            }
             break;
         case 0xE6:
             INST_NAME("CVTPD2DQ Gx, Ex");
