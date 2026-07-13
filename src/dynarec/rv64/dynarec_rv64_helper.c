@@ -2008,6 +2008,8 @@ void fpu_popcache(dynarec_rv64_t* dyn, int ninst, int s1, int not07)
                 FLD(dyn->e.mmxcache[i].reg, xEmu, offsetof(x64emu_t, mmx[i]));
                 VFMV_S_F(dyn->e.mmxcache[i].reg, dyn->e.mmxcache[i].reg);
             }
+        if (dyn->vector_sew != VECTOR_SEWNA)
+            dyn->vector_eew = vector_vsetvli(dyn, ninst, s1, dyn->vector_sew, VECTOR_LMUL1, 1);
         MESSAGE(LOG_DUMP, "\t------- Pop (vector) MMX Cache (%d)\n", n);
     }
 }
