@@ -79,11 +79,18 @@ void myStackAlign32(const char* fmt, uint32_t* st, uint64_t* mystack)
                     case 's': state = 30; break; // pointers
                     case '$': ++p; break; // should issue a warning, it's not handled...
                     case '*': *(mystack++) = *(st++); ++p; break; // fetch an int in the stack....
-                    case ' ': state=0; ++p; break;
+                    case ' ': state=(state==1)?6:0; ++p; break;
                     default:
                         state=20; // other stuff, put an int...
                 }
                 break;
+            case 6: // %"space", wants number number now
+                    switch(*p) {
+                        case '0'...'9': state = 1; ++p; break;
+                        default:
+                            state = 0; break;   // something else
+                    }
+                    break;
             case 11:    //double
             case 12:    //%lg, still double
             case 13:    //%llg, still double
@@ -215,11 +222,18 @@ size_t myStackAlignScanf32(const char* fmt, uint32_t* st, uint64_t* mystack, siz
                     case 's': state = 50; break; // string
                     case '$': ++p; break; // should issue a warning, it's not handled...
                     case '*': ign=1; ++p; break; // ignore arg
-                    case ' ': state=0; ++p; break;
+                    case ' ': state=(state==1)?6:0; ++p; break;
                     default:
                         state=20; // other stuff, put an int...
                 }
                 break;
+            case 6: // %"space", wants number number now
+                    switch(*p) {
+                        case '0'...'9': state = 1; ++p; break;
+                        default:
+                            state = 0; break;   // something else
+                    }
+                    break;
             case 22:    // long uint
             case 25:    // size_t int
             case 42:    // long uint
@@ -343,11 +357,18 @@ void myStackAlignScanf32_final(const char* fmt, uint32_t* st, uint64_t* mystack,
                     case 's': state = 50; break; // strings
                     case '$': ++p; break; // should issue a warning, it's not handled...
                     case '*': ign=1; ++p; break; // ignore arg
-                    case ' ': state=0; ++p; break;
+                    case ' ': state=(state==1)?6:0; ++p; break;
                     default:
                         state=20; // other stuff, put an int...
                 }
                 break;
+            case 6: // %"space", wants number number now
+                    switch(*p) {
+                        case '0'...'9': state = 1; ++p; break;
+                        default:
+                            state = 0; break;   // something else
+                    }
+                    break;
             case 22:    // long int
             case 25:    // size_t int
             case 42:    // long uint
@@ -479,11 +500,18 @@ size_t myStackAlignScanfW32(const char* fmt, uint32_t* st, uint64_t* mystack, si
                     case 's': state = 50; break; // strings
                     case '$': ++p; break; // should issue a warning, it's not handled...
                     case '*': ign=1; ++p; break; // ignore arg
-                    case ' ': state=0; ++p; break;
+                    case ' ': state=(state==1)?6:0; ++p; break;
                     default:
                         state=20; // other stuff, put an int...
                 }
                 break;
+            case 6: // %"space", wants number number now
+                    switch(*p) {
+                        case '0'...'9': state = 1; ++p; break;
+                        default:
+                            state = 0; break;   // something else
+                    }
+                    break;
             case 22:    // long uint
             case 25:    // size_t int
             case 42:    // long uint
@@ -599,11 +627,18 @@ void myStackAlignScanfW32_final(const char* fmt, uint32_t* st, uint64_t* mystack
                     case 's': state = 50; break; // string
                     case '$': ++p; break; // should issue a warning, it's not handled...
                     case '*': ign=1; ++p; break; // ignore arg
-                    case ' ': state=0; ++p; break;
+                    case ' ': state=(state==1)?6:0; ++p; break;
                     default:
                         state=20; // other stuff, put an int...
                 }
                 break;
+            case 6: // %"space", wants number number now
+                    switch(*p) {
+                        case '0'...'9': state = 1; ++p; break;
+                        default:
+                            state = 0; break;   // something else
+                    }
+                    break;
             case 22:    // long uint
             case 25:    // size_t int
             case 42:    // long uint
@@ -721,11 +756,18 @@ void myStackAlignW32(const char* fmt, uint32_t* st, uint64_t* mystack)
                     case 's': state = 30; break; // pointers
                     case '$': ++p; break; // should issue a warning, it's not handled...
                     case '*': *(mystack++) = *(st++); ++p; break; // fetch an int in the stack....
-                    case ' ': state=0; ++p; break;
+                    case ' ': state=(state==1)?6:0; ++p; break;
                     default:
                         state=20; // other stuff, put an int...
                 }
                 break;
+            case 6: // %"space", wants number number now
+                    switch(*p) {
+                        case '0'...'9': state = 1; ++p; break;
+                        default:
+                            state = 0; break;   // something else
+                    }
+                    break;
             case 11:    //double
             case 12:    //%lg, still double
             case 13:    //%llg, still double
