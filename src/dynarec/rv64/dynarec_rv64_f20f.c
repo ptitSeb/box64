@@ -216,10 +216,16 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             FADDD(d0, v1, v0);
             if (!BOX64ENV(dynarec_fastnan)) {
                 FEQD(x5, d0, d0);
-                BNEZ(x5, 4 + 4 * 3);
+                BNEZ_MARK(x5);
                 FNEGD(d0, d0);
                 BNEZ(x4, 4 + 4);
                 FMVD(d0, v0);
+                // SNaN -> QNaN
+                FMVXD(x5, d0);
+                MOV64x(x3, 0x0008000000000000LL);
+                OR(x5, x5, x3);
+                FMVDX(d0, x5);
+                MARK;
             }
             FMVD(v0, d0);
             break;
@@ -239,10 +245,16 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             FMULD(d0, v1, v0);
             if (!BOX64ENV(dynarec_fastnan)) {
                 FEQD(x5, d0, d0);
-                BNEZ(x5, 4 + 4 * 3);
+                BNEZ_MARK(x5);
                 FNEGD(d0, d0);
                 BNEZ(x4, 4 + 4);
                 FMVD(d0, v0);
+                // SNaN -> QNaN
+                FMVXD(x5, d0);
+                MOV64x(x3, 0x0008000000000000LL);
+                OR(x5, x5, x3);
+                FMVDX(d0, x5);
+                MARK;
             }
             FMVD(v0, d0);
             break;
@@ -275,10 +287,16 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             FSUBD(d0, v0, v1);
             if (!BOX64ENV(dynarec_fastnan)) {
                 FEQD(x5, d0, d0);
-                BNEZ(x5, 4 + 4 * 3);
+                BNEZ_MARK(x5);
                 FNEGD(d0, d0);
                 BNEZ(x4, 4 + 4);
                 FMVD(d0, v0);
+                // SNaN -> QNaN
+                FMVXD(x5, d0);
+                MOV64x(x3, 0x0008000000000000LL);
+                OR(x5, x5, x3);
+                FMVDX(d0, x5);
+                MARK;
             }
             FMVD(v0, d0);
             break;
@@ -313,10 +331,16 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             FDIVD(d0, v0, v1);
             if (!BOX64ENV(dynarec_fastnan)) {
                 FEQD(x5, d0, d0);
-                BNEZ(x5, 4 + 4 * 3);
+                BNEZ_MARK(x5);
                 FNEGD(d0, d0);
                 BNEZ(x4, 4 + 4);
                 FMVD(d0, v0);
+                // SNaN -> QNaN
+                FMVXD(x5, d0);
+                MOV64x(x3, 0x0008000000000000LL);
+                OR(x5, x5, x3);
+                FMVDX(d0, x5);
+                MARK;
             }
             FMVD(v0, d0);
             break;
