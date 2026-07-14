@@ -29,16 +29,16 @@ _Logo 由 @grayduck 制作，感谢！_
 - `$ box64 ./program [args]` 运行 Linux x86_64 程序。
 - `$ box64 -k` 杀死所有模拟的进程。
 - `$ box64-bash` 进入 x86_64 bash 环境。
-- 想要使用 wine？请参阅 [Wine 使用说明](docs/WINE.md)。
+- 想要使用 wine？请参阅 [Wine 使用说明](docs/WINE_CN.md)。
 
-Box64 还提供了环境变量和 Rc 文件来控制其行为。有关详细信息请参阅[使用文档](docs/USAGE.md)。
+Box64 还提供了环境变量和 Rc 文件来控制其行为。有关详细信息请参阅[使用文档](docs/USAGE_CN.md)。
 
 ---
 
 ## 编译和安装
 
-- [编译说明](https://github.com/ptitSeb/box64/blob/main/docs/COMPILE.md)
-- [安装 Wine](https://github.com/ptitSeb/box64/blob/main/docs/WINE.md)
+- [编译说明](docs/COMPILE.md)
+- [安装 Wine](docs/WINE_CN.md)
 
 ---
 
@@ -65,7 +65,7 @@ Box64 的配置文件位于 `/etc/box64.box64rc` 和 `~/.box64rc`，均为 `.ini
 
 配置项的优先级：`~/.box64rc` > `/etc/box64.box64rc` > 命令行。
 
-更多信息，请参阅[使用文档](docs/USAGE.md)。
+更多信息，请参阅[使用文档](docs/USAGE_CN.md)。
 
 ---
 
@@ -88,7 +88,7 @@ Box64 支持 Wine64 和 Proton。对于 32 位组件，需要 Box86。配备 Box
 
 **提示**：您可以使用 Wine WOW64 版本在仅限 Box64 的环境中运行 x86 Windows 程序，这项支持仍处于实验阶段，但在大多数情况下都可以工作。
 
-有关更多信息，请参阅 [Wine 使用说明](docs/WINE.md)。
+有关更多信息，请参阅 [Wine 使用说明](docs/WINE_CN.md)。
 
 ----
 
