@@ -205,10 +205,10 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         } else {
                             ADD_W(x4, gd, ed);
                             ZEROUP(x4);
-                            if (NEED_ZEROUP(gd)) ZEROUP(gd);
+                            ZEROUP(gd);
                             SLTU(x5, x4, gd);
                             ADD_W(gd, x4, x3);
-                            if (NEED_ZEROUP(gd)) ZEROUP(gd);
+                            ZEROUP(gd);
                             SLTU(x6, gd, x4);
                         }
                         OR(x5, x5, x6);
@@ -514,8 +514,16 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 v1 = sse_get_reg_empty(dyn, ninst, x1, (nextop & 7) + (rex.b << 3));
                 VOR_V(v1, v0, v0);
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 1, 0);
-                VST(v0, ed, fixedaddress);
+                IF_UNALIGNED(ip) {
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 15, 0);
+                    for (int i = 0; i < 16; i++) {
+                        VPICKVE2GR_BU(x4, v0, i);
+                        ST_B(x4, ed, fixedaddress + i);
+                    }
+                } else {
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 1, 0);
+                    VST(v0, ed, fixedaddress);
+                }
                 SMWRITE2();
             }
             break;

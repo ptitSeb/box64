@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
-#include <alloca.h>
 #include <math.h>
 #include <signal.h>
 #include <sys/types.h>
@@ -937,59 +936,141 @@ void propagateFpuBarrier(dynarec_la64_t* dyn)
     }
 }
 
-void updateUp32(dynarec_la64_t* dyn)
+void updateUpperLiveness(dynarec_la64_t* dyn)
 {
     int n = dyn->size;
     if (n <= 0)
         return;
 
-    uint16_t* in = (uint16_t*)alloca((size_t)n * sizeof(uint16_t));
-    uint16_t* out = (uint16_t*)alloca((size_t)n * sizeof(uint16_t));
-    uint8_t* on_list = (uint8_t*)alloca((size_t)n * sizeof(uint8_t));
-    int* work = (int*)alloca((size_t)n * sizeof(int));
-    memset(in, 0, (size_t)n * sizeof(uint16_t));
-    memset(out, 0, (size_t)n * sizeof(uint16_t));
-    memset(on_list, 0, (size_t)n * sizeof(uint8_t));
-    memset(work, 0, (size_t)n * sizeof(int));
-    int sp = 0;
-    for (int i = n - 1; i >= 0; --i) {
-        if (dyn->insts[i].x64.alive) {
-            work[sp++] = i;
-            on_list[i] = 1;
-        }
+    for (int i = 0; i < n; ++i) {
+        dyn->insts[i].up32_merge_sync = 0;
+        dyn->insts[i].up32_pending = 0;
     }
-    while (sp > 0) {
-        int i = work[--sp];
-        on_list[i] = 0;
-        const instruction_la64_t* inst = &dyn->insts[i];
-        if (!inst->x64.alive)
-            continue;
-        uint16_t o = 0;
-        if (inst->x64.has_next && i + 1 < n && dyn->insts[i + 1].x64.alive)
-            o |= in[i + 1];
-        if (inst->x64.jmp) {
-            if (inst->x64.jmp_insts >= 0 && inst->x64.jmp_insts < n)
-                o |= in[inst->x64.jmp_insts];
-            else
-                o |= 0xFFFF;
+
+    size_t uint16_size = (size_t)n * sizeof(uint16_t);
+    size_t uint8_size = (size_t)n * sizeof(uint8_t);
+    size_t int_size = (size_t)n * sizeof(int);
+    void* buffer = malloc(int_size + 4 * uint16_size + uint8_size);
+    if (!buffer)
+        return;
+
+    int* work = (int*)buffer;
+    uint16_t* in = (uint16_t*)((char*)work + int_size);
+    uint16_t* out = (uint16_t*)((char*)in + uint16_size);
+    uint16_t* pending_may = (uint16_t*)((char*)out + uint16_size);
+    uint16_t* pending_must = (uint16_t*)((char*)pending_may + uint16_size);
+    uint8_t* on_list = (uint8_t*)((char*)pending_must + uint16_size);
+
+    int changed;
+    do {
+        changed = 0;
+
+        memset(in, 0, uint16_size);
+        memset(out, 0, uint16_size);
+        memset(on_list, 0, uint8_size);
+        int sp = 0;
+        for (int i = n - 1; i >= 0; --i) {
+            if (dyn->insts[i].x64.alive) {
+                work[sp++] = i;
+                on_list[i] = 1;
+            }
         }
-        int has_internal_jump = inst->x64.jmp && inst->x64.jmp_insts >= 0 && inst->x64.jmp_insts < n;
-        if ((inst->x64.has_next && i == n - 1) || (!inst->x64.has_next && !has_internal_jump))
-            o |= 0xFFFF;
-        out[i] = o;
-        uint16_t ii = inst->up32_read | (out[i] & (uint16_t)~inst->up32_write64);
-        if (ii != in[i]) {
-            in[i] = ii;
-            for (int p = 0; p < inst->pred_sz; ++p) {
-                int j = inst->pred[p];
-                if (!on_list[j]) {
-                    work[sp++] = j;
-                    on_list[j] = 1;
+        // backward analysis
+        while (sp > 0) {
+            int i = work[--sp];
+            on_list[i] = 0;
+            const instruction_la64_t* inst = &dyn->insts[i];
+            if (!inst->x64.alive)
+                continue;
+            uint16_t o = 0;
+            if (inst->x64.has_next && i + 1 < n && dyn->insts[i + 1].x64.alive)
+                o |= in[i + 1];
+            if (inst->x64.jmp) {
+                if (inst->x64.jmp_insts >= 0 && inst->x64.jmp_insts < n)
+                    o |= in[inst->x64.jmp_insts];
+                else
+                    o |= 0xFFFF;
+            }
+            int has_internal_jump = inst->x64.jmp && inst->x64.jmp_insts >= 0 && inst->x64.jmp_insts < n;
+            if ((inst->x64.has_next && i == n - 1) || (!inst->x64.has_next && !has_internal_jump))
+                o |= 0xFFFF;
+            out[i] = o;
+            uint16_t ii = inst->up32_read | inst->up32_merge_sync | (o & (uint16_t)~inst->up32_write64);
+            if (ii != in[i]) {
+                in[i] = ii;
+                for (int p = 0; p < inst->pred_sz; ++p) {
+                    int j = inst->pred[p];
+                    if (!on_list[j]) {
+                        work[sp++] = j;
+                        on_list[j] = 1;
+                    }
                 }
             }
         }
-    }
+
+        for (int i = 0; i < n; ++i)
+            dyn->insts[i].up32_skip = dyn->insts[i].up32_write32 & (uint16_t)~out[i];
+
+        memset(pending_may, 0, uint16_size);
+        memset(pending_must, 0, uint16_size);
+        memset(on_list, 0, uint8_size);
+        sp = 0;
+        for (int i = 0; i < n; ++i) {
+            if (dyn->insts[i].x64.alive) {
+                work[sp++] = i;
+                on_list[i] = 1;
+            }
+        }
+        // forward analysis
+        while (sp > 0) {
+            int i = work[--sp];
+            on_list[i] = 0;
+            if (!dyn->insts[i].x64.alive)
+                continue;
+
+            uint16_t may = 0;
+            uint16_t must = 0;
+            int has_predecessor = i == 0;
+            for (int p = 0; p < dyn->insts[i].pred_sz; ++p) {
+                int j = dyn->insts[i].pred[p];
+                uint16_t pred_may = (pending_may[j] & (uint16_t)~dyn->insts[j].up32_write64) | dyn->insts[j].up32_skip;
+                uint16_t pred_must = (pending_must[j] & (uint16_t)~dyn->insts[j].up32_write64) | dyn->insts[j].up32_skip;
+                may |= pred_may;
+                if (has_predecessor)
+                    must &= pred_must;
+                else {
+                    must = pred_must;
+                    has_predecessor = 1;
+                }
+            }
+
+            uint16_t conflict = may & (uint16_t)~must;
+            uint16_t new_sync = conflict & (uint16_t)~dyn->insts[i].up32_merge_sync;
+            if (new_sync) {
+                dyn->insts[i].up32_merge_sync |= new_sync;
+                changed = 1;
+            }
+
+            if (may != pending_may[i] || must != pending_must[i]) {
+                pending_may[i] = may;
+                pending_must[i] = must;
+                if (dyn->insts[i].x64.has_next && i + 1 < n && dyn->insts[i + 1].x64.alive && !on_list[i + 1]) {
+                    work[sp++] = i + 1;
+                    on_list[i + 1] = 1;
+                }
+                if (dyn->insts[i].x64.jmp && dyn->insts[i].x64.jmp_insts >= 0 && dyn->insts[i].x64.jmp_insts < n) {
+                    int j = dyn->insts[i].x64.jmp_insts;
+                    if (dyn->insts[j].x64.alive && !on_list[j]) {
+                        work[sp++] = j;
+                        on_list[j] = 1;
+                    }
+                }
+            }
+        }
+    } while (changed);
 
     for (int i = 0; i < n; ++i)
-        dyn->insts[i].up32_skip = dyn->insts[i].up32_write32 & (uint16_t)~out[i];
+        dyn->insts[i].up32_pending = pending_may[i];
+
+    free(buffer);
 }

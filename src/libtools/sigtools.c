@@ -108,6 +108,8 @@ if(BOX64ENV(showsegv)) printf_log(LOG_INFO, "Marked db %p as dirty, and address 
 #ifdef DYNAREC
 #ifdef ARM64
 #include "dynarec/arm64/arm64_printer.h"
+#elif defined(LA64)
+#include "dynarec/la64/la64_printer.h"
 #elif RV64
 #include "dynarec/rv64/rv64_printer.h"
 #endif
@@ -468,6 +470,59 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd, 
         return 1;
     } else {
         printf_log(LOG_INFO, "Unsupported SIGBUS special cases with pc=%p, opcode=%x (%s)\n", pc, opcode, arm64_print(opcode, (uintptr_t)pc));
+    }
+#elif defined(LA64)
+    ucontext_t *p = (ucontext_t *)ucntx;
+    uint32_t inst = *(uint32_t*)pc;
+
+    uint32_t opcode = inst >> 22;
+    int val = inst & 0x1f;
+    int dest = (inst >> 5) & 0x1f;
+    int64_t imm = (inst >> 10) & 0xfff;
+    imm = (imm << 52) >> 52; // sign extend 12-bit
+
+    int size = 0;
+    int is_fp = 0;
+    if (opcode == 0b0010100100) {        // ST_B
+        size = 1;
+    } else if (opcode == 0b0010100101) { // ST_H
+        size = 2;
+    } else if (opcode == 0b0010100110) { // ST_W
+        size = 4;
+    } else if (opcode == 0b0010100111) { // ST_D
+        size = 8;
+    } else if (opcode == 0b0010101101) { // FST_S
+        size = 4; is_fp = 1;
+    } else if (opcode == 0b0010101111) { // FST_D
+        size = 8; is_fp = 1;
+    }
+
+    if (size) {
+        volatile uint8_t *addr = (void *)(p->uc_mcontext.__gregs[dest] + imm);
+        if(is32bits) addr = (uint8_t*)(((uintptr_t)addr)&0xffffffff);
+        uint64_t value;
+        if (is_fp) {
+            struct sctx_info *info = (struct sctx_info*)p->uc_mcontext.__extcontext;
+            uint64_t *fpregs = NULL;
+            while (info->magic && !fpregs) {
+                if (info->magic == FPU_CTX_MAGIC || info->magic == LSX_CTX_MAGIC || info->magic == LASX_CTX_MAGIC)
+                    fpregs = (uint64_t*)((uintptr_t)info + sizeof(struct sctx_info));
+                else
+                    info = (struct sctx_info*)((uintptr_t)info + info->size);
+            }
+            if (!fpregs)
+                return 0;
+            value = fpregs[val];
+        } else {
+            value = p->uc_mcontext.__gregs[val];
+        }
+        for (int i = 0; i < size; ++i) {
+            addr[i] = (value >> (i * 8)) & 0xff;
+        }
+        p->uc_mcontext.__pc += 4;
+        return 1;
+    } else {
+        printf_log(LOG_NONE, "Unsupported SIGBUS special cases with pc=%p, opcode=%x (%s)\n", pc, inst, la64_print(inst, (uintptr_t)pc));
     }
 #elif RV64
 #define GET_FIELD(v, high, low) (((v) >> low) & ((1ULL << (high - low + 1)) - 1))

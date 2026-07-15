@@ -59,6 +59,7 @@ extern void arm64_next_invalid();
 #include "la64/la64_printer.h"
 #include "la64/dynarec_la64_private.h"
 #include "la64/dynarec_la64_functions.h"
+#include "la64/dynarec_la64_arch.h"
 // Limit here is unconditionnal jump, that is signed 28bits
 #define MAXBLOCK_SIZE ((1 << 27) - 200)
 
@@ -67,11 +68,11 @@ extern void arm64_next_invalid();
 #define PREUPDATE_SPECIFICS(A) updateNativeFlags(A)
 #define POSTUPDATE_SPECIFICS(A)
 
-#define ARCH_SIZE(A)    0
-#define ARCH_FILL(A, B, C)  NULL
-#define ARCH_ADJUST(A, B, C, D) {}
+#define ARCH_SIZE(A)    get_size_arch(A)
+#define ARCH_FILL(A, B, C)  populate_arch(A, B, C)
+#define ARCH_ADJUST(A, B, C, D) adjust_arch(A, B, C, D)
 #define STOP_NATIVE_FLAGS(A, B) {}
-#define ARCH_UNALIGNED(A, B) 0
+#define ARCH_UNALIGNED(A, B) arch_unaligned(A, B)
 extern uint32_t la64_crc(void* p, uint32_t len);
 extern void la64_crc_autocrc(); // same as la64_crc, but not using regular ABI
 #define ARCH_CRC(A, B)       return la64_crc(A, B)

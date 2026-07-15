@@ -91,6 +91,10 @@ uintptr_t dynarec64_AVX_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, 
                     SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
                     GETED(0);
                     GETVDsd;
+                    if (!rex.w) {
+                        ZEROUP2(x4, ed);
+                        ed = x4;
+                    }
                     CLEAR_FLAGS(x6);
                     IFX (X_CF) {
                         BNEZ(ed, 8);
@@ -98,7 +102,7 @@ uintptr_t dynarec64_AVX_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, 
                     }
                     ADDIxw(x3, ed, -1);
                     AND(vd, ed, x3);
-                    if (NEED_ZEROUP(vd)) ZEROUP(vd);
+                    if (!rex.w) ZEROUP(vd);
                     IFX (X_ZF) {
                         BNEZ(vd, 8);
                         ORI(xFlags, xFlags, 1 << F_ZF);
@@ -118,6 +122,10 @@ uintptr_t dynarec64_AVX_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, 
                     SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
                     GETED(0);
                     GETVDsd;
+                    if (!rex.w) {
+                        ZEROUP2(x4, ed);
+                        ed = x4;
+                    }
                     CLEAR_FLAGS(x6);
                     IFX (X_CF) {
                         BNEZ(ed, 8);
@@ -125,7 +133,7 @@ uintptr_t dynarec64_AVX_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, 
                     }
                     ADDIxw(x3, ed, -1);
                     XOR(vd, ed, x3);
-                    if (NEED_ZEROUP(vd)) ZEROUP(vd);
+                    if (!rex.w) ZEROUP(vd);
                     IFX (X_SF) {
                         BSTRPICK_D(x5, vd, rex.w ? 63 : 31, rex.w ? 63 : 31);
                         SLLI_D(x5, x5, F_SF);
@@ -141,6 +149,10 @@ uintptr_t dynarec64_AVX_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, 
                     SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
                     GETED(0);
                     GETVDsd;
+                    if (!rex.w) {
+                        ZEROUP2(x4, ed);
+                        ed = x4;
+                    }
                     CLEAR_FLAGS(x6);
                     IFX (X_CF) {
                         BEQZ(ed, 8);
@@ -148,7 +160,7 @@ uintptr_t dynarec64_AVX_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, 
                     }
                     SUBxw(x3, xZR, ed);
                     AND(vd, ed, x3);
-                    if (NEED_ZEROUP(vd)) ZEROUP(vd);
+                    if (!rex.w) ZEROUP(vd);
                     IFX (X_ZF) {
                         BNEZ(vd, 8);
                         ORI(xFlags, xFlags, 1 << F_ZF);

@@ -114,8 +114,15 @@
     } while (0)
 
 #define NEED_ZEROUP32(r) \
-    (!BOX64ENV(dynarec_la64up32) || !(IS_GPR(r)) || !((dyn->insts[ninst].up32_skip >> (TO_X64(r))) & 1))
+    (!(IS_GPR(r)) || !((dyn->insts[ninst].up32_skip >> (TO_X64(r))) & 1))
 #define NEED_ZEROUP(r) (!rex.w && NEED_ZEROUP32(r))
+
+#ifndef IF_UNALIGNED
+#define IF_UNALIGNED(A) if(dyn->insts[ninst].unaligned)
+#endif
+#ifndef IF_ALIGNED
+#define IF_ALIGNED(A)   if(!dyn->insts[ninst].unaligned)
+#endif
 
 // GETGD    get x64 register in gd
 #define GETGDw                                              \
@@ -1103,11 +1110,17 @@
         dyn->insts[dyn->insts[ninst].nat_next_inst].nat_flags_op1 = op1;    \
         dyn->insts[dyn->insts[ninst].nat_next_inst].nat_flags_op2 = op2;    \
         if (dyn->insts[ninst + 1].no_scratch_usage && IS_GPR(op1)) {        \
-            MV(s1, op1);                                                    \
+            if (dyn->insts[ninst].up32_read & (1 << TO_X64(op1)))           \
+                MV(s1, op1);                                                \
+            else                                                            \
+                ZEROUP2(s1, op1);                                           \
             dyn->insts[dyn->insts[ninst].nat_next_inst].nat_flags_op1 = s1; \
         }                                                                   \
         if (dyn->insts[ninst + 1].no_scratch_usage && IS_GPR(op2)) {        \
-            MV(s2, op2);                                                    \
+            if (dyn->insts[ninst].up32_read & (1 << TO_X64(op2)))           \
+                MV(s2, op2);                                                \
+            else                                                            \
+                ZEROUP2(s2, op2);                                           \
             dyn->insts[dyn->insts[ninst].nat_next_inst].nat_flags_op2 = s2; \
         }                                                                   \
     } while (0)

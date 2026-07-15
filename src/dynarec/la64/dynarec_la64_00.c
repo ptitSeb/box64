@@ -1359,15 +1359,27 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 MARKREGd(ed);
                 MVxw(ed, gd);
             } else { // mem <= reg
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
-                if(!lock && BOX64ENV(unity) && !VolatileRangesContains(ip) && ((fixedaddress==0x80) || (fixedaddress==0x84) || (fixedaddress==0xc0) || (fixedaddress==0xc4))) {
-                    DMB_ISH();
-                    lock = 1;
-                }
-                if (rex.w) {
-                    ST_D(gd, ed, fixedaddress);
+                IF_UNALIGNED(ip) {
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, (1 << (2 + rex.w)) - 1, 0);
+                    for (int i = 0; i < (1 << (2 + rex.w)); i++) {
+                        if (i == 0) {
+                            ST_B(gd, ed, fixedaddress);
+                        } else {
+                            SRLI_D(x3, gd, i * 8);
+                            ST_B(x3, ed, fixedaddress + i);
+                        }
+                    }
                 } else {
-                    ST_W(gd, ed, fixedaddress);
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, &lock, 1, 0);
+                    if(!lock && BOX64ENV(unity) && !VolatileRangesContains(ip) && ((fixedaddress==0x80) || (fixedaddress==0x84) || (fixedaddress==0xc0) || (fixedaddress==0xc4))) {
+                        DMB_ISH();
+                        lock = 1;
+                    }
+                    if (rex.w) {
+                        ST_D(gd, ed, fixedaddress);
+                    } else {
+                        ST_W(gd, ed, fixedaddress);
+                    }
                 }
                 SMWRITELOCK(lock);
             }
@@ -2693,15 +2705,34 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 MARKREGd(ed);
                 MOV64xw(ed, i64);
             } else { // mem <= i32
-                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, &lock, 1, 4);
-                i64 = F32S;
-                if (i64) {
-                    SCRATCH_USAGE(1);
-                    MOV64x(x3, i64);
-                    ed = x3;
-                } else
-                    ed = xZR;
-                SDxw(ed, wback, fixedaddress);
+                IF_UNALIGNED(ip) {
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, &lock, (1 << (2 + rex.w)) - 1, 4);
+                    i64 = F32S;
+                    if (i64) {
+                        SCRATCH_USAGE(1);
+                        MOV64x(x4, i64);
+                        ed = x4;
+                    } else
+                        ed = xZR;
+                    for (int i = 0; i < (1 << (2 + rex.w)); i++) {
+                        if (i == 0 || ed == xZR) {
+                            ST_B(ed, wback, fixedaddress + i);
+                        } else {
+                            SRLI_D(x3, ed, i * 8);
+                            ST_B(x3, wback, fixedaddress + i);
+                        }
+                    }
+                } else {
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, &lock, 1, 4);
+                    i64 = F32S;
+                    if (i64) {
+                        SCRATCH_USAGE(1);
+                        MOV64x(x3, i64);
+                        ed = x3;
+                    } else
+                        ed = xZR;
+                    SDxw(ed, wback, fixedaddress);
+                }
                 SMWRITELOCK(lock);
             }
             break;
@@ -3488,7 +3519,6 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0xE8:
             INST_NAME("CALL Id");
-            UP32_READALL();
             i32 = (rex.is32bits && rex.is66) ? F16S : F32S;
             if (addr + i32 == 0) {
 #if STEP == 3
@@ -3728,7 +3758,6 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if (box64_unittest_mode) { // HLT in unittest mode is an exit
                 READFLAGS(X_ALL);
                 BARRIER(BARRIER_FLOAT);
-                UP32_READALL();
                 MOV32w(x1, 1);
                 ST_W(x1, xEmu, offsetof(x64emu_t, quit));
             } else {
@@ -4238,7 +4267,6 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
                 case 2:
                     INST_NAME("CALL Ed");
-                    UP32_READALL();
                     PASS2IF ((BOX64DRENV(dynarec_safeflags) > 1) || ((ninst && dyn->insts[ninst - 1].x64.set_flags) || ((ninst > 1) && dyn->insts[ninst - 2].x64.set_flags)), 1) {
                         READFLAGS(X_PEND); // that's suspicious
                     } else {
@@ -4295,7 +4323,6 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         DEFAULT;
                     } else {
                         INST_NAME("CALL FAR Ed");
-                        UP32_READALL();
                         READFLAGS(X_PEND);
                         BARRIER(BARRIER_FLOAT);
                         SMREAD();
