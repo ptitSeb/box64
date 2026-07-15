@@ -932,10 +932,10 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         } else {
                             ADD_W(x4, gd, ed);
                             ZEROUP(x4);
-                            if (NEED_ZEROUP(gd)) ZEROUP(gd);
+                            ZEROUP(gd);
                             SLTU(x5, x4, gd);
                             ADD_W(gd, x4, x3);
-                            if (NEED_ZEROUP(gd)) ZEROUP(gd);
+                            ZEROUP(gd);
                             SLTU(x6, gd, x4);
                         }
                         OR(x5, x5, x6);
@@ -1532,7 +1532,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         GETFLAGS;                                                                            \
     }                                                                                        \
     nextop = F8;                                                                             \
-    GETGDw;                                                                             \
+    GETGDw;                                                                                  \
     if (MODREG) {                                                                            \
         ed = TO_NAT((nextop & 7) + (rex.b << 3));                                            \
     } else {                                                                                 \
@@ -1546,7 +1546,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         B##NO(x1, 4 + 4);                                                                    \
     BSTRINS_D(gd, ed, 15, 0);
 
-            GOCOND(0x40, "CMOV", "Gd, Ed");
+            GOCOND(0x40, "CMOV", "Gw, Ew");
 #undef GO
 
         case 0x50:

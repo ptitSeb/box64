@@ -880,8 +880,15 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     ZEROUP(xRSI);
                     ZEROUP(xRDI);
                 }
-                LD_H(x1, xRSI, 0);
-                ST_H(x1, xRDI, 0);
+                IF_UNALIGNED(ip) {
+                    LD_BU(x1, xRSI, 0);
+                    ST_B(x1, xRDI, 0);
+                    LD_BU(x1, xRSI, 1);
+                    ST_B(x1, xRDI, 1);
+                } else {
+                    LD_H(x1, xRSI, 0);
+                    ST_H(x1, xRDI, 0);
+                }
                 ADD_D(xRSI, xRSI, x3);
                 ADD_D(xRDI, xRDI, x3);
             }

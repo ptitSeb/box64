@@ -123,6 +123,7 @@ typedef struct instruction_la64_s {
     uint8_t             nat_flags_op1;
     uint8_t             nat_flags_op2;
     uint8_t             x87precision:1; // this opcode can handle x87pc
+    uint8_t             unaligned:1; // this opcode can be re-generated for unaligned special case
     unsigned            mmx_used:1; // no fine tracking, just a global "any reg used"
     unsigned            x87_used:1; // no fine tracking, just a global "any reg used"
     unsigned            fpu_used:1; // any xmm/ymm/x87/mmx reg used
@@ -132,6 +133,8 @@ typedef struct instruction_la64_s {
     uint16_t            up32_write64;   // bitmask of GPRs written as 64-bit by this instruction (upper 32 become defined)
     uint16_t            up32_write32;   // bitmask of GPRs written as 32-bit by this instruction
     uint16_t            up32_skip;      // bitmask of GPRs where the implicit zero-up after a 32-bit write can be skipped
+    uint16_t            up32_merge_sync;// bitmask of GPRs that must be clean at entry because merge preds disagree
+    uint16_t            up32_pending;   // bitmask of GPRs whose upper 32 bits are stale at entry to this instruction
     flagcache_t         f_exit;     // flags status at end of instruction
     lsxcache_t          lsx;        // lsxcache at end of instruction (but before poping)
     flagcache_t         f_entry;    // flags status before the instruction begin

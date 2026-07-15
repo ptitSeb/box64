@@ -1156,6 +1156,7 @@ if(LARCH64_DYNAREC)
         ${DYNAREC_SRC}
 
         "${BOX64_ROOT}/src/dynarec/la64/dynarec_la64_functions.c"
+        "${BOX64_ROOT}/src/dynarec/la64/dynarec_la64_arch.c"
         "${BOX64_ROOT}/src/dynarec/la64/la64_printer.c"
         "${BOX64_ROOT}/src/dynarec/la64/dynarec_la64_jmpnext.c"
         "${BOX64_ROOT}/src/dynarec/la64/dynarec_la64_consts.c"

@@ -71,5 +71,5 @@ void propagateFpuBarrier(dynarec_la64_t* dyn);
 void updateNativeFlags(dynarec_la64_t* dyn);
 void get_free_scratch(dynarec_la64_t* dyn, int ninst, uint8_t* tmp1, uint8_t* tmp2, uint8_t* tmp3, uint8_t s1, uint8_t s2, uint8_t s3, uint8_t s4, uint8_t s5);
 
-void updateUp32(dynarec_la64_t* dyn);
+void updateUpperLiveness(dynarec_la64_t* dyn);
 #endif //__DYNAREC_LA64_FUNCTIONS_H__

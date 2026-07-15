@@ -64,6 +64,7 @@
     } while (0)
 #define BARRIER(A)                                 \
     if (A != BARRIER_MAYBE) {                      \
+        UP32_READALL();                            \
         fpu_purgecache(dyn, ninst, 0, x1, x2, x3); \
         dyn->insts[ninst].x64.barrier = A;         \
     } else                                         \
@@ -79,6 +80,8 @@
     dyn->insts[ninst].up32_write64 = 0;                                                                          \
     dyn->insts[ninst].up32_write32 = 0;                                                                          \
     dyn->insts[ninst].up32_skip = 0;                                                                             \
+    dyn->insts[ninst].up32_merge_sync = 0;                                                                       \
+    dyn->insts[ninst].up32_pending = 0;                                                                          \
     dyn->insts[ninst].f_entry = dyn->f;                                                                          \
     if (ninst) { dyn->insts[ninst - 1].x64.size = dyn->insts[ninst].x64.addr - dyn->insts[ninst - 1].x64.addr; } \
     AREFLAGSNEEDED()
@@ -111,3 +114,7 @@
     do {                                             \
         dyn->insts[ninst].no_scratch_usage = !usage; \
     } while (0)
+
+// mark opcode as "unaligned" possible only if the current address is marked as already unaligned
+#define IF_UNALIGNED(A) if((dyn->insts[ninst].unaligned = is_addr_unaligned(A)))
+#define IF_ALIGNED(A)   if(!(dyn->insts[ninst].unaligned = is_addr_unaligned(A)))
