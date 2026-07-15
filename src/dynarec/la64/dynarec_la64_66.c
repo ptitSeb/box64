@@ -1458,6 +1458,32 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     IFX (X_PF) emit_pf(dyn, ninst, xRAX, x3, x5);
                     IFXA (X_ALL, cpuext.lbt) SPILL_EFLAGS();
                     break;
+                case 5:
+                    INST_NAME("IMUL AX, Ew");
+                    SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
+                    GETSEW(x1, 0);
+                    EXT_W_H(x2, xRAX);
+                    MUL_W(x1, x2, x1);
+                    BSTRINSz(xRAX, x1, 15, 0);
+                    SRLI_D(x3, x1, 16);
+                    BSTRINS_D(xRDX, x3, 15, 0);
+                    SET_DFNONE();
+                    CLEAR_FLAGS(x3);
+                    IFX (X_CF | X_OF) {
+                        SRAI_W(x2, x1, 15);
+                        SRAI_W(x3, x1, 31);
+                        XOR(x3, x3, x2);
+                        SNEZ(x3, x3);
+                        IFX (X_CF) BSTRINS_D(xFlags, x3, F_CF, F_CF);
+                        IFX (X_OF) BSTRINS_D(xFlags, x3, F_OF, F_OF);
+                    }
+                    IFX (X_SF) {
+                        SRLI_D(x3, xRAX, 15);
+                        BSTRINS_D(xFlags, x3, F_SF, F_SF);
+                    }
+                    IFX (X_PF) emit_pf(dyn, ninst, xRAX, x3, x5);
+                    IFXA (X_ALL, cpuext.lbt) SPILL_EFLAGS();
+                    break;
                 case 6:
                     INST_NAME("DIV Ew");
                     SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
