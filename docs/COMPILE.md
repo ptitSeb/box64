@@ -3,7 +3,7 @@ Compiling/Installing
 
 If you don't want to compile box64 yourself and prefer to use third-party pre-build version, go to the [end of the document](#pre-built-packages) for alternatives.
 
-You can also generate your own package using the [instructions below](https://github.com/ptitSeb/box64/blob/main/docs/COMPILE.md#debian-packaging). 
+You can also generate your own package using the [instructions below](https://github.com/ptitSeb/box64/blob/main/docs/COMPILE.md#debian-packaging).
 
 Additional installation steps may be necessary when copying only the box64 executable file without running make install in cross-build environments. See [Cross-Compiling](https://github.com/ptitSeb/box64/blob/main/docs/COMPILE.md#Cross-Compiling)
 
@@ -15,7 +15,7 @@ Additional installation steps may be necessary when copying only the box64 execu
 git clone https://github.com/ptitSeb/box64
 cd box64
 mkdir build; cd build; cmake .. ${OPTIONS}
-make -j4  
+make -j4
 sudo make install
 ```
 If it's the first install, you also need:
@@ -288,13 +288,13 @@ To have a trace enabled build (***the interpreter will be slightly slower***), a
 
 #### Build DynaRec
 
-Add `-D ARM_DYNAREC=ON` option to enable DynaRec on ARM machines.  
-Add `-D RV64_DYNAREC=ON` option to enable DynaRec on RV64 machines.  
-Add `-D LARCH64_DYNAREC=ON` option to enable DynaRec on LARCH64 machines.  
+Add `-D ARM_DYNAREC=ON` option to enable DynaRec on ARM machines.
+Add `-D RV64_DYNAREC=ON` option to enable DynaRec on RV64 machines.
+Add `-D LARCH64_DYNAREC=ON` option to enable DynaRec on LARCH64 machines.
 
 #### Save memory at run time
 
-You can use `-DSAVE_MEM` to have a build that will try to save some memory. For now, it only increases the jumptable from 4 levels to 5. The added granularity avoids wasting space, but adds one more read from memory when jumping between blocks.
+You can use `-DSAVE_MEM=ON` to build Box64 with memory-saving optimizations. This uses a five-level jump table to reduce unused address-space allocations and enables secondary entry points (BOX64_DYNAREC_SEP=1) by default to reduce duplicate DynaRec blocks. These optimizations may reduce memory usage at the cost of additional memory accesses and lower performance on some workloads.
 
 #### Build outside of a git repo
 
@@ -326,9 +326,9 @@ Box64 can also be packaged into a .deb file ***using the source code zip from th
 
 ## Pre-built packages
 
-### Debian-based Linux 
+### Debian-based Linux
 
-You can use the [Pi-Apps-Coders apt repository](https://github.com/Pi-Apps-Coders/box64-debs) to install precompiled box64 debs, updated every 24 hours. 
+You can use the [Pi-Apps-Coders apt repository](https://github.com/Pi-Apps-Coders/box64-debs) to install precompiled box64 debs, updated every 24 hours.
 
 ```
 # check if .list file already exists
@@ -358,12 +358,12 @@ sudo apt update
 sudo apt install box64-generic-arm -y
 ```
 
-## Cross-Compiling 
+## Cross-Compiling
 ----
 ### Set Up the Cross-Compiler
-For example, to compile Box64 for RISC-V on an x86 machine, you can get prebuilt GNU toolchain from the [riscv-gnu-toolchain](https://github.com/riscv-collab/riscv-gnu-toolchain/releases) 
+For example, to compile Box64 for RISC-V on an x86 machine, you can get prebuilt GNU toolchain from the [riscv-gnu-toolchain](https://github.com/riscv-collab/riscv-gnu-toolchain/releases)
 
-### Run CMake with Cross-Compilation Options 
+### Run CMake with Cross-Compilation Options
 Follow the per-platform compilation instructions to configure the CMake options for your target architecture.
 In particular, you must specify the cross-compiler. For example:
 ```
