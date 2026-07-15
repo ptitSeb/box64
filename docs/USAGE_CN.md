@@ -85,8 +85,8 @@ BOX64_DYNAREC_CALLRET=1
 
 使用二级入口点（SEP）进一步优化 CALL/RET。如果 CALLRET 未启用则无效。 在 WowBox64 中可用。
 
- * 0: 不在 CALLRET 返回时添加 SEP。
- * 1: 在 CALLRET 返回时添加 SEP，仅针对来自已知二进制文件的内存。 [默认值]
+ * 0: 不在 CALLRET 返回时添加 SEP。 [默认值]
+ * 1: 在 CALLRET 返回时添加 SEP，仅针对来自已知二进制文件的内存。
  * 2: 在 CALLRET 返回时添加 SEP，适用于所有类型的内存。
 
 ### BOX64_DYNAREC_DF

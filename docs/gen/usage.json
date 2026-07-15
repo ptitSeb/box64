@@ -338,12 +338,12 @@
       {
         "key": "0",
         "description": "Do not add SEP at CALLRET return",
-        "default": false
+        "default": true
       },
       {
         "key": "1",
         "description": "Add SEP at CALLRET return, on memory that are from known binary files",
-        "default": true
+        "default": false
       },
       {
         "key": "2",

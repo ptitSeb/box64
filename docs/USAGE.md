@@ -85,8 +85,8 @@ Optimize CALL/RET opcodes. Available in WowBox64.
 
 Optimize CALL/RET further with Secondary Entry Points (SEP). Has no effect if CALLRET is not enabled Available in WowBox64.
 
- * 0: Do not add SEP at CALLRET return
- * 1: Add SEP at CALLRET return, on memory that are from known binary files [Default]
+ * 0: Do not add SEP at CALLRET return [Default]
+ * 1: Add SEP at CALLRET return, on memory that are from known binary files
  * 2: Add SEP at CALLRET return for all type of memory.
 
 ### BOX64_DYNAREC_DF
