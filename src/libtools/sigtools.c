@@ -502,6 +502,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd, 
         if(is32bits) addr = (uint8_t*)(((uintptr_t)addr)&0xffffffff);
         uint64_t value;
         if (is_fp) {
+            #ifndef LA64_ABI_1
             struct sctx_info *info = (struct sctx_info*)p->uc_mcontext.__extcontext;
             uint64_t *fpregs = NULL;
             while (info->magic && !fpregs) {
@@ -513,6 +514,9 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd, 
             if (!fpregs)
                 return 0;
             value = fpregs[val];
+            #else
+            value = p->uc_mcontext.__fpregs->__val64[val];
+            #endif
         } else {
             value = p->uc_mcontext.__gregs[val];
         }
