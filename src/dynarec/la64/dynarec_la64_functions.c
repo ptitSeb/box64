@@ -1074,3 +1074,50 @@ void updateUpperLiveness(dynarec_la64_t* dyn)
 
     free(buffer);
 }
+
+void updateRspMerge(dynarec_la64_t* dyn, int is32bits)
+{
+    const int delta = is32bits ? 4 : 8;
+    int pending = 0;
+    int last_pushpop = -1;
+    for (int i = 0; i < dyn->size; ++i) {
+        instruction_la64_t* inst = &dyn->insts[i];
+        inst->rsp_entry = 0;
+        inst->rsp_flush = 0;
+        inst->rsp_merge = 0;
+        int class = inst->x64.alive ? inst->rsp_class : RSP_CLASS_BARRIER;
+        if (pending && (class == RSP_CLASS_BARRIER || (i == 0) || (inst->pred_sz != 1) || (inst->pred[0] != i - 1))) {
+            dyn->insts[last_pushpop].rsp_flush = pending;
+            pending = 0;
+            last_pushpop = -1;
+        }
+        switch (class) {
+            case RSP_CLASS_PUSH:
+                if (pending - delta < -2048) {
+                    dyn->insts[last_pushpop].rsp_flush = pending;
+                    pending = 0;
+                }
+                inst->rsp_entry = pending;
+                inst->rsp_merge = 1;
+                pending -= delta;
+                last_pushpop = i;
+                break;
+            case RSP_CLASS_POP:
+                if (pending + delta > 2047) {
+                    dyn->insts[last_pushpop].rsp_flush = pending;
+                    pending = 0;
+                }
+                inst->rsp_entry = pending;
+                inst->rsp_merge = 1;
+                pending += delta;
+                last_pushpop = i;
+                break;
+            case RSP_CLASS_NOP:
+                inst->rsp_entry = pending;
+                break;
+            default:
+                break;
+        }
+    }
+    if (pending) dyn->insts[last_pushpop].rsp_flush = pending;
+}

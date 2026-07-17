@@ -379,6 +379,7 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             GETGYx(q0, 0);
             if (MODREG) {
                 ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                UP32_WRITE32(ed);
                 u8 = (F8) & 15;
                 VPICKVE2GR_BU(ed, q0, u8);
             } else {
@@ -395,6 +396,7 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             GETGYx(q0, 0);
             if (MODREG) {
                 ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                UP32_WRITE32(ed);
                 u8 = (F8) & 7;
                 VPICKVE2GR_HU(ed, q0, u8);
             } else {
@@ -415,6 +417,7 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             GETGYx(q0, 0);
             if (MODREG) {
                 ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                MARKREGd(ed);
                 u8 = F8;
                 if (rex.w) {
                     VPICKVE2GR_D(ed, q0, (u8 & 1));
@@ -438,6 +441,7 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             GETGYx(v0, 0);
             if (MODREG) {
                 ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                UP32_WRITE32(ed);
                 u8 = F8 & 0b11;
                 VPICKVE2GR_WU(ed, v0, u8);
             } else {

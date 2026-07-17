@@ -2719,6 +2719,44 @@ LSX instruction starts with V, LASX instruction starts with XV.
         }                   \
     } while (0)
 
+#define PUSH1mz(reg)                                              \
+    do {                                                          \
+        if (!dyn->rsp_used && (reg) != xRSP)                      \
+            dyn->insts[ninst].rsp_class = RSP_CLASS_PUSH;         \
+        if (dyn->insts[ninst].rsp_merge) {                        \
+            if (rex.is32bits) {                                   \
+                ST_W(reg, xRSP, dyn->insts[ninst].rsp_entry - 4); \
+            } else {                                              \
+                ST_D(reg, xRSP, dyn->insts[ninst].rsp_entry - 8); \
+            }                                                     \
+            if (dyn->insts[ninst].rsp_flush)                      \
+                ADDI_D(xRSP, xRSP, dyn->insts[ninst].rsp_flush);  \
+        } else if (rex.is32bits) {                                \
+            PUSH1_32(reg);                                        \
+        } else {                                                  \
+            PUSH1(reg);                                           \
+        }                                                         \
+    } while (0)
+
+#define POP1mz(reg)                                              \
+    do {                                                         \
+        if (!dyn->rsp_used && (reg) != xRSP)                     \
+            dyn->insts[ninst].rsp_class = RSP_CLASS_POP;         \
+        if (dyn->insts[ninst].rsp_merge) {                       \
+            if (rex.is32bits) {                                  \
+                LD_WU(reg, xRSP, dyn->insts[ninst].rsp_entry);   \
+            } else {                                             \
+                LD_D(reg, xRSP, dyn->insts[ninst].rsp_entry);    \
+            }                                                    \
+            if (dyn->insts[ninst].rsp_flush)                     \
+                ADDI_D(xRSP, xRSP, dyn->insts[ninst].rsp_flush); \
+        } else if (rex.is32bits) {                               \
+            POP1_32(reg);                                        \
+        } else {                                                 \
+            POP1(reg);                                           \
+        }                                                        \
+    } while (0)
+
 #define VAND_Vxy(vd, vj, vk)     \
     do {                         \
         if (vex.l) {             \

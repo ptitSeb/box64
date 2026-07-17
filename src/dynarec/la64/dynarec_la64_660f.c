@@ -1134,6 +1134,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     GETGX(q0, 0);
                     if (MODREG) {
                         ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                        UP32_WRITE32(ed);
                         u8 = (F8) & 15;
                         VPICKVE2GR_BU(ed, q0, u8);
                     } else {
@@ -1151,6 +1152,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     GETGX(q0, 0);
                     if (MODREG) {
                         ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                        UP32_WRITE32(ed);
                         u8 = (F8) & 7;
                         VPICKVE2GR_HU(ed, q0, u8);
                     } else {
@@ -1173,6 +1175,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     d0 = fpu_get_scratch(dyn);
                     if (MODREG) {
                         ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                        MARKREGd(ed);
                         u8 = F8;
                         if (rex.w) {
                             VPICKVE2GR_D(ed, q0, (u8 & 1));
@@ -1198,6 +1201,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     GETGX(q0, 0);
                     if (MODREG) {
                         ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                        UP32_WRITE32(ed);
                         u8 = F8 & 0b11;
                         VPICKVE2GR_WU(ed, q0, u8);
                     } else {
@@ -2198,6 +2202,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             if (rex.w) {
                 if (MODREG) {
                     ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                    MARKREGd(ed);
                     MOVFR2GR_D(ed, v0);
                 } else {
                     addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
@@ -2207,6 +2212,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             } else {
                 if (MODREG) {
                     ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                    MARKREGd(ed);
                     MOVFR2GR_S(ed, v0);
                     if (NEED_ZEROUP(ed)) ZEROUP(ed);
                 } else {
@@ -2780,6 +2786,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             INST_NAME("BSWAP Reg");
             gd = TO_NAT((opcode & 7) + (rex.b << 3));
             if (rex.w) {
+                MARKREGsd(gd);
                 REVB_D(gd, gd);
             } else {
                 // undefined behaviour

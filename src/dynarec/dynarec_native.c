@@ -694,6 +694,7 @@ dynablock_t* FillBlock64(uintptr_t addr, int is32bits, int inst_max, int is_new,
                 pos = updateNeed(&helper, pos, 0);
             #if defined(LA64)
             updateUpperLiveness(&helper);
+            updateRspMerge(&helper, is32bits);
             #endif
             // remove fpu stuff on non-executed code
             for(int i=1; i<helper.size-1; ++i)

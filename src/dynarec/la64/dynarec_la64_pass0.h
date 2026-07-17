@@ -82,6 +82,7 @@
     dyn->insts[ninst].up32_skip = 0;                                                                             \
     dyn->insts[ninst].up32_merge_sync = 0;                                                                       \
     dyn->insts[ninst].up32_pending = 0;                                                                          \
+    dyn->rsp_used = 0;                                                                                           \
     dyn->insts[ninst].f_entry = dyn->f;                                                                          \
     if (ninst) { dyn->insts[ninst - 1].x64.size = dyn->insts[ninst].x64.addr - dyn->insts[ninst - 1].x64.addr; } \
     AREFLAGSNEEDED()

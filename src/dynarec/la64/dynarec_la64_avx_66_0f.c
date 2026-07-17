@@ -866,6 +866,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETGYx(v0, 0);
             if (MODREG) {
                 ed = TO_NAT((nextop & 0x07) + (rex.b << 3));
+                MARKREGd(ed);
                 if (rex.w) {
                     VPICKVE2GR_D(ed, v0, 0);
                 } else {
