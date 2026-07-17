@@ -2831,13 +2831,25 @@ int memExist(uintptr_t addr)
 #define MEDIUM (void*)0x40000000
 #define HIGH   (void*)0x60000000
 
+// The guest can grow its heap with brk(), which box64 doesn't see as an mmap, so
+// the new memory is tracked here instead. Only track what was actually added:
+// re-tracking the whole heap from pbrk as RW would clobber PROT_EXEC on pages the
+// guest had made executable inside the heap (JIT/hook trampolines), leaving the
+// tracking out of sync with the kernel until CheckExec faults on them.
+static void catchup_brk_protection(void)
+{
+    if(pbrk && cur_brk && *cur_brk!=old_brk) {
+        uintptr_t prev = old_brk ? old_brk : pbrk;
+        old_brk = *cur_brk;
+        if(old_brk > prev)
+            setProtection(prev, old_brk-prev, PROT_READ|PROT_WRITE);
+    }
+}
+
 void* find31bitBlockNearHint(void* hint_, size_t size, uintptr_t mask)
 {
     // first, check if program break as changed
-    if(pbrk && cur_brk && *cur_brk!=old_brk) {
-        old_brk = *cur_brk;
-        setProtection(pbrk, old_brk-pbrk, PROT_READ|PROT_WRITE);
-    }
+    catchup_brk_protection();
     uint32_t prot;
     uintptr_t hint = (uintptr_t)hint_;
     if(hint_<LOWEST) hint = (uintptr_t)WINE_LOWEST;
@@ -2888,10 +2900,7 @@ void* find47bitBlock(size_t size)
 void* find47bitBlockNearHint(void* hint, size_t size, uintptr_t mask)
 {
     // first, check if program break as changed
-    if(pbrk && cur_brk && *cur_brk!=old_brk) {
-        old_brk = *cur_brk;
-        setProtection(pbrk, old_brk-pbrk, PROT_READ|PROT_WRITE);
-    }
+    catchup_brk_protection();
     uint32_t prot;
     if(hint<LOWEST) hint = LOWEST;
     uintptr_t bend = 0;
