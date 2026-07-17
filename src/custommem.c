@@ -2831,11 +2831,8 @@ int memExist(uintptr_t addr)
 #define MEDIUM (void*)0x40000000
 #define HIGH   (void*)0x60000000
 
-// The guest can grow its heap with brk(), which box64 doesn't see as an mmap, so
-// the new memory is tracked here instead. Only track what was actually added:
-// re-tracking the whole heap from pbrk as RW would clobber PROT_EXEC on pages the
-// guest had made executable inside the heap (JIT/hook trampolines), leaving the
-// tracking out of sync with the kernel until CheckExec faults on them.
+// only track what brk added: re-tracking the whole heap would lose PROT_EXEC on
+// pages the guest made executable in it (like hook trampolines)
 static void catchup_brk_protection(void)
 {
     if(pbrk && cur_brk && *cur_brk!=old_brk) {
