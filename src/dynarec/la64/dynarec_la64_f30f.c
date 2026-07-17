@@ -559,6 +559,7 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             INST_NAME("RDFSBASE");
                         }
                         ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                        MARKREGd(ed);
                         int seg = _FS + ((nextop >> 3) & 7);
                         grab_segdata(dyn, addr, ninst, x4, seg);
                         MVxw(ed, x4);
@@ -577,6 +578,7 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             INST_NAME("WRFSBASE");
                         }
                         ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                        MARKREGs(ed);
                         int seg = _FS + ((nextop >> 3) & 7) - 2;
                         if (!rex.w) {
                             ZEROUP2(x4, ed);

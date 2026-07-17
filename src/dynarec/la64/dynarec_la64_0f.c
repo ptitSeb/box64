@@ -1488,6 +1488,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETGDs;
             if (MODREG) {
                 ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                MARKREGs(ed);
             } else {
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, x1, &fixedaddress, rex, NULL, 1, 0);
@@ -2128,7 +2129,9 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETGDs;
             if (MODREG) {
-                MVxw(TO_NAT((nextop & 7) + (rex.b << 3)), gd);
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                MARKREGd(ed);
+                MVxw(ed, gd);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
                 SDxw(gd, ed, fixedaddress);
@@ -2210,6 +2213,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xCF:
             INST_NAME("BSWAP Reg");
             gd = TO_NAT((opcode & 7) + (rex.b << 3));
+            MARKREGsd(gd);
             REVBxw(gd, gd);
             break;
         case 0xD1:

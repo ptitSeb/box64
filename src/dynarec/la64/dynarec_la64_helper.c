@@ -45,6 +45,7 @@ uintptr_t geted(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
 
     if ((nextop & 7) == 4) {
         uint8_t sib = PK(0);
+        if (TO_NAT((sib & 7) + (rex.b << 3)) == xRSP) dyn->rsp_used = 1;
         if (((sib & 7) != 5) || ((nextop & 0xC0) != 0)) UP32_READ(TO_NAT((sib & 7) + (rex.b << 3)));
         if ((((sib >> 3) & 7) + (rex.x << 3)) != 4) UP32_READ(TO_NAT(((sib >> 3) & 7) + (rex.x << 3)));
     } else if (((nextop & 7) != 5) || ((nextop & 0xC0) != 0)) {

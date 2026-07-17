@@ -72,33 +72,37 @@
 #define UP32_READ(r)    ((void)(r))
 #define UP32_WRITE64(r) ((void)(r))
 #define UP32_WRITE32(r) ((void)(r))
-#define UP32_READALL() ((void)0)
+#define UP32_READALL()  ((void)0)
 #endif
 
-#define MARKREGd(r)          \
-    do {                     \
-        if (rex.w)           \
-            UP32_WRITE64(r); \
-        else                 \
-            UP32_WRITE32(r); \
+#define MARKREGd(r)                         \
+    do {                                    \
+        if ((r) == xRSP) dyn->rsp_used = 1; \
+        if (rex.w)                          \
+            UP32_WRITE64(r);                \
+        else                                \
+            UP32_WRITE32(r);                \
     } while (0)
 
-#define MARKREGdz(r)         \
-    do {                     \
-        if (!rex.is32bits)   \
-            UP32_WRITE64(r); \
-        else                 \
-            UP32_WRITE32(r); \
+#define MARKREGdz(r)                        \
+    do {                                    \
+        if ((r) == xRSP) dyn->rsp_used = 1; \
+        if (!rex.is32bits)                  \
+            UP32_WRITE64(r);                \
+        else                                \
+            UP32_WRITE32(r);                \
     } while (0)
 
-#define MARKREGs(r)              \
-    do {                         \
-        if (rex.w) UP32_READ(r); \
+#define MARKREGs(r)                         \
+    do {                                    \
+        if ((r) == xRSP) dyn->rsp_used = 1; \
+        if (rex.w) UP32_READ(r);            \
     } while (0)
 
-#define MARKREGsz(r)                     \
-    do {                                 \
-        if (!rex.is32bits) UP32_READ(r); \
+#define MARKREGsz(r)                        \
+    do {                                    \
+        if ((r) == xRSP) dyn->rsp_used = 1; \
+        if (!rex.is32bits) UP32_READ(r);    \
     } while (0)
 
 #define MARKREGsd(r) \
@@ -128,6 +132,7 @@
 #define GETGDw                                              \
     do {                                                    \
         gd = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3)); \
+        if ((gd) == xRSP) dyn->rsp_used = 1;                \
     } while (0)
 #define GETGDs        \
     do {              \
@@ -167,6 +172,7 @@
 #define GETED(D)                                                                                \
     if (MODREG) {                                                                               \
         ed = TO_NAT((nextop & 7) + (rex.b << 3));                                               \
+        if ((ed) == xRSP) dyn->rsp_used = 1;                                                    \
         MARKREGs(ed);                                                                           \
         wback = 0;                                                                              \
     } else {                                                                                    \
