@@ -139,7 +139,7 @@ void CheckExec(x64emu_t* emu, uintptr_t addr)
                 fclose(f);
             }
             if ((kprot & (PROT_EXEC | PROT_READ)) == (PROT_EXEC | PROT_READ)) {
-                printf_log(LOG_NONE, "%04d|CheckExec: tracked prot=0x%x but kernel prot=0x%x for %p, resyncing\n", GetTID(), getProtection(addr), kprot, (void*)addr);
+                printf_log(BOX64ENV(showsegv) ? LOG_NONE : LOG_INFO, "%04d|CheckExec: tracked prot=0x%x but kernel prot=0x%x for %p, resyncing\n", GetTID(), getProtection(addr), kprot, (void*)addr);
                 updateProtection(page, box64_pagesize, kprot);
                 continue;
             }
