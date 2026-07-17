@@ -1,5 +1,6 @@
 #include <errno.h>
 #include <signal.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
@@ -114,7 +115,35 @@ void CheckExec(x64emu_t* emu, uintptr_t addr)
 {
     if (box64_pagesize != 4096)
         return; // disabling the test, 4K pagesize simlation isn't good enough for this
+    int resynced = 0;
     while ((getProtection/*_fast*/(addr) & (PROT_EXEC | PROT_READ)) != (PROT_EXEC | PROT_READ)) {
+        if (!resynced) {
+            // the tracked protection can get out of sync with the actual mapping
+            // (seen with runtime-generated code stubs on heap pages): before
+            // emitting a signal, recheck with the kernel and resync if it says
+            // the page is actually executable
+            resynced = 1;
+            uint32_t kprot = 0;
+            uintptr_t page = addr & ~(uintptr_t)(box64_pagesize - 1);
+            FILE* f = fopen("/proc/self/maps", "r");
+            if (f) {
+                char line[512];
+                while (fgets(line, sizeof(line), f)) {
+                    uintptr_t s, e;
+                    char r, w, x;
+                    if (sscanf(line, "%lx-%lx %c%c%c", &s, &e, &r, &w, &x) == 5 && s <= addr && addr < e) {
+                        kprot = ((r == 'r') ? PROT_READ : 0) | ((w == 'w') ? PROT_WRITE : 0) | ((x == 'x') ? PROT_EXEC : 0);
+                        break;
+                    }
+                }
+                fclose(f);
+            }
+            if ((kprot & (PROT_EXEC | PROT_READ)) == (PROT_EXEC | PROT_READ)) {
+                printf_log(LOG_NONE, "%04d|CheckExec: tracked prot=0x%x but kernel prot=0x%x for %p, resyncing\n", GetTID(), getProtection(addr), kprot, (void*)addr);
+                updateProtection(page, box64_pagesize, kprot);
+                continue;
+            }
+        }
         R_RIP = addr; // incase there is a slight difference
         EmitSignal(emu, X64_SIGSEGV, (void*)addr, 0xecec);
     }
