@@ -110,7 +110,7 @@ void emit_shl16c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int
 
     if (cpuext.lbt) {
         IFX (X_PEND) {
-        } else {
+        } else IFX (X_ALL) {
             MOV64x(s3, c);
         }
         IFX (X_ALL) {
@@ -286,7 +286,7 @@ void emit_shl32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
 
     if (cpuext.lbt) {
         IFX (X_PEND) {
-        } else {
+        } else IFX (X_ALL) {
             MOV64x(s3, c);
         }
         IFX (X_ALL) {
@@ -1023,7 +1023,7 @@ void emit_sar16c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int
 
     if (cpuext.lbt) {
         IFX (X_PEND) {
-        } else {
+        } else IFX (X_ALL) {
             MOV64x(s3, c);
         }
         IFX (X_ALL) {
@@ -1099,7 +1099,7 @@ void emit_sar32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
 
     if (cpuext.lbt) {
         IFX (X_PEND) {
-        } else {
+        } else IFX (X_ALL) {
             MOV64x(s3, c);
         }
         IFX (X_ALL) {
