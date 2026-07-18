@@ -80,7 +80,6 @@
     dyn->insts[ninst].up32_write64 = 0;                                                                          \
     dyn->insts[ninst].up32_write32 = 0;                                                                          \
     dyn->insts[ninst].up32_skip = 0;                                                                             \
-    dyn->insts[ninst].up32_merge_sync = 0;                                                                       \
     dyn->insts[ninst].up32_pending = 0;                                                                          \
     dyn->rsp_used = 0;                                                                                           \
     dyn->insts[ninst].f_entry = dyn->f;                                                                          \
