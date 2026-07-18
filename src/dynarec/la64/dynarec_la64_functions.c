@@ -1090,9 +1090,6 @@ void updateRspMerge(dynarec_la64_t* dyn, int is32bits)
                 pending += delta;
                 last_pushpop = i;
                 break;
-            case RSP_CLASS_NOP:
-                inst->rsp_entry = pending;
-                break;
             default:
                 break;
         }

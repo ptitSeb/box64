@@ -91,7 +91,6 @@ typedef struct sep_s sep_t;
 #define RSP_CLASS_BARRIER 0
 #define RSP_CLASS_PUSH    1
 #define RSP_CLASS_POP     2
-#define RSP_CLASS_NOP     3 // never used
 
 typedef struct instruction_la64_s {
     instruction_x64_t   x64;
@@ -189,7 +188,6 @@ typedef struct dynarec_la64_s {
     uint8_t              smwrite;    // for strongmem model emulation
     uint8_t              always_test;
     uint8_t              abort;
-    uint8_t              rsp_used;
     uint8_t              use_x87:1;  // set if x87 regs are used
     uint8_t              use_mmx:1;
     uint8_t              use_xmm:1;

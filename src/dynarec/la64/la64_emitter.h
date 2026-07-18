@@ -2721,7 +2721,7 @@ LSX instruction starts with V, LASX instruction starts with XV.
 
 #define PUSH1mz(reg)                                              \
     do {                                                          \
-        if (!dyn->rsp_used && (reg) != xRSP)                      \
+        if ((reg) != xRSP)                                        \
             dyn->insts[ninst].rsp_class = RSP_CLASS_PUSH;         \
         if (dyn->insts[ninst].rsp_merge) {                        \
             if (rex.is32bits) {                                   \
@@ -2740,7 +2740,7 @@ LSX instruction starts with V, LASX instruction starts with XV.
 
 #define POP1mz(reg)                                              \
     do {                                                         \
-        if (!dyn->rsp_used && (reg) != xRSP)                     \
+        if ((reg) != xRSP)                                       \
             dyn->insts[ninst].rsp_class = RSP_CLASS_POP;         \
         if (dyn->insts[ninst].rsp_merge) {                       \
             if (rex.is32bits) {                                  \
