@@ -1200,6 +1200,17 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     INST_NAME("SHR Ew, Ib");
                     if (geted_ib(dyn, addr, ninst, nextop) & 0x1f) {
                         SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
+                        if (MODREG && !dyn->insts[ninst].x64.gen_flags && !dyn->insts[ninst].nat_flags_fusion) {
+                            u8 = (F8) & 0x1f;
+                            wback = TO_NAT((nextop & 7) + (rex.b << 3));
+                            if (u8 < 16) {
+                                BSTRPICK_D(x1, wback, 15, u8);
+                                BSTRINS_D(wback, x1, 15, 0);
+                            } else {
+                                BSTRINS_D(wback, xZR, 15, 0);
+                            }
+                            break;
+                        }
                         GETEW(x1, 0);
                         u8 = (F8) & 0x1f;
                         emit_shr16c(dyn, ninst, x1, u8, x5, x4, x6);
@@ -1276,6 +1287,12 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 case 5:
                     INST_NAME("SHR Ew, 1");
                     SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
+                    if (MODREG && !dyn->insts[ninst].x64.gen_flags && !dyn->insts[ninst].nat_flags_fusion) {
+                        wback = TO_NAT((nextop & 7) + (rex.b << 3));
+                        BSTRPICK_D(x1, wback, 15, 1);
+                        BSTRINS_D(wback, x1, 15, 0);
+                        break;
+                    }
                     GETEW(x1, 0);
                     emit_shr16c(dyn, ninst, x1, 1, x5, x4, x6);
                     EWBACK;
