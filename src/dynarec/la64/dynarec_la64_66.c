@@ -202,8 +202,13 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("AND AX, Iw");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             i32 = F16;
-            if (!dyn->insts[ninst].x64.gen_flags && !(i32 & 0xF000)) {
-                ANDI(x1, xRAX, i32);
+            if (!dyn->insts[ninst].x64.gen_flags) {
+                if (!(i32 & 0xF000)) {
+                    ANDI(x1, xRAX, i32);
+                } else {
+                    MOV32w(x2, i32);
+                    AND(x1, xRAX, x2);
+                }
                 BSTRINSz(xRAX, x1, 15, 0);
                 if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(x1, xZR, x2, xZR);
                 break;
@@ -548,6 +553,22 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         INST_NAME("AND Ew, Ib");
                     }
                     SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+                    if (MODREG && !dyn->insts[ninst].x64.gen_flags) {
+                        wback = TO_NAT((nextop & 7) + (rex.b << 3));
+                        if (opcode == 0x81)
+                            u64 = F16;
+                        else
+                            u64 = (uint16_t)(int16_t)F8S;
+                        if (!(u64 & 0xF000)) {
+                            ANDI(x1, wback, u64);
+                        } else {
+                            MOV64x(x5, u64);
+                            AND(x1, wback, x5);
+                        }
+                        BSTRINS_D(wback, x1, 15, 0);
+                        if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(x1, xZR, x2, xZR);
+                        break;
+                    }
                     GETEW(x1, (opcode == 0x81) ? 2 : 1);
                     if (opcode == 0x81)
                         u64 = F16;

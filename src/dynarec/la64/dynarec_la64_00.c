@@ -1150,6 +1150,21 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         INST_NAME("AND Ed, Ib");
                     }
                     SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+                    if (MODREG && !dyn->insts[ninst].x64.gen_flags && !dyn->insts[ninst].nat_flags_fusion && !rex.w) {
+                        ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                        if (opcode == 0x81)
+                            i64 = F32S;
+                        else
+                            i64 = F8S;
+                        if (i64 >= 0 && i64 <= 4095) {
+                            ANDI(ed, ed, i64);
+                        } else {
+                            la64_move32(dyn, ninst, x3, (int32_t)i64, 0);
+                            AND(ed, ed, x3);
+                        }
+                        UP32_WRITE64(ed);
+                        break;
+                    }
                     GETEDsd((opcode == 0x81) ? 4 : 1);
                     if (opcode == 0x81)
                         i64 = F32S;
@@ -2415,6 +2430,23 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     u8 = geted_ib(dyn, addr, ninst, nextop) & 0x1f;
                     if (u8) {
                         SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+                        if (MODREG && !dyn->insts[ninst].x64.gen_flags && !dyn->insts[ninst].nat_flags_fusion) {
+                            u8 = (F8) & 0x1f;
+                            if (rex.rex) {
+                                wback = TO_NAT((nextop & 7) + (rex.b << 3));
+                                wb2 = 0;
+                            } else {
+                                wb2 = ((nextop & 7) >> 2) * 8;
+                                wback = TO_NAT((nextop & 7) & 3);
+                            }
+                            if (u8 < 8) {
+                                BSTRPICK_D(x1, wback, wb2 + 7, wb2 + u8);
+                                BSTRINS_D(wback, x1, wb2 + 7, wb2);
+                            } else {
+                                BSTRINS_D(wback, xZR, wb2 + 7, wb2);
+                            }
+                            break;
+                        }
                         GETEB(x1, 1);
                         u8 = (F8) & 0x1f;
                         emit_shr8c(dyn, ninst, ed, u8, x4, x5);
