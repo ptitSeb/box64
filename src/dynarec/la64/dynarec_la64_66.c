@@ -250,6 +250,20 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("XOR Gw, Ew");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
+            if (!dyn->insts[ninst].x64.gen_flags && !dyn->insts[ninst].nat_flags_fusion) {
+                if (MODREG) {
+                    ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                } else {
+                    SMREAD();
+                    addr = geted(dyn, addr, ninst, nextop, &wback, x3, x2, &fixedaddress, rex, NULL, 1, 0);
+                    LD_HU(x2, wback, fixedaddress);
+                    ed = x2;
+                }
+                gd = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3));
+                XOR(x1, gd, ed);
+                BSTRINS_D(gd, x1, 15, 0);
+                break;
+            }
             GETGWEW(x1, x2, 0);
             emit_xor16(dyn, ninst, gd, ed, x3, x4, x5);
             GWBACK;
