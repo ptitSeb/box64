@@ -2985,9 +2985,21 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
                 case 5:
                     INST_NAME("SHR Eb, 1");
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
+                    if ((MODREG) && !dyn->insts[ninst].x64.gen_flags && !dyn->insts[ninst].nat_flags_fusion) {
+                        if (rex.rex) {
+                            wback = TO_NAT((nextop & 7) + (rex.b << 3));
+                            wb2 = 0;
+                        } else {
+                            wb2 = ((nextop & 7) >> 2) * 8;
+                            wback = TO_NAT((nextop & 7) & 3);
+                        }
+                        BSTRPICK_D(x1, wback, wb2 + 7, wb2 + 1);
+                        BSTRINS_D(wback, x1, wb2 + 7, wb2);
+                        break;
+                    }
                     GETEB(x1, 0);
                     MOV32w(x2, 1);
-                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
                     emit_shr8(dyn, ninst, x1, x2, x5, x4, x6);
                     EBBACK();
                     break;
