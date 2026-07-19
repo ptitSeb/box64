@@ -2453,8 +2453,12 @@ wrappedldlinux:
 - pFp:
   - __tls_get_addr
 wrappedlibasound:
+- vFp:
+  - snd_pcm_free_chmaps
 - iFp:
   - snd_device_name_free_hint
+- pFp:
+  - snd_pcm_query_chmaps
 - iFipp:
   - snd_device_name_hint
 - iFpppp:

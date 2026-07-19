@@ -353,6 +353,31 @@ EXPORT int my32_snd_device_name_free_hint(x64emu_t* emu, ptr_t* hints)
     return my->snd_device_name_free_hint(hints_l);
 }
 
+EXPORT ptr_t* my32_snd_pcm_query_chmaps(x64emu_t* emu, void* pcm)
+{
+    void** maps_l = NULL;
+    maps_l = my->snd_pcm_query_chmaps(pcm);
+    if(!maps_l) return NULL;
+    ptr_t* maps = (ptr_t*)maps_l;
+    // inplace shrink
+    int n = 0;
+    while(maps_l[n]) ++n;
+    ++n;
+    for(int i=0; i<n; ++i)
+        ((ptr_t*)maps_l)[i] = to_ptrv(maps_l[i]);
+    return maps;
+}
+
+EXPORT void my32_snd_pcm_free_chmaps(x64emu_t* emu, ptr_t* maps)
+{
+    void** maps_l = (void**)maps;
+    int n=0;
+    while(maps[n]) ++n;
+    for(int i=n; i>=0; --i)
+        maps_l[i] = from_ptrv(maps[i]);
+    my->snd_pcm_free_chmaps(maps_l);
+}
+
 void* my_dlopen(x64emu_t* emu, void *filename, int flag);   // defined in wrappedlibdl.c
 char* my_dlerror(x64emu_t* emu);
 int my_dlclose(x64emu_t* emu, void *handle);

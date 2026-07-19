@@ -11,12 +11,16 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef void (*vFp_t)(void*);
 typedef int32_t (*iFp_t)(void*);
+typedef void* (*pFp_t)(void*);
 typedef int32_t (*iFipp_t)(int32_t, void*, void*);
 typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
+	GO(snd_pcm_free_chmaps, vFp_t) \
 	GO(snd_device_name_free_hint, iFp_t) \
+	GO(snd_pcm_query_chmaps, pFp_t) \
 	GO(snd_device_name_hint, iFipp_t) \
 	GO(snd_pcm_mmap_begin, iFpppp_t)
 
