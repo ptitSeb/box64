@@ -1568,9 +1568,9 @@ EXPORT void my_vwarnx(x64emu_t* emu, void* fmt, x64_va_list_t b) {
 
 EXPORT void my_argp_failure(x64emu_t* emu, void* state, int status, int errnum, void* fmt, void* b) {
 #if defined(HAVE_ARGP)
-    if(!fmt) { 
-        argp_failure(state, status, errnum, NULL); 
-        return; 
+    if(!fmt) {
+        argp_failure(state, status, errnum, NULL);
+        return;
     }
     myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 4);
     PREPARE_VALIST;
@@ -3003,7 +3003,7 @@ EXPORT int32_t my_execvpe(x64emu_t* emu, const char* path, char* argv[], char* c
             x86 = my_context->box86path?FileIsX86ELF(fullpath):0;
             script = (my_context->bashpath && FileIsShell(fullpath))?1:0;
             python = (my_context->pythonpath && FileIsPython(fullpath))?1:0;
-        } else 
+        } else
             printf_log(LOG_INFO, "Warning, trying to launch " SRLC " without BOX64_PRESSURE_ENV_PATH set\n");
 
     }
@@ -3031,7 +3031,7 @@ EXPORT int32_t my_execvpe(x64emu_t* emu, const char* path, char* argv[], char* c
                         strncat(buffsrlc, srlc+strlen(SRLC), sizeof(buffsrlc)-1);
                         argv[2] = buffsrlc;
                         printf_log(LOG_DEBUG, "Changed path of %s\n", SRLC);
-                    } else 
+                    } else
                         printf_log(LOG_INFO, "Warning, trying to launch " SRLC " without BOX64_PRESSURE_ENV_PATH set\n");
                 }
                 strncpy(buff, argv[2], sizeof(buff)-1);
@@ -3583,6 +3583,20 @@ int last_mmap_idx = 0;
 void* last_mmap_0_addr = NULL;
 size_t last_mmap_0_len = 0;
 #endif
+
+static int is_elf_or_pe(int fd)
+{
+    unsigned char magic[4];
+    unsigned char offset[4];
+    if (pread(fd, magic, sizeof(magic), 0) != (ssize_t)sizeof(magic)) return 0;
+    if (!memcmp(magic, "\x7fELF", sizeof(magic))) return 1;
+    if (magic[0] != 'M' || magic[1] != 'Z') return 0;
+    if (pread(fd, offset, sizeof(offset), 0x3c) != (ssize_t)sizeof(offset)) return 0;
+    uint32_t pe_offset = (uint32_t)offset[0] | (uint32_t)offset[1]<<8 | (uint32_t)offset[2]<<16 | (uint32_t)offset[3]<<24;
+    if (pread(fd, magic, sizeof(magic), pe_offset) != (ssize_t)sizeof(magic)) return 0;
+    return !memcmp(magic, "PE\0\0", sizeof(magic));
+}
+
 EXPORT void* my_mmap64(x64emu_t* emu, void *addr, size_t length, int prot, int flags, int fd, ssize_t offset)
 {
     (void)emu;
@@ -3614,9 +3628,13 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, size_t length, int prot, int f
     if(ret!=MAP_FAILED) {
         if (emu && !(flags & MAP_ANONYMOUS) && (fd > 0)) {
             // the last_mmap will allow mmap created by wine, even those that have hole, to be fully tracked as one single mmap
-            if((ret>=last_mmap_addr[0]) && ret+length<(last_mmap_addr[0]+last_mmap_len[0]))
+            // check if the file is actually a PE file to be safe.
+            int in_last_mmap_0 = (ret >= last_mmap_addr[0]) && ret + length < (last_mmap_addr[0] + last_mmap_len[0]);
+            int in_last_mmap_1 = (ret >= last_mmap_addr[1]) && ret + length < (last_mmap_addr[1] + last_mmap_len[1]);
+            int is_executable = (in_last_mmap_0 || in_last_mmap_1) && is_elf_or_pe(fd);
+            if (is_executable && in_last_mmap_0)
                 RecordEnvMappings((uintptr_t)last_mmap_addr[0], last_mmap_len[0], fd);
-            else if((ret>=last_mmap_addr[1]) && ret+length<(last_mmap_addr[1]+last_mmap_len[1]))
+            else if (is_executable && in_last_mmap_1)
                 RecordEnvMappings((uintptr_t)last_mmap_addr[1], last_mmap_len[1], fd);
             else
                 RecordEnvMappings((uintptr_t)ret, length, fd);
@@ -4592,7 +4610,7 @@ EXPORT void my__exit(x64emu_t* emu, int code)
     box64_exit_code = code;
     SerializeAllMapping();   // just to be safe
     // then call all the fini
-    
+
     _exit(code);
 }
 
