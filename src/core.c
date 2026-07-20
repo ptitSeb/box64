@@ -70,6 +70,7 @@ int box64_steam = 0;
 int box64_steamcmd = 0;
 int box64_musl = 0;
 int box64_nolibs = 0;
+int box64_hasinterp = 0;
 char* box64_custom_gstreamer = NULL;
 int box64_tcmalloc_minimal = 0;
 uintptr_t fmod_smc_start = 0;
@@ -1473,8 +1474,9 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         my_context->orig_argc = argc;
         my_context->orig_argv = (char**)argv;
     }
+    box64_hasinterp = hasElfInterp(elf_header);
     box64_nolibs = (NeededLibs(elf_header)==0);
-    if(box64_nolibs) printf_log(LOG_INFO, "Warning, box64 is not really compatible with staticaly linked binaries. Expect crash!\n");
+    if(!box64_hasinterp) printf_log(LOG_INFO, "Warning, box64 is not really compatible with staticaly linked binaries. Expect crash!\n");
     box64_isglibc234 = GetNeededVersionForLib(elf_header, "libc.so.6", "GLIBC_2.34");
     if(box64_isglibc234)
         printf_log(LOG_DEBUG, "Program linked with GLIBC 2.34+\n");
@@ -1585,12 +1587,14 @@ int emulate(x64emu_t* emu, elfheader_t* elf_header)
         SetEIP(emu, my_context->ep);
         Push32(emu, my_context->exit_bridge);  // push to pop it just after
         SetEDX(emu, Pop32(emu));    // RDX is exit function
+        if(!box64_hasinterp) SetEDX(emu, 0);
     } else
     #endif
     {
         SetRIP(emu, my_context->ep);
         Push64(emu, my_context->exit_bridge);  // push to pop it just after
         SetRDX(emu, Pop64(emu));    // RDX is exit function
+        if(!box64_hasinterp) SetRDX(emu, 0);
     }
     DynaRun(emu);
     // Get EAX

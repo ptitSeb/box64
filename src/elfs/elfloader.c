@@ -115,6 +115,21 @@ void FreeElfHeader(elfheader_t** head)
     *head = NULL;
 }
 
+int hasElfInterp(elfheader_t* head)
+{
+    if(!head) return 0;
+    if(box64_is32bits) {
+        for (size_t i=0; i<head->numPHEntries; ++i)
+            if(head->PHEntries._32[i].p_type == PT_INTERP)
+                return 1;
+    } else {
+        for (size_t i=0; i<head->numPHEntries; ++i)
+            if(head->PHEntries._64[i].p_type == PT_INTERP)
+                return 1;
+    }
+    return 0;
+}
+
 int CalcLoadAddr(elfheader_t* head)
 {
     head->memsz = 0;
