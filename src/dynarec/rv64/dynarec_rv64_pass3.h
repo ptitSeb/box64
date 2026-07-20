@@ -26,7 +26,11 @@
         dyn->insts[ninst].ymm0_pass3 = dyn->ymm_zero;                                                             \
     }                                                                                                             \
     AREFLAGSNEEDED()
-#define INST_EPILOG
+#define INST_EPILOG                                      \
+    dyn->vector_sew = dyn->insts[ninst].vector_sew_exit; \
+    dyn->inst_sew = dyn->vector_sew;                     \
+    dyn->inst_vlmul = VECTOR_LMUL1;                      \
+    dyn->inst_vl = 0;
 #define INST_NAME(name) inst_name_pass3(dyn, ninst, name, rex)
 
 #define TABLE64(A, V)                                 \
