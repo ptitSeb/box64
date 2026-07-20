@@ -75,6 +75,115 @@
 #define UP32_READALL()  ((void)0)
 #endif
 
+#define COMIS_FCC fcc7
+
+static inline int comis_fuse_cond(int condition)
+{
+    switch (condition) {
+        case X64_JMP_JC:
+        case X64_JMP_JNC:
+        case X64_JMP_JZ:
+        case X64_JMP_JNZ:
+        case X64_JMP_JBE:
+        case X64_JMP_JNBE:
+        case X64_JMP_JP:
+        case X64_JMP_JNP: return condition;
+        default: return -1;
+    }
+}
+
+static inline int comis_fuse_fcmp(int condition)
+{
+    switch (condition) {
+        case X64_JMP_JC:
+        case X64_JMP_JNC: return cULT;
+        case X64_JMP_JZ:
+        case X64_JMP_JNZ: return cUEQ;
+        case X64_JMP_JBE:
+        case X64_JMP_JNBE: return cULE;
+        default: return cUN;
+    }
+}
+
+static inline int comis_fuse_inverted(int condition)
+{
+    switch (condition) {
+        case X64_JMP_JNC:
+        case X64_JMP_JNZ:
+        case X64_JMP_JNBE:
+        case X64_JMP_JNP: return 1;
+        default: return 0;
+    }
+}
+
+#if STEP == 0
+#define COMIS_MARK()                                                  \
+    do {                                                              \
+        dyn->insts[ninst].comis_mark = BOX64ENV(dynarec_nativeflags); \
+    } while (0)
+
+#define COMIS_JCC(I)                                             \
+    do {                                                         \
+        if (BOX64ENV(dynarec_nativeflags))                       \
+            dyn->insts[ninst].comis_fusion = comis_fuse_cond(I); \
+    } while (0)
+
+#define COMIS_FUSED() 0
+#else
+#define COMIS_MARK()  ((void)0)
+#define COMIS_JCC(I)  ((void)(I))
+#define COMIS_FUSED() (dyn->insts[ninst].comis_fusion >= 0)
+#endif
+
+#define COMIS_BRANCH_NOT_TAKEN(offset)                           \
+    do {                                                         \
+        if (comis_fuse_inverted(dyn->insts[ninst].comis_fusion)) \
+            BCNEZ_safe(COMIS_FCC, offset);                       \
+        else                                                     \
+            BCEQZ_safe(COMIS_FCC, offset);                       \
+    } while (0)
+#define COMIS_BRANCH_TAKEN(offset)                               \
+    do {                                                         \
+        if (comis_fuse_inverted(dyn->insts[ninst].comis_fusion)) \
+            BCEQZ_safe(COMIS_FCC, offset);                       \
+        else                                                     \
+            BCNEZ_safe(COMIS_FCC, offset);                       \
+    } while (0)
+
+#define COMIS_SPILL_S() \
+    IFX (X_ALL) { SPILL_EFLAGS(); }
+#define COMIS_SPILL_D() SPILL_EFLAGS()
+#define EMIT_COMIS_FLAGS(type, lhs, rhs, tmp)                                                  \
+    do {                                                                                       \
+        COMIS_MARK();                                                                          \
+        if (COMIS_FUSED())                                                                     \
+            FCMP_##type(COMIS_FCC, lhs, rhs, comis_fuse_fcmp(dyn->insts[ninst].comis_fusion)); \
+        if (!COMIS_FUSED() || dyn->insts[ninst].x64.gen_flags) {                               \
+            CLEAR_FLAGS(tmp);                                                                  \
+            IFX (X_ZF | X_PF | X_CF) {                                                         \
+                FCMP_##type(fcc0, lhs, rhs, cUN);                                              \
+                BCEQZ_MARK(fcc0);                                                              \
+                ORI(xFlags, xFlags, (1 << F_ZF) | (1 << F_PF) | (1 << F_CF));                  \
+                B_MARK3_nocond;                                                                \
+            }                                                                                  \
+            MARK;                                                                              \
+            IFX (X_CF) {                                                                       \
+                FCMP_##type(fcc1, lhs, rhs, cLT);                                              \
+                BCEQZ_MARK2(fcc1);                                                             \
+                ORI(xFlags, xFlags, 1 << F_CF);                                                \
+                B_MARK3_nocond;                                                                \
+            }                                                                                  \
+            MARK2;                                                                             \
+            IFX (X_ZF) {                                                                       \
+                FCMP_##type(fcc2, lhs, rhs, cEQ);                                              \
+                BCEQZ_MARK3(fcc2);                                                             \
+                ORI(xFlags, xFlags, 1 << F_ZF);                                                \
+            }                                                                                  \
+            MARK3;                                                                             \
+            COMIS_SPILL_##type();                                                              \
+        }                                                                                      \
+    } while (0)
+
 #define MARKREGd(r)          \
     do {                     \
         if (rex.w)           \
