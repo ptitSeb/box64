@@ -3589,7 +3589,7 @@ static int is_elf_or_pe(int fd)
     unsigned char magic[4];
     unsigned char offset[4];
     if (pread(fd, magic, sizeof(magic), 0) != (ssize_t)sizeof(magic)) return 0;
-    if (!memcmp(magic, "\x7fELF", sizeof(magic))) return 1;
+    if (!memcmp(magic, "\x7f" "ELF", sizeof(magic))) return 1;
     if (magic[0] != 'M' || magic[1] != 'Z') return 0;
     if (pread(fd, offset, sizeof(offset), 0x3c) != (ssize_t)sizeof(offset)) return 0;
     uint32_t pe_offset = (uint32_t)offset[0] | (uint32_t)offset[1]<<8 | (uint32_t)offset[2]<<16 | (uint32_t)offset[3]<<24;
