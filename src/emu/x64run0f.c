@@ -381,13 +381,17 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             tmp64s = EX->f[1];
             if (tmp64s==(int32_t)tmp64s && !isnanf(EX->f[1]))
                 GM->sd[1] = (int32_t)tmp64s;
-            else
+            else {
+                mxcsr_raise_invalid(emu);
                 GM->sd[1] = INT32_MIN;
+            }
             tmp64s = EX->f[0];
             if (tmp64s==(int32_t)tmp64s && !isnanf(EX->f[0]))
                 GM->sd[0] = (int32_t)tmp64s;
-            else
+            else {
+                mxcsr_raise_invalid(emu);
                 GM->sd[0] = INT32_MIN;
+            }
             break;
         case 0x2D:                      /* CVTPS2PI Gm, Ex */
             // rounding should be done; and indefinite integer should also be assigned if overflow or NaN/Inf
@@ -418,8 +422,10 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                     }
                 if (tmp64s==(int32_t)tmp64s)
                     GM->sd[i] = (int32_t)tmp64s;
-                else
+                else {
+                    mxcsr_raise_invalid(emu);
                     GM->sd[i] = INT32_MIN;
+                }
             }
             break;
         case 0x2E:                      /* UCOMISS Gx, Ex */

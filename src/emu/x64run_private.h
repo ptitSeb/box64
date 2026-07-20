@@ -1,6 +1,7 @@
 #ifndef __X86RUN_PRIVATE_H_
 #define __X86RUN_PRIVATE_H_
 
+#include <fenv.h>
 #include <stdint.h>
 #include "regs.h"
 #include "x64emu_private.h"
@@ -44,6 +45,19 @@ typedef struct vex_s {
     uint16_t    m:5;    // opcode map
     uint16_t    evex:1; // was decoded from an EVEX prefix
 } vex_t;
+
+static inline void box64_feraise_invalid(void)
+{
+#if !defined(_WIN32) && !defined(__MINGW32__)
+    feraiseexcept(FE_INVALID);
+#endif
+}
+
+static inline void mxcsr_raise_invalid(x64emu_t* emu)
+{
+    emu->mxcsr.f.MXCSR_IE = 1;
+    box64_feraise_invalid();
+}
 
 static inline int FillVEXFromEVEX(vex_t* vex, rex_t rex, uint8_t p0, uint8_t p1, uint8_t p2)
 {

@@ -104,9 +104,10 @@ uintptr_t RunDD(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 if(STll(0).sref==ST(0).sq)
                     ED->sq[0] = STll(0).sq;
                 else {
-                    if(isgreater(ST0.d, (double)0x7fffffffffffffffLL) || isless(ST0.d, -(double)0x8000000000000000LL) || !isfinite(ST0.d))
+                    if(isgreater(ST0.d, (double)0x7fffffffffffffffLL) || isless(ST0.d, -(double)0x8000000000000000LL) || !isfinite(ST0.d)) {
+                        fpu_raise_invalid(emu);
                         *(uint64_t*)ED = 0x8000000000000000LL;
-                    else
+                    } else
                         *(int64_t*)ED = ST0.d;
                 }
                 fpu_do_pop(emu);
