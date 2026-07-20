@@ -769,6 +769,11 @@ int ReadDynaCache(const char* folder, const char* name, mapping_t* mapping, int 
         ret = DCERR_BADNAME;
         goto done;
     }
+    if (mapping && file_header->map_len != SizeFileMapped(mapping->start)) {
+        if (verbose) printf_log_prefix(0, LOG_NONE, "Incompatible mapped size\n");
+        ret = DCERR_MAPCHG;
+        goto done;
+    }
 
     CompressedDynaCacheBlock_t* blocks = (CompressedDynaCacheBlock_t*)(map_filename + file_header->filename_length + 1);
     uintptr_t* lockAddresses = (uintptr_t*)(blocks + file_header->nblocks);
