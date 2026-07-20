@@ -1343,14 +1343,22 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 switch ((nextop >> 3) & 7) {
                     case 6:
                         INST_NAME("CLWB Ed");
-                        FAKEED;
-                        // Placebo, TODO: we need Zicbom
+                        if (cpuext.zicbom) {
+                            addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 0);
+                            CBO_CLEAN(ed);
+                        } else {
+                            FAKEED;
+                        }
                         SMDMB();
                         break;
                     case 7:
                         INST_NAME("CLFLUSHOPT Ed");
-                        FAKEED;
-                        // Placebo, TODO: we need Zicbom
+                        if (cpuext.zicbom) {
+                            addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 0);
+                            CBO_FLUSH(ed);
+                        } else {
+                            FAKEED;
+                        }
                         SMDMB();
                         break;
                     default:

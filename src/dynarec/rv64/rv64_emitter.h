@@ -516,6 +516,12 @@
 #define FENCE_I_gen() ((0b001 << 12) | 0b0001111)
 #define FENCE_I()     EMIT(FENCE_I_gen())
 
+// Zicbom
+#define CBOM_BASE(rs1) (((rs1) << 15) | (0b010 << 12) | (0b00000 << 7) | 0b0001111)
+#define CBO_CLEAN(rs1) EMIT((0b000000000001 << 20) | CBOM_BASE(rs1))
+#define CBO_FLUSH(rs1) EMIT((0b000000000010 << 20) | CBOM_BASE(rs1))
+#define CBO_INVAL(rs1) EMIT((0b000000000000 << 20) | CBOM_BASE(rs1))
+
 #define EBREAK() EMIT(I_type(1, 0, 0, 0, 0b1110011))
 
 // RV64I
