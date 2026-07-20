@@ -554,6 +554,7 @@ void iret_to_next(dynarec_la64_t* dyn, uintptr_t ip, int ninst, int is32bits, in
 void call_c(dynarec_la64_t* dyn, int ninst, la64_consts_t fnc, int reg, int ret, int saveflags, int savereg, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6)
 {
     MAYUSE(fnc);
+    dyn->insts[ninst].host_call = 1;
     UP32_READALL();
     CHECK_DFNONE(1);
     if (savereg == 0)
@@ -625,6 +626,7 @@ void call_c(dynarec_la64_t* dyn, int ninst, la64_consts_t fnc, int reg, int ret,
 void call_n(dynarec_la64_t* dyn, int ninst, void* fnc, int w)
 {
     MAYUSE(fnc);
+    dyn->insts[ninst].host_call = 1;
     UP32_READALL();
     CHECK_DFNONE(1);
     fpu_pushcache(dyn, ninst, x3, 1);

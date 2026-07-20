@@ -138,6 +138,9 @@ typedef struct instruction_la64_s {
     uint16_t            up32_write32;    // bitmask of GPRs written as 32-bit by this instruction
     uint16_t            up32_skip;       // bitmask of GPRs where the implicit zero-up after a 32-bit write can be skipped
     uint16_t            up32_pending;    // bitmask of GPRs whose upper 32 bits are stale at entry to this instruction
+    int8_t              comis_fusion;
+    uint8_t             comis_mark:1;
+    uint8_t             host_call:1;
     int16_t             rsp_entry;       // pending rsp offset at entry
     int16_t             rsp_flush;       // rsp offset to emit right after this push/pop
     uint8_t             rsp_merge : 1;   // this push/pop is emitted with merged rsp offset

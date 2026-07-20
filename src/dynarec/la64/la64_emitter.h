@@ -698,6 +698,28 @@
         }                                          \
     } while (0)
 
+#define BCEQZ_safe(rj, imm)                        \
+    do {                                           \
+        if ((imm) > -0x70000 && (imm) < 0x70000) { \
+            BCEQZ(rj, imm);                        \
+            NOP();                                 \
+        } else {                                   \
+            BCNEZ(rj, 8);                          \
+            B((imm) - 4);                          \
+        }                                          \
+    } while (0)
+
+#define BCNEZ_safe(rj, imm)                        \
+    do {                                           \
+        if ((imm) > -0x70000 && (imm) < 0x70000) { \
+            BCNEZ(rj, imm);                        \
+            NOP();                                 \
+        } else {                                   \
+            BCEQZ(rj, 8);                          \
+            B((imm) - 4);                          \
+        }                                          \
+    } while (0)
+
 // vaddr = GR[rj] + SignExtend(imm12, GRLEN)
 // AddressComplianceCheck(vaddr)
 // paddr = AddressTranslation(vaddr)

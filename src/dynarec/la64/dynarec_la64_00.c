@@ -942,10 +942,11 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
 
 #define GO(GETFLAGS, NO, YES, NATNO, NATYES, F, I)                                          \
+    COMIS_JCC(I);                                                                           \
     READFLAGS_FUSION(F, x1, x2, x3, x4, x5);                                                \
     i8 = F8S;                                                                               \
     JUMP(addr + i8, 1);                                                                     \
-    if (!dyn->insts[ninst].nat_flags_fusion) {                                              \
+    if (!COMIS_FUSED() && !dyn->insts[ninst].nat_flags_fusion) {                            \
         if (cpuext.lbt) {                                                                   \
             X64_SETJ(tmp1, I);                                                              \
         } else {                                                                            \
@@ -955,14 +956,14 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
     if (dyn->insts[ninst].x64.jmp_insts == -1 || CHECK_CACHE()) {                           \
         /* out of block */                                                                  \
         i32 = dyn->insts[ninst].epilog - (dyn->native_size);                                \
-        if (dyn->insts[ninst].nat_flags_fusion) {                                           \
+        if (COMIS_FUSED()) {                                                                \
+            COMIS_BRANCH_NOT_TAKEN(i32);                                                    \
+        } else if (dyn->insts[ninst].nat_flags_fusion) {                                    \
             NATIVEJUMP_safe(NATNO, i32);                                                    \
-        } else {                                                                            \
-            if (cpuext.lbt)                                                                 \
-                BEQZ_safe(tmp1, i32);                                                       \
-            else                                                                            \
-                B##NO##_safe(tmp1, i32);                                                    \
-        }                                                                                   \
+        } else if (cpuext.lbt)                                                              \
+            BEQZ_safe(tmp1, i32);                                                           \
+        else                                                                                \
+            B##NO##_safe(tmp1, i32);                                                        \
         if (dyn->insts[ninst].x64.jmp_insts == -1) {                                        \
             if (!(dyn->insts[ninst].x64.barrier & BARRIER_FLOAT))                           \
                 fpu_purgecache(dyn, ninst, 1, tmp1, tmp2, tmp3);                            \
@@ -975,14 +976,14 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
     } else {                                                                                \
         /* inside the block */                                                              \
         i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address - (dyn->native_size);     \
-        if (dyn->insts[ninst].nat_flags_fusion) {                                           \
+        if (COMIS_FUSED()) {                                                                \
+            COMIS_BRANCH_TAKEN(i32);                                                        \
+        } else if (dyn->insts[ninst].nat_flags_fusion) {                                    \
             NATIVEJUMP_safe(NATYES, i32);                                                   \
-        } else {                                                                            \
-            if (cpuext.lbt)                                                                 \
-                BNEZ_safe(tmp1, i32);                                                       \
-            else                                                                            \
-                B##YES##_safe(tmp1, i32);                                                   \
-        }                                                                                   \
+        } else if (cpuext.lbt)                                                              \
+            BNEZ_safe(tmp1, i32);                                                           \
+        else                                                                                \
+            B##YES##_safe(tmp1, i32);                                                       \
     }
 
             GOCOND(0x70, "J", "ib");
