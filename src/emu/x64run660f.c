@@ -230,13 +230,17 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         tmp64s = EX->d[0];
         if (tmp64s==(int32_t)tmp64s && !isnan(EX->d[0]))
             GM->sd[0] = (int32_t)tmp64s;
-        else
+        else {
+            mxcsr_raise_invalid(emu);
             GM->sd[0] = INT32_MIN;
+        }
         tmp64s = EX->d[1];
         if (tmp64s==(int32_t)tmp64s && !isnan(EX->d[1]))
             GM->sd[1] = (int32_t)tmp64s;
-        else
+        else {
+            mxcsr_raise_invalid(emu);
             GM->sd[1] = INT32_MIN;
+        }
         break;
     case 0x2D:                      /* CVTPD2PI Gm, Ex */
         nextop = F8;
@@ -264,11 +268,14 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 i64[1] = EX->d[1];
                 break;
         }
-        for(int i=0; i<2; ++i)
+        for(int i=0; i<2; ++i) {
             if (i64[i]==(int32_t)i64[i] && !isnan(EX->d[i]))
                 GM->sd[i] = (int32_t)i64[i];
-            else
+            else {
+                mxcsr_raise_invalid(emu);
                 GM->sd[i] = INT32_MIN;
+            }
+        }
 
         break;
     case 0x2E:                      /* UCOMISD Gx, Ex */
@@ -1396,6 +1403,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
             if (tmp64s==(int32_t)tmp64s) {
                 GX->sd[i] = (int32_t)tmp64s;
             } else {
+                mxcsr_raise_invalid(emu);
                 GX->sd[i] = INT32_MIN;
             }
         }
@@ -2504,13 +2512,15 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         nextop = F8;
         GETEX(0);
         GETGX;
-        if(isnan(EX->d[0]) || isinf(EX->d[0]) || EX->d[0]>(double)0x7fffffff)
+        if(isnan(EX->d[0]) || isinf(EX->d[0]) || EX->d[0]>(double)0x7fffffff) {
+            mxcsr_raise_invalid(emu);
             GX->ud[0] = 0x80000000;
-        else
+        } else
             GX->sd[0] = EX->d[0];
-        if(isnan(EX->d[1]) || isinf(EX->d[1]) || EX->d[1]>(double)0x7fffffff)
+        if(isnan(EX->d[1]) || isinf(EX->d[1]) || EX->d[1]>(double)0x7fffffff) {
+            mxcsr_raise_invalid(emu);
             GX->ud[1] = 0x80000000;
-        else
+        } else
             GX->sd[1] = EX->d[1];
         GX->q[1] = 0;
         break;

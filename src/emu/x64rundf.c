@@ -104,24 +104,27 @@ uintptr_t RunDF(x64emu_t *emu, rex_t rex, uintptr_t addr)
         case 1: /* FISTTP Ew, ST0 */
             GETEW(0);
             tmp16s = ST0.d;
-            if(isgreater(ST0.d, (double)(int32_t)0x7fff) || isless(ST0.d, -(double)(int32_t)0x8000) || !isfinite(ST0.d))
+            if(isgreater(ST0.d, (double)(int32_t)0x7fff) || isless(ST0.d, -(double)(int32_t)0x8000) || !isfinite(ST0.d)) {
+                fpu_raise_invalid(emu);
                 EW->sword[0] = 0x8000;
-            else
+            } else
                 EW->sword[0] = tmp16s;
             fpu_do_pop(emu);
             break;
         case 2: /* FIST Ew, ST0 */
             GETEW(0);
-            if(isgreater(ST0.d, (double)(int32_t)0x7fff) || isless(ST0.d, -(double)(int32_t)0x8000) || !isfinite(ST0.d))
+            if(isgreater(ST0.d, (double)(int32_t)0x7fff) || isless(ST0.d, -(double)(int32_t)0x8000) || !isfinite(ST0.d)) {
+                fpu_raise_invalid(emu);
                 EW->sword[0] = 0x8000;
-            else
+            } else
                 EW->sword[0] = fpu_round(emu, ST0.d);
             break;
         case 3: /* FISTP Ew, ST0 */
             GETEW(0);
-            if(isgreater(ST0.d, (double)(int32_t)0x7fff) || isless(ST0.d, -(double)(int32_t)0x8000) || !isfinite(ST0.d))
+            if(isgreater(ST0.d, (double)(int32_t)0x7fff) || isless(ST0.d, -(double)(int32_t)0x8000) || !isfinite(ST0.d)) {
+                fpu_raise_invalid(emu);
                 EW->sword[0] = 0x8000;
-            else
+            } else
                 EW->sword[0] = fpu_round(emu, ST0.d);
             fpu_do_pop(emu);
             break;
@@ -148,9 +151,10 @@ uintptr_t RunDF(x64emu_t *emu, rex_t rex, uintptr_t addr)
             if(STll(0).sref==ST(0).sq)
                 ED->sq[0] = STll(0).sq;
             else {
-                if(isgreater(ST0.d, (double)0x7fffffffffffffffLL) || isless(ST0.d, -(double)0x8000000000000000LL) || !isfinite(ST0.d))
+                if(isgreater(ST0.d, (double)0x7fffffffffffffffLL) || isless(ST0.d, -(double)0x8000000000000000LL) || !isfinite(ST0.d)) {
+                    fpu_raise_invalid(emu);
                     ED->sq[0] = 0x8000000000000000LL;
-                else
+                } else
                     ED->sq[0] = fpu_round(emu, ST0.d);
             }
             fpu_do_pop(emu);

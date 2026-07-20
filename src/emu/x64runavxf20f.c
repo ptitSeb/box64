@@ -117,15 +117,17 @@ uintptr_t RunAVX_F20F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             nextop = F8;
             _GETEX(0);
             GETGD;
-            if(rex.w)
-                if(isnan(EX->d[0]) || isinf(EX->d[0]) || EX->d[0]>=(double)0x7fffffffffffffffLL)
+            if(rex.w) {
+                if(isnan(EX->d[0]) || isinf(EX->d[0]) || EX->d[0]>=(double)0x7fffffffffffffffLL) {
+                    mxcsr_raise_invalid(emu);
                     GD->q[0] = 0x8000000000000000LL;
-                else
+                } else
                     GD->sq[0] = EX->d[0];
-            else {
-                if(isnan(EX->d[0]) || isinf(EX->d[0]) || EX->d[0]>(double)0x7fffffff)
+            } else {
+                if(isnan(EX->d[0]) || isinf(EX->d[0]) || EX->d[0]>(double)0x7fffffff) {
+                    mxcsr_raise_invalid(emu);
                     GD->dword[0] = 0x80000000;
-                else
+                } else
                     GD->sdword[0] = EX->d[0];
                 GD->dword[1] = 0;
             }
@@ -135,9 +137,10 @@ uintptr_t RunAVX_F20F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             _GETEX(0);
             GETGD;
             if(rex.w) {
-                if(isnan(EX->d[0]) || isinf(EX->d[0]) || EX->d[0]>=(double)0x7fffffffffffffffLL)
+                if(isnan(EX->d[0]) || isinf(EX->d[0]) || EX->d[0]>=(double)0x7fffffffffffffffLL) {
+                    mxcsr_raise_invalid(emu);
                     GD->q[0] = 0x8000000000000000LL;
-                else
+                } else
                     switch(emu->mxcsr.f.MXCSR_RC) {
                         case ROUND_Nearest: {
                             int round = fegetround();
@@ -157,9 +160,10 @@ uintptr_t RunAVX_F20F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                             break;
                     }
             } else {
-                if(isnan(EX->d[0]) || isinf(EX->d[0]) || EX->d[0]>(double)0x7fffffff)
+                if(isnan(EX->d[0]) || isinf(EX->d[0]) || EX->d[0]>(double)0x7fffffff) {
+                    mxcsr_raise_invalid(emu);
                     GD->dword[0] = 0x80000000;
-                else
+                } else
                     switch(emu->mxcsr.f.MXCSR_RC) {
                         case ROUND_Nearest: {
                             int round = fegetround();
@@ -508,11 +512,13 @@ uintptr_t RunAVX_F20F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             if (tmp64s0==(int32_t)tmp64s0 && !isnan(EX->d[0])) {
                 GX->sd[0] = (int32_t)tmp64s0;
             } else {
+                mxcsr_raise_invalid(emu);
                 GX->sd[0] = INT32_MIN;
             }
             if (tmp64s1==(int32_t)tmp64s1 && !isnan(EX->d[1])) {
                 GX->sd[1] = (int32_t)tmp64s1;
             } else {
+                mxcsr_raise_invalid(emu);
                 GX->sd[1] = INT32_MIN;
             }
             if(vex.l) {
@@ -542,11 +548,13 @@ uintptr_t RunAVX_F20F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 if (tmp64s0==(int32_t)tmp64s0 && !isnan(EY->d[0])) {
                     GX->sd[2] = (int32_t)tmp64s0;
                 } else {
+                    mxcsr_raise_invalid(emu);
                     GX->sd[2] = INT32_MIN;
                 }
                 if (tmp64s1==(int32_t)tmp64s1 && !isnan(EY->d[1])) {
                     GX->sd[3] = (int32_t)tmp64s1;
                 } else {
+                    mxcsr_raise_invalid(emu);
                     GX->sd[3] = INT32_MIN;
                 }
             } else

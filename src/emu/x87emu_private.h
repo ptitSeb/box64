@@ -207,6 +207,11 @@ static inline void fpu_ftst(x64emu_t* emu) {
     emu->sw.f.F87_C0 = (ST0.ud[1]&0x80000000)?1:0;
 }
 
+static inline void fpu_raise_invalid(x64emu_t* emu) {
+    emu->sw.f.F87_IE = 1;
+    box64_feraise_invalid();
+}
+
 void fpu_fbst(x64emu_t* emu, uint8_t* d);
 void fpu_fbld(x64emu_t* emu, uint8_t* s);
 

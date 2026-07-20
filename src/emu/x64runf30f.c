@@ -108,14 +108,16 @@ uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr, int* step)
         GETEX(0);
         GETGD;
         if (rex.w) {
-            if(isnanf(EX->f[0]) || isinff(EX->f[0]) || EX->f[0]>=(float)0x7fffffffffffffffLL)
+            if(isnanf(EX->f[0]) || isinff(EX->f[0]) || EX->f[0]>=(float)0x7fffffffffffffffLL) {
+                mxcsr_raise_invalid(emu);
                 GD->q[0] = 0x8000000000000000LL;
-            else
+            } else
                 GD->sq[0] = EX->f[0];
         } else {
-            if(isnanf(EX->f[0]) || isinff(EX->f[0]) || EX->f[0]>=(float)0x7fffffff)
+            if(isnanf(EX->f[0]) || isinff(EX->f[0]) || EX->f[0]>=(float)0x7fffffff) {
+                mxcsr_raise_invalid(emu);
                 GD->dword[0] = 0x80000000;
-            else
+            } else
                 GD->sdword[0] = EX->f[0];
             GD->dword[1] = 0;
         }
@@ -125,9 +127,10 @@ uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr, int* step)
         GETEX(0);
         GETGD;
         if(rex.w) {
-            if(isnanf(EX->f[0]) || isinff(EX->f[0]) || EX->f[0]>=(float)0x7fffffffffffffffLL)
+            if(isnanf(EX->f[0]) || isinff(EX->f[0]) || EX->f[0]>=(float)0x7fffffffffffffffLL) {
+                mxcsr_raise_invalid(emu);
                 GD->q[0] = 0x8000000000000000LL;
-            else
+            } else
                 switch(emu->mxcsr.f.MXCSR_RC) {
                     case ROUND_Nearest: {
                         int round = fegetround();
@@ -170,8 +173,10 @@ uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr, int* step)
                 }
             if (tmp64s==(int32_t)tmp64s)
                 GD->sdword[0] = (int32_t)tmp64s;
-            else
+            else {
+                mxcsr_raise_invalid(emu);
                 GD->sdword[0] = INT32_MIN;
+            }
             GD->dword[1] = 0;
         }
         break;
@@ -289,6 +294,7 @@ uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr, int* step)
             if (tmp64s==(int32_t)tmp64s) {
                 GX->sd[i] = (int32_t)tmp64s;
             } else {
+                mxcsr_raise_invalid(emu);
                 GX->sd[i] = INT32_MIN;
             }
         }
