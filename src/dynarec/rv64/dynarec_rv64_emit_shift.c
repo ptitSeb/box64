@@ -966,9 +966,8 @@ void emit_ror32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         SET_DFNONE();
     }
 
-    IFX (X_CF | X_OF) {
-        ANDI(xFlags, xFlags, ~(1UL << F_CF | 1UL << F_OF2));
-    }
+    IFX (X_CF) ANDI(xFlags, xFlags, ~(1UL << F_CF));
+    IFX (X_OF) ANDI(xFlags, xFlags, ~(1UL << F_OF2));
 
     IFX (X_OF) {
         SRLIxw(s3, s1, rex.w ? 63 : 31);
@@ -1042,9 +1041,8 @@ void emit_rol32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
         return;
     }
 
-    IFX (X_CF | X_OF) {
-        ANDI(xFlags, xFlags, ~(1UL << F_CF | 1UL << F_OF2));
-    }
+    IFX (X_CF) ANDI(xFlags, xFlags, ~(1UL << F_CF));
+    IFX (X_OF) ANDI(xFlags, xFlags, ~(1UL << F_OF2));
 
     IFX (X_OF) {
         SRLIxw(s3, s1, rex.w ? 62 : 30);

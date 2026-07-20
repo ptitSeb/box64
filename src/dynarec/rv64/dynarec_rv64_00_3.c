@@ -155,7 +155,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     u8 = geted_ib(dyn, addr, ninst, nextop) & (rex.w ? 0x3f : 0x1f);
                     // flags are not affected if count is 0, we make it a nop if possible.
                     if (u8) {
-                        SETFLAGS(X_OF | X_CF, SF_SUBSET_PENDING, NAT_FLAGS_FUSION);
+                        SETFLAGS((!BOX64ENV(cputype) && (u8 > 1) && MODREG) ? X_CF : (X_OF | X_CF), SF_SUBSET_PENDING, NAT_FLAGS_FUSION);
                         GETED(1);
                         F8;
                         emit_rol32c(dyn, ninst, rex, ed, u8, x3, x4);
@@ -175,7 +175,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     u8 = geted_ib(dyn, addr, ninst, nextop) & (rex.w ? 0x3f : 0x1f);
                     // flags are not affected if count is 0, we make it a nop if possible.
                     if (u8) {
-                        SETFLAGS(X_OF | X_CF, SF_SUBSET_PENDING, NAT_FLAGS_FUSION);
+                        SETFLAGS((!BOX64ENV(cputype) && (u8 > 1) && MODREG) ? X_CF : (X_OF | X_CF), SF_SUBSET_PENDING, NAT_FLAGS_FUSION);
                         GETED(1);
                         F8;
                         emit_ror32c(dyn, ninst, rex, ed, u8, x3, x4);
