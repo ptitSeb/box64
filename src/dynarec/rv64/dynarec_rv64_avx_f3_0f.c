@@ -198,50 +198,63 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             FLW(d0, vback, vxoffset);
             FLW(d1, wback, fixedaddress);
             u8 = F8;
-            if ((u8 & 7) == 0) { // Equal
-                FEQS(x2, d0, d1);
-            } else if ((u8 & 7) == 4) { // Not Equal or unordered
-                FEQS(x2, d0, d1);
-                XORI(x2, x2, 1);
-            } else {
-                // x2 = !(isnan(d0) || isnan(d1))
-                FEQS(x3, d0, d0);
-                FEQS(x2, d1, d1);
-                AND(x2, x2, x3);
-
-                switch (u8 & 7) {
-                    case 1:
-                        BEQ_MARK(x2, xZR);
-                        FLTS(x2, d0, d1);
-                        break; // Less than
-                    case 2:
-                        BEQ_MARK(x2, xZR);
-                        FLES(x2, d0, d1);
-                        break;                      // Less or equal
-                    case 3: XORI(x2, x2, 1); break; // NaN
-                    case 5: {                       // Greater or equal or unordered
-                        BEQ_MARK2(x2, xZR);
-                        FLES(x2, d1, d0);
-                        B_MARK_nocond;
-                        break;
-                    }
-                    case 6: { // Greater or unordered, test inverted, N!=V so unordered or less than (inverted)
-                        BEQ_MARK2(x2, xZR);
-                        FLTS(x2, d1, d0);
-                        B_MARK_nocond;
-                        break;
-                    }
-                    case 7: break; // Not NaN
-                }
-
-                MARK2;
-                if ((u8 & 7) == 5 || (u8 & 7) == 6) {
-                    MOV32w(x2, 1);
-                }
-                MARK;
+            if ((u8 & 0xf) != 0x0b && (u8 & 0xf) != 0x0f) {
+                // x6 = !(isnan(d0) || isnan(d1))
+                FEQS(x4, d0, d0);
+                FEQS(x3, d1, d1);
+                AND(x6, x3, x4);
             }
-            NEG(x2, x2);
-            SW(x2, gback, gdoffset);
+
+            switch (u8 & 0x7) {
+                case 0:
+                    FEQS(x3, d0, d1);
+                    break; // Equal
+                case 1:
+                    BEQ(x6, xZR, 8);
+                    FLTS(x3, d0, d1);
+                    break; // Less than
+                case 2:
+                    BEQ(x6, xZR, 8);
+                    FLES(x3, d0, d1);
+                    break; // Less or equal
+                case 3:
+                    if (u8 & 0x8)
+                        ADDI(x3, xZR, 0);
+                    else
+                        XORI(x3, x6, 1);
+                    break; // Unordered
+                case 4:
+                    FEQS(x3, d0, d1);
+                    XORI(x3, x3, 1);
+                    break; // Not equal or unordered
+                case 5:
+                    BEQ(x6, xZR, 12);
+                    FLES(x3, d1, d0);
+                    J(8);
+                    ADDI(x3, xZR, 1);
+                    break; // Greater or equal or unordered
+                case 6:
+                    BEQ(x6, xZR, 12);
+                    FLTS(x3, d1, d0);
+                    J(8);
+                    ADDI(x3, xZR, 1);
+                    break; // Greater or unordered
+                case 7:
+                    if (u8 & 0x8)
+                        ADDI(x3, xZR, 1);
+                    else
+                        MV(x3, x6);
+                    break; // Ordered
+            }
+            if ((u8 & 0x3) != 0x3) {
+                if ((u8 & 0xC) == 0x8 || (u8 & 0xC) == 0x4) {
+                    XORI(x7, x6, 1);
+                    OR(x3, x3, x7);
+                } else
+                    AND(x3, x3, x6);
+            }
+            NEG(x3, x3);
+            SW(x3, gback, gdoffset);
             if (gd != vex.v) {
                 LWU(x2, vback, vxoffset + 4);
                 SW(x2, gback, gdoffset + 4);
