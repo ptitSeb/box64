@@ -590,6 +590,13 @@ Dump DynaRec blocks in the specified range. Available in WowBox64.
 
  * 0xXXXXXXXX-0xYYYYYYYY: Define the range where DynaBlock gets dumped (inclusive-exclusive).
 
+### BOX64_DYNAREC_DISASM
+
+Try to initialize libZydis for more readable x86 disassembly in dump, trace, crash report, etc.
+
+ * 0: Do not load Zydis for Dynarec. [Default]
+ * 1: Try to load Zydis for Dynarec.
+
 ### BOX64_DYNAREC_GDBJIT
 
 The GDBJIT debugging support, only available on build with `-DGDBJIT=ON`, enable it with gdb command: jit-reader-load /usr/local/lib/libbox64gdbjitreader.so.

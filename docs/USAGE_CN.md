@@ -727,6 +727,13 @@ x87 80 位 long double 的行为。 在 WowBox64 中可用。
 
  * 0xXXXXXXXX-0xYYYYYYYY: 定义代码块 被转储的范围（左闭右开）。
 
+### BOX64_DYNAREC_DISASM
+
+尝试初始化 libZydis，以在转储、追踪、崩溃报告等场景中获得更具可读性的 x86 反汇编结果。
+
+ * 0: 不为 Dynarec 加载 Zydis。 [默认值]
+ * 1: 尝试为 Dynarec 加载 Zydis。
+
 ### BOX64_DYNAREC_GDBJIT
 
 GDBJIT 调试支持，仅在使用 `-DGDBJIT=ON` 构建时可用，通过 gdb 命令启用：jit-reader-load /usr/local/lib/libbox64gdbjitreader.so。

@@ -477,6 +477,25 @@
     ]
   },
   {
+    "name": "BOX64_DYNAREC_DISASM",
+    "description": "Try to initialize libZydis for more readable x86 disassembly in dump, trace, crash report, etc.",
+    "category": "Debugging",
+    "wine": false,
+    "configurator": false,
+    "options": [
+      {
+        "key": "0",
+        "description": "Do not load Zydis for Dynarec.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Try to load Zydis for Dynarec.",
+        "default": false
+      }
+    ]
+  },
+  {
     "name": "BOX64_DYNAREC_FASTNAN",
     "description": "Enable or disable fast NaN handling.",
     "category": "Performance",

@@ -244,6 +244,14 @@ Dump DynaRec blocks in the specified range. Available in WowBox64.
  * 0xXXXXXXXX-0xYYYYYYYY : Define the range where DynaBlock gets dumped (inclusive-exclusive). 
 
 
+=item B<BOX64_DYNAREC_DISASM> =I<0|1>
+
+Try to initialize libZydis for more readable x86 disassembly in dump, trace, crash report, etc.
+
+ * 0 : Do not load Zydis for Dynarec. [Default]
+ * 1 : Try to load Zydis for Dynarec. 
+
+
 =item B<BOX64_DYNAREC_FASTNAN> =I<0|1>
 
 Enable or disable fast NaN handling. Available in WowBox64.

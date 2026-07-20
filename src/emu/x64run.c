@@ -78,7 +78,7 @@ x64emurun:
 #if defined(HAVE_TRACE)
         __builtin_prefetch((void*)addr, 0, 0); 
         emu->prev2_ip = emu->old_ip;
-        if(my_context->dec && IsTraceAddr(addr))
+        if(my_context->x64trace && IsTraceAddr(addr))
             PrintTrace(emu, addr, 0);
 #endif
         emu->old_ip = addr;

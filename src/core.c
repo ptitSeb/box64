@@ -471,7 +471,7 @@ static void setupZydis(box64context_t* context)
     if ((BOX64ENV(trace_init) && strcmp(BOX64ENV(trace_init), "0")) || (BOX64ENV(trace) && strcmp(BOX64ENV(trace), "0"))) {
         context->x64trace = 1;
     }
-    if (context->x64trace) {
+    if (context->x64trace || BOX64ENV(dynarec_disasm)) {
         printf_log(LOG_INFO, "Initializing Zydis lib\n");
         if (InitX64Trace(context)) {
             printf_log(LOG_INFO, "Zydis init failed. No x86 trace activated\n");
