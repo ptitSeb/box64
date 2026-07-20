@@ -53,6 +53,7 @@ void PrintHostCpuFeatures(void)
     if (cpuext.zbc) printf_log_prefix(0, LOG_INFO, "_zbc");
     if (cpuext.zbs) printf_log_prefix(0, LOG_INFO, "_zbs");
     if (cpuext.zicbom) printf_log_prefix(0, LOG_INFO, "_zicbom");
+    if (cpuext.zicbop) printf_log_prefix(0, LOG_INFO, "_zicbop");
     if (cpuext.vector && !cpuext.xtheadvector) printf_log_prefix(0, LOG_INFO, "_zvl%d", cpuext.vlen * 8);
     if (cpuext.xtheadba) printf_log_prefix(0, LOG_INFO, "_xtheadba");
     if (cpuext.xtheadbb) printf_log_prefix(0, LOG_INFO, "_xtheadbb");
