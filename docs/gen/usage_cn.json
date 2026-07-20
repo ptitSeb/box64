@@ -168,6 +168,13 @@
       "0xXXXXXXXX-0xYYYYYYYY": "定义代码块 被转储的范围（左闭右开）。"
     }
   },
+  "BOX64_DYNAREC_DISASM": {
+    "description": "尝试初始化 libZydis，以在转储、追踪、崩溃报告等场景中获得更具可读性的 x86 反汇编结果。",
+    "options": {
+      "0": "不为 Dynarec 加载 Zydis。",
+      "1": "尝试为 Dynarec 加载 Zydis。"
+    }
+  },
   "BOX64_DYNAREC_FASTNAN": {
     "description": "启用或禁用快速 NaN 处理。",
     "options": {
