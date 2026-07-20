@@ -1063,7 +1063,8 @@ void updateRspMerge(dynarec_la64_t* dyn, int is32bits)
         inst->rsp_entry = 0;
         inst->rsp_flush = 0;
         inst->rsp_merge = 0;
-        int class = inst->x64.alive ? inst->rsp_class : RSP_CLASS_BARRIER;
+        // Note: trace with rsp merge is allowed on purpose.
+        int class = (inst->x64.alive && !BOX64ENV(dynarec_test)) ? inst->rsp_class : RSP_CLASS_BARRIER;
         if (pending && (class == RSP_CLASS_BARRIER || (i == 0) || (inst->pred_sz != 1) || (inst->pred[0] != i - 1))) {
             dyn->insts[last_pushpop].rsp_flush = pending;
             pending = 0;
