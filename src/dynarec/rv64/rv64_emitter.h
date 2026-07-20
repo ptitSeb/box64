@@ -522,6 +522,12 @@
 #define CBO_FLUSH(rs1) EMIT((0b000000000010 << 20) | CBOM_BASE(rs1))
 #define CBO_INVAL(rs1) EMIT((0b000000000000 << 20) | CBOM_BASE(rs1))
 
+// Zicbop
+#define CBOP_BASE(rs1, imm12) (((((imm12) >> 5) & 0x7F) << 25) | ((rs1) << 15) | (0b110 << 12) | (0b00000 << 7) | 0b0010011)
+#define CBO_PREFETCH_I(rs1, imm12) EMIT(CBOP_BASE(rs1, imm12) | (0b00000 << 20))
+#define CBO_PREFETCH_R(rs1, imm12) EMIT(CBOP_BASE(rs1, imm12) | (0b00001 << 20))
+#define CBO_PREFETCH_W(rs1, imm12) EMIT(CBOP_BASE(rs1, imm12) | (0b00011 << 20))
+
 #define EBREAK() EMIT(I_type(1, 0, 0, 0, 0b1110011))
 
 // RV64I

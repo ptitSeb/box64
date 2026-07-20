@@ -167,10 +167,24 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x0D:
             nextop = F8;
             switch ((nextop >> 3) & 7) {
-                case 1:
-                    INST_NAME("PREFETCHW");
-                    // nop without Zicbom, Zicbop, Zicboz extensions
-                    FAKEED;
+                case 0:
+                    INST_NAME("PREFETCH");
+                    if (cpuext.zicbop) {
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 0);
+                        CBO_PREFETCH_R(ed, 0);
+                    } else {
+                        FAKEED;
+                    }
+                    break;
+                case 1: // PREFETCHW
+                case 2: // PREFETCHWT1
+                    INST_NAME("PREFETCHWh");
+                    if (cpuext.zicbop) {
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 0);
+                        CBO_PREFETCH_W(ed, 0);
+                    } else {
+                        FAKEED;
+                    }
                     break;
                 default: //???
                     DEFAULT;
@@ -302,11 +316,19 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else
                 switch ((nextop >> 3) & 7) {
                     case 0:
+                        INST_NAME("PREFETCHNTA Ed");
+                        FAKEED;
+                        break;
                     case 1:
                     case 2:
                     case 3:
                         INST_NAME("PREFETCHh Ed");
-                        FAKEED;
+                        if (cpuext.zicbop) {
+                            addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 0);
+                            CBO_PREFETCH_R(ed, 0);
+                        } else {
+                            FAKEED;
+                        }
                         break;
                     default:
                         INST_NAME("NOP (multibyte)");
