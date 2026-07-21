@@ -689,7 +689,7 @@ static int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, int 
                 break;
             case R_X86_64_RELATIVE:
                 printf_dump(LOG_NEVER, "Apply %s R_X86_64_RELATIVE @%p (%p -> %p)\n", BindSym(bind), p, *(void**)p, (void*)(head->delta+ rela[i].r_addend));
-                *p = head->delta+ rela[i].r_addend;
+                *p = (uintptr_t)getAlternate((void*)(head->delta+ rela[i].r_addend));
                 break;
             case R_X86_64_IRELATIVE:
                 {
@@ -739,7 +739,7 @@ static int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, int 
                             printf_log((bind==STB_WEAK)?LOG_DEBUG:LOG_NONE, "%s: Global Symbol %s not found, cannot apply R_X86_64_GLOB_DAT @%p (%p) in %s\n", (bind==STB_WEAK)?"Warning":"Error", symname, p, *(void**)p, head->name);
                     } else {
                         printf_dump(LOG_NEVER, "Apply %s R_X86_64_GLOB_DAT @%p (%p -> %p) on sym=%s (%sver=%d/%s, elf=%s)\n", BindSym(bind), p, (void*)(p?(*p):0), (void*)(offs + rela[i].r_addend), symname, veropt?"opt":"", version, vername?vername:"(none)", sym_elf?sym_elf->name:"(native)");
-                        *p = offs + rela[i].r_addend;
+                        *p = (uintptr_t)getAlternate((void*)(offs + rela[i].r_addend));
                         if(sym_elf && sym_elf!=last_elf && sym_elf!=head) last_elf = checkElfLib(head, sym_elf->lib);
                     }
                 }
@@ -767,7 +767,7 @@ static int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, int 
                         if(p) {
                             printf_dump(LOG_NEVER, "Apply %s R_X86_64_JUMP_SLOT @%p with sym=%s (%p -> %p / %s (%sver=%d / %s))\n",
                                 BindSym(bind), p, symname, *(void**)p, (void*)(offs+rela[i].r_addend), sym_elf?sym_elf->name:"native", veropt?"opt":"", version, vername?vername:"(none)");
-                            *p = offs + rela[i].r_addend;
+                            *p = (uintptr_t)getAlternate((void*)(offs + rela[i].r_addend));
                             if(sym_elf && sym_elf!=last_elf && sym_elf!=head) last_elf = checkElfLib(head, sym_elf->lib);
                         } else {
                             printf_log(LOG_INFO, "Warning, Symbol %s found, but Jump Slot Offset is NULL \n", symname);
@@ -795,7 +795,7 @@ static int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, int 
                 } else {
                     printf_dump(LOG_NEVER, "Apply %s R_X86_64_64 @%p with sym=%s (%sver=%d/%s) addend=0x%lx (%p -> %p)\n",
                         BindSym(bind), p, symname, veropt?"opt":"", version, vername?vername:"(none)", rela[i].r_addend, *(void**)p, (void*)(offs+rela[i].r_addend/*+*(uint64_t*)p*/));
-                    *p /*+*/= offs+rela[i].r_addend;
+                    *p = (uintptr_t)getAlternate((void*)(offs+rela[i].r_addend));
                     if(sym_elf && sym_elf!=last_elf && sym_elf!=head) last_elf = checkElfLib(head, sym_elf->lib);
                 }
                 break;
