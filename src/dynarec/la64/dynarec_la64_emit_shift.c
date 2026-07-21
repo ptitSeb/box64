@@ -825,7 +825,10 @@ void emit_shr32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
             BSTRINS_D(s3, xZR, F_AF, F_AF);
             X64_SET_EFLAGS(s3, X_OF | X_AF);
         }
-        SRL_D(s1, s1, s2);
+        if (rex.w)
+            SRL_D(s1, s1, s2);
+        else
+            SRL_W(s1, s1, s2);
         if (NEED_ZEROUP(s1)) ZEROUP(s1);
         IFX (X_PEND) {
             SDxw(s1, xEmu, offsetof(x64emu_t, res));
@@ -847,7 +850,10 @@ void emit_shr32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         BSTRINS_D(xFlags, s3, F_OF, F_OF);
     }
 
-    SRL_D(s1, s1, s2);
+    if (rex.w)
+        SRL_D(s1, s1, s2);
+    else
+        SRL_W(s1, s1, s2);
 
     IFX (X_SF) {
         BGE(s1, xZR, 8);
