@@ -3153,6 +3153,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0xF7:
             INST_NAME("MASKMOVDQU Gx, Ex");
             nextop = F8;
+            UP32_READ(xRDI);
             GETGX(v0, 1);
             GETEX(v1, 0, 0);
             q0 = fpu_get_scratch(dyn);

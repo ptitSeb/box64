@@ -2016,10 +2016,16 @@ void emit_rcr32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     ADDI_D(s5, s2, -1);
     IFX (X_CF) SRL_D(s3, s1, s5); // for later
 
-    SRLI_D(s4, s1, 1);
+    if (rex.w)
+        SRLI_D(s4, s1, 1);
+    else
+        SRLI_W(s4, s1, 1);
     BSTRINS_D(s4, xFlags, rex.w ? 63 : 31, rex.w ? 63 : 31); // insert cf
     BEQZ(s5, 4 + 4 * 5);                                     // goto label
-    SRL_D(s4, s4, s5);
+    if (rex.w)
+        SRL_D(s4, s4, s5);
+    else
+        SRL_W(s4, s4, s5);
     ADDI_D(s5, xZR, rex.w ? 65 : 33);
     SUB_D(s2, s5, s2);
     if (rex.w)

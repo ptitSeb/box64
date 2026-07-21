@@ -68,7 +68,8 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 switch (nextop) {
                     case 0xD0:
                         INST_NAME("XGETBV");
-                        BEQZ_MARK(xRCX);
+                        ZEROUP2(x1, xRCX);
+                        BEQZ_MARK(x1);
                         EMIT(0); // Is there any assigned illegal instruction?
                         MARK;
                         MOV32w(xRAX, 0b111);
@@ -2493,6 +2494,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xF7:
             INST_NAME("MASKMOVQ Gm, Em");
             nextop = F8;
+            UP32_READ(xRDI);
             GETGM(v0);
             GETEM(v1, 0);
             q0 = fpu_get_scratch(dyn);

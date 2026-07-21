@@ -92,6 +92,7 @@ uintptr_t dynarec64_AVX_F2_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             GETGDd;
             GETED(0);
             GETVDsd;
+            MARKREGs(xRDX);
             if (rex.w) {
                 if ((gd == xRDX) || (gd == ed) || (gd == vd))
                     gb1 = x3;

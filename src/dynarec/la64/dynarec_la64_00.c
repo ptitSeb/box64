@@ -1159,11 +1159,13 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             i64 = F8S;
                         if (i64 >= 0 && i64 <= 4095) {
                             ANDI(ed, ed, i64);
+                            UP32_WRITE64(ed);
                         } else {
                             la64_move32(dyn, ninst, x3, (int32_t)i64, 0);
                             AND(ed, ed, x3);
+                            UP32_WRITE32(ed);
+                            if (NEED_ZEROUP32(ed)) ZEROUP(ed);
                         }
-                        UP32_WRITE64(ed);
                         break;
                     }
                     GETEDsd((opcode == 0x81) ? 4 : 1);
@@ -1507,11 +1509,13 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 INST_NAME("MOV Seg, Ed");
                 if (MODREG) {
                     ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                    BSTRPICK_D(x2, ed, 15, 0);
+                    ed = x2;
                 } else {
                     SMREAD();
                     addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
-                    LD_HU(x1, ed, fixedaddress);
-                    ed = x1;
+                    LD_HU(x2, ed, fixedaddress);
+                    ed = x2;
                 }
                 ST_H(ed, xEmu, offsetof(x64emu_t, segs[u8]));
                 if ((u8 == _FS) || (u8 == _GS)) {
@@ -1843,6 +1847,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             switch (rex.rep) {
                 case 1:
                 case 2:
+                    UP32_READ(xRCX);
                     if (rex.rep == 1) {
                         INST_NAME("REPNZ CMPSB");
                     } else {
@@ -4083,6 +4088,10 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         MARKREGd(xRAX);
                         MARKREGd(xRDX);
                         GETED(0);
+                        if (MODREG) {
+                            ZEROUP2(x4, ed);
+                            ed = x4;
+                        }
                         if (ninst && (nextop == 0xF0)
                             && dyn->insts[ninst - 1].x64.addr
                             && *(uint8_t*)(dyn->insts[ninst - 1].x64.addr) == 0xB8
@@ -4107,10 +4116,6 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             SLLI_D(x3, xRDX, 32);
                             ZEROUP2(x2, xRAX);
                             OR(x3, x3, x2);
-                            if (MODREG) {
-                                ZEROUP2(x4, ed);
-                                ed = x4;
-                            }
                             DIV_DU(x2, x3, ed);
                             MOD_DU(xRDX, x3, ed);
                             ZEROUP2(xRAX, x2);
