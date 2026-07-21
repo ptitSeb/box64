@@ -4104,10 +4104,17 @@ EXPORT int my_semctl(int semid, int semnum, int cmd, union semun b)
 EXPORT int64_t userdata_sign = 0x1234598765ABCEF0;
 EXPORT uint32_t userdata[1024];
 
+int isProcessBox64(pid_t pid)
+{
+    if(ptrace(PTRACE_PEEKDATA, pid, &userdata_sign, NULL)==userdata_sign)
+        return 1;
+    return 0;
+}
+
 EXPORT long my_ptrace(x64emu_t* emu, int request, pid_t pid, void* addr, uint32_t* data)
 {
     if(request == PTRACE_POKEUSER) {
-        if(ptrace(PTRACE_PEEKDATA, pid, &userdata_sign, NULL)==userdata_sign  && (uintptr_t)addr < sizeof(my_x64_user_t)) {
+        if(isProcessBox64(pid)  && (uintptr_t)addr < sizeof(my_x64_user_t)) {
         //printf_log_prefix(2, LOG_INFO, "Using ptrace POKE at %p for 0x%x (userdata 0x%x)\n", addr, pid, data);
             long ret = ptrace(PTRACE_POKEDATA, pid, addr+(uintptr_t)userdata, data);
             return ret;
@@ -4124,7 +4131,7 @@ EXPORT long my_ptrace(x64emu_t* emu, int request, pid_t pid, void* addr, uint32_
         return -1;
     }
     if(request == PTRACE_PEEKUSER) {
-        if(ptrace(PTRACE_PEEKDATA, pid, &userdata_sign, NULL)==userdata_sign  && (uintptr_t)addr < sizeof(my_x64_user_t)) {
+        if(isProcessBox64(pid)  && (uintptr_t)addr < sizeof(my_x64_user_t)) {
             long ret = ptrace(PTRACE_PEEKDATA, pid, addr+(uintptr_t)userdata, data);
             if((uintptr_t)addr==offsetof(my_x64_user_t, u_debugreg[6])) {
                 // clean up DR6...
@@ -4857,13 +4864,25 @@ EXPORT long my___sysconf(x64emu_t* emu, int what) __attribute__((alias("my_sysco
 
 EXPORT int my_sched_getaffinity(x64emu_t* emu, pid_t pid, size_t sz, cpu_set_t* mask)
 {
-    if(!BOX64ENV(skipcpu))
+    uint32_t skipcpu=0, maxcpu=0;
+    if(pid && pid!=getpid()) {
+        // another process, so check if it's a box64 compatible one
+        if(isProcessBox64(pid)) {
+            // gather other process skip & maxcpu
+            skipcpu = ptrace(PTRACE_PEEKDATA, pid, &BOX64ENV(skipcpu), NULL);
+            maxcpu = ptrace(PTRACE_PEEKDATA, pid, &BOX64ENV(maxcpu), NULL);
+        }
+    } else {
+        skipcpu = BOX64ENV(skipcpu);
+        maxcpu = BOX64ENV(maxcpu);
+    }
+    if(!skipcpu)
         return sched_getaffinity(pid, sz, mask);
     uint8_t mask_[sz];
     int ret = sched_getaffinity(pid, sz, (cpu_set_t*)mask_);
     if(ret>=0) {
-        cpumask_shiftright(mask_, sz, BOX64ENV(skipcpu));
-        cpumask_maxcpu(mask, sz, BOX64ENV(maxcpu));
+        cpumask_shiftright(mask_, sz, skipcpu);
+        cpumask_maxcpu(mask, sz, maxcpu);
         memcpy(mask, mask_, sz);
     }
     return ret;
@@ -4879,12 +4898,24 @@ EXPORT int my_sched_getcpu(x64emu_t* emu)
 }
 EXPORT int my_sched_setaffinity(x64emu_t* emu, pid_t pid, size_t sz, cpu_set_t* mask)
 {
-    if(!BOX64ENV(skipcpu))
+    uint32_t skipcpu=0, maxcpu=0;
+    if(pid && pid!=getpid()) {
+        // another process, so check if it's a box64 compatible one
+        if(isProcessBox64(pid)) {
+            // gather other process skip & maxcpu
+            skipcpu = ptrace(PTRACE_PEEKDATA, pid, &BOX64ENV(skipcpu), NULL);
+            maxcpu = ptrace(PTRACE_PEEKDATA, pid, &BOX64ENV(maxcpu), NULL);
+        }
+    } else {
+        skipcpu = BOX64ENV(skipcpu);
+        maxcpu = BOX64ENV(maxcpu);
+    }
+    if(!skipcpu)
         return sched_setaffinity(pid, sz, mask);
     uint8_t mask_[sz];
     memcpy(mask_, mask, sz);
-    cpumask_maxcpu(mask, sz, BOX64ENV(maxcpu));
-    cpumask_shiftleft(mask_, sz, BOX64ENV(skipcpu));
+    cpumask_maxcpu(mask, sz, maxcpu);
+    cpumask_shiftleft(mask_, sz, skipcpu);
     return sched_setaffinity(pid, sz, (cpu_set_t*)mask_);
 }
 
