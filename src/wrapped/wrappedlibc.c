@@ -4867,10 +4867,27 @@ EXPORT int my_sched_getaffinity(x64emu_t* emu, pid_t pid, size_t sz, cpu_set_t* 
     uint32_t skipcpu=0, maxcpu=0;
     if(pid && pid!=getpid()) {
         // another process, so check if it's a box64 compatible one
-        if(isProcessBox64(pid)) {
-            // gather other process skip & maxcpu
-            skipcpu = ptrace(PTRACE_PEEKDATA, pid, &BOX64ENV(skipcpu), NULL);
-            maxcpu = ptrace(PTRACE_PEEKDATA, pid, &BOX64ENV(maxcpu), NULL);
+        int attached = 0;
+        errno = 0;
+        long test = ptrace(PTRACE_PEEKDATA, pid, (void*)0, NULL);
+        if (test == -1 && errno == ESRCH) {
+            if (ptrace(PTRACE_ATTACH, pid, NULL, NULL) != -1) {
+                int status;
+                if (waitpid(pid, &status, __WALL) != -1) {
+                    if(isProcessBox64(pid)) {
+                        // gather other process skip & maxcpu
+                        skipcpu = ptrace(PTRACE_PEEKDATA, pid, &BOX64ENV(skipcpu), NULL);
+                        maxcpu = ptrace(PTRACE_PEEKDATA, pid, &BOX64ENV(maxcpu), NULL);
+                    }
+                }
+                ptrace(PTRACE_DETACH, pid, NULL, NULL);
+            }
+        } else if(errno==0) {
+            if(isProcessBox64(pid)) {
+                // gather other process skip & maxcpu
+                skipcpu = ptrace(PTRACE_PEEKDATA, pid, &BOX64ENV(skipcpu), NULL);
+                maxcpu = ptrace(PTRACE_PEEKDATA, pid, &BOX64ENV(maxcpu), NULL);
+            }
         }
     } else {
         skipcpu = BOX64ENV(skipcpu);
@@ -4901,10 +4918,27 @@ EXPORT int my_sched_setaffinity(x64emu_t* emu, pid_t pid, size_t sz, cpu_set_t* 
     uint32_t skipcpu=0, maxcpu=0;
     if(pid && pid!=getpid()) {
         // another process, so check if it's a box64 compatible one
-        if(isProcessBox64(pid)) {
-            // gather other process skip & maxcpu
-            skipcpu = ptrace(PTRACE_PEEKDATA, pid, &BOX64ENV(skipcpu), NULL);
-            maxcpu = ptrace(PTRACE_PEEKDATA, pid, &BOX64ENV(maxcpu), NULL);
+        int attached = 0;
+        errno = 0;
+        long test = ptrace(PTRACE_PEEKDATA, pid, (void*)0, NULL);
+        if (test == -1 && errno == ESRCH) {
+            if (ptrace(PTRACE_ATTACH, pid, NULL, NULL) != -1) {
+                int status;
+                if (waitpid(pid, &status, __WALL) != -1) {
+                    if(isProcessBox64(pid)) {
+                        // gather other process skip & maxcpu
+                        skipcpu = ptrace(PTRACE_PEEKDATA, pid, &BOX64ENV(skipcpu), NULL);
+                        maxcpu = ptrace(PTRACE_PEEKDATA, pid, &BOX64ENV(maxcpu), NULL);
+                    }
+                }
+                ptrace(PTRACE_DETACH, pid, NULL, NULL);
+            }
+        } else if(errno==0) {
+            if(isProcessBox64(pid)) {
+                // gather other process skip & maxcpu
+                skipcpu = ptrace(PTRACE_PEEKDATA, pid, &BOX64ENV(skipcpu), NULL);
+                maxcpu = ptrace(PTRACE_PEEKDATA, pid, &BOX64ENV(maxcpu), NULL);
+            }
         }
     } else {
         skipcpu = BOX64ENV(skipcpu);
