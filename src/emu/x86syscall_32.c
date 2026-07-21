@@ -333,7 +333,7 @@ void EXPORT x86Syscall(x64emu_t *emu)
                 case 5: *(int32_t*)&R_EAX = syscall(sc, R_EBX, R_ECX, R_EDX, R_ESI, R_EDI); break;
                 case 6: *(int32_t*)&R_EAX = syscall(sc, R_EBX, R_ECX, R_EDX, R_ESI, R_EDI, R_EBP); break;
                 default:
-                   printf_log(LOG_NONE, "ERROR, Unimplemented syscall wrapper (%d, %d)\n", s, syscallwrap[i].nbpars); 
+                   printf_log(LOG_NONE, "ERROR, Unimplemented syscall 32 wrapper (%d, %d)\n", s, syscallwrap[i].nbpars); 
                    emu->quit = 1;
                    return;
             }
@@ -551,7 +551,7 @@ void EXPORT x86Syscall(x64emu_t *emu)
             #endif
             break;
         default:
-            printf_log(LOG_INFO, "Warning: Unsupported Syscall 0x%02Xh (%d)\n", s, s);
+            printf_log(LOG_INFO, "Warning: Unsupported Syscall 32 0x%02Xh (%d)\n", s, s);
             R_EAX = (uint32_t)-ENOSYS;
             return;
     }
@@ -787,11 +787,11 @@ uint32_t EXPORT my32_syscall(x64emu_t *emu, uint32_t s, ptr_t* b)
         default:
             if((s>>6)<sizeof(warned)/sizeof(warned[0])) {
                 if(!(warned[s>>6]&(1<<(s&0x3f)))) {
-                    printf_log(LOG_INFO, "Warning: Unsupported libc Syscall 0x%02X (%d)\n", s, s);
+                    printf_log(LOG_INFO, "Warning: Unsupported libc Syscall 32 0x%02X (%d)\n", s, s);
                     warned[s>>6] |= (1<<(s&0x3f));
                 }
             } else
-                printf_log(LOG_INFO, "Warning: Unsupported libc Syscall 0x%02X (%d)\n", s, s);
+                printf_log(LOG_INFO, "Warning: Unsupported libc Syscall 32 0x%02X (%d)\n", s, s);
             errno = ENOSYS;
             return -1;
     }
