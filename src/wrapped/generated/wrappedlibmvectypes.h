@@ -15,10 +15,26 @@ typedef void (*vFv_t)(void);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(_ZGVbN2v_cos, vFv_t) \
+	GO(_ZGVbN2v_exp, vFv_t) \
+	GO(_ZGVbN2v_log, vFv_t) \
 	GO(_ZGVbN2v_sin, vFv_t) \
 	GO(_ZGVbN2vv_pow, vFv_t) \
 	GO(_ZGVbN4v_cosf, vFv_t) \
+	GO(_ZGVbN4v_expf, vFv_t) \
+	GO(_ZGVbN4v_logf, vFv_t) \
 	GO(_ZGVbN4v_sinf, vFv_t) \
-	GO(_ZGVbN4vv_powf, vFv_t)
+	GO(_ZGVbN4vv_powf, vFv_t) \
+	GO(_ZGVcN4v_exp, vFv_t) \
+	GO(_ZGVcN4v_log, vFv_t) \
+	GO(_ZGVcN4vv_pow, vFv_t) \
+	GO(_ZGVcN8v_expf, vFv_t) \
+	GO(_ZGVcN8v_logf, vFv_t) \
+	GO(_ZGVcN8vv_powf, vFv_t) \
+	GO(_ZGVdN4v_exp, vFv_t) \
+	GO(_ZGVdN4v_log, vFv_t) \
+	GO(_ZGVdN4vv_pow, vFv_t) \
+	GO(_ZGVdN8v_expf, vFv_t) \
+	GO(_ZGVdN8v_logf, vFv_t) \
+	GO(_ZGVdN8vv_powf, vFv_t)
 
 #endif // __wrappedlibmvecTYPES_H_
