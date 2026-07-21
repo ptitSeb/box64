@@ -32,26 +32,16 @@ void emit_add32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     }
     IFX (X_CF) {
         if (rex.w) {
-            ZEXTW2(s5, s1);
-            if (cpuext.zba) // lo
-                ADDUW(s5, s2, s5);
-            else {
-                ZEXTW2(s4, s2);
-                ADD(s5, s5, s4);
-            }
-            SRLI(s3, s1, 0x20);
-            SRLI(s4, s2, 0x20);
-            ADD(s4, s4, s3);
-            SRLI(s5, s5, 0x20);
-            ADD(s5, s5, s4); // hi
-            SRAI(s5, s5, 0x20);
+            ADD(s5, s1, s2);
+            SLTU(s5, s5, s1);
+            OR(xFlags, xFlags, s5);
         } else {
             ZEXTW2(s3, s1);
             ZEXTW2(s4, s2);
             ADD(s5, s3, s4);
             SRLI(s5, s5, 0x20);
+            SET_FLAGS_NEZ(s5, F_CF, s4);
         }
-        SET_FLAGS_NEZ(s5, F_CF, s4);
     }
     IFX (X_AF | X_OF) {
         OR(s3, s1, s2);  // s3 = op1 | op2
@@ -127,26 +117,16 @@ void emit_add32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
     }
     IFX (X_CF) {
         if (rex.w) {
-            ZEXTW2(s5, s1);
-            if (cpuext.zba) // lo
-                ADDUW(s5, s2, s5);
-            else {
-                ZEXTW2(s4, s2);
-                ADD(s5, s5, s4);
-            }
-            SRLI(s3, s1, 0x20);
-            SRLI(s4, s2, 0x20);
-            ADD(s4, s4, s3);
-            SRLI(s5, s5, 0x20);
-            ADD(s5, s5, s4); // hi
-            SRAI(s5, s5, 0x20);
+            ADD(s5, s1, s2);
+            SLTU(s5, s5, s1);
+            OR(xFlags, xFlags, s5);
         } else {
             ZEXTW2(s3, s1);
             ZEXTW2(s4, s2);
             ADD(s5, s3, s4);
             SRLI(s5, s5, 0x20);
+            SET_FLAGS_NEZ(s5, F_CF, s4);
         }
-        SET_FLAGS_NEZ(s5, F_CF, s4);
     }
     IFX (X_AF | X_OF) {
         OR(s3, s1, s2);  // s3 = op1 | op2
