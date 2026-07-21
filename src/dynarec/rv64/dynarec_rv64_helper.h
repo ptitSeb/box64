@@ -186,8 +186,7 @@
 // GETGW extract x64 register in gd, that is i, Signed extented
 #define GETSGW(i)                                       \
     gd = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3)); \
-    SLLIW(i, gd, 16);                                   \
-    SRAIW(i, i, 16);                                    \
+    SEXTH(i, gd);                                       \
     gd = i;
 
 // Write back ed in wback (if wback not 0)
@@ -237,9 +236,13 @@
             wb2 = (wback >> 2) * 8;                                                             \
             wback = TO_NAT(wback & 3);                                                          \
         }                                                                                       \
-        MV(i, wback);                                                                           \
-        SLLIW(i, i, 24 - wb2);                                                                  \
-        SRAIW(i, i, 24);                                                                        \
+        if (cpuext.zbb && (wb2 == 0)) {                                                         \
+            SEXTB(i, wback);                                                                    \
+        } else {                                                                                \
+            MV(i, wback);                                                                       \
+            SLLIW(i, i, 24 - wb2);                                                              \
+            SRAIW(i, i, 24);                                                                    \
+        }                                                                                       \
         wb1 = 0;                                                                                \
         ed = i;                                                                                 \
     } else {                                                                                    \
