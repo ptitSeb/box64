@@ -1316,6 +1316,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
         case 0xF7:
             INST_NAME("VMASKMOVDQU Gx, Ex");
             nextop = F8;
+            UP32_READ(xRDI);
             GETEYx(v1, 0, 0);
             GETGYx(v0, 0);
             q0 = fpu_get_scratch(dyn);

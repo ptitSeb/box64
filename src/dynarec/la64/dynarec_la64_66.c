@@ -758,11 +758,12 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 INST_NAME("MOV Seg, Ew");
                 if (MODREG) {
                     ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                    BSTRPICK_D(x2, ed, 15, 0);
                 } else {
                     SMREAD();
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, 0);
-                    LD_HU(x1, wback, fixedaddress);
-                    ed = x1;
+                    LD_HU(x2, wback, fixedaddress);
+                    ed = x2;
                 }
                 ST_H(ed, xEmu, offsetof(x64emu_t, segs[u8]));
                 if ((u8 == _FS) || (u8 == _GS)) {
@@ -889,7 +890,10 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             return dynarec64_00(dyn, addr - 1, ip, ninst, rex, ok, need_epilog);
             break;
         case 0xA5:
+            UP32_READ(xRSI);
+            UP32_READ(xRDI);
             if (rex.rep) {
+                UP32_READ(xRCX);
                 INST_NAME("REP MOVSW");
                 CBZ_NEXT(xRCX);
                 if (rex.is67 && !rex.is32bits) {
@@ -936,9 +940,12 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             SMWRITE();
             break;
         case 0xA7:
+            UP32_READ(xRSI);
+            UP32_READ(xRDI);
             switch (rex.rep) {
                 case 1:
                 case 2:
+                    UP32_READ(xRCX);
                     if (rex.rep == 1) {
                         INST_NAME("REPNZ CMPSW");
                     } else {
@@ -1009,7 +1016,9 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             emit_test16(dyn, ninst, x1, x2, x3, x4, x5);
             break;
         case 0xAB:
+            UP32_READ(xRDI);
             if (rex.rep) {
+                UP32_READ(xRCX);
                 INST_NAME("REP STOSW");
                 CBZ_NEXT(xRCX);
                 if (rex.is67 && !rex.is32bits) {
@@ -1041,6 +1050,7 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             SMWRITE();
             break;
         case 0xAD:
+            UP32_READ(xRSI);
             if (rex.rep) {
                 DEFAULT;
             } else {
@@ -1055,9 +1065,12 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             break;
         case 0xAF:
+            UP32_READ(xRDI);
+            if (rex.w) MARKREGs(xRAX);
             switch (rex.rep) {
                 case 1:
                 case 2:
+                    UP32_READ(xRCX);
                     if (rex.rep == 1) {
                         INST_NAME("REPNZ SCASW");
                     } else {
