@@ -55,17 +55,9 @@ void emit_add32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     CLEAR_FLAGS(s3);
     IFX (X_CF) {
         if (rex.w) {
-            ZEROUP2(s5, s1);
-            ZEROUP2(s4, s2);
-            ADD_D(s5, s5, s4);
-            SRLI_D(s3, s1, 0x20);
-            SRLI_D(s4, s2, 0x20);
-            ADD_D(s4, s4, s3);
-            SRLI_D(s5, s5, 0x20);
-            ADD_D(s5, s5, s4); // hi
-            SRAI_D(s5, s5, 0x20);
-            BEQZ(s5, 8);
-            ORI(xFlags, xFlags, 1 << F_CF);
+            ADD_D(s5, s1, s2); // s5 = op1 + op2
+            SLTU(s5, s5, s1);  // carry = (s5 < op1) ? 1 : 0
+            OR(xFlags, xFlags, s5);
         } else {
             ZEROUP2(s3, s1);
             ZEROUP2(s4, s2);
@@ -167,17 +159,9 @@ void emit_add32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
     CLEAR_FLAGS(s3);
     IFX (X_CF) {
         if (rex.w) {
-            ZEROUP2(s5, s1);
-            ZEROUP2(s4, s2);
-            ADD_D(s5, s5, s4);
-            SRLI_D(s3, s1, 0x20);
-            SRLI_D(s4, s2, 0x20);
-            ADD_D(s4, s4, s3);
-            SRLI_D(s5, s5, 0x20);
-            ADD_D(s5, s5, s4); // hi
-            SRAI_D(s5, s5, 0x20);
-            BEQZ(s5, 8);
-            ORI(xFlags, xFlags, 1 << F_CF);
+            ADD_D(s5, s1, s2); // s5 = op1 + op2
+            SLTU(s5, s5, s1);  // carry = (s5 < op1) ? 1 : 0
+            OR(xFlags, xFlags, s5);
         } else {
             ZEROUP2(s3, s1);
             ZEROUP2(s4, s2);
