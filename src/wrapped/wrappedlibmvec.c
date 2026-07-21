@@ -17,24 +17,29 @@
 const char* libmvecName = "libmvec.so.1";
 #define LIBNAME libmvec
 
-// GCC vector type: 2 packed doubles in 128 bits.
-// Matches x86 SSE2 __m128d and aarch64 NEON float64x2_t layout.
+// _ZGV wrappers read vector arguments from guest SIMD registers directly:
+// b/SSE uses xmmN; c/AVX and d/AVX2 use xmmN for the low 128 bits and
+// ymmN for the high 128 bits. "vv" functions take the second vector from
+// xmm1/ymm1 and return the result in xmm0/ymm0.
 typedef double v2df __attribute__((vector_size(16)));
 typedef v2df (*v2df_func_t)(v2df);
 typedef v2df (*v2df_v2df_func_t)(v2df, v2df);
 
-/// GCC vector type: 4 packed floats in 128 bits.
 typedef float v4sf __attribute__((vector_size(16)));
 typedef v4sf (*v4sf_func_t)(v4sf);
 typedef v4sf (*v4sf_v4sf_func_t)(v4sf, v4sf);
 
 static v2df_func_t native_v2d_sin = NULL;
 static v2df_func_t native_v2d_cos = NULL;
+static v2df_func_t native_v2d_exp = NULL;
+static v2df_func_t native_v2d_log = NULL;
 static v2df_v2df_func_t native_v2d_pow = NULL;
 
 static v4sf_func_t native_v4f_acosf = NULL;
 static v4sf_func_t native_v4f_sinf = NULL;
 static v4sf_func_t native_v4f_cosf = NULL;
+static v4sf_func_t native_v4f_expf = NULL;
+static v4sf_func_t native_v4f_logf = NULL;
 static v4sf_v4sf_func_t native_v4f_powf = NULL;
 
 // Native libmvec symbol names per architecture.
@@ -43,24 +48,85 @@ static v4sf_v4sf_func_t native_v4f_powf = NULL;
 #ifdef ARM64
 #define NATIVE_SIN_NAME "_ZGVnN2v_sin"
 #define NATIVE_COS_NAME "_ZGVnN2v_cos"
+#define NATIVE_EXP_NAME "_ZGVnN2v_exp"
+#define NATIVE_LOG_NAME "_ZGVnN2v_log"
 #define NATIVE_POW_NAME "_ZGVnN2vv_pow"
 #define NATIVE_ACOSF4_NAME "_ZGVnN4v_acosf"
 #define NATIVE_SINF4_NAME "_ZGVnN4v_sinf"
 #define NATIVE_COSF4_NAME "_ZGVnN4v_cosf"
+#define NATIVE_EXPF4_NAME "_ZGVnN4v_expf"
+#define NATIVE_LOGF4_NAME "_ZGVnN4v_logf"
 #define NATIVE_POWF4_NAME "_ZGVnN4vv_powf"
 #else
 #define NATIVE_SIN_NAME "_ZGVbN2v_sin"
 #define NATIVE_COS_NAME "_ZGVbN2v_cos"
+#define NATIVE_EXP_NAME "_ZGVbN2v_exp"
+#define NATIVE_LOG_NAME "_ZGVbN2v_log"
 #define NATIVE_POW_NAME "_ZGVbN2vv_pow"
 #define NATIVE_ACOSF4_NAME "_ZGVbN4v_acosf"
 #define NATIVE_SINF4_NAME "_ZGVbN4v_sinf"
 #define NATIVE_COSF4_NAME "_ZGVbN4v_cosf"
+#define NATIVE_EXPF4_NAME "_ZGVbN4v_expf"
+#define NATIVE_LOGF4_NAME "_ZGVbN4v_logf"
 #define NATIVE_POWF4_NAME "_ZGVbN4vv_powf"
 #endif
 
-// _ZGVbN2v_sin: SSE2 vectorized sin(__m128d) -> __m128d
-// Input: xmm0 = {double, double}  (2 packed doubles)
-// Output: xmm0 = {sin(d0), sin(d1)}
+static void apply_v2d_unary(x64emu_t* emu, double (*fn)(double))
+{
+    for (int i = 0; i < 2; ++i)
+        emu->xmm[0].d[i] = fn(emu->xmm[0].d[i]);
+}
+
+static void apply_v2d_binary(x64emu_t* emu, double (*fn)(double, double))
+{
+    for (int i = 0; i < 2; ++i)
+        emu->xmm[0].d[i] = fn(emu->xmm[0].d[i], emu->xmm[1].d[i]);
+}
+
+static void apply_v4f_unary(x64emu_t* emu, float (*fn)(float))
+{
+    for (int i = 0; i < 4; ++i)
+        emu->xmm[0].f[i] = fn(emu->xmm[0].f[i]);
+}
+
+static void apply_v4f_binary(x64emu_t* emu, float (*fn)(float, float))
+{
+    for (int i = 0; i < 4; ++i)
+        emu->xmm[0].f[i] = fn(emu->xmm[0].f[i], emu->xmm[1].f[i]);
+}
+
+static void apply_v4d_unary(x64emu_t* emu, double (*fn)(double))
+{
+    for (int i = 0; i < 2; ++i) {
+        emu->xmm[0].d[i] = fn(emu->xmm[0].d[i]);
+        emu->ymm[0].d[i] = fn(emu->ymm[0].d[i]);
+    }
+}
+
+static void apply_v4d_binary(x64emu_t* emu, double (*fn)(double, double))
+{
+    for (int i = 0; i < 2; ++i) {
+        emu->xmm[0].d[i] = fn(emu->xmm[0].d[i], emu->xmm[1].d[i]);
+        emu->ymm[0].d[i] = fn(emu->ymm[0].d[i], emu->ymm[1].d[i]);
+    }
+}
+
+static void apply_v8f_unary(x64emu_t* emu, float (*fn)(float))
+{
+    for (int i = 0; i < 4; ++i) {
+        emu->xmm[0].f[i] = fn(emu->xmm[0].f[i]);
+        emu->ymm[0].f[i] = fn(emu->ymm[0].f[i]);
+    }
+}
+
+static void apply_v8f_binary(x64emu_t* emu, float (*fn)(float, float))
+{
+    for (int i = 0; i < 4; ++i) {
+        emu->xmm[0].f[i] = fn(emu->xmm[0].f[i], emu->xmm[1].f[i]);
+        emu->ymm[0].f[i] = fn(emu->ymm[0].f[i], emu->ymm[1].f[i]);
+    }
+}
+
 EXPORT void my__ZGVbN2v_sin(x64emu_t* emu)
 {
     if (native_v2d_sin) {
@@ -69,14 +135,10 @@ EXPORT void my__ZGVbN2v_sin(x64emu_t* emu)
         result = native_v2d_sin(input);
         memcpy(&emu->xmm[0], &result, sizeof(v2df));
     } else {
-        emu->xmm[0].d[0] = sin(emu->xmm[0].d[0]);
-        emu->xmm[0].d[1] = sin(emu->xmm[0].d[1]);
+        apply_v2d_unary(emu, sin);
     }
 }
 
-// _ZGVbN2v_cos: SSE2 vectorized cos(__m128d) -> __m128d
-// Input: xmm0 = {double, double}  (2 packed doubles)
-// Output: xmm0 = {cos(d0), cos(d1)}
 EXPORT void my__ZGVbN2v_cos(x64emu_t* emu)
 {
     if (native_v2d_cos) {
@@ -85,8 +147,31 @@ EXPORT void my__ZGVbN2v_cos(x64emu_t* emu)
         result = native_v2d_cos(input);
         memcpy(&emu->xmm[0], &result, sizeof(v2df));
     } else {
-        emu->xmm[0].d[0] = cos(emu->xmm[0].d[0]);
-        emu->xmm[0].d[1] = cos(emu->xmm[0].d[1]);
+        apply_v2d_unary(emu, cos);
+    }
+}
+
+EXPORT void my__ZGVbN2v_exp(x64emu_t* emu)
+{
+    if (native_v2d_exp) {
+        v2df input, result;
+        memcpy(&input, &emu->xmm[0], sizeof(v2df));
+        result = native_v2d_exp(input);
+        memcpy(&emu->xmm[0], &result, sizeof(v2df));
+    } else {
+        apply_v2d_unary(emu, exp);
+    }
+}
+
+EXPORT void my__ZGVbN2v_log(x64emu_t* emu)
+{
+    if (native_v2d_log) {
+        v2df input, result;
+        memcpy(&input, &emu->xmm[0], sizeof(v2df));
+        result = native_v2d_log(input);
+        memcpy(&emu->xmm[0], &result, sizeof(v2df));
+    } else {
+        apply_v2d_unary(emu, log);
     }
 }
 
@@ -98,10 +183,7 @@ EXPORT void my__ZGVbN4v_acosf(x64emu_t* emu)
         result = native_v4f_acosf(input);
         memcpy(&emu->xmm[0], &result, sizeof(v4sf));
     } else {
-        emu->xmm[0].f[0] = acosf(emu->xmm[0].f[0]);
-        emu->xmm[0].f[1] = acosf(emu->xmm[0].f[1]);
-        emu->xmm[0].f[2] = acosf(emu->xmm[0].f[2]);
-        emu->xmm[0].f[3] = acosf(emu->xmm[0].f[3]);
+        apply_v4f_unary(emu, acosf);
     }
 }
 
@@ -113,10 +195,7 @@ EXPORT void my__ZGVbN4v_sinf(x64emu_t* emu)
         result = native_v4f_sinf(input);
         memcpy(&emu->xmm[0], &result, sizeof(v4sf));
     } else {
-        emu->xmm[0].f[0] = sinf(emu->xmm[0].f[0]);
-        emu->xmm[0].f[1] = sinf(emu->xmm[0].f[1]);
-        emu->xmm[0].f[2] = sinf(emu->xmm[0].f[2]);
-        emu->xmm[0].f[3] = sinf(emu->xmm[0].f[3]);
+        apply_v4f_unary(emu, sinf);
     }
 }
 
@@ -128,10 +207,31 @@ EXPORT void my__ZGVbN4v_cosf(x64emu_t* emu)
         result = native_v4f_cosf(input);
         memcpy(&emu->xmm[0], &result, sizeof(v4sf));
     } else {
-        emu->xmm[0].f[0] = cosf(emu->xmm[0].f[0]);
-        emu->xmm[0].f[1] = cosf(emu->xmm[0].f[1]);
-        emu->xmm[0].f[2] = cosf(emu->xmm[0].f[2]);
-        emu->xmm[0].f[3] = cosf(emu->xmm[0].f[3]);
+        apply_v4f_unary(emu, cosf);
+    }
+}
+
+EXPORT void my__ZGVbN4v_expf(x64emu_t* emu)
+{
+    if (native_v4f_expf) {
+        v4sf input, result;
+        memcpy(&input, &emu->xmm[0], sizeof(v4sf));
+        result = native_v4f_expf(input);
+        memcpy(&emu->xmm[0], &result, sizeof(v4sf));
+    } else {
+        apply_v4f_unary(emu, expf);
+    }
+}
+
+EXPORT void my__ZGVbN4v_logf(x64emu_t* emu)
+{
+    if (native_v4f_logf) {
+        v4sf input, result;
+        memcpy(&input, &emu->xmm[0], sizeof(v4sf));
+        result = native_v4f_logf(input);
+        memcpy(&emu->xmm[0], &result, sizeof(v4sf));
+    } else {
+        apply_v4f_unary(emu, logf);
     }
 }
 
@@ -144,8 +244,7 @@ EXPORT void my__ZGVbN2vv_pow(x64emu_t* emu)
         result = native_v2d_pow(base, exp);
         memcpy(&emu->xmm[0], &result, sizeof(v2df));
     } else {
-        emu->xmm[0].d[0] = pow(emu->xmm[0].d[0], emu->xmm[1].d[0]);
-        emu->xmm[0].d[1] = pow(emu->xmm[0].d[1], emu->xmm[1].d[1]);
+        apply_v2d_binary(emu, pow);
     }
 }
 
@@ -158,17 +257,74 @@ EXPORT void my__ZGVbN4vv_powf(x64emu_t* emu)
         result = native_v4f_powf(base, exp);
         memcpy(&emu->xmm[0], &result, sizeof(v4sf));
     } else {
-        emu->xmm[0].f[0] = powf(emu->xmm[0].f[0], emu->xmm[1].f[0]);
-        emu->xmm[0].f[1] = powf(emu->xmm[0].f[1], emu->xmm[1].f[1]);
-        emu->xmm[0].f[2] = powf(emu->xmm[0].f[2], emu->xmm[1].f[2]);
-        emu->xmm[0].f[3] = powf(emu->xmm[0].f[3], emu->xmm[1].f[3]);
+        apply_v4f_binary(emu, powf);
     }
 }
 
+EXPORT void my__ZGVcN4v_exp(x64emu_t* emu)
+{
+    apply_v4d_unary(emu, exp);
+}
 
-// Try to load the native libmvec.so.1 and resolve vectorized sin/cos.
+EXPORT void my__ZGVcN4v_log(x64emu_t* emu)
+{
+    apply_v4d_unary(emu, log);
+}
+
+EXPORT void my__ZGVcN4vv_pow(x64emu_t* emu)
+{
+    apply_v4d_binary(emu, pow);
+}
+
+EXPORT void my__ZGVcN8v_expf(x64emu_t* emu)
+{
+    apply_v8f_unary(emu, expf);
+}
+
+EXPORT void my__ZGVcN8v_logf(x64emu_t* emu)
+{
+    apply_v8f_unary(emu, logf);
+}
+
+EXPORT void my__ZGVcN8vv_powf(x64emu_t* emu)
+{
+    apply_v8f_binary(emu, powf);
+}
+
+EXPORT void my__ZGVdN4v_exp(x64emu_t* emu)
+{
+    apply_v4d_unary(emu, exp);
+}
+
+EXPORT void my__ZGVdN4v_log(x64emu_t* emu)
+{
+    apply_v4d_unary(emu, log);
+}
+
+EXPORT void my__ZGVdN4vv_pow(x64emu_t* emu)
+{
+    apply_v4d_binary(emu, pow);
+}
+
+EXPORT void my__ZGVdN8v_expf(x64emu_t* emu)
+{
+    apply_v8f_unary(emu, expf);
+}
+
+EXPORT void my__ZGVdN8v_logf(x64emu_t* emu)
+{
+    apply_v8f_unary(emu, logf);
+}
+
+EXPORT void my__ZGVdN8vv_powf(x64emu_t* emu)
+{
+    apply_v8f_binary(emu, powf);
+}
+
+
+// Try to load the native libmvec.so.1 and resolve vectorized math helpers.
 // On aarch64 and x86_64: native libmvec exists in glibc, use it.
-// On ppc64le and others: dlopen fails, fall back to scalar sin/cos.
+// On ppc64le and others: dlopen fails, fall back to scalar math functions.
 #define PRE_INIT                                                                    \
     if (1) {                                                                        \
         void* native = dlopen("libmvec.so.1", RTLD_LAZY);                           \
@@ -176,10 +332,14 @@ EXPORT void my__ZGVbN4vv_powf(x64emu_t* emu)
             lib->w.lib = native;                                                    \
             native_v2d_sin = (v2df_func_t)dlsym(native, NATIVE_SIN_NAME);           \
             native_v2d_cos = (v2df_func_t)dlsym(native, NATIVE_COS_NAME);           \
+            native_v2d_exp = (v2df_func_t)dlsym(native, NATIVE_EXP_NAME);           \
+            native_v2d_log = (v2df_func_t)dlsym(native, NATIVE_LOG_NAME);           \
             native_v2d_pow = (v2df_v2df_func_t)dlsym(native, NATIVE_POW_NAME);      \
             native_v4f_acosf = (v4sf_func_t)dlsym(native, NATIVE_ACOSF4_NAME);      \
             native_v4f_sinf = (v4sf_func_t)dlsym(native, NATIVE_SINF4_NAME);        \
             native_v4f_cosf = (v4sf_func_t)dlsym(native, NATIVE_COSF4_NAME);        \
+            native_v4f_expf = (v4sf_func_t)dlsym(native, NATIVE_EXPF4_NAME);        \
+            native_v4f_logf = (v4sf_func_t)dlsym(native, NATIVE_LOGF4_NAME);        \
             native_v4f_powf = (v4sf_v4sf_func_t)dlsym(native, NATIVE_POWF4_NAME);   \
         } else {                                                                    \
             lib->w.lib = dlopen(NULL, RTLD_LAZY | RTLD_GLOBAL);                     \

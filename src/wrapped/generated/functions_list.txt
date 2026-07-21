@@ -6147,11 +6147,27 @@ wrappedlibm:
 wrappedlibmvec:
 - vFv:
   - _ZGVbN2v_cos
+  - _ZGVbN2v_exp
+  - _ZGVbN2v_log
   - _ZGVbN2v_sin
   - _ZGVbN2vv_pow
   - _ZGVbN4v_cosf
+  - _ZGVbN4v_expf
+  - _ZGVbN4v_logf
   - _ZGVbN4v_sinf
   - _ZGVbN4vv_powf
+  - _ZGVcN4v_exp
+  - _ZGVcN4v_log
+  - _ZGVcN4vv_pow
+  - _ZGVcN8v_expf
+  - _ZGVcN8v_logf
+  - _ZGVcN8vv_powf
+  - _ZGVdN4v_exp
+  - _ZGVdN4v_log
+  - _ZGVdN4vv_pow
+  - _ZGVdN8v_expf
+  - _ZGVdN8v_logf
+  - _ZGVdN8vv_powf
 wrappedlibncurses:
 - pFv:
   - initscr
