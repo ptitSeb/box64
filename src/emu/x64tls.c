@@ -99,7 +99,7 @@ uint32_t my_set_thread_area_32(x64emu_t* emu, thread_area_32_t* td)
 
 uint32_t my_modify_ldt(x64emu_t* emu, int op, thread_area_32_t* td, int size)
 {
-    printf_log(LOG_DEBUG, "%04d| modify_ldt(0x%x, %p[0x%x/base=%p/limit=%u/32bits:%u/%u/%u...], %d)\n", GetTID(), op, td, td->entry_number, from_ptrv(td->base_addr), td->limit_in_pages, td->seg_32bit, td->contents, td->read_exec_only, size);
+    printf_log(LOG_DEBUG, "%04d| modify_ldt(0x%x, %p[0x%x/base=%p/limit=%u/32bits:%u/%u/%u...], %d)\n", GetTID(), op, td, td->entry_number, (void*)(uintptr_t)td->base_addr, td->limit_in_pages, td->seg_32bit, td->contents, td->read_exec_only, size);
     if(!td) {
         errno = EFAULT;
         return (uint32_t)-1;
