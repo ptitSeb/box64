@@ -2766,6 +2766,15 @@ void loadProtectionFromMap()
                 have48bits = 1;
         }
     }
+    if(!have48bits && !box64_is32bits) {
+        void* probe = InternalMmap((void*)0x7fff00000000LL, box64_pagesize, PROT_NONE,
+                                   MAP_PRIVATE|MAP_ANONYMOUS|MAP_NORESERVE, -1, 0);
+        if(probe!=MAP_FAILED) {
+            if((uintptr_t)probe>=0x7fff00000000LL)
+                have48bits = 1;
+            InternalMunmap(probe, box64_pagesize);
+        }
+    }
     static int shown48bits = 0;
     if(!shown48bits) {
         shown48bits = 1;
