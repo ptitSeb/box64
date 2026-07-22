@@ -276,6 +276,7 @@ void* my32_mmap64(x64emu_t* emu, void *addr, size_t length, int prot, int flags,
 int my32_munmap(x64emu_t* emu, void* addr, unsigned long length);
 int my32_sigaltstack(x64emu_t* emu, const i386_stack_t* ss, i386_stack_t* oss);
 pid_t my_vfork(x64emu_t* emu);
+uint32_t my_modify_ldt(x64emu_t* emu, int op, thread_area_32_t* td, int size);
 
 #ifndef FUTEX_LOCK_PI2
 #define FUTEX_LOCK_PI2 13
@@ -444,11 +445,11 @@ void EXPORT x86Syscall(x64emu_t *emu)
                     #endif
             }
             break;        
-        /*case 123:   // SYS_modify_ldt
-            R_EAX = my32_modify_ldt(emu, R_EBX, (thread_area_t*)(uintptr_t)R_ECX, R_EDX);
+        case 123:   // SYS_modify_ldt
+            R_EAX = my_modify_ldt(emu, R_EBX, (thread_area_32_t*)from_ptrv(R_ECX), R_EDX);
             if(R_EAX==0xffffffff && errno>0)
                 R_EAX = (uint32_t)-errno;
-            break;*/
+            break;
         case 141: { // getdents
             native_linux_dirent_t dirent_buffer[R_EDX];
             memset(dirent_buffer, 0, sizeof(dirent_buffer));
@@ -670,8 +671,10 @@ uint32_t EXPORT my32_syscall(x64emu_t *emu, uint32_t s, ptr_t* b)
             else
                 return (uint32_t)syscall(__NR_clone, u32(0), p(4), p(8), p(12), p(16));
             break;
+#endif
         case 123:   // SYS_modify_ldt
-            return my32_modify_ldt(emu, i32(0), (thread_area_t*)p(4), i32(8));
+            return my_modify_ldt(emu, i32(0), (thread_area_32_t*)p(4), i32(8));
+#if 0
         case 125:   // mprotect
             return (uint32_t)my32_mprotect(emu, p(0), u32(4), i32(8));
         case 174:   // sys_rt_sigaction
