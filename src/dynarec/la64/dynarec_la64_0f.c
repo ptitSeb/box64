@@ -1516,7 +1516,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
             GETGDs;
             GETEDsd(0);
-            if (!rex.w && !rex.is32bits && MODREG && NEED_ZEROUP(ed)) { ZEROUP(ed); }
+            if (!rex.w && MODREG && NEED_ZEROUP(ed)) { ZEROUP(ed); }
             ANDI(x3, xRCX, rex.w ? 0x3f : 0x1f);
             CBZ_NEXT(x3);
             emit_shld32(dyn, ninst, rex, ed, gd, x3, x4, x5, x6);
@@ -1603,7 +1603,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
             GETGDs;
             GETEDsd(0);
-            if (!rex.w && !rex.is32bits && MODREG && NEED_ZEROUP(ed)) { ZEROUP(ed); }
+            if (!rex.w && MODREG && NEED_ZEROUP(ed)) { ZEROUP(ed); }
             ANDI(x3, xRCX, rex.w ? 0x3f : 0x1f);
             CBZ_NEXT(x3);
             emit_shrd32(dyn, ninst, rex, ed, gd, x3, x5, x4, x6);
