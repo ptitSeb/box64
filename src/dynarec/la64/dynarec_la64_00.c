@@ -3222,7 +3222,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION); // removed PENDING on purpose
                     GETEDsd(0);
                     ANDI(x6, xRCX, rex.w ? 0x3f : 0x1f);
-                    if (!rex.w && !rex.is32bits && MODREG && NEED_ZEROUP(ed)) ZEROUP(ed);
+                    if (MODREG && NEED_ZEROUP(ed)) ZEROUP(ed);
                     CBZ_NEXT(x6);
                     emit_rol32(dyn, ninst, rex, ed, x6, x3, x4);
                     WBACK;
@@ -3235,7 +3235,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION); // removed PENDING on purpose
                     GETEDsd(0);
                     ANDI(x6, xRCX, rex.w ? 0x3f : 0x1f);
-                    if (!rex.w && !rex.is32bits && MODREG && NEED_ZEROUP(ed)) ZEROUP(ed);
+                    if (MODREG && NEED_ZEROUP(ed)) ZEROUP(ed);
                     CBZ_NEXT(x6);
                     emit_ror32(dyn, ninst, rex, ed, x6, x3, x4);
                     WBACK;
@@ -3250,7 +3250,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION);
                     ANDI(x3, xRCX, rex.w ? 63 : 31);
                     GETEDsd(0);
-                    if (!rex.w && !rex.is32bits && MODREG && NEED_ZEROUP(ed)) { ZEROUP(ed); }
+                    if (MODREG && NEED_ZEROUP(ed)) { ZEROUP(ed); }
                     CBZ_NEXT(x3);
                     emit_rcl32(dyn, ninst, rex, ed, x3, x5, x4, x6);
                     WBACK;
@@ -3269,7 +3269,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         ANDI(x3, xRCX, 0x1f);
                     }
                     GETEDsd(0);
-                    if (!rex.w && !rex.is32bits && MODREG && NEED_ZEROUP(ed)) { ZEROUP(ed); }
+                    if (MODREG && NEED_ZEROUP(ed)) { ZEROUP(ed); }
                     CBZ_NEXT(x3);
                     emit_rcr32(dyn, ninst, rex, ed, x3, x5, x4, x6);
                     WBACK;
@@ -3299,7 +3299,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     }
                     ANDI(x3, xRCX, rex.w ? 0x3f : 0x1f);
                     GETEDsd(0);
-                    if (!rex.w && !rex.is32bits && MODREG && NEED_ZEROUP(ed)) ZEROUP(ed);
+                    if (MODREG && NEED_ZEROUP(ed)) ZEROUP(ed);
                     CBZ_NEXT(x3);
                     emit_shl32(dyn, ninst, rex, ed, x3, x5, x4, x6);
                     WBACK;
@@ -3328,7 +3328,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     }
                     ANDI(x3, xRCX, rex.w ? 0x3f : 0x1f);
                     GETEDsd(0);
-                    if (!rex.w && !rex.is32bits && MODREG && NEED_ZEROUP(ed)) ZEROUP(ed);
+                    if (MODREG && NEED_ZEROUP(ed)) ZEROUP(ed);
                     CBZ_NEXT(x3);
                     emit_shr32(dyn, ninst, rex, ed, x3, x5, x4);
                     WBACK;
@@ -3342,7 +3342,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
                     ANDI(x3, xRCX, rex.w ? 0x3f : 0x1f);
                     GETEDsd(0);
-                    if (!rex.w && !rex.is32bits && MODREG && NEED_ZEROUP(ed)) { ZEROUP(ed); }
+                    if (MODREG && NEED_ZEROUP(ed)) { ZEROUP(ed); }
                     CBZ_NEXT(x3);
                     emit_sar32(dyn, ninst, rex, ed, x3, x5, x4);
                     WBACK;
