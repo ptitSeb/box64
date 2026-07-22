@@ -292,7 +292,6 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 INST_NAME("MOVLHPS Gx,Ex");
             } else {
                 INST_NAME("MOVHPS Gx,Ex");
-                SMREAD();
             }
             GETGX();
             GETEX(x2, 0, 1);
