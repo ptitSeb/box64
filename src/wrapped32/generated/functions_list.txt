@@ -127,6 +127,7 @@
 #() aEa -> aEa
 #() tEv -> tEv
 #() tEi -> tEi
+#() tFi -> tFi
 #() tEu -> tEu
 #() tEp -> tEp
 #() tFp -> tFp

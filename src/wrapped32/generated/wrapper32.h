@@ -168,6 +168,7 @@ void hFv_32(x64emu_t *emu, uintptr_t fnc);
 void aEa_32(x64emu_t *emu, uintptr_t fnc);
 void tEv_32(x64emu_t *emu, uintptr_t fnc);
 void tEi_32(x64emu_t *emu, uintptr_t fnc);
+void tFi_32(x64emu_t *emu, uintptr_t fnc);
 void tEu_32(x64emu_t *emu, uintptr_t fnc);
 void tEp_32(x64emu_t *emu, uintptr_t fnc);
 void tFp_32(x64emu_t *emu, uintptr_t fnc);
