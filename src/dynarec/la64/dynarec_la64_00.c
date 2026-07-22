@@ -3683,6 +3683,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         j64 = (uint32_t)(addr + i32);
                     else
                         j64 = addr + i32;
+                    j64 = (uintptr_t)getAlternate((void*)j64);
                     jump_to_next(dyn, j64, 0, ninst, rex.is32bits);
                     CALLRET_RET(can_continue);
                     MARK;
