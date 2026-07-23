@@ -110,7 +110,6 @@ PROFILE_SETTINGS = {
     ),
     "fast": (
         ("BOX64_DYNAREC_CALLRET", "1"),
-        ("BOX64_DYNAREC_SEP", "1"),
         ("BOX64_DYNAREC_BIGBLOCK", "3"),
         ("BOX64_DYNAREC_SAFEFLAGS", "0"),
         ("BOX64_DYNAREC_STRONGMEM", "1"),
@@ -119,7 +118,6 @@ PROFILE_SETTINGS = {
     ),
     "fastest": (
         ("BOX64_DYNAREC_CALLRET", "1"),
-        ("BOX64_DYNAREC_SEP", "2"),
         ("BOX64_DYNAREC_BIGBLOCK", "3"),
         ("BOX64_DYNAREC_SAFEFLAGS", "0"),
         ("BOX64_DYNAREC_STRONGMEM", "0"),
