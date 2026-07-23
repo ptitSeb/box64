@@ -1219,6 +1219,12 @@
         ANDI(rd, rd, 1);      \
     }
 
+// Zicond
+// rd = (rs2 == 0) ? 0 : rs1
+#define CZERO_EQZ(rd, rs1, rs2) EMIT(R_type(0b0000111, rs2, rs1, 0b101, rd, 0b0110011))
+// rd = (rs2 != 0) ? 0 : rs1
+#define CZERO_NEZ(rd, rs1, rs2) EMIT(R_type(0b0000111, rs2, rs1, 0b111, rd, 0b0110011))
+
 /// THead vendor extension
 /// https://github.com/T-head-Semi/thead-extension-spec/releases
 

@@ -2602,6 +2602,25 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         return buff;
     }
 
+    if (cpuext.zicond) {
+        // CZERO.EQZ rd, rs1, rs2
+        if ((opcode & 0xfe00707f) == 0x0e005033) {
+            a.rd = FX(opcode, 11, 7);
+            a.rs1 = FX(opcode, 19, 15);
+            a.rs2 = FX(opcode, 24, 20);
+            snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "CZERO.EQZ", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+            return buff;
+        }
+        // CZERO.NEZ rd, rs1, rs2
+        if ((opcode & 0xfe00707f) == 0x0e007033) {
+            a.rd = FX(opcode, 11, 7);
+            a.rs1 = FX(opcode, 19, 15);
+            a.rs2 = FX(opcode, 24, 20);
+            snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "CZERO.NEZ", gpr[a.rd], gpr[a.rs1], gpr[a.rs2]);
+            return buff;
+        }
+    }
+
     //  rv_zbb, ORC.B
     if ((opcode & 0xfff0707f) == 0x28705013) {
         a.rd = FX(opcode, 11, 7);
