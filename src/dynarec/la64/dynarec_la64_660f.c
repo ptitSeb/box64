@@ -815,12 +815,12 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     nextop = F8;
                     GETG;
                     GETEX(q1, 0, 0);
+                    GETGX(q0, 1);
                     if (MODREG && (gd == (nextop & 7) + (rex.b << 3))) {
-                        d0 = fpu_get_scratch(dyn);
+                        d0 = SCRATCH;
                         VOR_V(d0, q1, q1);
                     } else
                         d0 = -1;
-                    GETGX(q0, 1);
                     la64_aese_lsx(dyn, ninst, q0);
                     VXOR_V(q0, q0, (d0 != -1) ? d0 : q1);
                     break;
@@ -829,12 +829,12 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     nextop = F8;
                     GETG;
                     GETEX(q1, 0, 0);
+                    GETGX(q0, 1);
                     if (MODREG && (gd == (nextop & 7) + (rex.b << 3))) {
-                        d0 = fpu_get_scratch(dyn);
+                        d0 = SCRATCH;
                         VOR_V(d0, q1, q1);
                     } else
                         d0 = -1;
-                    GETGX(q0, 1);
                     la64_aeselast_lsx(dyn, ninst, q0);
                     VXOR_V(q0, q0, (d0 != -1) ? d0 : q1);
                     break;
@@ -843,12 +843,12 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     nextop = F8;
                     GETG;
                     GETEX(q1, 0, 0);
+                    GETGX(q0, 1);
                     if (MODREG && (gd == (nextop & 7) + (rex.b << 3))) {
-                        d0 = fpu_get_scratch(dyn);
+                        d0 = SCRATCH;
                         VOR_V(d0, q1, q1);
                     } else
                         d0 = -1;
-                    GETGX(q0, 1);
                     la64_aesd_lsx(dyn, ninst, q0);
                     VXOR_V(q0, q0, (d0 != -1) ? d0 : q1);
                     break;
@@ -857,12 +857,12 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     nextop = F8;
                     GETG;
                     GETEX(q1, 0, 0);
+                    GETGX(q0, 1);
                     if (MODREG && (gd == (nextop & 7) + (rex.b << 3))) {
-                        d0 = fpu_get_scratch(dyn);
+                        d0 = SCRATCH;
                         VOR_V(d0, q1, q1);
                     } else
                         d0 = -1;
-                    GETGX(q0, 1);
                     la64_aesdlast_lsx(dyn, ninst, q0);
                     VXOR_V(q0, q0, (d0 != -1) ? d0 : q1);
                     break;
