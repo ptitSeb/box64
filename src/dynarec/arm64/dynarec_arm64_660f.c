@@ -2058,7 +2058,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             } else {
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 1);
-                v1 = fpu_get_scratch(dyn, ninst);      
+                v1 = fpu_get_scratch(dyn, ninst);
             }
             u8 = F8;
             GETGX_empty(v0);
@@ -2923,9 +2923,11 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETGW(x1);
             GETEW(x2, 0);
-            BFIx(TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3)), ed, 0, 16);
+            u8 = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3));
+            if (!(MODREG && wback == u8)) MOVx_REG(x6, ed);
             emit_add16(dyn, ninst, ed, gd, x4, x5);
             EWBACK;
+            if (!(MODREG && wback == u8)) BFIx(u8, x6, 0, 16);
             break;
         case 0xC2:
             INST_NAME("CMPPD Gx, Ex, Ib");

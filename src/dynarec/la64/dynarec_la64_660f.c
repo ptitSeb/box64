@@ -2689,9 +2689,11 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETGWEW(x1, x2, 0);
-            BSTRINS_D(TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3)), ed, 15, 0);
+            u8 = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3));
+            if (!(MODREG && wback == u8)) MV(x7, ed);
             emit_add16(dyn, ninst, ed, gd, x4, x5, x6);
             EWBACK;
+            if (!(MODREG && wback == u8)) BSTRINS_D(u8, x7, 15, 0);
             break;
         case 0xC2:
             INST_NAME("CMPPD Gx, Ex, Ib");
