@@ -1452,6 +1452,41 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 MVxw(gd, x1);
             }
             break;
+        case 0xF6:
+            nextop = F8;
+            switch ((nextop >> 3) & 7) {
+                case 2:
+                    if (MODREG) {
+                        INST_NAME("Invalid LOCK");
+                        UDF();
+                        *need_epilog = 1;
+                        *ok = 0;
+                    } else {
+                        INST_NAME("LOCK NOT Eb");
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x5, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                        if (cpuext.lamcas) {
+                            LD_BU(x3, wback, 0);
+                            MARKLOCK2;
+                            MV(x2, x3);
+                            XORI(x1, x3, 0xff);
+                            AMCAS_DB_B(x3, x1, wback);
+                            BSTRPICK_D(x3, x3, 7, 0);
+                            BNE_MARKLOCK2(x3, x2);
+                        } else {
+                            ANDI(x2, wback, 3);
+                            SLLI_D(x2, x2, 3);
+                            MV(x3, wback);
+                            BSTRINS_D(x3, xZR, 1, 0);
+                            ADDI_D(x1, xZR, 0xff);
+                            SLL_W(x1, x1, x2);
+                            AMXOR_DB_W(x4, x1, x3);
+                        }
+                    }
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
         case 0xF7:
             nextop = F8;
             switch ((nextop >> 3) & 7) {
