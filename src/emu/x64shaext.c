@@ -138,27 +138,41 @@ void sha256msg2(x64emu_t* emu, sse_regs_t* xmm1, sse_regs_t* xmm2)
 
 void sha1rnds4(x64emu_t* emu, sse_regs_t* xmm1, sse_regs_t* xmm2, uint8_t ib)
 {
-    uint32_t K = Ks[ib&3];
-    uint32_t(*f)(uint32_t , uint32_t , uint32_t) = NULL;
-    switch (ib&3) {
-        case 0: f = f0; break;
-        case 1: f = f1; break;
-        case 2: f = f2; break;
-        case 3: f = f3; break;
-    }
+    uint32_t kind = ib & 3;
+    uint32_t K = Ks[kind];
     uint32_t A = xmm1->ud[3];
     uint32_t B = xmm1->ud[2];
     uint32_t C = xmm1->ud[1];
     uint32_t D = xmm1->ud[0];
     uint32_t E = 0;
-    for(int i=0; i<4; ++i) {
-        uint32_t new_A = f(B, C, D) + rol(A, 5) + xmm2->ud[3-i] + E + K;
-        E = D;
-        D = C;
-        C = rol(B, 30);
-        B = A;
-        A = new_A;
+
+#define SHA1_ROUND(F, W)                                               \
+    do {                                                               \
+        uint32_t new_A = F(B, C, D) + rol(A, 5) + xmm2->ud[W] + E + K; \
+        E = D;                                                         \
+        D = C;                                                         \
+        C = rol(B, 30);                                                \
+        B = A;                                                         \
+        A = new_A;                                                     \
+    } while (0)
+#define SHA1_ROUNDS(F)    \
+    do {                  \
+        SHA1_ROUND(F, 3); \
+        SHA1_ROUND(F, 2); \
+        SHA1_ROUND(F, 1); \
+        SHA1_ROUND(F, 0); \
+    } while (0)
+
+    switch (kind) {
+        case 0: SHA1_ROUNDS(f0); break;
+        case 1: SHA1_ROUNDS(f1); break;
+        case 2: SHA1_ROUNDS(f2); break;
+        case 3: SHA1_ROUNDS(f3); break;
     }
+
+#undef SHA1_ROUNDS
+#undef SHA1_ROUND
+
     xmm1->ud[3] = A;
     xmm1->ud[2] = B;
     xmm1->ud[1] = C;
