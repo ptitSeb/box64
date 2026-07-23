@@ -1249,7 +1249,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             INST_NAME("VPXOR Gx, Vx, Ex");
             nextop = F8;
             GETGY_empty_VYEY_xy(v0, v1, v2, 0);
-            VXOR_Vxy(v0, v1, v2);
+            XVXOR_V(v0, v1, v2);
             if (v0 == v1 && v0 == v2) YMM_UNMARK_UPPER_ZERO(v0);
             break;
         case 0xF1:
