@@ -245,7 +245,6 @@ static void applyCustomRules()
         } else if (!strcasecmp(box64env.profile, "default")) {
         } else if (!strcasecmp(box64env.profile, "fast")) {
             SET_BOX64ENV_IF_EMPTY(dynarec_callret, 1);
-            SET_BOX64ENV_IF_EMPTY(dynarec_sep, 1);
             SET_BOX64ENV_IF_EMPTY(dynarec_bigblock, 3);
             SET_BOX64ENV_IF_EMPTY(dynarec_safeflags, 0);
             SET_BOX64ENV_IF_EMPTY(dynarec_strongmem, 1);
@@ -253,7 +252,6 @@ static void applyCustomRules()
             SET_BOX64ENV_IF_EMPTY(dynarec_forward, 1024);
         } else if (!strcasecmp(box64env.profile, "fastest")) {
             SET_BOX64ENV_IF_EMPTY(dynarec_callret, 1);
-            SET_BOX64ENV_IF_EMPTY(dynarec_sep, 2);
             SET_BOX64ENV_IF_EMPTY(dynarec_bigblock, 3);
             SET_BOX64ENV_IF_EMPTY(dynarec_safeflags, 0);
             SET_BOX64ENV_IF_EMPTY(dynarec_strongmem, 0);
