@@ -1148,6 +1148,7 @@ if(RV64_DYNAREC)
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_avx_66_0f3a.c"
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_avx_f2_0f.c"
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_avx_f3_0f.c"
+    "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_avx_0f38.c"
     )
 endif()
 
