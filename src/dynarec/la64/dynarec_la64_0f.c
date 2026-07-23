@@ -639,18 +639,50 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     GETEM(q1, 0);
                     VABSD_W(q0, q1, VZERO);
                     break;
-                case 0xC8 ... 0xCD:
+
+                case 0xC8:
+                    INST_NAME("SHA1NEXTE Gx, Ex");
+                    u8 = nextop;
+                    nextop = F8;
+                    GETGX(q0, 1);
+                    GETEX(q1, 0, 0);
+                    d0 = fpu_get_scratch(dyn);
+                    VROTRI_W(d0, q0, 2);
+                    VADD_W(d0, d0, q1);
+                    if (q0 != q1) VOR_V(q0, q1, q1);
+                    VEXTRINS_W(q0, d0, VEXTRINS_IMM_4_0(3, 3));
+                    break;
+                case 0xC9:
+                    INST_NAME("SHA1MSG1 Gx, Ex");
+                    u8 = nextop;
+                    nextop = F8;
+                    GETGX(q0, 1);
+                    GETEX(q1, 0, 0);
+                    d0 = fpu_get_scratch(dyn);
+                    VOR_V(d0, q0, q0);
+                    VPERMI_W(d0, q1, 0x4e);
+                    VXOR_V(q0, q0, d0);
+                    break;
+                case 0xCA:
+                    INST_NAME("SHA1MSG2 Gx, Ex");
+                    u8 = nextop;
+                    nextop = F8;
+                    GETGX(q0, 1);
+                    GETEX(q1, 0, 0);
+                    d0 = fpu_get_scratch(dyn);
+                    d1 = fpu_get_scratch(dyn);
+                    VBSLL_V(d0, q1, 4);
+                    VXOR_V(d0, d0, q0);
+                    VROTRI_W(d1, d0, 31);
+                    VBSRL_V(d0, d1, 12);
+                    VXOR_V(d0, d0, q0);
+                    VROTRI_W(d0, d0, 31);
+                    VOR_V(q0, d1, d1);
+                    VEXTRINS_W(q0, d0, VEXTRINS_IMM_4_0(0, 0));
+                    break;
+                case 0xCB ... 0xCD:
                     u8 = nextop;
                     switch (u8) {
-                        case 0xC8:
-                            INST_NAME("SHA1NEXTE Gx, Ex");
-                            break;
-                        case 0xC9:
-                            INST_NAME("SHA1MSG1 Gx, Ex");
-                            break;
-                        case 0xCA:
-                            INST_NAME("SHA1MSG2 Gx, Ex");
-                            break;
                         case 0xCB:
                             INST_NAME("SHA256RNDS2 Gx, Ex");
                             break;
@@ -676,15 +708,6 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     ADDI_D(x1, xEmu, offsetof(x64emu_t, xmm[gd]));
                     sse_reflect_reg(dyn, ninst, 0);
                     switch (u8) {
-                        case 0xC8:
-                            CALL(const_sha1nexte, -1, x1, ed);
-                            break;
-                        case 0xC9:
-                            CALL(const_sha1msg1, -1, x1, ed);
-                            break;
-                        case 0xCA:
-                            CALL(const_sha1msg2, -1, x1, ed);
-                            break;
                         case 0xCB:
                             CALL(const_sha256rnds2, -1, x1, ed);
                             break;
@@ -751,21 +774,64 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 case 0xCC:
                     INST_NAME("SHA1RNDS4 Gx, Ex, Ib");
                     nextop = F8;
-                    if (MODREG) {
-                        ed = (nextop & 7) + (rex.b << 3);
-                        sse_reflect_reg(dyn, ninst, ed);
-                        ADDI_D(x2, xEmu, offsetof(x64emu_t, xmm[ed]));
-                        wback = x2;
-                    } else {
-                        SMREAD();
-                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 0, 1);
-                    }
+                    GETGX(q0, 1);
+                    GETEX(q1, 0, 1);
                     u8 = F8;
-                    GETG;
-                    sse_forget_reg(dyn, ninst, gd);
-                    ADDI_D(x1, xEmu, offsetof(x64emu_t, xmm[gd]));
-                    MOV32w(x3, u8);
-                    CALL4(const_sha1rnds4, -1, x1, wback, x3, 0);
+                    d0 = fpu_get_scratch(dyn);
+                    static const uint32_t sha1_k[4] = {
+                        0x5A827999, 0x6ED9EBA1, 0x8F1BBCDC, 0xCA62C1D6
+                    };
+                    MOV32w(x7, sha1_k[u8 & 3]);
+                    VREPLGR2VR_W(d0, x7);
+                    VADD_W(d0, q1, d0);
+                    int rA = x1, rB = x2, rC = x3, rD = x4, rE = x5;
+                    int rT = x6, rU = x7;
+                    VPICKVE2GR_W(rA, q0, 3);
+                    VPICKVE2GR_W(rB, q0, 2);
+                    VPICKVE2GR_W(rC, q0, 1);
+                    VPICKVE2GR_W(rD, q0, 0);
+                    MOV32w(rE, 0);
+
+                    for (int round = 0; round < 4; ++round) {
+                        switch (u8 & 3) {
+                            case 0: // Choose
+                                AND(rT, rB, rC);
+                                ANDN(rU, rD, rB);
+                                XOR(rT, rT, rU);
+                                break;
+                            case 1: // Parity
+                            case 3:
+                                XOR(rT, rB, rC);
+                                XOR(rT, rT, rD);
+                                break;
+                            case 2: // Majority
+                                XOR(rT, rC, rD);
+                                AND(rT, rT, rB);
+                                AND(rU, rC, rD);
+                                XOR(rT, rT, rU);
+                                break;
+                        }
+                        ADD_W(rT, rT, rE);
+                        VPICKVE2GR_W(rU, d0, 3 - round);
+                        ADD_W(rT, rT, rU);
+                        ROTRI_W(rU, rA, 27); // ROL(A, 5)
+                        ADD_W(rT, rT, rU);
+                        ROTRI_W(rU, rB, 2);  // ROL(B, 30)
+
+                        int nextA = rT, nextC = rU;
+                        rT = rB;
+                        rU = rE;
+                        rB = rA;
+                        rA = nextA;
+                        rE = rD;
+                        rD = rC;
+                        rC = nextC;
+                    }
+
+                    VINSGR2VR_W(q0, rA, 3);
+                    VINSGR2VR_W(q0, rB, 2);
+                    VINSGR2VR_W(q0, rC, 1);
+                    VINSGR2VR_W(q0, rD, 0);
                     break;
                 default:
                     DEFAULT;
