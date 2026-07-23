@@ -670,15 +670,12 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     GETGX(q0, 1);
                     GETEX(q1, 0, 0);
                     d0 = fpu_get_scratch(dyn);
-                    d1 = fpu_get_scratch(dyn);
                     VBSLL_V(d0, q1, 4);
                     VXOR_V(d0, d0, q0);
-                    VROTRI_W(d1, d0, 31);
-                    VBSRL_V(d0, d1, 12);
-                    VXOR_V(d0, d0, q0);
+                    VROTRI_W(q0, d0, 31);
+                    VBSRL_V(d0, q0, 12);
                     VROTRI_W(d0, d0, 31);
-                    VOR_V(q0, d1, d1);
-                    VEXTRINS_W(q0, d0, VEXTRINS_IMM_4_0(0, 0));
+                    VXOR_V(q0, q0, d0);
                     break;
                 case 0xCB ... 0xCD:
                     u8 = nextop;
@@ -771,68 +768,86 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         VEXTRINS_D(q0, d0, 0);
                     }
                     break;
+
+#define EMIT_SHA1_F(MODE, VF, VB, VC, VD)  \
+    do {                                   \
+        switch (MODE) {                    \
+            case 0:                        \
+                VBITSEL_V(VF, VD, VC, VB); \
+                break;                     \
+            case 1:                        \
+            case 3:                        \
+                VXOR_V(VF, VB, VC);        \
+                VXOR_V(VF, VF, VD);        \
+                break;                     \
+            case 2:                        \
+                VXOR_V(VF, VB, VD);        \
+                VBITSEL_V(VF, VB, VC, VF); \
+                break;                     \
+        }                                  \
+    } while (0)
+
                 case 0xCC:
                     INST_NAME("SHA1RNDS4 Gx, Ex, Ib");
                     nextop = F8;
                     GETGX(q0, 1);
                     GETEX(q1, 0, 1);
                     u8 = F8;
-                    d0 = fpu_get_scratch(dyn);
                     static const uint32_t sha1_k[4] = {
                         0x5A827999, 0x6ED9EBA1, 0x8F1BBCDC, 0xCA62C1D6
                     };
+                    int vA = fpu_get_scratch(dyn);
+                    int vB = fpu_get_scratch(dyn);
+                    int vC = fpu_get_scratch(dyn);
+                    int vD = fpu_get_scratch(dyn);
+                    int vM = fpu_get_scratch(dyn);
+                    // reuse q1 as vT if Ex is mem operand
+                    int vT = MODREG ? fpu_get_scratch(dyn) : q1;
+                    int vU = SCRATCH;
+
+                    VSHUF4I_W(vA, q0, 0xff);
+                    VSHUF4I_W(vB, q0, 0xaa);
+                    VSHUF4I_W(vC, q0, 0x55);
+                    VSHUF4I_W(vD, q0, 0x00);
                     MOV32w(x7, sha1_k[u8 & 3]);
-                    VREPLGR2VR_W(d0, x7);
-                    VADD_W(d0, q1, d0);
-                    int rA = x1, rB = x2, rC = x3, rD = x4, rE = x5;
-                    int rT = x6, rU = x7;
-                    VPICKVE2GR_W(rA, q0, 3);
-                    VPICKVE2GR_W(rB, q0, 2);
-                    VPICKVE2GR_W(rC, q0, 1);
-                    VPICKVE2GR_W(rD, q0, 0);
-                    MOV32w(rE, 0);
+                    VREPLGR2VR_W(vM, x7);
+                    VADD_W(vM, q1, vM);
 
-                    for (int round = 0; round < 4; ++round) {
-                        switch (u8 & 3) {
-                            case 0: // Choose
-                                AND(rT, rB, rC);
-                                ANDN(rU, rD, rB);
-                                XOR(rT, rT, rU);
-                                break;
-                            case 1: // Parity
-                            case 3:
-                                XOR(rT, rB, rC);
-                                XOR(rT, rT, rD);
-                                break;
-                            case 2: // Majority
-                                XOR(rT, rC, rD);
-                                AND(rT, rT, rB);
-                                AND(rU, rC, rD);
-                                XOR(rT, rT, rU);
-                                break;
-                        }
-                        ADD_W(rT, rT, rE);
-                        VPICKVE2GR_W(rU, d0, 3 - round);
-                        ADD_W(rT, rT, rU);
-                        ROTRI_W(rU, rA, 27); // ROL(A, 5)
-                        ADD_W(rT, rT, rU);
-                        ROTRI_W(rU, rB, 2);  // ROL(B, 30)
+                    EMIT_SHA1_F(u8 & 3, q0, vB, vC, vD);
+                    VROTRI_W(vB, vB, 2);
+                    VROTRI_W(vT, vA, 2);
+                    EMIT_SHA1_F(u8 & 3, vU, vA, vB, vC);
+                    VADD_W(vU, vU, vD);
 
-                        int nextA = rT, nextC = rU;
-                        rT = rB;
-                        rU = rE;
-                        rB = rA;
-                        rA = nextA;
-                        rE = rD;
-                        rD = rC;
-                        rC = nextC;
-                    }
+                    VREPLVEI_W(vD, vM, 3);
+                    VADD_W(q0, q0, vD);
+                    VREPLVEI_W(vD, vM, 2);
+                    VADD_W(vU, vU, vD);
+                    VROTRI_W(vA, vA, 27);
+                    VREPLVEI_W(vD, vM, 1);
+                    VADD_W(vC, vC, vD);
+                    VREPLVEI_W(vM, vM, 0);
+                    VADD_W(vA, vA, q0);
 
-                    VINSGR2VR_W(q0, rA, 3);
-                    VINSGR2VR_W(q0, rB, 2);
-                    VINSGR2VR_W(q0, rC, 1);
-                    VINSGR2VR_W(q0, rD, 0);
+                    VROTRI_W(q0, vA, 27);
+                    EMIT_SHA1_F(u8 & 3, vD, vA, vT, vB);
+                    VADD_W(q0, q0, vU);
+                    VADD_W(vD, vD, vC);
+                    VADD_W(vB, vB, vM);
+
+                    VROTRI_W(vA, vA, 2);
+                    VROTRI_W(vU, q0, 2);
+                    EMIT_SHA1_F(u8 & 3, vC, q0, vA, vT);
+                    VROTRI_W(vM, q0, 27);
+                    VADD_W(vC, vC, vB);
+                    VILVL_W(q0, vU, vA);
+                    VADD_W(vM, vM, vD);
+                    VEXTRINS_W(q0, vM, VEXTRINS_IMM_4_0(2, 0));
+                    VROTRI_W(vD, vM, 27);
+                    VADD_W(vD, vD, vC);
+                    VEXTRINS_W(q0, vD, VEXTRINS_IMM_4_0(3, 0));
                     break;
+#undef EMIT_SHA1_F
                 default:
                     DEFAULT;
             }
