@@ -5045,7 +5045,7 @@ EXPORT char* secure_getenv(const char* name)
     my_environ = my__environ = my___environ = box64->envv;                      \
     my___progname_full = my_program_invocation_name = box64->argv[0];           \
     my___progname = my_program_invocation_short_name =                          \
-        strrchr(box64->argv[0], '/') + 1;                                       \
+        (strrchr(box64->argv[0], '/') ? strrchr(box64->argv[0], '/') + 1 : box64->argv[0]); \
     getMy(lib);                                                                 \
     if(box64_isglibc234)                                                        \
         setNeededLibs(lib, NEEDED_LIBS_234);                                    \
