@@ -38,6 +38,7 @@
 
 // GETGD    get x64 register in gd
 #define GETGD gd = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3))
+#define GETVD vd = TO_NAT(vex.v)
 // GETED can use r1 for ed, and r2 for wback. wback is 0 if ed is xEAX..xEDI
 #define GETED(D)                                                                                \
     if (MODREG) {                                                                               \
@@ -1259,6 +1260,7 @@
 #define dynarec64_AVX_66_0F3A STEPNAME(dynarec64_AVX_66_0F3A)
 #define dynarec64_AVX_F2_0F   STEPNAME(dynarec64_AVX_F2_0F)
 #define dynarec64_AVX_F3_0F   STEPNAME(dynarec64_AVX_F3_0F)
+#define dynarec64_AVX_0F38    STEPNAME(dynarec64_AVX_0F38)
 
 #define geted               STEPNAME(geted)
 #define geted16             STEPNAME(geted16)
@@ -1701,6 +1703,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
 uintptr_t dynarec64_AVX_66_0F3A(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
 uintptr_t dynarec64_AVX_F2_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
 uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
+uintptr_t dynarec64_AVX_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
 
 #if STEP < 2
 #define PASS2(A)
