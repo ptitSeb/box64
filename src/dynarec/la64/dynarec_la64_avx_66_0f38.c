@@ -1299,7 +1299,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             nextop = F8;
             GETGY_empty_VYEY_xy(q0, q1, q2, 0);
             if (MODREG && (gd == (nextop & 7) + (rex.b << 3))) {
-                d0 = fpu_get_scratch(dyn);
+                d0 = SCRATCH;
                 VOR_Vxy(d0, q2, q2);
             } else
                 d0 = -1;
@@ -1318,7 +1318,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             nextop = F8;
             GETGY_empty_VYEY_xy(q0, q1, q2, 0);
             if (MODREG && (gd == (nextop & 7) + (rex.b << 3))) {
-                d0 = fpu_get_scratch(dyn);
+                d0 = SCRATCH;
                 VOR_Vxy(d0, q2, q2);
             } else
                 d0 = -1;
@@ -1337,7 +1337,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             nextop = F8;
             GETGY_empty_VYEY_xy(q0, q1, q2, 0);
             if (MODREG && (gd == (nextop & 7) + (rex.b << 3))) {
-                d0 = fpu_get_scratch(dyn);
+                d0 = SCRATCH;
                 VOR_Vxy(d0, q2, q2);
             } else
                 d0 = -1;
@@ -1356,7 +1356,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             nextop = F8;
             GETGY_empty_VYEY_xy(q0, q1, q2, 0);
             if (MODREG && (gd == (nextop & 7) + (rex.b << 3))) {
-                d0 = fpu_get_scratch(dyn);
+                d0 = SCRATCH;
                 VOR_Vxy(d0, q2, q2);
             } else
                 d0 = -1;
