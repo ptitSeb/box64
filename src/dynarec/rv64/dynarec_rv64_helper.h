@@ -903,6 +903,10 @@
         if (cpuext.xtheadcondmov) {         \
             ORI(scratch, xFlags, 1 << F);   \
             TH_MVNEZ(xFlags, scratch, reg); \
+        } else if (cpuext.zicond) {         \
+            ADDI(scratch, xZR, 1 << F);     \
+            CZERO_EQZ(scratch, scratch, reg); \
+            OR(xFlags, xFlags, scratch);    \
         } else {                            \
             BEQZ(reg, 8);                   \
             ORI(xFlags, xFlags, 1 << F);    \
@@ -914,6 +918,10 @@
         if (cpuext.xtheadcondmov) {         \
             ORI(scratch, xFlags, 1 << F);   \
             TH_MVEQZ(xFlags, scratch, reg); \
+        } else if (cpuext.zicond) {         \
+            ADDI(scratch, xZR, 1 << F);     \
+            CZERO_NEZ(scratch, scratch, reg); \
+            OR(xFlags, xFlags, scratch);    \
         } else {                            \
             BNEZ(reg, 8);                   \
             ORI(xFlags, xFlags, 1 << F);    \
@@ -926,6 +934,11 @@
             SLT(scratch1, reg, xZR);              \
             ORI(scratch2, xFlags, 1 << F);        \
             TH_MVNEZ(xFlags, scratch2, scratch1); \
+        } else if (cpuext.zicond) {               \
+            SLT(scratch1, reg, xZR);              \
+            ADDI(scratch2, xZR, 1 << F);          \
+            CZERO_EQZ(scratch2, scratch2, scratch1); \
+            OR(xFlags, xFlags, scratch2);         \
         } else {                                  \
             BGE(reg, xZR, 8);                     \
             ORI(xFlags, xFlags, 1 << F);          \
