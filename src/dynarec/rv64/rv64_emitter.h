@@ -277,6 +277,11 @@
 #define MVEQ(rd, rs1, rs2, rs3)                               \
     if (cpuext.xtheadcondmov && (rs2 == xZR || rs3 == xZR)) { \
         TH_MVEQZ(rd, rs1, ((rs2 == xZR) ? rs3 : rs2));        \
+    } else if (cpuext.zicond && (rs2 == xZR || rs3 == xZR)) { \
+        int cond_ = (rs2 == xZR) ? rs3 : rs2;                 \
+        CZERO_EQZ(rd, rd, cond_);                             \
+        CZERO_NEZ(cond_, rs1, cond_);                         \
+        OR(rd, rd, cond_);                                    \
     } else {                                                  \
         BNE(rs2, rs3, 8);                                     \
         MV(rd, rs1);                                          \
@@ -284,6 +289,11 @@
 #define MVNE(rd, rs1, rs2, rs3)                               \
     if (cpuext.xtheadcondmov && (rs2 == xZR || rs3 == xZR)) { \
         TH_MVNEZ(rd, rs1, ((rs2 == xZR) ? rs3 : rs2));        \
+    } else if (cpuext.zicond && (rs2 == xZR || rs3 == xZR)) { \
+        int cond_ = (rs2 == xZR) ? rs3 : rs2;                 \
+        CZERO_NEZ(rd, rd, cond_);                             \
+        CZERO_EQZ(cond_, rs1, cond_);                         \
+        OR(rd, rd, cond_);                                    \
     } else {                                                  \
         BEQ(rs2, rs3, 8);                                     \
         MV(rd, rs1);                                          \
@@ -1218,6 +1228,12 @@
         SRLIxw(rd, rs1, imm); \
         ANDI(rd, rd, 1);      \
     }
+
+// Zicond
+// rd = (rs2 == 0) ? 0 : rs1
+#define CZERO_EQZ(rd, rs1, rs2) EMIT(R_type(0b0000111, rs2, rs1, 0b101, rd, 0b0110011))
+// rd = (rs2 != 0) ? 0 : rs1
+#define CZERO_NEZ(rd, rs1, rs2) EMIT(R_type(0b0000111, rs2, rs1, 0b111, rd, 0b0110011))
 
 /// THead vendor extension
 /// https://github.com/T-head-Semi/thead-extension-spec/releases
