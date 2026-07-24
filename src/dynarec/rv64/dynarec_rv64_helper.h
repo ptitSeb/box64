@@ -755,6 +755,8 @@
 #define BLTU_MARK3(reg1, reg2) Bxx_gen(LTU, MARK3, reg1, reg2)
 // Branch to MARK3 if reg1!=0 (use j64)
 #define BNEZ_MARK3(reg) BNE_MARK3(reg, xZR)
+// Branch to MARK2 if reg1==0 (use j64)
+#define BEQZ_MARK2(reg) BEQ_MARK2(reg, xZR)
 // Branch to MARK3 if reg1==0 (use j64)
 #define BEQZ_MARK3(reg) BEQ_MARK3(reg, xZR)
 // Branch to MARK3 instruction unconditionnal (use j64)
@@ -1274,6 +1276,7 @@
 #define dynarec64_AVX_F2_0F   STEPNAME(dynarec64_AVX_F2_0F)
 #define dynarec64_AVX_F3_0F   STEPNAME(dynarec64_AVX_F3_0F)
 #define dynarec64_AVX_0F38    STEPNAME(dynarec64_AVX_0F38)
+#define dynarec64_AVX_F2_0F38 STEPNAME(dynarec64_AVX_F2_0F38)
 
 #define geted               STEPNAME(geted)
 #define geted16             STEPNAME(geted16)
@@ -1717,6 +1720,7 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
 uintptr_t dynarec64_AVX_F2_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
 uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
 uintptr_t dynarec64_AVX_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
+uintptr_t dynarec64_AVX_F2_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog);
 
 #if STEP < 2
 #define PASS2(A)
