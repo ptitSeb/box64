@@ -48,7 +48,7 @@ uintptr_t RunDA(x64emu_t *emu, rex_t rex, uintptr_t addr)
     case 0xC7:
         CHECK_FLAGS(emu);
         if(ACCESS_FLAG(F_CF))
-            ST0.q = ST(nextop&7).q;
+            fpu_ld80_copy(emu, 0, nextop&7);
         break;
     case 0xC8:      /* FCMOVE ST(0), ST(i) */
     case 0xC9:
@@ -60,7 +60,7 @@ uintptr_t RunDA(x64emu_t *emu, rex_t rex, uintptr_t addr)
     case 0xCF:
         CHECK_FLAGS(emu);
         if(ACCESS_FLAG(F_ZF))
-            ST0.q = ST(nextop&7).q;
+            fpu_ld80_copy(emu, 0, nextop&7);
         break;
     case 0xD0:      /* FCMOVBE ST(0), ST(i) */
     case 0xD1:
@@ -72,7 +72,7 @@ uintptr_t RunDA(x64emu_t *emu, rex_t rex, uintptr_t addr)
     case 0xD7:
         CHECK_FLAGS(emu);
         if(ACCESS_FLAG(F_CF) || ACCESS_FLAG(F_ZF))
-            ST0.q = ST(nextop&7).q;
+            fpu_ld80_copy(emu, 0, nextop&7);
         break;
     case 0xD8:      /* FCMOVU ST(0), ST(i) */
     case 0xD9:
@@ -84,7 +84,7 @@ uintptr_t RunDA(x64emu_t *emu, rex_t rex, uintptr_t addr)
     case 0xDF:
         CHECK_FLAGS(emu);
         if(ACCESS_FLAG(F_PF))
-            ST0.q = ST(nextop&7).q;
+            fpu_ld80_copy(emu, 0, nextop&7);
         break;
     
     case 0xE9:      /* FUCOMPP */

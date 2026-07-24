@@ -50,10 +50,19 @@ uintptr_t RunD9(x64emu_t *emu, rex_t rex, uintptr_t addr)
         case 0xC5:
         case 0xC6:
         case 0xC7:  /* FLD STx */
-            ll = ST(nextop&7).q;
-            fpu_do_push(emu);
-            ST0.q = ll;
-            break;
+            {
+                int i = nextop&7;
+                fpu_ld_t ld = STld(i);
+                int ld_valid = fpu_ld80_raw_valid(emu, i);
+                ll = ST(i).q;
+                fpu_do_push(emu);
+                ST0.q = ll;
+                if(ld_valid)
+                    STld(0) = ld;
+                else
+                    fpu_ld80_clear(emu, 0);
+                break;
+            }
         case 0xC8:
         case 0xC9:
         case 0xCA:
@@ -62,10 +71,11 @@ uintptr_t RunD9(x64emu_t *emu, rex_t rex, uintptr_t addr)
         case 0xCD:
         case 0xCE:
         case 0xCF:  /* FXCH STx */
-            ll = ST(nextop&7).q;
-            ST(nextop&7).q = ST0.q;
-            ST0.q = ll;
-            break;
+            {
+                int i = nextop&7;
+                fpu_ld80_swap(emu, 0, i);
+                break;
+            }
 
         case 0xD0:  /* FNOP */
             break;
@@ -78,15 +88,39 @@ uintptr_t RunD9(x64emu_t *emu, rex_t rex, uintptr_t addr)
         case 0xDD:
         case 0xDE:
         case 0xDF:
-            ST(nextop&7).q = ST0.q;
+            fpu_ld80_copy(emu, nextop&7, 0);
             fpu_do_pop(emu);
             break;
         case 0xE0:  /* FCHS */
-            ST0.d = -ST0.d;
-            break;
+            {
+                int i = fpu_ld80_raw_valid(emu, 0);
+                ST0.d = -ST0.d;
+                if(i) {
+#ifdef HAVE_LD80BITS
+                    STld(0).ld = -STld(0).ld;
+#else
+                    STld(0).ld.l.upper ^= 0x8000;
+#endif
+                    STld(0).uref = ST0.q;
+                } else
+                    fpu_ld80_clear(emu, 0);
+                break;
+            }
         case 0xE1:  /* FABS */
-            ST0.d = fabs(ST0.d);
-            break;
+            {
+                int i = fpu_ld80_raw_valid(emu, 0);
+                ST0.d = fabs(ST0.d);
+                if(i) {
+#ifdef HAVE_LD80BITS
+                    STld(0).ld = fabsl(STld(0).ld);
+#else
+                    STld(0).ld.l.upper &= 0x7fff;
+#endif
+                    STld(0).uref = ST0.q;
+                } else
+                    fpu_ld80_clear(emu, 0);
+                break;
+            }
         
         case 0xE4:  /* FTST */
             fpu_ftst(emu);
@@ -206,7 +240,7 @@ uintptr_t RunD9(x64emu_t *emu, rex_t rex, uintptr_t addr)
         case 0xF8:  /* FPREM */
             {
                 int go = 1;
-                if(STld(0).uref==ST0.q && STld(1).uref==ST1.q) {
+                if(fpu_ld80_raw_valid(emu, 0) && fpu_ld80_raw_valid(emu, 1)) {
                     // try a full precision fpre alternative
                     if(full_ld_fprem(emu))
                         go = 0;

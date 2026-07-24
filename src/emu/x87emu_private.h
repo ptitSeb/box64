@@ -24,6 +24,37 @@ typedef struct x64emu_s x64emu_t;
 #define STld(a)  emu->fpu_ld[(emu->top+(a))&7]
 #define STll(a)  emu->fpu_ll[(emu->top+(a))&7]
 
+// Use a NaN payload as invalid marker so a valid +0.0 reference stays usable.
+#define FPU_LD80_INVALID_REF UINT64_C(0x7ff8deadbeefc0de)
+static inline void fpu_ld80_clear(x64emu_t* emu, int i)
+{
+    STld(i).uref = FPU_LD80_INVALID_REF;
+}
+
+static inline int fpu_ld80_raw_valid(x64emu_t* emu, int i)
+{
+    return STld(i).uref != FPU_LD80_INVALID_REF && ST(i).q==STld(i).uref;
+}
+
+static inline void fpu_ld80_copy(x64emu_t* emu, int dst, int src)
+{
+    ST(dst).q = ST(src).q;
+    if(fpu_ld80_raw_valid(emu, src))
+        STld(dst) = STld(src);
+    else
+        fpu_ld80_clear(emu, dst);
+}
+
+static inline void fpu_ld80_swap(x64emu_t* emu, int a, int b)
+{
+    uint64_t q = ST(a).q;
+    fpu_ld_t tmp = STld(a);
+    ST(a).q = ST(b).q;
+    ST(b).q = q;
+    STld(a) = STld(b);
+    STld(b) = tmp;
+}
+
 static inline void fpu_do_push(x64emu_t* emu)
 {
     int newtop = (emu->top-1)&7;
@@ -37,6 +68,7 @@ static inline void fpu_do_push(x64emu_t* emu)
     emu->fpu_tags<<=2;  // st0 full
     emu->fpu_tags &= TAGS_EMPTY;
     emu->top = newtop;
+    fpu_ld80_clear(emu, 0);
 }
 
 static inline void fpu_do_pop(x64emu_t* emu)
@@ -52,6 +84,7 @@ static inline void fpu_do_pop(x64emu_t* emu)
     
     emu->fpu_tags>>=2;
     emu->fpu_tags |= 0b1100000000000000;    // top empty
+    fpu_ld80_clear(emu, 0);
     emu->top = (emu->top+1)&7;
     // check tags
     /*while((emu->fpu_tags&0b11) && emu->fpu_stack) {
@@ -88,6 +121,79 @@ static inline void fpu_fcom(x64emu_t* emu, double b)
         emu->sw.f.F87_C3 = 1;
     }
 }
+
+#ifndef HAVE_LD80BITS
+// 1 => a > b
+// 0 => a == b
+// -1 => a < b
+// 2 => unordered
+static inline int fpu_ld80_raw_cmp(const longdouble_t* a, const longdouble_t* b)
+{
+    uint16_t a_upper = a->l.upper, b_upper = b->l.upper;
+    uint64_t a_lower = a->l.lower, b_lower = b->l.lower;
+
+    int a_sign = a_upper >> 15, b_sign = b_upper >> 15;
+    int a_exponent = a_upper & 0x7fff, b_exponent = b_upper & 0x7fff;
+
+    int a_zero = (a_exponent == 0 && a_lower == 0);
+    int b_zero = (b_exponent == 0 && b_lower == 0);
+
+    int a_nan = (a_exponent == 0x7fff && a_lower != 0x8000000000000000ULL);
+    int b_nan = (b_exponent == 0x7fff && b_lower != 0x8000000000000000ULL);
+
+    if (a_nan || b_nan)
+        return 2;   /* unordered */
+
+    if (a_zero && b_zero)
+        return 0;
+
+    if (a_sign != b_sign)
+        return a_sign ? -1 : 1;
+
+    int mag;
+    if (a_exponent != b_exponent)
+        mag = (a_exponent > b_exponent) ? 1 : -1;
+    else if (a_lower != b_lower)
+        mag = (a_lower > b_lower) ? 1 : -1;
+    else
+        mag = 0;
+
+    return a_sign ? -mag : mag;
+}
+
+static inline int fpu_fcomi_ld80(x64emu_t* emu, int i)
+{
+    if (!fpu_ld80_raw_valid(emu, i) || !fpu_ld80_raw_valid(emu, 0))
+        return 0;
+
+    int cmp = fpu_ld80_raw_cmp(&STld(0).ld, &STld(i).ld);
+
+    RESET_FLAGS(emu);
+    CLEAR_FLAG(F_AF);
+    CLEAR_FLAG(F_OF);
+    CLEAR_FLAG(F_SF);
+    emu->sw.f.F87_C1 = 0;
+
+    if (cmp == 2) {
+        SET_FLAG(F_CF);
+        SET_FLAG(F_PF);
+        SET_FLAG(F_ZF);
+    } else if (cmp > 0) {
+        CLEAR_FLAG(F_CF);
+        CLEAR_FLAG(F_PF);
+        CLEAR_FLAG(F_ZF);
+    } else if (cmp < 0) {
+        SET_FLAG(F_CF);
+        CLEAR_FLAG(F_PF);
+        CLEAR_FLAG(F_ZF);
+    } else {
+        CLEAR_FLAG(F_CF);
+        CLEAR_FLAG(F_PF);
+        SET_FLAG(F_ZF);
+    }
+    return 1;
+}
+#endif
 
 static inline void fpu_fcomi(x64emu_t* emu, double b)
 {

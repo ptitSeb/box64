@@ -13,6 +13,7 @@
 
 void fpu_do_free(x64emu_t* emu, int i)
 {
+    fpu_ld80_clear(emu, i);
     emu->fpu_tags |= 0b11 << (i*2);   // empty
     // check if all empty
     if(emu->fpu_tags != TAGS_EMPTY)
@@ -24,9 +25,11 @@ void reset_fpu(x64emu_t* emu)
 {
     memset(emu->x87, 0, sizeof(emu->x87));
     memset(emu->fpu_ld, 0, sizeof(emu->fpu_ld));
+    emu->top = 0;
+    for(int i=0; i<8; ++i)
+        fpu_ld80_clear(emu, i);
     emu->cw.x16 = 0x37F;
     emu->sw.x16 = 0x0000;
-    emu->top = 0;
     emu->fpu_stack = 0;
     emu->fpu_tags = TAGS_EMPTY;
 }
