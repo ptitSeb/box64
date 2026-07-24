@@ -448,7 +448,7 @@ const char* DumpCPURegs(x64emu_t* emu, uintptr_t ip, int is32bits)
         int stack = emu->fpu_stack;
         if(stack>8) stack = 8;
         for (int i=0; i<stack; i++) {
-            sprintf(tmp, "ST%d=%f(0x%" PRIx64 "%s)", i, ST(i).d, ST(i).q, (ST(i).q==STld(i).uref)?PrintLD(&STld(i).ld, " / "):"");
+            sprintf(tmp, "ST%d=%f(0x%" PRIx64 "%s)", i, ST(i).d, ST(i).q, fpu_ld80_raw_valid(emu, i)?PrintLD(&STld(i).ld, " / "):"");
             strcat(buff, tmp);
             int c = 20-strlen(tmp);
             if(c<1) c=1;

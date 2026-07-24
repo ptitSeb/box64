@@ -58,7 +58,7 @@ uintptr_t RunDF(x64emu_t *emu, rex_t rex, uintptr_t addr)
         case 0xD5:
         case 0xD6:
         case 0xD7:
-            ST(nextop&7).q = ST0.q;
+            fpu_ld80_copy(emu, nextop&7, 0);
             fpu_do_pop(emu);
             break;
 
@@ -75,7 +75,10 @@ uintptr_t RunDF(x64emu_t *emu, rex_t rex, uintptr_t addr)
         case 0xED:
         case 0xEE:
         case 0xEF:
-            fpu_fcomi(emu, ST(nextop&7).d);   // bad, should handle QNaN and IA interrupt
+        #ifndef HAVE_LD80BITS
+            if (!fpu_fcomi_ld80(emu, nextop&7))
+        #endif
+                fpu_fcomi(emu, ST(nextop&7).d);   // bad, should handle QNaN and IA interrupt
             fpu_do_pop(emu);
             break;
 
