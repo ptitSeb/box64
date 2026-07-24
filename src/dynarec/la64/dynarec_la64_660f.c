@@ -280,7 +280,6 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGM(v0);
             GETEX(v1, 0, 0);
-            u8 = sse_setround(dyn, ninst, x4, x6);
             if (BOX64ENV(dynarec_fastround)) {
                 VFTINT_W_D(v0, v1, v1);
             } else {
@@ -314,7 +313,6 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 VEXTRINS_W(v0, q0, VEXTRINS_IMM_4_0(1, 0));
                 MARK3;
             }
-            x87_restoreround(dyn, ninst, u8);
             break;
         case 0x2E:
             // no special check...
@@ -940,9 +938,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     u8 = F8;
                     v1 = fpu_get_scratch(dyn);
                     if (u8 & 4) {
-                        u8 = sse_setround(dyn, ninst, x1, x2);
                         VFRINT_S(q0, q1);
-                        x87_restoreround(dyn, ninst, u8);
                     } else {
                         VFRINTRRD_S(q0, q1, round_round[u8 & 3]);
                     }
@@ -955,9 +951,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     u8 = F8;
                     v1 = fpu_get_scratch(dyn);
                     if (u8 & 4) {
-                        u8 = sse_setround(dyn, ninst, x1, x2);
                         VFRINT_D(q0, q1);
-                        x87_restoreround(dyn, ninst, u8);
                     } else {
                         VFRINTRRD_D(q0, q1, round_round[u8 & 3]);
                     }
@@ -970,9 +964,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     u8 = F8;
                     v1 = fpu_get_scratch(dyn);
                     if (u8 & 4) {
-                        u8 = sse_setround(dyn, ninst, x1, x2);
                         VFRINT_S(v1, q1);
-                        x87_restoreround(dyn, ninst, u8);
                     } else {
                         VFRINTRRD_S(v1, q1, round_round[u8 & 3]);
                     }
@@ -986,9 +978,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     u8 = F8;
                     v1 = fpu_get_scratch(dyn);
                     if (u8 & 4) {
-                        u8 = sse_setround(dyn, ninst, x1, x2);
                         VFRINT_D(v1, q1);
-                        x87_restoreround(dyn, ninst, u8);
                     } else {
                         VFRINTRRD_D(v1, q1, round_round[u8 & 3]);
                     }
@@ -1649,23 +1639,16 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETEX(v1, 0, 0);
             GETGX_empty(v0);
-            if (BOX64ENV(dynarec_fastround) <= 1) {
-                u8 = sse_setround(dyn, ninst, x6, x4);
-            }
             q0 = fpu_get_scratch(dyn);
             VFCVT_S_D(q0, v1, v1);
             VXOR_V(v0, v0, v0);
             VEXTRINS_D(v0, q0, 0);
-            if (BOX64ENV(dynarec_fastround) <= 1) {
-                x87_restoreround(dyn, ninst, u8);
-            }
             break;
         case 0x5B:
             INST_NAME("CVTPS2DQ Gx, Ex");
             nextop = F8;
             GETEX(v1, 0, 0);
             GETGX_empty(v0);
-            u8 = sse_setround(dyn, ninst, x6, x4);
             if (v0 == v1 && !BOX64ENV(dynarec_fastround)) {
                 v1 = fpu_get_scratch(dyn);
                 VOR_V(v1, v0, v0);
@@ -1685,7 +1668,6 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 VSRLI_W(q0, q0, 31);
                 VADD_W(v0, v0, q0);
             }
-            x87_restoreround(dyn, ninst, u8);
             break;
         case 0x5C:
             INST_NAME("SUBPD Gx, Ex");

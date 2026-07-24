@@ -380,9 +380,6 @@ uintptr_t dynarec64_AVX_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, in
                 GETEYSD(v1, 0, 0);
             }
             GETGYxy_empty(v0);
-            if(!BOX64ENV(dynarec_fastround)) {
-                u8 = sse_setround(dyn, ninst, x6, x4);
-            }
             d0 = fpu_get_scratch(dyn);
             if(vex.l) {
                 XVFCVTH_D_S(d0, v1);
@@ -390,9 +387,6 @@ uintptr_t dynarec64_AVX_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, in
                 XVPERMI_Q(v0, d0, XVPERMI_IMM_4_0(0, 2));
             } else {
                 VFCVTL_D_S(v0, v1);
-            }
-            if(!BOX64ENV(dynarec_fastround)) {
-                x87_restoreround(dyn, ninst, u8);
             }
             break;
         case 0x5B:
@@ -512,6 +506,7 @@ uintptr_t dynarec64_AVX_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, in
                         INST_NAME("VLDMXCSR Md");
                         GETED(0);
                         ST_W(ed, xEmu, offsetof(x64emu_t, mxcsr));
+                        sse_fcsr3_from_mxcsr(dyn, ninst, x3);
                         if (BOX64ENV(sse_flushto0)) {
                             /* LA <-> x86
                             16/24 <-> 5    inexact

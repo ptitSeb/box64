@@ -1558,7 +1558,7 @@ static inline int comis_fuse_inverted(int condition)
 #define x87_unreflectcount    STEPNAME(x87_unreflectcount)
 #define x87_purgecache        STEPNAME(x87_purgecache)
 
-#define sse_setround      STEPNAME(sse_setround)
+#define sse_fcsr3_from_mxcsr STEPNAME(sse_fcsr3_from_mxcsr)
 #define mmx_get_reg       STEPNAME(mmx_get_reg)
 #define mmx_get_reg_empty STEPNAME(mmx_get_reg_empty)
 #define sse_purge07cache  STEPNAME(sse_purge07cache)
@@ -1762,8 +1762,7 @@ void fpu_reflectcache(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3);
 void fpu_unreflectcache(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3);
 void fpu_pushcache(dynarec_la64_t* dyn, int ninst, int s1, int not07);
 void fpu_popcache(dynarec_la64_t* dyn, int ninst, int s1, int not07);
-// Set rounding according to mxcsr flags, return reg to restore flags
-int sse_setround(dynarec_la64_t* dyn, int ninst, int s1, int s2);
+void sse_fcsr3_from_mxcsr(dynarec_la64_t* dyn, int ninst, int s1);
 
 // SSE/SSE2 helpers
 // purge the XMM0..XMM7 cache (before function call)

@@ -107,18 +107,12 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETVYx(v1, 0);
             GETGYx_empty(v0);
             d1 = fpu_get_scratch(dyn);
-            if (BOX64ENV(dynarec_fastround) <= 1) {
-                u8 = sse_setround(dyn, ninst, x2, x3);
-            }
             if (rex.w) {
                 MOVGR2FR_D(d1, ed);
                 FFINT_S_L(d1, d1);
             } else {
                 MOVGR2FR_W(d1, ed);
                 FFINT_S_W(d1, d1);
-            }
-            if (BOX64ENV(dynarec_fastround) <= 1) {
-                x87_restoreround(dyn, ninst, u8);
             }
             if (v0 != v1) VOR_V(v0, v1, v1);
             VEXTRINS_W(v0, d1, 0);
@@ -131,7 +125,6 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             if (!BOX64ENV(dynarec_fastround)) {
                 MOVGR2FCSR(FCSR2, xZR); // reset all bits
             }
-            u8 = sse_setround(dyn, ninst, x5, x6);
             d1 = fpu_get_scratch(dyn);
             if (rex.w) {
                 FTINTRZ_L_S(d1, d0);
@@ -141,7 +134,6 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 MOVFR2GR_S(gd, d1);
                 ZEROUP(gd);
             }
-            x87_restoreround(dyn, ninst, u8);
             if (!BOX64ENV(dynarec_fastround)) {
                 MOVFCSR2GR(x5, FCSR2); // get back FPSR to check
                 MOV32w(x3, (1 << FR_V) | (1 << FR_O));
@@ -162,7 +154,6 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             if (!BOX64ENV(dynarec_fastround)) {
                 MOVGR2FCSR(FCSR2, xZR); // reset all bits
             }
-            u8 = sse_setround(dyn, ninst, x5, x6);
             d1 = fpu_get_scratch(dyn);
             if (rex.w) {
                 FTINT_L_S(d1, d0);
@@ -172,7 +163,6 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 MOVFR2GR_S(gd, d1);
                 ZEROUP(gd);
             }
-            x87_restoreround(dyn, ninst, u8);
             if (!BOX64ENV(dynarec_fastround)) {
                 MOVFCSR2GR(x5, FCSR2); // get back FPSR to check
                 MOV32w(x3, (1 << FR_V) | (1 << FR_O));

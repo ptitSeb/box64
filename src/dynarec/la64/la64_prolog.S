@@ -76,6 +76,14 @@ la64_prolog:
     beqz      $r19, 1f
     x86mtflag Flags, 0b111111
 1:
+    // map mxcsr round mode to FCSR3
+    // x86 RC: 0..3: Nearest, Down, Up, Chop -> LA64 RM: 0->0, 1->3, 2->2, 3->1
+    ld.w      $r19, Emu, EMU_MXCSR
+    bstrpick.w $r19, $r19, 14, 13
+    sub.w     $r19, $r0, $r19
+    andi      $r19, $r19, 3
+    slli.d    $r19, $r19, 8
+    movgr2fcsr $fcsr3, $r19
     // push sentinel onto the stack
     st.d   $r0,  $sp, -16
     st.d   $r0,  $sp, -8
