@@ -1,5 +1,6 @@
 #define _MULTI_THREADED
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <pthread.h>
@@ -40,10 +41,22 @@ typedef struct {
 	int   data2;
 } threadparm_t; 
 
+static uintptr_t fast_pthread_self(void)
+{
+	uintptr_t self;
+	__asm__ volatile("movq %%fs:0x10, %0" : "=r"(self));
+	return self;
+}
+
 void *thread_run(void *parm)
 {
 	int               rc;
 	threadparm_t     *gData;
+
+	if (fast_pthread_self() != (uintptr_t)pthread_self()) {
+		fprintf(stderr, "TLS self pointer does not match pthread_self()\n");
+		exit(1);
+	}
 
 	pthread_mutex_lock(mutex_ptr);
 	if (pthread_self()==thread[0]) {
