@@ -9,6 +9,20 @@
 #include "symbolfuncs.h"
 #include "x64emu.h"
 
+enum {
+    X64_PREFIX_LOCK = 1,
+    X64_PREFIX_REP_F2,
+    X64_PREFIX_REP_F3,
+    X64_PREFIX_SEG0,
+    X64_PREFIX_FS,
+    X64_PREFIX_GS,
+    X64_PREFIX_66,
+    X64_PREFIX_67,
+    X64_PREFIX_REX,
+};
+
+extern const uint8_t x64_prefix_kind_table[256];
+
 typedef struct rex_s {
     union {
         uint8_t rex;

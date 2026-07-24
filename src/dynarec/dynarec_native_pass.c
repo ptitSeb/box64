@@ -286,7 +286,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         rex.is67 = 0;
         rex.isf0 = 0;
         rex.rep = 0;
-        uint8_t prefix = x64_prefix_kind[pk];
+        uint8_t prefix = x64_prefix_kind_table[pk];
         while(prefix && (prefix!=X64_PREFIX_REX || !is32bits)) {
             switch (prefix) {
                 case X64_PREFIX_LOCK: rex.isf0 = 1; rex.rex = 0; break;
@@ -301,7 +301,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
             }
             ++addr;
             pk = PK(0);
-            prefix = x64_prefix_kind[pk];
+            prefix = x64_prefix_kind_table[pk];
         }
         if(rex.isf0) {
             if(rex.is66 && !rex.w)
