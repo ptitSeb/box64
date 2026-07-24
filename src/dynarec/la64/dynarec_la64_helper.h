@@ -1214,24 +1214,36 @@ static inline int comis_fuse_inverted(int condition)
     READFLAGS(A)
 #endif
 
-#define NAT_FLAGS_OPS(op1, op2, s1, s2)                                     \
-    do {                                                                    \
-        dyn->insts[dyn->insts[ninst].nat_next_inst].nat_flags_op1 = op1;    \
-        dyn->insts[dyn->insts[ninst].nat_next_inst].nat_flags_op2 = op2;    \
-        if (dyn->insts[ninst + 1].no_scratch_usage && IS_GPR(op1)) {        \
-            if (dyn->insts[ninst].up32_read & (1 << TO_X64(op1)))           \
-                MV(s1, op1);                                                \
-            else                                                            \
-                ZEROUP2(s1, op1);                                           \
-            dyn->insts[dyn->insts[ninst].nat_next_inst].nat_flags_op1 = s1; \
-        }                                                                   \
-        if (dyn->insts[ninst + 1].no_scratch_usage && IS_GPR(op2)) {        \
-            if (dyn->insts[ninst].up32_read & (1 << TO_X64(op2)))           \
-                MV(s2, op2);                                                \
-            else                                                            \
-                ZEROUP2(s2, op2);                                           \
-            dyn->insts[dyn->insts[ninst].nat_next_inst].nat_flags_op2 = s2; \
-        }                                                                   \
+#define NAT_FLAGS_OPS(op1, op2, s1, s2)                                            \
+    do {                                                                           \
+        int nat_op1 = op1;                                                         \
+        int nat_op2 = op2;                                                         \
+        int nat_next = dyn->insts[ninst].nat_next_inst;                            \
+        int nat_last = nat_next;                                                   \
+        while (nat_last && dyn->insts[nat_last].nat_next_inst)                     \
+            nat_last = dyn->insts[nat_last].nat_next_inst;                         \
+        int nat_copy = 0;                                                          \
+        for (int nat_i = ninst + 1; nat_i < nat_last; ++nat_i)                     \
+            if (dyn->insts[nat_i].no_scratch_usage)                                \
+                nat_copy = 1;                                                      \
+        if (nat_copy && IS_GPR(nat_op1)) {                                         \
+            if (dyn->insts[ninst].up32_read & (1 << TO_X64(nat_op1)))              \
+                MV(s1, nat_op1);                                                   \
+            else                                                                   \
+                ZEROUP2(s1, nat_op1);                                              \
+            nat_op1 = s1;                                                          \
+        }                                                                          \
+        if (nat_copy && IS_GPR(nat_op2)) {                                         \
+            if (dyn->insts[ninst].up32_read & (1 << TO_X64(nat_op2)))              \
+                MV(s2, nat_op2);                                                   \
+            else                                                                   \
+                ZEROUP2(s2, nat_op2);                                              \
+            nat_op2 = s2;                                                          \
+        }                                                                          \
+        for (int nat_i = nat_next; nat_i; nat_i = dyn->insts[nat_i].nat_next_inst) { \
+            dyn->insts[nat_i].nat_flags_op1 = nat_op1;                             \
+            dyn->insts[nat_i].nat_flags_op2 = nat_op2;                             \
+        }                                                                          \
     } while (0)
 
 #define NAT_FLAGS_ENABLE_CARRY() dyn->insts[ninst].nat_flags_carry = 1

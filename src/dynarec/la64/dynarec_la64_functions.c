@@ -836,20 +836,35 @@ void updateNativeFlags(dynarec_la64_t* dyn)
         if (dyn->insts[i].nat_flags_fusion) {
             int j = i - 1;
             int found = 0;
+            int last_fused = 0;
             if (hasLinearPredecessor(dyn, i)) {
                 while (j >= 0) {
                     if (dyn->insts[j].x64.set_flags && (dyn->insts[i].x64.use_flags & dyn->insts[j].x64.set_flags) == dyn->insts[i].x64.use_flags) {
+                        int needsign = (dyn->insts[i].x64.use_flags & X_SF) ? 1 : 0;
+                        int needunsigned = (dyn->insts[i].x64.use_flags & X_CF) ? 1 : 0;
+                        if (dyn->insts[j].nat_flags_fusion && ((needsign && dyn->insts[j].nat_flags_needunsigned) || (needunsigned && dyn->insts[j].nat_flags_needsign)))
+                            break; // not compatible, stop here
                         dyn->insts[j].nat_flags_fusion = 1;
-                        if (dyn->insts[i].x64.use_flags & X_SF) {
+                        if (needsign)
                             dyn->insts[j].nat_flags_needsign = 1;
-                        }
+                        if (needunsigned)
+                            dyn->insts[j].nat_flags_needunsigned = 1;
                         dyn->insts[i].x64.use_flags = 0;
-                        dyn->insts[j].nat_next_inst = i;
+                        if (last_fused) {
+                            dyn->insts[last_fused].nat_next_inst = i;
+                        } else {
+                            uint16_t* next = &dyn->insts[j].nat_next_inst;
+                            while (*next) next = &dyn->insts[*next].nat_next_inst;
+                            *next = i;
+                        }
                         dyn->insts[i].up32_read |= dyn->insts[j].up32_write32;
                         found = 1;
                         break;
-                    } else if (hasLinearPredecessor(dyn, j) && dyn->insts[j].no_scratch_usage
-                        && !dyn->insts[j].x64.set_flags && !dyn->insts[j].x64.use_flags) {
+                    } else if (hasLinearPredecessor(dyn, j) && dyn->insts[j].nat_flags_fusion && dyn->insts[j].x64.jmp && !dyn->insts[j].x64.set_flags && !dyn->insts[j].x64.use_flags) {
+                        // already fused Jcc consumer
+                        if (!last_fused) last_fused = j;
+                        j -= 1;
+                    } else if (hasLinearPredecessor(dyn, j) && dyn->insts[j].no_scratch_usage && !dyn->insts[j].x64.set_flags && !dyn->insts[j].x64.use_flags) {
                         j -= 1;
                     } else
                         break;
