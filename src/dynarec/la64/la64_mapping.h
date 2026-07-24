@@ -176,4 +176,6 @@ r31     s8     xEmu         Saved register                  The Emu struct      
 
 #endif // ASM_MAPPING
 
+#define EMU_MXCSR 800
+
 #endif //__LA64_MAPPING_H__

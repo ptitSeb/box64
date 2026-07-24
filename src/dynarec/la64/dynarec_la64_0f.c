@@ -357,9 +357,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETGX(v0, 1);
             GETEM(v1, 0);
             q0 = fpu_get_scratch(dyn);
-            u8 = sse_setround(dyn, ninst, x1, x2);
             VFFINT_S_W(q0, v1);
-            x87_restoreround(dyn, ninst, u8);
             VEXTRINS_D(v0, q0, VEXTRINS_IMM_4_0(0, 0));
             break;
         case 0x2B:
@@ -406,7 +404,6 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETGM(v0);
             GETEXSD(v1, 0, 0);
-            u8 = sse_setround(dyn, ninst, x4, x6);
             if (BOX64ENV(dynarec_fastround)) {
                 VFTINTRZ_W_S(v0, v1);
             } else {
@@ -439,7 +436,6 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 
                 MARK3;
             }
-            x87_restoreround(dyn, ninst, u8);
             break;
         case 0x2E:
             // no special check...
@@ -1724,11 +1720,13 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         BARRIER(BARRIER_FLOAT);
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, x3, &fixedaddress, rex, NULL, 0, 0);
                         CALL(rex.is32bits ? const_fpu_fxrstor32 : const_fpu_fxrstor64, -1, ed, 0);
+                        sse_fcsr3_from_mxcsr(dyn, ninst, x3);
                         break;
                     case 2:
                         INST_NAME("LDMXCSR Md");
                         GETED(0);
                         ST_W(ed, xEmu, offsetof(x64emu_t, mxcsr));
+                        sse_fcsr3_from_mxcsr(dyn, ninst, x3);
                         if (BOX64ENV(sse_flushto0)) {
                             /* LA <-> x86
                             16/24 <-> 5    inexact
@@ -1788,6 +1786,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 0);
                         MOV32w(x2, rex.is32bits);
                         CALL(const_fpu_xrstor, -1, ed, x2);
+                        sse_fcsr3_from_mxcsr(dyn, ninst, x3);
                         break;
                     case 7:
                         INST_NAME("CLFLUSH Ed");

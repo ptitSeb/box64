@@ -198,6 +198,7 @@ typedef struct dynarec_la64_s {
     uint8_t              is_file_mapped:1;
     void*                gdbjit_block;
     uint32_t             need_x87check; // x87 low precision check
+    int                  x87round_active; // we are in the middle of x87_setround and x87_restoreround
     uint32_t             need_dump;     // need to dump the block
     int                  need_reloc; // does the dynablock need relocations
     int                  reloc_size;

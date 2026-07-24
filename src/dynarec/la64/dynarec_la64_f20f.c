@@ -98,18 +98,12 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGX(v0, 1);
             GETED(0);
             d1 = fpu_get_scratch(dyn);
-            if (BOX64ENV(dynarec_fastround) <= 1) {
-                u8 = sse_setround(dyn, ninst, x2, x3);
-            }
             if (rex.w) {
                 MOVGR2FR_D(d1, ed);
                 FFINT_D_L(d1, d1);
             } else {
                 MOVGR2FR_W(d1, ed);
                 FFINT_D_W(d1, d1);
-            }
-            if (BOX64ENV(dynarec_fastround) <= 1) {
-                x87_restoreround(dyn, ninst, u8);
             }
             VEXTRINS_D(v0, d1, 0);
             break;
@@ -151,7 +145,6 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 MOVGR2FCSR(FCSR2, xZR); // reset all bits
             }
             d1 = fpu_get_scratch(dyn);
-            u8 = sse_setround(dyn, ninst, x2, x3);
             if (rex.w) {
                 FTINT_L_D(d1, q0);
                 MOVFR2GR_D(gd, d1);
@@ -160,7 +153,6 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 MOVFR2GR_S(gd, d1);
                 if (NEED_ZEROUP(gd)) ZEROUP(gd);
             }
-            x87_restoreround(dyn, ninst, u8);
             if (!BOX64ENV(dynarec_fastround)) {
                 MOVFCSR2GR(x5, FCSR2); // get back FPSR to check
                 MOV32w(x3, (1 << FR_V) | (1 << FR_O));
@@ -273,13 +265,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGX(v0, 1);
             GETEXSD(d0, 0, 0);
             d1 = fpu_get_scratch(dyn);
-            if (BOX64ENV(dynarec_fastround) <= 1) {
-                u8 = sse_setround(dyn, ninst, x2, x3);
-            }
             FCVT_S_D(d1, d0);
-            if (BOX64ENV(dynarec_fastround) <= 1) {
-                x87_restoreround(dyn, ninst, u8);
-            }
             VEXTRINS_W(v0, d1, 0);
             break;
         case 0x5C:
@@ -521,7 +507,6 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETEX(v1, 0, 0);
             GETGX_empty(v0);
-            u8 = sse_setround(dyn, ninst, x1, x2);
             if (BOX64ENV(dynarec_fastround)) {
                 VFTINT_W_D(v0, v1, v1);
             } else {
@@ -536,7 +521,6 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 VSHUF4I_W(q1, q1, 0b00001000);
                 VBITSEL_V(v0, d0, q0, q1);
             }
-            x87_restoreround(dyn, ninst, u8);
             VINSGR2VR_D(v0, xZR, 1);
             break;
         case 0xF0:

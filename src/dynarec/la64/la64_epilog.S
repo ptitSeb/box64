@@ -45,6 +45,15 @@ la64_epilog:
     st.d   RIP,   Emu, (8 * 17) // put back reg value in emu, including EIP (so $r29 must be EIP now)
     // fallback to epilog_fast now, just restoring saved regs
 la64_epilog_fast:
+    // spill FCSR3 round mode back to mxcsr
+    movfcsr2gr $r19, $fcsr3
+    bstrpick.w $r19, $r19, 9, 8
+    sub.w     $r19, $r0, $r19
+    andi      $r19, $r19, 3
+    ld.w      $r20, Emu, EMU_MXCSR
+    bstrins.d $r20, $r19, 14, 13
+    st.w      $r20, Emu, EMU_MXCSR
+    movgr2fcsr $fcsr3, $r0
     addi.d $sp, SavedSP, 0      // restore save sp from xSavedSP
     // restore all used register
     ld.d   $r1,  $sp, (8 * 0) // load ra

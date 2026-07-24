@@ -117,18 +117,12 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETVYx(v1, 0);
             GETGYx_empty(v0);
             d1 = fpu_get_scratch(dyn);
-            if (BOX64ENV(dynarec_fastround) <= 1) {
-                u8 = sse_setround(dyn, ninst, x2, x3);
-            }
             if (rex.w) {
                 MOVGR2FR_D(d1, ed);
                 FFINT_D_L(d1, d1);
             } else {
                 MOVGR2FR_W(d1, ed);
                 FFINT_D_W(d1, d1);
-            }
-            if (BOX64ENV(dynarec_fastround) <= 1) {
-                x87_restoreround(dyn, ninst, u8);
             }
             if (v0 != v1) VOR_V(v0, v1, v1);
             VEXTRINS_D(v0, d1, 0);
@@ -171,7 +165,6 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 MOVGR2FCSR(FCSR2, xZR); // reset all bits
             }
             d1 = fpu_get_scratch(dyn);
-            u8 = sse_setround(dyn, ninst, x2, x3);
             if (rex.w) {
                 FTINT_L_D(d1, q0);
                 MOVFR2GR_D(gd, d1);
@@ -180,7 +173,6 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 MOVFR2GR_S(gd, d1);
                 ZEROUP(gd);
             }
-            x87_restoreround(dyn, ninst, u8);
             if (!BOX64ENV(dynarec_fastround)) {
                 MOVFCSR2GR(x5, FCSR2); // get back FPSR to check
                 MOV32w(x3, (1 << FR_V) | (1 << FR_O));
@@ -268,13 +260,7 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETVYx(v1, 0);
             GETGYx_empty(v0);
             d0 = fpu_get_scratch(dyn);
-            if (BOX64ENV(dynarec_fastround) <= 1) {
-                u8 = sse_setround(dyn, ninst, x2, x3);
-            }
             FCVT_S_D(d0, v2);
-            if (BOX64ENV(dynarec_fastround) <= 1) {
-                x87_restoreround(dyn, ninst, u8);
-            }
             if (v0 != v1) VOR_V(v0, v1, v1);
             XVINSVE0_W(v0, d0, 0);
             break;
@@ -492,7 +478,6 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             nextop = F8;
             GETEYxy(v1, 0, 0);
             GETGYx_empty(v0);
-            u8 = sse_setround(dyn, ninst, x1, x2);
             if (vex.l) {
                 if (!BOX64ENV(dynarec_fastround)) {
                     q0 = fpu_get_scratch(dyn);
@@ -536,7 +521,6 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 }
                 XVPICKVE_D(v0, d0, 0);
             }
-            x87_restoreround(dyn, ninst, u8);
             break;
         case 0xF0:
             INST_NAME("VLDDQU Gx, Ex");
