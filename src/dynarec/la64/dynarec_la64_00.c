@@ -761,7 +761,7 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 ANDI(x4, gd, 3);
                 SLTU(x5, x6, x4);
                 BSTRINS_D(xFlags, x5, F_ZF, F_ZF);
-                SPILL_EFLAGS();
+                if (cpuext.lbt) X64_SET_EFLAGS(xFlags, X_ZF);
                 BEQZ_MARK(x5);
                 BSTRINS_D(ed, gd, 1, 0);
                 EWBACK;
