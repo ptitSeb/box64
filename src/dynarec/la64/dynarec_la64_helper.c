@@ -637,6 +637,11 @@ void call_n(dynarec_la64_t* dyn, int ninst, void* fnc, int w)
     ST_D(xRSP, xEmu, offsetof(x64emu_t, regs[_SP]));
     ST_D(xRBP, xEmu, offsetof(x64emu_t, regs[_BP]));
     ST_D(xRBX, xEmu, offsetof(x64emu_t, regs[_BX]));
+    int nfp = (abs(w) & 15) - 1;
+    if (nfp > 0)
+        for (int i = 0; i < nfp; ++i)
+            sse_get_reg(dyn, ninst, x3, i, w);
+    if (w < 0) sse_get_reg_empty(dyn, ninst, x3, 0);
     // check if additional sextw needed
     int sextw_mask = ((w > 0 ? w : -w) >> 4) & 0b111111;
     for (int i = 0; i < 6; i++) {
