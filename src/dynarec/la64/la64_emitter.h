@@ -566,7 +566,10 @@
 #define B(imm28)               EMIT(type_I26(0b010100, ((imm28) >> 2)))
 #define B__(reg1, reg2, imm28) B(imm28)
 
-#define BEQ_safe(rj, rd, imm)                      \
+#define NEAR_JUMP_INSTS  100
+#define NEAR_JUMPZ_INSTS 300
+
+#define BEQ_safe_(rj, rd, imm)                     \
     do {                                           \
         if ((imm) > -0x20000 && (imm) < 0x20000) { \
             BEQ(rj, rd, imm);                      \
@@ -577,7 +580,20 @@
         }                                          \
     } while (0)
 
-#define BNE_safe(rj, rd, imm)                      \
+#define BEQ_safe(rj, rd, imm, jmp)                \
+    do {                                          \
+        if (jmp < ninst) {                        \
+            if ((imm) < -0x20000)                 \
+                BEQ_safe_(rj, rd, imm);           \
+            else                                  \
+                BEQ(rj, rd, imm);                 \
+        } else if (jmp - ninst < NEAR_JUMP_INSTS) \
+            BEQ(rj, rd, imm);                     \
+        else                                      \
+            BEQ_safe_(rd, rj, imm);               \
+    } while (0)
+
+#define BNE_safe_(rj, rd, imm)                     \
     do {                                           \
         if ((imm) > -0x20000 && (imm) < 0x20000) { \
             BNE(rj, rd, imm);                      \
@@ -588,7 +604,20 @@
         }                                          \
     } while (0)
 
-#define BLT_safe(rj, rd, imm)                      \
+#define BNE_safe(rj, rd, imm, jmp)                \
+    do {                                          \
+        if (jmp < ninst) {                        \
+            if ((imm) < -0x20000)                 \
+                BNE_safe_(rj, rd, imm);           \
+            else                                  \
+                BNE(rj, rd, imm);                 \
+        } else if (jmp - ninst < NEAR_JUMP_INSTS) \
+            BNE(rj, rd, imm);                     \
+        else                                      \
+            BNE_safe_(rj, rd, imm);               \
+    } while (0)
+
+#define BLT_safe_(rj, rd, imm)                     \
     do {                                           \
         if ((imm) > -0x20000 && (imm) < 0x20000) { \
             BLT(rj, rd, imm);                      \
@@ -599,7 +628,20 @@
         }                                          \
     } while (0)
 
-#define BGE_safe(rj, rd, imm)                      \
+#define BLT_safe(rj, rd, imm, jmp)                \
+    do {                                          \
+        if (jmp < ninst) {                        \
+            if ((imm) < -0x20000)                 \
+                BLT_safe_(rj, rd, imm);           \
+            else                                  \
+                BLT(rj, rd, imm);                 \
+        } else if (jmp - ninst < NEAR_JUMP_INSTS) \
+            BLT(rj, rd, imm);                     \
+        else                                      \
+            BLT_safe_(rj, rd, imm);               \
+    } while (0)
+
+#define BGE_safe_(rj, rd, imm)                     \
     do {                                           \
         if ((imm) > -0x20000 && (imm) < 0x20000) { \
             BGE(rj, rd, imm);                      \
@@ -610,7 +652,20 @@
         }                                          \
     } while (0)
 
-#define BLTU_safe(rj, rd, imm)                     \
+#define BGE_safe(rj, rd, imm, jmp)                \
+    do {                                          \
+        if (jmp < ninst) {                        \
+            if ((imm) < -0x20000)                 \
+                BGE_safe_(rj, rd, imm);           \
+            else                                  \
+                BGE(rj, rd, imm);                 \
+        } else if (jmp - ninst < NEAR_JUMP_INSTS) \
+            BGE(rj, rd, imm);                     \
+        else                                      \
+            BGE_safe_(rj, rd, imm);               \
+    } while (0)
+
+#define BLTU_safe_(rj, rd, imm)                    \
     do {                                           \
         if ((imm) > -0x20000 && (imm) < 0x20000) { \
             BLTU(rj, rd, imm);                     \
@@ -621,7 +676,20 @@
         }                                          \
     } while (0)
 
-#define BGEU_safe(rj, rd, imm)                     \
+#define BLTU_safe(rj, rd, imm, jmp)               \
+    do {                                          \
+        if (jmp < ninst) {                        \
+            if ((imm) < -0x20000)                 \
+                BLTU_safe_(rj, rd, imm);          \
+            else                                  \
+                BLTU(rj, rd, imm);                \
+        } else if (jmp - ninst < NEAR_JUMP_INSTS) \
+            BLTU(rj, rd, imm);                    \
+        else                                      \
+            BLTU_safe_(rj, rd, imm);              \
+    } while (0)
+
+#define BGEU_safe_(rj, rd, imm)                    \
     do {                                           \
         if ((imm) > -0x20000 && (imm) < 0x20000) { \
             BGEU(rj, rd, imm);                     \
@@ -632,7 +700,20 @@
         }                                          \
     } while (0)
 
-#define BGT_safe(rj, rd, imm)                      \
+#define BGEU_safe(rj, rd, imm, jmp)               \
+    do {                                          \
+        if (jmp < ninst) {                        \
+            if ((imm) < -0x20000)                 \
+                BGEU_safe_(rj, rd, imm);          \
+            else                                  \
+                BGEU(rj, rd, imm);                \
+        } else if (jmp - ninst < NEAR_JUMP_INSTS) \
+            BGEU(rj, rd, imm);                    \
+        else                                      \
+            BGEU_safe_(rj, rd, imm);              \
+    } while (0)
+
+#define BGT_safe_(rj, rd, imm)                     \
     do {                                           \
         if ((imm) > -0x20000 && (imm) < 0x20000) { \
             BGT(rj, rd, imm);                      \
@@ -643,7 +724,20 @@
         }                                          \
     } while (0)
 
-#define BLE_safe(rj, rd, imm)                      \
+#define BGT_safe(rj, rd, imm, jmp)                \
+    do {                                          \
+        if (jmp < ninst) {                        \
+            if ((imm) < -0x20000)                 \
+                BGT_safe_(rj, rd, imm);           \
+            else                                  \
+                BGT(rj, rd, imm);                 \
+        } else if (jmp - ninst < NEAR_JUMP_INSTS) \
+            BGT(rj, rd, imm);                     \
+        else                                      \
+            BGT_safe_(rj, rd, imm);               \
+    } while (0)
+
+#define BLE_safe_(rj, rd, imm)                     \
     do {                                           \
         if ((imm) > -0x20000 && (imm) < 0x20000) { \
             BLE(rj, rd, imm);                      \
@@ -654,7 +748,20 @@
         }                                          \
     } while (0)
 
-#define BGTU_safe(rj, rd, imm)                     \
+#define BLE_safe(rj, rd, imm, jmp)                \
+    do {                                          \
+        if (jmp < ninst) {                        \
+            if ((imm) < -0x20000)                 \
+                BLE_safe_(rj, rd, imm);           \
+            else                                  \
+                BLE(rj, rd, imm);                 \
+        } else if (jmp - ninst < NEAR_JUMP_INSTS) \
+            BLE(rj, rd, imm);                     \
+        else                                      \
+            BLE_safe_(rj, rd, imm);               \
+    } while (0)
+
+#define BGTU_safe_(rj, rd, imm)                    \
     do {                                           \
         if ((imm) > -0x20000 && (imm) < 0x20000) { \
             BGTU(rj, rd, imm);                     \
@@ -665,7 +772,20 @@
         }                                          \
     } while (0)
 
-#define BLEU_safe(rj, rd, imm)                     \
+#define BGTU_safe(rj, rd, imm, jmp)               \
+    do {                                          \
+        if (jmp < ninst) {                        \
+            if ((imm) < -0x20000)                 \
+                BGTU_safe_(rj, rd, imm);          \
+            else                                  \
+                BGTU(rj, rd, imm);                \
+        } else if (jmp - ninst < NEAR_JUMP_INSTS) \
+            BGTU(rj, rd, imm);                    \
+        else                                      \
+            BGTU_safe_(rj, rd, imm);              \
+    } while (0)
+
+#define BLEU_safe_(rj, rd, imm)                    \
     do {                                           \
         if ((imm) > -0x20000 && (imm) < 0x20000) { \
             BLEU(rj, rd, imm);                     \
@@ -676,7 +796,20 @@
         }                                          \
     } while (0)
 
-#define BEQZ_safe(rj, imm)                         \
+#define BLEU_safe(rj, rd, imm, jmp)               \
+    do {                                          \
+        if (jmp < ninst) {                        \
+            if ((imm) < -0x20000)                 \
+                BLEU_safe_(rj, rd, imm);          \
+            else                                  \
+                BLEU(rj, rd, imm);                \
+        } else if (jmp - ninst < NEAR_JUMP_INSTS) \
+            BLEU(rj, rd, imm);                    \
+        else                                      \
+            BLEU_safe_(rj, rd, imm);              \
+    } while (0)
+
+#define BEQZ_safe_(rj, imm)                        \
     do {                                           \
         if ((imm) > -0x70000 && (imm) < 0x70000) { \
             BEQZ(rj, imm);                         \
@@ -687,7 +820,20 @@
         }                                          \
     } while (0)
 
-#define BNEZ_safe(rj, imm)                         \
+#define BEQZ_safe(rj, imm, jmp)                    \
+    do {                                           \
+        if (jmp < ninst) {                         \
+            if ((imm) < -0x70000)                  \
+                BEQZ_safe_(rj, imm);               \
+            else                                   \
+                BEQZ(rj, imm);                     \
+        } else if (jmp - ninst < NEAR_JUMPZ_INSTS) \
+            BEQZ(rj, imm);                         \
+        else                                       \
+            BEQZ_safe_(rj, imm);                   \
+    } while (0)
+
+#define BNEZ_safe_(rj, imm)                        \
     do {                                           \
         if ((imm) > -0x70000 && (imm) < 0x70000) { \
             BNEZ(rj, imm);                         \
@@ -698,7 +844,20 @@
         }                                          \
     } while (0)
 
-#define BCEQZ_safe(rj, imm)                        \
+#define BNEZ_safe(rj, imm, jmp)                    \
+    do {                                           \
+        if (jmp < ninst) {                         \
+            if ((imm) < -0x70000)                  \
+                BNEZ_safe_(rj, imm);               \
+            else                                   \
+                BNEZ(rj, imm);                     \
+        } else if (jmp - ninst < NEAR_JUMPZ_INSTS) \
+            BNEZ(rj, imm);                         \
+        else                                       \
+            BNEZ_safe_(rj, imm);                   \
+    } while (0)
+
+#define BCEQZ_safe_(rj, imm)                       \
     do {                                           \
         if ((imm) > -0x70000 && (imm) < 0x70000) { \
             BCEQZ(rj, imm);                        \
@@ -709,7 +868,20 @@
         }                                          \
     } while (0)
 
-#define BCNEZ_safe(rj, imm)                        \
+#define BCEQZ_safe(rj, imm, jmp)                   \
+    do {                                           \
+        if (jmp < ninst) {                         \
+            if ((imm) < -0x70000)                  \
+                BCEQZ_safe_(rj, imm);              \
+            else                                   \
+                BCEQZ(rj, imm);                    \
+        } else if (jmp - ninst < NEAR_JUMPZ_INSTS) \
+            BCEQZ(rj, imm);                        \
+        else                                       \
+            BCEQZ_safe_(rj, imm);                  \
+    } while (0)
+
+#define BCNEZ_safe_(rj, imm)                       \
     do {                                           \
         if ((imm) > -0x70000 && (imm) < 0x70000) { \
             BCNEZ(rj, imm);                        \
@@ -718,6 +890,19 @@
             BCEQZ(rj, 8);                          \
             B((imm) - 4);                          \
         }                                          \
+    } while (0)
+
+#define BCNEZ_safe(rj, imm, jmp)                   \
+    do {                                           \
+        if (jmp < ninst) {                         \
+            if ((imm) < -0x70000)                  \
+                BCNEZ_safe_(rj, imm);              \
+            else                                   \
+                BCNEZ(rj, imm);                    \
+        } else if (jmp - ninst < NEAR_JUMPZ_INSTS) \
+            BCNEZ(rj, imm);                        \
+        else                                       \
+            BCNEZ_safe_(rj, imm);                  \
     } while (0)
 
 // vaddr = GR[rj] + SignExtend(imm12, GRLEN)

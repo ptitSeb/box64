@@ -391,7 +391,7 @@ static int indirect_lookup(dynarec_la64_t* dyn, int ninst, int is32bits, int s1,
     MAYUSE(dyn);
     if (!is32bits) {
         SRLI_D(s1, xRIP, 48);
-        BNEZ_safe(s1, (intptr_t)dyn->jmp_next - (intptr_t)dyn->block);
+        BNEZ_safe_(s1, (intptr_t)dyn->jmp_next - (intptr_t)dyn->block);
         if (dyn->need_reloc) {
             TABLE64C(s2, const_jmptbl48);
         } else {
