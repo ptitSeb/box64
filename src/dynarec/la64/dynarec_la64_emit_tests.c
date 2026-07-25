@@ -437,12 +437,12 @@ void emit_test8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
     }
 
     NAT_FLAGS_ENABLE_SIGN();
+    NAT_FLAGS_ENABLE_SF();
     if (cpuext.lbt) {
         IFX(X_ALL) {
             X64_AND_B(s1, s2);
         }
         if (s1 == s2) {
-            NAT_FLAGS_ENABLE_SF();
             int r = s1;
             if (dyn->insts[ninst].nat_flags_fusion) {
                 if (dyn->insts[ninst].nat_flags_needsign) {
@@ -561,13 +561,13 @@ void emit_test16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4,
     }
 
     NAT_FLAGS_ENABLE_SIGN();
+    NAT_FLAGS_ENABLE_SF();
     if (cpuext.lbt) {
         IFX (X_ALL) {
             X64_AND_H(s1, s2);
         }
 
         if (s1 == s2) {
-            NAT_FLAGS_ENABLE_SF();
             int r = s1;
             if (dyn->insts[ninst].nat_flags_fusion) {
                 if (dyn->insts[ninst].nat_flags_needsign) {
@@ -630,6 +630,7 @@ void emit_test32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int 
     }
 
     NAT_FLAGS_ENABLE_SIGN();
+    NAT_FLAGS_ENABLE_SF();
     if (cpuext.lbt) {
         IFX(X_ALL) {
             if (rex.w)
@@ -639,7 +640,6 @@ void emit_test32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int 
         }
 
         if (s1 == s2) {
-            NAT_FLAGS_ENABLE_SF();
             int r = s1;
             if (dyn->insts[ninst].nat_flags_fusion) {
                 if (!rex.w) {
