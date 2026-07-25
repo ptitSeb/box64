@@ -970,13 +970,13 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         /* out of block */                                                                  \
         i32 = dyn->insts[ninst].epilog - (dyn->native_size);                                \
         if (COMIS_FUSED()) {                                                                \
-            COMIS_BRANCH_NOT_TAKEN(i32);                                                    \
+            COMIS_BRANCH_NOT_TAKEN(i32, ninst);                                             \
         } else if (dyn->insts[ninst].nat_flags_fusion) {                                    \
-            NATIVEJUMP_safe(NATNO, i32);                                                    \
+            NATIVEJUMP_safe(NATNO, i32, ninst);                                             \
         } else if (cpuext.lbt)                                                              \
-            BEQZ_safe(tmp1, i32);                                                           \
+            BEQZ_safe(tmp1, i32, ninst);                                                    \
         else                                                                                \
-            B##NO##_safe(tmp1, i32);                                                        \
+            B##NO##_safe(tmp1, i32, ninst);                                                 \
         if (dyn->insts[ninst].x64.jmp_insts == -1) {                                        \
             if (!(dyn->insts[ninst].x64.barrier & BARRIER_FLOAT))                           \
                 fpu_purgecache(dyn, ninst, 1, tmp1, tmp2, tmp3);                            \
@@ -990,13 +990,13 @@ uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         /* inside the block */                                                              \
         i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address - (dyn->native_size);     \
         if (COMIS_FUSED()) {                                                                \
-            COMIS_BRANCH_TAKEN(i32);                                                        \
+            COMIS_BRANCH_TAKEN(i32, dyn->insts[ninst].x64.jmp_insts);                       \
         } else if (dyn->insts[ninst].nat_flags_fusion) {                                    \
-            NATIVEJUMP_safe(NATYES, i32);                                                   \
+            NATIVEJUMP_safe(NATYES, i32, dyn->insts[ninst].x64.jmp_insts);                  \
         } else if (cpuext.lbt)                                                              \
-            BNEZ_safe(tmp1, i32);                                                           \
+            BNEZ_safe(tmp1, i32, dyn->insts[ninst].x64.jmp_insts);                          \
         else                                                                                \
-            B##YES##_safe(tmp1, i32);                                                       \
+            B##YES##_safe(tmp1, i32, dyn->insts[ninst].x64.jmp_insts);                      \
     }
 
             GOCOND(0x70, "J", "ib");

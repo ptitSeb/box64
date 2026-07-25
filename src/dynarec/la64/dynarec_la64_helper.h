@@ -135,19 +135,19 @@ static inline int comis_fuse_inverted(int condition)
 #define COMIS_FUSED() (dyn->insts[ninst].comis_fusion >= 0)
 #endif
 
-#define COMIS_BRANCH_NOT_TAKEN(offset)                           \
+#define COMIS_BRANCH_NOT_TAKEN(offset, jmp)                      \
     do {                                                         \
         if (comis_fuse_inverted(dyn->insts[ninst].comis_fusion)) \
-            BCNEZ_safe(COMIS_FCC, offset);                       \
+            BCNEZ_safe(COMIS_FCC, offset, jmp);                  \
         else                                                     \
-            BCEQZ_safe(COMIS_FCC, offset);                       \
+            BCEQZ_safe(COMIS_FCC, offset, jmp);                  \
     } while (0)
-#define COMIS_BRANCH_TAKEN(offset)                               \
+#define COMIS_BRANCH_TAKEN(offset, jmp)                          \
     do {                                                         \
         if (comis_fuse_inverted(dyn->insts[ninst].comis_fusion)) \
-            BCEQZ_safe(COMIS_FCC, offset);                       \
+            BCEQZ_safe(COMIS_FCC, offset, jmp);                  \
         else                                                     \
-            BCNEZ_safe(COMIS_FCC, offset);                       \
+            BCNEZ_safe(COMIS_FCC, offset, jmp);                  \
     } while (0)
 
 #define COMIS_SPILL_S() \
@@ -1977,13 +1977,13 @@ uintptr_t dynarec64_DF(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         break
 
 // Dummy macros
-#define B__safe(a, b, c) XOR(xZR, xZR, xZR)
-#define B_(a, b, c)      XOR(xZR, xZR, xZR)
-#define S_(a, b, c)      XOR(xZR, xZR, xZR)
-#define MV_(a, b, c, d)  XOR(xZR, xZR, xZR)
+#define B__safe(a, b, c, d) XOR(xZR, xZR, xZR)
+#define B_(a, b, c)       XOR(xZR, xZR, xZR)
+#define S_(a, b, c)       XOR(xZR, xZR, xZR)
+#define MV_(a, b, c, d)   XOR(xZR, xZR, xZR)
 
-#define NATIVEJUMP_safe(COND, val) \
-    B##COND##_safe(dyn->insts[ninst].nat_flags_op1, dyn->insts[ninst].nat_flags_op2, val);
+#define NATIVEJUMP_safe(COND, val, jmp) \
+    B##COND##_safe(dyn->insts[ninst].nat_flags_op1, dyn->insts[ninst].nat_flags_op2, val, jmp);
 
 #define NATIVEJUMP(COND, val) \
     B##COND(dyn->insts[ninst].nat_flags_op1, dyn->insts[ninst].nat_flags_op2, val);
