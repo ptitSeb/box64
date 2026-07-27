@@ -38,16 +38,16 @@
     } while (0)
 
 // ZERO the upper part, compatible to zba, xtheadbb, and rv64gc
-#define ZEXTW2(rd, rs1)              \
-    do {                             \
-        if (cpuext.zba) {            \
-            ZEXTW(rd, rs1);          \
-        } else if (cpuext.xtheadbb) {\
-            TH_EXTU(rd, rs1, 31, 0); \
-        } else {                     \
-            SLLI(rd, rs1, 32);       \
-            SRLI(rd, rd, 32);        \
-        }                            \
+#define ZEXTW2(rd, rs1)               \
+    do {                              \
+        if (cpuext.zba) {             \
+            ZEXTW(rd, rs1);           \
+        } else if (cpuext.xtheadbb) { \
+            TH_EXTU(rd, rs1, 31, 0);  \
+        } else {                      \
+            SLLI(rd, rs1, 32);        \
+            SRLI(rd, rd, 32);         \
+        }                             \
     } while (0)
 #define ZEROUP(r) ZEXTW2(r, r)
 
@@ -182,22 +182,22 @@
 // rd = rs1 (pseudo instruction)
 #define MV(rd, rs1) ADDI(rd, rs1, 0)
 // rd = rs1 (pseudo instruction)
-#define MVxw(rd, rs1)            \
-    do {                         \
-        if (rex.w) {             \
-            MV(rd, rs1);         \
-        } else {                 \
-            ZEXTW2(rd, rs1);     \
-        }                        \
+#define MVxw(rd, rs1)        \
+    do {                     \
+        if (rex.w) {         \
+            MV(rd, rs1);     \
+        } else {             \
+            ZEXTW2(rd, rs1); \
+        }                    \
     } while (0)
 // rd = rs1 (pseudo instruction)
-#define MVz(rd, rs1)             \
-    do {                         \
-        if (rex.is32bits) {      \
-            ZEXTW2(rd, rs1);     \
-        } else {                 \
-            MV(rd, rs1);         \
-        }                        \
+#define MVz(rd, rs1)         \
+    do {                     \
+        if (rex.is32bits) {  \
+            ZEXTW2(rd, rs1); \
+        } else {             \
+            MV(rd, rs1);     \
+        }                    \
     } while (0)
 // rd = !rs1
 #define NOT(rd, rs1) XORI(rd, rs1, -1)
@@ -274,30 +274,38 @@
 #define SGTU(rd, rs1, rs2) SLTU(rd, rs2, rs1);
 #define SLEU(rd, rs1, rs2) SGEU(rd, rs2, rs1);
 
-#define MVEQ(rd, rs1, rs2, rs3)                               \
-    if (cpuext.xtheadcondmov && (rs2 == xZR || rs3 == xZR)) { \
-        TH_MVEQZ(rd, rs1, ((rs2 == xZR) ? rs3 : rs2));        \
-    } else if (cpuext.zicond && (rs2 == xZR || rs3 == xZR)) { \
-        int cond_ = (rs2 == xZR) ? rs3 : rs2;                 \
-        CZERO_EQZ(rd, rd, cond_);                             \
-        CZERO_NEZ(cond_, rs1, cond_);                         \
-        OR(rd, rd, cond_);                                    \
-    } else {                                                  \
-        BNE(rs2, rs3, 8);                                     \
-        MV(rd, rs1);                                          \
-    }
-#define MVNE(rd, rs1, rs2, rs3)                               \
-    if (cpuext.xtheadcondmov && (rs2 == xZR || rs3 == xZR)) { \
-        TH_MVNEZ(rd, rs1, ((rs2 == xZR) ? rs3 : rs2));        \
-    } else if (cpuext.zicond && (rs2 == xZR || rs3 == xZR)) { \
-        int cond_ = (rs2 == xZR) ? rs3 : rs2;                 \
-        CZERO_NEZ(rd, rd, cond_);                             \
-        CZERO_EQZ(cond_, rs1, cond_);                         \
-        OR(rd, rd, cond_);                                    \
-    } else {                                                  \
-        BEQ(rs2, rs3, 8);                                     \
-        MV(rd, rs1);                                          \
-    }
+#define MVEQ(rd, rs1, rs2, rs3)                                       \
+    do {                                                              \
+        if (rd != rs1) {                                              \
+            if (cpuext.xtheadcondmov && (rs2 == xZR || rs3 == xZR)) { \
+                TH_MVEQZ(rd, rs1, ((rs2 == xZR) ? rs3 : rs2));        \
+            } else if (cpuext.zicond && (rs2 == xZR || rs3 == xZR)) { \
+                int cond_ = (rs2 == xZR) ? rs3 : rs2;                 \
+                CZERO_EQZ(rd, rd, cond_);                             \
+                CZERO_NEZ(cond_, rs1, cond_);                         \
+                OR(rd, rd, cond_);                                    \
+            } else {                                                  \
+                BNE(rs2, rs3, 8);                                     \
+                MV(rd, rs1);                                          \
+            }                                                         \
+        }                                                             \
+    } while (0)
+#define MVNE(rd, rs1, rs2, rs3)                                       \
+    do {                                                              \
+        if (rd != rs1) {                                              \
+            if (cpuext.xtheadcondmov && (rs2 == xZR || rs3 == xZR)) { \
+                TH_MVNEZ(rd, rs1, ((rs2 == xZR) ? rs3 : rs2));        \
+            } else if (cpuext.zicond && (rs2 == xZR || rs3 == xZR)) { \
+                int cond_ = (rs2 == xZR) ? rs3 : rs2;                 \
+                CZERO_NEZ(rd, rd, cond_);                             \
+                CZERO_EQZ(cond_, rs1, cond_);                         \
+                OR(rd, rd, cond_);                                    \
+            } else {                                                  \
+                BEQ(rs2, rs3, 8);                                     \
+                MV(rd, rs1);                                          \
+            }                                                         \
+        }                                                             \
+    } while (0)
 #define MVLT(rd, rs1, rs2, rs3) \
     BGE(rs2, rs3, 8);           \
     MV(rd, rs1);
@@ -453,14 +461,14 @@
             SUBI(xRSP, xRSP, 8);                  \
         }                                         \
     } while (0)
-#define POP1(reg)                                   \
-    do {                                            \
-        if (cpuext.xtheadmemidx && reg != xRSP) {   \
-            TH_LDIA(reg, xRSP, 8, 0);               \
-        } else {                                    \
-            LD(reg, xRSP, 0);                       \
-            if (reg != xRSP) ADDI(xRSP, xRSP, 8);   \
-        }                                           \
+#define POP1(reg)                                 \
+    do {                                          \
+        if (cpuext.xtheadmemidx && reg != xRSP) { \
+            TH_LDIA(reg, xRSP, 8, 0);             \
+        } else {                                  \
+            LD(reg, xRSP, 0);                     \
+            if (reg != xRSP) ADDI(xRSP, xRSP, 8); \
+        }                                         \
     } while (0)
 #define PUSH1_32(reg)                             \
     do {                                          \
@@ -533,7 +541,7 @@
 #define CBO_INVAL(rs1) EMIT((0b000000000000 << 20) | CBOM_BASE(rs1))
 
 // Zicbop
-#define CBOP_BASE(rs1, imm12) (((((imm12) >> 5) & 0x7F) << 25) | ((rs1) << 15) | (0b110 << 12) | (0b00000 << 7) | 0b0010011)
+#define CBOP_BASE(rs1, imm12)      (((((imm12) >> 5) & 0x7F) << 25) | ((rs1) << 15) | (0b110 << 12) | (0b00000 << 7) | 0b0010011)
 #define CBO_PREFETCH_I(rs1, imm12) EMIT(CBOP_BASE(rs1, imm12) | (0b00000 << 20))
 #define CBO_PREFETCH_R(rs1, imm12) EMIT(CBOP_BASE(rs1, imm12) | (0b00001 << 20))
 #define CBO_PREFETCH_W(rs1, imm12) EMIT(CBOP_BASE(rs1, imm12) | (0b00011 << 20))
@@ -1660,7 +1668,7 @@
 #define VFSLIDE1DOWN_VF(vd, vs2, rs1, vm) EMIT(R_type(0b0011110 | (vm), vs2, rs1, 0b101, vd, 0b1010111)) // 001111...........101.....1010111
 
 #define VFMV_S_F(vd, rs1) EMIT(I_type((cpuext.xtheadvector ? 0b001101100000 : 0b010000100000), rs1, 0b101, vd, 0b1010111)) // 010000100000.....101.....1010111
-#define VFMV_V_F(vd, rs1) EMIT(I_type(0b010111100000, rs1, 0b101, vd, 0b1010111))                                        // 010111100000.....101.....1010111
+#define VFMV_V_F(vd, rs1) EMIT(I_type(0b010111100000, rs1, 0b101, vd, 0b1010111))                                          // 010111100000.....101.....1010111
 
 #define VFMERGE_VFM(vd, vs2, rs1) EMIT(R_type(0b0101110, vs2, rs1, 0b101, vd, 0b1010111)) // 0101110..........101.....1010111
 
