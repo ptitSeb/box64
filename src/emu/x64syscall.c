@@ -143,6 +143,7 @@ static const scwrap_t syscallwrap[] = {
     [35] = {__NR_nanosleep, 2},
     [38] = {__NR_setitimer, 3},
     [39] = {__NR_getpid, 0},
+    [40] = {__NR_sendfile, 4},
     [41] = {__NR_socket, 3},
     [42] = {__NR_connect, 3},
     [43] = {__NR_accept, 3},
