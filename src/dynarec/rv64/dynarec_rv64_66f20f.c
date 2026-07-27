@@ -59,6 +59,7 @@ uintptr_t dynarec64_66F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
                     GETGD;
                     GETEW(x1, 0);
                     MV(x5, ed);
+                    ZEROUP(gd);
                     MOV32w(x2, 0x82f63b78);
                     for (int j = 0; j < 2; ++j) {
                         SRLI(x6, x5, 8 * j);
