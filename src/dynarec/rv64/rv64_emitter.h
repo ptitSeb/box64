@@ -274,37 +274,45 @@
 #define SGTU(rd, rs1, rs2) SLTU(rd, rs2, rs1);
 #define SLEU(rd, rs1, rs2) SGEU(rd, rs2, rs1);
 
-#define MVEQ(rd, rs1, rs2, rs3)                                       \
-    do {                                                              \
-        if (rd != rs1) {                                              \
-            if (cpuext.xtheadcondmov && (rs2 == xZR || rs3 == xZR)) { \
-                TH_MVEQZ(rd, rs1, ((rs2 == xZR) ? rs3 : rs2));        \
-            } else if (cpuext.zicond && (rs2 == xZR || rs3 == xZR)) { \
-                int cond_ = (rs2 == xZR) ? rs3 : rs2;                 \
-                CZERO_EQZ(rd, rd, cond_);                             \
-                CZERO_NEZ(cond_, rs1, cond_);                         \
-                OR(rd, rd, cond_);                                    \
-            } else {                                                  \
-                BNE(rs2, rs3, 8);                                     \
-                MV(rd, rs1);                                          \
-            }                                                         \
-        }                                                             \
+// Zicond conditional MV safe condition
+//  - A scratch register.
+//  - Different from the destination.
+//  - Different from the source.
+#define ZICOND_MV_SAFE(rd, rs1, rs2, rs3)                               \
+    ((rs2 == xZR || rs3 == xZR) && IS_SCRATCH((rs2 == xZR) ? rs3 : rs2) \
+        && ((rs2 == xZR) ? rs3 : rs2) != rd && ((rs2 == xZR) ? rs3 : rs2) != rs1)
+
+#define MVEQ(rd, rs1, rs2, rs3)                                              \
+    do {                                                                     \
+        if (rd != rs1) {                                                     \
+            if (cpuext.xtheadcondmov && (rs2 == xZR || rs3 == xZR)) {        \
+                TH_MVEQZ(rd, rs1, ((rs2 == xZR) ? rs3 : rs2));               \
+            } else if (cpuext.zicond && ZICOND_MV_SAFE(rd, rs1, rs2, rs3)) { \
+                int cond_ = (rs2 == xZR) ? rs3 : rs2;                        \
+                CZERO_EQZ(rd, rd, cond_);                                    \
+                CZERO_NEZ(cond_, rs1, cond_);                                \
+                OR(rd, rd, cond_);                                           \
+            } else {                                                         \
+                BNE(rs2, rs3, 8);                                            \
+                MV(rd, rs1);                                                 \
+            }                                                                \
+        }                                                                    \
     } while (0)
-#define MVNE(rd, rs1, rs2, rs3)                                       \
-    do {                                                              \
-        if (rd != rs1) {                                              \
-            if (cpuext.xtheadcondmov && (rs2 == xZR || rs3 == xZR)) { \
-                TH_MVNEZ(rd, rs1, ((rs2 == xZR) ? rs3 : rs2));        \
-            } else if (cpuext.zicond && (rs2 == xZR || rs3 == xZR)) { \
-                int cond_ = (rs2 == xZR) ? rs3 : rs2;                 \
-                CZERO_NEZ(rd, rd, cond_);                             \
-                CZERO_EQZ(cond_, rs1, cond_);                         \
-                OR(rd, rd, cond_);                                    \
-            } else {                                                  \
-                BEQ(rs2, rs3, 8);                                     \
-                MV(rd, rs1);                                          \
-            }                                                         \
-        }                                                             \
+#define MVNE(rd, rs1, rs2, rs3)                                              \
+    do {                                                                     \
+        if (rd != rs1) {                                                     \
+            if (cpuext.xtheadcondmov && (rs2 == xZR || rs3 == xZR)) {        \
+                TH_MVNEZ(rd, rs1, ((rs2 == xZR) ? rs3 : rs2));               \
+            } else if (cpuext.zicond && ZICOND_MV_SAFE(rd, rs1, rs2, rs3)) { \
+                int cond_ = (rs2 == xZR) ? rs3 : rs2;                        \
+                CZERO_NEZ(rd, rd, cond_);                                    \
+                CZERO_EQZ(cond_, rs1, cond_);                                \
+                OR(rd, rd, cond_);                                           \
+            } else {                                                         \
+                BEQ(rs2, rs3, 8);                                            \
+                MV(rd, rs1);                                                 \
+            }                                                                \
+        }                                                                    \
     } while (0)
 #define MVLT(rd, rs1, rs2, rs3) \
     BGE(rs2, rs3, 8);           \
