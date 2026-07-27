@@ -581,8 +581,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     AND(x6, x4, x2);
                     AND(x7, x5, x3);
                     OR(x6, x6, x7);
-                    BNEZ(x6, 4 + 4);
-                    ORI(xFlags, xFlags, 1 << F_ZF);
+                    SET_FLAGS_EQZ(x6, F_ZF, x7);
                 }
                 IFX (X_CF) {
                     NOT(x4, x4);
@@ -590,8 +589,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     AND(x6, x4, x2);
                     AND(x7, x5, x3);
                     OR(x6, x6, x7);
-                    BNEZ(x6, 4 + 4);
-                    ORI(xFlags, xFlags, 1 << F_CF);
+                    SET_FLAGS_EQZ(x6, F_CF, x7);
                 }
             }
             if (vex.l) {

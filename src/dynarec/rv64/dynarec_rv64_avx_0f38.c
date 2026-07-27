@@ -79,8 +79,7 @@ uintptr_t dynarec64_AVX_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, 
                 OR(xFlags, xFlags, x5);
             }
             IFX (X_ZF) {
-                BNEZ(gd, 8);
-                ORI(xFlags, xFlags, 1 << F_ZF);
+                SET_FLAGS_EQZ(gd, F_ZF, x5);
             }
             if (BOX64DRENV(dynarec_safeflags)) {
                 IFX (X_PF) emit_pf(dyn, ninst, gd, x2, x5);
@@ -100,15 +99,13 @@ uintptr_t dynarec64_AVX_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, 
                     }
                     CLEAR_FLAGS();
                     IFX (X_CF) {
-                        BNEZ(ed, 8);
-                        ORI(xFlags, xFlags, 1 << F_CF);
+                        SET_FLAGS_EQZ(ed, F_CF, x5);
                     }
                     ADDIxw(x3, ed, -1);
                     AND(vd, ed, x3);
                     if (!rex.w) ZEROUP(vd);
                     IFX (X_ZF) {
-                        BNEZ(vd, 8);
-                        ORI(xFlags, xFlags, 1 << F_ZF);
+                        SET_FLAGS_EQZ(vd, F_ZF, x5);
                     }
                     IFX (X_SF) {
                         SRLI(x5, vd, rex.w ? 63 : 31);
@@ -130,8 +127,7 @@ uintptr_t dynarec64_AVX_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, 
                     }
                     CLEAR_FLAGS();
                     IFX (X_CF) {
-                        BNEZ(ed, 8);
-                        ORI(xFlags, xFlags, 1 << F_CF);
+                        SET_FLAGS_EQZ(ed, F_CF, x5);
                     }
                     ADDIxw(x3, ed, -1);
                     XOR(vd, ed, x3);
@@ -156,15 +152,13 @@ uintptr_t dynarec64_AVX_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, 
                     }
                     CLEAR_FLAGS();
                     IFX (X_CF) {
-                        BEQZ(ed, 8);
-                        ORI(xFlags, xFlags, 1 << F_CF);
+                        SET_FLAGS_NEZ(ed, F_CF, x5);
                     }
                     SUBxw(x3, xZR, ed);
                     AND(vd, ed, x3);
                     if (!rex.w) ZEROUP(vd);
                     IFX (X_ZF) {
-                        BNEZ(vd, 8);
-                        ORI(xFlags, xFlags, 1 << F_ZF);
+                        SET_FLAGS_EQZ(vd, F_ZF, x5);
                     }
                     IFX (X_SF) {
                         SRLI(x5, vd, rex.w ? 63 : 31);
@@ -211,8 +205,7 @@ uintptr_t dynarec64_AVX_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, 
                 ZEROUP(gd);
             }
             IFX (X_ZF) {
-                BNEZ(gd, 8);
-                ORI(xFlags, xFlags, 1 << F_ZF);
+                SET_FLAGS_EQZ(gd, F_ZF, x5);
             }
             IFX (X_SF) {
                 SRLI(x5, gd, rex.w ? 63 : 31);
@@ -247,8 +240,7 @@ uintptr_t dynarec64_AVX_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, 
             }
             CLEAR_FLAGS();
             IFX (X_ZF) {
-                BNEZ(gd, 8);
-                ORI(xFlags, xFlags, 1 << F_ZF);
+                SET_FLAGS_EQZ(gd, F_ZF, x5);
             }
             break;
         default:
