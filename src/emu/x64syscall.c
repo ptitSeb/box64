@@ -198,6 +198,7 @@ static const scwrap_t syscallwrap[] = {
     [90] = {__NR_chmod, 2},
     #endif
     [91] = {__NR_fchmod, 2},
+    [95] = {__NR_umask, 1},
     [96] = {__NR_gettimeofday, 2},
     #ifdef __NR_getrlimit
     [97] = {__NR_getrlimit, 2},
@@ -216,6 +217,7 @@ static const scwrap_t syscallwrap[] = {
     [112] = {__NR_setsid, 0},
     [113] = {__NR_setreuid, 2},
     [114] = {__NR_setregid, 2},
+    [115] = {__NR_getgroups, 2},
     #ifdef __NR_setgroups
     [116] = {__NR_setgroups, 2},
     #endif
@@ -305,6 +307,7 @@ static const scwrap_t syscallwrap[] = {
     [266] = {__NR_symlinkat, 3},
     //[267] = {__NR_readlinkat, 4},
     [268] = {__NR_fchmodat, 3},
+    [269] = {__NR_faccessat, 3},
     [270] = {__NR_pselect6, 6},
     [272] = {__NR_unshare, 1},
     [273] = {__NR_set_robust_list, 2},
