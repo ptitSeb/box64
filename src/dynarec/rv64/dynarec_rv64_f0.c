@@ -318,6 +318,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 case 0:
                                     INST_NAME("LOCK CMPXCHG8B Gq, Eq");
                                     SETFLAGS(X_ZF, SF_SUBSET, NAT_FLAGS_NOFUSION);
+                                    SET_DFNONE();
                                     nextop = F8;
                                     addr = geted(dyn, addr, ninst, nextop, &wback, x1, x2, &fixedaddress, rex, LOCK_LOCK, 0, 0);
                                     ANDI(xFlags, xFlags, ~(1 << F_ZF));
@@ -363,6 +364,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                     PASS3(if (!warned) dynarec_log(LOG_INFO, "Warning, LOCK CMPXCHG16B is not well supported on RISC-V and issues are expected.\n"));
                                     PASS3(warned = 1);
                                     SETFLAGS(X_ZF, SF_SUBSET, NAT_FLAGS_NOFUSION);
+                                    SET_DFNONE();
                                     nextop = F8;
                                     addr = geted(dyn, addr, ninst, nextop, &wback, x1, x2, &fixedaddress, rex, LOCK_LOCK, 0, 0);
                                     ANDI(xFlags, xFlags, ~(1 << F_ZF));
