@@ -62,7 +62,18 @@ uintptr_t dynarec64_AVX_F2_0F3A(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             GETGD;
             GETED(1);
             u8 = F8;
-            RORIxw(gd, ed, u8 & (rex.w ? 0x3f : 0x1f));
+            if (cpuext.zbb) {
+                RORIxw(gd, ed, u8 & (rex.w ? 0x3f : 0x1f));
+            } else {
+                uint8_t count = u8 & (rex.w ? 0x3f : 0x1f);
+                if (count) {
+                    SLLIxw(x4, ed, (rex.w ? 64 : 32) - count);
+                    SRLIxw(gd, gd, count);
+                    OR(gd, x4, gd);
+                } else {
+                    MVxw(gd, ed);
+                }
+            }
             break;
         default:
             DEFAULT;
