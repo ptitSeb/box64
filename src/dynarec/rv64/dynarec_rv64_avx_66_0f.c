@@ -250,6 +250,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             INST_NAME("VSQRTPD Gx, Ex");
             nextop = F8;
             GETGX();
+            GETGY();
             GETEX(x2, 0, 8);
             d0 = fpu_get_scratch(dyn);
             if (!BOX64ENV(dynarec_fastnan)) {
