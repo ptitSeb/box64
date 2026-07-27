@@ -1230,6 +1230,13 @@
     } while (0)
 #endif
 
+#define SET_CACHE_VECTOR_WIDTH(S1)                                                \
+    do {                                                                          \
+        int sew = dyn->vector_sew;                                                \
+        if (sew == VECTOR_SEWNA || sew == VECTOR_SEWANY) sew = VECTOR_SEW8;       \
+        dyn->vector_eew = vector_vsetvli(dyn, ninst, (S1), sew, VECTOR_LMUL1, 1); \
+    } while (0)
+
 #ifndef STEPNAME
 #define STEPNAME3(N, M) N##M
 #define STEPNAME2(N, M) STEPNAME3(N, M)
