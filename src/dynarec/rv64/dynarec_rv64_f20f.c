@@ -152,6 +152,7 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     GETEB(x1, 0);
                     GETGD;
                     MV(x5, ed);
+                    ZEROUP(gd);
                     XOR(gd, gd, x5);
                     MOV32w(x2, 0x82f63b78);
                     for (int i = 0; i < 8; i++) {
@@ -167,6 +168,7 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     GETGD;
                     GETED(0);
                     MV(x5, ed);
+                    ZEROUP(gd);
                     MOV32w(x2, 0x82f63b78);
                     for (int j = 0; j < 4 * (rex.w + 1); ++j) {
                         SRLI(x3, x5, 8 * j);
