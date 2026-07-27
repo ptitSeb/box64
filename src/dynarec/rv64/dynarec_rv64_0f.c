@@ -2634,6 +2634,32 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 }
             } else {
                 switch ((nextop >> 3) & 7) {
+                    case 1:
+                        if (rex.w) {
+                            DEFAULT;
+                        } else {
+                            INST_NAME("CMPXCHG8B Gq, Eq");
+                            SETFLAGS(X_ZF, SF_SUBSET, NAT_FLAGS_NOFUSION);
+                            SMREAD();
+                            addr = geted(dyn, addr, ninst, nextop, &wback, x1, x2, &fixedaddress, rex, NULL, 0, 0);
+                            ANDI(xFlags, xFlags, ~(1 << F_ZF));
+                            ZEXTW2(x3, xRAX);
+                            SLLI(x2, xRDX, 32);
+                            OR(x3, x3, x2); // x3 is edx:eax
+                            LD(x2, wback, fixedaddress);
+                            BNE_MARK(x2, x3);
+                            ZEXTW2(x4, xRBX);
+                            SLLI(x5, xRCX, 32);
+                            OR(x4, x4, x5); // x4 is ecx:ebx
+                            SD(x4, wback, fixedaddress);
+                            SMWRITE();
+                            ORI(xFlags, xFlags, 1 << F_ZF);
+                            B_NEXT_nocond;
+                            MARK;
+                            SRLI(xRDX, x2, 32);
+                            ZEXTW2(xRAX, x2);
+                        }
+                        break;
                     case 4:
                         INST_NAME("Unsupported XSAVEC Ed");
                         FAKEED;
