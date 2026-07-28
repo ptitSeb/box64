@@ -103,6 +103,20 @@ uintptr_t dynarec64_AVX_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
             SD(x3, gback, gdoffset + 8);
             YMM0(gd);
             break;
+        case 0x13:
+            INST_NAME("VMOVLPS Ex, Gx");
+            nextop = F8;
+            GETGX();
+            GETEX(x2, 0, 8);
+            if (MODREG) {
+                DEFAULT;
+                return addr;
+            } else {
+                LD(x3, gback, gdoffset);
+                SD(x3, wback, fixedaddress);
+                SMWRITE2();
+            }
+            break;
         case 0x14:
             INST_NAME("VUNPCKLPS Gx, Vx, Ex");
             nextop = F8;
@@ -178,6 +192,20 @@ uintptr_t dynarec64_AVX_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
             LD(x4, vback, vxoffset);
             SD(x4, gback, gdoffset);
             YMM0(gd);
+            break;
+        case 0x17:
+            INST_NAME("VMOVHPS Ex, Gx");
+            nextop = F8;
+            GETGX();
+            GETEX(x2, 0, 8);
+            if (MODREG) {
+                DEFAULT;
+                return addr;
+            } else {
+                LD(x3, gback, gdoffset + 8);
+                SD(x3, wback, fixedaddress);
+                SMWRITE2();
+            }
             break;
         case 0x28:
             INST_NAME("VMOVAPS Gx, Ex");
