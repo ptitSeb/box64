@@ -1063,6 +1063,32 @@ uintptr_t dynarec64_AVX_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
             } else
                 YMM0(gd);
             break;
+        case 0x77:
+            if (!vex.l) {
+                INST_NAME("VZEROUPPER");
+                if (vex.v != 0) {
+                    UDF();
+                } else {
+                    for (int i = 0; i < (rex.is32bits ? 8 : 16); ++i) {
+                        YMM0(i);
+                    }
+                    SMWRITE2();
+                }
+            } else {
+                INST_NAME("VZEROALL");
+                if (vex.v != 0) {
+                    UDF();
+                } else {
+                    for (int i = 0; i < (rex.is32bits ? 8 : 16); ++i) {
+                        sse_forget_reg(dyn, ninst, x3, i);
+                        SD(xZR, xEmu, offsetof(x64emu_t, xmm[i]) + 0);
+                        SD(xZR, xEmu, offsetof(x64emu_t, xmm[i]) + 8);
+                        YMM0(i);
+                    }
+                    SMWRITE2();
+                }
+            }
+            break;
         case 0xC2:
             INST_NAME("VCMPPS Gx, Vx, Ex, Ib");
             nextop = F8;
