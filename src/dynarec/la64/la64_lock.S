@@ -32,7 +32,8 @@
 .global la64_lock_get_d
 .global la64_lock_get_dd
 .global la64_crc
-.global la64_crc_autocrc
+.global la64_snapshot_match
+.global la64_snapshot_match_lasx
 
 la64_lock_xchg_b:
     .word 0x385e1486 // amswap_db.b $a2, $a1, $a0
@@ -256,24 +257,136 @@ la64_crc:
 4:
     ret
 
-la64_crc_autocrc:
-    move        $t4, $t2
-    xor         $t2, $t2, $t2
-    li.d        $t5, 8
+// t2=current source, t3=snapshot, t4=len; t2=0 if equal. v24-v29 are scratch registers.
+la64_snapshot_match:
+    li.d        $t5, 64
 1:
-    bltu        $t3, $t5, 2f
-    ld.d        $t6, $t4, 0
-    crc.w.d.w   $t2, $t6, $t2
-    addi.d      $t4, $t4, 8
-    addi.w      $t3, $t3, -8
-    bnez        $t3, 1b
+    bltu        $t4, $t5, 2f
+    vld         $vr24, $t2, 0
+    vld         $vr25, $t2, 16
+    vld         $vr26, $t2, 32
+    vld         $vr27, $t2, 48
+    vld         $vr28, $t3, 0
+    vld         $vr29, $t3, 16
+    vxor.v      $vr24, $vr24, $vr28
+    vxor.v      $vr25, $vr25, $vr29
+    vld         $vr28, $t3, 32
+    vld         $vr29, $t3, 48
+    vxor.v      $vr26, $vr26, $vr28
+    vxor.v      $vr27, $vr27, $vr29
+    vor.v       $vr24, $vr24, $vr25
+    vor.v       $vr26, $vr26, $vr27
+    vor.v       $vr24, $vr24, $vr26
+    vsetnez.v   $fcc0, $vr24
+    bcnez       $fcc0, 8f
+    addi.d      $t2, $t2, 64
+    addi.d      $t3, $t3, 64
+    addi.w      $t4, $t4, -64
+    b           1b
 2:
-    beqz        $t3, 4f
+    li.d        $t5, 16
 3:
-    ld.bu       $t6, $t4, 0
-    crc.w.b.w   $t2, $t6, $t2
-    addi.d      $t4, $t4, 1
-    addi.w      $t3, $t3, -1
-    bnez        $t3, 3b
+    bltu        $t4, $t5, 4f
+    vld         $vr24, $t2, 0
+    vld         $vr25, $t3, 0
+    vxor.v      $vr24, $vr24, $vr25
+    vsetnez.v   $fcc0, $vr24
+    bcnez       $fcc0, 8f
+    addi.d      $t2, $t2, 16
+    addi.d      $t3, $t3, 16
+    addi.w      $t4, $t4, -16
+    b           3b
 4:
+    li.d        $t5, 8
+5:
+    bltu        $t4, $t5, 6f
+    ld.d        $t5, $t2, 0
+    ld.d        $t6, $t3, 0
+    bne         $t5, $t6, 8f
+    addi.d      $t2, $t2, 8
+    addi.d      $t3, $t3, 8
+    addi.w      $t4, $t4, -8
+    li.d        $t5, 8
+    b           5b
+6:
+    beqz        $t4, 7f
+    ld.bu       $t5, $t2, 0
+    ld.bu       $t6, $t3, 0
+    bne         $t5, $t6, 8f
+    addi.d      $t2, $t2, 1
+    addi.d      $t3, $t3, 1
+    addi.w      $t4, $t4, -1
+    b           6b
+7:
+    move        $t2, $zero
+    ret
+8:
+    li.d        $t2, 1
+    ret
+
+// t2=current source, t3=snapshot, t4=len; t2=0 if equal. v24-v29 are scratch registers.
+la64_snapshot_match_lasx:
+    li.d        $t5, 128
+1:
+    bltu        $t4, $t5, 2f
+    xvld        $xr24, $t2, 0
+    xvld        $xr25, $t2, 32
+    xvld        $xr26, $t2, 64
+    xvld        $xr27, $t2, 96
+    xvld        $xr28, $t3, 0
+    xvld        $xr29, $t3, 32
+    xvxor.v     $xr24, $xr24, $xr28
+    xvxor.v     $xr25, $xr25, $xr29
+    xvld        $xr28, $t3, 64
+    xvld        $xr29, $t3, 96
+    xvxor.v     $xr26, $xr26, $xr28
+    xvxor.v     $xr27, $xr27, $xr29
+    xvor.v      $xr24, $xr24, $xr25
+    xvor.v      $xr26, $xr26, $xr27
+    xvor.v      $xr24, $xr24, $xr26
+    xvsetnez.v  $fcc0, $xr24
+    bcnez       $fcc0, 8f
+    addi.d      $t2, $t2, 128
+    addi.d      $t3, $t3, 128
+    addi.w      $t4, $t4, -128
+    b           1b
+2:
+    li.d        $t5, 32
+3:
+    bltu        $t4, $t5, 4f
+    xvld        $xr24, $t2, 0
+    xvld        $xr25, $t3, 0
+    xvxor.v     $xr24, $xr24, $xr25
+    xvsetnez.v  $fcc0, $xr24
+    bcnez       $fcc0, 8f
+    addi.d      $t2, $t2, 32
+    addi.d      $t3, $t3, 32
+    addi.w      $t4, $t4, -32
+    b           3b
+4:
+    li.d        $t5, 8
+5:
+    bltu        $t4, $t5, 6f
+    ld.d        $t5, $t2, 0
+    ld.d        $t6, $t3, 0
+    bne         $t5, $t6, 8f
+    addi.d      $t2, $t2, 8
+    addi.d      $t3, $t3, 8
+    addi.w      $t4, $t4, -8
+    li.d        $t5, 8
+    b           5b
+6:
+    beqz        $t4, 7f
+    ld.bu       $t5, $t2, 0
+    ld.bu       $t6, $t3, 0
+    bne         $t5, $t6, 8f
+    addi.d      $t2, $t2, 1
+    addi.d      $t3, $t3, 1
+    addi.w      $t4, $t4, -1
+    b           6b
+7:
+    move        $t2, $zero
+    ret
+8:
+    li.d        $t2, 1
     ret

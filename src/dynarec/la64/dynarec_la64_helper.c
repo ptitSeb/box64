@@ -2350,21 +2350,16 @@ void la64_move64(dynarec_la64_t* dyn, int ninst, int reg, int64_t val)
 
 void checkCRC(dynarec_la64_t* dyn, int ninst)
 {
-    // la64_crc_autocrc will use x1-x5 instead of A0-A4 to avoind having to move around the regs
-    // grab the dynablock address in x6, as this on will not be erased by crc functions
+    // la64_snapshot_match will use x1-x5 instead of the regular ABI and preserve x6.
     int delta = -(dyn->native_size + sizeof(void*));
     PCADDU12I(x6, SPLIT20(delta));
     LD_D(x6, x6, SPLIT12(delta));
-    // prepare and call the crc function
-    TABLE64C(x3, const_la64_crc_autocrc);
-    LD_D(x1, x6, offsetof(dynablock_t, x64_addr));
-    LD_WU(x2, x6, offsetof(dynablock_t, x64_size));
-    JIRL(xRA, x3, 0x0);
-    LA64_RESTORE_VZERO();
-    // done, result in x1, load the stored hash (sign extended, as the crc will also be sign extended)
-    LD_W(x2, x6, offsetof(dynablock_t, hash));
-    // compare computed crc with stored one, jump to continue is equal
-    BEQ(x1, x2, 4+3*4); // TABLE64C generates 2 opcodes...
-    TABLE64C(x3, const_native_next_invalid);
+    TABLE64C(x4, cpuext.lasx ? const_la64_snapshot_match_lasx : const_la64_snapshot_match);
+    LD_D(x1, x6, offsetof(dynablock_t, x64_readaddr));
+    LD_D(x2, x6, offsetof(dynablock_t, x64_snapshot));
+    LD_WU(x3, x6, offsetof(dynablock_t, x64_size));
+    JIRL(xRA, x4, 0x0); // returns zero when the current source exactly matches the snapshot.
+    BEQZ(x1, 4+3*4);
+    TABLE64C(x3, const_native_next_invalid); // 2 opcodes
     JIRL(xRA, x3, 0x0);
 }

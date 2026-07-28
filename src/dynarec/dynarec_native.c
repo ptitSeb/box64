@@ -532,6 +532,7 @@ dynablock_t* FillBlock64(uintptr_t addr, int is32bits, int inst_max, int is_new,
     size_t reloc_size = 0;
     size_t sz = 0;
     size_t dynablock_align = 0;
+    size_t snapshot_size = 0;
     size_t oldnativesize = 0;
     size_t oldinstsize = 0;
     uintptr_t end = 0;
@@ -785,11 +786,17 @@ dynablock_t* FillBlock64(uintptr_t addr, int is32bits, int inst_max, int is_new,
             callret_size = helper.callret_size*sizeof(callret_t);
             sep_size = helper.sep_size*sizeof(sep_t);
             reloc_size = helper.reloc_size*sizeof(uint32_t);
+            #ifdef LA64
+            snapshot_size = helper.always_test ? end - start : 0;
+            #else
+            snapshot_size = 0;
+            #endif
             // ok, now allocate mapped memory, with executable flag on
             sz = sizeof(void*) + native_size + helper.table64size*sizeof(uint64_t) + JMPNEXT_SIZE + insts_rsize + arch_size + callret_size + sep_size;
             dynablock_align = (sz&7)?(8 -(sz&7)):0;    // align dynablock
             sz += dynablock_align + sizeof(dynablock_t) + reloc_size;
-            //           dynablock_t*     block (arm insts)            table64               jmpnext code       instsize     arch         callrets         sep  dynablock           relocs
+            if(snapshot_size) sz += 31 + snapshot_size;
+            //           dynablock_t*     block (native insts)         table64               jmpnext code       instsize     arch         callrets         sep  dynablock           relocs / snapshot
             actual_p = (void*)AllocDynarecMap(old_addr, sz, is_new);
             if(actual_p==NULL) {
                 dynarec_log(LOG_INFO, "AllocDynarecMap(%p, %zu) failed, canceling block\n", (void*)addr, sz);
@@ -807,6 +814,7 @@ dynablock_t* FillBlock64(uintptr_t addr, int is32bits, int inst_max, int is_new,
             block = (dynablock_t*)(seps+sep_size+dynablock_align);
             memset(block, 0, sizeof(dynablock_t));
             void* relocs = helper.need_reloc?(block+1):NULL;
+            if(snapshot_size) block->x64_snapshot = (void*)(((uintptr_t)(block+1) + reloc_size + 31) & ~(uintptr_t)31);
             // fill the block
             block->x64_addr = (void*)addr;
             block->x64_readaddr = addr;
@@ -903,6 +911,7 @@ dynablock_t* FillBlock64(uintptr_t addr, int is32bits, int inst_max, int is_new,
             ClearCache(block->jmpnext, JMPNEXT_SIZE-sizeof(void*));
             //block->x64_addr = (void*)start;
             block->x64_size = end-start;
+            if(block->x64_snapshot) memcpy(block->x64_snapshot, (void*)block->x64_readaddr, block->x64_size);
             // all done...
             if (BOX64ENV(dynarec_gdbjit) && (!BOX64ENV(dynarec_gdbjit_end) || (addr >= BOX64ENV(dynarec_gdbjit_start) && addr < BOX64ENV(dynarec_gdbjit_end)))) {
                 if (BOX64ENV(dynarec_gdbjit) != 3) GdbJITBlockReady(helper.gdbjit_block);

@@ -1498,6 +1498,7 @@ int MmaplistAddBlock_internal(mmaplist_t* list, void* map, void* orig, size_t si
             #define GO(A) if(bl->A) bl->A = ((void*)bl->A)+delta
             GO(block);
             GO(actual_block);
+            GO(x64_snapshot);
             GO(instsize);
             GO(arch);
             GO(callrets);

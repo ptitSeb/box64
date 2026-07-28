@@ -1807,7 +1807,7 @@ void avx_reflect_reg(dynarec_la64_t* dyn, int ninst, int a);
 void avx_reflect_reg_upper128(dynarec_la64_t* dyn, int ninst, int a, int forwrite);
 void avx_cleancache(dynarec_la64_t* dyn, int ninst);
 
-// in case of always_test, this insert a check of crc of the dynablock (and exit to ArmNext if wrong)
+// in case of always_test, this insert an exact source/snapshot check and exit to native_next if it changed.
 void checkCRC(dynarec_la64_t* dyn, int ninst);
 
 void CacheTransform(dynarec_la64_t* dyn, int ninst, int cacheupd, int s1, int s2, int s3);
