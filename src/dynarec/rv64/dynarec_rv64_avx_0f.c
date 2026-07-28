@@ -285,6 +285,28 @@ uintptr_t dynarec64_AVX_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
                 ORI(xFlags, xFlags, 1 << F_ZF);
             }
             break;
+        case 0x50:
+            INST_NAME("VMOVMSKPS Gd, Ex");
+            nextop = F8;
+            GETGD;
+            GETEX(x2, 0, vex.l ? 24 : 8);
+            XOR(gd, gd, gd);
+            for (int i = 0; i < 4; ++i) {
+                LWU(x4, wback, fixedaddress + 4 * i);
+                SRLI(x4, x4, 31);
+                if (i) SLLI(x4, x4, i);
+                OR(gd, gd, x4);
+            }
+            if (vex.l) {
+                GETEY();
+                for (int i = 0; i < 4; ++i) {
+                    LWU(x4, wback, fixedaddress + 4 * i);
+                    SRLI(x4, x4, 31);
+                    SLLI(x4, x4, i + 4);
+                    OR(gd, gd, x4);
+                }
+            }
+            break;
         case 0x51:
             INST_NAME("VSQRTPS Gx, Ex");
             nextop = F8;
