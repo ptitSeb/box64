@@ -355,10 +355,10 @@ void KillAllInstances()
     struct dirent* entry;
     ssize_t len;
     char proc_path[PATH_MAX];
-    char exe_path[PATH_MAX];
+    char exe_path[PATH_MAX+8];
     char exe_target[PATH_MAX];
     char self_name[PATH_MAX];
-    char self_name_with_deleted[PATH_MAX];
+    char self_name_with_deleted[PATH_MAX+16];
 
     DIR* proc_dir = opendir("/proc");
     if (proc_dir == NULL) {

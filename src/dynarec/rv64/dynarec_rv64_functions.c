@@ -752,9 +752,9 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
             (void*)(dyn->native_start + dyn->insts[ninst].address), dyn->insts[ninst].size / 4, ninst, buf, (dyn->need_dump > 1) ? "\e[m" : "");
     }
     if (BOX64ENV(dynarec_gdbjit)) {
-        static char buf2[512];
+        static char buf2[4096+64];
         if (BOX64ENV(dynarec_gdbjit) > 1) {
-            sprintf(buf2, "; %d: %d opcodes, %s", ninst, dyn->insts[ninst].size / 4, buf);
+            snprintf(buf2, sizeof(buf2), "; %d: %d opcodes, %s", ninst, dyn->insts[ninst].size / 4, buf);
             dyn->gdbjit_block = GdbJITBlockAddLine(dyn->gdbjit_block, (dyn->native_start + dyn->insts[ninst].address), buf2);
         }
         zydis_dec_t* dec = rex.is32bits ? my_context->dec32 : my_context->dec;

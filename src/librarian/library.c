@@ -83,7 +83,7 @@ KHASH_MAP_IMPL_STR(datamap, uint64_t)
 char* Path2Name(const char* path)
 {
     char* name = (char*)box_calloc(1, MAX_PATH);
-    char* p = strrchr(path, '/');
+    char* p = (char *)strrchr(path, '/');
     strcpy(name, (p)?(p+1):path);
     // name should be libXXX.so.A(.BB.CCCC)
     // so keep only 2 dot after ".so" (if any)
@@ -98,7 +98,7 @@ char* Path2Name(const char* path)
 }
 int NbDot(const char* name)
 {
-    char *p = strstr(name, ".so");
+    const char *p = strstr(name, ".so");
     if(!p)
         return -1;
     int ret = 0;

@@ -4,6 +4,7 @@
 #include <string.h>
 #include <math.h>
 #include <fenv.h>
+#include <inttypes.h>
 
 #include "debug.h"
 #include "x64emu_private.h"
@@ -259,7 +260,7 @@ const char* PrintLD(void* ld, const char* prefix)
     #pragma pack(pop)
     memcpy(&val, ld, 10);
     static char buf[64];
-    snprintf(buf, sizeof(buf), "%s%04x %016llx", prefix?prefix:"", val.b, val.f.q);
+    snprintf(buf, sizeof(buf), "%s%04x %016" PRIx64 "", prefix?prefix:"", val.b, val.f.q);
     return buf;
 }
 

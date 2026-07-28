@@ -210,7 +210,9 @@ EXPORT void* my_av_asprintf(x64emu_t* emu, void * fmt, uint64_t * b) {
     myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 1);
     PREPARE_VALIST;
     char* buff = NULL;
-    vasprintf(&buff, (char*)fmt, VARARGS);
+    int va = vasprintf(&buff, (char*)fmt, VARARGS);
+    if ((va < 0) || !buff)
+        return NULL;
     void* ret = my->av_asprintf("%s", buff);
     free(buff);
     return ret;
@@ -257,7 +259,9 @@ EXPORT void my_av_log(x64emu_t* emu, void* avcl, int lvl, void* fmt, uint64_t* b
     myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 3);
     PREPARE_VALIST;
     char* buff = NULL;
-    vasprintf(&buff, (char*)fmt, VARARGS);
+    int va = vasprintf(&buff, (char*)fmt, VARARGS);
+    if((va < 0) || !buff)
+        return;
     my->av_log(avcl, lvl, "%s", buff);
     free(buff);
 }
@@ -282,7 +286,9 @@ EXPORT size_t my_av_strlcatf(x64emu_t* emu, void* dst, size_t size, void* fmt, u
     myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 3);
     PREPARE_VALIST;
     char* buff = NULL;
-    vasprintf(&buff, (char*)fmt, VARARGS);
+    int va = vasprintf(&buff, (char*)fmt, VARARGS);
+    if ((va < 0) || !buff)
+        return 0;
     size_t ret = my->av_strlcatf(dst, size, "%s", buff);
     free(buff);
     return ret;

@@ -32,7 +32,8 @@ static void create_lib_symlink(const char* lib)
     if(FileExist(tmp, IS_FILE)) return; // already there
     strcpy(file, strrchr(lib, '/')+1);
     printf_log(LOG_DEBUG, "Creating symlinks %s -> %s\n", tmp, file);
-    symlink(file, tmp);
+    int ret = symlink(file, tmp);
+    (void)ret;
 }
 
 static void create_libs_symlink(const char* folder)

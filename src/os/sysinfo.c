@@ -187,12 +187,12 @@ void InitializeSystemInfo(void)
 
     char branding[3 * 4 * 4 + 1] = {0};
     if (strstr(box64_sysinfo.cpuname, "MHz") || strstr(box64_sysinfo.cpuname, "GHz")) {
-        snprintf(branding, sizeof(branding)-1, BOX64_BUILD_INFO_STRING_SHORT " on %.*s", 32, box64_sysinfo.cpuname);
+        snprintf(branding, sizeof(branding)-1, BOX64_BUILD_INFO_STRING_SHORT " on %.*s", 31, box64_sysinfo.cpuname);
     } else {
         if (box64_sysinfo.frequency > 1500000) {
-            snprintf(branding, sizeof(branding)-1, BOX64_BUILD_INFO_STRING_SHORT " on %.*s @%1.2f GHz", 28, box64_sysinfo.cpuname, box64_sysinfo.frequency / 1000000000.);
+            snprintf(branding, sizeof(branding)-1, BOX64_BUILD_INFO_STRING_SHORT " on %.*s @%1.2f GHz", 21, box64_sysinfo.cpuname, box64_sysinfo.frequency / 1000000000.);
         } else {
-            snprintf(branding, sizeof(branding)-1, BOX64_BUILD_INFO_STRING_SHORT " on %.*s @%04" PRIu64 " MHz", 28, box64_sysinfo.cpuname, box64_sysinfo.frequency / 1000000);
+            snprintf(branding, sizeof(branding)-1, BOX64_BUILD_INFO_STRING_SHORT " on %.*s @%04" PRIu64 " MHz", 21, box64_sysinfo.cpuname, box64_sysinfo.frequency / 1000000);
         }
     }
     box64_sysinfo.box64_cpuname = (char*)calloc(strlen(branding) + 1, 1);

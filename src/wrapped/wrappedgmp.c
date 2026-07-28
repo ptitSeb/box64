@@ -155,14 +155,14 @@ EXPORT int my___gmp_asprintf(x64emu_t* emu, char** strp, const char* fmt, void* 
 {
     myStackAlign(emu, fmt, b, emu->scratch, R_EAX, 2);
     PREPARE_VALIST;
-    return my->__gmp_vasprintf(strp, fmt, VARARGS);
+    return my->__gmp_vasprintf(strp, (void *)fmt, VARARGS);
 }
 
 EXPORT int my___gmp_fprintf(x64emu_t* emu, void* stream, const char* fmt, void* b)
 {
     myStackAlign(emu, fmt, b, emu->scratch, R_EAX, 2);
     PREPARE_VALIST;
-    return my->__gmp_vfprintf(stream, fmt, VARARGS);
+    return my->__gmp_vfprintf(stream, (void *)fmt, VARARGS);
 }
 
 EXPORT int my___gmp_vasprintf(x64emu_t* emu, char** strp, const char* fmt, x64_va_list_t b)
@@ -173,7 +173,7 @@ EXPORT int my___gmp_vasprintf(x64emu_t* emu, char** strp, const char* fmt, x64_v
     myStackAlignValist(emu, fmt, emu->scratch, b);
     PREPARE_VALIST;
 #endif
-    return my->__gmp_vasprintf(strp, fmt, VARARGS);
+    return my->__gmp_vasprintf(strp, (void *)fmt, VARARGS);
 }
 
 EXPORT int my___gmp_vfprintf(x64emu_t* emu, void* stream, const char* fmt, x64_va_list_t b)
@@ -184,7 +184,7 @@ EXPORT int my___gmp_vfprintf(x64emu_t* emu, void* stream, const char* fmt, x64_v
     myStackAlignValist(emu, fmt, emu->scratch, b);
     PREPARE_VALIST;
 #endif
-    return my->__gmp_vfprintf(stream, fmt, VARARGS);
+    return my->__gmp_vfprintf(stream, (void *)fmt, VARARGS);
 }
 
 #include "wrappedlib_init.h"

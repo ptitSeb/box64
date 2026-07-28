@@ -2625,8 +2625,8 @@ EXPORT int32_t my_epoll_wait(x64emu_t* emu, int32_t epfd, void* events, int32_t 
 {
     struct epoll_event _events[maxevents];
     //AlignEpollEvent(_events, events, maxevents);
-    int32_t ret = epoll_wait(epfd, events?_events:NULL, maxevents, timeout);
-    if(ret>0)
+    int32_t ret = epoll_wait(epfd, _events, maxevents, timeout);
+    if((ret > 0) && events)
         UnalignEpollEvent(events, _events, ret);
     return ret;
 }
@@ -2634,8 +2634,8 @@ EXPORT int32_t my_epoll_pwait(x64emu_t* emu, int32_t epfd, void* events, int32_t
 {
     struct epoll_event _events[maxevents];
     //AlignEpollEvent(_events, events, maxevents);
-    int32_t ret = epoll_pwait(epfd, events?_events:NULL, maxevents, timeout, sigmask);
-    if(ret>0)
+    int32_t ret = epoll_pwait(epfd, _events, maxevents, timeout, sigmask);
+    if((ret > 0) && events)
         UnalignEpollEvent(events, _events, ret);
     return ret;
 }
@@ -2652,10 +2652,10 @@ EXPORT int32_t my_epoll_pwait2(x64emu_t* emu, int epfd, void* events, int maxeve
             if(tmp>1<<31) tmp = 1<<31;
             tout = tmp;
         }
-        ret = epoll_pwait(epfd, events?_events:NULL, maxevents, tout, sigmask);
+        ret = epoll_pwait(epfd, _events, maxevents, tout, sigmask);
     } else
-        ret = my->epoll_pwait2(epfd, events?_events:NULL, maxevents, timeout, sigmask);
-    if(ret>0)
+        ret = my->epoll_pwait2(epfd, _events, maxevents, timeout, sigmask);
+    if((ret > 0) && events)
         UnalignEpollEvent(events, _events, ret);
     return ret;
 }
