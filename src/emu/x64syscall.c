@@ -144,6 +144,7 @@ static const scwrap_t syscallwrap[] = {
     [34] = {__NR_pause, 0},
     #endif
     [35] = {__NR_nanosleep, 2},
+    [36] = {__NR_getitimer, 2},
     [38] = {__NR_setitimer, 3},
     [39] = {__NR_getpid, 0},
     [40] = {__NR_sendfile, 4},
@@ -201,12 +202,15 @@ static const scwrap_t syscallwrap[] = {
     [90] = {__NR_chmod, 2},
     #endif
     [91] = {__NR_fchmod, 2},
+    [93] = {__NR_fchown, 3},
     [95] = {__NR_umask, 1},
     [96] = {__NR_gettimeofday, 2},
     #ifdef __NR_getrlimit
     [97] = {__NR_getrlimit, 2},
     #endif
+    [98] = {__NR_getrusage, 2},
     [99] = {__NR_sysinfo, 1},
+    [100] = {__NR_times, 1},
     [101] = {__NR_ptrace, 4},
     [102] = {__NR_getuid, 0},
     [104] = {__NR_getgid, 0},
@@ -224,7 +228,9 @@ static const scwrap_t syscallwrap[] = {
     #ifdef __NR_setgroups
     [116] = {__NR_setgroups, 2},
     #endif
+    [117] = {__NR_setresuid, 3},
     [118] = {__NR_getresuid, 3},
+    [119] = {__NR_setresgid, 3},
     [120] = {__NR_getresgid, 3},
     [121] = {__NR_getpgid, 1},
     [122] = {__NR_setfsuid, 1},
@@ -241,7 +247,13 @@ static const scwrap_t syscallwrap[] = {
     [137] = {__NR_statfs, 2},
     [138] = {__NR_fstatfs, 2},
     [140] = {__NR_getpriority, 2},
+    [141] = {__NR_setpriority, 3},
+    [142] = {__NR_sched_setparam, 2},
+    [143] = {__NR_sched_getparam, 2},
+    [144] = {__NR_sched_setscheduler, 3},
     [145] = {__NR_sched_getscheduler, 1},
+    [146] = {__NR_sched_get_priority_max, 1},
+    [147] = {__NR_sched_get_priority_min, 1},
     [148] = {__NR_sched_rr_get_interval, 2},
     [149] = {__NR_mlock, 2},
     [150] = {__NR_munlock, 2},
@@ -276,6 +288,7 @@ static const scwrap_t syscallwrap[] = {
     [217] = {__NR_getdents64, 3},
     [218] = {__NR_set_tid_address, 1},
     [220] = {__NR_semtimedop, 4},
+    [221] = {__NR_fadvise64, 4},
     [228] = {__NR_clock_gettime, 2},
     [229] = {__NR_clock_getres, 2},
     [230] = {__NR_clock_nanosleep, 4},
@@ -292,6 +305,7 @@ static const scwrap_t syscallwrap[] = {
     [239] = {__NR_get_mempolicy, 5},
     [247] = {__NR_waitid, 5},
     [251] = {__NR_ioprio_set, 3},
+    [252] = {__NR_ioprio_get, 2},
     #ifdef __NR_inotify_init
     [253] = {__NR_inotify_init, 0},   //0xFD
     #endif
@@ -339,6 +353,7 @@ static const scwrap_t syscallwrap[] = {
     [298] = {__NR_perf_event_open, 5},
     [302] = {__NR_prlimit64, 4},
     [309] = {__NR_getcpu, 3}, // need wrapping?
+    [312] = {__NR_kcmp, 5},
     [314] = {__NR_sched_setattr, 3},
     [315] = {__NR_sched_getattr, 4},
     [316] = {__NR_renameat2, 5},
