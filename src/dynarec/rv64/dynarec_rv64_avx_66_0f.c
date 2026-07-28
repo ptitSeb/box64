@@ -1849,7 +1849,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
         case 0xD4:
             INST_NAME("VPADDQ Gx, Vx, Ex");
             nextop = F8;
-            GETEX(x2, 0, 8);
+            GETEX(x2, 0, vex.l ? 24 : 8);
             GETGX();
             GETGY();
             GETVX();
