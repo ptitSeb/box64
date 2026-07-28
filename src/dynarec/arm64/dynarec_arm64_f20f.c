@@ -68,6 +68,7 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETG;
             v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
+            MARK_XMM_SCALAR(gd);
             if(MODREG) {
                 ed = (nextop&7)+ (rex.b<<3);
                 d0 = sse_get_reg(dyn, ninst, x1, ed, 1);
@@ -237,6 +238,8 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETGX(q0, 1);
             d1 = fpu_get_scratch(dyn, ninst);
             GETEXSD(d0, 0, 0);
+            MARK_XMM_SCALAR(gd);
+            if(MODREG) MARK_XMM_SCALAR((nextop&7)+(rex.b<<3));
             if(!BOX64ENV(dynarec_fastnan)) {
                 v0 = fpu_get_scratch(dyn, ninst);
                 v1 = fpu_get_scratch(dyn, ninst);
@@ -247,10 +250,13 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 VBIC(v1, v0, v1);      // forget it in any input was a NAN already
                 SHL_64(v1, v1, 63);   // only keep the sign bit
                 VORR(d1, d1, v1);      // NAN -> -NAN
+                VMOVeD(q0, 0, d1, 0);
+            } else if(XMMH_UNNEEDED(gd)) {
+                FSQRTD(q0, d0);  // upper 64 dead: compute in place, skip preserve
             } else {
                 FSQRTD(d1, d0);
+                VMOVeD(q0, 0, d1, 0);
             }
-            VMOVeD(q0, 0, d1, 0);
             break;
 
         case 0x58:
@@ -259,6 +265,8 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETGX(d1, 1);
             v1 = fpu_get_scratch(dyn, ninst);
             GETEXSD(d0, 0, 0);
+            MARK_XMM_SCALAR(gd);
+            if(MODREG) MARK_XMM_SCALAR((nextop&7)+(rex.b<<3));
             if(!BOX64ENV(dynarec_fastnan)) {
                 v0 = fpu_get_scratch(dyn, ninst);
                 q0 = fpu_get_scratch(dyn, ninst);
@@ -277,10 +285,13 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 VMOVQDfrom(q0, 0, x5);
                 VORR(v2, v2, q0); // quiet any SNaN in src1
                 VBIF(v1, v2, v0); // where src1 was NaN, use QNaN(src1)
+                VMOVeD(d1, 0, v1, 0);
+            } else if(XMMH_UNNEEDED(gd)) {
+                FADDD(d1, d1, d0);  // upper 64 dead: compute in place, skip preserve
             } else {
                 FADDD(v1, d1, d0);  // the high part of the vector is erased...
+                VMOVeD(d1, 0, v1, 0);
             }
-            VMOVeD(d1, 0, v1, 0);
             break;
         case 0x59:
             INST_NAME("MULSD Gx, Ex");
@@ -288,6 +299,8 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETGX(d1, 1);
             v1 = fpu_get_scratch(dyn, ninst);
             GETEXSD(d0, 0, 0);
+            MARK_XMM_SCALAR(gd);
+            if(MODREG) MARK_XMM_SCALAR((nextop&7)+(rex.b<<3));
             if(!BOX64ENV(dynarec_fastnan)) {
                 v0 = fpu_get_scratch(dyn, ninst);
                 q0 = fpu_get_scratch(dyn, ninst);
@@ -306,10 +319,13 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 VMOVQDfrom(q0, 0, x5);
                 VORR(v2, v2, q0); // quiet any SNaN in src1
                 VBIF(v1, v2, v0); // where src1 was NaN, use QNaN(src1)
+                VMOVeD(d1, 0, v1, 0);
+            } else if(XMMH_UNNEEDED(gd)) {
+                FMULD(d1, d1, d0);  // upper 64 dead: compute in place, skip preserve
             } else {
                 FMULD(v1, d1, d0);
+                VMOVeD(d1, 0, v1, 0);
             }
-            VMOVeD(d1, 0, v1, 0);
             break;
         case 0x5A:
             INST_NAME("CVTSD2SS Gx, Ex");
@@ -333,6 +349,8 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETGX(d1, 1);
             v1 = fpu_get_scratch(dyn, ninst);
             GETEXSD(d0, 0, 0);
+            MARK_XMM_SCALAR(gd);
+            if(MODREG) MARK_XMM_SCALAR((nextop&7)+(rex.b<<3));
             if(!BOX64ENV(dynarec_fastnan)) {
                 v0 = fpu_get_scratch(dyn, ninst);
                 q0 = fpu_get_scratch(dyn, ninst);
@@ -351,10 +369,13 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 VMOVQDfrom(q0, 0, x5);
                 VORR(v2, v2, q0); // quiet any SNaN in src1
                 VBIF(v1, v2, v0); // where src1 was NaN, use QNaN(src1)
+                VMOVeD(d1, 0, v1, 0);
+            } else if(XMMH_UNNEEDED(gd)) {
+                FSUBD(d1, d1, d0);  // upper 64 dead: compute in place, skip preserve
             } else {
                 FSUBD(v1, d1, d0);
+                VMOVeD(d1, 0, v1, 0);
             }
-            VMOVeD(d1, 0, v1, 0);
             break;
         case 0x5D:
             INST_NAME("MINSD Gx, Ex");
@@ -372,6 +393,8 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETGX(v0, 1);
             d1 = fpu_get_scratch(dyn, ninst);
             GETEXSD(v1, 0, 0);
+            MARK_XMM_SCALAR(gd);
+            if(MODREG) MARK_XMM_SCALAR((nextop&7)+(rex.b<<3));
             if(!BOX64ENV(dynarec_fastnan)) {
                 d0 = fpu_get_scratch(dyn, ninst);
                 q0 = fpu_get_scratch(dyn, ninst);
@@ -390,10 +413,13 @@ uintptr_t dynarec64_F20F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 VMOVQDfrom(q0, 0, x5);
                 VORR(v2, v2, q0); // quiet any SNaN in src1
                 VBIF(d1, v2, d0); // where src1 was NaN, use QNaN(src1)
+                VMOVeD(v0, 0, d1, 0);
+            } else if(XMMH_UNNEEDED(gd)) {
+                FDIVD(v0, v0, v1);  // upper 64 dead: compute in place, skip preserve
             } else {
                 FDIVD(d1, v0, v1);
+                VMOVeD(v0, 0, d1, 0);
             }
-            VMOVeD(v0, 0, d1, 0);
             break;
         case 0x5F:
             INST_NAME("MAXSD Gx, Ex");

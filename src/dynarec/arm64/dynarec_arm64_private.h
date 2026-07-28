@@ -86,6 +86,14 @@ typedef struct neoncache_s {
     uint16_t            ymm_needed;     // 1bit for ymmXX were value is needed 
     uint16_t            xmm_unneeded;   // 1bit for xmmXX were value is not needed
     uint16_t            ymm_unneeded;   // 1bit for ymmXX were value is not needed 
+    uint16_t            xmmh_used;      // [127:64] of low-128 used (scalar-vs-packed liveness)
+    uint16_t            xmmh_needed;    // 1bit if XMM upper-64 needed
+    uint16_t            xmmh_unneeded;  // 1bit if XMM upper-64 not needed
+    uint16_t            xmms_used;      // [127:32] of low-128 used (scalar-single-vs-wider liveness)
+    uint16_t            xmms_needed;    // 1bit if XMM upper-96 needed
+    uint16_t            xmms_unneeded;  // 1bit if XMM upper-96 not needed
+    uint16_t            xmm_scalar;     // regs accessed scalar-only (upper-64 untouched) this op
+    uint16_t            xmm_scalar_single; // regs accessed scalar-single-only (upper-96 untouched) this op
     uint64_t            ymm_regs;       // 4bits (0-15) position of 16 ymmXX regs removed
 } neoncache_t;
 

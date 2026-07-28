@@ -334,6 +334,14 @@
 #define GETG        gd = ((nextop&0x38)>>3)+(rex.r<<3)
 
 // Get GX as a quad (might use x1)
+// mark an XMM reg as accessed scalar-only (upper-64 untouched) in this opcode
+#define MARK_XMM_SCALAR(a)  dyn->n.xmm_scalar |= (1 << (a))
+// test if the upper-64 of an XMM reg is proven dead in this opcode
+#define XMMH_UNNEEDED(a)    (dyn->insts[ninst].n.xmmh_unneeded & (1 << (a)))
+// mark an XMM reg as accessed scalar-single (only low-32 touched, upper-96 untouched)
+#define MARK_XMM_SCALAR_SINGLE(a)  ((dyn->n.xmm_scalar |= (1 << (a))), (dyn->n.xmm_scalar_single |= (1 << (a))))
+// test if the upper-96 of an XMM reg is proven dead in this opcode
+#define XMMS_UNNEEDED(a)    (dyn->insts[ninst].n.xmms_unneeded & (1 << (a)))
 #define GETGX(a, w)                     \
     gd = ((nextop&0x38)>>3)+(rex.r<<3); \
     a = sse_get_reg(dyn, ninst, x1, gd, w)
