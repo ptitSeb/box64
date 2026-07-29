@@ -51,7 +51,7 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
-# from box86
+# Box64
 build/
 build*/
 .vscode
@@ -60,6 +60,7 @@ build*/
 src/git_head.h
 src/dynacache_hashes.h
 backup/
+box64-bundle-x86-libs.sha256
 
 # Wrapper helper
 /wrapperhelper/bin

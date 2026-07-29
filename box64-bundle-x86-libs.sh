@@ -130,5 +130,10 @@ for dir_lib in "${dir_tmp}"/bundle-libs/usr/lib/box64-*-linux-gnu; do
     done
 done
 
+# generate a SHA256 checksum of every file and symlink in the bundle
+cd "${dir_tmp}"/bundle-libs
+find usr \( -type f -o -type l \) -exec "${sha256sum}" {} + \
+    | LC_ALL=C sort --key 2 > "${current_dir}"/box64-bundle-x86-libs.sha256
+
 # generate the bundle libraries archive
 tar -C "${dir_tmp}"/bundle-libs -czvf "${current_dir}"/box64-bundle-x86-libs.tar.gz .
