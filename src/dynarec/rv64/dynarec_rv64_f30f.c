@@ -745,6 +745,16 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             FMVWX(d0, x2);
             break;
 
+        case 0xD6:
+            INST_NAME("MOVQ2DQ Gx, Em");
+            nextop = F8;
+            GETGX();
+            GETEM(x2, 0, 1);
+            LD(x3, wback, fixedaddress);
+            SD(x3, gback, gdoffset);
+            SD(xZR, gback, gdoffset + 8);
+            break;
+
         case 0xE6:
             INST_NAME("CVTDQ2PD Gx, Ex");
             nextop = F8;
@@ -758,6 +768,48 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             FCVTDW(q1, x4, RD_RTZ);
             FSD(q0, gback, gdoffset + 0);
             FSD(q1, gback, gdoffset + 8);
+            break;
+
+        case 0x38:
+            opcode = F8;
+            switch (opcode) {
+                case 0xF6:
+                    INST_NAME("ADOX Gd, Ed");
+                    nextop = F8;
+                    READFLAGS(X_OF);
+                    SETFLAGS(X_OF, SF_SUBSET, NAT_FLAGS_NOFUSION);
+                    GETGD;
+                    GETED(0);
+                    SRLI(x3, xFlags, F_OF2);
+                    ANDI(x3, x3, 1);
+                    IFX (X_OF) {
+                        if (rex.w) {
+                            ADD(x4, gd, ed);
+                            SLTU(x5, x4, gd);
+                            ADD(gd, x4, x3);
+                            SLTU(x6, gd, x4);
+                        } else {
+                            ADDW(x4, gd, ed);
+                            ZEXTW2(x4, x4);
+                            ZEXTW2(gd, gd);
+                            SLTU(x5, x4, gd);
+                            ADDW(gd, x4, x3);
+                            ZEXTW2(gd, gd);
+                            SLTU(x6, gd, x4);
+                        }
+                        OR(x5, x5, x6);
+                        ANDI(xFlags, xFlags, ~(1 << F_OF2));
+                        SLLI(x5, x5, F_OF2);
+                        OR(xFlags, xFlags, x5);
+                    } else {
+                        ADDxw(x5, gd, ed);
+                        ADDxw(gd, x5, x3);
+                        if (!rex.w) ZEROUP(gd);
+                    }
+                    break;
+                default:
+                    DEFAULT;
+            }
             break;
 
         default:
