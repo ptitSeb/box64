@@ -453,6 +453,7 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             VRGATHER_VV(v0, v1, d0, VECTOR_UNMASKED);
             break;
         case 0x7C:
+            if (!BOX64ENV(dynarec_fastnan)) return 0;
             INST_NAME("HADDPS Gx, Ex");
             nextop = F8;
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
