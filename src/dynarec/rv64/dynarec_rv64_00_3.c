@@ -1534,6 +1534,12 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             OR(xFlags, xFlags, x6);
                         }
                     }
+                    IFX (X_SF) {
+                        SRLI(x6, xRAX, rex.w ? 63 : 31);
+                        SLLI(x6, x6, F_SF);
+                        OR(xFlags, xFlags, x6);
+                    }
+                    IFX (X_PF) emit_pf(dyn, ninst, xRAX, x6, x4);
                     break;
                 case 6:
                     INST_NAME("DIV Ed");
