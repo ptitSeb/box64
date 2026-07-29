@@ -424,6 +424,94 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 FSW(s0, gback, gdoffset + 12);
             }
             break;
+        case 0x7D:
+            INST_NAME("HSUBPS Gx, Ex");
+            nextop = F8;
+            GETGX();
+            GETEX(x2, 0, 12);
+            s0 = fpu_get_scratch(dyn);
+            s1 = fpu_get_scratch(dyn);
+            // GX->f[0] = GX->f[0] - GX->f[1];
+            FLW(s0, gback, gdoffset + 0);
+            FLW(s1, gback, gdoffset + 4);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                FEQS(x3, s0, s0);
+                FEQS(x4, s1, s1);
+                AND(x5, x3, x4);
+                BEQZ(x5, 4 + 4 * 4);
+            }
+            FSUBS(s0, s0, s1);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                FEQS(x5, s0, s0);
+                BNEZ(x5, 4 + 4 * 3);
+                FNEGS(s0, s0);
+                BNEZ(x4, 4 + 4);
+                FMVS(s0, s1);
+            }
+            FSW(s0, gback, gdoffset + 0);
+            // GX->f[1] = GX->f[2] - GX->f[3];
+            FLW(s0, gback, gdoffset + 8);
+            FLW(s1, gback, gdoffset + 12);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                FEQS(x3, s0, s0);
+                FEQS(x4, s1, s1);
+                AND(x5, x3, x4);
+                BEQZ(x5, 4 + 4 * 4);
+            }
+            FSUBS(s0, s0, s1);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                FEQS(x5, s0, s0);
+                BNEZ(x5, 4 + 4 * 3);
+                FNEGS(s0, s0);
+                BNEZ(x4, 4 + 4);
+                FMVS(s0, s1);
+            }
+            FSW(s0, gback, gdoffset + 4);
+            if (MODREG && gd == (nextop & 7) + (rex.b << 3)) {
+                // GX->f[2] = GX->f[0];
+                FLW(s1, gback, gdoffset + 0);
+                FSW(s1, gback, gdoffset + 8);
+                // GX->f[3] = GX->f[1];
+                FSW(s0, gback, gdoffset + 12);
+            } else {
+                // GX->f[2] = EX->f[0] - EX->f[1];
+                FLW(s0, wback, fixedaddress + 0);
+                FLW(s1, wback, fixedaddress + 4);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    FEQS(x3, s0, s0);
+                    FEQS(x4, s1, s1);
+                    AND(x5, x3, x4);
+                    BEQZ(x5, 4 + 4 * 4);
+                }
+                FSUBS(s0, s0, s1);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    FEQS(x5, s0, s0);
+                    BNEZ(x5, 4 + 4 * 3);
+                    FNEGS(s0, s0);
+                    BNEZ(x4, 4 + 4);
+                    FMVS(s0, s1);
+                }
+                FSW(s0, gback, gdoffset + 8);
+                // GX->f[3] = EX->f[2] - EX->f[3];
+                FLW(s0, wback, fixedaddress + 8);
+                FLW(s1, wback, fixedaddress + 12);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    FEQS(x3, s0, s0);
+                    FEQS(x4, s1, s1);
+                    AND(x5, x3, x4);
+                    BEQZ(x5, 4 + 4 * 4);
+                }
+                FSUBS(s0, s0, s1);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    FEQS(x5, s0, s0);
+                    BNEZ(x5, 4 + 4 * 3);
+                    FNEGS(s0, s0);
+                    BNEZ(x4, 4 + 4);
+                    FMVS(s0, s1);
+                }
+                FSW(s0, gback, gdoffset + 12);
+            }
+            break;
         case 0xC2:
             INST_NAME("CMPSD Gx, Ex, Ib");
             nextop = F8;
@@ -474,6 +562,14 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             }
             NEG(x2, x2);
             FMVDX(d0, x2);
+            break;
+        case 0xD6:
+            INST_NAME("MOVDQ2Q Gm, Ex");
+            nextop = F8;
+            GETGM();
+            GETEX(x2, 0, 1);
+            LD(x3, wback, fixedaddress);
+            SD(x3, gback, gdoffset);
             break;
         case 0xD0:
             INST_NAME("ADDSUBPS Gx, Ex");
