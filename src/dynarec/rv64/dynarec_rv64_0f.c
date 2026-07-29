@@ -1241,12 +1241,8 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             for (int i = 0; i < 4; ++i) {
                 FLW(s0, wback, fixedaddress + i * 4);
                 FLW(s1, gback, gdoffset + i * 4);
-                FEQS(x3, s0, s0);
-                FEQS(x4, s1, s1);
-                AND(x3, x3, x4);
-                BEQZ(x3, 12);
-                FLTS(x3, s0, s1);
-                BEQZ(x3, 8);
+                FLTS(x3, s1, s0);
+                BNEZ(x3, 8);
                 FSW(s0, gback, gdoffset + i * 4);
             }
             break;
@@ -1292,7 +1288,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 FEQS(x4, s1, s1);
                 AND(x3, x3, x4);
                 BEQZ(x3, 12);
-                FLTS(x3, s1, s0);
+                FLES(x3, s1, s0);
                 BEQZ(x3, 8);
                 FSW(s0, gback, gdoffset + i * 4);
             }

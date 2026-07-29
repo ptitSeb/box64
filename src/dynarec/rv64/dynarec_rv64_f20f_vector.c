@@ -353,10 +353,6 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 VMV_S_X(v1, x4);
                 GETGX_vector(v0, 1, VECTOR_SEW64);
             }
-            if (BOX64ENV(dynarec_fastnan)) {
-                VECTOR_LOAD_VMASK(0b01, x4, 1);
-                VFMIN_VV(v0, v0, v1, VECTOR_MASKED);
-            } else {
                 d0 = fpu_get_scratch(dyn);
                 d1 = fpu_get_scratch(dyn);
                 VFMV_F_S(d0, v0);
@@ -376,7 +372,6 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     VMERGE_VVM(v0, v0, d0); // implies VMASK
                 } else {
                     VFMV_S_F(v0, d0);
-                }
             }
             break;
         case 0x5E:
@@ -413,10 +408,6 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 VMV_S_X(v1, x4);
                 GETGX_vector(v0, 1, VECTOR_SEW64);
             }
-            if (BOX64ENV(dynarec_fastnan)) {
-                VECTOR_LOAD_VMASK(0b01, x4, 1);
-                VFMAX_VV(v0, v0, v1, VECTOR_MASKED);
-            } else {
                 d0 = fpu_get_scratch(dyn);
                 d1 = fpu_get_scratch(dyn);
                 VFMV_F_S(d0, v0);
@@ -436,7 +427,6 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     VMERGE_VVM(v0, v0, d0); // implies VMASK
                 } else {
                     VFMV_S_F(v0, d0);
-                }
             }
             break;
         case 0x70:

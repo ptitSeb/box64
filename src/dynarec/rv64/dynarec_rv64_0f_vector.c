@@ -661,11 +661,7 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
             GETGX_vector(q0, 1, VECTOR_SEW32);
             GETEX_vector(q1, 0, 0, VECTOR_SEW32);
-            v0 = fpu_get_scratch(dyn);
-            VMFEQ_VV(VMASK, q0, q0, VECTOR_UNMASKED);
-            VMFEQ_VV(v0, q1, q1, VECTOR_UNMASKED);
-            VFMIN_VV(q0, q0, q1, VECTOR_UNMASKED);
-            VMAND_MM(VMASK, v0, VMASK);
+            VMFLT_VV(VMASK, q0, q1, VECTOR_UNMASKED);
             VXOR_VI(VMASK, VMASK, 0x1F, VECTOR_UNMASKED);
             VADD_VX(q0, q1, xZR, VECTOR_MASKED);
             break;
@@ -684,11 +680,7 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
             GETGX_vector(q0, 1, VECTOR_SEW32);
             GETEX_vector(q1, 0, 0, VECTOR_SEW32);
-            v0 = fpu_get_scratch(dyn);
-            VMFEQ_VV(VMASK, q0, q0, VECTOR_UNMASKED);
-            VMFEQ_VV(v0, q1, q1, VECTOR_UNMASKED);
-            VFMAX_VV(q0, q0, q1, VECTOR_UNMASKED);
-            VMAND_MM(VMASK, v0, VMASK);
+            VMFLT_VV(VMASK, q1, q0, VECTOR_UNMASKED);
             VXOR_VI(VMASK, VMASK, 0x1F, VECTOR_UNMASKED);
             VADD_VX(q0, q1, xZR, VECTOR_MASKED);
             break;

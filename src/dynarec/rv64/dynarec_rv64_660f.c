@@ -499,8 +499,8 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 FEQD(x4, d1, d1);
                 AND(x3, x3, x4);
                 BEQ(x3, xZR, 12);
-                FLTD(x3, d1, d0);
-                BEQ(x3, xZR, 8); // continue
+                FLTD(x3, d0, d1);
+                BNE(x3, xZR, 8); // continue
                 FSD(d1, gback, gdoffset + 8 * i);
             }
             break;
@@ -545,7 +545,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 FEQD(x4, d1, d1);
                 AND(x3, x3, x4);
                 BEQ(x3, xZR, 12);
-                FLTD(x3, d0, d1);
+                FLED(x3, d0, d1);
                 BEQ(x3, xZR, 8); // continue
                 FSD(d1, gback, gdoffset + 8 * i);
             }
