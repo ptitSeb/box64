@@ -872,14 +872,12 @@
 
 #define FORCE_DFNONE() SW(xZR, xEmu, offsetof(x64emu_t, df))
 
-#define SET_DFNONE()                          \
-    do {                                      \
-        if (!dyn->f.dfnone) {                 \
-            FORCE_DFNONE();                   \
-        }                                     \
-        if (!dyn->insts[ninst].x64.may_set) { \
-            dyn->f.dfnone = 1;                \
-        }                                     \
+#define SET_DFNONE()          \
+    do {                      \
+        if (!dyn->f.dfnone) { \
+            FORCE_DFNONE();   \
+        }                     \
+        dyn->f.dfnone = 1;    \
     } while (0)
 
 #define SET_DF(S, N)                                                                                                            \
@@ -1026,12 +1024,6 @@
         return addr;                                                                                                                                         \
     }                                                                                                                                                        \
     x87_do_pop(dyn, ninst, scratch);
-#endif
-
-#ifndef MAYSETFLAGS
-#define MAYSETFLAGS() \
-    do {              \
-    } while (0)
 #endif
 
 #ifndef READFLAGS
