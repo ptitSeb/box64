@@ -66,6 +66,9 @@ uintptr_t dynarec64_D9(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 // swap the cache value, not the double value itself :p
                 x87_get_st(dyn, ninst, x1, x2, nextop & 7, X87_ST(nextop & 7));
                 x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
+                if (!BOX64ENV(dynarec_fastround)) {
+                    x87_swap_fpu_ld(dyn, ninst, x1, x2, x3, x4, 0, nextop & 7);
+                }
                 x87_swapreg(dyn, ninst, x1, x2, 0, nextop & 7);
                 // should set C1 to 0
                 break;
@@ -92,7 +95,14 @@ uintptr_t dynarec64_D9(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 if (ST_IS_F(0)) {
                     FNEG_S(v1, v1);
                 } else {
+                    if (!BOX64ENV(dynarec_fastround)) {
+                        MOVFR2GR_D(x2, v1);    // old ST0.q
+                    }
                     FNEG_D(v1, v1);
+                    if (!BOX64ENV(dynarec_fastround)) {
+                        MOVFR2GR_D(x3, v1);    // new ST0.q
+                        x87_update_fpu_ld_sign(dyn, ninst, x1, x4, x5, x2, x3, 0, 1);
+                    }
                 }
                 break;
             case 0xE1:
@@ -101,7 +111,14 @@ uintptr_t dynarec64_D9(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 if (ST_IS_F(0)) {
                     FABS_S(v1, v1);
                 } else {
+                    if (!BOX64ENV(dynarec_fastround)) {
+                        MOVFR2GR_D(x2, v1);    // old ST0.q
+                    }
                     FABS_D(v1, v1);
+                    if (!BOX64ENV(dynarec_fastround)) {
+                        MOVFR2GR_D(x3, v1);    // new ST0.q
+                        x87_update_fpu_ld_sign(dyn, ninst, x1, x4, x5, x2, x3, 0, 0);
+                    }
                 }
                 break;
 
