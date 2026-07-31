@@ -1053,6 +1053,8 @@ GOM(__isoc99_vsscanf, iFEppA)
 GOM(__isoc99_vswscanf, iFEppA)
 //GO(__isoc99_vwscanf, iFpA)
 //GO(__isoc99_wscanf, iFpV)
+GO2(__isoc23_scanf, iFEpV, my___isoc99_scanf)
+GO2(__isoc23_vscanf, iFEpA, my___isoc99_vscanf)
 GO(isprint, iFi)
 //GO(__isprint_l, 
 GOW(isprint_l, iFip)
