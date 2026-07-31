@@ -351,6 +351,12 @@ static const scwrap_t syscallwrap[] = {
     // TODO: call back if unavailable?
     [326] = {__NR_copy_file_range, 6},
     #endif
+    #ifdef __NR_preadv2
+    [327] = {__NR_preadv2, 6},
+    #endif
+    #ifdef __NR_pwritev2
+    [328] = {__NR_pwritev2, 6},
+    #endif
     #ifdef __NR_statx
     // TODO: implement fallback if __NR_statx is not defined
     [332] = {__NR_statx, 5},
