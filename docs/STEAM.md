@@ -14,6 +14,11 @@ Linux Steam requires Box86 or Box32 and it's binfmt enabled, check [Compilation 
 steam
 ```
 
+For additional stability with Box64 when Box86 is unavailable, it is recommended to use the new 64-bit-only runtime for the Steam client.
+
+- Steam > Settings > Interface > Client Beta Participation: Steam Beta > Restart Now
+- Steam > Settings > Interface > Use experimental SteamRT3 Steam Client: On > Restart Now
+
 ## Install and run Windows Steam
 
 It's simple, just download it from Steam website and install it like other Windows applications.
