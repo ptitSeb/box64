@@ -50,7 +50,6 @@ typedef struct x64_stack_s x64_stack_t;
 extern int mkdir(const char *path, mode_t mode);
 extern int mknod(const char *path, mode_t mode, dev_t dev);
 extern int chmod(const char *path, mode_t mode);
-extern int fchmodat (int __fd, const char *__file, mode_t __mode, int __flag);
 
 //int32_t my_getrandom(x64emu_t* emu, void* buf, uint32_t buflen, uint32_t flags);
 int of_convert(int flag);
@@ -379,8 +378,8 @@ static const scwrap_t syscallwrap[] = {
     #ifdef __NR_io_uring_register
     [427] = {__NR_io_uring_register, 4},
     #endif
-    #ifdef __NR_fchmodat4
-    [434] = {__NR_fchmodat4, 4},
+    #ifdef __NR_pidfd_open
+    [434] = {__NR_pidfd_open, 2},
     #endif
     #ifdef __NR_close_range
     [436] = {__NR_close_range, 3},
@@ -1026,13 +1025,6 @@ void EXPORT x64Syscall_linux(x64emu_t *emu)
         case 334: // It is helpeful to run static binary
             R_RAX = -ENOSYS;
             break;
-        #ifndef __NR_fchmodat4
-        case 434:
-            S_RAX = fchmodat(S_EDI, (void*)R_RSI, (mode_t)R_RDX, S_R10d);
-            if(S_RAX==-1)
-                S_RAX = -errno;
-            break;
-        #endif
         #ifndef __NR_faccessat2
         case 439:
             S_RAX = faccessat(S_EDI, (void*)R_RSI, (mode_t)R_RDX, S_R10d);
@@ -1395,10 +1387,6 @@ long EXPORT my_syscall(x64emu_t *emu)
         #endif
         case 317:   // sys_seccomp
             return 0;  // ignoring call
-        #ifndef __NR_fchmodat4
-        case 434:
-            return fchmodat(S_ESI, (void*)R_RDX, (mode_t)R_RCX, S_R8d);
-        #endif
         #ifndef __NR_faccessat2
         case 439:
             return faccessat(S_ESI, (void*)R_RDX, (mode_t)R_RCX, S_R8d);
