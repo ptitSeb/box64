@@ -243,7 +243,6 @@
 #() iFpl
 #() iFpL
 #() iFpp
-#() iFpV
 #() iFpO
 #() iFpS
 #() iFpH
@@ -5569,6 +5568,7 @@ wrappedlibc:
   - swapcontext
   - tss_create
 - iFpV:
+  - __isoc23_scanf
   - __isoc99_scanf
   - execl
   - execle
@@ -5578,6 +5578,7 @@ wrappedlibc:
   - wprintf
   - wscanf
 - iFpA:
+  - __isoc23_vscanf
   - __isoc99_vscanf
   - vprintf
   - vscanf
