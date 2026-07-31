@@ -349,6 +349,8 @@ void FreeBox64Context(box64context_t** context)
         ctx->atfork_sz = ctx->atfork_cap = 0;
     }
 
+    box_free(ctx->quick_cleanups);
+
     for(int i=0; i<MAX_SIGNAL; ++i)
         if(ctx->signals[i]!=0 && ctx->signals[i]!=1) {
             signal(i, SIG_DFL);

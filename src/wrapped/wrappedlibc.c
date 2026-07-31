@@ -657,6 +657,12 @@ int EXPORT my___cxa_atexit(x64emu_t* emu, void* p, void* a, void* dso_handle)
     AddCleanup1Arg(emu, p, a, FindElfAddress(my_context, (uintptr_t)dso_handle));
     return 0;
 }
+int EXPORT my___cxa_at_quick_exit(x64emu_t* emu, void* p, void* dso_handle)
+{
+    (void)dso_handle; // glibc stores it but never uses it for quick_exit
+    AddQuickCleanup(emu, p);
+    return 0;
+}
 void EXPORT my___cxa_finalize(x64emu_t* emu, void* p)
 {
     if(!p) {
@@ -670,6 +676,16 @@ int EXPORT my_atexit(x64emu_t* emu, void *p)
 {
     AddCleanup(emu, p);
     return 0;
+}
+int EXPORT my_at_quick_exit(x64emu_t* emu, void *p)
+{
+    AddQuickCleanup(emu, p);
+    return 0;
+}
+void EXPORT my_quick_exit(x64emu_t* emu, int status)
+{
+    CallQuickCleanup(emu, status);
+    quick_exit(status);
 }
 
 int my_getcontext(x64emu_t* emu, void* ucp);

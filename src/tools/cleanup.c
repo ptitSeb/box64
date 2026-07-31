@@ -40,6 +40,19 @@ void AddCleanup1Arg(x64emu_t *emu, void *p, void* a, elfheader_t* h)
     h->cleanups[h->clean_sz++].f = p;
 }
 
+void AddQuickCleanup(x64emu_t *emu, void *p)
+{
+    (void)emu;
+
+    if(my_context->quick_clean_sz == my_context->quick_clean_cap) {
+        my_context->quick_clean_cap += 32;
+        my_context->quick_cleanups = (cleanup_t*)box_realloc(my_context->quick_cleanups, sizeof(cleanup_t) * my_context->quick_clean_cap);
+    }
+    my_context->quick_cleanups[my_context->quick_clean_sz].arg = 0;
+    my_context->quick_cleanups[my_context->quick_clean_sz].a = NULL;
+    my_context->quick_cleanups[my_context->quick_clean_sz++].f = p;
+}
+
 void CallCleanup(x64emu_t *emu, elfheader_t* h)
 {
     printf_log(LOG_DEBUG, "Calling atexit registered functions for elf: %p/%s\n", h, h?h->name:"(nil)");
@@ -65,4 +78,16 @@ void CallAllCleanup(x64emu_t *emu)
     }
     box_free(my_context->cleanups);
     my_context->cleanups = NULL;
+}
+
+void CallQuickCleanup(x64emu_t *emu, int status)
+{
+    printf_log(LOG_DEBUG, "Calling at_quick_exit registered functions\n");
+    while(my_context->quick_clean_sz) {
+        cleanup_t cleanup = my_context->quick_cleanups[--my_context->quick_clean_sz];
+        RunFunctionWithEmu(emu, 0, (uintptr_t)cleanup.f, 2, NULL, status);
+    }
+    box_free(my_context->quick_cleanups);
+    my_context->quick_cleanups = NULL;
+    my_context->quick_clean_cap = 0;
 }

@@ -136,6 +136,7 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(__stack_chk_fail, vFv_t) \
 	GO(_exit, vFi_t) \
 	GO(exit, vFi_t) \
+	GO(quick_exit, vFi_t) \
 	GO(_ITM_deregisterTMCloneTable, vFp_t) \
 	GO(_ZGTtdlPv, vFp_t) \
 	GO(__cxa_finalize, vFp_t) \
@@ -145,6 +146,7 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(iopl, iFi_t) \
 	GO(__libc_dlclose, iFp_t) \
 	GO(_setjmp, iFp_t) \
+	GO(at_quick_exit, iFp_t) \
 	GO(atexit, iFp_t) \
 	GO(getcontext, iFp_t) \
 	GO(register_printf_type, iFp_t) \
@@ -189,6 +191,7 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(delete_module, iFpu_t) \
 	GO(fsopen, iFpu_t) \
 	GO(munmap, iFpL_t) \
+	GO(__cxa_at_quick_exit, iFpp_t) \
 	GO(__vprintf_chk, iFpp_t) \
 	GO(dl_iterate_phdr, iFpp_t) \
 	GO(execv, iFpp_t) \
