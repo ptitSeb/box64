@@ -288,7 +288,6 @@ typedef int32_t (*iFpd_t)(void*, double);
 typedef int32_t (*iFpl_t)(void*, intptr_t);
 typedef int32_t (*iFpL_t)(void*, uintptr_t);
 typedef int32_t (*iFpp_t)(void*, void*);
-typedef int32_t (*iFpV_t)(void*, void*);
 typedef int32_t (*iFpO_t)(void*, int32_t);
 typedef int32_t (*iFpS_t)(void*, void*);
 typedef int32_t (*iFpH_t)(void*, unsigned __int128);
@@ -4544,7 +4543,6 @@ void iFpd(x64emu_t *emu, uintptr_t fcn) { iFpd_t fn = (iFpd_t)fcn; R_RAX=(int)fn
 void iFpl(x64emu_t *emu, uintptr_t fcn) { iFpl_t fn = (iFpl_t)fcn; R_RAX=(int)fn((void*)R_RDI, (intptr_t)R_RSI); }
 void iFpL(x64emu_t *emu, uintptr_t fcn) { iFpL_t fn = (iFpL_t)fcn; R_RAX=(int)fn((void*)R_RDI, (uintptr_t)R_RSI); }
 void iFpp(x64emu_t *emu, uintptr_t fcn) { iFpp_t fn = (iFpp_t)fcn; R_RAX=(int)fn((void*)R_RDI, (void*)R_RSI); }
-void iFpV(x64emu_t *emu, uintptr_t fcn) { iFpV_t fn = (iFpV_t)fcn; R_RAX=(int)fn((void*)R_RDI, (void*)(R_RSP + 8)); }
 void iFpO(x64emu_t *emu, uintptr_t fcn) { iFpO_t fn = (iFpO_t)fcn; R_RAX=(int)fn((void*)R_RDI, of_convert((int32_t)R_RSI)); }
 void iFpS(x64emu_t *emu, uintptr_t fcn) { iFpS_t fn = (iFpS_t)fcn; R_RAX=(int)fn((void*)R_RDI, io_convert((void*)R_RSI)); }
 void iFpH(x64emu_t *emu, uintptr_t fcn) { iFpH_t fn = (iFpH_t)fcn; R_RAX=(int)fn((void*)R_RDI, (unsigned __int128)R_RSI + ((unsigned __int128)R_RDX << 64)); }
