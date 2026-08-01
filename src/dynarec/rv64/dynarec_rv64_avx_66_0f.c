@@ -541,21 +541,45 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETEX(x2, 0, vex.l ? 24 : 8);
             GETGX();
             d0 = fpu_get_scratch(dyn);
-            d1 = fpu_get_scratch(dyn);
-            FLD(d0, wback, fixedaddress + 0);
-            FLD(d1, wback, fixedaddress + 8);
-            FCVTSD(d0, d0);
-            FCVTSD(d1, d1);
-            FSW(d0, gback, gdoffset + 0);
-            FSW(d1, gback, gdoffset + 4);
+            if (!BOX64ENV(dynarec_fastnan)) LUI(x7, 0x7fc00);
+            for (int i = 0; i < 2; ++i) {
+                FLD(d0, wback, fixedaddress + i * 8);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    FMVXD(x3, d0);
+                    FEQD(x4, d0, d0);
+                }
+                FCVTSD(d0, d0);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    BNEZ(x4, 4 + 6 * 4);
+                    SRLI(x6, x3, 63);
+                    SLLI(x6, x6, 31);
+                    SRLI(x3, x3, 29);
+                    OR(x3, x3, x6);
+                    OR(x3, x3, x7);
+                    FMVWX(d0, x3);
+                }
+                FSW(d0, gback, gdoffset + i * 4);
+            }
             if (vex.l) {
                 GETEY();
-                FLD(d0, wback, fixedaddress + 0);
-                FLD(d1, wback, fixedaddress + 8);
-                FCVTSD(d0, d0);
-                FCVTSD(d1, d1);
-                FSW(d0, gback, gdoffset + 8);
-                FSW(d1, gback, gdoffset + 12);
+                for (int i = 0; i < 2; ++i) {
+                    FLD(d0, wback, fixedaddress + i * 8);
+                    if (!BOX64ENV(dynarec_fastnan)) {
+                        FMVXD(x3, d0);
+                        FEQD(x4, d0, d0);
+                    }
+                    FCVTSD(d0, d0);
+                    if (!BOX64ENV(dynarec_fastnan)) {
+                        BNEZ(x4, 4 + 6 * 4);
+                        SRLI(x6, x3, 63);
+                        SLLI(x6, x6, 31);
+                        SRLI(x3, x3, 29);
+                        OR(x3, x3, x6);
+                        OR(x3, x3, x7);
+                        FMVWX(d0, x3);
+                    }
+                    FSW(d0, gback, gdoffset + 8 + i * 4);
+                }
             } else
                 SD(xZR, gback, gdoffset + 8);
             YMM0(gd);

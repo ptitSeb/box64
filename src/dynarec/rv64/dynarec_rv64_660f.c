@@ -440,7 +440,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             for (int i = 0; i < 2; ++i) {
                 FLD(d0, wback, fixedaddress + i * 8);
                 if (!BOX64ENV(dynarec_fastnan)) {
-                    LD(x3, wback, fixedaddress + i * 8);
+                    FMVXD(x3, d0);
                     FEQD(x4, d0, d0);
                 }
                 FCVTSD(d0, d0);
