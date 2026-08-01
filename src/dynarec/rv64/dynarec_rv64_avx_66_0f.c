@@ -256,10 +256,17 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             if (!BOX64ENV(dynarec_fastnan)) {
                 d1 = fpu_get_scratch(dyn);
                 FMVDX(d1, xZR);
+                MOV64x(x6, 0x0008000000000000ULL);
             }
             for (int i = 0; i < 2; ++i) {
                 FLD(d0, wback, fixedaddress + i * 8);
                 if (!BOX64ENV(dynarec_fastnan)) {
+                    FEQD(x3, d0, d0);
+                    BNEZ(x3, 5 * 4);
+                    FMVXD(x4, d0);
+                    OR(x4, x4, x6);
+                    FMVDX(d0, x4);
+                    J(5 * 4);
                     FLTD(x3, d0, d1);
                 }
                 FSQRTD(d0, d0);
@@ -274,6 +281,12 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 for (int i = 0; i < 2; ++i) {
                     FLD(d0, wback, fixedaddress + i * 8);
                     if (!BOX64ENV(dynarec_fastnan)) {
+                        FEQD(x3, d0, d0);
+                        BNEZ(x3, 5 * 4);
+                        FMVXD(x4, d0);
+                        OR(x4, x4, x6);
+                        FMVDX(d0, x4);
+                        J(5 * 4);
                         FLTD(x3, d0, d1);
                     }
                     FSQRTD(d0, d0);
