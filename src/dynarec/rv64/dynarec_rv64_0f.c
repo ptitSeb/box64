@@ -1038,23 +1038,31 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             FMVWX(s1, x3); // 1.0f
             if (!BOX64ENV(dynarec_fastnan)) {
                 FCVTSW(v0, xZR, RD_DYN);
+                MOV32w(x6, 0x00400000);
             }
             for (int i = 0; i < 4; ++i) {
                 FLW(s0, wback, fixedaddress + i * 4);
                 if (!BOX64ENV(dynarec_fastnan)) {
+                    FEQS(x3, s0, s0);
+                    BNEZ(x3, 6 * 4);
+                    FMVXW(x4, s0);
+                    OR(x4, x4, x6);
+                    FMVWX(s0, x4);
+                    FSW(s0, gback, gdoffset + i * 4);
+                    J(14 * 4); // continue
                     FLTS(x3, v0, s0); // s0 > 0.0f?
-                    BNEZ(x3, 4 + 5 * 4);
+                    BNEZ(x3, 6 * 4);
                     FEQS(x3, v0, s0); // s0 == 0.0f?
-                    BEQZ(x3, 4 + 3 * 4);
+                    BEQZ(x3, 4 * 4);
                     FDIVS(s0, s1, v0); // generate an inf
                     FSW(s0, gback, gdoffset + i * 4);
-                    J(4 + 6 * 4); // continue
+                    J(7 * 4); // continue
                 }
                 FSQRTS(s0, s0);
                 FDIVS(s0, s1, s0);
                 if (!BOX64ENV(dynarec_fastnan)) {
                     FEQS(x3, s0, s0);
-                    BNEZ(x3, 4 + 4); // isnan(s0)? negate it
+                    BNEZ(x3, 2 * 4); // isnan(s0)? negate it
                     FNEGS(s0, s0);
                 }
                 FSW(s0, gback, gdoffset + i * 4);
@@ -1069,18 +1077,23 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             d1 = fpu_get_scratch(dyn);
             LUI(x3, 0x3f800);
             FMVWX(d0, x3); // 1.0f
+            if (!BOX64ENV(dynarec_fastnan))
+                MOV32w(x6, 0x00400000);
             for (int i = 0; i < 4; ++i) {
                 FLW(d1, wback, fixedaddress + 4 * i);
                 if (!BOX64ENV(dynarec_fastnan)) {
                     FEQS(x3, d1, d1);
-                    BNEZ(x3, 4 + 2 * 4); // isnan(d1)? copy it
+                    BNEZ(x3, 6 * 4); // isnan(d1)? quiet it
+                    FMVXW(x4, d1);
+                    OR(x4, x4, x6);
+                    FMVWX(d1, x4);
                     FSW(d1, gback, gdoffset + i * 4);
-                    J(4 + 5 * 4); // continue
+                    J(5 * 4); // continue
                 }
                 FDIVS(d1, d0, d1);
                 if (!BOX64ENV(dynarec_fastnan)) {
                     FEQS(x3, d1, d1);
-                    BNEZ(x3, 4 + 4); // isnan(d1)? negate it
+                    BNEZ(x3, 2 * 4); // isnan(d1)? negate it
                     FNEGS(d1, d1);
                 }
                 FSW(d1, gback, gdoffset + 4 * i);

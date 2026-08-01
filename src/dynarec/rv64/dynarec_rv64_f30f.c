@@ -231,11 +231,35 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETEXSS(v0, 0);
             GETGXSS_empty(v1);
-            q0 = fpu_get_scratch(dyn);
+            q0 = fpu_get_scratch(dyn); // 1.0f
+            d0 = fpu_get_scratch(dyn); // 0.0f
             LUI(x3, 0x3F800); // 1.0f
             FMVWX(q0, x3);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                MOV32w(x6, 0x00400000);
+                FCVTSW(d0, xZR, RD_DYN);
+            }
+            if (!BOX64ENV(dynarec_fastnan)) {
+                FEQS(x3, v0, v0);
+                BNEZ(x3, 5 * 4);
+                FMVXW(x4, v0);
+                OR(x4, x4, x6);
+                FMVWX(v1, x4);
+                J(12 * 4); // done
+                FLTS(x3, d0, v0); // input > 0.0f?
+                BNEZ(x3, 5 * 4);
+                FEQS(x3, d0, v0); // input == 0.0f?
+                BEQZ(x3, 3 * 4);
+                FDIVS(v1, q0, d0); // generate an inf
+                J(6 * 4); // done
+            }
             FSQRTS(v1, v0);
             FDIVS(v1, q0, v1);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                FEQS(x3, v1, v1);
+                BNEZ(x3, 2 * 4); // isnan(v1)? negate it
+                FNEGS(v1, v1);
+            }
             break;
         case 0x53:
             INST_NAME("RCPSS Gx, Ex");
@@ -245,7 +269,21 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             q0 = fpu_get_scratch(dyn);
             LUI(x3, 0x3F800); // 1.0f
             FMVWX(q0, x3);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                MOV32w(x6, 0x00400000);
+                FEQS(x3, v0, v0);
+                BNEZ(x3, 5 * 4);
+                FMVXW(x4, v0);
+                OR(x4, x4, x6);
+                FMVWX(v1, x4);
+                J(5 * 4); // done
+            }
             FDIVS(v1, q0, v0);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                FEQS(x3, v1, v1);
+                BNEZ(x3, 2 * 4); // isnan(v1)? negate it
+                FNEGS(v1, v1);
+            }
             break;
         case 0x58:
             INST_NAME("ADDSS Gx, Ex");
