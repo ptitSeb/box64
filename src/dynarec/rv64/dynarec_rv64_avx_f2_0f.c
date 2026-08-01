@@ -249,6 +249,41 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             }
             YMM0(gd);
             break;
+        case 0x5A:
+            INST_NAME("VCVTSD2SS Gx, Vx, Ex");
+            nextop = F8;
+            GETEX(x1, 0, 1);
+            GETGX();
+            GETVX();
+            v0 = fpu_get_scratch(dyn);
+            FLD(v0, wback, fixedaddress);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                FEQD(x3, v0, v0);
+                LD(x4, wback, fixedaddress);
+            }
+            FCVTSD(v0, v0);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                BNEZ_MARK(x3);
+                SRLI(x6, x4, 63);
+                SLLI(x6, x6, 31);
+                SRLI(x4, x4, 29);
+                MOV32w(x5, 0x007fffff);
+                AND(x4, x4, x5);
+                LUI(x5, 0x7fc00);
+                OR(x4, x4, x5);
+                OR(x4, x4, x6);
+                FMVWX(v0, x4);
+                MARK;
+            }
+            FSW(v0, gback, gdoffset);
+            if (gd != vex.v) {
+                LW(x3, vback, vxoffset + 4);
+                SW(x3, gback, gdoffset + 4);
+                LD(x3, vback, vxoffset + 8);
+                SD(x3, gback, gdoffset + 8);
+            }
+            YMM0(gd);
+            break;
         case 0x5F:
             INST_NAME("VMAXSD Gx, Vx, Ex");
             nextop = F8;

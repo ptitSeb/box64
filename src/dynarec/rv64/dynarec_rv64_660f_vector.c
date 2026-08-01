@@ -1088,6 +1088,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             }
             break;
         case 0x51:
+            if (!BOX64ENV(dynarec_fastnan)) return 0;
             INST_NAME("SQRTPD Gx, Ex");
             nextop = F8;
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
@@ -1166,6 +1167,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             VFMUL_VV(q0, q0, q1, VECTOR_UNMASKED);
             break;
         case 0x5A:
+            if (!BOX64ENV(dynarec_fastnan)) return 0;
             INST_NAME("CVTPD2PS Gx, Ex");
             nextop = F8;
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
@@ -1739,12 +1741,21 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             if (!BOX64ENV(dynarec_fastnan)) {
                 VMFEQ_VV(v0, d0, d0, VECTOR_UNMASKED);
                 VMFEQ_VV(v1, d1, d1, VECTOR_UNMASKED);
-                VMAND_MM(v0, v0, v1);
             }
             VFADD_VV(q0, d0, d1, VECTOR_UNMASKED);
             if (!BOX64ENV(dynarec_fastnan)) {
-                VMFEQ_VV(v1, q0, q0, VECTOR_UNMASKED);
+                MOV64x(x3, 0x0008000000000000ULL);
+                VMNAND_MM(VMASK, v0, v0);
+                VOR_VX(d0, d0, x3, VECTOR_MASKED);
+                VMNAND_MM(VMASK, v1, v1);
+                VOR_VX(d1, d1, x3, VECTOR_MASKED);
                 VMANDN_MM(VMASK, v0, v1);
+                VMERGE_VVM(q0, q0, d1);
+                VMNAND_MM(VMASK, v0, v0);
+                VMERGE_VVM(q0, q0, d0);
+                VMAND_MM(VMASK, v0, v1);
+                VMFEQ_VV(d0, q0, q0, VECTOR_UNMASKED);
+                VMANDN_MM(VMASK, VMASK, d0);
                 VFSGNJN_VV(q0, q0, q0, VECTOR_MASKED);
             }
             break;

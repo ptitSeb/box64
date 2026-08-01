@@ -677,6 +677,7 @@ uintptr_t dynarec64_AVX_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
             GETEX(x2, 0, vex.l ? 12 : 4);
             s0 = fpu_get_scratch(dyn);
             s1 = fpu_get_scratch(dyn);
+            if (!BOX64ENV(dynarec_fastnan)) MOV64x(x6, 0x7ff8000000000000ULL);
             if (vex.l && MODREG && gd == ed) {
                 d0 = fpu_get_scratch(dyn);
                 d1 = fpu_get_scratch(dyn);
@@ -685,21 +686,96 @@ uintptr_t dynarec64_AVX_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
             }
             FLW(s0, wback, fixedaddress);
             FLW(s1, wback, fixedaddress + 4);
-            FCVTDS(s0, s0);
-            FCVTDS(s1, s1);
+            if (BOX64ENV(dynarec_fastnan)) {
+                FCVTDS(s0, s0);
+                FCVTDS(s1, s1);
+            } else {
+                FEQS(x3, s0, s0);
+                FMVXW(x4, s0);
+                FCVTDS(s0, s0);
+                BNEZ(x3, 8 * 4);
+                SRLIW(x5, x4, 31);
+                SLLI(x5, x5, 63);
+                SLLI(x4, x4, 41);
+                SRLI(x4, x4, 12);
+                OR(x4, x4, x5);
+                OR(x4, x4, x6);
+                FMVDX(s0, x4);
+                FEQS(x3, s1, s1);
+                FMVXW(x4, s1);
+                FCVTDS(s1, s1);
+                BNEZ(x3, 8 * 4);
+                SRLIW(x5, x4, 31);
+                SLLI(x5, x5, 63);
+                SLLI(x4, x4, 41);
+                SRLI(x4, x4, 12);
+                OR(x4, x4, x5);
+                OR(x4, x4, x6);
+                FMVDX(s1, x4);
+            }
             FSD(s0, gback, gdoffset + 0);
             FSD(s1, gback, gdoffset + 8);
             if (vex.l) {
                 if (MODREG && gd == ed) {
-                    FCVTDS(d0, d0);
-                    FCVTDS(d1, d1);
+                    if (BOX64ENV(dynarec_fastnan)) {
+                        FCVTDS(d0, d0);
+                        FCVTDS(d1, d1);
+                    } else {
+                        FEQS(x3, d0, d0);
+                        FMVXW(x4, d0);
+                        FCVTDS(d0, d0);
+                        BNEZ(x3, 8 * 4);
+                        SRLIW(x5, x4, 31);
+                        SLLI(x5, x5, 63);
+                        SLLI(x4, x4, 41);
+                        SRLI(x4, x4, 12);
+                        OR(x4, x4, x5);
+                        OR(x4, x4, x6);
+                        FMVDX(d0, x4);
+                        FEQS(x3, d1, d1);
+                        FMVXW(x4, d1);
+                        FCVTDS(d1, d1);
+                        BNEZ(x3, 8 * 4);
+                        SRLIW(x5, x4, 31);
+                        SLLI(x5, x5, 63);
+                        SLLI(x4, x4, 41);
+                        SRLI(x4, x4, 12);
+                        OR(x4, x4, x5);
+                        OR(x4, x4, x6);
+                        FMVDX(d1, x4);
+                    }
                     FSD(d0, gback, gyoffset + 0);
                     FSD(d1, gback, gyoffset + 8);
                 } else {
                     FLW(s0, wback, fixedaddress + 8);
                     FLW(s1, wback, fixedaddress + 12);
-                    FCVTDS(s0, s0);
-                    FCVTDS(s1, s1);
+                    if (BOX64ENV(dynarec_fastnan)) {
+                        FCVTDS(s0, s0);
+                        FCVTDS(s1, s1);
+                    } else {
+                        FEQS(x3, s0, s0);
+                        FMVXW(x4, s0);
+                        FCVTDS(s0, s0);
+                        BNEZ(x3, 8 * 4);
+                        SRLIW(x5, x4, 31);
+                        SLLI(x5, x5, 63);
+                        SLLI(x4, x4, 41);
+                        SRLI(x4, x4, 12);
+                        OR(x4, x4, x5);
+                        OR(x4, x4, x6);
+                        FMVDX(s0, x4);
+                        FEQS(x3, s1, s1);
+                        FMVXW(x4, s1);
+                        FCVTDS(s1, s1);
+                        BNEZ(x3, 8 * 4);
+                        SRLIW(x5, x4, 31);
+                        SLLI(x5, x5, 63);
+                        SLLI(x4, x4, 41);
+                        SRLI(x4, x4, 12);
+                        OR(x4, x4, x5);
+                        OR(x4, x4, x6);
+                        FMVDX(s1, x4);
+                    }
                     FSD(s0, gback, gyoffset + 0);
                     FSD(s1, gback, gyoffset + 8);
                 }

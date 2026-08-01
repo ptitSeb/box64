@@ -208,7 +208,23 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETEXSS(v0, 0);
             GETGXSS_empty(v1);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                FMVXW(x3, v0);
+                FEQS(x4, v0, v0);
+            }
             FSQRTS(v1, v0);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                FEQS(x5, v1, v1);
+                BNEZ_MARK(x5);
+                BNEZ_MARK2(x4);
+                LUI(x5, 0x00400);
+                OR(x3, x3, x5);
+                FMVWX(v1, x3);
+                B_MARK_nocond;
+                MARK2;
+                FNEGS(v1, v1);
+                MARK;
+            }
             break;
         case 0x52:
             INST_NAME("RSQRTSS Gx, Ex");

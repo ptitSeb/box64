@@ -911,7 +911,10 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     u8 = F8;
                     FEQD(x2, d0, d0);
                     BNEZ_MARK(x2);
-                    if (v0 != d0) FMVD(v0, d0);
+                    FMVXD(x3, d0);
+                    MOV64x(x4, 0x0008000000000000ULL);
+                    OR(x3, x3, x4);
+                    FMVDX(v0, x3);
                     B_NEXT_nocond;
                     MARK; // d0 is not nan
                     FABSD(v1, d0);
