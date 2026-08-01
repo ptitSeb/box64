@@ -1196,7 +1196,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     } else {
                         MOV64x(x2, addr);
                     }
-                    fpu_purgecache(dyn, ninst, 1, x1, x3, x4);
+                    fpu_purgecache(dyn, ninst, 0, x1, x3, x4);
                     PUSH1z(x2);
                     int can_continue = (addr < (dyn->start + dyn->isize));
                     if (BOX64DRENV(dynarec_callret)) {
