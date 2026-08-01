@@ -1004,18 +1004,14 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     INST_NAME("SAR Ed, CL");
                     if (BOX64DRENV(dynarec_safeflags) > 1) {
                         READFLAGS(X_ALL);
-                        SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
-                    } else
-                        SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
+                    }
+                    SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
                     ANDI(x3, xRCX, rex.w ? 0x3f : 0x1f);
                     GETED(0);
                     if (!rex.w && MODREG) { ZEROUP(ed); }
                     CBZ_NEXT(x3);
-                    UFLAG_OP12(ed, x3);
-                    SRAxw(ed, ed, x3);
+                    emit_sar32(dyn, ninst, rex, ed, x3, x4, x5, x6);
                     WBACK;
-                    UFLAG_RES(ed);
-                    UFLAG_DF(x3, rex.w ? d_sar64 : d_sar32);
                     break;
             }
             break;

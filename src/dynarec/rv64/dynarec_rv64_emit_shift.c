@@ -896,6 +896,45 @@ void emit_sar32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
     if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
 }
 
+// emit SAR32 instruction, from s1, count in s2 (masked to 0x1f/0x3f, non-zero), store result in s1 using s3, s4 and s5 as scratch
+void emit_sar32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5)
+{
+    int64_t j64;
+
+    CLEAR_FLAGS();
+    SET_DFNONE();
+
+    IFX (X_CF) {
+        ADDI(s5, s2, -1);
+        SRLxw(s3, s1, s5);
+        ANDI(s3, s3, 1);
+        OR(xFlags, xFlags, s3);
+    }
+    // For the SAR instruction, the OF flag is cleared for all 1-bit shifts.
+    // OF nop
+
+    if (rex.w) {
+        SRA(s1, s1, s2);
+    } else {
+        SRAW(s1, s1, s2);
+    }
+
+    // SRAW sign-extends, so test sign bit before clearing upper bits
+    IFX (X_SF) {
+        SET_FLAGS_LTZ(s1, F_SF, s3, s4);
+    }
+    if (!rex.w) {
+        ZEROUP(s1);
+    }
+    IFX (X_ZF) {
+        SET_FLAGS_EQZ(s1, F_ZF, s3);
+    }
+    IFX (X_PF) {
+        emit_pf(dyn, ninst, s1, s3, s4);
+    }
+    if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
+}
+
 // emit ROL32 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch
 void emit_rol32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4)
 {
