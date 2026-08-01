@@ -1612,11 +1612,10 @@ int sse_get_reg_empty(dynarec_rv64_t* dyn, int ninst, int s1, int a, int single)
         }
 
         if (dyn->e.ssecache[a].single != single) {
-            if (single) {
-                // writing back the float
+            if (dyn->e.ssecache[a].single)
                 FSW(dyn->e.ssecache[a].reg, xEmu, offsetof(x64emu_t, xmm[a]));
-                // there is no need to clear upper bits, it's cleared manually when needed.
-            }
+            else
+                FSD(dyn->e.ssecache[a].reg, xEmu, offsetof(x64emu_t, xmm[a]));
             dyn->e.olds[a].changed = 1;
             dyn->e.olds[a].purged = 0;
             dyn->e.olds[a].reg = EXTIDX(dyn->e.ssecache[a].reg);
