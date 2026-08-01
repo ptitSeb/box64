@@ -83,9 +83,9 @@ uintptr_t dynarec64_AVX_F2_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 OR(gd, gd, x4);
             }
             MARK3;
-            SLLI(x3, x3, 1);
+            SLLIxw(x3, x3, 1);
             MARK2;
-            SLLI(x4, x4, 1);
+            SLLIxw(x4, x4, 1);
             BNEZ_MARK(x4);
             if (gb1)
                 MV(gb1, gd);
