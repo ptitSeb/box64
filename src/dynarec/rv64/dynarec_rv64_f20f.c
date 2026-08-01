@@ -544,15 +544,15 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             s1 = fpu_get_scratch(dyn);
             if (!BOX64ENV(dynarec_fastnan)) MOV32w(x6, 0x00400000);
             // GX->f[0] = GX->f[0] - GX->f[1];
-            FLW(s0, gback, gdoffset + 0);
-            FLW(s1, gback, gdoffset + 4);
+            FLW(s0, gback, gdoffset + 4);
+            FLW(s1, gback, gdoffset + 0);
             if (!BOX64ENV(dynarec_fastnan)) {
                 FEQS(x3, s0, s0);
                 FEQS(x4, s1, s1);
                 AND(x5, x3, x4);
                 BEQZ(x5, 4 + 4 * 4);
             }
-            FSUBS(s0, s0, s1);
+            FSUBS(s0, s1, s0);
             if (!BOX64ENV(dynarec_fastnan)) {
                 FEQS(x5, s0, s0);
                 BNEZ(x5, 4 + 6 * 4);
@@ -565,15 +565,15 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             }
             FSW(s0, gback, gdoffset + 0);
             // GX->f[1] = GX->f[2] - GX->f[3];
-            FLW(s0, gback, gdoffset + 8);
-            FLW(s1, gback, gdoffset + 12);
+            FLW(s0, gback, gdoffset + 12);
+            FLW(s1, gback, gdoffset + 8);
             if (!BOX64ENV(dynarec_fastnan)) {
                 FEQS(x3, s0, s0);
                 FEQS(x4, s1, s1);
                 AND(x5, x3, x4);
                 BEQZ(x5, 4 + 4 * 4);
             }
-            FSUBS(s0, s0, s1);
+            FSUBS(s0, s1, s0);
             if (!BOX64ENV(dynarec_fastnan)) {
                 FEQS(x5, s0, s0);
                 BNEZ(x5, 4 + 6 * 4);
@@ -593,15 +593,15 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 FSW(s0, gback, gdoffset + 12);
             } else {
                 // GX->f[2] = EX->f[0] - EX->f[1];
-                FLW(s0, wback, fixedaddress + 0);
-                FLW(s1, wback, fixedaddress + 4);
+                FLW(s0, wback, fixedaddress + 4);
+                FLW(s1, wback, fixedaddress + 0);
                 if (!BOX64ENV(dynarec_fastnan)) {
                     FEQS(x3, s0, s0);
                     FEQS(x4, s1, s1);
                     AND(x5, x3, x4);
                     BEQZ(x5, 4 + 4 * 4);
                 }
-                FSUBS(s0, s0, s1);
+                FSUBS(s0, s1, s0);
                 if (!BOX64ENV(dynarec_fastnan)) {
                     FEQS(x5, s0, s0);
                     BNEZ(x5, 4 + 6 * 4);
@@ -614,15 +614,15 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 }
                 FSW(s0, gback, gdoffset + 8);
                 // GX->f[3] = EX->f[2] - EX->f[3];
-                FLW(s0, wback, fixedaddress + 8);
-                FLW(s1, wback, fixedaddress + 12);
+                FLW(s0, wback, fixedaddress + 12);
+                FLW(s1, wback, fixedaddress + 8);
                 if (!BOX64ENV(dynarec_fastnan)) {
                     FEQS(x3, s0, s0);
                     FEQS(x4, s1, s1);
                     AND(x5, x3, x4);
                     BEQZ(x5, 4 + 4 * 4);
                 }
-                FSUBS(s0, s0, s1);
+                FSUBS(s0, s1, s0);
                 if (!BOX64ENV(dynarec_fastnan)) {
                     FEQS(x5, s0, s0);
                     BNEZ(x5, 4 + 6 * 4);
