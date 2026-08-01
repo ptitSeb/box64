@@ -1483,17 +1483,17 @@ void emit_rcr16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
 }
 
 // emit RCL32 instruction, from s1, constant c (masked to 0x1f, non-zero), store result in s1 using s3 and s4 as scratch
-void emit_rcl32c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4)
+void emit_rcl32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4, int s5)
 {
-    c %= 33;
+    c %= rex.w ? 65 : 33;
     if (!c) return;
 
     SET_DFNONE();
-    ZEROUP(s1);
+    if (!rex.w) ZEROUP(s1);
 
     IFX (X_OF) {
         ANDI(xFlags, xFlags, ~(1UL << F_OF2));
-        SRLI(s3, s1, 30);
+        SRLIxw(s3, s1, rex.w ? 62 : 30);
         SRLI(s4, s3, 1);
         XOR(s3, s3, s4);
         ANDI(s3, s3, 1);
@@ -1501,72 +1501,82 @@ void emit_rcl32c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int
         OR(xFlags, xFlags, s3);
     }
 
-    ANDI(s3, xFlags, 1 << F_CF);
-    SLLI(s3, s3, 32);
-    OR(s1, s1, s3); // insert CF to bit 32
-
     IFX (X_CF) {
         ANDI(xFlags, xFlags, ~(1UL << F_CF));
-        SRLI(s3, s1, 32 - c); // CF = bit(32-c) of the original
+        SRLIxw(s3, s1, (rex.w ? 64 : 32) - c);
         ANDI(s3, s3, 1);
         OR(xFlags, xFlags, s3);
     }
 
-    SLLI(s4, s1, 31 + c);
-    SLLI(s3, s4, 1);
-    SRLI(s3, s3, 32);
-    SRLI(s1, s1, 33 - c);
-    OR(s1, s1, s3);
-    ZEROUP(s1);
+    if (c == 1) {
+        SLLIxw(s1, s1, 1);
+        ANDI(s3, xFlags, 1);
+        OR(s1, s1, s3);
+    } else {
+        SLLIxw(s4, s1, c);
+        ANDI(s3, xFlags, 1 << F_CF);
+        SLLI(s3, s3, c - 1);
+        OR(s4, s4, s3);
+        SRLIxw(s5, s1, (rex.w ? 65 : 33) - c);
+        OR(s1, s4, s5);
+    }
+    if (!rex.w) ZEROUP(s1);
     if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
 }
 
 // emit RCR32 instruction, from s1, constant c (masked to 0x1f, non-zero), store result in s1 using s3 and s4 as scratch
-void emit_rcr32c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4)
+void emit_rcr32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4, int s5)
 {
-    c %= 33;
+    c %= rex.w ? 65 : 33;
     if (!c) return;
 
     SET_DFNONE();
-    ZEROUP(s1);
+    if (!rex.w) ZEROUP(s1);
 
     IFX (X_OF) {
         ANDI(xFlags, xFlags, ~(1UL << F_OF2));
-        SRLI(s3, s1, 31);
-        XOR(s3, s3, xFlags); // OF = bit31 ^ old CF
+        SRLIxw(s3, s1, rex.w ? 63 : 31);
+        XOR(s3, s3, xFlags);
         ANDI(s3, s3, 1);
         SLLI(s3, s3, F_OF2);
         OR(xFlags, xFlags, s3);
     }
 
-    ANDI(s3, xFlags, 1 << F_CF);
-    SLLI(s3, s3, 32);
-    OR(s1, s1, s3); // insert CF to bit 32
-
     IFX (X_CF) {
         ANDI(xFlags, xFlags, ~(1UL << F_CF));
-        SRLI(s3, s1, c - 1); // CF = bit(c-1) of the original
+        SRLIxw(s3, s1, c - 1);
         ANDI(s3, s3, 1);
         OR(xFlags, xFlags, s3);
     }
 
-    SRLI(s3, s1, c);
-    SLLI(s1, s1, 33 - c);
-    OR(s1, s1, s3);
-    ZEROUP(s1);
+    if (c == 1) {
+        SRLIxw(s1, s1, 1);
+        ANDI(s3, xFlags, 1 << F_CF);
+        SLLI(s3, s3, rex.w ? 63 : 31);
+        OR(s1, s1, s3);
+    } else {
+        SRLIxw(s4, s1, c);
+        ANDI(s3, xFlags, 1 << F_CF);
+        SLLI(s3, s3, (rex.w ? 64 : 32) - c);
+        OR(s4, s4, s3);
+        SLLIxw(s5, s1, (rex.w ? 65 : 33) - c);
+        OR(s1, s4, s5);
+    }
+    if (!rex.w) ZEROUP(s1);
     if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
 }
 
 // emit RCL32 instruction, from s1, count in s2 (masked to 0x1f, non-zero), store result in s1 using s3, s4 and s5 as scratch
-void emit_rcl32(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5)
+void emit_rcl32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5)
 {
     int64_t j64;
     SET_DFNONE();
-    ZEROUP(s1);
+    if (!rex.w) ZEROUP(s1);
+    BEQ_NEXT(s2, xZR);
 
     IFX (X_OF) {
         ANDI(xFlags, xFlags, ~(1UL << F_OF2));
-        SRLI(s3, s1, 30);
+        SRLIxw(s3, s1, rex.w ? 62 : 30);
         SRLI(s4, s3, 1);
         XOR(s3, s3, s4);
         ANDI(s3, s3, 1);
@@ -1575,56 +1585,73 @@ void emit_rcl32(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
     }
 
     ANDI(s3, xFlags, 1 << F_CF);
-    SLLI(s3, s3, 32);
-    OR(s1, s1, s3); // insert CF to bit 32
-    SLLI(s3, s1, 33);
-    OR(s1, s1, s3); // duplicate the dword at bits 33..64 (bit31 is the carry-out)
-
-    ADDI(s4, xZR, 33);
-    SUB(s4, s4, s2); // 33 - cnt
     IFX (X_CF) {
         ANDI(xFlags, xFlags, ~(1UL << F_CF));
-        ADDI(s5, s4, -1);
-        SRL(s5, s1, s5); // CF = bit(32-cnt) of the original
-        ANDI(s5, s5, 1);
-        OR(xFlags, xFlags, s5);
+        ADDI(s4, xZR, rex.w ? 64 : 32);
+        SUB(s4, s4, s2);
+        SRL(s4, s1, s4);
+        ANDI(s4, s4, 1);
+        OR(xFlags, xFlags, s4);
     }
-    SRL(s1, s1, s4);
-    ZEROUP(s1);
+
+    SLL(s4, s1, s2);
+    ADDI(s5, s2, -1);
+    SLL(s5, s3, s5);
+    OR(s4, s4, s5);
+    if (rex.w) {
+        ADDI(s5, s2, -1);
+        BEQZ(s5, 4 * 4);
+    }
+    ADDI(s5, xZR, rex.w ? 65 : 33);
+    SUB(s5, s5, s2);
+    SRL(s5, s1, s5);
+    OR(s4, s4, s5);
+    MV(s1, s4);
+    if (!rex.w) ZEROUP(s1);
     if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
 }
 
 // emit RCR32 instruction, from s1, count in s2 (masked to 0x1f, non-zero), store result in s1 using s3, s4 and s5 as scratch
-void emit_rcr32(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5)
+void emit_rcr32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5)
 {
     int64_t j64;
     SET_DFNONE();
-    ZEROUP(s1);
+    if (!rex.w) ZEROUP(s1);
+    BEQ_NEXT(s2, xZR);
 
     IFX (X_OF) {
         ANDI(xFlags, xFlags, ~(1UL << F_OF2));
-        SRLI(s3, s1, 31);
-        XOR(s3, s3, xFlags); // OF = bit31 ^ old CF
+        SRLIxw(s3, s1, rex.w ? 63 : 31);
+        XOR(s3, s3, xFlags);
         ANDI(s3, s3, 1);
         SLLI(s3, s3, F_OF2);
         OR(xFlags, xFlags, s3);
     }
 
     ANDI(s3, xFlags, 1 << F_CF);
-    SLLI(s3, s3, 32);
-    OR(s1, s1, s3); // insert CF to bit 32
-    SLLI(s3, s1, 33);
-    OR(s1, s1, s3); // duplicate the dword at bits 33..64
-
     IFX (X_CF) {
         ANDI(xFlags, xFlags, ~(1UL << F_CF));
         ADDI(s5, s2, -1);
-        SRL(s5, s1, s5); // CF = bit(cnt-1) of the original
+        SRL(s5, s1, s5);
         ANDI(s5, s5, 1);
         OR(xFlags, xFlags, s5);
     }
-    SRL(s1, s1, s2);
-    ZEROUP(s1);
+
+    SRL(s4, s1, s2);
+    ADDI(s5, xZR, rex.w ? 64 : 32);
+    SUB(s5, s5, s2);
+    SLL(s5, s3, s5);
+    OR(s4, s4, s5);
+    if (rex.w) {
+        ADDI(s5, s2, -1);
+        BEQZ(s5, 4 * 4);
+    }
+    ADDI(s5, xZR, rex.w ? 65 : 33);
+    SUB(s5, s5, s2);
+    SLL(s5, s1, s5);
+    OR(s4, s4, s5);
+    MV(s1, s4);
+    if (!rex.w) ZEROUP(s1);
     if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
 }
 

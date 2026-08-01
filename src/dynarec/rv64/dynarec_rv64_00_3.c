@@ -220,20 +220,14 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     if (u8) {
                         READFLAGS(X_CF);
                         SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
-                        if (rex.w) {
-                            GETEDW(x4, x1, 0);
-                            u8 = (F8) & 0x3f;
-                            MOV32w(x2, u8);
-                            CALL_(const_rcl64, ed, x4, x1, x2);
-                        } else {
-                            GETED(1);
-                            u8 = (F8) & 0x1f;
-                            emit_rcl32c(dyn, ninst, ed, u8, x3, x4);
-                        }
+                        GETED(1);
+                        u8 = (F8) & (rex.w ? 0x3f : 0x1f);
+                        emit_rcl32c(dyn, ninst, rex, ed, u8, x3, x4, x5);
                         WBACK;
                         if (!wback && !rex.w) ZEROUP(ed);
                     } else {
                         FAKEED;
+                        if (!rex.w && MODREG) ZEROUP(ed);
                         F8;
                     }
                     break;
@@ -243,20 +237,14 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     if (u8) {
                         READFLAGS(X_CF);
                         SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
-                        if (rex.w) {
-                            GETEDW(x4, x1, 0);
-                            u8 = (F8) & 0x3f;
-                            MOV32w(x2, u8);
-                            CALL_(const_rcr64, ed, x4, x1, x2);
-                        } else {
-                            GETED(1);
-                            u8 = (F8) & 0x1f;
-                            emit_rcr32c(dyn, ninst, ed, u8, x3, x4);
-                        }
+                        GETED(1);
+                        u8 = (F8) & (rex.w ? 0x3f : 0x1f);
+                        emit_rcr32c(dyn, ninst, rex, ed, u8, x3, x4, x5);
                         WBACK;
                         if (!wback && !rex.w) ZEROUP(ed);
                     } else {
                         FAKEED;
+                        if (!rex.w && MODREG) ZEROUP(ed);
                         F8;
                     }
                     break;
@@ -821,14 +809,8 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     INST_NAME("RCL Ed, 1");
                     READFLAGS(X_CF);
                     SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
-                    if (rex.w) {
-                        MOV32w(x2, 1);
-                        GETEDW(x4, x1, 0);
-                        CALL_(const_rcl64, ed, x4, x1, x2);
-                    } else {
-                        GETED(0);
-                        emit_rcl32c(dyn, ninst, ed, 1, x3, x4);
-                    }
+                    GETED(0);
+                    emit_rcl32c(dyn, ninst, rex, ed, 1, x3, x4, x5);
                     WBACK;
                     if (!wback && !rex.w) ZEROUP(ed);
                     break;
@@ -836,14 +818,8 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     INST_NAME("RCR Ed, 1");
                     READFLAGS(X_CF);
                     SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
-                    if (rex.w) {
-                        MOV32w(x2, 1);
-                        GETEDW(x4, x1, 0);
-                        CALL_(const_rcr64, ed, x4, x1, x2);
-                    } else {
-                        GETED(0);
-                        emit_rcr32c(dyn, ninst, ed, 1, x3, x4);
-                    }
+                    GETED(0);
+                    emit_rcr32c(dyn, ninst, rex, ed, 1, x3, x4, x5);
                     WBACK;
                     if (!wback && !rex.w) ZEROUP(ed);
                     break;
@@ -910,14 +886,8 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     }
                     SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
                     ANDI(x2, xRCX, rex.w ? 0x3f : 0x1f);
-                    if (rex.w) {
-                        GETEDW(x4, x1, 0);
-                        CALL_(const_rcl64, ed, x4, x1, x2);
-                    } else {
-                        BEQ_NEXT(x2, xZR);
-                        GETED(0);
-                        emit_rcl32(dyn, ninst, ed, x2, x3, x4, x5);
-                    }
+                    GETED(0);
+                    emit_rcl32(dyn, ninst, rex, ed, x2, x3, x4, x5);
                     WBACK;
                     if (!wback && !rex.w) ZEROUP(ed);
                     break;
@@ -930,14 +900,8 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     }
                     SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
                     ANDI(x2, xRCX, rex.w ? 0x3f : 0x1f);
-                    if (rex.w) {
-                        GETEDW(x4, x1, 0);
-                        CALL_(const_rcr64, ed, x4, x1, x2);
-                    } else {
-                        BEQ_NEXT(x2, xZR);
-                        GETED(0);
-                        emit_rcr32(dyn, ninst, ed, x2, x3, x4, x5);
-                    }
+                    GETED(0);
+                    emit_rcr32(dyn, ninst, rex, ed, x2, x3, x4, x5);
                     WBACK;
                     if (!wback && !rex.w) ZEROUP(ed);
                     break;
