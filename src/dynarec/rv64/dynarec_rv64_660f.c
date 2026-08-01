@@ -384,6 +384,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEX(x2, 0, 8);
             d0 = fpu_get_scratch(dyn);
             d1 = fpu_get_scratch(dyn);
+            if (!BOX64ENV(dynarec_fastnan)) MOV64x(x6, 0x0008000000000000ULL);
             for (int i = 0; i < 2; ++i) {
                 FLD(d0, wback, fixedaddress + 8 * i);
                 FLD(d1, gback, gdoffset + 8 * i);
@@ -396,10 +397,13 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 FADDD(d0, d0, d1);
                 if (!BOX64ENV(dynarec_fastnan)) {
                     FEQD(x5, d0, d0);
-                    BNEZ(x5, 4 + 4);
+                    BNEZ(x5, 4 + 6 * 4);
                     FNEGD(d0, d0);
                     BNEZ(x4, 4 + 4);
                     FMVD(d0, d1);
+                    FMVXD(x5, d0);
+                    OR(x5, x5, x6);
+                    FMVDX(d0, x5);
                 }
                 FSD(d0, gback, gdoffset + 8 * i);
             }
@@ -411,6 +415,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEX(x2, 0, 8);
             d0 = fpu_get_scratch(dyn);
             d1 = fpu_get_scratch(dyn);
+            if (!BOX64ENV(dynarec_fastnan)) MOV64x(x6, 0x0008000000000000ULL);
             for (int i = 0; i < 2; ++i) {
                 FLD(d0, wback, fixedaddress + 8 * i);
                 FLD(d1, gback, gdoffset + 8 * i);
@@ -423,10 +428,13 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 FMULD(d0, d0, d1);
                 if (!BOX64ENV(dynarec_fastnan)) {
                     FEQD(x5, d0, d0);
-                    BNEZ(x5, 4 + 4);
+                    BNEZ(x5, 4 + 6 * 4);
                     FNEGD(d0, d0);
                     BNEZ(x4, 4 + 4);
                     FMVD(d0, d1);
+                    FMVXD(x5, d0);
+                    OR(x5, x5, x6);
+                    FMVDX(d0, x5);
                 }
                 FSD(d0, gback, gdoffset + 8 * i);
             }
@@ -486,6 +494,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEX(x2, 0, 8);
             d0 = fpu_get_scratch(dyn);
             d1 = fpu_get_scratch(dyn);
+            if (!BOX64ENV(dynarec_fastnan)) MOV64x(x6, 0x0008000000000000ULL);
             for (int i = 0; i < 2; ++i) {
                 FLD(d0, wback, fixedaddress + 8 * i);
                 FLD(d1, gback, gdoffset + 8 * i);
@@ -498,10 +507,13 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 FSUBD(d0, d1, d0);
                 if (!BOX64ENV(dynarec_fastnan)) {
                     FEQD(x5, d0, d0);
-                    BNEZ(x5, 4 + 4);
+                    BNEZ(x5, 4 + 6 * 4);
                     FNEGD(d0, d0);
                     BNEZ(x4, 4 + 4);
                     FMVD(d0, d1);
+                    FMVXD(x5, d0);
+                    OR(x5, x5, x6);
+                    FMVDX(d0, x5);
                 }
                 FSD(d0, gback, gdoffset + 8 * i);
             }
@@ -532,6 +544,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEX(x2, 0, 8);
             d0 = fpu_get_scratch(dyn);
             d1 = fpu_get_scratch(dyn);
+            if (!BOX64ENV(dynarec_fastnan)) MOV64x(x6, 0x0008000000000000ULL);
             for (int i = 0; i < 2; ++i) {
                 FLD(d0, wback, fixedaddress + 8 * i);
                 FLD(d1, gback, gdoffset + 8 * i);
@@ -544,10 +557,13 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 FDIVD(d0, d1, d0);
                 if (!BOX64ENV(dynarec_fastnan)) {
                     FEQD(x5, d0, d0);
-                    BNEZ(x5, 4 + 4);
+                    BNEZ(x5, 4 + 6 * 4);
                     FNEGD(d0, d0);
                     BNEZ(x4, 4 + 4);
                     FMVD(d0, d1);
+                    FMVXD(x5, d0);
+                    OR(x5, x5, x6);
+                    FMVDX(d0, x5);
                 }
                 FSD(d0, gback, gdoffset + 8 * i);
             }
