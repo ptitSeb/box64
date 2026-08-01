@@ -1501,20 +1501,19 @@ void emit_rcl32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
         OR(xFlags, xFlags, s3);
     }
 
+    ANDI(s3, xFlags, 1 << F_CF);
     IFX (X_CF) {
         ANDI(xFlags, xFlags, ~(1UL << F_CF));
-        SRLIxw(s3, s1, (rex.w ? 64 : 32) - c);
-        ANDI(s3, s3, 1);
-        OR(xFlags, xFlags, s3);
+        SRLIxw(s5, s1, (rex.w ? 64 : 32) - c);
+        ANDI(s5, s5, 1);
+        OR(xFlags, xFlags, s5);
     }
 
     if (c == 1) {
         SLLIxw(s1, s1, 1);
-        ANDI(s3, xFlags, 1);
         OR(s1, s1, s3);
     } else {
         SLLIxw(s4, s1, c);
-        ANDI(s3, xFlags, 1 << F_CF);
         SLLI(s3, s3, c - 1);
         OR(s4, s4, s3);
         SRLIxw(s5, s1, (rex.w ? 65 : 33) - c);
@@ -1542,21 +1541,20 @@ void emit_rcr32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
         OR(xFlags, xFlags, s3);
     }
 
+    ANDI(s3, xFlags, 1 << F_CF);
     IFX (X_CF) {
         ANDI(xFlags, xFlags, ~(1UL << F_CF));
-        SRLIxw(s3, s1, c - 1);
-        ANDI(s3, s3, 1);
-        OR(xFlags, xFlags, s3);
+        SRLIxw(s5, s1, c - 1);
+        ANDI(s5, s5, 1);
+        OR(xFlags, xFlags, s5);
     }
 
     if (c == 1) {
         SRLIxw(s1, s1, 1);
-        ANDI(s3, xFlags, 1 << F_CF);
         SLLI(s3, s3, rex.w ? 63 : 31);
         OR(s1, s1, s3);
     } else {
         SRLIxw(s4, s1, c);
-        ANDI(s3, xFlags, 1 << F_CF);
         SLLI(s3, s3, (rex.w ? 64 : 32) - c);
         OR(s4, s4, s3);
         SLLIxw(s5, s1, (rex.w ? 65 : 33) - c);
