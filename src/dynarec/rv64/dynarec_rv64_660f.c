@@ -796,7 +796,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             for (int i = 0; i < 4; ++i) {
                 // GX->sw[i] = (GX->sd[i]<-32768)?-32768:((GX->sd[i]>32767)?32767:GX->sd[i]);
                 LW(x3, gback, gdoffset + i * 4);
-                BGE(x5, x3, 8);
+                BGT(x5, x3, 8);
                 ADDI(x3, x5, -1);
                 BGE(x3, x6, 8);
                 MV(x3, x6);
@@ -811,7 +811,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 for (int i = 0; i < 4; ++i) {
                     // GX->sw[4+i] = (EX->sd[i]<-32768)?-32768:((EX->sd[i]>32767)?32767:EX->sd[i]);
                     LW(x3, wback, fixedaddress + i * 4);
-                    BGE(x5, x3, 8);
+                    BGT(x5, x3, 8);
                     ADDI(x3, x5, -1);
                     BGE(x3, x6, 8);
                     MV(x3, x6);
