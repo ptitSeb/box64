@@ -251,7 +251,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             nextop = F8;
             GETGX();
             GETGY();
-            GETEX(x2, 0, 8);
+            GETEX(x2, 0, vex.l ? 24 : 8);
             d0 = fpu_get_scratch(dyn);
             if (!BOX64ENV(dynarec_fastnan)) {
                 d1 = fpu_get_scratch(dyn);
@@ -2026,7 +2026,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
         case 0xDB:
             INST_NAME("VPAND Gx, Vx, Ex");
             nextop = F8;
-            GETEX(x2, 0, 8);
+            GETEX(x2, 0, vex.l ? 24 : 8);
             GETGX();
             GETGY();
             GETVX();
@@ -2162,7 +2162,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
         case 0xDF:
             INST_NAME("VPANDN Gx, Vx, Ex");
             nextop = F8;
-            GETEX(x2, 0, 8);
+            GETEX(x2, 0, vex.l ? 24 : 8);
             GETGX();
             GETGY();
             GETVX();
