@@ -2447,6 +2447,8 @@ static void fpuCacheTransform(dynarec_rv64_t* dyn, int ninst, int s1, int s2, in
         s3_top = 0;
         stack_cnt = cache_i2.stack;
     }
+    if (dyn->vector_sew != VECTOR_SEWNA)
+        dyn->vector_eew = vector_vsetvli(dyn, ninst, s1, dyn->vector_sew, VECTOR_LMUL1, 1);
     MESSAGE(LOG_DUMP, "\t---- Cache Transform\n");
 }
 static void flagsCacheTransform(dynarec_rv64_t* dyn, int ninst, int s1)
