@@ -745,7 +745,9 @@ int my_sigactionhandler_oldcode_32(x64emu_t* emu, int32_t sig, int simple, sigin
             #undef GO
             // flags
             emu->eflags.x64=sigcontext->uc_mcontext.gregs[I386_EFL];
-            if((skip==1) && (emu->ip.q[0]!=sigcontext->uc_mcontext.gregs[I386_EIP]) && !ACCESS_FLAG(F_TF))
+            if(ACCESS_FLAG(F_TF))
+                skip = 1;   // no_tf may not be consumed in dynarec, force to use interpreter
+            else if((skip==1) && (emu->ip.q[0]!=sigcontext->uc_mcontext.gregs[I386_EIP]))
                 skip = 3;   // if it jumps elsewhere, it can resume with dynarec...
             emu->ip.q[0]=sigcontext->uc_mcontext.gregs[I386_EIP];
             if (ACCESS_FLAG(F_TF) && skip == 1) emu->flags.no_tf = 1;
