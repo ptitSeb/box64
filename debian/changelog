@@ -1,3 +1,13 @@
+box64 (0.4.4) unstable; urgency=low
+
+This version adds a lot of refactor and speed improvements to the LoongArch backend, so more opcodes on the RISC-V backend, and many QoL new features!
+    => A new box64-configurator is now present (a python app) to help managing custom RCFILE profiles. It is available in both english and chinese.
+    => DynaCache is now enabled by default. It will compress the files and use up to 2GB of disk space.
+    => You can use box64-configurator on the special `[*]` profile to change default values
+    => More improvements on emulation accuracy that help running more DRM'd games
+
+-- Sebastien Chevalier <ptitseb@box86.org>  Mon, 2 Aug 2026 10:30:33 -0100
+
 box64 (0.4.2) unstable; urgency=low
 
 This version add lots on unconnected new things, like a PPC64LE backend, Vulkan overlay support or more Dynarec finetunning.

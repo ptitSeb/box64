@@ -1,3 +1,64 @@
+v0.4.4
+======
+
+Highlights:
+* This version adds a lot of refactor and speed improvements to the LoongArch backend, so more opcodes on the RISC-V backend, and many QoL new features!
+    => A new box64-configurator is now present (a python app) to help managing custom RCFILE profiles. It is available in both english and chinese.
+    => DynaCache is now enabled by default. It will compress the files and use up to 2GB of disk space.
+    => You can use box64-configurator on the special `[*]` profile to change default values
+    => More improvements on emulation accuracy that help running more DRM'd games
+
+Version summary:
+
+* RCFILE: Created a new GUI tools to edit custom rcfile: box64-configurator
+* RCFILE: Created a KDE plugin to quickly set box64 properties for an executable file
+* RCFILE: Added more profiles
+* RCFILE: Added BOX64_SKIPCPU to avoid using N first cores (for big.LITTLE configuration)
+* ELF: Some more Relocation handling
+* Wrapping: Improved MALLOC_HACK=2 behaviour
+* Wrapping: more fixes to some functions signatures
+* Wrapping: added more wrapped functions
+* Wrapping: added some more wrapped libraries
+* Wrapping: Added more Syscall
+* Wrapping: Some rework on the bridges to avoid unexpected reuse of bridges for different function signature
+* Wrapping: Box32: Some fixes and improvement on some wrapped functions
+* Emulation: Some improvement on handling of x87 80bits values
+* Emulation: Added some deferred signal support for improved stability
+* Emulation: Improved TF handling
+* Emulation: Improved CPUID handling
+* Emulation: optimised some sha1 function
+* Emulation: LA64: Enabled AVX by default (on par with ARM64)
+* Interpreter: A few fixes in some opcodes
+* Interpreter: Added unaligned handling of more lock opcodes
+* DynaCache: many improvements and fixes
+* DynaCache: added libz compression of the dynacache files
+* DynaCache: added disk size limit, to purge old/outdated dynacache once a threshold is reached
+* Dynarec: Many small opcodes optimisation here and there
+* Dynarec: Some improvement on handling of x87 80bits values
+* Dynarec: Optimised the internal jump handling while building a dynablock
+* Dynarec: Improved TF handling
+* Dynarec: Reworked Alt Address handling
+* Dynarec: Reworked a bit the jump table to save some memory
+* Dynarec: Made BOX64_CALLRET=2 default
+* Dynarec: ARM64: Some improvement in some x87 opcodes handling
+* Dynarec: ARM64: A few fixes to some opcodes
+* Dynarec: LA64: Added optimisation on the zeroing out of the upper 32 bits of registers
+* Dynarec: LA64: Added a Dynarec version of UpdateFlags (on par with ARM64)
+* Dynarec: LA64: More work FASTNAN / FASTROUND handling
+* Dynarec: LA64: Many fixes on many opcodes
+* Dynarec: LA64: Added a few opcodes
+* Dynarec: LA64: Added fastpath on many logical opcodes (when no flags are needed)
+* Dynarec: LA64: AES opcodes optimisations
+* Dynarec: LA64: Improved Native flags use for more cases
+* Dynarec: LA64: Improved jump_safe macro (removing many useless NOP)
+* Dynarec: RV64: Improvement on flags handling (on par with ARM64 & LA64)
+* Dynarec: RV64: Many fixes on NaN handling
+* Dynarec: RV64: Some fixes to various opcodes
+* Dynarec: RV64: Improved Native Flags handling
+* Dynarec: RV64: Added some opcodes
+* Dynarec: RV64: Detect and use the new Zicbop/Zicond/Zicbom cpu extension when available
+* WrapperHelper: some more improvements and fixes
+
 v0.4.2
 ======
 
