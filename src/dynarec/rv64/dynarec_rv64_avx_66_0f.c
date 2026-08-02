@@ -564,10 +564,12 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 }
                 FCVTSD(d0, d0);
                 if (!BOX64ENV(dynarec_fastnan)) {
-                    BNEZ(x4, 4 + 6 * 4);
+                    BNEZ(x4, 4 + 9 * 4);
                     SRLI(x6, x3, 63);
                     SLLI(x6, x6, 31);
                     SRLI(x3, x3, 29);
+                    MOV32w(x5, 0x007fffff);
+                    AND(x3, x3, x5);
                     OR(x3, x3, x6);
                     OR(x3, x3, x7);
                     FMVWX(d0, x3);
@@ -584,10 +586,12 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                     }
                     FCVTSD(d0, d0);
                     if (!BOX64ENV(dynarec_fastnan)) {
-                        BNEZ(x4, 4 + 6 * 4);
+                        BNEZ(x4, 4 + 9 * 4);
                         SRLI(x6, x3, 63);
                         SLLI(x6, x6, 31);
                         SRLI(x3, x3, 29);
+                        MOV32w(x5, 0x007fffff);
+                        AND(x3, x3, x5);
                         OR(x3, x3, x6);
                         OR(x3, x3, x7);
                         FMVWX(d0, x3);
