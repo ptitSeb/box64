@@ -241,7 +241,16 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         nextop = F8;
         _GETEX(0);
         GETGX;
+        #ifdef RV64
+        if (isnan(EX->d[0]))
+            GX->ud[0] = ((EX->q[0] >> 32) & 0x80000000)
+                      | ((EX->q[0] >> 29) & 0x007fffff)
+                      | 0x7fc00000;
+        else
+            GX->f[0] = EX->d[0];
+        #else
         GX->f[0] = EX->d[0];
+        #endif
         break;
 
     case 0x5C:  /* SUBSD Gx, Ex */

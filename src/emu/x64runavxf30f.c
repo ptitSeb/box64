@@ -293,7 +293,16 @@ uintptr_t RunAVX_F30F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGX;
             GETVX;
             GETGY;
+            #ifdef RV64
+            if(isnanf(EX->f[0]))
+                GX->q[0] = ((uint64_t)(EX->ud[0] & 0x80000000) << 32)
+                         | ((uint64_t)(EX->ud[0] & 0x007fffff) << 29)
+                         | 0x7ff8000000000000ULL;
+            else
+                GX->d[0] = EX->f[0];
+            #else
             GX->d[0] = EX->f[0];
+            #endif
             GX->q[1] = VX->q[1];
             GY->u128 = 0;
             break;

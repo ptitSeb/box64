@@ -280,7 +280,16 @@ uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr, int* step)
         nextop = F8;
         GETEX(0);
         GETGX;
+        #ifdef RV64
+        if(isnanf(EX->f[0]))
+            GX->q[0] = ((uint64_t)(EX->ud[0] & 0x80000000) << 32)
+                     | ((uint64_t)(EX->ud[0] & 0x007fffff) << 29)
+                     | 0x7ff8000000000000ULL;
+        else
+            GX->d[0] = EX->f[0];
+        #else
         GX->d[0] = EX->f[0];
+        #endif
         break;
     case 0x5B:  /* CVTTPS2DQ Gx, Ex */
         nextop = F8;

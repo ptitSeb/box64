@@ -232,7 +232,16 @@ uintptr_t RunAVX_F20F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGX;
             GETVX;
             GETGY;
+            #ifdef RV64
+            if (isnan(EX->d[0]))
+                GX->ud[0] = ((EX->q[0] >> 32) & 0x80000000)
+                          | ((EX->q[0] >> 29) & 0x007fffff)
+                          | 0x7fc00000;
+            else
+                GX->f[0] = EX->d[0];
+            #else
             GX->f[0] = EX->d[0];
+            #endif
             GX->ud[1] = VX->ud[1];
             GX->q[1] = VX->q[1];
             GY->u128 = 0;

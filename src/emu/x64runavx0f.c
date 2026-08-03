@@ -457,12 +457,34 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGX;
             GETGY;
             if (vex.l) {
+                #ifdef RV64
+                for (int i = 1; i >= 0; --i) {
+                    if (isnanf(EX->f[i + 2]))
+                        GY->q[i] = ((uint64_t)(EX->ud[i + 2] & 0x80000000) << 32)
+                                 | ((uint64_t)(EX->ud[i + 2] & 0x007fffff) << 29)
+                                 | 0x7ff8000000000000ULL;
+                    else
+                        GY->d[i] = EX->f[i + 2];
+                }
+                #else
                 GY->d[1] = EX->f[3];
                 GY->d[0] = EX->f[2];
+                #endif
             } else
                 GY->u128 = 0;
+            #ifdef RV64
+            for (int i = 1; i >= 0; --i) {
+                if (isnanf(EX->f[i]))
+                    GX->q[i] = ((uint64_t)(EX->ud[i] & 0x80000000) << 32)
+                             | ((uint64_t)(EX->ud[i] & 0x007fffff) << 29)
+                             | 0x7ff8000000000000ULL;
+                else
+                    GX->d[i] = EX->f[i];
+            }
+            #else
             GX->d[1] = EX->f[1];
             GX->d[0] = EX->f[0];
+            #endif
             break;
         case 0x5B:                      /* VCVTDQ2PS Gx, Ex */
             nextop = F8;

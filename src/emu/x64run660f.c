@@ -898,21 +898,41 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                         int round = fegetround();
                         fesetround(FE_TONEAREST);
                         for(int i=0; i<4; ++i)
-                            GX->f[i] = nearbyintf(EX->f[i]);
+                            #ifdef RV64
+                            if(isnanf(EX->f[i]))
+                                GX->ud[i] = EX->ud[i] | 0x00400000;
+                            else
+                            #endif
+                                GX->f[i] = nearbyintf(EX->f[i]);
                         fesetround(round);
                         break;
                     }
                     case ROUND_Down:
                         for(int i=0; i<4; ++i)
-                            GX->f[i] = floorf(EX->f[i]);
+                            #ifdef RV64
+                            if(isnanf(EX->f[i]))
+                                GX->ud[i] = EX->ud[i] | 0x00400000;
+                            else
+                            #endif
+                                GX->f[i] = floorf(EX->f[i]);
                         break;
                     case ROUND_Up:
                         for(int i=0; i<4; ++i)
-                            GX->f[i] = ceilf(EX->f[i]);
+                            #ifdef RV64
+                            if(isnanf(EX->f[i]))
+                                GX->ud[i] = EX->ud[i] | 0x00400000;
+                            else
+                            #endif
+                                GX->f[i] = ceilf(EX->f[i]);
                         break;
                     case ROUND_Chop:
                         for(int i=0; i<4; ++i)
-                            GX->f[i] = truncf(EX->f[i]);
+                            #ifdef RV64
+                            if(isnanf(EX->f[i]))
+                                GX->ud[i] = EX->ud[i] | 0x00400000;
+                            else
+                            #endif
+                                GX->f[i] = truncf(EX->f[i]);
                         break;
                 }
                 break;
@@ -929,22 +949,42 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                     case ROUND_Nearest: {
                         int round = fegetround();
                         fesetround(FE_TONEAREST);
-                        GX->d[0] = nearbyint(EX->d[0]);
-                        GX->d[1] = nearbyint(EX->d[1]);
+                        for(int i=0; i<2; ++i)
+                            #ifdef RV64
+                            if(isnan(EX->d[i]))
+                                GX->q[i] = EX->q[i] | 0x0008000000000000ULL;
+                            else
+                            #endif
+                                GX->d[i] = nearbyint(EX->d[i]);
                         fesetround(round);
                         break;
                     }
                     case ROUND_Down:
-                        GX->d[0] = floor(EX->d[0]);
-                        GX->d[1] = floor(EX->d[1]);
+                        for(int i=0; i<2; ++i)
+                            #ifdef RV64
+                            if(isnan(EX->d[i]))
+                                GX->q[i] = EX->q[i] | 0x0008000000000000ULL;
+                            else
+                            #endif
+                                GX->d[i] = floor(EX->d[i]);
                         break;
                     case ROUND_Up:
-                        GX->d[0] = ceil(EX->d[0]);
-                        GX->d[1] = ceil(EX->d[1]);
+                        for(int i=0; i<2; ++i)
+                            #ifdef RV64
+                            if(isnan(EX->d[i]))
+                                GX->q[i] = EX->q[i] | 0x0008000000000000ULL;
+                            else
+                            #endif
+                                GX->d[i] = ceil(EX->d[i]);
                         break;
                     case ROUND_Chop:
-                        GX->d[0] = trunc(EX->d[0]);
-                        GX->d[1] = trunc(EX->d[1]);
+                        for(int i=0; i<2; ++i)
+                            #ifdef RV64
+                            if(isnan(EX->d[i]))
+                                GX->q[i] = EX->q[i] | 0x0008000000000000ULL;
+                            else
+                            #endif
+                                GX->d[i] = trunc(EX->d[i]);
                         break;
                 }
                 break;
@@ -953,6 +993,12 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 GETEX(1);
                 GETGX;
                 tmp8u = F8; // ignoring bit 3 interupt thingy
+                #ifdef RV64
+                if(isnanf(EX->f[0])) {
+                    GX->ud[0] = EX->ud[0] | 0x00400000;
+                    break;
+                }
+                #endif
                 if(tmp8u&4)
                     tmp8u = emu->mxcsr.f.MXCSR_RC;
                 else
@@ -981,6 +1027,12 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 GETEX(1);
                 GETGX;
                 tmp8u = F8; // ignoring bit 3 interupt thingy
+                #ifdef RV64
+                if(isnan(EX->d[0])) {
+                    GX->q[0] = EX->q[0] | 0x0008000000000000ULL;
+                    break;
+                }
+                #endif
                 if(tmp8u&4)
                     tmp8u = emu->mxcsr.f.MXCSR_RC;
                 else
@@ -1370,8 +1422,19 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         nextop = F8;
         GETEX(0);
         GETGX;
+        #ifdef RV64
+        for (int i = 0; i < 2; ++i) {
+            if (isnan(EX->d[i]))
+                GX->ud[i] = ((EX->q[i] >> 32) & 0x80000000)
+                          | ((EX->q[i] >> 29) & 0x007fffff)
+                          | 0x7fc00000;
+            else
+                GX->f[i] = EX->d[i];
+        }
+        #else
         GX->f[0] = EX->d[0];
         GX->f[1] = EX->d[1];
+        #endif
         GX->q[1] = 0;
         break;
     case 0x5B:                      /* CVTPS2DQ Gx, Ex */
