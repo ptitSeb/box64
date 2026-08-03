@@ -359,7 +359,7 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
                 uintptr_t paddr = head->multiblocks[n].paddr&~(box64_pagesize - 1);
                 size_t asize = head->multiblocks[n].asize+(head->multiblocks[n].paddr-paddr);
                 void* p = MAP_FAILED;
-                if(paddr==(paddr&~(box64_pagesize-1)) && (asize==ALIGN(asize))) {
+                if(asize == ALIGN(asize)) {
                     printf_dump(log_level, "Allocating 0x%zx (0x%zx) bytes @%p, will read 0x%zx @%p for Elf \"%s\"\n", asize, e->p_memsz, (void*)paddr, e->p_filesz, (void*)head->multiblocks[n].paddr, head->name);
                     p = InternalMmap(
                         (void*)paddr,
