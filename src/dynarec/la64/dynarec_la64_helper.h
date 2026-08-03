@@ -48,6 +48,89 @@
 // LOCK_* define
 #define LOCK_LOCK (int*)1
 
+typedef enum xmm_width_s {
+    XMM_WIDTH_32,
+    XMM_WIDTH_64,
+    XMM_WIDTH_128,
+} xmm_width_t;
+
+typedef enum xmm_scalar_kind_s {
+    XMM_SCALAR_SS,
+    XMM_SCALAR_SD,
+} xmm_scalar_kind_t;
+
+typedef enum xmm_upper_policy_s {
+    XMM_UPPER_PRESERVE,
+    XMM_UPPER_CLEAR,
+} xmm_upper_policy_t;
+
+typedef struct xmm_scalar_s {
+    int host_dst;
+    int result;
+    xmm_scalar_kind_t kind;
+    xmm_upper_policy_t upper_policy;
+} xmm_scalar_t;
+
+static inline void xmm_live_track(dynarec_la64_t* dyn, int ninst, int reg)
+{
+#if STEP == 0
+    dyn->insts[ninst].vector_liveness.xmm_tracked |= (uint16_t)(1 << reg);
+#endif
+}
+
+static inline void xmm_live_read(dynarec_la64_t* dyn, int ninst, int reg, xmm_width_t width)
+{
+#if STEP == 0
+    xmm_live_track(dyn, ninst, reg);
+    if (width != XMM_WIDTH_32)
+        dyn->insts[ninst].vector_liveness.use.xmm_lane1 |= 1ULL << reg;
+    if (width == XMM_WIDTH_128)
+        dyn->insts[ninst].vector_liveness.use.xmm_lanes23 |= 1ULL << reg;
+#endif
+}
+
+static inline void xmm_live_write(dynarec_la64_t* dyn, int ninst, int reg)
+{
+#if STEP == 0
+    xmm_live_track(dyn, ninst, reg);
+    dyn->insts[ninst].vector_liveness.def.xmm_lane1 |= 1ULL << reg;
+    dyn->insts[ninst].vector_liveness.def.xmm_lanes23 |= 1ULL << reg;
+#endif
+}
+
+static inline void xmm_live_copy(dynarec_la64_t* dyn, int ninst, int dst, int src)
+{
+#if STEP == 0
+    xmm_live_track(dyn, ninst, dst);
+    xmm_live_track(dyn, ninst, src);
+    vector_liveness_t* live = &dyn->insts[ninst].vector_liveness;
+    live->xmm_copy_dst = (uint8_t)(dst + 1);
+    live->xmm_copy_src = (uint8_t)src;
+#endif
+}
+
+static inline void ymm_live_read(dynarec_la64_t* dyn, int ninst, int reg)
+{
+#if STEP == 0
+    dyn->insts[ninst].vector_liveness.use.ymm_upper |= 1ULL << reg;
+#endif
+}
+
+static inline void ymm_live_write(dynarec_la64_t* dyn, int ninst, int reg)
+{
+#if STEP == 0
+    dyn->insts[ninst].vector_liveness.def.ymm_upper |= 1ULL << reg;
+#endif
+}
+
+static inline void ymm_live_zero(dynarec_la64_t* dyn, int ninst, int reg)
+{
+#if STEP == 0
+    ymm_live_write(dyn, ninst, reg);
+    dyn->insts[ninst].vector_liveness.ymm_zero |= (uint16_t)(1 << reg);
+#endif
+}
+
 #if STEP == 0
 #define UP32_READ(r)                                                                \
     do {                                                                            \
@@ -74,6 +157,87 @@
 #define UP32_WRITE32(r) ((void)(r))
 #define UP32_READALL()  ((void)0)
 #endif
+
+static inline int xmm_preserved_lanes_dead(dynarec_la64_t* dyn, int ninst, int reg, xmm_scalar_kind_t kind)
+{
+#if STEP == 0
+    return 0;
+#else
+    uint16_t preserved = dyn->insts[ninst].vector_liveness.live.xmm_lanes23;
+    if (kind == XMM_SCALAR_SS)
+        preserved |= dyn->insts[ninst].vector_liveness.live.xmm_lane1;
+    return !(preserved & (1ULL << reg));
+#endif
+}
+
+static inline int ymm_upper_dead(dynarec_la64_t* dyn, int ninst, int reg)
+{
+#if STEP == 0
+    return 0;
+#else
+    return !(dyn->insts[ninst].vector_liveness.live.ymm_upper & (1ULL << reg));
+#endif
+}
+
+static inline void xmm_scalar_track_write(dynarec_la64_t* dyn, int ninst, int reg, xmm_upper_policy_t upper_policy)
+{
+    if (upper_policy == XMM_UPPER_CLEAR)
+        xmm_live_write(dyn, ninst, reg);
+    else
+        xmm_live_track(dyn, ninst, reg);
+}
+
+static inline int xmm_scalar_begin(dynarec_la64_t* dyn, int ninst, xmm_scalar_t* scalar, int host_dst, int guest_dst, int allow_direct, xmm_scalar_kind_t kind, xmm_upper_policy_t upper_policy)
+{
+    xmm_scalar_track_write(dyn, ninst, guest_dst, upper_policy);
+    scalar->host_dst = host_dst;
+    scalar->result = allow_direct && xmm_preserved_lanes_dead(dyn, ninst, guest_dst, kind) ? host_dst : fpu_get_scratch(dyn);
+    scalar->kind = kind;
+    scalar->upper_policy = upper_policy;
+    return scalar->result;
+}
+
+static inline void xmm_scalar_end(dynarec_la64_t* dyn, int ninst, const xmm_scalar_t* scalar)
+{
+    if (scalar->host_dst == scalar->result)
+        return;
+    if (scalar->upper_policy == XMM_UPPER_CLEAR)
+        VXOR_V(scalar->host_dst, scalar->host_dst, scalar->host_dst);
+    if (scalar->kind == XMM_SCALAR_SS)
+        VEXTRINS_W(scalar->host_dst, scalar->result, 0);
+    else
+        VEXTRINS_D(scalar->host_dst, scalar->result, 0);
+}
+
+static inline void xmm_scalar_move(dynarec_la64_t* dyn, int ninst, int host_dst, int host_src, int guest_dst, xmm_scalar_kind_t kind, xmm_upper_policy_t upper_policy)
+{
+    xmm_scalar_track_write(dyn, ninst, guest_dst, upper_policy);
+    if (xmm_preserved_lanes_dead(dyn, ninst, guest_dst, kind)) {
+        if (upper_policy == XMM_UPPER_PRESERVE || host_dst != host_src) {
+            if (kind == XMM_SCALAR_SS)
+                FMOV_S(host_dst, host_src);
+            else
+                FMOV_D(host_dst, host_src);
+        }
+        return;
+    }
+    if (upper_policy == XMM_UPPER_CLEAR) {
+        if (host_dst == host_src && kind == XMM_SCALAR_SD) {
+            VINSGR2VR_D(host_dst, xZR, 1);
+            return;
+        }
+        if (host_dst == host_src) {
+            int scratch = fpu_get_scratch(dyn);
+            FMOV_S(scratch, host_src);
+            host_src = scratch;
+        }
+        VXOR_V(host_dst, host_dst, host_dst);
+    }
+    if (kind == XMM_SCALAR_SS)
+        VEXTRINS_W(host_dst, host_src, 0);
+    else
+        VEXTRINS_D(host_dst, host_src, 0);
+}
 
 #define COMIS_FCC fcc7
 
@@ -578,6 +742,7 @@ static inline int comis_fuse_inverted(int condition)
 #define GETEXSD(a, w, D)                                                                     \
     if (MODREG) {                                                                            \
         a = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), w);                     \
+        xmm_live_read(dyn, ninst, (nextop & 7) + (rex.b << 3), XMM_WIDTH_64);                \
     } else {                                                                                 \
         SMREAD(); /* TODO */                                                                 \
         a = fpu_get_scratch(dyn);                                                            \
@@ -592,6 +757,7 @@ static inline int comis_fuse_inverted(int condition)
 #define GETEXSS(a, w, D)                                                                     \
     if (MODREG) {                                                                            \
         a = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), w);                     \
+        xmm_live_read(dyn, ninst, (nextop & 7) + (rex.b << 3), XMM_WIDTH_32);                \
     } else {                                                                                 \
         SMREAD();                                                                            \
         a = fpu_get_scratch(dyn);                                                            \
@@ -651,11 +817,6 @@ static inline int comis_fuse_inverted(int condition)
     } else {                                \
         BSTRINS_D(wback, ed, wb2 + 7, wb2); \
     }
-
-#define YMM_UNMARK_UPPER_ZERO(a)        \
-    do {                                \
-        dyn->lsx.avxcache[a].dirty = 0; \
-    } while (0)
 
 // AVX helpers
 // Get VX (might use x1)

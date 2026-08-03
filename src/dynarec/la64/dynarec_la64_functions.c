@@ -357,8 +357,7 @@ static int isCacheEmpty(dynarec_native_t* dyn, int ninst)
 int fpuCacheNeedsTransform(dynarec_la64_t* dyn, int ninst)
 {
     int i2 = dyn->insts[ninst].x64.jmp_insts;
-    if (i2 < 0)
-        return 1;
+    if (i2 < 0) return 1;
     if ((dyn->insts[i2].x64.barrier & BARRIER_FLOAT))
         // if the barrier as already been apply, no transform needed
         return ((dyn->insts[ninst].x64.barrier & BARRIER_FLOAT)) ? 0 : (isCacheEmpty(dyn, ninst) ? 0 : 1);
@@ -490,7 +489,7 @@ void lsxcacheUnwind(lsxcache_t* cache)
                 case LSX_CACHE_YMMR:
                 case LSX_CACHE_YMMW:
                     cache->avxcache[cache->lsxcache[i].n].reg = i;
-                    cache->avxcache[cache->lsxcache[i].n].dirty = 0;
+                    cache->avxcache[cache->lsxcache[i].n].upper_zero_pending = 0;
                     cache->avxcache[cache->lsxcache[i].n].write = (cache->lsxcache[i].t == LSX_CACHE_YMMW) ? 1 : 0;
                     break;
                 case LSX_CACHE_ST_F:
@@ -980,28 +979,80 @@ void propagateFpuBarrier(dynarec_la64_t* dyn)
     }
 }
 
+enum {
+    UPPER_LIVENESS_VECTOR_SHIFT = 16,
+    UPPER_PENDING_YMM_SHIFT = 16,
+};
+
+static vector_upper_t transferXmmCopyLiveness(vector_upper_t live_out, const vector_liveness_t* liveness)
+{
+    if (!liveness->xmm_copy_dst)
+        return live_out;
+
+    int dst = liveness->xmm_copy_dst - 1;
+    int src = liveness->xmm_copy_src;
+    uint16_t dst_bit = 1ULL << dst;
+    uint16_t src_bit = 1ULL << src;
+    int lane1_needed = live_out.xmm_lane1 & dst_bit;
+    int lanes23_needed = live_out.xmm_lanes23 & dst_bit;
+    live_out.xmm_lane1 &= (uint16_t)~dst_bit;
+    live_out.xmm_lanes23 &= (uint16_t)~dst_bit;
+    if (lane1_needed)
+        live_out.xmm_lane1 |= src_bit;
+    if (lanes23_needed)
+        live_out.xmm_lanes23 |= src_bit;
+    return live_out;
+}
+
+static int fpuCacheTransformStoresXmm(dynarec_la64_t* dyn, int ninst)
+{
+    const instruction_la64_t* inst = &dyn->insts[ninst];
+    if (!inst->x64.jmp)
+        return 0;
+    int i2 = inst->x64.jmp_insts;
+    if (i2 < 0 || i2 >= dyn->size)
+        return 0; // out-of-block: the forced full live-out already covers the purge
+    if (dyn->insts[i2].x64.barrier & BARRIER_FLOAT)
+        return 0; // purge at the barrier target: already fully live there
+    lsxcache_t cache_i2 = dyn->insts[i2].lsx;
+    lsxcacheUnwind(&cache_i2);
+    const lsxcache_t* cache = &inst->lsx;
+    for (int i = 0; i < 24; ++i) {
+        if (!cache->lsxcache[i].v)
+            continue;
+        int t = cache->lsxcache[i].t;
+        if (t != LSX_CACHE_XMMW && t != LSX_CACHE_YMMW)
+            continue;
+        if (i2) {
+            // transform: the entry is stored (unloaded or refreshed) unless the target holds the identical write
+            if (cache_i2.lsxcache[i].v && cache_i2.lsxcache[i].n == cache->lsxcache[i].n && cache_i2.lsxcache[i].t == t)
+                continue;
+        }
+        // i2 == 0: purge, every write is stored
+        return 1;
+    }
+    return 0;
+}
+
 void updateUpperLiveness(dynarec_la64_t* dyn)
 {
     int n = dyn->size;
     if (n <= 0)
         return;
 
-    size_t uint16_size = (size_t)n * sizeof(uint16_t);
-    size_t uint8_size = (size_t)n * sizeof(uint8_t);
-    size_t int_size = (size_t)n * sizeof(int);
-    void* buffer = malloc(int_size + 3 * uint16_size + uint8_size);
+    size_t live_size = (size_t)n * sizeof(uint64_t);
+    size_t pending_size = (size_t)n * sizeof(uint32_t);
+    size_t work_size = (size_t)n * sizeof(int);
+    size_t list_size = (size_t)n * sizeof(uint8_t);
+    void* buffer = calloc(1, 2 * live_size + pending_size + work_size + list_size);
     if (!buffer)
         return;
+    uint64_t* live_in = (uint64_t*)buffer;
+    uint64_t* live_out = (uint64_t*)((char*)live_in + live_size);
+    uint32_t* pending_in = (uint32_t*)((char*)live_out + live_size);
+    int* work = (int*)((char*)pending_in + pending_size);
+    uint8_t* on_list = (uint8_t*)((char*)work + work_size);
 
-    int* work = (int*)buffer;
-    uint16_t* in = (uint16_t*)((char*)work + int_size);
-    uint16_t* out = (uint16_t*)((char*)in + uint16_size);
-    uint16_t* pending_may = (uint16_t*)((char*)out + uint16_size);
-    uint8_t* on_list = (uint8_t*)((char*)pending_may + uint16_size);
-
-    memset(in, 0, uint16_size);
-    memset(out, 0, uint16_size);
-    memset(on_list, 0, uint8_size);
     int sp = 0;
     for (int i = n - 1; i >= 0; --i) {
         if (dyn->insts[i].x64.alive) {
@@ -1016,22 +1067,43 @@ void updateUpperLiveness(dynarec_la64_t* dyn)
         const instruction_la64_t* inst = &dyn->insts[i];
         if (!inst->x64.alive)
             continue;
-        uint16_t o = 0;
+        uint64_t combined_out = 0;
         if (inst->x64.has_next && i + 1 < n && dyn->insts[i + 1].x64.alive)
-            o |= in[i + 1];
+            combined_out |= live_in[i + 1];
         if (inst->x64.jmp) {
             if (inst->x64.jmp_insts >= 0 && inst->x64.jmp_insts < n)
-                o |= in[inst->x64.jmp_insts];
+                combined_out |= live_in[inst->x64.jmp_insts];
             else
-                o |= 0xFFFF;
+                combined_out = UINT64_MAX;
         }
         int has_internal_jump = inst->x64.jmp && inst->x64.jmp_insts >= 0 && inst->x64.jmp_insts < n;
         if ((inst->x64.has_next && i == n - 1) || (!inst->x64.has_next && !has_internal_jump))
-            o |= 0xFFFF;
-        out[i] = o;
-        uint16_t ii = inst->up32_read | (o & (uint16_t)~inst->up32_write64);
-        if (ii != in[i]) {
-            in[i] = ii;
+            combined_out = UINT64_MAX;
+        live_out[i] = combined_out;
+
+        uint16_t gpr_live_out = (uint16_t)combined_out;
+        uint16_t gpr_live_in = inst->up32_read | (gpr_live_out & (uint16_t)~inst->up32_write64);
+        vector_upper_t vector_live_in = {0};
+        if ((inst->x64.barrier & BARRIER_FLOAT) || inst->x64.has_callret || inst->fpupurge || inst->host_call) {
+            vector_live_in.xmm_lane1 = 0xFFFF;
+            vector_live_in.xmm_lanes23 = 0xFFFF;
+            vector_live_in.ymm_upper = 0xFFFF;
+        } else if (fpuCacheTransformStoresXmm(dyn, i)) {
+            vector_live_in.xmm_lane1 = 0xFFFF;
+            vector_live_in.xmm_lanes23 = 0xFFFF;
+        } else {
+            const vector_liveness_t* liveness = &inst->vector_liveness;
+            vector_upper_t vector_live_out = {.raw = combined_out >> UPPER_LIVENESS_VECTOR_SHIFT};
+            vector_live_out = transferXmmCopyLiveness(vector_live_out, liveness);
+            vector_live_in.raw = liveness->use.raw | (vector_live_out.raw & ~liveness->def.raw);
+            uint16_t touched = inst->lsx.xmm_used | inst->lsx.ymm_used;
+            uint16_t untracked = touched & (uint16_t)~liveness->xmm_tracked;
+            vector_live_in.xmm_lane1 |= untracked;
+            vector_live_in.xmm_lanes23 |= untracked;
+        }
+        uint64_t combined_in = gpr_live_in | (vector_live_in.raw << UPPER_LIVENESS_VECTOR_SHIFT);
+        if (combined_in != live_in[i]) {
+            live_in[i] = combined_in;
             for (int p = 0; p < inst->pred_sz; ++p) {
                 int j = inst->pred[p];
                 if (!on_list[j]) {
@@ -1042,11 +1114,13 @@ void updateUpperLiveness(dynarec_la64_t* dyn)
         }
     }
 
-    for (int i = 0; i < n; ++i)
-        dyn->insts[i].up32_skip = dyn->insts[i].up32_write32 & (uint16_t)~out[i];
+    for (int i = 0; i < n; ++i) {
+        instruction_la64_t* inst = &dyn->insts[i];
+        inst->up32_skip = inst->up32_write32 & (uint16_t)~live_out[i];
+        inst->vector_liveness.live.raw = live_out[i] >> UPPER_LIVENESS_VECTOR_SHIFT;
+    }
 
-    memset(pending_may, 0, uint16_size);
-    memset(on_list, 0, uint8_size);
+    memset(on_list, 0, list_size);
     sp = 0;
     for (int i = 0; i < n; ++i) {
         if (dyn->insts[i].x64.alive) {
@@ -1056,33 +1130,33 @@ void updateUpperLiveness(dynarec_la64_t* dyn)
     }
     // forward analysis
 
-    // NOTE: This is not perfect. At a merge, a register may be dirty on one path
-    // but hold a real 64-bit value on another. adjust_arch cannot know which
-    // path was taken, so it may clear the upper bits of a value it should
-    // have kept. But only a signal handler reading raw registers can notice:
-    // the program itself never reads those bits, otherwise the zero-up would
-    // not have been skipped. We accept this rare case because it lets us
-    // remove many more zero-ups from hot loops and also make the analysis cheaper.
+    // This is intentionally a may analysis. At a merge, adjust_arch cannot tell
+    // which path supplied a deferred zero, so raw signal state can be ambiguous.
     while (sp > 0) {
         int i = work[--sp];
         on_list[i] = 0;
-        if (!dyn->insts[i].x64.alive)
+        instruction_la64_t* inst = &dyn->insts[i];
+        if (!inst->x64.alive)
             continue;
 
-        uint16_t may = 0;
-        for (int p = 0; p < dyn->insts[i].pred_sz; ++p) {
-            int j = dyn->insts[i].pred[p];
-            may |= (pending_may[j] & (uint16_t)~dyn->insts[j].up32_write64) | dyn->insts[j].up32_skip;
+        uint32_t merged_pending = 0;
+        for (int p = 0; p < inst->pred_sz; ++p) {
+            int j = inst->pred[p];
+            const instruction_la64_t* pred = &dyn->insts[j];
+            uint16_t ymm_write = pred->vector_liveness.def.ymm_upper;
+            uint16_t ymm_dead = (uint16_t)~pred->vector_liveness.live.ymm_upper;
+            uint32_t kill = pred->up32_write64 | ((uint32_t)ymm_write << UPPER_PENDING_YMM_SHIFT);
+            uint32_t deferred_zero = pred->up32_skip | ((uint32_t)(pred->vector_liveness.ymm_zero & ymm_dead) << UPPER_PENDING_YMM_SHIFT);
+            merged_pending |= (pending_in[j] & ~kill) | deferred_zero;
         }
-
-        if (may != pending_may[i]) {
-            pending_may[i] = may;
-            if (dyn->insts[i].x64.has_next && i + 1 < n && dyn->insts[i + 1].x64.alive && !on_list[i + 1]) {
+        if (merged_pending != pending_in[i]) {
+            pending_in[i] = merged_pending;
+            if (inst->x64.has_next && i + 1 < n && dyn->insts[i + 1].x64.alive && !on_list[i + 1]) {
                 work[sp++] = i + 1;
                 on_list[i + 1] = 1;
             }
-            if (dyn->insts[i].x64.jmp && dyn->insts[i].x64.jmp_insts >= 0 && dyn->insts[i].x64.jmp_insts < n) {
-                int j = dyn->insts[i].x64.jmp_insts;
+            if (inst->x64.jmp && inst->x64.jmp_insts >= 0 && inst->x64.jmp_insts < n) {
+                int j = inst->x64.jmp_insts;
                 if (dyn->insts[j].x64.alive && !on_list[j]) {
                     work[sp++] = j;
                     on_list[j] = 1;
@@ -1090,9 +1164,10 @@ void updateUpperLiveness(dynarec_la64_t* dyn)
             }
         }
     }
-
-    for (int i = 0; i < n; ++i)
-        dyn->insts[i].up32_pending = pending_may[i];
+    for (int i = 0; i < n; ++i) {
+        dyn->insts[i].up32_pending = (uint16_t)pending_in[i];
+        dyn->insts[i].vector_liveness.ymm_pending = (uint16_t)(pending_in[i] >> UPPER_PENDING_YMM_SHIFT);
+    }
 
     free(buffer);
 }

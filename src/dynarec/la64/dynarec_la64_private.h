@@ -44,7 +44,7 @@ typedef union avx_cache_s {
     int8_t v;
     struct {
         uint8_t reg : 6;
-        uint8_t dirty : 1;
+        uint8_t upper_zero_pending : 1;
         uint8_t write : 1;
     };
 } avx_cache_t;
@@ -69,7 +69,7 @@ typedef struct lsxcache_s {
     int16_t         tags;           // similar to fpu_tags
     int8_t          mmxcache[8];    // cache status for the 8 MMX registers
     sse_cache_t     ssecache[16];   // cache status for the 16 SSE(2) registers
-    avx_cache_t     avxcache[16];   // cache status for the 16 SSE(2) registers
+    avx_cache_t     avxcache[16];   // cache status for the 16 YMM registers
     int8_t          fpuused[24];    // all 0..24 double reg from fpu, used by x87, sse and mmx
     int8_t          x87stack;       // cache stack counter
     int8_t          mmxcount;       // number of mmx register used (not both mmx and x87 at the same time)
@@ -91,6 +91,27 @@ typedef struct sep_s sep_t;
 #define RSP_CLASS_BARRIER 0
 #define RSP_CLASS_PUSH    1
 #define RSP_CLASS_POP     2
+
+typedef union vector_upper_s {
+    uint64_t raw;
+    struct {
+        uint64_t xmm_lane1:16;   // XMM[63:32]
+        uint64_t xmm_lanes23:16; // XMM[127:64]
+        uint64_t ymm_upper:16;   // YMM[255:128]
+        uint64_t :16;
+    };
+} vector_upper_t;
+
+typedef struct vector_liveness_s {
+    vector_upper_t use;
+    vector_upper_t def;
+    vector_upper_t live;
+    uint16_t xmm_tracked;
+    uint16_t ymm_zero;
+    uint16_t ymm_pending;
+    uint8_t xmm_copy_src;
+    uint8_t xmm_copy_dst;
+} vector_liveness_t;
 
 typedef struct instruction_la64_s {
     instruction_x64_t   x64;
@@ -139,6 +160,7 @@ typedef struct instruction_la64_s {
     uint16_t            up32_write32;    // bitmask of GPRs written as 32-bit by this instruction
     uint16_t            up32_skip;       // bitmask of GPRs where the implicit zero-up after a 32-bit write can be skipped
     uint16_t            up32_pending;    // bitmask of GPRs whose upper 32 bits are stale at entry to this instruction
+    vector_liveness_t   vector_liveness;
     int8_t              comis_fusion;
     uint8_t             comis_mark:1;
     uint8_t             host_call:1;

@@ -475,8 +475,13 @@ uintptr_t dynarec64_AVX_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, in
                     UDF();
                 } else {
                     for (int i = 0; i < (rex.is32bits ? 8 : 16); ++i) {
+                        ymm_live_zero(dyn, ninst, i);
                         if (dyn->lsx.avxcache[i].v != -1) {
-                            q1 = avx_get_reg(dyn, ninst, x1, i, 1, LSX_AVX_WIDTH_256);
+                            q1 = dyn->lsx.avxcache[i].reg;
+                            dyn->lsx.ymm_used |= 1 << i;
+                            dyn->lsx.avxcache[i].write = 1;
+                            dyn->lsx.avxcache[i].upper_zero_pending = 0;
+                            dyn->lsx.lsxcache[q1].t = LSX_CACHE_YMMW;
                             XVPERMI_Q(q1, VZERO, XVPERMI_IMM_4_0(0, 2));
                         } else {
                             VST(VZERO, xEmu, offsetof(x64emu_t, ymm[i]));
