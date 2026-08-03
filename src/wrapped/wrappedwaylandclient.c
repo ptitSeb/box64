@@ -1451,6 +1451,82 @@ static void* find_zwp_pointer_gesture_pinch_v1_listener_Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for wayland-client zwp_pointer_gesture_pinch_v1_listener callback\n");
     return NULL;
 }
+// zwp_locked_pointer_v1 ...
+typedef struct my_zwp_locked_pointer_v1_listener_s {
+    uintptr_t locked;  // vFpp
+    uintptr_t unlocked; // vFpp
+} my_zwp_locked_pointer_v1_listener_t;
+#define GO(A)                                                                                   \
+    static my_zwp_locked_pointer_v1_listener_t* ref_zwp_locked_pointer_v1_listener_##A = NULL;  \
+    static void my_zwp_locked_pointer_v1_listener_locked_##A(void* a, void* b)                  \
+    {                                                                                           \
+        RunFunctionFmt(ref_zwp_locked_pointer_v1_listener_##A->locked, "pp", a, b);             \
+    }                                                                                           \
+    static void my_zwp_locked_pointer_v1_listener_unlocked_##A(void* a, void* b)                \
+    {                                                                                           \
+        RunFunctionFmt(ref_zwp_locked_pointer_v1_listener_##A->unlocked, "pp", a, b);           \
+    }                                                                                           \
+    static my_zwp_locked_pointer_v1_listener_t my_zwp_locked_pointer_v1_listener_fct_##A = {    \
+        (uintptr_t)my_zwp_locked_pointer_v1_listener_locked_##A,                                \
+        (uintptr_t)my_zwp_locked_pointer_v1_listener_unlocked_##A,                              \
+    };
+SUPER()
+#undef GO
+static void* find_zwp_locked_pointer_v1_listener_Fct(void* fct)
+{
+    if (!fct) return fct;
+#define GO(A) \
+    if (ref_zwp_locked_pointer_v1_listener_##A == fct) return &my_zwp_locked_pointer_v1_listener_fct_##A;
+    SUPER()
+#undef GO
+#define GO(A)                                              \
+    if (ref_zwp_locked_pointer_v1_listener_##A == 0) {     \
+        ref_zwp_locked_pointer_v1_listener_##A = fct;      \
+        return &my_zwp_locked_pointer_v1_listener_fct_##A; \
+    }
+    SUPER()
+#undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for wayland-client zwp_locked_pointer_v1_listener callback\n");
+    return NULL;
+}
+// zwp_confined_pointer_v1 ...
+typedef struct my_zwp_confined_pointer_v1_listener_s {
+    uintptr_t confined;  // vFpp
+    uintptr_t unconfined; // vFpp
+} my_zwp_confined_pointer_v1_listener_t;
+#define GO(A)                                                                                       \
+    static my_zwp_confined_pointer_v1_listener_t* ref_zwp_confined_pointer_v1_listener_##A = NULL;  \
+    static void my_zwp_confined_pointer_v1_listener_confined_##A(void* a, void* b)                  \
+    {                                                                                               \
+        RunFunctionFmt(ref_zwp_confined_pointer_v1_listener_##A->confined, "pp", a, b);             \
+    }                                                                                               \
+    static void my_zwp_confined_pointer_v1_listener_unconfined_##A(void* a, void* b)                \
+    {                                                                                               \
+        RunFunctionFmt(ref_zwp_confined_pointer_v1_listener_##A->unconfined, "pp", a, b);           \
+    }                                                                                               \
+    static my_zwp_confined_pointer_v1_listener_t my_zwp_confined_pointer_v1_listener_fct_##A = {    \
+        (uintptr_t)my_zwp_confined_pointer_v1_listener_confined_##A,                                \
+        (uintptr_t)my_zwp_confined_pointer_v1_listener_unconfined_##A,                              \
+    };
+SUPER()
+#undef GO
+static void* find_zwp_confined_pointer_v1_listener_Fct(void* fct)
+{
+    if (!fct) return fct;
+#define GO(A) \
+    if (ref_zwp_confined_pointer_v1_listener_##A == fct) return &my_zwp_confined_pointer_v1_listener_fct_##A;
+    SUPER()
+#undef GO
+#define GO(A)                                                   \
+    if (ref_zwp_confined_pointer_v1_listener_##A == 0) {        \
+        ref_zwp_confined_pointer_v1_listener_##A = fct;         \
+        return &my_zwp_confined_pointer_v1_listener_fct_##A;    \
+    }
+    SUPER()
+#undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for wayland-client zwp_confined_pointer_v1_listener callback\n");
+    return NULL;
+}
 #undef SUPER
 
 EXPORT int my_wl_proxy_add_listener(x64emu_t* emu, void* proxy, void** l, void* data)
@@ -1523,6 +1599,10 @@ EXPORT int my_wl_proxy_add_listener(x64emu_t* emu, void* proxy, void** l, void* 
         l = find_wp_image_description_v1_listener_Fct(l);
     } else if (!strcmp(proxy_name, "zwp_pointer_gesture_pinch_v1")) {
         l = find_zwp_pointer_gesture_pinch_v1_listener_Fct(l);
+    } else if (!strcmp(proxy_name, "zwp_locked_pointer_v1")) {
+        l = find_zwp_locked_pointer_v1_listener_Fct(l);
+    } else if (!strcmp(proxy_name, "zwp_confined_pointer_v1")) {
+        l = find_zwp_confined_pointer_v1_listener_Fct(l);
     } else
         printf_log(LOG_INFO, "Error, Wayland-client, add_listener to %s unknown, will crash soon!\n", proxy_name);
     return my->wl_proxy_add_listener(proxy, l, data);
