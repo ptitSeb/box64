@@ -3016,6 +3016,7 @@ wrappedlibm:
   - cpowf
 wrappedlibogg:
 - vFp:
+  - ogg_packet_clear
   - oggpackB_reset
   - oggpackB_writeclear
   - oggpackB_writeinit

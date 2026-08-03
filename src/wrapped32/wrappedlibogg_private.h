@@ -25,7 +25,7 @@ GOM(oggpackB_writeclear, vFEp)
 GOM(oggpackB_writeinit, vFEp)
 //GO(oggpackB_writetrunc,
 GOM(oggpack_bytes, lFEp)
-//GO(ogg_packet_clear,
+GOM(ogg_packet_clear, vFEp)
 GOM(oggpack_get_buffer, pFEp)
 GOM(oggpack_look, lFEpi)
 //GO(oggpack_look1,

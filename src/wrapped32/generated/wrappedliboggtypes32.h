@@ -28,6 +28,7 @@ typedef void (*vFppi_t)(void*, void*, int32_t);
 typedef int32_t (*iFppi_t)(void*, void*, int32_t);
 
 #define SUPER() ADDED_FUNCTIONS() \
+	GO(ogg_packet_clear, vFp_t) \
 	GO(oggpackB_reset, vFp_t) \
 	GO(oggpackB_writeclear, vFp_t) \
 	GO(oggpackB_writeinit, vFp_t) \
