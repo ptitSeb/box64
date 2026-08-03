@@ -234,46 +234,138 @@ la64_lock_get_dd:
     ld.d $a0, $a0, 0
     ret
 
-la64_crc:
-    move        $a2, $a0
-    xor         $a0, $a0, $a0
-    li.d        $a3, 8
+.macro crc6 src, len
+    xor         $t5, $t5, $t5
+    xor         $t6, $t6, $t6
+    xor         $t7, $t7, $t7
+    xor         $t8, $t8, $t8
+    xor         $a3, $a3, $a3
+    xor         $a4, $a4, $a4
+    li.d        $a6, 48
 1:
-    bltu        $a1, $a3, 2f
-    ld.d        $a4, $a2, 0
-    crc.w.d.w   $a0, $a4, $a0
-    addi.d      $a2, $a2, 8
-    addi.w      $a1, $a1, -8
-    bnez        $a1, 1b
+    bltu        $\len, $a6, 2f
+    ld.d        $a5, $\src, 0
+    crc.w.d.w   $t5, $a5, $t5
+    ld.d        $a5, $\src, 8
+    crc.w.d.w   $t6, $a5, $t6
+    ld.d        $a5, $\src, 16
+    crc.w.d.w   $t7, $a5, $t7
+    ld.d        $a5, $\src, 24
+    crc.w.d.w   $t8, $a5, $t8
+    ld.d        $a5, $\src, 32
+    crc.w.d.w   $a3, $a5, $a3
+    ld.d        $a5, $\src, 40
+    crc.w.d.w   $a4, $a5, $a4
+    addi.d      $\src, $\src, 48
+    addi.w      $\len, $\len, -48
+    b           1b
 2:
-    beqz        $a1, 4f
-3:
-    ld.bu       $a4, $a2, 0
-    crc.w.b.w   $a0, $a4, $a0
-    addi.d      $a2, $a2, 1
-    addi.w      $a1, $a1, -1
-    bnez        $a1, 3b
-4:
+    li.d        $a6, 8
+    bltu        $\len, $a6, 6f
+    ld.d        $a5, $\src, 0
+    crc.w.d.w   $t5, $a5, $t5
+    addi.d      $\src, $\src, 8
+    addi.w      $\len, $\len, -8
+    bltu        $\len, $a6, 7f
+    ld.d        $a5, $\src, 0
+    crc.w.d.w   $t6, $a5, $t6
+    addi.d      $\src, $\src, 8
+    addi.w      $\len, $\len, -8
+    bltu        $\len, $a6, 8f
+    ld.d        $a5, $\src, 0
+    crc.w.d.w   $t7, $a5, $t7
+    addi.d      $\src, $\src, 8
+    addi.w      $\len, $\len, -8
+    bltu        $\len, $a6, 9f
+    ld.d        $a5, $\src, 0
+    crc.w.d.w   $t8, $a5, $t8
+    addi.d      $\src, $\src, 8
+    addi.w      $\len, $\len, -8
+    bltu        $\len, $a6, 12f
+    ld.d        $a5, $\src, 0
+    crc.w.d.w   $a3, $a5, $a3
+    addi.d      $\src, $\src, 8
+    addi.w      $\len, $\len, -8
+    b           13f
+6:
+    beqz        $\len, 10f
+11:
+    ld.bu       $a5, $\src, 0
+    crc.w.b.w   $t5, $a5, $t5
+    addi.d      $\src, $\src, 1
+    addi.w      $\len, $\len, -1
+    bnez        $\len, 11b
+    b           10f
+7:
+    beqz        $\len, 10f
+11:
+    ld.bu       $a5, $\src, 0
+    crc.w.b.w   $t6, $a5, $t6
+    addi.d      $\src, $\src, 1
+    addi.w      $\len, $\len, -1
+    bnez        $\len, 11b
+    b           10f
+8:
+    beqz        $\len, 10f
+11:
+    ld.bu       $a5, $\src, 0
+    crc.w.b.w   $t7, $a5, $t7
+    addi.d      $\src, $\src, 1
+    addi.w      $\len, $\len, -1
+    bnez        $\len, 11b
+    b           10f
+9:
+    beqz        $\len, 10f
+11:
+    ld.bu       $a5, $\src, 0
+    crc.w.b.w   $t8, $a5, $t8
+    addi.d      $\src, $\src, 1
+    addi.w      $\len, $\len, -1
+    bnez        $\len, 11b
+    b           10f
+12:
+    beqz        $\len, 10f
+11:
+    ld.bu       $a5, $\src, 0
+    crc.w.b.w   $a3, $a5, $a3
+    addi.d      $\src, $\src, 1
+    addi.w      $\len, $\len, -1
+    bnez        $\len, 11b
+    b           10f
+13:
+    beqz        $\len, 10f
+11:
+    ld.bu       $a5, $\src, 0
+    crc.w.b.w   $a4, $a5, $a4
+    addi.d      $\src, $\src, 1
+    addi.w      $\len, $\len, -1
+    bnez        $\len, 11b
+10:
+    xor         $t5, $t5, $t6
+    xor         $t5, $t5, $t7
+    xor         $t5, $t5, $t8
+    xor         $t5, $t5, $a3
+    xor         $t5, $t5, $a4
+.endm
+
+// a0=source, a1=len, return combined crc32 in a0. 6-way crc32 streams xoring together at the end.
+la64_crc:
+    crc6 a0, a1
+    move        $a0, $t5
     ret
 
+// t2=source, t3=stored hash, t4=len; t2=0 if equal.
 la64_crc_autocrc:
-    move        $t4, $t2
-    xor         $t2, $t2, $t2
-    li.d        $t5, 8
-1:
-    bltu        $t3, $t5, 2f
-    ld.d        $t6, $t4, 0
-    crc.w.d.w   $t2, $t6, $t2
-    addi.d      $t4, $t4, 8
-    addi.w      $t3, $t3, -8
-    bnez        $t3, 1b
-2:
-    beqz        $t3, 4f
-3:
-    ld.bu       $t6, $t4, 0
-    crc.w.b.w   $t2, $t6, $t2
-    addi.d      $t4, $t4, 1
-    addi.w      $t3, $t3, -1
-    bnez        $t3, 3b
-4:
+    st.d        $a3, $r31, 8*1    // save RCX
+    st.d        $a4, $r31, 8*8    // save R8
+    st.d        $a5, $r31, 8*9    // save R9
+    st.d        $a6, $r31, 8*3    // save RBX
+    crc6 t2, t4
+    bstrpick.d  $t5, $t5, 31, 0
+    xor         $t5, $t5, $t3     // compare with stored hash
+    ld.d        $a3, $r31, 8*1    // restore RCX
+    ld.d        $a4, $r31, 8*8    // restore R8
+    ld.d        $a5, $r31, 8*9    // restore R9
+    ld.d        $a6, $r31, 8*3    // restore RBX
+    move        $t2, $t5
     ret
