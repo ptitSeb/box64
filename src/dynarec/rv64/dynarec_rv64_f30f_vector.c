@@ -216,6 +216,7 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
         case 0x38:
             return 0;
         case 0x51:
+            if (!BOX64ENV(dynarec_fastnan)) return 0;
             INST_NAME("SQRTSS Gx, Ex");
             nextop = F8;
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
@@ -234,6 +235,7 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             VFSQRT_V(v0, v1, VECTOR_MASKED);
             break;
         case 0x52:
+            if (!BOX64ENV(dynarec_fastnan)) return 0;
             INST_NAME("RSQRTSS Gx, Ex");
             nextop = F8;
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
@@ -255,6 +257,7 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             VFRDIV_VF(v0, v0, v1, VECTOR_MASKED);
             break;
         case 0x53:
+            if (!BOX64ENV(dynarec_fastnan)) return 0;
             INST_NAME("RCPSS Gx, Ex");
             nextop = F8;
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);

@@ -524,7 +524,7 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             }
             break;
         case 0x51:
-            if (!BOX64ENV(dynarec_fastround)) return 0;
+            if (!BOX64ENV(dynarec_fastround) || !BOX64ENV(dynarec_fastnan)) return 0;
             INST_NAME("SQRTPS Gx, Ex");
             nextop = F8;
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
@@ -618,6 +618,7 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             VFMUL_VV(v0, v0, q0, VECTOR_UNMASKED);
             break;
         case 0x5A:
+            if (!BOX64ENV(dynarec_fastnan)) return 0;
             INST_NAME("CVTPS2PD Gx, Ex");
             nextop = F8;
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);

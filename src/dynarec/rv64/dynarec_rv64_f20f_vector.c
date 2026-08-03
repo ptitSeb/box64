@@ -207,6 +207,7 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
         case 0x38:
             return 0;
         case 0x51:
+            if (!BOX64ENV(dynarec_fastnan)) return 0;
             INST_NAME("SQRTSD Gx, Ex");
             nextop = F8;
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
@@ -279,6 +280,7 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             VFMUL_VV(v0, v0, v1, VECTOR_MASKED);
             break;
         case 0x5A:
+            if (!BOX64ENV(dynarec_fastnan)) return 0;
             INST_NAME("CVTSD2SS Gx, Ex");
             nextop = F8;
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
