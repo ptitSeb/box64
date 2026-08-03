@@ -91,9 +91,11 @@ typedef struct extcache_s {
     int8_t              fpu_scratch;    // scratch counter
 } extcache_t;
 
-typedef struct flagcache_s {
-    int                 pending;    // is there a pending flags here, or to check?
-    uint8_t             dfnone;     // if deferred flags is already set to df_none
+typedef enum flagcache_s {
+    status_unk = 0,      // unknown deferred flags status
+    status_set,          // deferred flags set to something (not 0)
+    status_none_pending, // deferred flags set to 0, but still pending the write to x64emu_t
+    status_none,         // deferred flags set to 0, written to x64emu_t
 } flagcache_t;
 
 typedef struct callret_s callret_t;

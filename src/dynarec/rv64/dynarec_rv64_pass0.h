@@ -8,10 +8,13 @@
 #define MESSAGE(A, ...) \
     do {                \
     } while (0)
-#define READFLAGS(A)                     \
-    dyn->insts[ninst].x64.use_flags = A; \
-    dyn->f.dfnone = 1;                   \
-    dyn->f.pending = SF_SET
+#define READFLAGS(A)                                                                        \
+    do {                                                                                    \
+        dyn->insts[ninst].x64.use_flags = A;                                                \
+        if (dyn->f != status_none_pending) dyn->f = status_none;                            \
+        if (!BOX64ENV(dynarec_df) && (A) & X_PEND) dyn->insts[ninst].x64.use_flags = X_ALL; \
+        dyn->f = status_none;                                                               \
+    } while (0)
 
 #define READFLAGS_FUSION(A, s1, s2, s3, s4, s5)                                                                \
     if (BOX64ENV(dynarec_nativeflags) && ninst > 0) {                                                          \
@@ -30,22 +33,22 @@
     READFLAGS(A);
 
 /* SF_SET_NODF and SF_SET_PENDING may leave the incoming deferred flags untouched. */
-#define SETFLAGS(A, B, FUSION)                                      \
-    do {                                                           \
-        dyn->insts[ninst].x64.set_flags = A;                       \
-        dyn->insts[ninst].x64.state_flags = (B) & ~SF_DF;          \
-        if (((B) & SF_SET_PENDING) != SF_SET_PENDING) {            \
-            if ((B) & SF_SET) {                                   \
-                if ((B) != SF_SET_NODF) {                          \
-                    dyn->f.pending = SF_SET;                       \
-                    dyn->f.dfnone = 1;                             \
-                }                                                  \
-            } else if (!dyn->f.dfnone) {                           \
-                dyn->f.pending = SF_SET;                           \
-                dyn->f.dfnone = 0;                                 \
-            }                                                      \
-        }                                                          \
-        dyn->insts[ninst].nat_flags_nofusion = (FUSION);           \
+#define SETFLAGS(A, B, FUSION)                                                                          \
+    do {                                                                                                \
+        dyn->insts[ninst].x64.set_flags = A;                                                            \
+        dyn->insts[ninst].x64.state_flags = (B) & ~SF_DF;                                               \
+        if (((B) & SF_SET_PENDING) != SF_SET_PENDING) {                                                 \
+            dyn->f = ((B) & SF_SET) ? (((B) == SF_SET_NODF) ? dyn->f : status_none_pending)             \
+                                    : ((dyn->f == status_none) ? status_none : status_none_pending);    \
+        }                                                                                               \
+        if (!BOX64ENV(dynarec_df)) {                                                                    \
+            dyn->f = status_none;                                                                       \
+            if ((B) == SF_PENDING) {                                                                    \
+                printf_log(LOG_INFO, "Warning, some opcode use SF_PENDING, forcing deferedflags ON\n"); \
+                SET_BOX64ENV(dynarec_df, 1);                                                            \
+            }                                                                                           \
+        }                                                                                               \
+        dyn->insts[ninst].nat_flags_nofusion = (FUSION);                                                \
     } while (0)
 
 #define EMIT(A) dyn->native_size += 4

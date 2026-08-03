@@ -784,7 +784,6 @@ static int flagsCacheNeedsTransform(dynarec_native_t* dyn, int ninst) {
     int jmp = dyn->insts[ninst].x64.jmp_insts;
     if(jmp<0)
         return 0;
-    #if defined(ARM64) || defined(LA64) || defined(PPC64LE)
     // df_none is now a defered information
     if(dyn->insts[ninst].f_exit==dyn->insts[jmp].f_entry)
         return 0;
@@ -802,28 +801,6 @@ static int flagsCacheNeedsTransform(dynarec_native_t* dyn, int ninst) {
         case status_none_pending:
             return 1;
     }
-#else
-    if(dyn->insts[ninst].f_exit.dfnone)  // flags are fully known, nothing we can do more
-        return 0;
-    if(dyn->insts[jmp].f_entry.dfnone && !dyn->insts[ninst].f_exit.dfnone && !dyn->insts[jmp].df_notneeded)
-        return 1;
-    switch (dyn->insts[jmp].f_entry.pending) {
-        case SF_UNKNOWN: return 0;
-        case SF_SET:
-            if(dyn->insts[ninst].f_exit.pending!=SF_SET && dyn->insts[ninst].f_exit.pending!=SF_SET_PENDING)
-                return 1;
-            else
-                return 0;
-        case SF_SET_PENDING:
-            if(dyn->insts[ninst].f_exit.pending==SF_SET_PENDING)
-                return 0;
-            return 1;
-        case SF_PENDING:
-            if(dyn->insts[ninst].f_exit.pending==SF_PENDING || dyn->insts[ninst].f_exit.pending==SF_SET_PENDING)
-                return 0;
-            return (dyn->insts[jmp].f_entry.dfnone  == dyn->insts[ninst].f_exit.dfnone)?0:1;
-    }
-    #endif
     return 0;
 }
 
@@ -885,7 +862,6 @@ uint8_t geted_ib(dynarec_native_t* dyn, uintptr_t addr, int ninst, uint8_t nexto
 }
 #undef F8
 
-#if defined(ARM64) || defined(LA64) || defined(PPC64LE)
 static void propagate_dfneeded_internal(dynarec_native_t* dyn, int ninst)
 {
     while(ninst>=0) {
@@ -937,7 +913,6 @@ void propagate_nodf(dynarec_native_t* dyn)
             propagate_nodf_internal(dyn, ninst);
     }
 }
-#endif
 
 void x64disas_add_register_mapping_annotations(char* buf, const char* disas, const register_mapping_t* mappings, size_t mappings_sz)
 {
