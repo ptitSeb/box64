@@ -986,9 +986,55 @@ int RelocateElfPlt64(lib_t *maplib, lib_t *local_maplib, int bindnow, int deepbi
 
     return 0;
 }
+
+static uint32_t getElfPageProtection64(const elfheader_t* head, uintptr_t page)
+{
+    uint32_t prot = 0;
+    uintptr_t page_end = page + box64_pagesize;
+    for (size_t i = 0; i < head->numPHEntries; ++i) {
+        const Elf64_Phdr* ph = &head->PHEntries._64[i];
+        if (ph->p_type != PT_LOAD || !ph->p_memsz) continue;
+        uintptr_t start = (ph->p_vaddr + head->delta) & ~(box64_pagesize - 1);
+        uintptr_t end = ALIGN(ph->p_vaddr + head->delta + ph->p_memsz);
+        if (start >= page_end || end <= page) continue;
+        prot |= ((ph->p_flags & PF_R) ? PROT_READ : 0) | ((ph->p_flags & PF_W) ? PROT_WRITE : 0) | ((ph->p_flags & PF_X) ? PROT_EXEC : 0);
+    }
+    return prot;
+}
+
+static void applyElfRelro64(elfheader_t* head)
+{
+    for (size_t i = 0; i < head->numPHEntries; ++i) {
+        const Elf64_Phdr* ph = &head->PHEntries._64[i];
+        if (ph->p_type != PT_GNU_RELRO || !ph->p_memsz) continue;
+
+        uintptr_t relro = ph->p_vaddr + head->delta;
+        uintptr_t relro_end = relro + ph->p_memsz;
+        if (relro_end < relro) continue;
+        uintptr_t start = relro & ~(box64_pagesize - 1);
+        uintptr_t end = relro_end & ~(box64_pagesize - 1);
+        for (uintptr_t page = start; page < end; page += box64_pagesize) {
+            uint32_t old_prot = getProtection(page);
+            if (old_prot & PROT_NOPROT) continue;
+            uint32_t prot = getElfPageProtection64(head, page) & ~PROT_WRITE;
+            if (!prot) continue;
+            if (old_prot & (PROT_DYNAREC | PROT_DYNAREC_R))
+                prot |= PROT_DYNAREC_R;
+            if (mprotect((void*)page, box64_pagesize, prot & ~PROT_CUSTOM)) {
+                printf_log(LOG_INFO, "Warning: cannot apply GNU RELRO to %s at %p: %s\n", head->name, (void*)page, strerror(errno));
+                continue;
+            }
+            setProtection_elf(page, box64_pagesize, prot);
+            printf_dump(LOG_DEBUG, "Applied GNU RELRO to %s at %p with protection 0x%x\n", head->name, (void*)page, prot & ~PROT_CUSTOM);
+        }
+    }
+}
+
 int RelocateElfPlt(lib_t *maplib, lib_t *local_maplib, int bindnow, int deepbind, elfheader_t* head)
 {
-    return box64_is32bits?RelocateElfPlt32(maplib, local_maplib, bindnow, deepbind, head):RelocateElfPlt64(maplib, local_maplib, bindnow, deepbind, head);
+    int ret = box64_is32bits ? RelocateElfPlt32(maplib, local_maplib, bindnow, deepbind, head) : RelocateElfPlt64(maplib, local_maplib, bindnow, deepbind, head);
+    if (!ret && !box64_is32bits) applyElfRelro64(head);
+    return ret;
 }
 
 void CalcStack(elfheader_t* elf, uint64_t* stacksz, size_t* stackalign)
