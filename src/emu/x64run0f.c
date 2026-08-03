@@ -867,8 +867,19 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             nextop = F8;
             GETEX(0);
             GETGX;
+            #ifdef RV64
+            for(int i=1; i>=0; --i) {
+                if(isnanf(EX->f[i]))
+                    GX->q[i] = ((uint64_t)(EX->ud[i] & 0x80000000) << 32)
+                             | ((uint64_t)(EX->ud[i] & 0x007fffff) << 29)
+                             | 0x7ff8000000000000ULL;
+                else
+                    GX->d[i] = EX->f[i];
+            }
+            #else
             GX->d[1] = EX->f[1];
             GX->d[0] = EX->f[0];
+            #endif
             break;
         case 0x5B:                      /* CVTDQ2PS Gx, Ex */
             nextop = F8;

@@ -388,12 +388,34 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETEX(0);
             GETGX;
             GETGY;
+            #ifdef RV64
+            for (int i = 0; i < 2; ++i) {
+                if (isnan(EX->d[i]))
+                    GX->ud[i] = ((EX->q[i] >> 32) & 0x80000000)
+                              | ((EX->q[i] >> 29) & 0x007fffff)
+                              | 0x7fc00000;
+                else
+                    GX->f[i] = EX->d[i];
+            }
+            #else
             GX->f[0] = EX->d[0];
             GX->f[1] = EX->d[1];
+            #endif
             if(vex.l) {
                 GETEY;
+                #ifdef RV64
+                for (int i = 0; i < 2; ++i) {
+                    if (isnan(EY->d[i]))
+                        GX->ud[i + 2] = ((EY->q[i] >> 32) & 0x80000000)
+                                  | ((EY->q[i] >> 29) & 0x007fffff)
+                                  | 0x7fc00000;
+                    else
+                        GX->f[i + 2] = EY->d[i];
+                }
+                #else
                 GX->f[2] = EY->d[0];
                 GX->f[3] = EY->d[1];
+                #endif
             } else
                 GX->q[1] = 0;
             GY->u128 = 0;
