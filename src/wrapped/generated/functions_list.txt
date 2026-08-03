@@ -5479,6 +5479,7 @@ wrappedlibc:
 - vFi:
   - _exit
   - exit
+  - quick_exit
 - vFp:
   - _ITM_deregisterTMCloneTable
   - _ZGTtdlPv
@@ -5492,6 +5493,7 @@ wrappedlibc:
 - iFp:
   - __libc_dlclose
   - _setjmp
+  - at_quick_exit
   - atexit
   - getcontext
   - register_printf_type
@@ -5556,6 +5558,7 @@ wrappedlibc:
 - iFpL:
   - munmap
 - iFpp:
+  - __cxa_at_quick_exit
   - __vprintf_chk
   - dl_iterate_phdr
   - execv

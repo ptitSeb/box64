@@ -220,6 +220,9 @@ typedef struct box64context_s {
     cleanup_t           *cleanups;          // atexit functions
     int                 clean_sz;
     int                 clean_cap;
+    cleanup_t           *quick_cleanups;    // at_quick_exit functions
+    int                 quick_clean_sz;
+    int                 quick_clean_cap;
 
     void*               video_mem;
 
