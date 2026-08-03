@@ -357,19 +357,24 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
             }
             if(!try_mmap) {
                 uintptr_t paddr = head->multiblocks[n].paddr&~(box64_pagesize - 1);
-                size_t asize = head->multiblocks[n].asize+(head->multiblocks[n].paddr-paddr);
+                size_t asize = ALIGN(e->p_memsz + (head->multiblocks[n].paddr - paddr));
                 void* p = MAP_FAILED;
-                if(asize == ALIGN(asize)) {
+                int mapped_file = 0;
+                // unaligned segments can still be file-backed mapped when their address and file offsets have the same page offset
+                uintptr_t file_delta = head->multiblocks[n].paddr - paddr;
+                size_t file_size = ALIGN(e->p_filesz + file_delta);
+                off_t file_offset = e->p_offset & ~(box64_pagesize - 1);
+                if (e->p_filesz &&                                                              // there is file data to map
+                    e->p_filesz == e->p_memsz &&                                                // no BSS
+                    ((head->multiblocks[n].paddr ^ e->p_offset) & (box64_pagesize - 1)) == 0 && // the virtual address and the file offset have the same page offset
+                    file_size <= asize) {
+                    p = InternalMmap((void*)paddr, file_size, prot, MAP_PRIVATE | MAP_FIXED, head->fileno, file_offset);
+                    mapped_file = p == (void*)paddr;
+                }
+                if (!mapped_file && (asize == ALIGN(asize))) {
                     printf_dump(log_level, "Allocating 0x%zx (0x%zx) bytes @%p, will read 0x%zx @%p for Elf \"%s\"\n", asize, e->p_memsz, (void*)paddr, e->p_filesz, (void*)head->multiblocks[n].paddr, head->name);
-                    p = InternalMmap(
-                        (void*)paddr,
-                        asize,
-                        prot|PROT_WRITE,
-                        MAP_PRIVATE|MAP_ANONYMOUS|MAP_FIXED,
-                        -1,
-                        0
-                    );
-                } else {
+                    p = InternalMmap((void*)paddr, asize, prot | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
+                } else if (!mapped_file) {
                     // difference in pagesize, so need to mmap only what needed to be...
                     //check startint point
                     uintptr_t new_addr = paddr&~(box64_pagesize-1); // new_addr might be smaller than paddr
@@ -410,7 +415,7 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
                 }
                 setProtection_elf((uintptr_t)p, asize, prot);
                 head->multiblocks[n].p = p;
-                if(e->p_filesz) {
+                if (e->p_filesz && !mapped_file) {
                     fseeko64(head->file, head->multiblocks[n].offs, SEEK_SET);
                     if(fread((void*)head->multiblocks[n].paddr, head->multiblocks[n].size, 1, head->file)!=1) {
                         printf_log(LOG_NONE, "Cannot read elf block (@%p 0x%zx/0x%zx) for elf \"%s\"\n", (void*)head->multiblocks[n].offs, head->multiblocks[n].asize, (box64_pagesize - 1), head->name);
