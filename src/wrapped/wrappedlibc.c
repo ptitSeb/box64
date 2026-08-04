@@ -3788,10 +3788,45 @@ EXPORT int my_mprotect(x64emu_t* emu, void *addr, unsigned long len, int prot)
     if(emu && (BOX64ENV(log)>=LOG_DEBUG || BOX64ENV(dynarec_log)>=LOG_DEBUG)) {printf_log(LOG_NONE, "mprotect(%p, 0x%lx, 0x%x)\n", addr, len, prot);}
     if(prot&PROT_WRITE)
         prot|=PROT_READ;    // PROT_READ is implicit with PROT_WRITE on x86_64
-    int ret = mprotect(addr, len, prot);
-    if(!ret && len) {
-        updateProtection((uintptr_t)addr, len, prot);
+    uintptr_t start = (uintptr_t)addr;
+    if(box64_pagesize == X86_PAGE_SIZE) {
+        int ret = mprotect(addr, len, prot);
+        if(!ret && len) updateProtection(start, len, prot);
+        return ret;
     }
+    if(start & (X86_PAGE_SIZE - 1)) {
+        errno = EINVAL;
+        return -1;
+    }
+    if(!len) return 0;
+    uintptr_t end = (start + len + X86_PAGE_SIZE - 1) & ~(X86_PAGE_SIZE - 1);
+    uintptr_t host_start = start & ~(box64_pagesize - 1);
+    uintptr_t host_end = (end + box64_pagesize - 1) & ~(box64_pagesize - 1);
+
+    if(host_end - host_start == box64_pagesize && (start != host_start || end != host_end)) {
+        prot |= getProtection(host_start) & ~PROT_CUSTOM;
+        int ret = mprotect((void*)host_start, box64_pagesize, prot);
+        if(!ret) updateProtection(host_start, box64_pagesize, prot);
+        return ret;
+    }
+
+    if(start != host_start) {
+        int host_prot = prot | (getProtection(host_start) & ~PROT_CUSTOM);
+        int ret = mprotect((void*)host_start, box64_pagesize, host_prot);
+        if(ret) return -1;
+        updateProtection(host_start, box64_pagesize, host_prot);
+        host_start += box64_pagesize;
+    }
+    if(end != host_end) {
+        host_end -= box64_pagesize;
+        int host_prot = prot | (getProtection(host_end) & ~PROT_CUSTOM);
+        int ret = mprotect((void*)host_end, box64_pagesize, host_prot);
+        if(ret) return -1;
+        updateProtection(host_end, box64_pagesize, host_prot);
+    }
+    if(host_start == host_end) return 0;
+    int ret = mprotect((void*)host_start, host_end - host_start, prot);
+    if(!ret) updateProtection(host_start, host_end - host_start, prot);
     return ret;
 }
 
@@ -3799,14 +3834,18 @@ EXPORT int my_madvise(x64emu_t* emu, void* addr, size_t length, int advice)
 {
     (void)emu;
     uintptr_t start = (uintptr_t)addr;
-    if(advice != MADV_DONTNEED) return madvise(addr, length, advice);
-
     if(start & (X86_PAGE_SIZE - 1)) {
         errno = EINVAL;
         return -1;
     }
     if(!length) return 0;
     uintptr_t end = (start + length + X86_PAGE_SIZE - 1) & ~(X86_PAGE_SIZE - 1);
+
+    if(advice != MADV_DONTNEED) {
+        uintptr_t host_start = start & ~(box64_pagesize - 1);
+        uintptr_t host_end = (end + box64_pagesize - 1) & ~(box64_pagesize - 1);
+        return madvise((void*)host_start, host_end - host_start, advice);
+    }
 
     if(box64_pagesize == X86_PAGE_SIZE) return madvise(addr, end - start, advice);
 
