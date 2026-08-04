@@ -3617,6 +3617,22 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, size_t length, int prot, int f
 {
     (void)emu;
     if(BOX64ENV(dynarec_log)>=LOG_DEBUG) {printf_log(LOG_NONE, "mmap64(%p, 0x%zx, 0x%x, 0x%x, %d, %zd) ", addr, length, prot, flags, fd, offset);}
+
+    // 1. non4k pagesize
+    // 2. fixed and anonymous mapping
+    // 3. PROT_NONE
+    // 4. small and unaligned to host pagesize
+    // 5. start and end both belongs to existing map
+    // --> the application is trying to place some 4k PROT_NONE canary page in between!
+    //     that's not gonna work on larger pagesize host no matter how, so just return success and do nothing.
+    uintptr_t start = (uintptr_t)addr;
+    uintptr_t end = start + length;
+    if(box64_pagesize > X86_PAGE_SIZE && addr && length && end > start && !prot &&
+       (flags & MAP_FIXED) && (flags & MAP_ANONYMOUS) &&
+       ((start & (box64_pagesize - 1)) || (end & (box64_pagesize - 1))) &&
+       getProtection(start) && getProtection(end - 1)) {
+        return addr;
+    }
     void* ret = box_mmap(addr, length, prot, flags, fd, offset);
     int e = errno;
     if(emu && box64_is32bits && ret!=MAP_FAILED && ((ret>(void*)0xc0000000) || (ret+length>(void*)0xc0000000))) {
