@@ -364,8 +364,17 @@ elfheader_t* ParseElfHeader64(FILE* f, const char* name, int exec)
                 printf_dump(LOG_DEBUG, "The DT_VERDEF is at address %p\n", h->VerDef);
                 break;
             case DT_FLAGS:
-                h->flags = val;
+                h->flags |= val;
                 printf_dump(LOG_DEBUG, "The DT_FLAGS is 0x%x\n", h->flags);
+                break;
+            case DT_BIND_NOW:
+                h->flags |= DF_BIND_NOW;
+                printf_dump(LOG_DEBUG, "The DT_BIND_NOW flag is present\n");
+                break;
+            case DT_FLAGS_1:
+                if (val & DF_1_NOW)
+                    h->flags |= DF_BIND_NOW;
+                printf_dump(LOG_DEBUG, "The DT_FLAGS_1 is 0x%lx\n", val);
                 break;
             case DT_HASH:
                 h->hash = ptr;
