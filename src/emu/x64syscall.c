@@ -70,6 +70,7 @@ int my_sigaltstack(x64emu_t* emu, const x64_stack_t* ss, x64_stack_t* oss);
 void* my_mmap64(x64emu_t* emu, void *addr, unsigned long length, int prot, int flags, int fd, int64_t offset);
 int my_munmap(x64emu_t* emu, void* addr, unsigned long length);
 int my_mprotect(x64emu_t* emu, void *addr, unsigned long len, int prot);
+int my_madvise(x64emu_t* emu, void* addr, size_t length, int advice);
 void* my_mremap(x64emu_t* emu, void* old_addr, size_t old_size, size_t new_size, int flags, void* new_addr);
 #ifndef NOALIGN
 int32_t my_epoll_ctl(x64emu_t* emu, int32_t epfd, int32_t op, int32_t fd, void* event);
@@ -132,7 +133,7 @@ static const scwrap_t syscallwrap[] = {
     #endif
     //[25] = {__NR_mremap, 5},    // wrapped to track protection
     [27] = {__NR_mincore, 3},
-    [28] = {__NR_madvise, 3},
+    //[28] = {__NR_madvise, 3},   // wrapped for guest page size
     #ifdef __NR_dup
     [32] = {__NR_dup, 1},
     #endif
@@ -662,6 +663,11 @@ void EXPORT x64Syscall_linux(x64emu_t *emu)
             if(S_RAX==-1)
                 S_RAX = -errno;
             break;
+        case 28: // sys_madvise
+            S_RAX = my_madvise(emu, (void*)R_RDI, R_RSI, S_EDX);
+            if(S_RAX==-1)
+                S_RAX = -errno;
+            break;
         case 13: // sys_rt_sigaction
             #if 1
             S_RAX = my_syscall_rt_sigaction(emu, S_EDI, (const x64_sigaction_restorer_t *)R_RSI, (x64_sigaction_restorer_t *)R_RDX, (size_t)R_R10);
@@ -1129,6 +1135,8 @@ long EXPORT my_syscall(x64emu_t *emu)
             return my_mprotect(emu, (void*)R_RSI, R_RDX, S_ECX);
         case 11: // sys_munmap
             return my_munmap(emu, (void*)R_RSI, R_RDX);
+        case 28: // sys_madvise
+            return my_madvise(emu, (void*)R_RSI, R_RDX, S_ECX);
         case 13: // sys_rt_sigaction
             #if 1
             return my_syscall_rt_sigaction(emu, S_ESI, (const x64_sigaction_restorer_t *)R_RDX, (x64_sigaction_restorer_t *)R_RCX, (size_t)R_R8);

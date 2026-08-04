@@ -3795,6 +3795,46 @@ EXPORT int my_mprotect(x64emu_t* emu, void *addr, unsigned long len, int prot)
     return ret;
 }
 
+EXPORT int my_madvise(x64emu_t* emu, void* addr, size_t length, int advice)
+{
+    (void)emu;
+    uintptr_t start = (uintptr_t)addr;
+    if(advice != MADV_DONTNEED) return madvise(addr, length, advice);
+
+    if(start & (X86_PAGE_SIZE - 1)) {
+        errno = EINVAL;
+        return -1;
+    }
+    if(!length) return 0;
+    uintptr_t end = (start + length + X86_PAGE_SIZE - 1) & ~(X86_PAGE_SIZE - 1);
+
+    if(box64_pagesize == X86_PAGE_SIZE) return madvise(addr, end - start, advice);
+
+    if(!(start & (box64_pagesize - 1)) && !(end & (box64_pagesize - 1)))
+        return madvise(addr, end - start, advice);
+
+    if(!memExist(start) || !memExist(end - 1)) {
+        errno = ENOMEM;
+        return -1;
+    }
+
+    if(IsAddrElfOrFileMapped(start) || IsAddrElfOrFileMapped(end - 1)) return 0;
+
+    if(!(getProtection(start) & PROT_WRITE) || !(getProtection(end - 1) & PROT_WRITE)) return 0;
+
+    memset((void*)start, 0, end - start);
+    return 0;
+}
+
+EXPORT int my___madvise(x64emu_t* emu, void* addr, size_t length, int advice) __attribute__((alias("my_madvise")));
+
+EXPORT int my_posix_madvise(x64emu_t* emu, void* addr, size_t length, int advice)
+{
+    (void)emu;
+    if(advice == POSIX_MADV_DONTNEED) return 0;
+    return posix_madvise(addr, length, advice);
+}
+
 typedef struct mallinfo (*mallinfo_fnc)(void);
 EXPORT void* my_mallinfo(x64emu_t* emu, void* p)
 {

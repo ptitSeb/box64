@@ -5658,7 +5658,10 @@ wrappedlibc:
 - iFipA:
   - vdprintf
 - iFpLi:
+  - __madvise
+  - madvise
   - mprotect
+  - posix_madvise
 - iFpLp:
   - init_module
 - iFppi:
