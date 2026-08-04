@@ -3600,17 +3600,53 @@ void* last_mmap_0_addr = NULL;
 size_t last_mmap_0_len = 0;
 #endif
 
-static int is_elf_or_pe(int fd)
+static int is_pe_file(int fd)
 {
     unsigned char magic[4];
     unsigned char offset[4];
     if (pread(fd, magic, sizeof(magic), 0) != (ssize_t)sizeof(magic)) return 0;
-    if (!memcmp(magic, "\x7f" "ELF", sizeof(magic))) return 1;
     if (magic[0] != 'M' || magic[1] != 'Z') return 0;
     if (pread(fd, offset, sizeof(offset), 0x3c) != (ssize_t)sizeof(offset)) return 0;
     uint32_t pe_offset = (uint32_t)offset[0] | (uint32_t)offset[1]<<8 | (uint32_t)offset[2]<<16 | (uint32_t)offset[3]<<24;
     if (pread(fd, magic, sizeof(magic), pe_offset) != (ssize_t)sizeof(magic)) return 0;
     return !memcmp(magic, "PE\0\0", sizeof(magic));
+}
+
+static int is_elf_or_pe(int fd)
+{
+    unsigned char magic[4];
+    if (pread(fd, magic, sizeof(magic), 0) != (ssize_t)sizeof(magic)) return 0;
+    return !memcmp(magic, "\x7f" "ELF", sizeof(magic)) || is_pe_file(fd);
+}
+
+static int is_writable_mapping(uintptr_t start, uintptr_t end)
+{
+    for(uintptr_t page = start; page < end; page += box64_pagesize)
+        if(!memExist(page) || !(getProtection(page) & PROT_WRITE)) return 0;
+    return 1;
+}
+
+static int can_copy_pe_mmap(int fd, size_t size, ssize_t offset)
+{
+    struct stat st;
+    if(offset < 0 || fstat(fd, &st) || !S_ISREG(st.st_mode) || st.st_size < offset) return 0;
+    return size <= (uint64_t)(st.st_size - offset) && is_pe_file(fd);
+}
+
+static int pread_mmap(int fd, void* addr, size_t size, ssize_t offset)
+{
+    size_t done = 0;
+    while(done < size) {
+        ssize_t ret = pread(fd, (char*)addr + done, size - done, offset + (off_t)done);
+        if(ret > 0) {
+            done += ret;
+            continue;
+        }
+        if(ret < 0 && errno == EINTR) continue;
+        if(!ret) errno = EIO;
+        return -1;
+    }
+    return 0;
 }
 
 EXPORT void* my_mmap64(x64emu_t* emu, void *addr, size_t length, int prot, int flags, int fd, ssize_t offset)
@@ -3627,14 +3663,62 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, size_t length, int prot, int f
     //     that's not gonna work on larger pagesize host no matter how, so just return success and do nothing.
     uintptr_t start = (uintptr_t)addr;
     uintptr_t end = start + length;
+    uintptr_t mapped_end = (end + X86_PAGE_SIZE - 1) & ~(X86_PAGE_SIZE - 1);
     if(box64_pagesize > X86_PAGE_SIZE && addr && length && end > start && !prot &&
        (flags & MAP_FIXED) && (flags & MAP_ANONYMOUS) &&
        ((start & (box64_pagesize - 1)) || (end & (box64_pagesize - 1))) &&
        getProtection(start) && getProtection(end - 1)) {
         return addr;
     }
-    void* ret = box_mmap(addr, length, prot, flags, fd, offset);
-    int e = errno;
+
+    void* ret;
+    int e;
+    uintptr_t host_start = start & ~(box64_pagesize - 1);
+    uintptr_t host_end = (mapped_end + box64_pagesize - 1) & ~(box64_pagesize - 1);
+
+    // For Wine: a fixed anonymous guest mapping that fits inside an already existing host page.
+    // temporarily makes the whole host page writable, clears only the requested 4KB guest range,
+    // reports the mapping as successful
+    if(box64_pagesize > X86_PAGE_SIZE && addr && length && end > start && mapped_end >= end &&
+       !(start & (X86_PAGE_SIZE - 1)) && (flags & MAP_FIXED) && (flags & MAP_ANONYMOUS) &&
+       (flags & MAP_PRIVATE) && !(flags & MAP_SHARED) && fd == -1 && !offset && prot &&
+       host_start == ((mapped_end - 1) & ~(box64_pagesize - 1)) &&
+       (start != host_start || mapped_end != host_start + box64_pagesize) &&
+       memExist(host_start) && memExist(host_start + box64_pagesize - 1)) {
+        uint32_t old_prot = getProtection(host_start);
+        int host_prot = prot | (old_prot & ~PROT_CUSTOM);
+        if(host_prot & PROT_WRITE) host_prot |= PROT_READ;
+        int write_prot = host_prot | PROT_READ | PROT_WRITE;
+        if(mprotect((void*)host_start, box64_pagesize, write_prot)) {
+            ret = MAP_FAILED;
+        } else {
+            memset(addr, 0, mapped_end - start);
+            if(write_prot != host_prot && mprotect((void*)host_start, box64_pagesize, host_prot))
+                ret = MAP_FAILED;
+            else {
+                prot = host_prot | (old_prot & PROT_CUSTOM);
+                ret = addr;
+            }
+        }
+        e = errno;
+    // Also For Wine: Wine loads PE sections into memory it has already reserved.
+    // On hosts with pages larger than 4K, mmap would corrupted adjacent reserved (BSS) memory,
+    // so copy only the 4K pages Wine requested.
+    } else if(box64_wine && box64_pagesize > X86_PAGE_SIZE && addr && length && end > start &&
+              mapped_end >= end && host_end && start == host_start && mapped_end != host_end &&
+              (flags & MAP_FIXED) && (flags & MAP_PRIVATE) && !(flags & (MAP_SHARED | MAP_ANONYMOUS)) &&
+              fd >= 0 && offset >= 0 && (prot & PROT_WRITE) &&
+              is_writable_mapping(host_start, host_end) &&
+              can_copy_pe_mmap(fd, mapped_end - start, offset)) {
+        if(pread_mmap(fd, addr, mapped_end - start, offset))
+            ret = MAP_FAILED;
+        else
+            ret = addr;
+        e = errno;
+    } else {
+        ret = box_mmap(addr, length, prot, flags, fd, offset);
+        e = errno;
+    }
     if(emu && box64_is32bits && ret!=MAP_FAILED && ((ret>(void*)0xc0000000) || (ret+length>(void*)0xc0000000))) {
         // do not allow allocating memory that high for 32bits process
         box_munmap(ret, length);
