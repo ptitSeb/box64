@@ -663,11 +663,6 @@ void EXPORT x64Syscall_linux(x64emu_t *emu)
             if(S_RAX==-1)
                 S_RAX = -errno;
             break;
-        case 28: // sys_madvise
-            S_RAX = my_madvise(emu, (void*)R_RDI, R_RSI, S_EDX);
-            if(S_RAX==-1)
-                S_RAX = -errno;
-            break;
         case 13: // sys_rt_sigaction
             #if 1
             S_RAX = my_syscall_rt_sigaction(emu, S_EDI, (const x64_sigaction_restorer_t *)R_RSI, (x64_sigaction_restorer_t *)R_RDX, (size_t)R_R10);
@@ -719,6 +714,11 @@ void EXPORT x64Syscall_linux(x64emu_t *emu)
         #endif
         case 25: // sys_mremap
             R_RAX = (uintptr_t)my_mremap(emu, (void*)R_RDI, R_RSI, R_RDX, R_R10d, (void*)R_R8);
+            break;
+        case 28: // sys_madvise
+            S_RAX = my_madvise(emu, (void*)R_RDI, R_RSI, S_EDX);
+            if (S_RAX == -1)
+                S_RAX = -errno;
             break;
         #ifndef __NR_dup
         case 32: // sys_dup
@@ -1135,8 +1135,6 @@ long EXPORT my_syscall(x64emu_t *emu)
             return my_mprotect(emu, (void*)R_RSI, R_RDX, S_ECX);
         case 11: // sys_munmap
             return my_munmap(emu, (void*)R_RSI, R_RDX);
-        case 28: // sys_madvise
-            return my_madvise(emu, (void*)R_RSI, R_RDX, S_ECX);
         case 13: // sys_rt_sigaction
             #if 1
             return my_syscall_rt_sigaction(emu, S_ESI, (const x64_sigaction_restorer_t *)R_RDX, (x64_sigaction_restorer_t *)R_RCX, (size_t)R_R8);
@@ -1176,6 +1174,8 @@ long EXPORT my_syscall(x64emu_t *emu)
         #endif
         case 25: // sys_mremap
             return (intptr_t)my_mremap(emu, (void*)R_RSI, R_RDX, R_RCX, R_R8d, (void*)R_R9);
+        case 28: // sys_madvise
+            return my_madvise(emu, (void*)R_RSI, R_RDX, S_ECX);
         #ifndef __NR_dup
         case 32:
             return dup(S_ESI);
