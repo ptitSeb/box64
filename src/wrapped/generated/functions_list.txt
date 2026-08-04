@@ -5485,7 +5485,9 @@ wrappedlibc:
   - _ZGTtdlPv
   - __cxa_finalize
 - iFv:
+  - __getpagesize
   - fork
+  - getpagesize
   - sched_getcpu
   - vfork
 - iFi:

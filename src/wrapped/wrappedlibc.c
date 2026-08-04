@@ -4867,7 +4867,16 @@ __attribute__((weak)) int dn_skipname(const unsigned char* ptr, const unsigned c
 #ifndef _SC_NPROCESSORS_CONF
 #define _SC_NPROCESSORS_CONF    83
 #endif
+EXPORT int my_getpagesize(x64emu_t* emu) {
+    (void)emu;
+    return X86_PAGE_SIZE;
+}
+EXPORT int my___getpagesize(x64emu_t* emu) __attribute__((alias("my_getpagesize")));
+
 EXPORT long my_sysconf(x64emu_t* emu, int what) {
+    if(what==_SC_PAGESIZE) {
+        return X86_PAGE_SIZE;
+    }
     if(what==_SC_NPROCESSORS_ONLN) {
         return box64_sysinfo.box64_ncpu;
     }

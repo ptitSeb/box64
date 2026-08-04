@@ -124,7 +124,7 @@ void SetupInitialStack(x64emu_t *emu)
     Push64(emu, (uintptr_t)main->PHEntries._64); Push64(emu, 3);                          //AT_PHDR(3)=address of the PH of the executable
     Push64(emu, sizeof(Elf64_Phdr)); Push64(emu, 4);                          //AT_PHENT(4)=size of PH entry
     Push64(emu, main->numPHEntries); Push64(emu, 5);                          //AT_PHNUM(5)=number of elf headers
-    Push64(emu, box64_pagesize); Push64(emu, 6);            //AT_PAGESZ(6)
+    Push64(emu, X86_PAGE_SIZE); Push64(emu, 6);             //AT_PAGESZ(6)
     //Push64(emu, real_getauxval(7)); Push64(emu, 7);         //AT_BASE(7)=ld-2.27.so start (in memory)
     Push64(emu, 0); Push64(emu, 8);                         //AT_FLAGS(8)=0
     Push64(emu, R_RIP); Push64(emu, 9);                     //AT_ENTRY(9)=entrypoint
