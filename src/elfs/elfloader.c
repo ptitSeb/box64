@@ -360,6 +360,7 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
                 size_t asize = ALIGN(e->p_memsz + (head->multiblocks[n].paddr - paddr));
                 void* p = MAP_FAILED;
                 int mapped_file = 0;
+                size_t file_read_size = e->p_filesz;
                 // unaligned segments can still be file-backed mapped when their address and file offsets have the same page offset
                 uintptr_t file_delta = head->multiblocks[n].paddr - paddr;
                 size_t file_size = ALIGN(e->p_filesz + file_delta);
@@ -368,10 +369,24 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
                     e->p_filesz == e->p_memsz &&                                                // no BSS
                     ((head->multiblocks[n].paddr ^ e->p_offset) & (box64_pagesize - 1)) == 0 && // the virtual address and the file offset have the same page offset
                     file_size <= asize) {
-                    p = InternalMmap((void*)paddr, file_size, prot, MAP_PRIVATE | MAP_FIXED, head->fileno, file_offset);
-                    mapped_file = p == (void*)paddr;
+                    uintptr_t file_map_addr = paddr;
+                    while(file_map_addr < head->multiblocks[n].paddr + e->p_filesz && getProtection(file_map_addr))
+                        file_map_addr += box64_pagesize;
+                    if(file_map_addr < head->multiblocks[n].paddr + e->p_filesz) {
+                        size_t file_map_delta = file_map_addr - paddr;
+                        void* file_map = InternalMmap((void*)file_map_addr, file_size - file_map_delta, prot | PROT_WRITE, MAP_PRIVATE | MAP_FIXED, head->fileno, file_offset + file_map_delta);
+                        mapped_file = file_map == (void*)file_map_addr;
+                        if(mapped_file) {
+                            p = (void*)paddr;
+                            file_read_size = file_map_addr > head->multiblocks[n].paddr
+                                ? file_map_addr - head->multiblocks[n].paddr
+                                : 0;
+                            if(file_read_size > e->p_filesz)
+                                file_read_size = e->p_filesz;
+                        }
+                    }
                 }
-                if (!mapped_file && (asize == ALIGN(asize))) {
+                if (!mapped_file && !file_delta) {
                     printf_dump(log_level, "Allocating 0x%zx (0x%zx) bytes @%p, will read 0x%zx @%p for Elf \"%s\"\n", asize, e->p_memsz, (void*)paddr, e->p_filesz, (void*)head->multiblocks[n].paddr, head->name);
                     p = InternalMmap((void*)paddr, asize, prot | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
                 } else if (!mapped_file) {
@@ -415,20 +430,20 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
                 }
                 setProtection_elf((uintptr_t)p, asize, prot);
                 head->multiblocks[n].p = p;
-                if (e->p_filesz && !mapped_file) {
+                if (file_read_size) {
                     fseeko64(head->file, head->multiblocks[n].offs, SEEK_SET);
-                    if(fread((void*)head->multiblocks[n].paddr, head->multiblocks[n].size, 1, head->file)!=1) {
+                    if(fread((void*)head->multiblocks[n].paddr, file_read_size, 1, head->file)!=1) {
                         printf_log(LOG_NONE, "Cannot read elf block (@%p 0x%zx/0x%zx) for elf \"%s\"\n", (void*)head->multiblocks[n].offs, head->multiblocks[n].asize, (box64_pagesize - 1), head->name);
                         return 1;
                     }
                 }
             }
-#ifdef DYNAREC
+            #ifdef DYNAREC
             if(BOX64ENV(dynarec) && (e->p_flags & PF_X)) {
                 dynarec_log(LOG_DEBUG, "Add ELF eXecutable Memory %p:%p\n", head->multiblocks[n].p, (void*)head->multiblocks[n].asize);
                 addDBFromAddressRange((uintptr_t)head->multiblocks[n].p, head->multiblocks[n].asize);
             }
-#endif
+            #endif
             if((uintptr_t)head->memory>(uintptr_t)head->multiblocks[n].p)
                 head->memory = (char*)head->multiblocks[n].p;
             ++n;
