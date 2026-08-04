@@ -101,7 +101,7 @@ void SetupInitialStack32(x64emu_t *emu)
     Push32_32(emu, (uintptr_t)main->PHEntries._32); Push32_32(emu, 3);  //AT_PHDR(3)=address of the PH of the executable
     Push32_32(emu, sizeof(Elf32_Phdr)); Push32_32(emu, 4);              //AT_PHENT(4)=size of PH entry
     Push32_32(emu, main->numPHEntries); Push32_32(emu, 5);              //AT_PHNUM(5)=number of elf headers
-    Push32_32(emu, box64_pagesize); Push32_32(emu, 6);                  //AT_PAGESZ(6)
+    Push32_32(emu, X86_PAGE_SIZE); Push32_32(emu, 6);                   //AT_PAGESZ(6)
     //Push32_32(emu, real_getauxval(7)); Push32_32(emu, 7);             //AT_BASE(7)=ld-2.27.so start (in memory)
     Push32_32(emu, 0); Push32_32(emu, 8);                               //AT_FLAGS(8)=0
     Push32_32(emu, R_EIP); Push32_32(emu, 9);                           //AT_ENTRY(9)=entrypoint
