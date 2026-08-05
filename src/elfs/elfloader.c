@@ -1052,7 +1052,7 @@ static void applyElfRelro64(elfheader_t* head)
 int RelocateElfPlt(lib_t *maplib, lib_t *local_maplib, int bindnow, int deepbind, elfheader_t* head)
 {
     int ret = box64_is32bits ? RelocateElfPlt32(maplib, local_maplib, bindnow, deepbind, head) : RelocateElfPlt64(maplib, local_maplib, bindnow, deepbind, head);
-    if (!ret && !box64_is32bits && head->numDynamic) applyElfRelro64(head);
+    if (!ret && !box64_is32bits && head->numDynamic && (head->lib || hasElfInterp(head))) applyElfRelro64(head);
     return ret;
 }
 

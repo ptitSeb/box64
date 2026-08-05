@@ -122,7 +122,7 @@ void AddSymbols32(lib_t *maplib, elfheader_t* h)
     // if(BOX64ENV(dump) && h->hash)   old_elf_hash_dump(h);
     // if(BOX64ENV(dump) && h->gnu_hash)   new_elf_hash_dump(h);
     if (BOX64ENV(dump) && h->DynSym._32) DumpDynSym32(h);
-    if(h==my_context->elfs[0]) 
+    if(h==my_context->elfs[0])
         GrabX32CopyMainElfReloc(h);
     #ifndef STATICBUILD
     checkHookedSymbols(h);
@@ -137,7 +137,7 @@ int AllocLoadElfMemory32(box64context_t* context, elfheader_t* head, int mainbin
 
     head->multiblock_n = 0; // count PHEntrie with LOAD
     uintptr_t max_align = (box64_pagesize-1);
-    for (size_t i=0; i<head->numPHEntries; ++i) 
+    for (size_t i=0; i<head->numPHEntries; ++i)
         if(head->PHEntries._32[i].p_type == PT_LOAD && head->PHEntries._32[i].p_flags) {
             ++head->multiblock_n;
         }
@@ -231,8 +231,8 @@ int AllocLoadElfMemory32(box64context_t* context, elfheader_t* head, int mainbin
             if(try_mmap) {
                 printf_dump(log_level, "Mmaping 0x%lx(0x%lx) bytes @%p for Elf \"%s\"\n", head->multiblocks[n].size, head->multiblocks[n].asize, (void*)head->multiblocks[n].paddr, head->name);
                 void* p = mmap64(
-                    (void*)head->multiblocks[n].paddr, 
-                    head->multiblocks[n].size, 
+                    (void*)head->multiblocks[n].paddr,
+                    head->multiblocks[n].size,
                     prot,
                     MAP_PRIVATE|MAP_FIXED, //((prot&PROT_WRITE)?MAP_SHARED:MAP_PRIVATE)|MAP_FIXED,
                     head->fileno,
@@ -310,7 +310,7 @@ int AllocLoadElfMemory32(box64context_t* context, elfheader_t* head, int mainbin
                             p = (void*)paddr;
                     } else {
                         p = (void*)paddr;
-                        printf_dump(log_level, "Will read 0x%zx @%p for Elf \"%s\"\n", e->p_filesz, (void*)head->multiblocks[n].paddr, head->name);    
+                        printf_dump(log_level, "Will read 0x%zx @%p for Elf \"%s\"\n", e->p_filesz, (void*)head->multiblocks[n].paddr, head->name);
                     }
                 }
                 if(p==MAP_FAILED || p!=(void*)paddr) {
@@ -404,7 +404,7 @@ static elfheader_t* FindElfSymbol(box64context_t *context, Elf32_Sym* sym)
     for (int i=0; i<context->elfsize; ++i)
         if(IsSymInElfSpace(context->elfs[i], sym))
             return context->elfs[i];
-    
+
     return NULL;
 }
 
@@ -574,8 +574,8 @@ static int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, int bindnow, int d
             case R_386_GLOB_DAT:
                 if(GetSymbolStartEnd(my_context->globdata, symname, &globoffs, &globend, version, vername, 1, veropt)) {
                     globp = (uint32_t*)globoffs;
-                    printf_dump(LOG_NEVER, "Apply %s R_386_GLOB_DAT with R_386_COPY @%p/%p (%p/%p -> %p/%p) size=%d on sym=%s (%sver=%d/%s) \n", 
-                        BindSymFriendly(bind), p, globp, from_ptrv(p?(*p):0), 
+                    printf_dump(LOG_NEVER, "Apply %s R_386_GLOB_DAT with R_386_COPY @%p/%p (%p/%p -> %p/%p) size=%d on sym=%s (%sver=%d/%s) \n",
+                        BindSymFriendly(bind), p, globp, from_ptrv(p?(*p):0),
                         from_ptrv(globp?(*globp):0), (void*)offs, (void*)globoffs, sym->st_size, symname, veropt?"opt":"", version, vername?vername:"(none)");
                     sym_elf = my_context->elfs[0];
                     *p = globoffs;
@@ -593,9 +593,9 @@ static int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, int bindnow, int d
             case R_386_JMP_SLOT:
                 // apply immediatly for gobject closure marshal or for LOCAL binding. Also, apply immediatly if it doesn't jump in the got
                 tmp = (uintptr_t)(*p);
-                if (bind==STB_LOCAL 
-                  || ((symname && strstr(symname, "g_cclosure_marshal_")==symname)) 
-                  || ((symname && strstr(symname, "__pthread_unwind_next")==symname)) 
+                if (bind==STB_LOCAL
+                  || ((symname && strstr(symname, "g_cclosure_marshal_")==symname))
+                  || ((symname && strstr(symname, "__pthread_unwind_next")==symname))
                   || !tmp
                   || !((tmp>=head->plt && tmp<head->plt_end) || (tmp>=head->gotplt && tmp<head->gotplt_end))
                   || !need_resolv
@@ -835,7 +835,7 @@ int RelocateElfPlt32(lib_t *maplib, lib_t *local_maplib, int bindnow, int deepbi
             }
         }
     }
-    if(head->numDynamic) applyElfRelro32(head);
+    if(head->numDynamic && (head->lib || hasElfInterp(head))) applyElfRelro32(head);
     return 0;
 }
 
