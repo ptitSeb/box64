@@ -313,13 +313,6 @@ Skip N first CPU cores (Is apply before MAXCPU) 在 WowBox64 中可用。
  * 0: 模拟某个 Intel CPU 型号。 [默认值]
  * 1: 模拟某个 AMD CPU 型号。
 
-### BOX64_CRASHHANDLER
-
-是否使用模拟的 crashhandler.so 库。
-
- * 0: 在需要时使用模拟的 crashhandler.so 库。
- * 1: 使用内部定义的空 crashhandler.so 库。 [默认值]
-
 ### BOX64_DYNAREC_BLEEDING_EDGE
 
 检测 MonoBleedingEdge 并应用保守设置（仅 Linux）。

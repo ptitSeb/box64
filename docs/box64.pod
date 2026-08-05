@@ -118,14 +118,6 @@ Specify the CPU type to emulate. Available in WowBox64.
  * 1 : Emulate a AMD CPU Model. 
 
 
-=item B<BOX64_CRASHHANDLER> =I<0|1>
-
-Use a dummy crash handler or not.
-
- * 0 : Use emulated crashhandler.so library if needed. 
- * 1 : Use an internal dummy (empty) crashhandler.so library. [Default]
-
-
 =item B<BOX64_DLSYM_ERROR> =I<0|1>
 
 Enable or disable the logging of dlsym errors.

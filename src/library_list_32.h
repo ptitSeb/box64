@@ -120,7 +120,6 @@ GO("libpulse-simple.so.0", pulsesimple)
 GO("libpulse-simple.so", pulsesimple)
 
 
-//GO("crashhandler.so", crashhandler)
 GO("libtcmalloc_minimal.so.0", tcmallocminimal)
 GO("libtcmalloc_minimal.so.4", tcmallocminimal)
 GO("libtcmalloc.so.0", tcmallocminimal)

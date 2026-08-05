@@ -49,7 +49,6 @@ static const char default_rcfile[] =
 "BOX64_EMULATED_LIBS=libSDL2-2.0.so.0\n"
 "\n"
 "[dota2]\n"
-"BOX64_CRASHHANDLER=1\n"
 "BOX64_DYNAREC_STRONGMEM=1\n"
 "\n"
 "[factorio]\n"

@@ -2263,7 +2263,6 @@ wrappedcairo:
 - pFXLpii:
   - cairo_xlib_surface_create
   - cairo_xlib_surface_create_for_bitmap
-wrappedcrashhandler:
 wrappedcurl:
 - iFpup:
   - curl_multi_setopt

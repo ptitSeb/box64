@@ -95,7 +95,7 @@ set -- libc libpthread librt libGL libX11 libasound libdl libm libbsd libutil \
   libxcb-xfixes libxcb-shape libxcb-shm libxcb-randr libxcb-image \
   libxcb-keysyms libxcb-xtest libxcb-glx libxcb-dri2 libxcb-dri3 libXtst libXt \
   libXcomposite libXdamage libXmu libxkbcommon libxkbcommon-x11 \
-  libpulse-simple libpulse libvulkan ld-linux-x86-64 crashhandler \
+  libpulse-simple libpulse libvulkan ld-linux-x86-64 \
   libtcmalloc_minimal libanl ld-linux libthread_db
 for file in "$@"; do
     rm -f "${dir_tmp}"/bundle-libs/usr/lib/box64-*-linux-gnu/"${file}".so*

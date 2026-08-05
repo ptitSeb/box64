@@ -220,12 +220,12 @@ elseif(SD8G2)
 elseif(SD8EG5)
     add_definitions(-DSD8EG5)
     # NOTE
-    # Even though Qualcomm Snapdragon 8 Elite Gen 5 relies on 3rd generation Oryon cores, it seems like the support for them 
+    # Even though Qualcomm Snapdragon 8 Elite Gen 5 relies on 3rd generation Oryon cores, it seems like the support for them
     # is not yet present in GCC and Clang, so for now we will use mostly the same optimization flags as SDORYON1, which houses
-    # 1st generation Oryon cores. This should still be fine since the main difference between the 
+    # 1st generation Oryon cores. This should still be fine since the main difference between the
     # two is the presence of SVE and SVE2, which are not yet used in Box64's ARM64 dynarec.
     #
-    # As noted in the SDORYON1 section, GCC 14 and Clang 19 support oryon-1 as a -mcpu/-mtune argument, however it seems like 
+    # As noted in the SDORYON1 section, GCC 14 and Clang 19 support oryon-1 as a -mcpu/-mtune argument, however it seems like
     # Fedora does not like them very much, so this option should be taken with a grain of salt. It worked in my test case just fine.
     set(CFLAGS -pipe -march=armv8.7-a+crypto+sm4+sha3+fp16+sve+sve2 -mtune=oryon-1)
 elseif(SDORYON1)
@@ -607,7 +607,6 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedcuda.c"
     "${BOX64_ROOT}/src/wrapped/wrappedcairo.c"
     "${BOX64_ROOT}/src/wrapped/wrappedcairogobject.c"
-    "${BOX64_ROOT}/src/wrapped/wrappedcrashhandler.c"
     "${BOX64_ROOT}/src/wrapped/wrappedcrypto.c"
     "${BOX64_ROOT}/src/wrapped/wrappedcrypto3.c"
     "${BOX64_ROOT}/src/wrapped/wrappedcurl.c"
@@ -938,7 +937,6 @@ if(BOX32)
         "${BOX64_ROOT}/src/wrapped32/wrappedlibpthread.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedlibrt.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedlibresolv.c"
-        "${BOX64_ROOT}/src/wrapped32/wrappedcrashhandler.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedlibgl.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedlibglu.c"
         "${BOX64_ROOT}/src/wrapped32/wrappedlibglxnvidia.c"
@@ -1616,7 +1614,7 @@ if(WOW64 AND ARM_DYNAREC)
     ExternalProject_Add(
         wowbox64
         SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/wine/wow64"
-        CMAKE_ARGS 
+        CMAKE_ARGS
             -DCMAKE_TOOLCHAIN_FILE=${CMAKE_CURRENT_SOURCE_DIR}/wine/toolchain_mingw.cmake
             -DDYNAREC_PASS_STR=${DYNAREC_PASS_STR}
             -DDYNAREC_ASM_STR=${DYNAREC_ASM_STR}
