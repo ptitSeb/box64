@@ -808,7 +808,15 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     // i = 0
                     FLD(d0, wback, fixedaddress);
                     FEQD(x4, d0, d0);
-                    BNEZ(x4, 8);
+                    BNEZ(x4, BOX64ENV(dynarec_fastnan) ? 8 : (7 * 4));
+                    if (!BOX64ENV(dynarec_fastnan)) {
+                        // sNaN -> qNaN, d0 |= (0x1 << 51)
+                        FMVXD(x3, d0);
+                        ADDI(x4, xZR, 1);
+                        SLLI(x4, x4, 51);
+                        OR(x3, x3, x4);
+                        FMVDX(d0, x3);
+                    }
                     B_MARK_nocond;
                     // d0 is not nan
                     FABSD(v1, d0);
@@ -837,8 +845,17 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     // i = 1
                     FLD(d0, wback, fixedaddress + 8);
                     FEQD(x4, d0, d0);
-                    BNEZ(x4, 8);
+                    BNEZ(x4, BOX64ENV(dynarec_fastnan) ? 8 : (7 * 4));
+                    if (!BOX64ENV(dynarec_fastnan)) {
+                        // sNaN -> qNaN, d0 |= (0x1 << 51)
+                        FMVXD(x3, d0);
+                        ADDI(x4, xZR, 1);
+                        SLLI(x4, x4, 51);
+                        OR(x3, x3, x4);
+                        FMVDX(d0, x3);
+                    }
                     B_MARK2_nocond;
+
                     // d0 is not nan
                     FABSD(v1, d0);
                     FLTD(x4, v1, d1);
