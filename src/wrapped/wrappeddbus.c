@@ -682,7 +682,9 @@ EXPORT void* my_dbus_message_new_error_printf(x64emu_t* emu, void* to, void* nam
     myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 1);
     PREPARE_VALIST;
     char* buff = NULL;
-    vasprintf(&buff, (char*)fmt, VARARGS);
+    int va = vasprintf(&buff, (char*)fmt, VARARGS);
+    if ((va < 0) || !buff)
+        return NULL;
     void* ret = my->dbus_message_new_error(to, name, buff);
     free(buff);
     return ret;

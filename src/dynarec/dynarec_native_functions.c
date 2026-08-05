@@ -945,7 +945,7 @@ void x64disas_add_register_mapping_annotations(char* buf, const char* disas, con
     tmp[0] = '\0';
     int len = 0;
     // skip the mnemonic
-    char* p = strchr(disas, ' ');
+    const char* p = strchr(disas, ' ');
     if (!p) {
         sprintf(buf, "%s", disas);
         return;

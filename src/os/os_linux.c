@@ -225,14 +225,16 @@ void PrintfFtrace(int prefix, const char* fmt, ...)
         } else {
             sprintf(tmp, "[%s] ", names[box64_is32bits]);
         }
-        write(trace_fd, tmp, strlen(tmp));
+        int w = write(trace_fd, tmp, strlen(tmp));
+        (void)w;
     }
     va_list args;
     va_start(args, fmt);
     vsprintf(tmp, fmt, args);
     fflush(ftrace);
     va_end(args);
-    write(trace_fd, tmp, strlen(tmp));
+    int w = write(trace_fd, tmp, strlen(tmp));
+    (void)w;
 }
 
 void* GetEnv(const char* name)

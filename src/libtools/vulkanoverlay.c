@@ -923,7 +923,7 @@ void* LoadVulkanOverlay(const char* path, int flags)
         globfree(&pglob);
         int whitelist = 0;
         if(!json) {
-            char* p = strrchr(path, '/');
+            const char* p = strrchr(path, '/');
             if(!p) p = (char*)path; else ++p;
             if(!strcmp(p, "libvk_swiftshader.so"))
                 whitelist = 1;
