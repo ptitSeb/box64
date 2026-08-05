@@ -847,6 +847,23 @@ void my32_sigactionhandler(int32_t sig, siginfo_t* info, void * ucntx)
     my_sigactionhandler_oldcode_32(emu, sig, 0, info, ucntx, NULL, db);
 }
 
+static int is_box64_signal_32(int signum)
+{
+    return signum == X64_SIGSEGV || signum == X64_SIGBUS || signum == X64_SIGILL || signum == X64_SIGABRT;
+}
+
+static void fill_emulated_sigaction_32(i386_sigaction_t *oldact, int signum, uintptr_t handler)
+{
+    memset(oldact, 0, sizeof(*oldact));
+    oldact->sa_flags = my_context->sigflags[signum];
+    oldact->sa_mask = my_context->sigmask[signum];
+    oldact->sa_restorer = to_ptr(my_context->restorer[signum]);
+    if(my_context->is_sigaction[signum])
+        oldact->_u._sa_sigaction = to_ptr(handler);
+    else
+        oldact->_u._sa_handler = to_ptr(handler);
+}
+
 
 EXPORT int my32_sigaction(x64emu_t* emu, int signum, const i386_sigaction_t *act, i386_sigaction_t *oldact)
 {
@@ -864,7 +881,12 @@ EXPORT int my32_sigaction(x64emu_t* emu, int signum, const i386_sigaction_t *act
     struct sigaction newact = {0};
     struct sigaction old = {0};
     uintptr_t old_handler = my_context->signals[signum];
+    int box64_signal = is_box64_signal_32(signum);
+    if(oldact && box64_signal)
+        fill_emulated_sigaction_32(oldact, signum, old_handler);
     if(act) {
+        my_context->sigflags[signum] = act->sa_flags;
+        my_context->sigmask[signum] = act->sa_mask;
         newact.sa_mask = act->sa_mask;
         newact.sa_flags = act->sa_flags&~0x04000000;  // No sa_restorer...
         if(act->sa_flags&0x04) {
@@ -887,9 +909,9 @@ EXPORT int my32_sigaction(x64emu_t* emu, int signum, const i386_sigaction_t *act
         my_context->onstack[signum] = (act->sa_flags&SA_ONSTACK)?1:0;
     }
     int ret = 0;
-    if(signum!=X64_SIGSEGV && signum!=X64_SIGBUS && signum!=X64_SIGILL && signum!=X64_SIGABRT)
+    if(!box64_signal)
         ret = sigaction(signal_from_x64(signum), act?&newact:NULL, oldact?&old:NULL);
-    if(oldact) {
+    if(oldact && !box64_signal) {
         oldact->sa_flags = old.sa_flags;
         oldact->sa_mask = old.sa_mask;
         if(old.sa_flags & 0x04)
