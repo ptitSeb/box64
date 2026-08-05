@@ -95,7 +95,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             CSRRS(x3, xZR, 0xC01); // RDTIME
                         }
                         if (box64_rdtsc_shift) {
-                            SRLI(x3, x3, box64_rdtsc_shift);
+                            SLLI(x3, x3, box64_rdtsc_shift);
                         }
                         SRLI(xRDX, x3, 32);
                         ZEXTW2(xRAX, x3); // wipe upper part
@@ -481,7 +481,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 CSRRS(x3, xZR, 0xC01); // RDTIME
             }
             if (box64_rdtsc_shift) {
-                SRLI(x3, x3, box64_rdtsc_shift);
+                SLLI(x3, x3, box64_rdtsc_shift);
             }
             SRLI(xRDX, x3, 32);
             ZEXTW2(xRAX, x3); // wipe upper part
