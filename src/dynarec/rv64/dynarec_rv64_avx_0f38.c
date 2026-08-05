@@ -67,7 +67,7 @@ uintptr_t dynarec64_AVX_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, 
                 ANDN(gd, ed, vd);
             } else {
                 NOT(x5, vd);
-                AND(gd, ed, vd);
+                AND(gd, ed, x5);
             }
             if (!rex.w) {
                 ZEROUP(gd);
@@ -187,12 +187,11 @@ uintptr_t dynarec64_AVX_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, 
             BGE_MARK(x4, x5);
             ADDI(x6, xZR, -1);
             SLL(x6, x6, x4);
-            ANDN(gd, ed, x6);
             if (cpuext.zbb) {
                 ANDN(gd, ed, x6);
             } else {
                 NOT(x6, x6);
-                AND(gd, ed, vd);
+                AND(gd, ed, x6);
             }
             B_MARK2_nocond;
             MARK;
