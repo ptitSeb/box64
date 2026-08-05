@@ -4311,7 +4311,6 @@ wrappedcairo:
   - cairo_surface_set_mime_data
 wrappedcairogobject:
 wrappedcap:
-wrappedcrashhandler:
 wrappedcrypto:
 - vFp:
   - CRYPTO_set_id_callback

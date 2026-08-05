@@ -57,13 +57,6 @@
       "1": "模拟某个 AMD CPU 型号。"
     }
   },
-  "BOX64_CRASHHANDLER": {
-    "description": "是否使用模拟的 crashhandler.so 库。",
-    "options": {
-      "0": "在需要时使用模拟的 crashhandler.so 库。",
-      "1": "使用内部定义的空 crashhandler.so 库。"
-    }
-  },
   "BOX64_DLSYM_ERROR": {
     "description": "启用或禁用 dlsym 错误的日志记录。",
     "options": {

@@ -312,13 +312,6 @@ Specify the CPU type to emulate. Available in WowBox64.
  * 0: Emulate a Intel CPU Model. [Default]
  * 1: Emulate a AMD CPU Model.
 
-### BOX64_CRASHHANDLER
-
-Use a dummy crash handler or not.
-
- * 0: Use emulated crashhandler.so library if needed.
- * 1: Use an internal dummy (empty) crashhandler.so library. [Default]
-
 ### BOX64_DYNAREC_BLEEDING_EDGE
 
 Detect MonoBleedingEdge and apply conservative settings (Linux only).

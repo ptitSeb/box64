@@ -111,7 +111,7 @@ int NbDot(const char* name)
 
 void WrappedLib_CommonInit(library_t *lib) {
     lib->w.bridge = NewBridge();
-    
+
     lib->w.symbolmap = kh_init(symbolmap);
     lib->w.wsymbolmap = kh_init(symbolmap);
     lib->w.mysymbolmap = kh_init(symbolmap);
@@ -436,7 +436,7 @@ static void initEmulatedLib(const char* path, library_t *lib, box64context_t* co
             strcat(libname, path);
             if(box64_is32bits?FileIsX86ELF(libname):FileIsX64ELF(libname))
                 if(loadEmulatedLib(libname, lib, context, verneeded))
-                    return;            
+                    return;
         }
     }
 }
@@ -454,15 +454,15 @@ static void initDummyLib(library_t *lib)
 }
 
 static const char* essential_libs[] = {
-    "libc.so.6", "libpthread.so.0", "librt.so.1", "libGL.so.1", "libGL.so", "libX11.so.6", 
-    "libasound.so.2", "libdl.so.2", "libm.so.6", "libbsd.so.0", "libutil.so.1", "libresolv.so.2", "libresolv.so", 
+    "libc.so.6", "libpthread.so.0", "librt.so.1", "libGL.so.1", "libGL.so", "libX11.so.6",
+    "libasound.so.2", "libdl.so.2", "libm.so.6", "libbsd.so.0", "libutil.so.1", "libresolv.so.2", "libresolv.so",
     "libXxf86vm.so.1", "libXinerama.so.1", "libXrandr.so.2", "libXext.so.6", "libXfixes.so.3", "libXcursor.so.1",
     "libXrender.so.1", "libXft.so.2", "libXi.so.6", "libXss.so.1", "libXpm.so.4", "libXau.so.6", "libXdmcp.so.6",
     "libX11-xcb.so.1", "libxcb.so.1", "libxcb-xfixes.so.0", "libxcb-shape.so.0", "libxcb-shm.so.0", "libxcb-randr.so.0",
     "libxcb-image.so.0", "libxcb-keysyms.so.1", "libxcb-xtest.so.0", "libxcb-glx.so.0", "libxcb-dri2.so.0", "libxcb-dri3.so.0",
-    "libXtst.so.6", "libXt.so.6", "libXcomposite.so.1", "libXdamage.so.1", "libXmu.so.6", "libxkbcommon.so.0", 
+    "libXtst.so.6", "libXt.so.6", "libXcomposite.so.1", "libXdamage.so.1", "libXmu.so.6", "libxkbcommon.so.0",
     "libxkbcommon-x11.so.0", "libpulse-simple.so.0", "libpulse.so.0", "libvulkan.so.1", "libvulkan.so",
-    "ld-linux-x86-64.so.2", "crashhandler.so", "libtcmalloc_minimal.so.0", "libtcmalloc_minimal.so.4", "libanl.so.1",
+    "ld-linux-x86-64.so.2", "libtcmalloc_minimal.so.0", "libtcmalloc_minimal.so.4", "libanl.so.1",
     "ld-linux.so.2", "ld-linux.so.3", "libthread_db.so.1"
 };
 static const char* essential_libs_egl[] = {
@@ -737,7 +737,7 @@ char* GetNameLib(library_t* lib)
 int IsSameLib(library_t* lib, const char* path)
 {
     int ret = 0;
-    if(!lib) 
+    if(!lib)
         return 0;
     if(lib->type==LIB_UNNKNOW)
         return 0;
@@ -1074,7 +1074,7 @@ static int getSymbolInSymbolMaps(library_t*lib, const char* name, int noweak, ui
         }
     }
     // check in symbol2map
-    // 
+    //
     // NOTE: symbol2map & symbolmap share the same hash function, so we can use the same hash
     k = kh_get_with_hash(symbol2map, lib->w.symbol2map, name, hash);
     if (k!=kh_end(lib->w.symbol2map))  {

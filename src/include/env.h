@@ -45,7 +45,6 @@ extern char* ftrace_name;
     STRING(BOX64_BASH, bash, 0, 0)                                               \
     STRING(BOX64_PYTHON3, python3, 0, 0)                                         \
     INTEGER(BOX64_CPUTYPE, cputype, 0, 0, 1, 1, 1)                               \
-    BOOLEAN(BOX64_CRASHHANDLER, dummy_crashhandler, 1, 0, 0)                     \
     BOOLEAN(BOX64_DLSYM_ERROR, dlsym_error, 0, 0, 0)                             \
     BOOLEAN(BOX64_DUMP, dump, 0, 1, 0)                                           \
     BOOLEAN(BOX64_DYNAREC_ALIGNED_ATOMICS, dynarec_aligned_atomics, 0, 1, 1)     \
