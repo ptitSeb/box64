@@ -3654,63 +3654,116 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, size_t length, int prot, int f
     (void)emu;
     if(BOX64ENV(dynarec_log)>=LOG_DEBUG) {printf_log(LOG_NONE, "mmap64(%p, 0x%zx, 0x%x, 0x%x, %d, %zd) ", addr, length, prot, flags, fd, offset);}
 
-    // 1. non4k pagesize
-    // 2. fixed and anonymous mapping
-    // 3. PROT_NONE
-    // 4. small and unaligned to host pagesize
-    // 5. start and end both belongs to existing map
-    // --> the application is trying to place some 4k PROT_NONE canary page in between!
-    //     that's not gonna work on larger pagesize host no matter how, so just return success and do nothing.
     uintptr_t start = (uintptr_t)addr;
     uintptr_t end = start + length;
     uintptr_t mapped_end = (end + X86_PAGE_SIZE - 1) & ~(X86_PAGE_SIZE - 1);
-    if(box64_pagesize > X86_PAGE_SIZE && addr && length && end > start && !prot &&
-       (flags & MAP_FIXED) && (flags & MAP_ANONYMOUS) &&
-       ((start & (box64_pagesize - 1)) || (end & (box64_pagesize - 1))) &&
-       getProtection(start) && getProtection(end - 1)) {
-        return addr;
-    }
 
     void* ret;
     int e;
     uintptr_t host_start = start & ~(box64_pagesize - 1);
     uintptr_t host_end = (mapped_end + box64_pagesize - 1) & ~(box64_pagesize - 1);
+    int emulated_first_edge = 0;
+    int emulated_last_edge = 0;
+    uintptr_t first_edge_page = 0;
+    uintptr_t last_edge_page = 0;
+    uint32_t first_edge_prot = 0;
+    uint32_t last_edge_prot = 0;
 
-    // For Wine: a fixed anonymous guest mapping that fits inside an already existing host page.
-    // temporarily makes the whole host page writable, clears only the requested 4KB guest range,
-    // reports the mapping as successful
+    // For Wine: a guest MAP_FIXED mapping may only partially cover its first or last host page.
+    // replace all complete host pages normally, but preserve unrelated guest pages at the edges.
+    // the edge host pages retain the union of their old and new protections because the kernel cannot protect
+    // their 4k guest pages independently
     if(box64_pagesize > X86_PAGE_SIZE && addr && length && end > start && mapped_end >= end &&
        !(start & (X86_PAGE_SIZE - 1)) && (flags & MAP_FIXED) && (flags & MAP_ANONYMOUS) &&
-       (flags & MAP_PRIVATE) && !(flags & MAP_SHARED) && fd == -1 && !offset && prot &&
-       host_start == ((mapped_end - 1) & ~(box64_pagesize - 1)) &&
-       (start != host_start || mapped_end != host_start + box64_pagesize) &&
-       memExist(host_start) && memExist(host_start + box64_pagesize - 1)) {
-        uint32_t old_prot = getProtection(host_start);
-        int host_prot = prot | (old_prot & ~PROT_CUSTOM);
-        if(host_prot & PROT_WRITE) host_prot |= PROT_READ;
-        int write_prot = host_prot | PROT_READ | PROT_WRITE;
-        if(mprotect((void*)host_start, box64_pagesize, write_prot)) {
-            ret = MAP_FAILED;
-        } else {
-            memset(addr, 0, mapped_end - start);
-            if(write_prot != host_prot && mprotect((void*)host_start, box64_pagesize, host_prot))
-                ret = MAP_FAILED;
-            else {
-                prot = host_prot | (old_prot & PROT_CUSTOM);
-                ret = addr;
+       (flags & MAP_PRIVATE) && !(flags & MAP_SHARED) && fd == -1 && !offset && host_end &&
+       (start != host_start || mapped_end != host_end) &&
+       (start == host_start || (memExist(host_start) && memExist(host_start + box64_pagesize - 1))) &&
+       (mapped_end == host_end || (memExist(host_end - box64_pagesize) && memExist(host_end - 1)))) {
+        uintptr_t full_start = start == host_start ? start : host_start + box64_pagesize;
+        uintptr_t full_end = mapped_end & ~(box64_pagesize - 1);
+        int failed = 0;
+        int saved_errno = 0;
+
+        if(start != host_start) {
+            uint32_t old_prot = getProtection(host_start);
+            first_edge_page = host_start;
+            first_edge_prot = prot | old_prot;
+            int host_prot = first_edge_prot & ~PROT_CUSTOM;
+            if(host_prot & PROT_WRITE) host_prot |= PROT_READ;
+            if(mprotect((void*)host_start, box64_pagesize, host_prot | PROT_READ | PROT_WRITE)) {
+                failed = 1;
+                saved_errno = errno;
+            } else
+                emulated_first_edge = 1;
+        }
+
+        last_edge_page = host_end - box64_pagesize;
+        if(!failed && mapped_end != host_end && (!emulated_first_edge || last_edge_page != first_edge_page)) {
+            uint32_t old_prot = getProtection(last_edge_page);
+            last_edge_prot = prot | old_prot;
+            int host_prot = last_edge_prot & ~PROT_CUSTOM;
+            if(host_prot & PROT_WRITE) host_prot |= PROT_READ;
+            if(mprotect((void*)last_edge_page, box64_pagesize, host_prot | PROT_READ | PROT_WRITE)) {
+                failed = 1;
+                saved_errno = errno;
+            } else
+                emulated_last_edge = 1;
+        }
+
+        if(!failed && full_start < full_end &&
+           box_mmap((void*)full_start, full_end - full_start, prot, flags, fd, offset) == MAP_FAILED) {
+            failed = 1;
+            saved_errno = errno;
+        }
+
+        if(!failed) {
+            if(emulated_first_edge) {
+                uintptr_t edge_end = mapped_end < host_start + box64_pagesize ? mapped_end : host_start + box64_pagesize;
+                memset((void*)start, 0, edge_end - start);
+            }
+            if(mapped_end != host_end && (!emulated_first_edge || last_edge_page != first_edge_page)) {
+                uintptr_t edge_start = start > last_edge_page ? start : last_edge_page;
+                memset((void*)edge_start, 0, mapped_end - edge_start);
             }
         }
+
+        if(emulated_last_edge) {
+            int host_prot = last_edge_prot & ~PROT_CUSTOM;
+            if(host_prot & PROT_WRITE) host_prot |= PROT_READ;
+            if(mprotect((void*)last_edge_page, box64_pagesize, host_prot) && !failed) {
+                failed = 1;
+                saved_errno = errno;
+            }
+        }
+        if(emulated_first_edge) {
+            int host_prot = first_edge_prot & ~PROT_CUSTOM;
+            if(host_prot & PROT_WRITE) host_prot |= PROT_READ;
+            if(mprotect((void*)first_edge_page, box64_pagesize, host_prot) && !failed) {
+                failed = 1;
+                saved_errno = errno;
+            }
+        }
+
+        if(failed) {
+            ret = MAP_FAILED;
+            errno = saved_errno;
+        } else
+            ret = addr;
         e = errno;
     // Also For Wine: Wine loads PE sections into memory it has already reserved.
-    // On hosts with pages larger than 4K, mmap would corrupted adjacent reserved (BSS) memory,
-    // so copy only the 4K pages Wine requested.
+    // On hosts with pages larger than 4K, a guest-aligned address or file offset may be
+    // invalid for mmap, and rounding the end may overwrite adjacent reserved (BSS) memory.
+    // Zero the guest pages and copy the requested file bytes, matching Wine's fallback for
+    // PE sections with sector-aligned rather than page-aligned file offsets.
     } else if(box64_wine && box64_pagesize > X86_PAGE_SIZE && addr && length && end > start &&
-              mapped_end >= end && host_end && start == host_start && mapped_end != host_end &&
+              mapped_end >= end && host_end && !(start & (X86_PAGE_SIZE - 1)) &&
               (flags & MAP_FIXED) && (flags & MAP_PRIVATE) && !(flags & (MAP_SHARED | MAP_ANONYMOUS)) &&
               fd >= 0 && offset >= 0 && (prot & PROT_WRITE) &&
+              ((start | mapped_end | (uintptr_t)offset) & (box64_pagesize - 1)) &&
               is_writable_mapping(host_start, host_end) &&
-              can_copy_pe_mmap(fd, mapped_end - start, offset)) {
-        if(pread_mmap(fd, addr, mapped_end - start, offset))
+              can_copy_pe_mmap(fd, length, offset)) {
+        memset(addr, 0, mapped_end - start);
+        if(pread_mmap(fd, addr, length, offset))
             ret = MAP_FAILED;
         else
             ret = addr;
@@ -3788,6 +3841,18 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, size_t length, int prot, int f
             setProtection_mmap((uintptr_t)ret, length, prot);
         else
             setProtection_box((uintptr_t)ret, length, prot);
+        if(emulated_first_edge) {
+            if(emu)
+                setProtection_mmap(first_edge_page, box64_pagesize, first_edge_prot);
+            else
+                setProtection_box(first_edge_page, box64_pagesize, first_edge_prot);
+        }
+        if(emulated_last_edge) {
+            if(emu)
+                setProtection_mmap(last_edge_page, box64_pagesize, last_edge_prot);
+            else
+                setProtection_box(last_edge_page, box64_pagesize, last_edge_prot);
+        }
         if(addr && ret!=addr)
             e = EEXIST;
     }
@@ -3854,7 +3919,29 @@ EXPORT int my_munmap(x64emu_t* emu, void* addr, size_t length)
 {
     (void)emu;
     if((emu || box64_is32bits) && (BOX64ENV(log)>=LOG_DEBUG || BOX64ENV(dynarec_log)>=LOG_DEBUG)) {printf_log(LOG_NONE, "munmap(%p, 0x%lx)\n", addr, length);}
-    int ret = box_munmap(addr, length);
+    uintptr_t start = (uintptr_t)addr;
+    uintptr_t unmap_start = start;
+    size_t unmap_length = length;
+    int partial_host_pages = 0;
+
+    if(box64_pagesize > X86_PAGE_SIZE) {
+        if((start & (X86_PAGE_SIZE - 1)) || !length) {
+            errno = EINVAL;
+            return -1;
+        }
+
+        // HACK: we have to leave partial edge pages mapped.
+        uintptr_t guest_end = (start + length + X86_PAGE_SIZE - 1) & ~(X86_PAGE_SIZE - 1);
+        if((start & (box64_pagesize - 1)) || (guest_end & (box64_pagesize - 1))) {
+            uintptr_t host_start = (start + box64_pagesize - 1) & ~(box64_pagesize - 1);
+            uintptr_t host_end = guest_end & ~(box64_pagesize - 1);
+            unmap_start = host_start;
+            unmap_length = host_start < host_end ? host_end - host_start : 0;
+            partial_host_pages = 1;
+        }
+    }
+
+    int ret = unmap_length ? box_munmap((void*)unmap_start, unmap_length) : 0;
     int e = errno;
     #ifdef DYNAREC
     if(!ret) {
@@ -3871,7 +3958,10 @@ EXPORT int my_munmap(x64emu_t* emu, void* addr, size_t length)
     if(!ret) {
         last_mmap_addr[1-last_mmap_idx] = NULL;
         last_mmap_len[1-last_mmap_idx] = 0;
-        freeProtection((uintptr_t)addr, length);
+        if(!partial_host_pages)
+            freeProtection(start, length);
+        else if(unmap_length)
+            freeProtection(unmap_start, unmap_length);
         RemoveMapping((uintptr_t)addr, length);
     }
     errno = e;  // preseve errno

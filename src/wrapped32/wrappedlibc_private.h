@@ -551,8 +551,8 @@ GOW(get_nprocs, iEv)
 //GOM(getopt, iEipp)             //%noE
 GOM(getopt_long, iEipppp)      //%noE
 //GOM(getopt_long_only, iEipppp) //%noE
-GOW(getpagesize, iEv)
-GO(__getpagesize, iEv)
+GOWM(getpagesize, iEEv)
+GOM(__getpagesize, iEEv)
 GO(getpass, tEp)
 GOW(getpeername, iEipp)
 GOW(getpgid, iEi)

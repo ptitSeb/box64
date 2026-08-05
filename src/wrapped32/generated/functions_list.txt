@@ -2477,6 +2477,8 @@ wrappedlibc:
 - vFp:
   - _ZGTtdlPv
 - iEv:
+  - __getpagesize
+  - getpagesize
   - sched_getcpu
 - iEi:
   - __close_nocancel
