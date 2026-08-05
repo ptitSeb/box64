@@ -1355,6 +1355,37 @@ void my_sigactionhandler(int32_t sig, siginfo_t* info, void * ucntx)
     my_sigactionhandler_oldcode(emu, sig, 0, info, ucntx, NULL, db, x64pc);
 }
 #define MY_SIGHANDLER ((signum==X64_SIGSEGV || signum==X64_SIGBUS || signum==X64_SIGILL || signum==X64_SIGABRT)?my_box64signalhandler:my_sigactionhandler)
+
+static int is_box64_signal(int signum)
+{
+    return signum == X64_SIGSEGV || signum == X64_SIGBUS || signum == X64_SIGILL || signum == X64_SIGABRT;
+}
+
+static void fill_emulated_sigaction(x64_sigaction_t* oldact, int signum, uintptr_t handler)
+{
+    memset(oldact, 0, sizeof(*oldact));
+    oldact->sa_flags = my_context->sigflags[signum];
+    oldact->sa_mask = my_context->sigmask[signum];
+    oldact->sa_restorer = (void*)my_context->restorer[signum];
+    if (my_context->is_sigaction[signum])
+        oldact->_u._sa_sigaction = (void*)handler;
+    else
+        oldact->_u._sa_handler = (sighandler_t)handler;
+}
+
+static void fill_emulated_sigaction_restorer(x64_sigaction_restorer_t* oldact, int signum, uintptr_t handler, size_t sigsetsize)
+{
+    oldact->sa_flags = my_context->sigflags[signum];
+    oldact->sa_restorer = (void*)my_context->restorer[signum];
+    if (sigsetsize > sizeof(sigset_t))
+        sigsetsize = sizeof(sigset_t);
+    memcpy(&oldact->sa_mask, &my_context->sigmask[signum], sigsetsize);
+    if (my_context->is_sigaction[signum])
+        oldact->_u._sa_sigaction = (void*)handler;
+    else
+        oldact->_u._sa_handler = (sighandler_t)handler;
+}
+
 EXPORT sighandler_t my_signal(x64emu_t* emu, int signum, sighandler_t handler)
 {
     if(signum<0 || signum>MAX_SIGNAL)
@@ -1368,6 +1399,8 @@ EXPORT sighandler_t my_signal(x64emu_t* emu, int signum, sighandler_t handler)
     my_context->is_sigaction[signum] = 0;
     my_context->restorer[signum] = 0;
     my_context->onstack[signum] = 0;
+    my_context->sigflags[signum] = 0;
+    memset(&my_context->sigmask[signum], 0, sizeof(sigset_t));
 
     if(signum==X64_SIGSEGV || signum==X64_SIGBUS || signum==X64_SIGILL || signum==X64_SIGABRT)
         return 0;
@@ -1402,7 +1435,12 @@ int EXPORT my_sigaction(x64emu_t* emu, int signum, const x64_sigaction_t *act, x
     struct sigaction newact = {0};
     struct sigaction old = {0};
     uintptr_t old_handler = my_context->signals[signum];
+    int box64_signal = is_box64_signal(signum);
+    if (oldact && box64_signal)
+        fill_emulated_sigaction(oldact, signum, old_handler);
     if(act) {
+        my_context->sigflags[signum] = act->sa_flags;
+        my_context->sigmask[signum] = act->sa_mask;
         newact.sa_mask = act->sa_mask;
         newact.sa_flags = act->sa_flags&~0x04000000;  // No sa_restorer...
         if(act->sa_flags&0x04) {
@@ -1425,9 +1463,9 @@ int EXPORT my_sigaction(x64emu_t* emu, int signum, const x64_sigaction_t *act, x
         my_context->onstack[signum] = (act->sa_flags&SA_ONSTACK)?1:0;
     }
     int ret = 0;
-    if(signum!=X64_SIGSEGV && signum!=X64_SIGBUS && signum!=X64_SIGILL && signum!=X64_SIGABRT)
+    if (!box64_signal)
         ret = sigaction(signal_from_x64(signum), act?&newact:NULL, oldact?&old:NULL);
-    if(oldact) {
+    if (oldact && !box64_signal) {
         oldact->sa_flags = old.sa_flags;
         oldact->sa_mask = old.sa_mask;
         if(old.sa_flags & 0x04)
@@ -1453,14 +1491,21 @@ int EXPORT my_syscall_rt_sigaction(x64emu_t* emu, int signum, const x64_sigactio
 
     if(signum==X64_SIGSEGV && emu->context->no_sigsegv)
         return 0;
+    size_t emulated_sigsetsize = sigsetsize > 0 ? (size_t)sigsetsize : 0;
+    if (emulated_sigsetsize > sizeof(sigset_t))
+        emulated_sigsetsize = sizeof(sigset_t);
     // TODO, how to handle sigsetsize>4?!
     if(signum==32 || signum==33) {
         // cannot use libc sigaction, need to use syscall!
         struct kernel_sigaction newact = {0};
         struct kernel_sigaction old = {0};
+        size_t kernel_sigsetsize = emulated_sigsetsize > 16 ? 16 : emulated_sigsetsize;
         if(act) {
             printf_log(LOG_DEBUG, " New (kernel) action flags=0x%x mask=0x%lx\n", act->sa_flags, *(uint64_t*)&act->sa_mask);
-            memcpy(&newact.sa_mask, &act->sa_mask, (sigsetsize>16)?16:sigsetsize);
+            my_context->sigflags[signum] = act->sa_flags;
+            memset(&my_context->sigmask[signum], 0, sizeof(sigset_t));
+            memcpy(&my_context->sigmask[signum], &act->sa_mask, emulated_sigsetsize);
+            memcpy(&newact.sa_mask, &act->sa_mask, kernel_sigsetsize);
             newact.sa_flags = act->sa_flags&~0x04000000;  // No sa_restorer...
             if(act->sa_flags&0x04) {
                 my_context->signals[signum] = (uintptr_t)act->_u._sa_sigaction;
@@ -1481,17 +1526,13 @@ int EXPORT my_syscall_rt_sigaction(x64emu_t* emu, int signum, const x64_sigactio
                 }
             }
             my_context->restorer[signum] = (act->sa_flags&0x04000000)?(uintptr_t)act->sa_restorer:0;
+            my_context->onstack[signum] = (act->sa_flags & SA_ONSTACK) ? 1 : 0;
         }
 
-        if(oldact) {
-            old.sa_flags = oldact->sa_flags;
-            memcpy(&old.sa_mask, &oldact->sa_mask, (sigsetsize>16)?16:sigsetsize);
-        }
-
-        int ret = syscall(__NR_rt_sigaction, signum, act?&newact:NULL, oldact?&old:NULL, (sigsetsize>16)?16:sigsetsize);
+        int ret = syscall(__NR_rt_sigaction, signum, act ? &newact : NULL, oldact ? &old : NULL, kernel_sigsetsize);
         if(oldact && ret==0) {
             oldact->sa_flags = old.sa_flags;
-            memcpy(&oldact->sa_mask, &old.sa_mask, (sigsetsize>16)?16:sigsetsize);
+            memcpy(&oldact->sa_mask, &old.sa_mask, kernel_sigsetsize);
             if(old.sa_flags & 0x04)
                 oldact->_u._sa_sigaction = (void*)old.k_sa_handler; //TODO should wrap...
             else
@@ -1502,21 +1543,29 @@ int EXPORT my_syscall_rt_sigaction(x64emu_t* emu, int signum, const x64_sigactio
         // using libc sigaction
         struct sigaction newact = {0};
         struct sigaction old = {0};
+        int box64_signal = is_box64_signal(signum);
+        uintptr_t old_handler = my_context->signals[signum];
+        if (oldact && box64_signal)
+            fill_emulated_sigaction_restorer(oldact, signum, old_handler, emulated_sigsetsize);
         if(act) {
             printf_log(LOG_DEBUG, " New action for signal #%d flags=0x%x mask=0x%lx\n", signum, act->sa_flags, *(uint64_t*)&act->sa_mask);
-            newact.sa_mask = act->sa_mask;
+            my_context->sigflags[signum] = act->sa_flags;
+            memset(&my_context->sigmask[signum], 0, sizeof(sigset_t));
+            memcpy(&my_context->sigmask[signum], &act->sa_mask, emulated_sigsetsize);
+            memcpy(&newact.sa_mask, &act->sa_mask, emulated_sigsetsize);
             newact.sa_flags = act->sa_flags&~0x04000000;  // No sa_restorer...
-            if(act->sa_flags&0x04) {
-                if(act->_u._sa_handler!=NULL && act->_u._sa_handler!=(sighandler_t)1) {
-                    my_context->signals[signum] = (uintptr_t)act->_u._sa_sigaction;
+            if (act->sa_flags & 0x04) {
+                my_context->signals[signum] = (uintptr_t)act->_u._sa_sigaction;
+                my_context->is_sigaction[signum] = 1;
+                if (act->_u._sa_handler != NULL && act->_u._sa_handler != (sighandler_t)1) {
                     newact.sa_sigaction = MY_SIGHANDLER;
                 } else {
                     newact.sa_sigaction = act->_u._sa_sigaction;
                 }
             } else {
-                if(act->_u._sa_handler!=NULL && act->_u._sa_handler!=(sighandler_t)1) {
-                    my_context->signals[signum] = (uintptr_t)act->_u._sa_handler;
-                    my_context->is_sigaction[signum] = 0;
+                my_context->signals[signum] = (uintptr_t)act->_u._sa_handler;
+                my_context->is_sigaction[signum] = 0;
+                if (act->_u._sa_handler != NULL && act->_u._sa_handler != (sighandler_t)1) {
                     newact.sa_sigaction = MY_SIGHANDLER;
                     newact.sa_flags|=0x4;
                 } else {
@@ -1524,19 +1573,16 @@ int EXPORT my_syscall_rt_sigaction(x64emu_t* emu, int signum, const x64_sigactio
                 }
             }
             my_context->restorer[signum] = (act->sa_flags&0x04000000)?(uintptr_t)act->sa_restorer:0;
+            my_context->onstack[signum] = (act->sa_flags & SA_ONSTACK) ? 1 : 0;
         }
 
-        if(oldact) {
-            old.sa_flags = oldact->sa_flags;
-            old.sa_mask = oldact->sa_mask;
-        }
         int ret = 0;
 
-        if(signum!=X64_SIGSEGV && signum!=X64_SIGBUS && signum!=X64_SIGILL && signum!=X64_SIGABRT)
+        if (!box64_signal)
             ret = sigaction(signal_from_x64(signum), act?&newact:NULL, oldact?&old:NULL);
-        if(oldact && ret==0) {
+        if (oldact && ret == 0 && !box64_signal) {
             oldact->sa_flags = old.sa_flags;
-            memcpy(&oldact->sa_mask, &old.sa_mask, (sigsetsize>8)?8:sigsetsize);
+            memcpy(&oldact->sa_mask, &old.sa_mask, emulated_sigsetsize > 8 ? 8 : emulated_sigsetsize);
             if(old.sa_flags & 0x04)
                 oldact->_u._sa_sigaction = old.sa_sigaction; //TODO should wrap...
             else
@@ -1759,6 +1805,8 @@ void init_signal_helper(box64context_t* context)
     // setup signal handling
     for(int i=0; i<=MAX_SIGNAL; ++i) {
         context->signals[i] = 0;    // SIG_DFL
+        context->sigflags[i] = 0;
+        memset(&context->sigmask[i], 0, sizeof(sigset_t));
     }
     struct sigaction action = {0};
     action.sa_flags = SA_SIGINFO | SA_RESTART | SA_NODEFER;

@@ -2,6 +2,8 @@
 #define __BOX64CONTEXT_H_
 #include <stdint.h>
 
+#include "mysignal.h"
+
 #include "mypthread.h"
 #include "pathcoll.h"
 #include "dictionnary.h"
@@ -241,6 +243,8 @@ typedef struct box64context_s {
     uintptr_t           restorer[MAX_SIGNAL+1];
     int                 onstack[MAX_SIGNAL+1];
     int                 is_sigaction[MAX_SIGNAL+1];
+    uint32_t            sigflags[MAX_SIGNAL+1];
+    sigset_t            sigmask[MAX_SIGNAL+1];
     x64emu_t            *emu_sig;       // the emu with stack used for signal handling (must be separated from main ones)
     int                 no_sigsegv;
     int                 no_sigill;
