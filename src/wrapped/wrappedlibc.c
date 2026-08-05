@@ -3702,15 +3702,19 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, size_t length, int prot, int f
         }
         e = errno;
     // Also For Wine: Wine loads PE sections into memory it has already reserved.
-    // On hosts with pages larger than 4K, mmap would corrupted adjacent reserved (BSS) memory,
-    // so copy only the 4K pages Wine requested.
+    // On hosts with pages larger than 4K, a guest-aligned address or file offset may be
+    // invalid for mmap, and rounding the end may overwrite adjacent reserved (BSS) memory.
+    // Zero the guest pages and copy the requested file bytes, matching Wine's fallback for
+    // PE sections with sector-aligned rather than page-aligned file offsets.
     } else if(box64_wine && box64_pagesize > X86_PAGE_SIZE && addr && length && end > start &&
-              mapped_end >= end && host_end && start == host_start && mapped_end != host_end &&
+              mapped_end >= end && host_end && !(start & (X86_PAGE_SIZE - 1)) &&
               (flags & MAP_FIXED) && (flags & MAP_PRIVATE) && !(flags & (MAP_SHARED | MAP_ANONYMOUS)) &&
               fd >= 0 && offset >= 0 && (prot & PROT_WRITE) &&
+              ((start | mapped_end | (uintptr_t)offset) & (box64_pagesize - 1)) &&
               is_writable_mapping(host_start, host_end) &&
-              can_copy_pe_mmap(fd, mapped_end - start, offset)) {
-        if(pread_mmap(fd, addr, mapped_end - start, offset))
+              can_copy_pe_mmap(fd, length, offset)) {
+        memset(addr, 0, mapped_end - start);
+        if(pread_mmap(fd, addr, length, offset))
             ret = MAP_FAILED;
         else
             ret = addr;

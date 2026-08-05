@@ -437,6 +437,8 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
                         return 1;
                     }
                 }
+                if(e->p_memsz > e->p_filesz && (prot & PROT_WRITE))
+                    memset((void*)(head->multiblocks[n].paddr + e->p_filesz), 0, e->p_memsz - e->p_filesz);
             }
             #ifdef DYNAREC
             if(BOX64ENV(dynarec) && (e->p_flags & PF_X)) {

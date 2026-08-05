@@ -138,6 +138,13 @@ static const char* libcName =
 #endif
     ;
 
+EXPORT int my32_getpagesize(x64emu_t* emu)
+{
+    (void)emu;
+    return X86_PAGE_SIZE;
+}
+EXPORT int my32___getpagesize(x64emu_t* emu) __attribute__((alias("my32_getpagesize")));
+
 typedef int32_t (*iFiiV_t)(int32_t, int32_t, ...);
 typedef int32_t (*iFpipp_t)(void*, int32_t, void*, void*);
 #if 0

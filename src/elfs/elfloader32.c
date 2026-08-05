@@ -216,12 +216,9 @@ int AllocLoadElfMemory32(box64context_t* context, elfheader_t* head, int mainbin
             head->multiblocks[n].size = e->p_filesz;
             head->multiblocks[n].align = e->p_align;
             uint8_t prot = PROT_READ|PROT_WRITE|((e->p_flags & PF_X)?PROT_EXEC:0);
-            // check if alignment is correct
-            uintptr_t balign = head->multiblocks[n].align-1;
-            if(balign<4095) balign = 4095;
-            head->multiblocks[n].asize = (e->p_memsz+(e->p_paddr&balign)+4095)&~4095;
+            head->multiblocks[n].asize = (e->p_memsz + (e->p_paddr & (box64_pagesize - 1)) + (box64_pagesize - 1)) & ~(box64_pagesize - 1);
             int try_mmap = 1;
-            if(e->p_paddr&balign)
+            if(e->p_paddr&(box64_pagesize - 1))
                 try_mmap = 0;
             if(e->p_offset&(box64_pagesize-1))
                 try_mmap = 0;
@@ -253,20 +250,40 @@ int AllocLoadElfMemory32(box64context_t* context, elfheader_t* head, int mainbin
                 }
             }
             if(!try_mmap) {
-                uintptr_t paddr = head->multiblocks[n].paddr&~balign;
-                size_t asize = head->multiblocks[n].asize;
+                uintptr_t paddr = head->multiblocks[n].paddr&~(box64_pagesize - 1);
+                size_t asize = ALIGN(e->p_memsz + (head->multiblocks[n].paddr - paddr));
                 void* p = MAP_FAILED;
-                if(paddr==(paddr&~(box64_pagesize-1)) && (asize==ALIGN(asize))) {
+                int mapped_file = 0;
+                size_t file_read_size = e->p_filesz;
+                // unaligned segments can still be file-backed mapped when their address and file offsets have the same page offset
+                uintptr_t file_delta = head->multiblocks[n].paddr - paddr;
+                size_t file_size = ALIGN(e->p_filesz + file_delta);
+                off_t file_offset = e->p_offset & ~(box64_pagesize - 1);
+                if (e->p_filesz &&                                                              // there is file data to map
+                    e->p_filesz == e->p_memsz &&                                                // no BSS
+                    ((head->multiblocks[n].paddr ^ e->p_offset) & (box64_pagesize - 1)) == 0 && // the virtual address and the file offset have the same page offset
+                    file_size <= asize) {
+                    uintptr_t file_map_addr = paddr;
+                    while(file_map_addr < head->multiblocks[n].paddr + e->p_filesz && getProtection(file_map_addr))
+                        file_map_addr += box64_pagesize;
+                    if(file_map_addr < head->multiblocks[n].paddr + e->p_filesz) {
+                        size_t file_map_delta = file_map_addr - paddr;
+                        void* file_map = mmap64((void*)file_map_addr, file_size - file_map_delta, prot | PROT_WRITE, MAP_PRIVATE | MAP_FIXED, head->fileno, file_offset + file_map_delta);
+                        mapped_file = file_map == (void*)file_map_addr;
+                        if(mapped_file) {
+                            p = (void*)paddr;
+                            file_read_size = file_map_addr > head->multiblocks[n].paddr
+                                ? file_map_addr - head->multiblocks[n].paddr
+                                : 0;
+                            if(file_read_size > e->p_filesz)
+                                file_read_size = e->p_filesz;
+                        }
+                    }
+                }
+                if (!mapped_file && !file_delta) {
                     printf_dump(log_level, "Allocating 0x%zx (0x%zx) bytes @%p, will read 0x%zx @%p for Elf \"%s\"\n", asize, e->p_memsz, (void*)paddr, e->p_filesz, (void*)head->multiblocks[n].paddr, head->name);
-                    p = mmap64(
-                        (void*)paddr,
-                        asize,
-                        prot|PROT_WRITE,
-                        MAP_PRIVATE|MAP_ANONYMOUS|MAP_FIXED,
-                        -1,
-                        0
-                    );
-                } else {
+                    p = mmap64((void*)paddr, asize, prot | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
+                } else if (!mapped_file) {
                     // difference in pagesize, so need to mmap only what needed to be...
                     //check startint point
                     uintptr_t new_addr = paddr&~(box64_pagesize-1); // new_addr might be smaller than paddr
@@ -297,7 +314,7 @@ int AllocLoadElfMemory32(box64context_t* context, elfheader_t* head, int mainbin
                     }
                 }
                 if(p==MAP_FAILED || p!=(void*)paddr) {
-                    printf_log(LOG_NONE, "Cannot create memory map (@%p 0x%zx/0x%zx) for elf \"%s\"", (void*)paddr, asize, balign, head->name);
+                    printf_log(LOG_NONE, "Cannot create memory map (@%p 0x%zx/0x%zx) for elf \"%s\"", (void*)paddr, asize, (box64_pagesize - 1), head->name);
                     if(p==MAP_FAILED) {
                         printf_log(LOG_NONE, " error=%d/%s\n", errno, strerror(errno));
                     } else {
@@ -307,13 +324,15 @@ int AllocLoadElfMemory32(box64context_t* context, elfheader_t* head, int mainbin
                 }
                 setProtection_elf((uintptr_t)p, asize, prot);
                 head->multiblocks[n].p = p;
-                if(e->p_filesz) {
+                if (file_read_size) {
                     fseeko64(head->file, head->multiblocks[n].offs, SEEK_SET);
-                    if(fread((void*)head->multiblocks[n].paddr, head->multiblocks[n].size, 1, head->file)!=1) {
-                        printf_log(LOG_NONE, "Cannot read elf block (@%p 0x%zx/0x%zx) for elf \"%s\"\n", (void*)head->multiblocks[n].offs, head->multiblocks[n].asize, balign, head->name);
+                    if(fread((void*)head->multiblocks[n].paddr, file_read_size, 1, head->file)!=1) {
+                        printf_log(LOG_NONE, "Cannot read elf block (@%p 0x%zx/0x%zx) for elf \"%s\"\n", (void*)head->multiblocks[n].offs, head->multiblocks[n].asize, (box64_pagesize - 1), head->name);
                         return 1;
                     }
                 }
+                if(e->p_memsz > e->p_filesz && (prot & PROT_WRITE))
+                    memset((void*)(head->multiblocks[n].paddr + e->p_filesz), 0, e->p_memsz - e->p_filesz);
             }
 #ifdef DYNAREC
             if(BOX64ENV(dynarec) && (e->p_flags & PF_X)) {
@@ -710,7 +729,7 @@ static int RelocateElfRELR(elfheader_t *head, int cnt, Elf32_Relr *relr)
 
 int RelocateElf32(lib_t *maplib, lib_t *local_maplib, int bindnow, int deepbind, elfheader_t* head)
 {
-    if(0 && (head->flags&DF_BIND_NOW) && !bindnow) { // disable for now, needs more symbol in a fow libs like gtk and nss3
+    if((head->flags&DF_BIND_NOW) && !bindnow) {
         bindnow = 1;
         printf_log(LOG_DEBUG, "Forcing %s to Bind Now\n", head->name);
     }
@@ -738,10 +757,53 @@ int RelocateElf32(lib_t *maplib, lib_t *local_maplib, int bindnow, int deepbind,
     return 0;
 }
 
+static uint32_t getElfPageProtection32(const elfheader_t* head, uintptr_t page)
+{
+    uint32_t prot = 0;
+    uintptr_t page_end = page + box64_pagesize;
+    for (size_t i = 0; i < head->numPHEntries; ++i) {
+        const Elf32_Phdr* ph = &head->PHEntries._32[i];
+        if (ph->p_type != PT_LOAD || !ph->p_memsz) continue;
+        uintptr_t start = (ph->p_vaddr + head->delta) & ~(box64_pagesize - 1);
+        uintptr_t end = ALIGN(ph->p_vaddr + head->delta + ph->p_memsz);
+        if (start >= page_end || end <= page) continue;
+        prot |= ((ph->p_flags & PF_R) ? PROT_READ : 0) | ((ph->p_flags & PF_W) ? PROT_WRITE : 0) | ((ph->p_flags & PF_X) ? PROT_EXEC : 0);
+    }
+    return prot;
+}
+
+static void applyElfRelro32(elfheader_t* head)
+{
+    for (size_t i = 0; i < head->numPHEntries; ++i) {
+        const Elf32_Phdr* ph = &head->PHEntries._32[i];
+        if (ph->p_type != PT_GNU_RELRO || !ph->p_memsz) continue;
+
+        uintptr_t relro = ph->p_vaddr + head->delta;
+        uintptr_t relro_end = relro + ph->p_memsz;
+        if (relro_end < relro) continue;
+        uintptr_t start = relro & ~(box64_pagesize - 1);
+        uintptr_t end = relro_end & ~(box64_pagesize - 1);
+        for (uintptr_t page = start; page < end; page += box64_pagesize) {
+            uint32_t old_prot = getProtection(page);
+            if (old_prot & PROT_NOPROT) continue;
+            uint32_t prot = getElfPageProtection32(head, page) & ~PROT_WRITE;
+            if (!prot) continue;
+            if (old_prot & (PROT_DYNAREC | PROT_DYNAREC_R))
+                prot |= PROT_DYNAREC_R;
+            if (mprotect((void*)page, box64_pagesize, prot & ~PROT_CUSTOM)) {
+                printf_log(LOG_INFO, "Warning: cannot apply GNU RELRO to %s at %p: %s\n", head->name, (void*)page, strerror(errno));
+                continue;
+            }
+            setProtection_elf(page, box64_pagesize, prot);
+            printf_dump(LOG_DEBUG, "Applied GNU RELRO to %s at %p with protection 0x%x\n", head->name, (void*)page, prot & ~PROT_CUSTOM);
+        }
+    }
+}
+
 int RelocateElfPlt32(lib_t *maplib, lib_t *local_maplib, int bindnow, int deepbind, elfheader_t* head)
 {
     int need_resolver = 0;
-    if(0 && (head->flags&DF_BIND_NOW) && !bindnow) { // disable for now, needs more symbol in a fow libs like gtk and nss3
+    if((head->flags&DF_BIND_NOW) && !bindnow) {
         bindnow = 1;
         printf_log(LOG_DEBUG, "Forcing %s to Bind Now\n", head->name);
     }
@@ -773,6 +835,7 @@ int RelocateElfPlt32(lib_t *maplib, lib_t *local_maplib, int bindnow, int deepbi
             }
         }
     }
+    if(head->numDynamic) applyElfRelro32(head);
     return 0;
 }
 

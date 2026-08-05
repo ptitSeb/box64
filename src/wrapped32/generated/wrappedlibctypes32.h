@@ -165,6 +165,8 @@ typedef int32_t (*iFpuippupp_t)(void*, uint32_t, int32_t, void*, void*, uint32_t
 	GO(freeaddrinfo, vEp_t) \
 	GO(regfree, vEp_t) \
 	GO(_ZGTtdlPv, vFp_t) \
+	GO(__getpagesize, iEv_t) \
+	GO(getpagesize, iEv_t) \
 	GO(sched_getcpu, iEv_t) \
 	GO(__close_nocancel, iEi_t) \
 	GO(shmdt, iEp_t) \
