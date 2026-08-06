@@ -25,7 +25,7 @@ EXPORT void* my___tls_get_addr(x64emu_t* emu, void* p)
 {
     my_tls_t *t = (my_tls_t*)p;
     tlsdatasize_t* ptr = emu->tlsdata;
-    if (!ptr) {
+    if (!ptr || ptr->tlssize != emu->context->tlssize || ptr->n_elfs != emu->context->elfsize) {
         refreshTLSData(emu);
         ptr = emu->tlsdata;
     }
