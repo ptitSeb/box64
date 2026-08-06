@@ -175,8 +175,7 @@ void pressure_vessel(int argc, const char** argv, int nextarg, const char* prog)
                 strncat(tmp, tmp2, sizeof(tmp)-1);  \
                 strncat(tmp, ":", sizeof(tmp)-1);   \
             }
-            GO("/usr/lib/%s-x86_64-linux-gnu", "box64")
-            GO("/usr/lib/%s-i386-linux-gnu/", "box64")
+            // runtime libs are put first, as the games are built against them
             GO("%s/lib/x86_64-linux-gnu", sniper)
             GO("%s/lib/i386-linux-gnu", sniper)
             GO("%s/lib/x86_64-linux-gnu/openblas", sniper)
@@ -186,6 +185,8 @@ void pressure_vessel(int argc, const char** argv, int nextarg, const char* prog)
             GO("%s/lib", sniper)
             GO("%s/lib64", sniper)
             GO("%s/lib32", sniper)
+            GO("/usr/lib/%s-x86_64-linux-gnu", "box64")
+            GO("/usr/lib/%s-i386-linux-gnu/", "box64")
             #undef GO
             if(ld) strncat(tmp, ld, sizeof(tmp)-1);
             setenv("LD_LIBRARY_PATH", tmp, 1);
