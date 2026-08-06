@@ -380,7 +380,7 @@ void refreshTLSData(x64emu_t* emu)
         if ((ptr = emu->tlsdata) == NULL) {
             ptr = (tlsdatasize_t*)fillTLSData(emu->context);
         }
-    if(ptr->tlssize != emu->context->tlssize)
+    if(ptr->tlssize != emu->context->tlssize || ptr->n_elfs != emu->context->elfsize)
         ptr = (tlsdatasize_t*)resizeTLSData(emu->context, ptr);
     emu->tlsdata = ptr;
     if(emu->test.emu) emu->test.emu->tlsdata = ptr;
