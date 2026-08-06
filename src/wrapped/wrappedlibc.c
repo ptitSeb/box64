@@ -4824,15 +4824,19 @@ EXPORT void my___cxa_pure_virtual(x64emu_t* emu)
 
 EXPORT size_t my_strlcpy(x64emu_t* emu, void* dst, void* src, size_t l)
 {
-    strncpy(dst, src, l-1);
-    ((char*)dst)[l-1] = '\0';
+    if (l > 0) {
+        strncpy(dst, src, l-1);
+        ((char*)dst)[l-1] = '\0';
+    }
     return strlen(src);
 }
 EXPORT size_t my_strlcat(x64emu_t* emu, void* dst, void* src, size_t l)
 {
+    if (l == 0)
+        return strlen(src);
     size_t s = strlen(dst);
     if(s>=l)
-        return l;
+        return s + strlen(src);
     strncat(dst, src, l-s-1);
     ((char*)dst)[l-1] = '\0';
     return s+strlen(src);
