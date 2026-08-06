@@ -4,6 +4,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <glob.h>
 #include <unistd.h>
 
@@ -67,61 +68,111 @@ void pressure_vessel(int argc, const char** argv, int nextarg, const char* prog)
 {
     // skip all the parameter, but parse some of them
     const char* runtime = getenv("PRESSURE_VESSEL_RUNTIME");
-    // look for the comand first
-    const char* cmd = argv[nextarg];
-    int i = 0;
-    while(cmd[0]=='-' && cmd[1]=='-') cmd=argv[nextarg+(++i)];
+    // Example:
+    //      pressure-vessel-wrap --env-if-host=... --variable-dir=... --share-pid --launcher \
+    //                           --pass-fd <fd> --filesystem <dir>... -- --info-fd <fd> \
+    //                           --bus-name=com.github.Matoking.protontricks.App<APPID>_<SESSION>
+    // search for the "--" separator first, and handle --launcher and --pass-fd parameters
+    int sep = nextarg;
+    int launcher = 0;
+    int pass_fd = -1;
+    while (sep < argc && strcmp(argv[sep], "--")) {
+        if (!strcmp(argv[sep], "--launcher")) {
+            launcher = 1; // launcher mode: the parameters after "--" are for steam-runtime-launcher-service
+        } else if (!strcmp(argv[sep], "--pass-fd") && sep + 1 < argc) {
+            pass_fd = atoi(argv[sep + 1]);
+            if (pass_fd > 2) {
+                // pass_fd must be passed through into the container (launcher-service)!
+                // so clear the close-on-exec flag
+                fcntl(pass_fd, F_SETFD, fcntl(pass_fd, F_GETFD) & ~FD_CLOEXEC);
+            }
+        }
+        ++sep;
+    }
+    // look for the comand
+    const char* cmd = NULL;
+    if (sep < argc) {
+        if (sep + 1 < argc)
+            cmd = argv[sep + 1];
+    } else {
+        int i = 0;
+        cmd = argv[nextarg];
+        while (cmd && cmd[0] == '-' && cmd[1] == '-')
+            cmd = argv[nextarg + (++i)];
+    }
     int is_usr = (cmd && strlen(cmd)>5 && strstr(cmd, "/usr/")==cmd)?1:0;
-    if(argv[nextarg][0]=='-' && argv[nextarg][1]=='-')
-        while(argv[nextarg][0]=='-' && argv[nextarg][1]=='-') {
-            if(strstr(argv[nextarg], "--env-if-host=PRESSURE_VESSEL_APP_LD_LIBRARY_PATH=")==argv[nextarg]) {
-                if(is_usr) {
-                    // transform RESSURE_VESSEL_APP_LD_LIBRARY_PATH to BOX86_ / BOX64_ LD_LIBRARY_PATH
-                    char tmp[strlen(argv[nextarg])+(runtime?(strlen(runtime)+1):0)];
-                    strcpy(tmp, "");
-                    strcat(tmp, argv[nextarg]+strlen("--env-if-host=PRESSURE_VESSEL_APP_"));
-                    char *p = strchr(tmp, '=');
-                    *p ='\0'; ++p;
-                    setenv(tmp, p, 1);
-                    printf_log(LOG_DEBUG, "setenv(%s, %s, 1)\n", tmp, p);
+    if (nextarg < argc && argv[nextarg][0] == '-' && argv[nextarg][1] == '-')
+        while (nextarg < sep && argv[nextarg][0] == '-' && argv[nextarg][1] == '-') {
+            if (strstr(argv[nextarg], "--env-if-host=") == argv[nextarg]) {
+                if (launcher) {
+                    // in launcher mode, all the env-if-host variables are given to the launcher-service
+                    char tmp[strlen(argv[nextarg]) + 1];
+                    strcpy(tmp, argv[nextarg] + strlen("--env-if-host="));
+                    char* p = strchr(tmp, '=');
+                    if (p) {
+                        *p = '\0';
+                        ++p;
+                        setenv(tmp, p, 1);
+                        printf_log(LOG_DEBUG, "setenv(%s, %s, 1)\n", tmp, p);
+                    }
+                } else if (strstr(argv[nextarg], "--env-if-host=PRESSURE_VESSEL_APP_LD_LIBRARY_PATH=") == argv[nextarg]) {
+                    if (is_usr) {
+                        // transform RESSURE_VESSEL_APP_LD_LIBRARY_PATH to BOX86_ / BOX64_ LD_LIBRARY_PATH
+                        char tmp[strlen(argv[nextarg]) + (runtime ? (strlen(runtime) + 1) : 0)];
+                        strcpy(tmp, "");
+                        strcat(tmp, argv[nextarg] + strlen("--env-if-host=PRESSURE_VESSEL_APP_"));
+                        char* p = strchr(tmp, '=');
+                        *p = '\0';
+                        ++p;
+                        setenv(tmp, p, 1);
+                        printf_log(LOG_DEBUG, "setenv(%s, %s, 1)\n", tmp, p);
+                    }
+                } else if (strstr(argv[nextarg], "--env-if-host=STEAM_RUNTIME_LIBRARY_PATH=") == argv[nextarg]) {
+                    if (is_usr) {
+                        // transform RESSURE_VESSEL_APP_LD_LIBRARY_PATH to BOX86_ / BOX64_ LD_LIBRARY_PATH
+                        char tmp[strlen(argv[nextarg]) + 150];
+                        strcpy(tmp, "BOX86_LD_LIBRARY_PATH=/lib/box86:/usr/lib/box86:/lib/i386-linux-gnu:/usr/lib/i386-linux-gnu:/usr/lib/box86-i386-linux-gnu:/usr/lib/box64-i386-linux-gnu:/usr/lib/i686-pc-linux-gnu:/usr/lib32:");
+                        strcat(tmp, argv[nextarg] + strlen("--env-if-host=STEAM_RUNTIME_LIBRARY_PATH="));
+                        char* p = strchr(tmp, '=');
+                        *p = '\0';
+                        ++p;
+                        setenv(tmp, p, 1);
+                        printf_log(LOG_DEBUG, "setenv(%s, %s, 1)\n", tmp, p);
+                        strcpy(tmp, "BOX64_LD_LIBRARY_PATH=/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/box64-x86_64-linux-gnu:/usr/lib/box64-i386-linux-gnu:");
+                        strcat(tmp, argv[nextarg] + strlen("--env-if-host=STEAM_RUNTIME_LIBRARY_PATH="));
+                        p = strchr(tmp, '=');
+                        *p = '\0';
+                        ++p;
+                        setenv(tmp, p, 1);
+                        printf_log(LOG_DEBUG, "setenv(%s, %s, 1)\n", tmp, p);
+                    }
                 }
-            } else if(strstr(argv[nextarg], "--env-if-host=STEAM_RUNTIME_LIBRARY_PATH=")==argv[nextarg]) {
-                if(is_usr) {
-                    // transform RESSURE_VESSEL_APP_LD_LIBRARY_PATH to BOX86_ / BOX64_ LD_LIBRARY_PATH
-                    char tmp[strlen(argv[nextarg])+150];
-                    strcpy(tmp, "BOX86_LD_LIBRARY_PATH=/lib/box86:/usr/lib/box86:/lib/i386-linux-gnu:/usr/lib/i386-linux-gnu:/usr/lib/box86-i386-linux-gnu:/usr/lib/box64-i386-linux-gnu:/usr/lib/i686-pc-linux-gnu:/usr/lib32:");
-                    strcat(tmp, argv[nextarg]+strlen("--env-if-host=STEAM_RUNTIME_LIBRARY_PATH="));
-                    char *p = strchr(tmp, '=');
-                    *p ='\0'; ++p;
-                    setenv(tmp, p, 1);
-                    printf_log(LOG_DEBUG, "setenv(%s, %s, 1)\n", tmp, p);
-                    strcpy(tmp, "BOX64_LD_LIBRARY_PATH=/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu:/usr/lib/box64-x86_64-linux-gnu:/usr/lib/box64-i386-linux-gnu:");
-                    strcat(tmp, argv[nextarg]+strlen("--env-if-host=STEAM_RUNTIME_LIBRARY_PATH="));
-                    p = strchr(tmp, '=');
-                    *p ='\0'; ++p;
-                    setenv(tmp, p, 1);
-                    printf_log(LOG_DEBUG, "setenv(%s, %s, 1)\n", tmp, p);
-                }
-            } else if(strstr(argv[nextarg], "--ld-preloads=")==argv[nextarg]) {
+            } else if (strstr(argv[nextarg], "--ld-preloads=") == argv[nextarg]) {
                 // transform to BOX86_ / BOX64_ LD_PRELOAD
-                char tmp[strlen(argv[nextarg])+4];
+                char tmp[strlen(argv[nextarg]) + 4];
                 strcpy(tmp, "BOX64_LD_PRELOAD=");
-                strcat(tmp, strchr(argv[nextarg], '=')+1);
-                char *p = strchr(tmp, '=');
-                *p ='\0'; ++p;
+                strcat(tmp, strchr(argv[nextarg], '=') + 1);
+                char* p = strchr(tmp, '=');
+                *p = '\0';
+                ++p;
                 setenv(tmp, p, 1);
                 printf_log(LOG_DEBUG, "setenv(%s, %s, 1)\n", tmp, p);
-                tmp[3] = '8'; tmp[4] = '6';
+                tmp[3] = '8';
+                tmp[4] = '6';
                 setenv(tmp, p, 1);
                 printf_log(LOG_DEBUG, "setenv(%s, %s, 1)\n", tmp, p);
-            } else if(!strcmp(argv[nextarg], "--")) {
-                printf_log(LOG_DEBUG, "End of pressure-vessel-wrap parameters\n");
-            }else {
+            } else if (!strcmp(argv[nextarg], "--pass-fd") || !strcmp(argv[nextarg], "--filesystem")) {
+                // those parameters have a value, skip it too
+                printf_log(LOG_DEBUG, "Ignored parameter: \"%s\" and its value\n", argv[nextarg]);
+                ++nextarg;
+            } else {
                 printf_log(LOG_DEBUG, "Ignored parameter: \"%s\"\n", argv[nextarg]);
             }
             ++nextarg;
         }
-    if(argv[nextarg] && !strcmp(argv[nextarg], "steamwebhelper")) {
+    if (nextarg < argc && !strcmp(argv[nextarg], "--"))
+        ++nextarg; // skip the "--" separator
+    if (nextarg < argc && argv[nextarg] && !strcmp(argv[nextarg], "steamwebhelper")) {
         // just launch it...
         runtime = NULL;
     }
@@ -220,6 +271,37 @@ void pressure_vessel(int argc, const char** argv, int nextarg, const char* prog)
         // setenv("BOX86_NOGTK", "1", 1);
         setenv("BOX64_PRESSURE_VESSEL_FILES", sniper, 1);
     }
+    if (launcher) {
+        // in launcher mode, the command to run is the steam-runtime-launcher-service, with the parameters after "--"
+        if (nextarg >= argc) {
+            printf_log(LOG_INFO, "Warning, no parameters after \"--\" for the launcher mode\n");
+        } else {
+            char service[MAX_PATH] = { 0 };
+            const char* p = strrchr(prog, '/');
+            if (p) {
+                int len = (int)(p - prog);
+                snprintf(service, sizeof(service), "%.*s/steam-runtime-launcher-service", len, prog);
+                if (!FileExist(service, IS_FILE)) {
+                    // try the arch-specific one from libexec
+                    snprintf(service, sizeof(service), "%.*s/../libexec/steam-runtime-tools-0/x86_64-linux-gnu-srt-launcher-service", len, prog);
+                }
+                if (FileExist(service, IS_FILE)) {
+                    // insert the launcher-service as the new command, keeping all the parameters after "--"
+                    int n = argc - nextarg;
+                    const char** argv2 = (const char**)box_calloc(n + 1, sizeof(char*));
+                    argv2[0] = box_strdup(service);
+                    for (int i = 0; i < n; ++i)
+                        argv2[i + 1] = argv[nextarg + i];
+                    argv = argv2;
+                    nextarg = 0;
+                    argc = n + 1;
+                    printf_log(LOG_DEBUG, "Running steam-runtime-launcher-service instead of the command\n");
+                } else {
+                    printf_log(LOG_INFO, "Warning, steam-runtime-launcher-service not found\n");
+                }
+            }
+        }
+    }
     printf_log(LOG_DEBUG, "Ready to launch \"%s\", nextarg=%d, argc=%d\n", argv[nextarg], nextarg, argc);
     prog = argv[nextarg];
     int x86 = my_context->box86path?FileIsX86ELF(argv[nextarg]):0;
@@ -236,12 +318,12 @@ void pressure_vessel(int argc, const char** argv, int nextarg, const char* prog)
             printf_log(LOG_DEBUG, "argv[%d]=\"%s\"\n", 1, newargv[1]);
         }
         for(int i=nextarg; i<argc; ++i) {
-            printf_log(LOG_DEBUG, "argv[%d]=\"%s\"\n", (sh?2:1)+i-nextarg, argv[i]);    
+            printf_log(LOG_DEBUG, "argv[%d]=\"%s\"\n", (sh ? 2 : 1) + i - nextarg, argv[i]);
             newargv[(sh?2:1)+i-nextarg] = argv[i];
         }
     } else {
         for(int i=nextarg; i<argc; ++i) {
-            printf_log(LOG_DEBUG, "argv[%d]=\"%s\"\n", i-nextarg, argv[i]);    
+            printf_log(LOG_DEBUG, "argv[%d]=\"%s\"\n", i - nextarg, argv[i]);
             newargv[i-nextarg] = argv[i];
         }
     }
@@ -257,7 +339,7 @@ void pressure_vessel(int argc, const char** argv, int nextarg, const char* prog)
     //setenv("BOX64_SHOWSEGV", "1", 1);
     //setenv("BOX64_SHOWBT", "1", 1);
     //setenv("BOX64_DYNAREC_LOG", "1", 1);
-    
+
     printf_log(LOG_DEBUG, "Run %s %s and wait\n", x86?"i386":(x64?"x86_64":""), argv[nextarg]);
     pid_t v = vfork();
     if(v==-1) {
@@ -272,10 +354,11 @@ void pressure_vessel(int argc, const char** argv, int nextarg, const char* prog)
         exit(0);
     } else {
         // parent process, wait the end of child
+        if (pass_fd > 2) close(pass_fd);
         FreeBox64Context(&my_context);
         int wstatus;
         wait(&wstatus);
         //waitpid(v, &wstatus, 0);
-        exit(0);
+        exit(WIFEXITED(wstatus) ? WEXITSTATUS(wstatus) : 0);
     }
 }
