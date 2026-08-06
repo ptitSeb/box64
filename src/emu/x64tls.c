@@ -146,6 +146,13 @@ static const char* arch_prctl_param(int code)
     sprintf(ret, "0x%x", code);
     return ret;
 }
+
+void SetFSBaseEmu(x64emu_t* emu, void* addr)
+{
+    emu->segs[_FS] = 0;
+    emu->segs_offs[_FS] = (uintptr_t)addr;
+}
+
 int my_arch_prctl(x64emu_t *emu, int code, void* addr)
 {
     printf_log(LOG_DEBUG, "%04d| arch_prctl(%s, %p) (RSP=%p, FS=0x%x, GS=0x%x)\n", GetTID(), arch_prctl_param(code), addr,(void*)R_RSP, emu->segs[_FS], emu->segs[_GS]);
@@ -176,7 +183,6 @@ int my_arch_prctl(x64emu_t *emu, int code, void* addr)
             seg=(code==ARCH_SET_FS)?_FS:_GS;
             int idx = -1;
             if(emu->segs[_CS]!=0x23) {
-                // 64bits version, simply using FSGSBASE....
                 emu->segs[seg] = 0;
                 emu->segs_offs[seg] = (uintptr_t)addr;
                 return 0;
