@@ -52,6 +52,11 @@ void addAlternate(void* addr, void* alt) {
     #ifdef HAVE_ALTJUMP
     kh_value(my_alternates, k).jump = AddAltJump(my_context->alternates, (uintptr_t)addr, (uintptr_t)alt);
     #endif
+    #ifdef DYNAREC
+    // a dynablock may have been published before this alternate was known.
+    // force the next dispatch to rebuild the entry with the alternate target.
+    setJumpTableDefault64(addr);
+    #endif
 }
 
 void addCheckAlternate(void* addr, void* alt) {
