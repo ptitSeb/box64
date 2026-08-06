@@ -1299,7 +1299,7 @@
 #define emit_test8c         STEPNAME(emit_test8c)
 #define emit_test16         STEPNAME(emit_test16)
 #define emit_test32         STEPNAME(emit_test32)
-#define emit_test32c        STEPNAME(emit_test32)
+#define emit_test32c        STEPNAME(emit_test32c)
 #define emit_add32          STEPNAME(emit_add32)
 #define emit_add32c         STEPNAME(emit_add32c)
 #define emit_add8           STEPNAME(emit_add8)
