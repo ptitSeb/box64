@@ -156,6 +156,10 @@ BOX64_MALLOC_HACK=2
 [chrome_crashpad_handler]
 BOX64_MALLOC_HACK=2
 
+[cs2]
+# Why did you modify these libraries, Valve?
+BOX64_EMULATED_LIBS=libfontconfig.so.1:libpangoft2-1.0.so.0:libpango-1.0.so.0
+
 [dav1d]
 BOX64_DYNAREC_BIGBLOCK=2
 BOX64_DYNAREC_FORWARD=512
