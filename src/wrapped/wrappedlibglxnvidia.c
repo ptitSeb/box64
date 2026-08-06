@@ -208,7 +208,7 @@ EXPORT int mynv_eglDebugMessageControlKHR(x64emu_t* emu, void* prod, void* param
 {
     iFpp_t fnc = getBridgeFnc2((void*)R_RIP);
     if(!fnc) fnc=my->eglDebugMessageControlKHR;
-    return fnc(find_debug_callback_Fct(prod), param);
+    return fnc(find_egl_debug_callback_Fct(prod), param);
 }
 // eglSetBlobCacheFuncsANDROID ...
 EXPORT void mynv_eglSetBlobCacheFuncsANDROID(x64emu_t* emu, void* dpy, void* set, void* get)              \
