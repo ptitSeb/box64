@@ -95,6 +95,7 @@ extern int _nl_msg_cat_cntr __attribute__((weak));
 #include "cleanup.h"
 #include "random.h"
 #include "cpumask.h"
+#include "x64tls.h"
 #ifndef LOG_INFO
 #define LOG_INFO 1
 #endif
@@ -4815,6 +4816,7 @@ static int clone_fn(void* p)
     x64emu_t *emu = arg->emu;
     R_RSP = arg->stack;
     emu->flags.quitonexit = 1;
+    if(arg->flags & CLONE_SETTLS) SetFSBaseEmu(emu, arg->tls);
     thread_forget_emu();    //TODO: not all will flags needs this, probably just CLONE_VM?
     thread_set_emu(emu);
     if(arg->flags&CLONE_NEWUSER) {
@@ -4822,8 +4824,7 @@ static int clone_fn(void* p)
     }
     int ret = RunFunctionWithEmu(emu, 0, arg->fnc, 1, arg->args);
     int exited = (emu->flags.quitonexit==2);
-    thread_set_emu(NULL);
-    FreeX64Emu(&emu);
+    thread_set_emu(NULL); // emu is gone...
     if(arg->stack_clone_used)
         my_context->stack_clone_used = 0;
     box_free(arg);
@@ -4857,8 +4858,11 @@ EXPORT int my_clone(x64emu_t* emu, void* fn, void* stack, int flags, void* args,
     arg->tls = tls;
     arg->emu = newemu;
     arg->flags = flags;
-    if((flags|(CLONE_VM|CLONE_VFORK|CLONE_SETTLS))==flags)   // that's difficult to setup, so lets ignore all those flags :S
-        flags&=~(CLONE_VM|CLONE_VFORK|CLONE_SETTLS);
+    // the emulated callback can use wrapped libc before exec, so it cannot safely
+    // share the host allocator and address space with a suspended parent.
+    if((flags & (CLONE_VM|CLONE_VFORK)) == (CLONE_VM|CLONE_VFORK))
+        flags &=~ (CLONE_VM|CLONE_VFORK);
+    flags &=~ CLONE_SETTLS;   // guest TLS is applied to the emulated FS base in clone_fn
     int64_t ret = clone(clone_fn, (void*)((uintptr_t)mystack+1024*1024), flags, arg, parent, NULL, child);
     return (uintptr_t)ret;
 }
