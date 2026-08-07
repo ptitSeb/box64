@@ -183,6 +183,7 @@ int my_arch_prctl(x64emu_t *emu, int code, void* addr)
             seg=(code==ARCH_SET_FS)?_FS:_GS;
             int idx = -1;
             if(emu->segs[_CS]!=0x23) {
+                // 64bits version, simply using FSGSBASE....
                 emu->segs[seg] = 0;
                 emu->segs_offs[seg] = (uintptr_t)addr;
                 return 0;
