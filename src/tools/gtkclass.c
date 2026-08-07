@@ -6071,7 +6071,7 @@ void my_unwrap_signal_offset(void* klass)
         void* new_f = GetNativeFnc((uintptr_t)*f);
         if(!new_f) {
             // Not a native function: autobridge it
-            new_f = finders[p->a[i].n](f);
+            new_f = finders[p->a[i].n](*f);
         }
         if(new_f != *f) {
             printf_log(LOG_DEBUG, "Unwrapping %p[%p: offset=0x%x, n=%d] -> %p (with alternate)\n", *f, f, p->a[i].offset, p->a[i].n, new_f);

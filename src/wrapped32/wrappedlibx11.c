@@ -998,7 +998,7 @@ typedef struct {
 static uintptr_t my32_XNGeometryCallback_fct_##A = 0;                 \
 static void my32_XNGeometryCallback_##A(void* a, void* b, void* c)    \
 {                                                                   \
-    RunFunctionFmt(my32_XNGeometryCallback_fct_##A, "ppp", a, b);     \
+    RunFunctionFmt(my32_XNGeometryCallback_fct_##A, "ppp", a, b, c);     \
 }
 SUPER()
 #undef GO
@@ -1021,7 +1021,7 @@ static void* findXNGeometryCallbackFct(void* fct)
 static uintptr_t my32_XNDestroyCallback_fct_##A = 0;              \
 static void my32_XNDestroyCallback_##A(void* a, void* b, void* c) \
 {                                                               \
-    RunFunctionFmt(my32_XNDestroyCallback_fct_##A, "ppp", a, b);  \
+    RunFunctionFmt(my32_XNDestroyCallback_fct_##A, "ppp", a, b, c);  \
 }
 SUPER()
 #undef GO
@@ -1044,7 +1044,7 @@ static void* findXNDestroyCallbackFct(void* fct)
 static uintptr_t my32_XNPreeditStartCallback_fct_##A = 0;                 \
 static void my32_XNPreeditStartCallback_##A(void* a, void* b, void* c)    \
 {                                                                       \
-    RunFunctionFmt(my32_XNPreeditStartCallback_fct_##A, "ppp", a, b);     \
+    RunFunctionFmt(my32_XNPreeditStartCallback_fct_##A, "ppp", a, b, c);     \
 }
 SUPER()
 #undef GO
@@ -1067,7 +1067,7 @@ static void* findXNPreeditStartCallbackFct(void* fct)
 static uintptr_t my32_XNPreeditDoneCallback_fct_##A = 0;              \
 static void my32_XNPreeditDoneCallback_##A(void* a, void* b, void* c) \
 {                                                                   \
-    RunFunctionFmt(my32_XNPreeditDoneCallback_fct_##A, "ppp", a, b);  \
+    RunFunctionFmt(my32_XNPreeditDoneCallback_fct_##A, "ppp", a, b, c);  \
 }
 SUPER()
 #undef GO
@@ -1090,7 +1090,7 @@ static void* findXNPreeditDoneCallbackFct(void* fct)
 static uintptr_t my32_XNPreeditDrawCallback_fct_##A = 0;              \
 static void my32_XNPreeditDrawCallback_##A(void* a, void* b, void* c) \
 {                                                                   \
-    RunFunctionFmt(my32_XNPreeditDrawCallback_fct_##A, "ppp", a, b);  \
+    RunFunctionFmt(my32_XNPreeditDrawCallback_fct_##A, "ppp", a, b, c);  \
 }
 SUPER()
 #undef GO
@@ -1113,7 +1113,7 @@ static void* findXNPreeditDrawCallbackFct(void* fct)
 static uintptr_t my32_XNPreeditCaretCallback_fct_##A = 0;                 \
 static void my32_XNPreeditCaretCallback_##A(void* a, void* b, void* c)    \
 {                                                                       \
-    RunFunctionFmt(my32_XNPreeditCaretCallback_fct_##A, "ppp", a, b);     \
+    RunFunctionFmt(my32_XNPreeditCaretCallback_fct_##A, "ppp", a, b, c);     \
 }
 SUPER()
 #undef GO
@@ -1136,7 +1136,7 @@ static void* findXNPreeditCaretCallbackFct(void* fct)
 static uintptr_t my32_XNPreeditStateNotifyCallback_fct_##A = 0;               \
 static void my32_XNPreeditStateNotifyCallback_##A(void* a, void* b, void* c)  \
 {                                                                           \
-    RunFunctionFmt(my32_XNPreeditStateNotifyCallback_fct_##A, "ppp", a, b);   \
+    RunFunctionFmt(my32_XNPreeditStateNotifyCallback_fct_##A, "ppp", a, b, c);   \
 }
 SUPER()
 #undef GO
@@ -1159,7 +1159,7 @@ static void* findXNPreeditStateNotifyCallbackFct(void* fct)
 static uintptr_t my32_XNStatusStartCallback_fct_##A = 0;                  \
 static void my32_XNStatusStartCallback_##A(void* a, void* b, void* c)     \
 {                                                                       \
-    RunFunctionFmt(my32_XNStatusStartCallback_fct_##A, "ppp", a, b);      \
+    RunFunctionFmt(my32_XNStatusStartCallback_fct_##A, "ppp", a, b, c);      \
 }
 SUPER()
 #undef GO
@@ -1182,7 +1182,7 @@ static void* findXNStatusStartCallbackFct(void* fct)
 static uintptr_t my32_XNStatusDoneCallback_fct_##A = 0;               \
 static void my32_XNStatusDoneCallback_##A(void* a, void* b, void* c)  \
 {                                                                   \
-    RunFunctionFmt(my32_XNStatusDoneCallback_fct_##A, "ppp", a, b);   \
+    RunFunctionFmt(my32_XNStatusDoneCallback_fct_##A, "ppp", a, b, c);   \
 }
 SUPER()
 #undef GO
@@ -1205,7 +1205,7 @@ static void* findXNStatusDoneCallbackFct(void* fct)
 static uintptr_t my32_XNStatusDrawCallback_fct_##A = 0;               \
 static void my32_XNStatusDrawCallback_##A(void* a, void* b, void* c)  \
 {                                                                   \
-    RunFunctionFmt(my32_XNStatusDrawCallback_fct_##A, "ppp", a, b);   \
+    RunFunctionFmt(my32_XNStatusDrawCallback_fct_##A, "ppp", a, b, c);   \
 }
 SUPER()
 #undef GO
@@ -1228,7 +1228,7 @@ static void* findXNStatusDrawCallbackFct(void* fct)
 static uintptr_t my32_XNR6PreeditCallback_fct_##A = 0;                \
 static void my32_XNR6PreeditCallback_##A(void* a, void* b, void* c)   \
 {                                                                   \
-    RunFunctionFmt(my32_XNR6PreeditCallback_fct_##A, "ppp", a, b);    \
+    RunFunctionFmt(my32_XNR6PreeditCallback_fct_##A, "ppp", a, b, c);    \
 }
 SUPER()
 #undef GO
@@ -1251,7 +1251,7 @@ static void* findXNR6PreeditCallbackFct(void* fct)
 static uintptr_t my32_XNStringConversionCallback_fct_##A = 0;                 \
 static void my32_XNStringConversionCallback_##A(void* a, void* b, void* c)    \
 {                                                                           \
-    RunFunctionFmt(my32_XNStringConversionCallback_fct_##A, "ppp", a, b);     \
+    RunFunctionFmt(my32_XNStringConversionCallback_fct_##A, "ppp", a, b, c);     \
 }
 SUPER()
 #undef GO
@@ -1969,16 +1969,16 @@ EXPORT int my32_XGetWMNormalHints(x64emu_t* emu, void* dpy, XID window, void* hi
     }
     return ret;
 }
-EXPORT int my32_XGetWMProtocols(x64emu_t* emu, void* dpy, XID window, void* hints, long_t* supplied)
+EXPORT int my32_XGetWMProtocols(x64emu_t* emu, void* dpy, XID window, ptr_t* protocols_return, long_t* count_return)
 {
-    long supplied_l = 0;
-    int hints_l[17+2] = {0};
-    int ret = my->XGetWMProtocols(dpy, window, hints?hints_l:NULL, supplied?(&supplied_l):NULL);
-    if(supplied) *supplied = to_long(supplied_l);
-    if(hints) {
-        *(long_t*)hints = to_long(*(long*)hints_l);
-        memcpy(hints+4, hints_l+2, 17*4);
-    }
+    XID* protocols_l = NULL;
+    long count_l = 0;
+    int ret = my->XGetWMProtocols(dpy, window, protocols_return?(&protocols_l):NULL, count_return?(&count_l):NULL);
+    if(count_return) *count_return = to_long(count_l);
+    if(protocols_return) *protocols_return = to_ptrv(protocols_l);
+    if(protocols_l)
+        for(int i=0; i<to_long(count_l); ++i)
+            ((XID_32*)protocols_l)[i] = to_ulong(protocols_l[i]);
     return ret;
 }
 EXPORT void* my32__XGetRequest(x64emu_t* emu, my_XDisplay_t* dpy, uint8_t type, size_t len)
@@ -2573,7 +2573,7 @@ EXPORT void my32_XFreeFontSet(x64emu_t* emu,void* dpy, my_XFontSet_32_t* set)
         box32_free(set->names[i]);
     box32_free(set->names);
     for(int i=0; i<set->fonts_size; ++i)
-        box32_free(set->names[i]);
+        box32_free(set->fonts[i]);
     box32_free(set->fonts);
     box32_free(set);
 }

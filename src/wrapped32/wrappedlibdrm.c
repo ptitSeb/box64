@@ -393,17 +393,17 @@ EXPORT void* my32_drmModeGetConnectorCurrent(x64emu_t* emu, int fd, uint32_t id)
     return inplace_drmModeConnector_shrink(my->drmModeGetConnectorCurrent(fd, id));
 }
 
-EXPORT void my32_drmModeFreeConnector(void* v)
+EXPORT void my32_drmModeFreeConnector(x64emu_t* emu, void* v)
 {
     my->drmModeFreeConnector(inplace_drmModeConnector_enlarge(v));
 }
 
-EXPORT void my32_drmModeFreeResources(void* v)
+EXPORT void my32_drmModeFreeResources(x64emu_t* emu, void* v)
 {
     my->drmModeFreeResources(inplace_drmModeRes_enlarge(v));
 }
 
-EXPORT void* my32_drmModeGetResources(int fd)
+EXPORT void* my32_drmModeGetResources(x64emu_t* emu, int fd)
 {
     return inplace_drmModeRes_shrink(my->drmModeGetResources(fd));
 }

@@ -102,7 +102,7 @@ void inplace_XcursorImages_shrink(void* a)
 	my_XcursorImages_32_t* dst = a;
 
 	for(int i=0; i<src->nimage; ++i)
-		inplace_XcursorCursors_shrink(src->images[i]);
+		inplace_XcursorImage_shrink(src->images[i]);
 	for(int i=0; i<src->nimage; ++i)
 		((ptr_t*)src->images)[i] = to_ptrv(src->images[i]);
 	dst->nimage = src->nimage;
@@ -122,7 +122,7 @@ void inplace_XcursorImages_enlarge(void* a)
 	for(int i=dst->nimage-1; i>=0; --i)
 		dst->images[i] = from_ptrv(((ptr_t*)dst->images)[i]);
 	for(int i=dst->nimage-1; i>=0; --i)
-		inplace_XcursorCursors_enlarge(dst->images[i]);
+		inplace_XcursorImage_enlarge(dst->images[i]);
 }
 
 EXPORT void* my32_XcursorCursorsCreate(x64emu_t* emu, void* dpy, int n)

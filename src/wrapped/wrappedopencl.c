@@ -138,9 +138,9 @@ EXPORT void* my_clCreateContextFromType(x64emu_t* emu, void* prop, uint32_t type
     return my->clCreateContextFromType(prop, type, find_notity_context_Fct(f), data, ret);
 }
 
-EXPORT int my_clEnqueueNativeKernel(x64emu_t* emu, void* f, void* args, size_t nb_args, uint32_t nb_mem, void* mem, void* mem_loc, uint32_t nb_events, void* events, void* event)
+EXPORT int my_clEnqueueNativeKernel(x64emu_t* emu, void* queue, void* f, void* args, size_t nb_args, uint32_t nb_mem, void* mem, void* mem_loc, uint32_t nb_events, void* events, void* event)
 {
-    return my->clEnqueueNativeKernel(find_user_function_Fct(f), args, nb_args, nb_mem, mem, mem_loc, nb_events, events, event);
+    return my->clEnqueueNativeKernel(queue, find_user_function_Fct(f), args, nb_args, nb_mem, mem, mem_loc, nb_events, events, event);
 }
 
 EXPORT int my_clSetMemObjectDestructorCallback(x64emu_t* emu, void* mem, void* f, void* data)
@@ -148,9 +148,9 @@ EXPORT int my_clSetMemObjectDestructorCallback(x64emu_t* emu, void* mem, void* f
     return my->clSetMemObjectDestructorCallback(mem, find_notify_program_Fct(f), data);
 }
 
-EXPORT int my_clSetEventCallback(x64emu_t* emu, void* event, void*f, void* data)
+EXPORT int my_clSetEventCallback(x64emu_t* emu, void* event, int type, void* f, void* data)
 {
-    return my->clSetEventCallback(event, find_notity_event_Fct(f), data);
+    return my->clSetEventCallback(event, type, find_notity_event_Fct(f), data);
 }
 
 EXPORT int my_clCompileProgram(x64emu_t* emu, void* program, uint32_t nb_devices, void* devices, void* options, uint32_t nb_headers, void* headers, void* headers_inc, void* f, void* data)

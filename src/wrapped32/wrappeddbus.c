@@ -445,10 +445,12 @@ EXPORT int my32_dbus_message_get_args(x64emu_t* emu, void* message, void* e, int
     int nstr = 0;
     // count
     while(type) {
-        if(type == ((int)'a')) {idx+=2; nstr+=2;}
-        else if((type == (int)'s') || (type == (int)'o') || (type == (int)'g')) { nstr++; idx++;}
-        else idx++;
+        if(type == (int)'a')      { nstr += 2; }
+        else if(type == (int)'s' || type == (int)'o' || type == (int)'g') { nstr++; }
+        else                      { nstr++; }
+        if(type == (int)'a') ++idx;          /* array uses one extra slot pair */
         type = V[idx*2+1];
+        ++idx;
     }
     int count = idx*2;
     void* array[count + nstr];

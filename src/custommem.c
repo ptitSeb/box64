@@ -718,6 +718,7 @@ void* map128_customMalloc(size_t size, int is32bits)
                 }
             }
             p_blocks[i].size = allocsize;
+            mutex_lock(&mutex_blocks);
         }
         #ifdef TRACE_MEMSTAT
         printf_log(LOG_INFO, "Custommem: Failed to alloc 32bits: allocation %p-%p for 128byte MAP Alloc p_blocks[%d]\n", p, p+allocsize, i);
@@ -725,6 +726,7 @@ void* map128_customMalloc(size_t size, int is32bits)
         p_blocks[i].maxfree = allocsize - mapsize;
         p_blocks[i].is32bits = 0;
         errno = ENOMEM;
+        mutex_unlock(&mutex_blocks);
         return NULL;
     }
     #ifdef TRACE_MEMSTAT
@@ -846,6 +848,7 @@ void* map64_customMalloc(size_t size, int is32bits)
         p_blocks[i].maxfree = allocsize - mapsize;
         p_blocks[i].is32bits = 0;
         errno = ENOMEM;
+        mutex_unlock(&mutex_blocks);
         return NULL;
     }
 
@@ -990,6 +993,7 @@ void* internal_customMalloc(size_t size, int is32bits)
                 }
             }
             p_blocks[i].size = allocsize;
+            mutex_lock(&mutex_blocks);
         }
         #ifdef TRACE_MEMSTAT
         printf_log(LOG_INFO, "Custommem: Failed to alloc 32bits: allocation %p-%p for LIST Alloc p_blocks[%d]\n", p, p+allocsize, i);
@@ -997,6 +1001,7 @@ void* internal_customMalloc(size_t size, int is32bits)
         p_blocks[i].maxfree = allocsize - sizeof(blockmark_t)*2;
         p_blocks[i].is32bits = 0;
         errno = ENOMEM;
+        mutex_unlock(&mutex_blocks);
         return NULL;
     }
     #ifdef TRACE_MEMSTAT
@@ -1282,6 +1287,7 @@ void* internal_customMemAligned(size_t align, size_t size, int is32bits)
                 }
             }
             p_blocks[i].size = allocsize;
+            mutex_lock(&mutex_blocks);
         }
         #ifdef TRACE_MEMSTAT
         printf_log(LOG_INFO, "Custommem: Failed to aligned alloc 32bits: allocation %p-%p for LIST Alloc p_blocks[%d]\n", p, p+allocsize, i);
@@ -1289,6 +1295,7 @@ void* internal_customMemAligned(size_t align, size_t size, int is32bits)
         p_blocks[i].is32bits = 0;
         p_blocks[i].maxfree = allocsize - sizeof(blockmark_t)*2;
         errno = ENOMEM;
+        mutex_unlock(&mutex_blocks);
         return NULL;
     }
     #ifdef TRACE_MEMSTAT

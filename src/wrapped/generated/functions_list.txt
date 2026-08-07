@@ -140,7 +140,6 @@
 #() fWp
 #() vFEi
 #() vFEp
-#() vFEb
 #() vFcc
 #() vFww
 #() vFii
@@ -190,7 +189,6 @@
 #() vFpL
 #() vFpp
 #() vFpS
-#() vFpA
 #() vFSi
 #() vFSl
 #() vFSp
@@ -246,7 +244,6 @@
 #() iFpO
 #() iFpS
 #() iFpH
-#() iFpA
 #() iFSi
 #() iFSp
 #() iFHp
@@ -554,7 +551,6 @@
 #() vFppL
 #() vFppp
 #() vFppV
-#() vFppA
 #() vFpHi
 #() vFSpi
 #() vFSpL
@@ -701,7 +697,6 @@
 #() iFSpi
 #() iFSpL
 #() iFSpp
-#() iFSpA
 #() iFHHp
 #() iFbpp
 #() IFiIi
@@ -1163,7 +1158,6 @@
 #() vFpppl
 #() vFpppL
 #() vFpppp
-#() vFpppV
 #() vFSpii
 #() vFSppi
 #() vFHHpi
@@ -1731,6 +1725,7 @@
 #() vFEpppi
 #() vFEpppu
 #() vFEpppp
+#() vFEpppV
 #() vFiiiii
 #() vFiiiiu
 #() vFiiipi
@@ -1830,7 +1825,6 @@
 #() vFpiiup
 #() vFpiiff
 #() vFpiipp
-#() vFpiipV
 #() vFpiuuu
 #() vFpilpp
 #() vFpipii
@@ -1865,6 +1859,7 @@
 #() vFplplp
 #() vFpLiii
 #() vFpLiiL
+#() vFpLipp
 #() vFpLLLL
 #() vFpLLLp
 #() vFpLLpp
@@ -2394,6 +2389,7 @@
 #() iWppppp
 #() vFEiiipp
 #() vFEpiwpp
+#() vFEpiipV
 #() vFEpiLpp
 #() vFEpippp
 #() vFEpuipV
@@ -2724,7 +2720,6 @@
 #() iFppfipp
 #() iFppdidd
 #() iFpplupp
-#() iFpplppi
 #() iFppLiWL
 #() iFppLipp
 #() iFppLupp
@@ -3116,6 +3111,7 @@
 #() iFEppippp
 #() iFEppupup
 #() iFEppuppp
+#() iFEpplppi
 #() iFEppLpIu
 #() iFEpppLpp
 #() iFEpppppL
@@ -3846,7 +3842,6 @@
 #() iFEpuppupppp
 #() iFEpupppLppL
 #() iFEppiippppp
-#() iFEppLuppupp
 #() iFEppppLpppp
 #() iFEppppppipp
 #() iFEpppppppip
@@ -3946,6 +3941,7 @@
 #() iFEppiipppppp
 #() iFEppLpLpLLpp
 #() iFEpppupppppp
+#() iFEpppLuppupp
 #() iFEpppppppppp
 #() iFuiiiiuuiiip
 #() iFuppipipippi
@@ -6676,7 +6672,7 @@ wrappedlibx11xcb:
 wrappedlibxau:
 wrappedlibxaw:
 wrappedlibxcb:
-- vFb:
+- vFp:
   - xcb_disconnect
 - pFip:
   - xcb_connect_to_fd
@@ -6826,8 +6822,9 @@ wrappedopenal:
   - alRequestFoldbackStart
 wrappedopencl:
 - iFppp:
-  - clSetEventCallback
   - clSetMemObjectDestructorCallback
+- iFpipp:
+  - clSetEventCallback
 - pFpuppp:
   - clCreateContextFromType
 - iFpupppp:
@@ -6836,10 +6833,10 @@ wrappedopencl:
   - clCreateContext
 - iFpuppupppp:
   - clCompileProgram
-- iFppLuppupp:
-  - clEnqueueNativeKernel
 - pFpuppupppp:
   - clLinkProgram
+- iFpppLuppupp:
+  - clEnqueueNativeKernel
 wrappedp11kit:
 - vFppp:
   - p11_kit_pin_unregister_callback
