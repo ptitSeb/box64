@@ -2108,21 +2108,34 @@ static long isProcMem(const char* path)
     return 0;
 }
 
+// buf may not end with NULL and prefix must end with NULL.
+static int start_with(char *buf, ssize_t buflen, char *prefix)
+{
+    size_t pre_len = strlen(prefix);
+    if ((size_t)buflen < pre_len)
+        return 0;
+    return memcmp(buf, prefix, pre_len) == 0;
+}
+
 EXPORT ssize_t my_readlink(x64emu_t* emu, void* path, void* buf, size_t sz)
 {
     if(isProcSelf((const char*)path, "exe")) {
         // special case for self...
-        return strlen(strncpy((char*)buf, emu->context->fullpath, sz));
+        size_t srclen = strlen(emu->context->fullpath);
+        size_t cplen = (srclen >= sz) ? sz : srclen;
+        memcpy(buf, emu->context->fullpath, cplen);
+        return (ssize_t)cplen;
     }
     ssize_t ret = readlink((const char*)path, (char*)buf, sz);
     int pid = (ret>0)?isProcAny(path, "exe"):0;
-    if(ret>0 && (pid!=-1) && (strstr(buf, my_context->box64path)==buf)) {
-        int ok = !strcmp(buf, my_context->box64path);
+    if(ret>0 && (pid!=-1) && start_with(buf, ret, my_context->box64path)) {
+        size_t box64path_len = strlen(my_context->box64path);
+        int ok = !memcmp(buf, my_context->box64path, box64path_len);
         if(!ok) {
-            char _deleted[strlen(my_context->box64path)+strlen(" (deleted)")+1];
+            char _deleted[box64path_len+strlen(" (deleted)")+1];
             strcpy(_deleted, my_context->box64path);
             strcat(_deleted, " (deleted)");
-            ok = !strcmp(buf, _deleted);
+            ok = !memcmp(buf, _deleted, strlen(_deleted));
         }
         if(ok) {
             // this is a process run with box64, try to grab the cmdline of the process to try gather the real binary launched
@@ -2131,36 +2144,36 @@ EXPORT ssize_t my_readlink(x64emu_t* emu, void* path, void* buf, size_t sz)
             sprintf(cmdline_name, "/proc/%d/cmdline", pid);
             FILE* cmdline = fopen(cmdline_name, "r");
             if(cmdline) {
-                ssize_t sz_cmd = 0;
                 char filename[4096] = {0};  // first arg should be the program name
-                sz_cmd = fread(filename, 1, 4095, cmdline); // keep last char to end the string
-                sz = sz_cmd > sz ? sz : sz_cmd;
+                size_t sz_cmd = fread(filename, 1, 4095, cmdline); // keep last char to end the string
                 fclose(cmdline);
                 if(filename[0]=='/') {
+                    size_t guestpath_len = strnlen(filename, sz_cmd);
+                    sz = guestpath_len > sz ? sz : guestpath_len;
                     // absolute path, easy...
-                    strncpy(buf, filename, sz);
-                    if(strlen(filename)<sz)
-                        sz = strlen(filename);
+                    memcpy(buf, filename, sz);
                     return sz;
-                }
-                if(filename[0]=='.') {
+                } else if(filename[0] != 0) {
                     // relative path, need to grap cwd and cannonicalise the path
-                    char cwd_name[strlen(path)+4];
-                    sprintf(cwd_name, "/proc/%d/cwd", pid);
+                    // box64 ./test_app or box64 test_app
+                    char cwd_name[36] = {0};
+                    snprintf(cwd_name, sizeof(cwd_name), "/proc/%d/cwd", pid);
                     char cwd[MAX_PATH] = {0};
-                    if(readlink(cwd_name, cwd, MAX_PATH)>0 && strlen(cwd)+strlen(path)+1<MAX_PATH) {
+                    if(readlink(cwd_name, cwd, MAX_PATH-1)>0 && strlen(cwd)+strlen(filename)+1<MAX_PATH) {
                         strcat(cwd, "/");
-                        strcat(cwd, path);
+                        strcat(cwd, filename);
                         char* real = box_realpath(cwd, NULL);
-                        strncpy(buf, filename, sz);
-                        if(strlen(filename)<sz)
-                            sz = strlen(filename);
+                        // No exit, so failure.
+                        if (!real)
+                            return ret;
+                        size_t sz_real = strlen(real);
+                        sz = sz_real > sz ? sz : sz_real;
+                        memcpy(buf, real, sz);
                         box_free(real);
                         return sz;
                     }
                     // overflow... so falure
                 }
-                // not an absolute or a relative path... forget it
             }
         }
     }
