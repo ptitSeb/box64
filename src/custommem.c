@@ -1524,6 +1524,12 @@ int MmaplistAddBlock_internal(mmaplist_t* list, void* map, void* orig, size_t si
             // adjust guest source addresses with delta_map
             bl->x64_addr += delta_map;
             bl->x64_readaddr += delta_map;
+            if(bl->x64_size && bl->hash && bl->hash != X31_hash_code((void*)bl->x64_readaddr, bl->x64_size)) {
+                // dynarec_log(LOG_INFO, "DynaCache block %p for %p-%p is stale (source content changed), discarding it\n", bl, (void*)bl->x64_addr, (void*)(bl->x64_addr+bl->x64_size));
+                bl->gone = 1;
+                p = NEXT_BLOCK((blockmark_t*)p);
+                continue;
+            }
             for (int j = 0; j < bl->sep_size; ++j) {
                 // SEP native entries also carry a hidden dynablock reference.
                 *(dynablock_t**)(bl->block + bl->sep[j].nat_offs - sizeof(void*)) = bl;
