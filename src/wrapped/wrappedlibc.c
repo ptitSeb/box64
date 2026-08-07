@@ -3675,7 +3675,7 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, size_t length, int prot, int f
     // their 4k guest pages independently
     if(box64_pagesize > X86_PAGE_SIZE && addr && length && end > start && mapped_end >= end &&
        !(start & (X86_PAGE_SIZE - 1)) && (flags & MAP_FIXED) && (flags & MAP_ANONYMOUS) &&
-       (flags & MAP_PRIVATE) && !(flags & MAP_SHARED) && fd == -1 && !offset && host_end &&
+       (flags & MAP_PRIVATE) && !(flags & MAP_SHARED) && !offset && host_end &&
        (start != host_start || mapped_end != host_end) &&
        (start == host_start || (memExist(host_start) && memExist(host_start + box64_pagesize - 1))) &&
        (mapped_end == host_end || (memExist(host_end - box64_pagesize) && memExist(host_end - 1)))) {
