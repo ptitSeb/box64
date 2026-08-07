@@ -647,7 +647,7 @@ typedef struct my_wl_touch_listener_s {
 static my_wl_touch_listener_t* ref_wl_touch_listener_##A = NULL;                                                    \
 static void my_wl_touch_listener_down_##A(void* a, void* b, uint32_t c, uint32_t d, void* e, int f, int g, int h)   \
 {                                                                                                                   \
-    RunFunctionFmt(ref_wl_touch_listener_##A->down, "ppuuppiii", a, b, c, d, e, f, g, h);                           \
+    RunFunctionFmt(ref_wl_touch_listener_##A->down, "ppuupiii", a, b, c, d, e, f, g, h);                           \
 }                                                                                                                   \
 static void my_wl_touch_listener_up_##A(void* a, void* b, uint32_t c, uint32_t d, int e)                            \
 {                                                                                                                   \
