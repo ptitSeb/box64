@@ -184,8 +184,11 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(vwarn, vFpA_t) \
 	GO(vwarnx, vFpA_t) \
 	GO(pidfd_open, iFiu_t) \
+	GO(__getrlimit, iFip_t) \
 	GO(fstat, iFip_t) \
 	GO(fstat64, iFip_t) \
+	GO(getrlimit, iFup_t) \
+	GO(getrlimit64, iFup_t) \
 	GO(setrlimit, iFup_t) \
 	GO(__sigsetjmp, iFpi_t) \
 	GO(backtrace, iFpi_t) \

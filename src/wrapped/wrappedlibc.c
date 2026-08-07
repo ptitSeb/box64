@@ -3837,9 +3837,10 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, size_t length, int prot, int f
             last_mmap_0_len = 0;
         }
         #endif
-        if(emu)
+        if(emu) {
             setProtection_mmap((uintptr_t)ret, length, prot);
-        else
+            setGuestFakeProtection((uintptr_t)ret, length, prot);
+        } else
             setProtection_box((uintptr_t)ret, length, prot);
         if(emulated_first_edge) {
             if(emu)
@@ -3876,18 +3877,21 @@ EXPORT void* my_mremap(x64emu_t* emu, void* old_addr, size_t old_size, size_t ne
         if(ret==old_addr) {
             if(old_size && old_size<new_size) {
                 setProtection_mmap((uintptr_t)ret+old_size, new_size-old_size, prot);
+                setGuestFakeProtection((uintptr_t)ret+old_size, new_size-old_size, prot);
                 #ifdef DYNAREC
                 if(BOX64ENV(dynarec))
                     addDBFromAddressRange((uintptr_t)ret+old_size, new_size-old_size);
                 #endif
             } else if(old_size && new_size<old_size) {
                 freeProtection((uintptr_t)ret+new_size, old_size-new_size);
+                freeGuestFakeProtection((uintptr_t)ret+new_size, old_size-new_size);
                 #ifdef DYNAREC
                 if(BOX64ENV(dynarec))
                     cleanDBFromAddressRange((uintptr_t)ret+new_size, old_size-new_size, 1);
                 #endif
             } else if(!old_size) {
                 setProtection_mmap((uintptr_t)ret, new_size, prot);
+                setGuestFakeProtection((uintptr_t)ret, new_size, prot);
                 #ifdef DYNAREC
                 if(BOX64ENV(dynarec))
                     addDBFromAddressRange((uintptr_t)ret, new_size);
@@ -3900,12 +3904,14 @@ EXPORT void* my_mremap(x64emu_t* emu, void* old_addr, size_t old_size, size_t ne
             #endif
             ) {
                 freeProtection((uintptr_t)old_addr, old_size);
+                freeGuestFakeProtection((uintptr_t)old_addr, old_size);
                 #ifdef DYNAREC
                 if(BOX64ENV(dynarec))
                     cleanDBFromAddressRange((uintptr_t)old_addr, old_size, 1);
                 #endif
             }
             setProtection_mmap((uintptr_t)ret, new_size, prot); // should copy the protection from old block
+            setGuestFakeProtection((uintptr_t)ret, new_size, prot);
             #ifdef DYNAREC
             if(BOX64ENV(dynarec))
                 addDBFromAddressRange((uintptr_t)ret, new_size);
@@ -3962,6 +3968,12 @@ EXPORT int my_munmap(x64emu_t* emu, void* addr, size_t length)
             freeProtection(start, length);
         else if(unmap_length)
             freeProtection(unmap_start, unmap_length);
+        if(partial_host_pages) {
+            setGuestFakeProtection(start, length, 0);
+            if(unmap_length)
+                freeGuestFakeProtection(unmap_start, unmap_length);
+        } else
+            freeGuestFakeProtection(start, length);
         RemoveMapping((uintptr_t)addr, length);
     }
     errno = e;  // preseve errno
@@ -3981,7 +3993,10 @@ EXPORT int my_mprotect(x64emu_t* emu, void *addr, unsigned long len, int prot)
     uintptr_t start = (uintptr_t)addr;
     if(box64_pagesize == X86_PAGE_SIZE) {
         int ret = mprotect(addr, len, prot);
-        if(!ret && len) updateProtection(start, len, prot);
+        if(!ret && len) {
+            updateProtection(start, len, prot);
+            setGuestFakeProtection(start, len, prot);
+        }
         return ret;
     }
     if(start & (X86_PAGE_SIZE - 1)) {
@@ -3994,9 +4009,12 @@ EXPORT int my_mprotect(x64emu_t* emu, void *addr, unsigned long len, int prot)
     uintptr_t host_end = (end + box64_pagesize - 1) & ~(box64_pagesize - 1);
 
     if(host_end - host_start == box64_pagesize && (start != host_start || end != host_end)) {
-        prot |= getProtection(host_start) & ~PROT_CUSTOM;
-        int ret = mprotect((void*)host_start, box64_pagesize, prot);
-        if(!ret) updateProtection(host_start, box64_pagesize, prot);
+        int host_prot = prot | (getProtection(host_start) & ~PROT_CUSTOM);
+        int ret = mprotect((void*)host_start, box64_pagesize, host_prot);
+        if(!ret) {
+            updateProtection(host_start, box64_pagesize, host_prot);
+            setGuestFakeProtection(start, end - start, prot);
+        }
         return ret;
     }
 
@@ -4014,9 +4032,15 @@ EXPORT int my_mprotect(x64emu_t* emu, void *addr, unsigned long len, int prot)
         if(ret) return -1;
         updateProtection(host_end, box64_pagesize, host_prot);
     }
-    if(host_start == host_end) return 0;
+    if(host_start == host_end) {
+        setGuestFakeProtection(start, end - start, prot);
+        return 0;
+    }
     int ret = mprotect((void*)host_start, host_end - host_start, prot);
-    if(!ret) updateProtection(host_start, host_end - host_start, prot);
+    if(!ret) {
+        updateProtection(host_start, host_end - host_start, prot);
+        setGuestFakeProtection(start, end - start, prot);
+    }
     return ret;
 }
 
@@ -4261,6 +4285,30 @@ void obstackSetup();
 EXPORT void* my_malloc(unsigned long size)
 {
     return calloc(1, size);
+}
+
+static int check_getrlimit_buffer(void* rlim, size_t size)
+{
+    if(isGuestRangeFakelyProtected((uintptr_t)rlim, size, PROT_WRITE)) return 1;
+    errno = EFAULT;
+    return 0;
+}
+
+EXPORT int my___getrlimit(x64emu_t* emu, int resource, struct rlimit* rlim)
+{
+    (void)emu;
+    return check_getrlimit_buffer(rlim, sizeof(*rlim)) ? getrlimit(resource, rlim) : -1;
+}
+
+EXPORT int my_getrlimit(x64emu_t* emu, uint32_t resource, struct rlimit* rlim)
+{
+    return my___getrlimit(emu, resource, rlim);
+}
+
+EXPORT int my_getrlimit64(x64emu_t* emu, uint32_t resource, struct rlimit64* rlim)
+{
+    (void)emu;
+    return check_getrlimit_buffer(rlim, sizeof(*rlim)) ? getrlimit64(resource, rlim) : -1;
 }
 
 EXPORT int my_setrlimit(x64emu_t* emu, int ressource, const struct rlimit *rlim)

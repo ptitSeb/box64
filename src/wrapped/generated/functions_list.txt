@@ -5545,9 +5545,12 @@ wrappedlibc:
 - iFiu:
   - pidfd_open
 - iFip:
+  - __getrlimit
   - fstat
   - fstat64
 - iFup:
+  - getrlimit
+  - getrlimit64
   - setrlimit
 - iFpi:
   - __sigsetjmp
