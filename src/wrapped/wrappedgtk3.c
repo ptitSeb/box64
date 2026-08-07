@@ -571,7 +571,7 @@ static void* findTranslateEvent(void* fct)
     static uintptr_t my_GCallback_fct_##A = 0;    \
     static void my_GCallback_##A(void* data)      \
     {                                             \
-        RunFunctionFmt(my_GCallback_fct_##A, "p"); \
+        RunFunctionFmt(my_GCallback_fct_##A, "p", data); \
     }
 SUPER()
 #undef GO
