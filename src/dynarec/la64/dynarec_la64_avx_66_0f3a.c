@@ -353,7 +353,7 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             } else {
                 if (u8 > 31) {
                     XVXOR_V(v0, v0, v0);
-                    YMM_UNMARK_UPPER_ZERO(v0);
+                    dyn->lsx.avxcache[gd].upper_zero_pending = 0;
                 } else if (u8 > 15) {
                     VBSRL_V(v0, v1, u8 - 16);
                 } else if (!u8) {

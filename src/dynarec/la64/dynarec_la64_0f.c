@@ -176,9 +176,11 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 ed = (nextop & 7) + (rex.b << 3);
                 v1 = sse_get_reg(dyn, ninst, x1, ed, 0);
                 v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                xmm_live_copy(dyn, ninst, gd, ed);
                 VOR_V(v0, v1, v1);
             } else {
                 v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                xmm_live_write(dyn, ninst, gd);
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
                 VLD(v0, ed, fixedaddress);
@@ -192,8 +194,10 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if (MODREG) {
                 ed = (nextop & 7) + (rex.b << 3);
                 v1 = sse_get_reg_empty(dyn, ninst, x1, ed);
+                xmm_live_copy(dyn, ninst, ed, gd);
                 VOR_V(v1, v0, v0);
             } else {
+                xmm_live_read(dyn, ninst, gd, XMM_WIDTH_128);
                 IF_UNALIGNED(ip) {
                     addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 15, 0);
                     for (int i = 0; i < 16; i++) {
@@ -242,6 +246,9 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETEX(q0, 0, 0);
             GETGX(v0, 1);
+            xmm_live_write(dyn, ninst, gd);
+            xmm_live_read(dyn, ninst, gd, XMM_WIDTH_64);
+            if (MODREG) xmm_live_read(dyn, ninst, (nextop & 7) + (rex.b << 3), XMM_WIDTH_64);
             VILVL_W(v0, q0, v0);
             break;
         case 0x15:
@@ -328,9 +335,11 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 ed = (nextop & 7) + (rex.b << 3);
                 v1 = sse_get_reg(dyn, ninst, x1, ed, 0);
                 v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                xmm_live_copy(dyn, ninst, gd, ed);
                 VOR_V(v0, v1, v1);
             } else {
                 v0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                xmm_live_write(dyn, ninst, gd);
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
                 VLD(v0, ed, fixedaddress);
@@ -344,8 +353,10 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if (MODREG) {
                 ed = (nextop & 7) + (rex.b << 3);
                 v1 = sse_get_reg_empty(dyn, ninst, x1, ed);
+                xmm_live_copy(dyn, ninst, ed, gd);
                 VOR_V(v1, v0, v0);
             } else {
+                xmm_live_read(dyn, ninst, gd, XMM_WIDTH_128);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
                 VST(v0, ed, fixedaddress);
                 SMWRITE2();
@@ -449,6 +460,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETGX(d0, 0);
             GETEXSS(v0, 0, 0);
+            xmm_live_read(dyn, ninst, gd, XMM_WIDTH_32);
             EMIT_COMIS_FLAGS(S, d0, v0, x2);
             break;
         case 0x31:
@@ -970,10 +982,14 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if (MODREG && ((nextop & 7) + (rex.b << 3) == gd)) {
                 // special case for XORPS Gx, Gx
                 q0 = sse_get_reg_empty(dyn, ninst, x1, gd);
+                xmm_live_write(dyn, ninst, gd);
                 VXOR_V(q0, q0, q0);
             } else {
                 q0 = sse_get_reg(dyn, ninst, x1, gd, 1);
                 GETEX(q1, 0, 0);
+                xmm_live_write(dyn, ninst, gd);
+                xmm_live_read(dyn, ninst, gd, XMM_WIDTH_128);
+                if (MODREG) xmm_live_read(dyn, ninst, (nextop & 7) + (rex.b << 3), XMM_WIDTH_128);
                 VXOR_V(q0, q0, q1);
             }
             break;
@@ -1032,6 +1048,7 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             GETEXSD(q0, 0, 0);
             GETGX(q1, 1);
+            xmm_live_write(dyn, ninst, gd);
             VFCVTL_D_S(q1, q0);
             break;
         case 0x5B:

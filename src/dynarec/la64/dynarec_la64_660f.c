@@ -41,6 +41,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
     int v0, v1, v2;
     int q0, q1, q2;
     int d0, d1, d2;
+    xmm_scalar_t scalar;
     int64_t fixedaddress, gdoffset;
     int unscaled;
 
@@ -327,6 +328,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGX(d0, 0);
             GETEXSD(v0, 0, 0);
+            xmm_live_read(dyn, ninst, gd, XMM_WIDTH_64);
             EMIT_COMIS_FLAGS(D, d0, v0, x3);
             break;
         case 0x38: // SSSE3 opcodes
@@ -1886,7 +1888,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             INST_NAME("MOVD Gx, Ed");
             nextop = F8;
             GETGX_empty(v0);
-            v1 = fpu_get_scratch(dyn);
+            v1 = xmm_scalar_begin(dyn, ninst, &scalar, v0, gd, 1, rex.w ? XMM_SCALAR_SD : XMM_SCALAR_SS, XMM_UPPER_CLEAR);
             if (MODREG) {
                 ed = TO_NAT((nextop & 7) + (rex.b << 3));
                 MARKREGs(ed);
@@ -1900,12 +1902,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
                 FLDxw(v1, ed, fixedaddress);
             }
-            VXOR_V(v0, v0, v0);
-            if (rex.w) {
-                VEXTRINS_D(v0, v1, 0); // v0[63:0] = v1[63:0]
-            } else {
-                VEXTRINS_W(v0, v1, 0); // v0[31:0] = v1[31:0]
-            }
+            xmm_scalar_end(dyn, ninst, &scalar);
             break;
         case 0x6F:
             INST_NAME("MOVDQA Gx,Ex");
@@ -1913,9 +1910,11 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             if (MODREG) {
                 v1 = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0);
                 GETGX_empty(v0);
+                xmm_live_copy(dyn, ninst, gd, (nextop & 7) + (rex.b << 3));
                 VOR_V(v0, v1, v1);
             } else {
                 GETGX_empty(v0);
+                xmm_live_write(dyn, ninst, gd);
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
                 VLD(v0, ed, fixedaddress);
@@ -2157,6 +2156,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGX(v0, 0);
             if (rex.w) {
+                xmm_live_read(dyn, ninst, gd, XMM_WIDTH_64);
                 if (MODREG) {
                     ed = TO_NAT((nextop & 7) + (rex.b << 3));
                     MARKREGd(ed);
@@ -2167,6 +2167,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     SMWRITE2();
                 }
             } else {
+                xmm_live_read(dyn, ninst, gd, XMM_WIDTH_32);
                 if (MODREG) {
                     ed = TO_NAT((nextop & 7) + (rex.b << 3));
                     MARKREGd(ed);
@@ -2185,8 +2186,10 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGX(v0, 0);
             if (MODREG) {
                 v1 = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 1);
+                xmm_live_copy(dyn, ninst, (nextop & 7) + (rex.b << 3), gd);
                 VOR_V(v1, v0, v0);
             } else {
+                xmm_live_read(dyn, ninst, gd, XMM_WIDTH_128);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
                 VST(v0, ed, fixedaddress);
                 SMWRITE2();

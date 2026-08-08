@@ -19,6 +19,7 @@ typedef struct arch_arch_s
     uint16_t unaligned:1;
     uint16_t seq:10;    // how many instruction on the same values
     uint16_t up32;      // GPRs with pending 32-bit zero-up at this instruction
+    uint16_t ymm_zero;  // YMM upper halves with a deferred architectural zero
     int16_t rsp;        // pending rsp offset at this instruction
 } arch_arch_t;
 
@@ -26,6 +27,7 @@ typedef struct arch_build_s
 {
     uint8_t unaligned;
     uint16_t up32;
+    uint16_t ymm_zero;
     int16_t rsp;
 } arch_build_t;
 
@@ -36,8 +38,9 @@ static int arch_build(dynarec_la64_t* dyn, int ninst, arch_build_t* arch)
     arch->unaligned = dyn->insts[ninst].unaligned;
     // pending 32-bit zero-ups at this instruction
     arch->up32 = dyn->insts[ninst].up32_pending;
+    arch->ymm_zero = dyn->insts[ninst].vector_liveness.ymm_pending;
     arch->rsp = dyn->insts[ninst].rsp_entry;
-    return arch->unaligned || arch->up32 || arch->rsp;
+    return arch->unaligned || arch->up32 || arch->ymm_zero || arch->rsp;
 }
 
 size_t get_size_arch(dynarec_la64_t* dyn)
@@ -71,6 +74,7 @@ static void build_next(arch_arch_t* arch, arch_build_t* build)
     arch->unaligned = build->unaligned;
     arch->seq = 0;
     arch->up32 = build->up32;
+    arch->ymm_zero = build->ymm_zero;
     arch->rsp = build->rsp;
 }
 
@@ -142,6 +146,12 @@ void adjust_arch(dynablock_t* db, x64emu_t* emu, ucontext_t* p, uintptr_t x64pc)
         int r = __builtin_ctz(up32);
         up32 &= up32 - 1;
         emu->regs[r].q[0] &= 0xffffffffULL;
+    }
+    uint16_t ymm_zero = arch->ymm_zero;
+    while (ymm_zero) {
+        int r = __builtin_ctz(ymm_zero);
+        ymm_zero &= ymm_zero - 1;
+        emu->ymm[r].u128 = 0;
     }
     if (arch->rsp) emu->regs[_SP].q[0] += arch->rsp;
 }
