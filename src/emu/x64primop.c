@@ -112,6 +112,10 @@ extern box64env_t box64env;
 #define PARITY(x)   (((emu->x64emu_parity_tab[(x) / 32] >> ((x) % 32)) & 1) == 0)
 #define XOR2(x) 	(((x) ^ ((x)>>1)) & 0x1)
 
+static const unsigned __int128 UINT128_MAX =(unsigned __int128)(__int128)-1L;
+static const __int128 INT128_MAX = UINT128_MAX >> 1;
+static const __int128 INT128_MIN = -INT128_MAX - 1;
+
 /*----------------------------- Implementation ----------------------------*/
 
 /****************************************************************************
@@ -1411,7 +1415,7 @@ void idiv16(x64emu_t *emu, uint16_t s)
 	}
 
 	dvd = (((int32_t)R_DX) << 16) | R_AX;
-	if (s == 0) {
+	if ((s==0) || ((dvd==INT32_MIN) && ((int16_t)s==-1))) {
 		INTR_RAISE_DIV0(emu);
 		return;
 	}
@@ -1439,7 +1443,7 @@ void idiv32(x64emu_t *emu, uint32_t s)
 	}
 
 	dvd = (((int64_t)R_EDX) << 32) | R_EAX;
-	if (s == 0) {
+	if ((s==0) || ((dvd==INT64_MIN) && ((int32_t)s==-1))) {
 		INTR_RAISE_DIV0(emu);
 		return;
 	}
@@ -1467,7 +1471,7 @@ void idiv64(x64emu_t *emu, uint64_t s)
 	}
 
 	dvd = (((__int128)R_RDX) << 64) | R_RAX;
-	if (s == 0) {
+	if ((s==0) || ((dvd==INT128_MIN) && ((int64_t)s==-1))) {
 		INTR_RAISE_DIV0(emu);
 		return;
 	}
