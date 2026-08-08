@@ -248,7 +248,7 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             nextop = F8;
             GETGWEW(x1, x2, 0);
-            emit_xor16(dyn, ninst, ed, gd, x4, x5, x6);
+            emit_xor16(dyn, ninst, ed, gd, x4, x5);
             EWBACK;
             break;
         case 0x33:
@@ -270,7 +270,7 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 break;
             }
             GETGWEW(x1, x2, 0);
-            emit_xor16(dyn, ninst, gd, ed, x3, x4, x5);
+            emit_xor16(dyn, ninst, gd, ed, x3, x4);
             GWBACK;
             break;
         case 0x35:
@@ -279,7 +279,7 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             i32 = F16;
             BSTRPICK_D(x1, xRAX, 15, 0);
             MOV32w(x2, i32);
-            emit_xor16(dyn, ninst, x1, x2, x3, x4, x5);
+            emit_xor16(dyn, ninst, x1, x2, x3, x4);
             BSTRINSz(xRAX, x1, 15, 0);
             break;
         case 0x39:
@@ -607,7 +607,7 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     else
                         u64 = (uint16_t)(int16_t)F8S;
                     MOV32w(x5, u64);
-                    emit_xor16(dyn, ninst, x1, x5, x2, x4, x6);
+                    emit_xor16(dyn, ninst, x1, x5, x2, x4);
                     EWBACK;
                     break;
                 case 7: // CMP
@@ -732,7 +732,6 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             break;
         case 0x8D:
-            INST_NAME("LEA Gd, Ed");
             nextop = F8;
             GETGDw;
             if (MODREG) {
@@ -741,6 +740,7 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 *need_epilog = 1;
                 *ok = 0;
             } else { // mem <= reg
+                INST_NAME("LEA Gw, Ed");
                 rex.seg = 0;
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 0, 0);
                 BSTRINS_D(gd, ed, 15, 0);
@@ -852,7 +852,7 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             break;
         case 0xA1:
-            INST_NAME("MOV EAX, Od");
+            INST_NAME("MOV AX, Ow");
             if (rex.is32bits && rex.is67)
                 u64 = F16S;
             else if (rex.is32bits || rex.is67)
@@ -870,7 +870,7 @@ uintptr_t dynarec64_66(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             BSTRINSz(xRAX, x2, 15, 0);
             break;
         case 0xA3:
-            INST_NAME("MOV Od, EAX");
+            INST_NAME("MOV Ow, AX");
             if (rex.is32bits && rex.is67)
                 u64 = F16S;
             else if (rex.is32bits || rex.is67)

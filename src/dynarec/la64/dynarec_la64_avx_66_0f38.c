@@ -261,11 +261,6 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
                 GETEYx(v1, 0, 0);
                 GETGYy_empty(v0);
                 d0 = fpu_get_scratch(dyn);
-                /*
-                    xvffintl.s.h  convert [h0..h3,h4..h7,h8..h11,h12..h15] to [h0..h3,h8..h11]
-                    xvffinth.s.h  convert [h0..h3,h4..h7,h8..h11,h12..h15] to [h4..h7,h12..h15]
-                    so user xvpermi.d to reorder input [h0..h3,h4..h7,h8..h11,h12..h15] to [h0..h3,h8..h11,h4..h7,h12..h15]
-                */
                 XVPERMI_D(d0, v1, 0b11011000);
                 XVFCVTL_S_H(v0, d0);
             } else {
@@ -277,7 +272,10 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
         case 0x16:
             INST_NAME("VPERMPS Gx, Vx, Ex");
             nextop = F8;
-            if (!vex.l) UDF();
+            if (!vex.l) {
+                UDF();
+                break;
+            }
             GETGY_empty_VYEY_xy(v0, v1, v2, 0);
             XVPERM_W(v0, v2, v1);
             break;
@@ -292,7 +290,6 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             } else IFX (X_ALL) {
                 X64_SET_EFLAGS(xZR, X_ALL);
             }
-            SET_DFNONE();
             v0 = fpu_get_scratch(dyn);
             IFX (X_ZF) {
                 VAND_Vxy(v0, q1, q0);
@@ -625,7 +622,10 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
         case 0x36:
             INST_NAME("VPERMD Gx, Vx, Ex");
             nextop = F8;
-            if (!vex.l) UDF();
+            if (!vex.l) {
+                UDF();
+                break;
+            }
             GETGY_empty_VYEY_xy(v0, v1, v2, 0);
             XVPERM_W(v0, v2, v1);
             break;
@@ -903,7 +903,6 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             wb1 = u8 >> 6; // scale
             GETVYxy(v2, 1);
             GETGYxy(v0, 1);
-            d0 = fpu_get_scratch(dyn);
             d1 = fpu_get_scratch(dyn);
 
             if (vex.l) {
@@ -990,7 +989,6 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
                 GETVYx(v2, 1);
                 GETGYx(v0, 1);
             }
-            d0 = fpu_get_scratch(dyn);
             d1 = fpu_get_scratch(dyn);
 
             if (vex.l) {
@@ -1287,7 +1285,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
         case 0xDB:
             INST_NAME("VAESIMC Gx, Ex");
             nextop = F8;
-            GETEYx(q1, 0, 0);
+            GETEYx_AES(q1, 0, 0);
             GETGYx_empty(q0);
             if (q0 != q1) {
                 VOR_V(q0, q1, q1);
@@ -1297,7 +1295,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
         case 0xDC:
             INST_NAME("VAESENC Gx, Vx, Ex");
             nextop = F8;
-            GETGY_empty_VYEY_xy(q0, q1, q2, 0);
+            GETGY_empty_VYEYxy_AES(q0, q1, q2, 0);
             if (MODREG && (gd == (nextop & 7) + (rex.b << 3))) {
                 d0 = SCRATCH;
                 VOR_Vxy(d0, q2, q2);
@@ -1335,7 +1333,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
         case 0xDE:
             INST_NAME("VAESDEC Gx, Vx, Ex"); // AES-NI
             nextop = F8;
-            GETGY_empty_VYEY_xy(q0, q1, q2, 0);
+            GETGY_empty_VYEYxy_AES(q0, q1, q2, 0);
             if (MODREG && (gd == (nextop & 7) + (rex.b << 3))) {
                 d0 = SCRATCH;
                 VOR_Vxy(d0, q2, q2);
@@ -1354,7 +1352,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
         case 0xDF:
             INST_NAME("VAESDECLAST Gx, Vx, Ex"); // AES-NI
             nextop = F8;
-            GETGY_empty_VYEY_xy(q0, q1, q2, 0);
+            GETGY_empty_VYEYxy_AES(q0, q1, q2, 0);
             if (MODREG && (gd == (nextop & 7) + (rex.b << 3))) {
                 d0 = SCRATCH;
                 VOR_Vxy(d0, q2, q2);

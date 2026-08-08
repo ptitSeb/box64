@@ -107,8 +107,8 @@ uintptr_t dynarec64_DB(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             case 0xE2:
                 INST_NAME("FNCLEX");
                 LD_H(x2, xEmu, offsetof(x64emu_t, sw));
-                BSTRINS_D(x2, x2, 7, 0);   // IE .. PE, SF, ES
-                BSTRINS_D(x2, x2, 15, 15); // B
+                BSTRINS_D(x2, xZR, 7, 0);   // IE .. PE, SF, ES
+                BSTRINS_D(x2, xZR, 15, 15); // B
                 ST_H(x2, xEmu, offsetof(x64emu_t, sw));
                 break;
             case 0xE3:
@@ -184,6 +184,7 @@ uintptr_t dynarec64_DB(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     MOVGR2FCSR(FCSR2, xZR); // reset all bits
                 }
                 FTINT_W_D(v2, v1);
+                x87_restoreround(dyn, ninst, u8);
                 if (!BOX64ENV(dynarec_fastround)) {
                     MOVFCSR2GR(x5, FCSR2); // get back FPSR to check
                     BSTRPICK_D(x5, x5, FR_V, FR_V);
@@ -193,8 +194,6 @@ uintptr_t dynarec64_DB(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     MARK;
                 }
                 FST_S(v2, wback, fixedaddress);
-                x87_restoreround(dyn, ninst, u8);
-                break;
                 break;
             case 3:
                 INST_NAME("FISTP Ed, ST0");
@@ -206,6 +205,7 @@ uintptr_t dynarec64_DB(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     MOVGR2FCSR(FCSR2, xZR); // reset all bits
                 }
                 FTINT_W_D(v2, v1);
+                x87_restoreround(dyn, ninst, u8);
                 if (!BOX64ENV(dynarec_fastround)) {
                     MOVFCSR2GR(x5, FCSR2); // get back FPSR to check
                     BSTRPICK_D(x5, x5, FR_V, FR_V);
@@ -215,7 +215,6 @@ uintptr_t dynarec64_DB(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     MARK;
                 }
                 FST_S(v2, wback, fixedaddress);
-                x87_restoreround(dyn, ninst, u8);
                 X87_POP_OR_FAIL(dyn, ninst, x3);
                 break;
             case 5:

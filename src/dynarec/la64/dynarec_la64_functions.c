@@ -53,8 +53,12 @@ void fpu_reset_scratch(dynarec_la64_t* dyn)
 int fpu_get_reg_x87(dynarec_la64_t* dyn, int t, int n)
 {
     int i = X870;
-    while (dyn->lsx.fpuused[i])
+    while (i < 24 && dyn->lsx.fpuused[i])
         ++i;
+    if (i >= 24) {
+        dyn->abort = 1;
+        i = 23;
+    }
     dyn->lsx.fpuused[i] = 1;
     dyn->lsx.lsxcache[i].n = n;
     dyn->lsx.lsxcache[i].t = t;
@@ -184,24 +188,6 @@ int lsxcache_get_st_f_i64(dynarec_la64_t* dyn, int ninst, int a)
     return -1;
 }
 
-int lsxcache_get_st_f_noback(dynarec_la64_t* dyn, int ninst, int a)
-{
-    for (int i = 0; i < 24; ++i)
-        if (dyn->insts[ninst].lsx.lsxcache[i].t == LSX_CACHE_ST_F
-            && dyn->insts[ninst].lsx.lsxcache[i].n == a)
-            return i;
-    return -1;
-}
-
-int lsxcache_get_st_f_i64_noback(dynarec_la64_t* dyn, int ninst, int a)
-{
-    for (int i = 0; i < 24; ++i)
-        if ((dyn->insts[ninst].lsx.lsxcache[i].t == LSX_CACHE_ST_I64 || dyn->insts[ninst].lsx.lsxcache[i].t == LSX_CACHE_ST_F)
-            && dyn->insts[ninst].lsx.lsxcache[i].n == a)
-            return i;
-    return -1;
-}
-
 int lsxcache_get_current_st_f(dynarec_la64_t* dyn, int a)
 {
     for (int i = 0; i < 24; ++i)
@@ -229,7 +215,7 @@ static void lsxcache_promote_double_combined(dynarec_la64_t* dyn, int ninst, int
             a = dyn->insts[ninst].lsx.combined2;
         } else
             a = dyn->insts[ninst].lsx.combined1;
-        int i = lsxcache_get_st_f_i64_noback(dyn, ninst, a);
+        int i = lsxcache_get_st_f_i64(dyn, ninst, a);
         if (i >= 0) {
             dyn->insts[ninst].lsx.lsxcache[i].t = LSX_CACHE_ST_D;
             if (dyn->insts[ninst].x87precision) dyn->need_x87check = 2;
@@ -282,7 +268,7 @@ static void lsxcache_promote_double_forward(dynarec_la64_t* dyn, int ninst, int 
             else if (a == dyn->insts[ninst].lsx.combined2)
                 a = dyn->insts[ninst].lsx.combined1;
         }
-        int i = lsxcache_get_st_f_i64_noback(dyn, ninst, a);
+        int i = lsxcache_get_st_f_i64(dyn, ninst, a);
         if (i < 0) return;
         dyn->insts[ninst].lsx.lsxcache[i].t = LSX_CACHE_ST_D;
         if (dyn->insts[ninst].x87precision) dyn->need_x87check = 2;
@@ -705,16 +691,10 @@ static uint32_t insert_byte(uint32_t val, uint8_t b, void* address)
     return val;
 }
 
-static uint16_t extract_half(uint32_t val, void* address)
-{
-    int idx = (((uintptr_t)address) & 3) * 8;
-    return (val >> idx) & 0xffff;
-}
-
 static uint32_t insert_half(uint32_t val, uint16_t h, void* address)
 {
     int idx = (((uintptr_t)address) & 3) * 8;
-    val &= ~(0xffff << idx);
+    val &= ~((uint32_t)0xffff << idx);
     val |= (((uint32_t)h) << idx);
     return val;
 }
@@ -738,9 +718,27 @@ int la64_lock_cas_b_slow(void* addr, uint8_t ref, uint8_t val)
 
 int la64_lock_cas_h_slow(void* addr, uint16_t ref, uint16_t val)
 {
-    uint32_t* aligned = (uint32_t*)(((uintptr_t)addr) & ~3);
-    uint32_t tmp = *aligned;
-    return la64_lock_cas_d(aligned, insert_half(tmp, ref, addr), insert_half(tmp, val, addr));
+    if ((((uintptr_t)addr) & 7) == 7) {
+        pthread_mutex_lock(&my_context->mutex_lock);
+        uint16_t* p = (uint16_t*)addr;
+        uint16_t old = *p;
+        if (old == ref)
+            *p = val;
+        pthread_mutex_unlock(&my_context->mutex_lock);
+        return old != ref;
+    }
+    if ((((uintptr_t)addr) & 3) != 3) {
+        uint32_t* aligned = (uint32_t*)(((uintptr_t)addr) & ~3);
+        uint32_t tmp = *aligned;
+        return la64_lock_cas_d(aligned, insert_half(tmp, ref, addr), insert_half(tmp, val, addr));
+    }
+    uint64_t* aligned = (uint64_t*)(((uintptr_t)addr) & ~7ULL);
+    int idx = (((uintptr_t)addr) & 7) * 8; // 24 here
+    uint64_t mask = ~((uint64_t)0xffff << idx);
+    uint64_t old = *aligned;
+    uint64_t ref64 = (old & mask) | (((uint64_t)ref) << idx);
+    uint64_t val64 = (old & mask) | (((uint64_t)val) << idx);
+    return la64_lock_cas_dd(aligned, ref64, val64);
 }
 
 void print_opcode(dynarec_native_t* dyn, int ninst, uint32_t opcode)
@@ -958,7 +956,7 @@ void tryEarlyFpuBarrier(dynarec_la64_t* dyn, int last_fpu_used, int ninst)
             usefull = 1;
     }
     if (usefull) {
-        if ((BOX64ENV(dynarec_dump) && BOX64ENV(dynarec_dump) != 3) || BOX64ENV(dynarec_log) > 1) dynarec_log(LOG_NONE, "Putting early Float Barrier in %d for %d\n", last_fpu_used, ninst);
+        if ((BOX64ENV(dynarec_dump) && BOX64ENV(dynarec_dump) != 3) || BOX64ENV(dynarec_log) > 1) dynarec_log(LOG_NONE, "Putting early Float Barrier in %d for %d\n", last_fpu_used + 1, ninst);
         dyn->insts[last_fpu_used + 1].x64.barrier |= BARRIER_FLOAT;
     }
 }

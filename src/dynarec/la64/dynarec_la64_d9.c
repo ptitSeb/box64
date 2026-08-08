@@ -141,7 +141,8 @@ uintptr_t dynarec64_D9(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         if (i2 >= 0) {
                             LD_HU(x3, xEmu, offsetof(x64emu_t, fpu_tags));
                             if (i2 > 0) {
-                                BSTRINS_D(x3, xZR, 15, 0);
+                                NOR(x5, xZR, xZR);          // x5 = ~0
+                                BSTRINS_D(x3, x5, 63, 16);
                                 SRLI_D(x3, x3, i2 * 2);
                             }
                             ANDI(x3, x3, 0b11);
@@ -373,20 +374,20 @@ uintptr_t dynarec64_D9(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 v0 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
                 v1 = fpu_get_scratch(dyn);
                 v2 = fpu_get_scratch(dyn);
-                u8 = x87_setround(dyn, ninst, x1, x2);
+                if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x2);
 
                 if (ST_IS_F(0)) {
                     FCMP_S(fcc0, v0, v0, cEQ);
                     BCNEZ_MARK(fcc0);
-                    B_NEXT_nocond;
+                    B_MARK3_nocond;
                     MARK; // v0 is not nan
                     FABS_S(v1, v0);
                     MOV64x(x3, 1ULL << __FLT_MANT_DIG__);
-                    MOVGR2FR_W(v2, x3);
+                    MOVGR2FR_D(v2, x3);
                     FFINT_S_L(v2, v2);
                     FCMP_S(fcc1, v1, v2, cLT);
                     BCNEZ_MARK2(fcc1);
-                    B_NEXT_nocond;
+                    B_MARK3_nocond;
                     MARK2;
                     FTINT_L_S(v1, v0);
                     FFINT_S_L(v1, v1);
@@ -394,7 +395,7 @@ uintptr_t dynarec64_D9(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 } else {
                     FCMP_D(fcc0, v0, v0, cEQ);
                     BCNEZ_MARK(fcc0);
-                    B_NEXT_nocond;
+                    B_MARK3_nocond;
                     MARK; // v0 is not nan
                     FABS_D(v1, v0);
                     MOV64x(x3, 1ULL << __DBL_MANT_DIG__);
@@ -402,13 +403,14 @@ uintptr_t dynarec64_D9(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     FFINT_D_L(v2, v2);
                     FCMP_D(fcc1, v1, v2, cLT);
                     BCNEZ_MARK2(fcc1);
-                    B_NEXT_nocond;
+                    B_MARK3_nocond;
                     MARK2;
                     FTINT_L_D(v1, v0);
                     FFINT_D_L(v1, v1);
                     FCOPYSIGN_D(v0, v1, v0);
                 }
-                x87_restoreround(dyn, ninst, u8);
+                MARK3;
+                if (!BOX64ENV(dynarec_fastround)) x87_restoreround(dyn, ninst, u8);
                 break;
             case 0xFD:
                 INST_NAME("FSCALE");

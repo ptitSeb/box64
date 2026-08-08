@@ -1071,7 +1071,7 @@ void emit_adc8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
 
     CLEAR_FLAGS(s3);
     IFX (X_PEND) {
-        // d_adc8 will use 16bits result to check for CF
+        // d_adc8b recovers CF from op1/op2/res, so an 8bits result is enough
         ST_B(s1, xEmu, offsetof(x64emu_t, res));
     }
     IFX (X_AF | X_OF) {
@@ -1156,7 +1156,7 @@ void emit_adc16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
 
     CLEAR_FLAGS(s3);
     IFX (X_PEND) {
-        // d_adc16 will use 32bits result to check for CF
+        // d_adc16b recovers CF from op1/op2/res, so a 16bits result is enough
         ST_H(s1, xEmu, offsetof(x64emu_t, res));
     }
     IFX (X_AF | X_OF) {

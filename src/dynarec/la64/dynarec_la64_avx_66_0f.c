@@ -162,7 +162,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             }
             GETGYx(v0, 0);
             addr = geted(dyn, addr, ninst, nextop, &ed, x4, x5, &fixedaddress, rex, NULL, 0, 0);
-            VSTELM_D(v0, ed, 0, 1);
+            VSTELM_D(v0, ed, fixedaddress, 1);
             SMWRITE2();
             break;
         case 0x28:
@@ -659,7 +659,6 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                     }
                     break;
                 default:
-                    *ok = 0;
                     DEFAULT;
             }
             break;
@@ -883,12 +882,12 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 case 0x04: VFCMPxy(D, v0, v1, v2, cUNE); break; // Not Equal (or unordered on ARM, not on X86...)
                 case 0x05: VFCMPxy(D, v0, v2, v1, cULE); break; // Greater or equal or unordered
                 case 0x06: VFCMPxy(D, v0, v2, v1, cULT); break; // Greater or unordered
-                case 0x07: VFCMPxy(D, v0, v1, v2, cOR); break;  // Greater or unordered
+                case 0x07: VFCMPxy(D, v0, v1, v2, cOR); break;  // Ordered (neither is NaN)
                 case 0x08: VFCMPxy(D, v0, v1, v2, cUEQ); break; // Equal, or unordered
                 case 0x09: VFCMPxy(D, v0, v1, v2, cULT); break; // Less than or unordered
                 case 0x0a: VFCMPxy(D, v0, v1, v2, cULE); break; // Less or equal or unordered
                 case 0x0b: XVXOR_V(v0, v0, v0); break;          // false
-                case 0x0c: VFCMPxy(D, v0, v1, v2, cNE); break;  // Not Eual, ordered
+                case 0x0c: VFCMPxy(D, v0, v1, v2, cNE); break;  // Not Equal, ordered
                 case 0x0d: VFCMPxy(D, v0, v2, v1, cLE); break;  // Greater or Equal ordered
                 case 0x0e: VFCMPxy(D, v0, v2, v1, cLT); break;  // Greater ordered
                 case 0x0f: VSEQxy(B, v0, v1, v1); break;        // true
@@ -897,7 +896,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
         case 0xC4:
             INST_NAME("VPINSRW Gx, Vx, ED, Ib");
             nextop = F8;
-            GETEWW(0, x5, 1);
+            GETEWW(x3, x5, 1);
             GETVYx(v1, 0);
             GETGYx_empty(v0);
             u8 = F8;

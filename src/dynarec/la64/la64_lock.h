@@ -30,14 +30,11 @@ extern void* la64_lock_storeifref(void* p, void* val, void* ref);
 // Atomically store value to [p] only if [p] is ref. Return old [p] value (so ref or old)
 extern void* la64_lock_storeifref2(void* p, void* val, void* ref);
 
-// Atomically store value to [p] only if [p] is ref. Return new [p] value (so val or old)
+// Atomically store value to [p] only if [p] is ref. Return old [p] value (so ref or old)
 extern uint32_t la64_lock_storeifref_d(void* p, uint32_t val, uint32_t ref);
 
-// Atomically store value to [p] only if [p] is ref. Return new [p] value (so val or old)
+// Atomically store value to [p] only if [p] is ref. Return old [p] value (so ref or old)
 extern uint32_t la64_lock_storeifref2_d(void* p, uint32_t val, uint32_t ref);
-
-// decrement atomically the byte at [p] (but only if p not 0)
-extern void la64_lock_decifnot0b(void* p);
 
 // atomic store (with memory barrier)
 extern void la64_lock_storeb(void* p, uint8_t b);
