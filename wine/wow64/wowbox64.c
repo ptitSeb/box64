@@ -203,6 +203,16 @@ NTSTATUS WINAPI BTCpuGetContext(HANDLE thread, HANDLE process, void* unknown, WO
     return NtQueryInformationThread(thread, ThreadWow64Context, ctx, sizeof(*ctx), NULL);
 }
 
+BOOLEAN WINAPI BTCpuIsProcessorFeaturePresent(UINT feature)
+{
+    return Box64WineIsProcessorFeaturePresent(feature);
+}
+
+void WINAPI BTCpuUpdateProcessorInformation(SYSTEM_CPU_INFORMATION* info)
+{
+    Box64WineUpdateProcessorInformation(info, PROCESSOR_ARCHITECTURE_INTEL);
+}
+
 void WINAPI BTCpuNotifyMemoryDirty(PVOID addr, SIZE_T size)
 {
     printf_log(LOG_DEBUG, "BTCpuNotifyMemoryDirty(%p, %zu)\n", addr, size);
