@@ -2384,14 +2384,14 @@ EXPORT int my32_FT_Reference_Face(x64emu_t* emu, void* face)
     inplace_FT_FaceRec_shrink(face);
     if(!ret) {
         if(!face_ref) face_ref = kh_init(face_ref);
+        khint_t k = kh_get(face_ref, face_ref, (uintptr_t)face);
+        if(k==kh_end(face_ref)) {
+            int r;
+            k = kh_put(face_ref, face_ref, (uintptr_t)face, &r);
+            kh_value(face_ref, k) = 0;
+        }
+        ++kh_value(face_ref, k);
     }
-    khint_t k = kh_get(face_ref, face_ref, (uintptr_t)face);
-    if(k==kh_end(face_ref)) {
-        int ret;
-        k = kh_put(face_ref, face_ref, (uintptr_t)face, &ret);
-        kh_value(face_ref, k) = 0;
-    }
-    ++kh_value(face_ref, k);
     return ret;
 }
 

@@ -11,7 +11,6 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
-typedef void (*vFp_t)(void*);
 typedef void* (*pFp_t)(void*);
 typedef void* (*pFpp_t)(void*, void*);
 typedef void (*vFppp_t)(void*, void*, void*);
@@ -21,8 +20,6 @@ typedef int32_t (*iFppppi_t)(void*, void*, void*, void*, int32_t);
 typedef void* (*pFpuupp_t)(void*, uint32_t, uint32_t, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
-	GO(hb_draw_funcs_destroy, vFp_t) \
-	GO(hb_font_funcs_destroy, vFp_t) \
 	GO(hb_unicode_funcs_reference, pFp_t) \
 	GO(hb_ft_face_create, pFpp_t) \
 	GO(hb_ft_font_create, pFpp_t) \

@@ -2277,6 +2277,7 @@
 #() pFEpppp
 #() pFEpppV
 #() pFEpppA
+#() pFESppp
 #() pFiiupi
 #() pFiiupL
 #() pFipipL
@@ -4427,6 +4428,9 @@ wrappedcrypto3:
   - PEM_read_bio_X509_CERT_PAIR
   - PEM_read_bio_X509_CRL
   - PEM_read_bio_X509_REQ
+- pFSppp:
+  - PEM_read_X509
+  - PEM_read_X509_AUX
 - iFpiipp:
   - ENGINE_ctrl
 - iFpLppp:
@@ -5970,9 +5974,6 @@ wrappedlibgpgme:
 - uFppp:
   - gpgme_data_new_from_cbs
 wrappedlibharfbuzz:
-- vFp:
-  - hb_draw_funcs_destroy
-  - hb_font_funcs_destroy
 - pFp:
   - hb_unicode_funcs_reference
 - pFpp:

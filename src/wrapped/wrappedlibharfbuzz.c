@@ -919,23 +919,6 @@ FUNC(hb_buffer_set_message_func)
 
 #undef FUNC
 
-EXPORT void my_hb_draw_funcs_destroy(x64emu_t* emu, void* funcs)
-{
-    (void)emu;
-    struct hb_draw_funcs_t__destroy destroy = {0};
-    struct hb_draw_funcs_t* funcs_ = funcs;
-
-#define HB_DRAW_FUNC_IMPLEMENT(name) \
-    if (funcs_->destroy->name) destroy.name = find_destroy_Fct(funcs_->destroy->name);
-    HB_DRAW_FUNCS_IMPLEMENT_CALLBACKS
-#undef HB_DRAW_FUNC_IMPLEMENT
-
-    struct hb_draw_funcs_t__destroy* original = funcs_->destroy;
-    funcs_->destroy = &destroy;
-    my->hb_draw_funcs_destroy(funcs);
-    funcs_->destroy = original;
-}
-
 EXPORT void my_hb_draw_funcs_set_close_path_func(x64emu_t* emu, void* funcs, void* func, void* user_data, void* destroy)
 {
     (void)emu;
@@ -976,40 +959,6 @@ EXPORT int my_hb_face_set_user_data(x64emu_t* emu, void* face, void* key, void* 
 {
     (void)emu;
     return (int)my->hb_face_set_user_data(face, key, data, find_destroy_Fct(destroy), replace);
-}
-
-EXPORT void my_hb_font_funcs_destroy(x64emu_t* emu, void* funcs)
-{
-    (void)emu;
-    struct hb_font_funcs_t__destroy destroy = {0};
-    struct hb_font_funcs_t* funcs_ = funcs;
-
-#define HB_FONT_FUNC_IMPLEMENT(get_,name) \
-    if (funcs_->destroy->name) destroy.name = find_destroy_Fct(funcs_->destroy->name);
-    HB_FONT_FUNCS_IMPLEMENT_CALLBACKS
-#undef HB_FONT_FUNC_IMPLEMENT
-
-    struct hb_font_funcs_t__destroy* original = funcs_->destroy;
-    funcs_->destroy = &destroy;
-    my->hb_font_funcs_destroy(funcs);
-    funcs_->destroy = original;
-}
-
-EXPORT void my_hb_unicode_funcs_destroy(x64emu_t* emu, void* funcs)
-{
-    (void)emu;
-    struct hb_unicode_funcs_t__destroy destroy = {0};
-    struct hb_unicode_funcs_t* funcs_ = funcs;
-
-#define HB_UNICODE_FUNC_IMPLEMENT(name) \
-    if (funcs_->destroy.name) destroy.name = find_destroy_Fct(funcs_->destroy.name);
-    HB_UNICODE_FUNCS_IMPLEMENT_CALLBACKS
-#undef HB_UNICODE_FUNC_IMPLEMENT
-
-    struct hb_unicode_funcs_t__destroy original = funcs_->destroy;
-    funcs_->destroy = destroy;
-    my->hb_font_funcs_destroy(funcs);
-    funcs_->destroy = original;
 }
 
 EXPORT void my_hb_unicode_funcs_set_combining_class_func(x64emu_t* emu, void* funcs, void* func, void* user_data, void* destroy)

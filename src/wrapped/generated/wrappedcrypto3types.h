@@ -25,6 +25,7 @@ typedef void (*vFiipA_t)(int32_t, int32_t, void*, va_list);
 typedef void* (*pFiLpp_t)(int32_t, uintptr_t, void*, void*);
 typedef void* (*pFpppL_t)(void*, void*, void*, uintptr_t);
 typedef void* (*pFpppp_t)(void*, void*, void*, void*);
+typedef void* (*pFSppp_t)(void*, void*, void*, void*);
 typedef int32_t (*iFpiipp_t)(void*, int32_t, int32_t, void*, void*);
 typedef int32_t (*iFpLppp_t)(void*, uintptr_t, void*, void*, void*);
 typedef void* (*pFppppp_t)(void*, void*, void*, void*, void*);
@@ -90,6 +91,8 @@ typedef void* (*pFpppppppp_t)(void*, void*, void*, void*, void*, void*, void*, v
 	GO(PEM_read_bio_X509_CERT_PAIR, pFpppp_t) \
 	GO(PEM_read_bio_X509_CRL, pFpppp_t) \
 	GO(PEM_read_bio_X509_REQ, pFpppp_t) \
+	GO(PEM_read_X509, pFSppp_t) \
+	GO(PEM_read_X509_AUX, pFSppp_t) \
 	GO(ENGINE_ctrl, iFpiipp_t) \
 	GO(ECDH_compute_key, iFpLppp_t) \
 	GO(OSSL_STORE_open, pFppppp_t) \

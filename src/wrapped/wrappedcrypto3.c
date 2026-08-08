@@ -1004,6 +1004,16 @@ EXPORT int my3_EVP_CIPHER_nid(x64emu_t* emu, void* cipher)
     return my->EVP_CIPHER_get_nid(cipher);
 }
 
+EXPORT void* my3_PEM_read_X509(x64emu_t* emu, void* fp, void* x, void* cb, void* u)
+{
+    return my->PEM_read_X509(fp, x, find_pem_password_cb_Fct(cb), u);
+}
+EXPORT void* my3_PEM_read_X509_AUX(x64emu_t* emu, void* fp, void* x, void* cb, void* u)
+{
+    return my->PEM_read_X509_AUX(fp, x, find_pem_password_cb_Fct(cb), u);
+}
+
+
 #define ALTMY my3_
 
 #define CUSTOM_INIT \

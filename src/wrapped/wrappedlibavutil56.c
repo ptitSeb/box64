@@ -244,14 +244,19 @@ EXPORT int my_av_expr_parse(x64emu_t* emu, void* expr, void* s, void** const_nam
 {
     int n_f1 = 0, n_f2 = 0;
     // find n of f1 and f2 first
-    while(funcs1[n_f1]) ++n_f1;
-    while(funcs2[n_f2]) ++n_f2;
-    n_f1++; n_f2++; // include NULL marker
+    if(funcs1) {
+        while(funcs1[n_f1]) ++n_f1;
+        n_f1++; // include NULL marker
+    }
+    if(funcs2) {
+        while(funcs2[n_f2]) ++n_f2;
+        n_f2++; // include NULL marker
+    }
     void* funcs1_[n_f1];
     void* funcs2_[n_f2];
     for(int i=0; i<n_f1; ++i) funcs1_[i] = find_func1_Fct(funcs1[i]);
     for(int i=0; i<n_f2; ++i) funcs2_[i] = find_func2_Fct(funcs2[i]);
-    return my->av_expr_parse(expr, s, const_names, func1_names, funcs1_, func2_names, funcs2_, offset, log);
+    return my->av_expr_parse(expr, s, const_names, func1_names, funcs1?funcs1_:NULL, func2_names, funcs2?funcs2_:NULL, offset, log);
 }
 
 EXPORT void my_av_log(x64emu_t* emu, void* avcl, int lvl, void* fmt, uint64_t* b)

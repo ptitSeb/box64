@@ -157,7 +157,7 @@ static void* findAvahiPollFuncFct(void* fct)
 
 EXPORT void my_avahi_set_allocator(x64emu_t* emu, my_AvahiAllocator_t* p)
 {
-    my_AvahiAllocator_t _p = {0};
+    static my_AvahiAllocator_t _p = {0}; // avahi keeps the pointer, there is no copy
     if(p) {
         _p.malloc = findmallocFct(p->malloc);
         _p.free = findfreeFct(p->free);

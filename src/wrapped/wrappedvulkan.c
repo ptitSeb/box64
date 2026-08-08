@@ -35,7 +35,7 @@ typedef void(*vFpUp_t)      (void*, uint64_t, void*);
 void fillVulkanProcWrapper(box64context_t*);
 void freeVulkanProcWrapper(box64context_t*);
 
-static symbol1_t* getWrappedSymbol(x64emu_t* emu, const char* rname, int warning)
+static symbol1_t* getWrappedSymbol(x64emu_t* emu, const char* rname, int warning, khint_t *k_)
 {
     khint_t k = kh_get(symbolmap, emu->context->vkwrappers, rname);
     if(k==kh_end(emu->context->vkwrappers) && strstr(rname, "KHR")==NULL) {
@@ -52,15 +52,16 @@ static symbol1_t* getWrappedSymbol(x64emu_t* emu, const char* rname, int warning
         }
         return NULL;
     }
+    if(k_) *k_ = k;
     return &kh_value(emu->context->vkwrappers, k);
 }
 
 static void* resolveSymbol(x64emu_t* emu, void* symbol, void* fnc, const char* rname)
 {
     // get wrapper
-    symbol1_t *s = getWrappedSymbol(emu, rname, 1);
-
-    khint_t k = kh_get(symbolmap, emu->context->vkwrappers, rname);
+    khint_t k = 0;
+    symbol1_t *s = getWrappedSymbol(emu, rname, 1, &k);
+    if(!s) return NULL;
     const char* constname = kh_key(emu->context->vkwrappers, k);
     s->addr = AddCheckBridge2(emu->context->system, s->w, symbol, fnc, 0, constname);
 
