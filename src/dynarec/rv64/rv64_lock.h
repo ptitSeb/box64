@@ -29,7 +29,7 @@ extern void* rv64_lock_storeifref2(void* p, void* val, void* ref);
 // Atomically store value to [p] only if [p] is ref. Return new [p] value (so val or old)
 extern uint32_t rv64_lock_storeifref_d(void* p, uint32_t val, uint32_t ref);
 
-// Atomically store value to [p] only if [p] is ref. Return new [p] value (so val or old)
+// Atomically store value to [p] only if [p] is ref. Return old [p] value (so ref or old)
 extern uint32_t rv64_lock_storeifref2_d(void* p, uint32_t val, uint32_t ref);
 
 // decrement atomically the byte at [p] (but only if p not 0)
@@ -51,7 +51,7 @@ extern void rv64_lock_store(void* p, uint32_t v);
 extern void rv64_lock_store_dd(void* p, uint64_t v);
 
 // atomic get (with memory barrier)
-extern uint32_t rv64_lock_get_b(void* p);
+extern uint8_t rv64_lock_get_b(void* p);
 
 // atomic get (with memory barrier)
 extern uint32_t rv64_lock_get_d(void* p);

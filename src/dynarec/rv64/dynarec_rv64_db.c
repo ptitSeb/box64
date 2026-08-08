@@ -172,7 +172,6 @@ uintptr_t dynarec64_DB(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 v1 = x87_get_st(dyn, ninst, x1, x2, 0, EXT_CACHE_ST_D);
                 u8 = x87_setround(dyn, ninst, x1, x5);
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x3, &fixedaddress, rex, NULL, 1, 0);
-                v2 = fpu_get_scratch(dyn);
                 if (!BOX64ENV(dynarec_fastround)) {
                     FSFLAGSI(0); // reset all bits
                 }
@@ -192,7 +191,6 @@ uintptr_t dynarec64_DB(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 v1 = x87_get_st(dyn, ninst, x1, x2, 0, EXT_CACHE_ST_D);
                 u8 = x87_setround(dyn, ninst, x1, x5);
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x3, &fixedaddress, rex, NULL, 1, 0);
-                v2 = fpu_get_scratch(dyn);
                 if (!BOX64ENV(dynarec_fastround)) {
                     FSFLAGSI(0); // reset all bits
                 }
@@ -230,7 +228,8 @@ uintptr_t dynarec64_DB(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SH(x6, ed, fixedaddress + 8);
                 } else {
                     if (BOX64ENV(x87_no80bits)) {
-                        X87_PUSH_OR_FAIL(v1, dyn, ninst, x1, EXT_CACHE_ST_D);
+                        // use x3 as scratch: ed (== x1) holds the address and the push would clobber it
+                        X87_PUSH_OR_FAIL(v1, dyn, ninst, x3, EXT_CACHE_ST_D);
                         FLD(v1, ed, fixedaddress);
                     } else {
                         ADDI(x1, ed, fixedaddress);

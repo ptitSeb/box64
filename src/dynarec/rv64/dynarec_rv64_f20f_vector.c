@@ -81,10 +81,10 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 d0 = sse_get_reg_vector(dyn, ninst, x1, ed, 1, VECTOR_SEW64);
                 if (cpuext.xtheadvector) {
                     VECTOR_LOAD_VMASK(0b01, x4, 1);
-                    VMERGE_VVM(v0, v0, v1); // implies VMASK
+                    VMERGE_VVM(d0, d0, v0); // implies VMASK
                 } else {
-                    VMV_X_S(x4, v1);
-                    VMV_S_X(v0, x4);
+                    VMV_X_S(x4, v0);
+                    VMV_S_X(d0, x4);
                 }
             } else {
                 VMV_X_S(x4, v0);
@@ -104,7 +104,6 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             } else {
                 SMREAD();
                 GETGX_empty_vector(v0);
-                v1 = fpu_get_scratch(dyn);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 1, 0);
                 LD(x4, ed, fixedaddress);
             }
@@ -297,7 +296,6 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             }
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
             VECTOR_LOAD_VMASK(0b0001, x4, 1);
-            d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
             // as per section 5.2 Vector Operands of V-spec v1.0,
             // > A destination vector register group can overlap a source vector register group only if one of the following holds:
             // > - ...
@@ -307,6 +305,7 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 d1 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
                 VMV_V_V(d1, v1);
                 if (cpuext.xtheadvector) {
+                    d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
                     VFNCVT_F_F_W(d0, d1, VECTOR_MASKED);
                     VMERGE_VVM(v0, v0, d0); // implies VMASK
                 } else {
@@ -314,6 +313,7 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 }
             } else {
                 if (cpuext.xtheadvector) {
+                    d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
                     VFNCVT_F_F_W(d0, v1, VECTOR_MASKED);
                     VMERGE_VVM(v0, v0, d0); // implies VMASK
                 } else {

@@ -286,7 +286,7 @@ uintptr_t geted16(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop
     uint32_t n = (m >> 6) & 3;
     int64_t offset = 0;
     if (!n && (m & 7) == 6) {
-        offset = F16S;
+        offset = F16;
         MOV32w(ret, offset);
     } else {
         switch (n) {
@@ -1282,7 +1282,7 @@ void x87_free(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int st)
     if (ret != -1) {
         const int reg = dyn->e.x87reg[ret];
 #if STEP == 1
-        if (dyn->e.extcache[reg].t == EXT_CACHE_ST_F || dyn->e.extcache[reg].t == EXT_CACHE_ST_I64)
+        if (dyn->e.extcache[EXTIDX(reg)].t == EXT_CACHE_ST_F || dyn->e.extcache[EXTIDX(reg)].t == EXT_CACHE_ST_I64)
             extcache_promote_double(dyn, ninst, st);
 #endif
         // Get top
@@ -1315,7 +1315,7 @@ void x87_free(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int st)
         }
         // and forget that cache
         fpu_free_reg(dyn, reg);
-        dyn->e.extcache[reg].v = 0;
+        dyn->e.extcache[EXTIDX(reg)].v = 0;
         dyn->e.x87cache[ret] = -1;
         dyn->e.x87reg[ret] = -1;
     } else {
@@ -2152,8 +2152,13 @@ static void loadCache(dynarec_rv64_t* dyn, int ninst, int stack_cnt, int s1, int
     if (cache->extcache[i].v && (cache->extcache[i].t == EXT_CACHE_XMMR || cache->extcache[i].t == EXT_CACHE_XMMW)) {
         SET_CACHE_VECTOR_WIDTH(s1);
         int j = i + 1;
-        while (cache->extcache[j].v)
+        while (j < 24 && cache->extcache[j].v)
             ++j;
+        if (j >= 24) {
+            MESSAGE(LOG_DUMP, "\t  - No free slot to move %d away, aborting\n", i);
+            dyn->abort = 1;
+            return;
+        }
         MESSAGE(LOG_DUMP, "\t  - Moving away %d\n", i);
         VMV_V_V(EXTREG(j), reg);
         cache->extcache[j].v = cache->extcache[i].v;
@@ -2164,8 +2169,13 @@ static void loadCache(dynarec_rv64_t* dyn, int ninst, int stack_cnt, int s1, int
         if (cache->extcache[i].t == EXT_CACHE_SS || cache->extcache[i].t == EXT_CACHE_ST_F)
             single = 1;
         int j = i + 1;
-        while (cache->extcache[j].v)
+        while (j < 24 && cache->extcache[j].v)
             ++j;
+        if (j >= 24) {
+            MESSAGE(LOG_DUMP, "\t  - No free slot to move %d away, aborting\n", i);
+            dyn->abort = 1;
+            return;
+        }
         MESSAGE(LOG_DUMP, "\t  - Moving away %d\n", i);
         if (single) {
             FMVS(EXTREG(j), reg);
@@ -2405,7 +2415,7 @@ static void fpuCacheTransform(dynarec_rv64_t* dyn, int ninst, int s1, int s2, in
                     MESSAGE(LOG_DUMP, "\t  - Convert %s\n", getCacheName(cache.extcache[i].t, cache.extcache[i].n));
                     FCVTLS(s1, EXTREG(i), RD_RTZ);
                     FMVDX(EXTREG(i), s1);
-                    cache.extcache[i].t = EXT_CACHE_ST_D;
+                    cache.extcache[i].t = EXT_CACHE_ST_I64;
                 } else if (cache.extcache[i].t == EXT_CACHE_ST_I64 && cache_i2.extcache[i].t == EXT_CACHE_ST_F) {
                     MESSAGE(LOG_DUMP, "\t  - Convert %s\n", getCacheName(cache.extcache[i].t, cache.extcache[i].n));
                     FMVXD(s1, EXTREG(i));
@@ -2681,7 +2691,7 @@ int vector_vsetvli(dynarec_rv64_t* dyn, int ninst, int s1, int sew, int vlmul, f
     uint32_t vl = (int)((float)(16 >> sew) * multiple);
     uint32_t vtypei = (sew << (3 - !!cpuext.xtheadvector)) | vlmul;
     if (dyn->inst_sew == VECTOR_SEWNA || dyn->inst_vl == 0 || dyn->inst_sew != sew || dyn->inst_vl != vl || dyn->inst_vlmul != vlmul) {
-        if (vl == (cpuext.vlen >> (sew - vlmul))) {
+        if (vl == (((uint32_t)cpuext.vlen << vlmul) >> sew)) {
             VSETVLI(s1, xZR, vtypei);
         } else if (vl <= 31 && !cpuext.xtheadvector) {
             VSETIVLI(xZR, vl, vtypei);

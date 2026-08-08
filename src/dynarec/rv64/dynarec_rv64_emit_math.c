@@ -779,7 +779,7 @@ void emit_inc16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
     IFX (X_PEND) {
         SH(s1, xEmu, offsetof(x64emu_t, op1));
         SET_DF(s3, d_inc16);
-    } else IFXORNAT (X_ZF | X_OF | X_AF | X_SF | X_PF) {
+    } else IFXORNAT (X_ALL) {
         SET_DFNONE();
     }
     IFX (X_AF | X_OF) {

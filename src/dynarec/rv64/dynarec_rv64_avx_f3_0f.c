@@ -82,7 +82,8 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 LD(x3, vback, vxoffset + 8);
                 SD(x3, wback, fixedaddress + 8);
                 YMM0(ed);
-            }
+            } else
+                SMWRITE2();
             break;
         case 0x5A:
             INST_NAME("VCVTSS2SD Gx, Vx, Ex");
@@ -189,7 +190,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
         case 0xC2:
             INST_NAME("VCMPSS Gx, Vx, Ex, Ib");
             nextop = F8;
-            GETEX(x1, 0, 1);
+            GETEX(x1, 1, 1);
             GETGX();
             GETVX();
             GETGY();

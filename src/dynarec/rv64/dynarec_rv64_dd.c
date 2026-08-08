@@ -42,6 +42,7 @@ uintptr_t dynarec64_DD(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
     if (MODREG)
         switch (nextop) {
             case 0xC0 ... 0xC7:
+                INST_NAME("FFREE STx");
 #if 1
                 if ((nextop & 7) == 0 && PK(0) == 0xD9 && PK(1) == 0xF7) {
                     MESSAGE(LOG_DUMP, "Hack for FFREE ST0 / FINCSTP\n");

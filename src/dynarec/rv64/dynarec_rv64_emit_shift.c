@@ -646,9 +646,7 @@ void emit_shl32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         NEG(s5, s5);
         SRL(s3, s1, s5);
         ANDI(s5, s3, 1); // LSB == F_CF
-        IFX (X_CF) {
-            OR(xFlags, xFlags, s5);
-        }
+        OR(xFlags, xFlags, s5);
     }
 
     if (rex.w) {

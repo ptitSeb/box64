@@ -81,7 +81,7 @@ uintptr_t dynarec64_AVX_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
                 LD(x4, gback, gyoffset + 8);
                 SD(x3, wback, fixedaddress + 0);
                 SD(x4, wback, fixedaddress + 8);
-            } else
+            } else if (MODREG)
                 YMM0(ed);
             if (!MODREG) SMWRITE2();
             break;
@@ -244,14 +244,15 @@ uintptr_t dynarec64_AVX_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
                 SD(x3, wback, fixedaddress + 8);
             } else if (MODREG)
                 YMM0(ed);
+            if (!MODREG) SMWRITE2();
             break;
         case 0x2E:
             // no special check...
         case 0x2F:
             if (opcode == 0x2F) {
-                INST_NAME("COMISS Gx, Ex");
+                INST_NAME("VCOMISS Gx, Ex");
             } else {
-                INST_NAME("UCOMISS Gx, Ex");
+                INST_NAME("VUCOMISS Gx, Ex");
             }
             SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
             SET_DFNONE();
@@ -900,15 +901,20 @@ uintptr_t dynarec64_AVX_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
             for (int i = 0; i < 4; ++i) {
                 FLW(s0, wback, fixedaddress + i * 4);
                 FLW(s1, vback, vxoffset + i * 4);
-                FEQS(x3, s0, s0);
-                FEQS(x4, s1, s1);
-                AND(x3, x3, x4);
-                FLTS(x5, s1, s0);
-                AND(x3, x3, x5);
-                BNEZ(x3, 4 + 4 * 2);
-                FSW(s0, gback, gdoffset + i * 4);
-                B(4 + 4);
-                FSW(s1, gback, gdoffset + i * 4);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    FEQS(x3, s0, s0);
+                    FEQS(x4, s1, s1);
+                    AND(x3, x3, x4);
+                    FLTS(x5, s1, s0);
+                    AND(x3, x3, x5);
+                    BNEZ(x3, 4 + 4 * 2);
+                    FSW(s0, gback, gdoffset + i * 4);
+                    B(4 + 4);
+                    FSW(s1, gback, gdoffset + i * 4);
+                } else {
+                    FMINS(s1, s1, s0);
+                    FSW(s1, gback, gdoffset + i * 4);
+                }
             }
             if (vex.l) {
                 GETEY();

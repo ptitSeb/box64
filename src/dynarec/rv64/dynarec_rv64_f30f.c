@@ -121,11 +121,13 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGXSS(v0);
             GETED(0);
+            u8 = sse_setround(dyn, ninst, x6, x4);
             if (rex.w) {
-                FCVTSL(v0, ed, RD_RNE);
+                FCVTSL(v0, ed, RD_DYN);
             } else {
-                FCVTSW(v0, ed, RD_RNE);
+                FCVTSW(v0, ed, RD_DYN);
             }
+            x87_restoreround(dyn, ninst, u8);
             break;
 
         case 0x2C:
@@ -198,6 +200,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             B##NO(tmp1, 8);                                                                      \
         }                                                                                        \
         LDxw(gd, ed, fixedaddress);                                                              \
+        if (!rex.w) ZEROUP(gd);                                                                  \
     }
 
             GOCOND(0x40, "CMOV", "Gd, Ed");
@@ -248,9 +251,9 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 J(12 * 4); // done
                 FLTS(x3, d0, v0); // input > 0.0f?
                 BNEZ(x3, 5 * 4);
-                FEQS(x3, d0, v0); // input == 0.0f?
+                FEQS(x3, d0, v0); // input == 0.0f? (also true for -0.0f)
                 BEQZ(x3, 3 * 4);
-                FDIVS(v1, q0, d0); // generate an inf
+                FDIVS(v1, q0, v0); // generate an inf with the correct sign
                 J(6 * 4); // done
             }
             FSQRTS(v1, v0);
@@ -382,8 +385,9 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 if (!BOX64ENV(dynarec_fastround)) {
                     FRFLAGS(x5); // get back FPSR to check the IOC bit
                     ANDI(x5, x5, (1 << FR_NV) | (1 << FR_OF));
-                    BEQZ(x5, 8);
+                    BEQZ_MARKi(x5, i);
                     MOV32w(x3, 0x80000000);
+                    MARKi(i);
                 }
                 SW(x3, gback, gdoffset + i * 4);
             }

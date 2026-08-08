@@ -73,21 +73,21 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
 
                         MARK2;
                         // upper 16 bits
-                        XORI(wback, wback, 0b10);
+                        XORI(x3, wback, 0b10); // into scratch, wback may be a live guest reg
                         MARKLOCK2;
-                        LR_W(x2, wback, 1, 1);
+                        LR_W(x2, x3, 1, 1);
                         SRLIW(x1, x2, 16);
                         BNE_MARK(x6, x1);
                         SLLIW(x2, x2, 16);
                         SRLIW(x2, x2, 16);
                         SLLIW(x5, gd, 16);
                         OR(x2, x2, x5);
-                        SC_W(x5, x2, wback, 1, 1);
+                        SC_W(x5, x2, x3, 1, 1);
                         BNEZ_MARKLOCK2(x5);
+                        MARK;
+                        UFLAG_IF { emit_cmp16(dyn, ninst, x6, x1, x2, x3, x4, x5); }
+                        INSH(xRAX, x1, x2, x3, 1, 0);
                     }
-                    MARK;
-                    UFLAG_IF { emit_cmp16(dyn, ninst, x6, x1, x2, x3, x4, x5); }
-                    INSH(xRAX, x1, x2, x3, 1, 0);
                     break;
                 default:
                     DEFAULT;
@@ -139,16 +139,16 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
 
                         MARK;
                         // upper 16 bits
-                        XORI(wback, wback, 0b10);
+                        XORI(x2, wback, 0b10); // into scratch, wback may be a live guest reg
                         MARK2;
-                        LR_W(x1, wback, 1, 1);
+                        LR_W(x1, x2, 1, 1);
                         SLLIW(x3, x1, 16);
                         SRLIW(x3, x3, 16);
                         SRLIW(x1, x1, 16);
                         ADD(x4, x1, x5);
                         SLLIW(x4, x4, 16);
                         OR(x4, x4, x3);
-                        SC_W(x3, x4, wback, 1, 1);
+                        SC_W(x3, x4, x2, 1, 1);
                         BNEZ_MARK2(x3);
 
                         MARK3;
@@ -198,16 +198,16 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
 
                         MARK;
                         // upper 16 bits
-                        XORI(wback, wback, 0b10);
+                        XORI(x2, wback, 0b10); // into scratch, wback may be a live guest reg
                         MARK2;
-                        LR_W(x1, wback, 1, 1);
+                        LR_W(x1, x2, 1, 1);
                         SLLIW(x3, x1, 16);
                         SRLIW(x3, x3, 16);
                         SRLIW(x1, x1, 16);
                         OR(x4, x1, x5);
                         SLLIW(x4, x4, 16);
                         OR(x4, x4, x3);
-                        SC_W(x3, x4, wback, 1, 1);
+                        SC_W(x3, x4, x2, 1, 1);
                         BNEZ_MARK2(x3);
 
                         MARK3;
@@ -257,16 +257,16 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
 
                         MARK;
                         // upper 16 bits
-                        XORI(wback, wback, 0b10);
+                        XORI(x2, wback, 0b10); // into scratch, wback may be a live guest reg
                         MARK2;
-                        LR_W(x1, wback, 1, 1);
+                        LR_W(x1, x2, 1, 1);
                         SLLIW(x3, x1, 16);
                         SRLIW(x3, x3, 16);
                         SRLIW(x1, x1, 16);
                         AND(x4, x1, x5);
                         SLLIW(x4, x4, 16);
                         OR(x4, x4, x3);
-                        SC_W(x3, x4, wback, 1, 1);
+                        SC_W(x3, x4, x2, 1, 1);
                         BNEZ_MARK2(x3);
 
                         MARK3;

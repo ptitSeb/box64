@@ -1416,7 +1416,7 @@
 #define x87_get_cache            STEPNAME(x87_get_cache)
 #define x87_get_extcache         STEPNAME(x87_get_extcache)
 #define x87_get_st               STEPNAME(x87_get_st)
-#define x87_get_st_empty         STEPNAME(x87_get_st)
+#define x87_get_st_empty         STEPNAME(x87_get_st_empty)
 #define x87_free                 STEPNAME(x87_free)
 #define x87_refresh              STEPNAME(x87_refresh)
 #define x87_forget               STEPNAME(x87_forget)
