@@ -1374,30 +1374,62 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     break;
                 case 4:
                     INST_NAME("MUL AL, Ed");
-                    SETFLAGS(X_ALL, SF_PENDING, NAT_FLAGS_NOFUSION);
+                    SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
                     GETEB(x1, 0);
                     ANDI(x2, xRAX, 0xff);
                     MULW(x1, x2, x1);
-                    UFLAG_RES(x1);
+                    SET_DFNONE();
+                    CLEAR_FLAGS();
+                    IFX (X_CF | X_OF) {
+                        SRLI(x3, x1, 8);
+                        SNEZ(x3, x3);
+                        IFX (X_CF) OR(xFlags, xFlags, x3); // F_CF == 0
+                        IFX (X_OF) {
+                            SLLI(x3, x3, F_OF2);
+                            OR(xFlags, xFlags, x3);
+                        }
+                    }
                     LUI(x2, 0xffff0);
                     AND(xRAX, xRAX, x2);
                     ZEXTH(x1, x1);
                     OR(xRAX, xRAX, x1);
-                    UFLAG_DF(x1, d_mul8);
+                    IFX (X_SF) {
+                        SRLI(x3, xRAX, 7);
+                        SLLI(x3, x3, F_SF);
+                        OR(xFlags, xFlags, x3);
+                    }
+                    IFX (X_PF) emit_pf(dyn, ninst, xRAX, x3, x4);
                     break;
                 case 5:
                     INST_NAME("IMUL AL, Eb");
-                    SETFLAGS(X_ALL, SF_PENDING, NAT_FLAGS_NOFUSION);
+                    SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
                     GETSEB(x1, 0);
                     SLLI(x2, xRAX, 56);
                     SRAI(x2, x2, 56);
                     MULW(x1, x2, x1);
-                    UFLAG_RES(x1);
+                    SET_DFNONE();
+                    CLEAR_FLAGS();
+                    IFX (X_CF | X_OF) {
+                        SLLI(x3, x1, 48);
+                        SRAI(x3, x3, 48); // x3 = SignExtend16(result)
+                        XOR(x3, x3, x1);
+                        SNEZ(x3, x3);
+                        IFX (X_CF) OR(xFlags, xFlags, x3); // F_CF == 0
+                        IFX (X_OF) {
+                            SLLI(x3, x3, F_OF2);
+                            OR(xFlags, xFlags, x3);
+                        }
+                    }
                     LUI(x2, 0xffff0);
                     AND(xRAX, xRAX, x2);
                     ZEXTH(x1, x1);
                     OR(xRAX, xRAX, x1);
-                    UFLAG_DF(x1, d_imul8);
+                    IFX (X_SF) {
+                        SRLI(x3, xRAX, 7);
+                        SLLI(x3, x3, F_SF);
+                        OR(xFlags, xFlags, x3);
+                    }
+                    IFX (X_PF) emit_pf(dyn, ninst, xRAX, x3, x4);
                     break;
                 case 6:
                     INST_NAME("DIV Eb");
