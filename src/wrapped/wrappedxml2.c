@@ -1528,10 +1528,10 @@ EXPORT int my_xmlParseDocument(x64emu_t* emu, my_xmlSAXHandler_t** p)
     return ret;
 }
 
-EXPORT void* my_xmlCreateIOParserCtxt(x64emu_t* emu, my_xmlSAXHandler_t** p, void* user_data, void* ioread, void* ioclose, void* ioctx, int enc)
+EXPORT void* my_xmlCreateIOParserCtxt(x64emu_t* emu, my_xmlSAXHandler_t* p, void* user_data, void* ioread, void* ioclose, void* ioctx, int enc)
 {
     // handling of wine that change the default sax handler of...
-    my_xmlSAXHandler_t* old_saxhandler = p?(*p):NULL;
+    my_xmlSAXHandler_t* old_saxhandler = p;
     my_xmlSAXHandler_t sax_handler = {0};
     wrapSaxHandler(&sax_handler, old_saxhandler);
     void* ret = my->xmlCreateIOParserCtxt(p, user_data, find_xmlInputReadCallback_Fct(ioread), find_xmlInputCloseCallback_Fct(ioclose), ioctx, enc);

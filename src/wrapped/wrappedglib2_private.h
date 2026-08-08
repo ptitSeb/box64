@@ -632,7 +632,7 @@ GO(g_main_context_find_source_by_id, pFpu)  // sould wrap?
 GO(g_main_context_find_source_by_user_data, pFpp)   // sould wrap?
 GOM(g_main_context_get_poll_func, pFEp)
 GO(g_main_context_get_thread_default, pFv)
-GOM(g_main_context_invoke, vFppp)  // 2nd is GSourceFuncs
+GOM(g_main_context_invoke, vFEppp)  // 2nd is GSourceFuncs
 //GOM(g_main_context_invoke_full, vFpippp)  // 3rd is GSourceFuncs
 GO(g_main_context_is_owner, iFp)
 GO(g_main_context_iteration, iFpi)
@@ -824,7 +824,7 @@ GOM(g_private_new, pFEp)
 GO(g_private_replace, vFpp)
 GO(g_private_set, vFpp)
 GO(g_propagate_error, vFpp)
-GOM(g_propagate_prefixed_error, vFpppV)
+GOM(g_propagate_prefixed_error, vFEpppV)
 GO(g_ptr_array_add, vFpp)
 GO(g_ptr_array_extend_and_steal, vFpp)
 GOM(g_ptr_array_foreach, vFEppp)

@@ -47,7 +47,7 @@ GO(clEnqueueMapImage, pFppuuppppuppp)
 GO(clEnqueueMarker, iFpp)
 GO(clEnqueueMarkerWithWaitList, iFpupp)
 GO(clEnqueueMigrateMemObjects, iFpupuupp)
-GOM(clEnqueueNativeKernel, iFEppLuppupp)
+GOM(clEnqueueNativeKernel, iFEpppLuppupp)
 GO(clEnqueueNDRangeKernel, iFppupppupp)
 GO(clEnqueueReadBuffer, iFppuLLpupp)
 GO(clEnqueueReadBufferRect, iFppupppLLLLpupp)
@@ -112,7 +112,7 @@ GO(clRetainSampler, iFp)
 //GO(clSetCommandQueueProperty, 
 //GO(clSetContextDestructorCallback, 
 //GO(clSetDefaultDeviceCommandQueue, 
-GOM(clSetEventCallback, iFEppp)
+GOM(clSetEventCallback, iFEpipp)
 GO(clSetKernelArg, iFpuLp)
 //GO(clSetKernelArgSVMPointer, 
 //GO(clSetKernelExecInfo, 

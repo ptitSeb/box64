@@ -2166,7 +2166,7 @@ EXPORT int my32_FT_Open_Face(x64emu_t* emu, void* library, FT_Open_Args_32_t* ar
     args_l.driver = from_ptrv(args->driver);
     args_l.num_params = args->num_params;
     args_l.params = args->params?params:NULL;
-    for(int i=0; args_l.num_params; ++i) {
+    for(int i=0; i<args_l.num_params; ++i) {
         params[i].tag = from_ulong(((FT_Parameter_32_t*)from_ptrv(args->params))[i].tag);
         params[i].data = from_ptrv(((FT_Parameter_32_t*)from_ptrv(args->params))[i].data);
     }
@@ -2418,7 +2418,7 @@ EXPORT void my32_FT_Set_Transform(x64emu_t* emu, void* face, FT_Matrix_32_t* mat
     FT_Vector_t delta_l = {0};
     inplace_FT_FaceRec_enlarge(face);
     if(matrix)
-        convert_FT_Matrix_to_64(&delta_l, matrix);
+        convert_FT_Matrix_to_64(&matrix_l, matrix);
     if(delta) {
         delta_l.x = from_long(delta->x);
         delta_l.y = from_long(delta->y);
@@ -2856,7 +2856,7 @@ EXPORT int my32_FT_Glyph_Transform(x64emu_t* emu, void* glyph, void* mat, void* 
 
 EXPORT void my32_FT_Done_Glyph(x64emu_t* emu, void* glyph)
 {
-    inplace_FT_FaceRec_enlarge(glyph);
+    inplace_FT_Glyph_enlarge(glyph);
     my->FT_Done_Glyph(glyph);
 }
 

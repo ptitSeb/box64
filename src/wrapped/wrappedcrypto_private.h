@@ -1527,7 +1527,7 @@ GO(ENGINE_cleanup, vFv)
 //GO(engine_cleanup_add_last, 
 GO(ENGINE_cmd_is_executable, iFpi)
 GOM(ENGINE_ctrl, iFEpiipp)
-GOM(ENGINE_ctrl_cmd, iFpplppi)
+GOM(ENGINE_ctrl_cmd, iFEpplppi)
 GO(ENGINE_ctrl_cmd_string, iFpppi)
 GO(ENGINE_finish, iFp)
 GO(ENGINE_free, iFp)

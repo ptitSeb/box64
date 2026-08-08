@@ -143,7 +143,7 @@ EXPORT int my32_mnt_optstr_get_flags(x64emu_t* emu, void* optstr, void* flag, vo
     return my->mnt_optstr_get_flags(optstr, flag, enlarge_libmnt_optmap(map));
 }
 
-EXPORT int my32_mnt_table_uniq_fs(void* tb, int flags, void* f)
+EXPORT int my32_mnt_table_uniq_fs(x64emu_t* emu, void* tb, int flags, void* f)
 {
     return my->mnt_table_uniq_fs(tb, flags, find_cmp_Fct(f));
 }

@@ -342,7 +342,7 @@ GO(XtRegisterDrawable, vFpLp)
 //GO(XtRemoveCallback, 
 //GO(_XtRemoveCallback, 
 //GO(XtRemoveCallbacks, 
-GO(XtRemoveEventHandler, vFpup)     // need to wrap to free event handler?
+GO(XtRemoveEventHandler, vFpLipp)     // need to wrap to free event handler?
 //GO(XtRemoveEventTypeHandler, 
 //GO(XtRemoveGrab, 
 GO(XtRemoveInput, vFL)
