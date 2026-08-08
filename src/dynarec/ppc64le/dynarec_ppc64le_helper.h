@@ -300,6 +300,30 @@
         ed = x1;                                                                                      \
     }
 
+// GETEDz like GETED, but uses LDz instead of LDxw
+#define GETEDz(D)                                                                               \
+    if (MODREG) {                                                                               \
+        ed = TO_NAT((nextop & 7) + (rex.b << 3));                                               \
+        wback = 0;                                                                              \
+    } else {                                                                                    \
+        SMREAD();                                                                               \
+        addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, DS_DISP, D); \
+        LDz(x1, wback, fixedaddress);                                                           \
+        ed = x1;                                                                                \
+    }
+
+// GETEDH can use hint for wback and ret for ed. wback is 0 if ed is xEAX..xEDI
+#define GETEDH(hint, ret, D)                                                                       \
+    if (MODREG) {                                                                                  \
+        ed = TO_NAT((nextop & 7) + (rex.b << 3));                                                  \
+        wback = 0;                                                                                 \
+    } else {                                                                                       \
+        SMREAD();                                                                                  \
+        addr = geted(dyn, addr, ninst, nextop, &wback, hint, ret, &fixedaddress, rex, NULL, DS_DISP, D); \
+        ed = ret;                                                                                  \
+        LDxw(ed, wback, fixedaddress);                                                             \
+    }
+
 
 // FAKEED like GETED, but doesn't get anything
 #define FAKEED                                    \
@@ -366,6 +390,26 @@
         wb1 = 1;                                                                                \
         ed = i;                                                                                 \
     }
+
+// GETSED sign extend ED, will use x1 for ed and x2 for wback
+#define GETSED(D)                                                                               \
+    if (MODREG) {                                                                               \
+        ed = TO_NAT((nextop & 7) + (rex.b << 3));                                               \
+        wback = 0;                                                                              \
+        if (!rex.w) {                                                                           \
+            EXTSW(x1, ed);                                                                      \
+            ed = x1;                                                                            \
+        }                                                                                       \
+    } else {                                                                                    \
+        SMREAD();                                                                               \
+        addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, DS_DISP, D); \
+        if (rex.w)                                                                              \
+            LD(x1, fixedaddress, wback);                                                        \
+        else                                                                                    \
+            LWA(x1, fixedaddress, wback);                                                       \
+        ed = x1;                                                                                \
+    }
+
 // GETGB will use i for gd
 #define GETGB(i)                                             \
     if (rex.rex) {                                           \
@@ -860,6 +904,14 @@
 #define CALLRET_LOOP()  NOP()
 #endif
 
+#ifndef IF_UNALIGNED
+#define IF_UNALIGNED(A) if(dyn->insts[ninst].unaligned)
+#endif
+
+#ifndef IF_ALIGNED
+#define IF_ALIGNED(A) if(!dyn->insts[ninst].unaligned)
+#endif
+
 #ifndef TABLE64
 #define TABLE64(A, V)
 #endif
@@ -873,6 +925,13 @@
 #ifndef TABLE64_
 #define TABLE64_(A, V)
 #endif
+
+
+#define GETDIR(r, s, Z)            \
+    MOV32w(r, Z); /* mask=1<<10 */ \
+    ANDId(s, xFlags, 1 << F_DF);   \
+    BEQ(4 + 4);                    \
+    NEG(r, r);
 
 #define ARCH_INIT() SMSTART()
 
