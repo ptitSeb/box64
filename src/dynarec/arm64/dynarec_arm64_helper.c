@@ -558,6 +558,8 @@ void call_c(dynarec_arm_t* dyn, int ninst, arm64_consts_t fnc, int reg, int ret,
         STPx_S7_offset(xRSI, xRDI, xEmu, offsetof(x64emu_t, regs[_SI]));
         STPx_S7_offset(xR8,  xR9,  xEmu, offsetof(x64emu_t, regs[_R8]));
         fpu_pushcache(dyn, ninst, savereg, 0);
+        for(int i=0; i<dyn->n.fpu_scratch; ++i)
+            VSTR128_S9_preindex(SCRATCH0+i, xSP, -16);
     }
     #ifdef _WIN32
     LDRx_U12(xR8, xEmu, offsetof(x64emu_t, win64_teb));
@@ -568,6 +570,8 @@ void call_c(dynarec_arm_t* dyn, int ninst, arm64_consts_t fnc, int reg, int ret,
         MOVx_REG(ret, xEmu);
     }
     if(ret!=-2) {
+        for(int i=dyn->n.fpu_scratch-1; i>=0; --i)
+            VLDR128_S9_postindex(SCRATCH0+i, xSP, 16);
         LDPx_S7_postindex(xEmu, savereg, xSP, 16);
         #define GO(A, B) if(ret==x##A) {                                        \
             LDRx_U12(x##B, xEmu, offsetof(x64emu_t, regs[_##B]));               \
