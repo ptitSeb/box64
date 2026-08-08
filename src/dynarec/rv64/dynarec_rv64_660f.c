@@ -1425,15 +1425,32 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             break;
         case 0xAF:
             INST_NAME("IMUL Gw, Ew");
-            SETFLAGS(X_ALL, SF_PENDING, NAT_FLAGS_NOFUSION);
+            SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
             nextop = F8;
             GETSEW(x1, 0);
             GETSGW(x2);
             MULW(x2, x2, x1);
-            UFLAG_RES(x2);
+            SET_DFNONE();
+            CLEAR_FLAGS();
+            IFX (X_CF | X_OF) {
+                SLLI(x3, x2, 48);
+                SRAI(x3, x3, 48); // x3 = SignExtend16(result)
+                XOR(x3, x3, x2);
+                SNEZ(x3, x3);
+                IFX (X_CF) OR(xFlags, xFlags, x3); // F_CF == 0
+                IFX (X_OF) {
+                    SLLI(x3, x3, F_OF2);
+                    OR(xFlags, xFlags, x3);
+                }
+            }
             ZEXTH(x2, x2);
             GWBACK;
-            UFLAG_DF(x1, d_imul16);
+            IFX (X_SF) {
+                SRLI(x3, x2, 15);
+                SLLI(x3, x3, F_SF);
+                OR(xFlags, xFlags, x3);
+            }
+            IFX (X_PF) emit_pf(dyn, ninst, x2, x3, x4);
             break;
         case 0xB3:
             INST_NAME("BTR Ew, Gw");

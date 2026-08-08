@@ -1482,34 +1482,66 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
                 case 4:
                     INST_NAME("MUL AX, Ew");
-                    SETFLAGS(X_ALL, SF_PENDING, NAT_FLAGS_NOFUSION);
+                    SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
                     GETEW(x1, 0);
                     ZEXTH(x2, xRAX);
                     MULW(x1, x2, x1);
                     ZEROUP(x1);
-                    UFLAG_RES(x1);
+                    SET_DFNONE();
+                    CLEAR_FLAGS();
+                    IFX (X_CF | X_OF) {
+                        SRLI(x3, x1, 16);
+                        SNEZ(x3, x3);
+                        IFX (X_CF) OR(xFlags, xFlags, x3); // F_CF == 0
+                        IFX (X_OF) {
+                            SLLI(x3, x3, F_OF2);
+                            OR(xFlags, xFlags, x3);
+                        }
+                    }
                     INSHz(xRAX, x1, x4, x5, 1, 1);
                     SRLI(xRDX, xRDX, 16);
                     SLLI(xRDX, xRDX, 16);
                     SRLI(x1, x1, 16);
                     OR(xRDX, xRDX, x1);
-                    UFLAG_DF(x1, d_mul16);
+                    IFX (X_SF) {
+                        SRLI(x3, xRDX, 15);
+                        SLLI(x3, x3, F_SF);
+                        OR(xFlags, xFlags, x3);
+                    }
+                    IFX (X_PF) emit_pf(dyn, ninst, xRAX, x3, x4);
                     break;
                 case 5:
                     INST_NAME("IMUL AX, Ew");
-                    SETFLAGS(X_ALL, SF_PENDING, NAT_FLAGS_NOFUSION);
+                    SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
                     GETSEW(x1, 0);
                     SLLI(x2, xRAX, 16);
                     SRAIW(x2, x2, 16);
                     MULW(x1, x2, x1);
                     ZEROUP(x1);
-                    UFLAG_RES(x1);
+                    SET_DFNONE();
+                    CLEAR_FLAGS();
+                    IFX (X_CF | X_OF) {
+                        SLLI(x3, x1, 48);
+                        SRAI(x3, x3, 48); // x3 = SignExtend16(result)
+                        XOR(x3, x3, x1);
+                        SNEZ(x3, x3);
+                        IFX (X_CF) OR(xFlags, xFlags, x3); // F_CF == 0
+                        IFX (X_OF) {
+                            SLLI(x3, x3, F_OF2);
+                            OR(xFlags, xFlags, x3);
+                        }
+                    }
                     INSHz(xRAX, x1, x4, x5, 1, 1);
                     SRLI(xRDX, xRDX, 16);
                     SLLI(xRDX, xRDX, 16);
                     SRLI(x1, x1, 16);
                     OR(xRDX, xRDX, x1);
-                    UFLAG_DF(x1, d_imul16);
+                    IFX (X_SF) {
+                        SRLI(x3, xRAX, 15);
+                        SLLI(x3, x3, F_SF);
+                        OR(xFlags, xFlags, x3);
+                    }
+                    IFX (X_PF) emit_pf(dyn, ninst, xRAX, x3, x4);
                     break;
                 case 6:
                     INST_NAME("DIV Ew");

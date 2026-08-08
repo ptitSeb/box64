@@ -687,6 +687,8 @@ static register_mapping_t register_mappings[] = {
     { "rip", "s6" },
 };
 
+static const char* df_status[] = { "unknown", "set", "none_pending", "none" };
+
 void printf_x64_instruction(dynarec_native_t* dyn, zydis_dec_t* dec, instruction_x64_t* inst, const char* name);
 void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t rex)
 {
@@ -697,11 +699,12 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
     if (!dyn->need_dump && !BOX64ENV(dynarec_gdbjit) && !BOX64ENV(dynarec_perf_map)) return;
 
     static char buf[4096];
-    int length = sprintf(buf, "barrier=%d state=%d/%d(%d), set=%X/%X, use=%X, need=%X/%X, fuse=%d/%d, sm=%d(%d/%d), sew@entry=%d, sew@exit=%d",
+    int length = sprintf(buf, "barrier=%d state=%d/%s(%s->%s), set=%X/%X, use=%X, need=%X/%X, fuse=%d/%d, sm=%d(%d/%d), sew@entry=%d, sew@exit=%d",
         dyn->insts[ninst].x64.barrier,
         dyn->insts[ninst].x64.state_flags,
-        dyn->f.pending,
-        dyn->f.dfnone,
+        df_status[dyn->f],
+        df_status[dyn->insts[ninst].f_entry],
+        df_status[dyn->insts[ninst].f_exit],
         dyn->insts[ninst].x64.set_flags,
         dyn->insts[ninst].x64.gen_flags,
         dyn->insts[ninst].x64.use_flags,

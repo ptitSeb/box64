@@ -2205,20 +2205,28 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             break;
         case 0xAF:
-            // TODO: Refine this
             INST_NAME("IMUL Gd, Ed");
-            SETFLAGS(X_ALL, SF_PENDING, NAT_FLAGS_NOFUSION);
+            SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
             nextop = F8;
             GETGD;
             GETED(0);
+            CLEAR_FLAGS();
             if (rex.w) {
                 // 64bits imul
                 UFLAG_IF {
                     MULH(x3, gd, ed);
                     MUL(gd, gd, ed);
-                    UFLAG_OP1(x3);
-                    UFLAG_RES(gd);
-                    UFLAG_DF(x3, d_imul64);
+                    SET_DFNONE();
+                    IFX (X_CF | X_OF) {
+                        SRAI(x5, gd, 63);
+                        XOR(x3, x3, x5);
+                        SNEZ(x3, x3);
+                        IFX (X_CF) OR(xFlags, xFlags, x3); // F_CF == 0
+                        IFX (X_OF) {
+                            SLLI(x3, x3, F_OF2);
+                            OR(xFlags, xFlags, x3);
+                        }
+                    }
                 } else {
                     MULxw(gd, gd, ed);
                 }
@@ -2227,16 +2235,30 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 UFLAG_IF {
                     SEXT_W(gd, gd);
                     SEXT_W(x3, ed);
-                    MUL(gd, gd, x3);
-                    UFLAG_RES(gd);
-                    SRLI(x3, gd, 32);
-                    UFLAG_OP1(x3);
-                    UFLAG_DF(x3, d_imul32);
+                    MUL(x5, gd, x3); // full 64bits product
+                    SET_DFNONE();
+                    IFX (X_CF | X_OF) {
+                        SEXT_W(x3, x5);
+                        XOR(x3, x5, x3);
+                        SNEZ(x3, x3);
+                        IFX (X_CF) OR(xFlags, xFlags, x3); // F_CF == 0
+                        IFX (X_OF) {
+                            SLLI(x3, x3, F_OF2);
+                            OR(xFlags, xFlags, x3);
+                        }
+                    }
+                    ZEXTW2(gd, x5);
                 } else {
                     MULxw(gd, gd, ed);
+                    ZEROUP(gd);
                 }
-                ZEROUP(gd);
             }
+            IFX (X_SF) {
+                SRLI(x5, gd, rex.w ? 63 : 31);
+                SLLI(x5, x5, F_SF);
+                OR(xFlags, xFlags, x5);
+            }
+            IFX (X_PF) emit_pf(dyn, ninst, gd, x3, x4);
             break;
         case 0xB3:
             INST_NAME("BTR Ed, Gd");
