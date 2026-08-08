@@ -73,7 +73,10 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
                 INST_NAME("VPERMQ Gx, Ex, Imm8");
             }
             nextop = F8;
-            if (!vex.l) EMIT(0);
+            if (!vex.l) {
+                UDF();
+                break;
+            }
             GETGY_empty_EY_xy(v0, v1, 1);
             u8 = F8;
             XVPERMI_D(v0, v1, u8);
@@ -140,7 +143,10 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
                 INST_NAME("VPERM2I128 Gx, Vx, Ex, Imm8");
             }
             nextop = F8;
-            if (!vex.l) EMIT(0);
+            if (!vex.l) {
+                UDF();
+                break;
+            }
             GETGY_empty_VYEY_xy(v0, v1, v2, 1);
             u8 = F8;
             if ((u8 & 0x88) == 0x88) {
@@ -773,12 +779,12 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             INST_NAME("VAESKEYGENASSIST Gx, Ex, Ib");
             nextop = F8;
             GETG;
-            GETEYx(q1, 0, 1);
             if (vex.l) {
-                GETGYy(q0, 1);
-            } else {
-                GETGYx_empty(q0);
+                UDF();
+                break;
             }
+            GETEYx_AES(q1, 0, 1);
+            GETGYx_empty(q0);
             if (q0 != q1)
                 VOR_V(q0, q1, q1);
             u8 = F8;

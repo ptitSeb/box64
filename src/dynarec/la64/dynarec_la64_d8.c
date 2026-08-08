@@ -28,13 +28,10 @@ uintptr_t dynarec64_D8(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 
     uint8_t nextop = F8;
     uint8_t ed;
-    uint8_t wback, wb1;
     uint8_t u8;
     int64_t fixedaddress;
-    int unscaled;
     int v1, v2;
     int s0;
-    int i1, i2, i3;
 
     MAYUSE(s0);
     MAYUSE(v2);

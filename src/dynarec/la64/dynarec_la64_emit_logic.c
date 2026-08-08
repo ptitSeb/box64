@@ -105,7 +105,7 @@ void emit_xor8c(dynarec_la64_t* dyn, int ninst, int s1, int32_t c, int s3, int s
 }
 
 // emit XOR16 instruction, from s1, s2, store result in s1 using s3 and s4 as scratch, s4 can be same as s2 (and so s2 destroyed)
-void emit_xor16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5)
+void emit_xor16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 {
     IFX (X_PEND) {
         SET_DF(s4, d_xor16);
@@ -114,15 +114,10 @@ void emit_xor16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
     }
 
 
-    IFXA (X_ALL, cpuext.lbt) X64_XOR_W(s1, s2);
+    IFXA (X_ALL, cpuext.lbt) X64_XOR_H(s1, s2);
 
     XOR(s1, s1, s2);
-    BSTRINS_D(s1, s1, 15, 0);
-
-    IFXA (X_SF, BOX64DRENV(dynarec_safeflags)) {
-        SRLI_D(s3, s1, 15 - F_SF);
-        X64_SET_EFLAGS(s3, X_SF);
-    }
+    BSTRPICK_D(s1, s1, 15, 0);
 
     IFX (X_PEND) {
         ST_H(s1, xEmu, offsetof(x64emu_t, res));
@@ -325,7 +320,7 @@ void emit_and8c(dynarec_la64_t* dyn, int ninst, int s1, int32_t c, int s3, int s
     ANDI(s1, s1, c&0xff);
 
     IFX(X_PEND) {
-        ST_D(s1, xEmu, offsetof(x64emu_t, res));
+        ST_B(s1, xEmu, offsetof(x64emu_t, res));
     }
 
     if (cpuext.lbt) {
@@ -500,7 +495,7 @@ void emit_or16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     OR(s1, s1, s2);
     BSTRPICK_D(s1, s1, 15, 0);
     IFX (X_PEND) {
-        ST_D(s1, xEmu, offsetof(x64emu_t, res));
+        ST_H(s1, xEmu, offsetof(x64emu_t, res));
     }
 
     if (cpuext.lbt) {

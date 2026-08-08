@@ -68,7 +68,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETGYx(q2, 0);
             if (MODREG) {
                 GETVYx(q1, 0);
-                GETEYSD(q0, 1, 0);
+                GETEYSS(q0, 1, 0);
                 if (q0 != q2) VEXTRINS_W(q0, q2, 0b00000);
                 if (q0 != q1) {
                     VEXTRINS_D(q0, q1, 0b10001);
@@ -473,12 +473,12 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 case 0x04: VFCMP_S(q0, v1, v2, cUNE); break; // Not Equal (or unordered on ARM, not on X86...)
                 case 0x05: VFCMP_S(q0, v2, v1, cULE); break; // Greater or equal or unordered
                 case 0x06: VFCMP_S(q0, v2, v1, cULT); break; // Greater or unordered
-                case 0x07: VFCMP_S(q0, v1, v2, cOR); break;  // Greater or unordered
+                case 0x07: VFCMP_S(q0, v1, v2, cOR); break;  // Ordered (neither is NaN)
                 case 0x08: VFCMP_S(q0, v1, v2, cUEQ); break; // Equal, or unordered
                 case 0x09: VFCMP_S(q0, v1, v2, cULT); break; // Less than or unordered
                 case 0x0a: VFCMP_S(q0, v1, v2, cULE); break; // Less or equal or unordered
                 case 0x0b: break;                            // false
-                case 0x0c: VFCMP_S(q0, v1, v2, cNE); break;  // Not Eual, ordered
+                case 0x0c: VFCMP_S(q0, v1, v2, cNE); break;  // Not Equal, ordered
                 case 0x0d: VFCMP_S(q0, v2, v1, cLE); break;  // Greater or Equal ordered
                 case 0x0e: VFCMP_S(q0, v2, v1, cLT); break;  // Greater ordered
                 case 0x0f: VSEQ_B(q0, v1, v1); break;        // true

@@ -51,6 +51,7 @@ void* create_updateflags()
             printf_log(LOG_NONE, "Error, UpdateFlags case %d is not handled, will crash later\n", i);
             ok = 0;
         }
+    if (!ok) return NULL;
 
     updateflags_pass1(&helper, jmp_df);
     helper.native_size = 0;
@@ -60,15 +61,15 @@ void* create_updateflags()
     size_t sz = sizeof(void*) + native_size + helper.table64size*sizeof(uint64_t) + 4*sizeof(void*) +  0  +  0  +  0  + sizeof(dynablock_t) + 0;
     //           dynablock_t*     block (arm insts)            table64               jmpnext code instsize arch callrets     dynablock      relocs
     void* actual_p = (void*)AllocDynarecMap((uintptr_t)&dummy_code, sz, 1);
+    if (actual_p == NULL) {
+        dynarec_log(LOG_INFO, "AllocDynarecMap(%zu) failed, canceling UpdateBlock\n", sz);
+        return NULL;
+    }
     void* p = (void*)(((uintptr_t)actual_p) + sizeof(void*));
     void* tablestart = p + native_size;
     void* next = tablestart + helper.table64size * sizeof(uint64_t);
     void* instsize = next + 4 * sizeof(void*);
     void* callrets = instsize;
-    if (actual_p == NULL) {
-        dynarec_log(LOG_INFO, "AllocDynarecMap(%zu) failed, canceling UpdateBlock\n", sz);
-        return NULL;
-    }
 
     helper.block = p;
     dynablock_t* block = (dynablock_t*)(callrets + 0);
