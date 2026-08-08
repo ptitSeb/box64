@@ -1710,26 +1710,29 @@ static inline int comis_fuse_inverted(int condition)
 
 #define emit_pf STEPNAME(emit_pf)
 
-#define x87_do_push           STEPNAME(x87_do_push)
-#define x87_do_push_empty     STEPNAME(x87_do_push_empty)
-#define x87_do_pop            STEPNAME(x87_do_pop)
-#define x87_get_current_cache STEPNAME(x87_get_current_cache)
-#define x87_get_cache         STEPNAME(x87_get_cache)
-#define x87_get_lsxcache      STEPNAME(x87_get_lsxcache)
-#define x87_get_st            STEPNAME(x87_get_st)
-#define x87_get_st_empty      STEPNAME(x87_get_st)
-#define x87_free              STEPNAME(x87_free)
-#define x87_refresh           STEPNAME(x87_refresh)
-#define x87_forget            STEPNAME(x87_forget)
-#define x87_reget_st          STEPNAME(x87_reget_st)
-#define x87_stackcount        STEPNAME(x87_stackcount)
-#define x87_unstackcount      STEPNAME(x87_unstackcount)
-#define x87_swapreg           STEPNAME(x87_swapreg)
-#define x87_setround          STEPNAME(x87_setround)
-#define x87_restoreround      STEPNAME(x87_restoreround)
-#define x87_reflectcount      STEPNAME(x87_reflectcount)
-#define x87_unreflectcount    STEPNAME(x87_unreflectcount)
-#define x87_purgecache        STEPNAME(x87_purgecache)
+#define x87_do_push             STEPNAME(x87_do_push)
+#define x87_do_push_empty       STEPNAME(x87_do_push_empty)
+#define x87_do_pop              STEPNAME(x87_do_pop)
+#define x87_get_current_cache   STEPNAME(x87_get_current_cache)
+#define x87_get_cache           STEPNAME(x87_get_cache)
+#define x87_get_lsxcache        STEPNAME(x87_get_lsxcache)
+#define x87_get_st              STEPNAME(x87_get_st)
+#define x87_get_st_empty        STEPNAME(x87_get_st)
+#define x87_free                STEPNAME(x87_free)
+#define x87_refresh             STEPNAME(x87_refresh)
+#define x87_forget              STEPNAME(x87_forget)
+#define x87_reget_st            STEPNAME(x87_reget_st)
+#define x87_stackcount          STEPNAME(x87_stackcount)
+#define x87_unstackcount        STEPNAME(x87_unstackcount)
+#define x87_swapreg             STEPNAME(x87_swapreg)
+#define x87_swap_fpu_ld         STEPNAME(x87_swap_fpu_ld)
+#define x87_update_fpu_ld_sign  STEPNAME(x87_update_fpu_ld_sign)
+#define x87_fcomi_fpu_ld        STEPNAME(x87_fcomi_fpu_ld)
+#define x87_setround            STEPNAME(x87_setround)
+#define x87_restoreround        STEPNAME(x87_restoreround)
+#define x87_reflectcount        STEPNAME(x87_reflectcount)
+#define x87_unreflectcount      STEPNAME(x87_unreflectcount)
+#define x87_purgecache          STEPNAME(x87_purgecache)
 
 #define sse_fcsr3_from_mxcsr STEPNAME(sse_fcsr3_from_mxcsr)
 #define mmx_get_reg       STEPNAME(mmx_get_reg)
@@ -1917,6 +1920,12 @@ void x87_forget(dynarec_la64_t* dyn, int ninst, int s1, int s2, int st);
 void x87_reget_st(dynarec_la64_t* dyn, int ninst, int s1, int s2, int st);
 // swap 2 x87 regs
 void x87_swapreg(dynarec_la64_t* dyn, int ninst, int s1, int s2, int a, int b);
+// swap fpu_ld_t raw shadow
+void x87_swap_fpu_ld(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int a, int b);
+// update fpu_ld_t raw sign bit
+void x87_update_fpu_ld_sign(dynarec_la64_t* dyn, int ninst, int addr, int tmp, int tmp2, int oldq, int newq, int st, int chs);
+// compare fpu_ld_t raw shadow for FCOMI/FUCOMI, ret=1 if handled
+void x87_fcomi_fpu_ld(dynarec_la64_t* dyn, int ninst, int ret, int addr0, int addri, int tmp1, int tmp2, int q0, int qi, int st);
 // Set rounding according to cw flags, return reg to restore flags
 int x87_setround(dynarec_la64_t* dyn, int ninst, int s1, int s2);
 // Restore round flag
