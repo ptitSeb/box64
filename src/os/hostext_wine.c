@@ -24,8 +24,8 @@ int DetectHostCpuFeatures(void)
 
     if (RegQueryValueExA(key, "CP 4030" /* ID_AA64ISAR0_EL1 */, NULL, NULL, (LPBYTE)&value, &size) == ERROR_SUCCESS) {
         // TS, bits[55:52]
-        cpuext.flagm = !!((value >> 52) & 0x1);
-        cpuext.flagm2 = !!((value >> 53) & 0x1);
+        cpuext.flagm = ((value >> 52) & 0xf) >= 1;
+        cpuext.flagm2 = ((value >> 52) & 0xf) >= 2;
         // PRINTTS, bits[35:32]
         cpuext.frintts = !!((value >> 32) & 0x1);
         // RND, bits[63:60]
