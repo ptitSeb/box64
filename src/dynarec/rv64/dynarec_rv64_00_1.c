@@ -158,7 +158,7 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             }
             break;
         case 0x62:
-            if (rex.is32bits && !MODREG) {
+            if (rex.is32bits) {
                 // BOUND here
                 DEFAULT;
             } else {
@@ -362,7 +362,7 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             break;
         case 0x6E:
         case 0x6F:
-            INST_NAME(opcode == 0x6C ? "OUTSB" : "OUTSD");
+            INST_NAME(opcode == 0x6E ? "OUTSB" : "OUTSD");
             if (BOX64DRENV(dynarec_safeflags) > 1) {
                 READFLAGS(X_PEND);
             } else {

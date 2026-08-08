@@ -76,12 +76,13 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 LD(x3, vback, vxoffset + 8);
                 SD(x3, wback, fixedaddress + 8);
                 YMM0(ed);
-            }
+            } else
+                SMWRITE2();
             break;
         case 0x12:
             INST_NAME("VMOVDDUP Gx, Ex");
             nextop = F8;
-            GETEX(x1, 0, 1);
+            GETEX(x1, 0, vex.l ? 16 : 1);
             GETGX();
             GETGY();
             LD(x3, wback, fixedaddress);

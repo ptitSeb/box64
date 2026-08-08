@@ -434,7 +434,6 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 gb2 = ((gd & 4) >> 2);
                 gb1 = TO_NAT(gd & 3);
             }
-            gd = x4;
             if (MODREG) {
                 ed = (nextop & 7) + (rex.b << 3);
                 if (rex.rex) {
@@ -858,7 +857,7 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     break;
                 default:
                     INST_NAME("CMPSB");
-                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+                    SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
                     GETDIR(x3, x1, 1);
                     if (rex.is67 && !rex.is32bits) {
                         ZEROUP(xRSI);
@@ -981,6 +980,7 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 SB(xRAX, xRDI, 0);
                 ADD(xRDI, xRDI, x3);
             }
+            SMWRITE();
             break;
         case 0xAB:
             if (rex.rep) {
@@ -1012,6 +1012,7 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 SDxw(xRAX, xRDI, 0);
                 ADD(xRDI, xRDI, x3);
             }
+            SMWRITE();
             break;
         case 0xAC:
             if (rex.rep) {

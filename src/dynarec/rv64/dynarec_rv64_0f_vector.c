@@ -39,6 +39,7 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
     int v0, v1;
     int q0, q1;
     int d0, d1;
+    int v2;
     int s0, s1;
     uint64_t tmp64u0, tmp64u1;
     int64_t j64;
@@ -125,15 +126,8 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
             v0 = sse_get_reg_vector(dyn, ninst, x1, gd, 0, VECTOR_SEW64);
             if (MODREG) {
-                ed = (nextop & 7) + (rex.b << 3);
-                d0 = sse_get_reg_vector(dyn, ninst, x1, ed, 1, VECTOR_SEW64);
-                if (cpuext.xtheadvector) {
-                    VECTOR_LOAD_VMASK(0b01, x4, 1);
-                    VMERGE_VVM(v0, v0, v1); // implies VMASK
-                } else {
-                    VMV_X_S(x4, v1);
-                    VMV_S_X(v0, x4);
-                }
+                DEFAULT;
+                return addr;
             } else {
                 VMV_X_S(x4, v0);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 1, 0);
@@ -431,7 +425,6 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 case 0x08 ... 0x0A:
                     if (nextop == 0x08) {
                         INST_NAME("PSIGNB Gm, Em");
-                        i32 = 7;
                         nextop = F8;
                         GETGM_vector(q0);
                         SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
@@ -439,7 +432,6 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                         SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
                     } else if (nextop == 0x09) {
                         INST_NAME("PSIGNW Gm, Em");
-                        i32 = 15;
                         nextop = F8;
                         GETGM_vector(q0);
                         SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
@@ -447,15 +439,12 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                         SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
                     } else {
                         INST_NAME("PSIGND Gm, Em");
-                        i32 = 31;
                         nextop = F8;
                         GETGM_vector(q0);
                         SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
                         GETEM_vector(q1, 0);
                         SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
                     }
-                    v0 = fpu_get_scratch(dyn);
-                    v1 = fpu_get_scratch(dyn);
                     VMSLT_VX(VMASK, q1, xZR, VECTOR_UNMASKED);
                     VRSUB_VX(q0, q0, xZR, VECTOR_MASKED);
                     VMSEQ_VX(VMASK, q1, xZR, VECTOR_UNMASKED);
@@ -529,27 +518,29 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             VFSQRT_V(v1, v0, VECTOR_UNMASKED);
             break;
         case 0x52:
-            if (!BOX64ENV(dynarec_fastround)) return 0;
+            if (!BOX64ENV(dynarec_fastnan)) return 0;
             INST_NAME("RSQRTPS Gx, Ex");
             nextop = F8;
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
             GETEX_vector(v0, 0, 0, VECTOR_SEW32);
             GETGX_empty_vector(v1);
+            v2 = fpu_get_scratch(dyn);
             LUI(x4, 0x3f800);
-            FMVWX(v0, x4); // 1.0f
+            VMV_V_X(v2, x4); // 1.0f broadcast
             VFSQRT_V(v1, v0, VECTOR_UNMASKED);
-            VFRDIV_VF(v1, v1, v0, VECTOR_UNMASKED);
+            VFDIV_VV(v1, v2, v1, VECTOR_UNMASKED); // 1.0/sqrt(x)
             break;
         case 0x53:
-            if (!BOX64ENV(dynarec_fastround)) return 0;
+            if (!BOX64ENV(dynarec_fastnan)) return 0;
             INST_NAME("RCPPS Gx, Ex");
             nextop = F8;
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
             GETEX_vector(v0, 0, 0, VECTOR_SEW32);
             GETGX_empty_vector(v1);
+            v2 = fpu_get_scratch(dyn);
             LUI(x4, 0x3f800);
-            FMVWX(v0, x4); // 1.0f
-            VFRDIV_VF(v1, v0, v0, VECTOR_UNMASKED);
+            VMV_V_X(v2, x4);                       // 1.0f broadcast
+            VFDIV_VV(v1, v2, v0, VECTOR_UNMASKED); // 1.0/x
             break;
         case 0x54:
             INST_NAME("ANDPS Gx, Ex");
@@ -1046,6 +1037,7 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 v1 = mmx_get_reg_vector(dyn, ninst, x1, x2, x3, gd);
                 VMV_X_S(x4, v1);
                 SD(x4, ed, fixedaddress);
+                SMWRITE2();
             }
             break;
         case 0xC2:

@@ -351,7 +351,7 @@ void emit_and16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 {
     CLEAR_FLAGS();
     IFX (X_PEND) {
-        SET_DF(s3, d_tst16);
+        SET_DF(s3, d_and16);
     } else IFXORNAT (X_ALL) {
         SET_DFNONE();
     }
@@ -379,7 +379,7 @@ void emit_and32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 {
     CLEAR_FLAGS();
     IFX (X_PEND) {
-        SET_DF(s3, rex.w ? d_tst64 : d_tst32);
+        SET_DF(s3, rex.w ? d_and64 : d_and32);
     } else IFXORNAT (X_ALL) {
         SET_DFNONE();
     }
@@ -412,7 +412,7 @@ void emit_and32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
 {
     CLEAR_FLAGS();
     IFX (X_PEND) {
-        SET_DF(s3, rex.w ? d_tst64 : d_tst32);
+        SET_DF(s3, rex.w ? d_and64 : d_and32);
     } else IFXORNAT (X_ALL) {
         SET_DFNONE();
     }

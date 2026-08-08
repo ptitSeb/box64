@@ -1223,7 +1223,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     INST_NAME("SHL Ew, Ib");
                     if (geted_ib(dyn, addr, ninst, nextop) & 0x1f) {
                         SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
-                        GETEW(x1, 0);
+                        GETEW(x1, 1);
                         u8 = (F8) & 0x1f;
                         emit_shl16c(dyn, ninst, x1, u8, x5, x4, x6);
                         EWBACK;
@@ -1251,7 +1251,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             EWBACK;
                             if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(ed, xZR, x5, xZR);
                         } else {
-                            GETEW(x1, 0);
+                            GETEW(x1, 1);
                             u8 = (F8) & 0x1f;
                             emit_shr16c(dyn, ninst, x1, u8, x5, x4, x6);
                             EWBACK;
@@ -1265,7 +1265,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     INST_NAME("SAR Ew, Ib");
                     if (geted_ib(dyn, addr, ninst, nextop) & 0x1f) {
                         SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION); // some flags are left undefined
-                        GETSEW(x1, 0);
+                        GETSEW(x1, 1);
                         u8 = (F8) & 0x1f;
                         emit_sar16c(dyn, ninst, x1, u8, x5, x4, x6);
                         EWBACK;
@@ -1566,7 +1566,6 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     REMUW(x4, x2, ed);
                     INSHz(xRAX, x7, x5, x6, 1, 1);
                     INSHz(xRDX, x4, x5, x6, 0, 1);
-                    SET_DFNONE();
                     CLEAR_FLAGS();
                     ADDI(x5, xZR, ((1 << F_ZF) | (1 << F_PF)));
                     OR(xFlags, xFlags, x5);

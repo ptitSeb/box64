@@ -386,6 +386,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             LD(x4, gback, gdoffset + 8);
             SD(x3, wback, fixedaddress + 0);
             SD(x4, wback, fixedaddress + 8);
+            if (!MODREG) SMWRITE2();
             break;
         case 0x2C:
             INST_NAME("CVTTPS2PI Gm,Ex");
@@ -894,10 +895,10 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     INST_NAME("MOVBE Ed, Gd");
                     nextop = F8;
                     GETGD;
-                    SMREAD();
                     addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, 0);
                     REV8xw(x3, gd, x3, x4, x5, x6);
                     SDxw(x3, wback, fixedaddress);
+                    SMWRITE2();
                     break;
                 default:
                     DEFAULT;
@@ -1052,9 +1053,9 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     J(14 * 4); // continue
                     FLTS(x3, v0, s0); // s0 > 0.0f?
                     BNEZ(x3, 6 * 4);
-                    FEQS(x3, v0, s0); // s0 == 0.0f?
+                    FEQS(x3, v0, s0); // s0 == 0.0f? (also true for -0.0f)
                     BEQZ(x3, 4 * 4);
-                    FDIVS(s0, s1, v0); // generate an inf
+                    FDIVS(s0, s1, s0); // generate an inf with the correct sign
                     FSW(s0, gback, gdoffset + i * 4);
                     J(7 * 4); // continue
                 }
@@ -1251,11 +1252,13 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETGX();
             GETEX(x2, 0, 12);
             s0 = fpu_get_scratch(dyn);
+            u8 = sse_setround(dyn, ninst, x6, x4);
             for (int i = 0; i < 4; ++i) {
                 LW(x3, wback, fixedaddress + i * 4);
-                FCVTSW(s0, x3, RD_RNE);
+                FCVTSW(s0, x3, RD_DYN);
                 FSW(s0, gback, gdoffset + i * 4);
             }
+            x87_restoreround(dyn, ninst, u8);
             break;
         case 0x5C:
             INST_NAME("SUBPS Gx, Ex");
@@ -1689,7 +1692,6 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     }
                     break;
                 default:
-                    *ok = 0;
                     DEFAULT;
             }
             break;
@@ -1858,6 +1860,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETEM(x2, 0, 1);
             LD(x3, gback, gdoffset + 0);
             SD(x3, wback, fixedaddress);
+            if (!MODREG) SMWRITE2();
             break;
 #define GO(GETFLAGS, NO, YES, NATNO, NATYES, F)                                             \
     READFLAGS_FUSION(F, x1, x2, x3, x4, x5);                                                \
@@ -2668,6 +2671,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
                 SDxw(gd, ed, fixedaddress);
+                SMWRITE2();
             }
             break;
         case 0xC4:
@@ -2682,7 +2686,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("PEXTRW Gd,Em,Ib");
             nextop = F8;
             GETGD;
-            GETEM(x2, 0, 6);
+            GETEM(x2, 1, 6);
             u8 = (F8) & 3;
             LHU(gd, wback, fixedaddress + u8 * 2);
             break;
@@ -3093,6 +3097,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 v0 = mmx_get_reg(dyn, ninst, x1, x2, x3, gd);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
                 FSD(v0, ed, fixedaddress);
+                SMWRITE2();
             }
             break;
         case 0xE8:

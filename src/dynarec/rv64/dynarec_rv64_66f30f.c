@@ -85,7 +85,6 @@ uintptr_t dynarec64_66F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
                 ANDI(gd, x3, 0xFF);
             }
             IFX (X_ALL) {
-                CLEAR_FLAGS();
                 SET_FLAGS_EQZ(gd, F_ZF, x7);
             }
             GWBACK;

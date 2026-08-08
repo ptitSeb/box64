@@ -1373,7 +1373,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     EBBACK(x5, 0);
                     break;
                 case 4:
-                    INST_NAME("MUL AL, Ed");
+                    INST_NAME("MUL AL, Eb");
                     SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
                     GETEB(x1, 0);
                     ANDI(x2, xRAX, 0xff);
@@ -1715,14 +1715,14 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         } else {
                             GETEDH(x4, x1, 0); // get edd changed addr, so cannot be called 2 times for same op...
                             if (BOX64ENV(dynarec_div0)) {
-                                BNE_MARK3(ed, xZR);
+                                BNEZ_MARKLOCK(ed);
                                 GETIP_(ip, x7);
                                 STORE_XEMU_CALL(x3);
                                 CALL(const_native_div0, -1, 0, 0);
                                 CLEARIP();
                                 LOAD_XEMU_CALL();
                                 jump_to_epilog(dyn, 0, xRIP, ninst);
-                                MARK3;
+                                MARKLOCK;
                             }
                             // Need to see if RDX==0 and RAX not signed
                             //  or RDX==-1 and RAX signed

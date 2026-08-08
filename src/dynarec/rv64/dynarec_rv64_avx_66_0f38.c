@@ -569,6 +569,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
             GETEX(x1, 0, vex.l ? 24 : 8);
             GETGX();
+            GETGY();
             CLEAR_FLAGS();
             SET_DFNONE();
             IFX (X_ZF | X_CF) {
@@ -603,9 +604,9 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     AND(x6, x4, x2);
                     AND(x7, x5, x3);
                     OR(x6, x6, x7);
-                    BNEZ(x6, 4 + 2 * 4);
-                    ANDI(x6, xFlags, 1 << F_ZF);
-                    OR(xFlags, xFlags, x6);
+                    BEQZ_MARK(x6);
+                    ANDI(xFlags, xFlags, ~(1 << F_ZF));
+                    MARK;
                 }
                 IFX (X_CF) {
                     NOT(x4, x4);
@@ -613,9 +614,9 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     AND(x6, x4, x2);
                     AND(x7, x5, x3);
                     OR(x6, x6, x7);
-                    BNEZ(x6, 4 + 2 * 4);
-                    ANDI(x6, xFlags, 1 << F_CF);
-                    OR(xFlags, xFlags, x6);
+                    BEQZ_MARK2(x6);
+                    ANDI(xFlags, xFlags, ~(1 << F_CF));
+                    MARK2;
                 }
             }
             break;

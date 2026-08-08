@@ -224,26 +224,30 @@ rv64_lock_store_dd:
     ret
 
 rv64_lock_cas_d:
-    lr.w t0, (a0)
-    bne t0, a1, 1f
-    sc.w a0, a2, (a0)
+    fence   rw, rw
+    lr.w    t0, (a0)
+    bne     t0, a1, 1f
+    sc.w    a0, a2, (a0)
+    fence   rw, rw
     ret
 1:
-    li a0, 1
+    li      a0, 1
     ret
 
 rv64_lock_cas_dd:
-    lr.d t0, (a0)
-    bne t0, a1, 1f
-    sc.d a0, a2, (a0)
+    fence   rw, rw
+    lr.d    t0, (a0)
+    bne     t0, a1, 1f
+    sc.d    a0, a2, (a0)
+    fence   rw, rw
     ret
 1:
-    li a0, 1
+    li      a0, 1
     ret
 
 rv64_lock_get_b:
     fence   rw, rw
-    lb      a0, 0(a0)
+    lbu     a0, 0(a0)
     ret
 
 rv64_lock_get_d:

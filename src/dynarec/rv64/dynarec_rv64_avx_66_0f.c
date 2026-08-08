@@ -127,7 +127,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
         case 0x15:
             INST_NAME("VUNPCKHPD Gx, Vx, Ex");
             nextop = F8;
-            GETEX(x1, 0, vex.l ? 16 : 0);
+            GETEX(x1, 0, vex.l ? 24 : 8);
             GETGX();
             GETGY();
             GETVX();
@@ -1723,6 +1723,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 SD(x3, wback, fixedaddress + 8);
             } else if (MODREG)
                 YMM0(ed);
+            if (!MODREG) SMWRITE2();
             break;
         case 0xC2:
             INST_NAME("VCMPPD Gx, Vx, Ex, Ib");
@@ -1813,7 +1814,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             INST_NAME("VSHUFPD Gx, Vx, Ex, Ib");
             nextop = F8;
             GETGX();
-            GETEX(x2, 1, 8);
+            GETEX(x2, 1, vex.l ? 24 : 8);
             GETGY();
             GETVX();
             GETVY();

@@ -83,10 +83,10 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 d0 = sse_get_reg_vector(dyn, ninst, x1, ed, 1, VECTOR_SEW32);
                 if (cpuext.xtheadvector) {
                     VECTOR_LOAD_VMASK(0b0001, x4, 1);
-                    VMERGE_VVM(v0, v0, v1); // implies VMASK
+                    VMERGE_VVM(d0, d0, v0); // implies VMASK
                 } else {
-                    VMV_X_S(x4, v1);
-                    VMV_S_X(v0, x4);
+                    VMV_X_S(x4, v0);
+                    VMV_S_X(d0, x4);
                 }
             } else {
                 VMV_X_S(x4, v0);
