@@ -187,6 +187,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             switch (nextop) {
                 case 0xAB:
+                    nextop = F8;
                     if (MODREG) {
                         INST_NAME("Invalid LOCK BTS");
                         UDF();
@@ -196,7 +197,6 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         INST_NAME("LOCK BTS Ed, Gd");
                         SETFLAGS(X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION);
                         SET_DFNONE();
-                        nextop = F8;
                         GETGDs;
                         addr = geted(dyn, addr, ninst, nextop, &wback, x3, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
                         if (rex.w) {
@@ -204,7 +204,6 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         } else {
                             SRAI_W(x1, gd, 3);
                         }
-                        if (!rex.w && !rex.is32bits) { ADDI_W(x1, x1, 0); }
                         ADDy(x6, wback, x1);
                         ANDI(x2, gd, 7);
                         ANDI(x4, x6, 0b11);
@@ -227,6 +226,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 case 0xB0:
                     switch (rex.rep) {
                         case 0:
+                            nextop = F8;
                             if (MODREG) {
                                 INST_NAME("Invalid LOCK");
                                 UDF();
@@ -235,7 +235,6 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             } else {
                                 INST_NAME("LOCK CMPXCHG Eb, Gb");
                                 SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
-                                nextop = F8;
                                 ANDI(x6, xRAX, 0xff); // AL
                                 if (rex.rex) {
                                     gb1 = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3));
@@ -330,6 +329,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     }
                     break;
                 case 0xB3:
+                    nextop = F8;
                     if (MODREG) {
                         INST_NAME("Invalid LOCK BTR");
                         UDF();
@@ -339,7 +339,6 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         INST_NAME("LOCK BTR Ed, Gd");
                         SETFLAGS(X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION);
                         SET_DFNONE();
-                        nextop = F8;
                         GETGDs;
                         addr = geted(dyn, addr, ninst, nextop, &wback, x3, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
                         if (rex.w) {
@@ -347,7 +346,6 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         } else {
                             SRAI_W(x1, gd, 3);
                         }
-                        if (!rex.w && !rex.is32bits) { ADDI_W(x1, x1, 0); }
                         ADDy(x6, wback, x1);
                         ANDI(x2, gd, 7);
 
@@ -388,7 +386,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 INST_NAME("LOCK BTS Ed, Ib");
                                 SETFLAGS(X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION);
                                 SET_DFNONE();
-                                addr = geted(dyn, addr, ninst, nextop, &wback, x3, x1, &fixedaddress, rex, NULL, 0, 1);
+                                addr = geted(dyn, addr, ninst, nextop, &wback, x3, x1, &fixedaddress, rex, LOCK_LOCK, 0, 1);
                                 u8 = F8;
                                 u8 &= (rex.w ? 0x3f : 0x1f);
                                 ADDI_D(x6, wback, u8 >> 3);
@@ -420,7 +418,7 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 INST_NAME("LOCK BTR Ed, Ib");
                                 SETFLAGS(X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION);
                                 SET_DFNONE();
-                                addr = geted(dyn, addr, ninst, nextop, &wback, x3, x1, &fixedaddress, rex, NULL, 0, 1);
+                                addr = geted(dyn, addr, ninst, nextop, &wback, x3, x1, &fixedaddress, rex, LOCK_LOCK, 0, 1);
                                 u8 = F8;
                                 u8 &= (rex.w ? 0x3f : 0x1f);
                                 ADDI_D(x6, wback, u8 >> 3);

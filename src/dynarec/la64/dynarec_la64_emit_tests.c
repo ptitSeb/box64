@@ -475,7 +475,7 @@ void emit_test8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
     AND(s3, s1, s2); // res = s1 & s2
 
     IFX_PENDOR0 {
-        ST_D(s3, xEmu, offsetof(x64emu_t, res));
+        ST_B(s3, xEmu, offsetof(x64emu_t, res));
     }
     IFX(X_SF) {
         SRLI_D(s4, s3, 7);
@@ -505,6 +505,7 @@ void emit_test8c(dynarec_la64_t* dyn, int ninst, int s1, uint8_t c, int s3, int 
     }
 
     NAT_FLAGS_ENABLE_SIGN();
+    NAT_FLAGS_ENABLE_SF();
 
     if (cpuext.lbt) {
         IFX (X_ALL) {
@@ -531,7 +532,7 @@ void emit_test8c(dynarec_la64_t* dyn, int ninst, int s1, uint8_t c, int s3, int 
     ANDI(s3, s1, c); // res = s1 & c
 
     IFX_PENDOR0 {
-        ST_D(s3, xEmu, offsetof(x64emu_t, res));
+        ST_B(s3, xEmu, offsetof(x64emu_t, res));
     }
     IFX (X_SF) {
         SRLI_D(s4, s3, 7);
@@ -715,6 +716,7 @@ void emit_test32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, 
     }
 
     NAT_FLAGS_ENABLE_SIGN();
+    NAT_FLAGS_ENABLE_SF();
     if (cpuext.lbt) {
         IFX(X_ALL) {
             MOV64xw(s3, c);

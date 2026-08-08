@@ -71,7 +71,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
             if (MODREG) {
                 ed = (nextop & 7) + (rex.b << 3);
-                d0 = sse_get_reg(dyn, ninst, x1, ed, 0);
+                d0 = sse_get_reg(dyn, ninst, x1, ed, 1);
                 xmm_live_read(dyn, ninst, gd, XMM_WIDTH_64);
                 xmm_scalar_move(dyn, ninst, d0, v0, ed, XMM_SCALAR_SD, XMM_UPPER_PRESERVE);
             } else {

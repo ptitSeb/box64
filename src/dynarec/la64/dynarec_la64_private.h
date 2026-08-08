@@ -115,10 +115,10 @@ typedef struct vector_liveness_s {
 
 typedef struct instruction_la64_s {
     instruction_x64_t   x64;
-    uintptr_t           address;    // (start) address of the arm emitted instruction
+    uintptr_t           address;    // (start) address of the native emitted instruction
     uintptr_t           epilog;     // epilog of current instruction (can be start of next, or barrier stuff)
-    int                 size;       // size of the arm emitted instruction
-    int                 size2;      // size of the arm emitted instrucion after pass2
+    int                 size;       // size of the native emitted instruction
+    int                 size2;      // size of the native emitted instrucion after pass2
     int                 pred_sz;    // size of predecessor list
     int                 *pred;      // predecessor array
     uintptr_t           mark[3];
@@ -279,4 +279,4 @@ void CreateJmpNext(void* addr, void* next);
     CALL(const_##A, -1, x1, x2);   \
     LOAD_XEMU_CALL()
 
-#endif //__DYNAREC_ARM_PRIVATE_H_
+#endif //__DYNAREC_LA64_PRIVATE_H_

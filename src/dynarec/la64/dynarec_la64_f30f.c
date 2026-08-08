@@ -147,8 +147,6 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             break;
         case 0x2D:
             INST_NAME("CVTSS2SI Gd, Ex");
-            if (addr >= 0x1033f98d && addr <= 0x1033f98d + 8)
-                EMIT(0);
             nextop = F8;
             GETGDd;
             GETEXSS(d0, 0, 0);
@@ -252,14 +250,15 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
     } else {                                                                                     \
         addr = geted(dyn, addr, ninst, nextop, &ed, tmp2, tmp3, &fixedaddress, rex, NULL, 1, 0); \
         if (dyn->insts[ninst].nat_flags_fusion) {                                                \
-            NATIVEJUMP(NATNO, 8);                                                                \
+            NATIVEJUMP(NATNO, 4);                                                                \
         } else {                                                                                 \
             if (cpuext.lbt)                                                                      \
-                BEQZ(tmp1, 8);                                                                   \
+                BEQZ(tmp1, 4);                                                                   \
             else                                                                                 \
-                B##NO(tmp1, 8);                                                                  \
+                B##NO(tmp1, 4);                                                                  \
         }                                                                                        \
         LDxw(gd, ed, fixedaddress);                                                              \
+        if (NEED_ZEROUP(gd)) ZEROUP(gd);                                                         \
     }
 
             GOCOND(0x40, "CMOV", "Gd, Ed");

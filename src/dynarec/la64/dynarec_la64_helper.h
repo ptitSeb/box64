@@ -316,7 +316,8 @@ static inline int comis_fuse_inverted(int condition)
 
 #define COMIS_SPILL_S() \
     IFX (X_ALL) { SPILL_EFLAGS(); }
-#define COMIS_SPILL_D() SPILL_EFLAGS()
+#define COMIS_SPILL_D() \
+    IFX (X_ALL) { SPILL_EFLAGS(); }
 #define EMIT_COMIS_FLAGS(type, lhs, rhs, tmp)                                                  \
     do {                                                                                       \
         COMIS_MARK();                                                                          \
@@ -421,13 +422,13 @@ static inline int comis_fuse_inverted(int condition)
 #define GETVDs                   \
     do {                         \
         vd = TO_NAT(vex.v);      \
-        if (rex.w) MARKREGs(vd); \
+        MARKREGs(vd);            \
     } while(0)
 
 #define GETVDsd                  \
     do {                         \
         vd = TO_NAT(vex.v);      \
-        if (rex.w) MARKREGsd(vd); \
+        MARKREGsd(vd);           \
     } while(0)
 
 // GETGW extract x64 register in gd, that is i
@@ -731,6 +732,16 @@ static inline int comis_fuse_inverted(int condition)
         VLD(a, ed, fixedaddress);                                                            \
     }
 
+#define GETEX_AES(a, w, D)                                                                   \
+    if (MODREG) {                                                                            \
+        a = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), w);                     \
+    } else {                                                                                 \
+        SMREAD();                                                                            \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x3, x2, &fixedaddress, rex, NULL, 1, D); \
+        VLD(SCRATCH, ed, fixedaddress);                                                      \
+        a = SCRATCH;                                                                         \
+    }
+
 // Put Back EX if it was a memory and not an emm register
 #define PUTEX(a)                  \
     if (!MODREG) {                \
@@ -860,6 +871,35 @@ static inline int comis_fuse_inverted(int condition)
         a = fpu_get_scratch(dyn);                                                            \
         VLD(a, ed, fixedaddress);                                                            \
     }
+
+#define GETEYx_AES(a, w, D)                                                                  \
+    if (MODREG) {                                                                            \
+        a = avx_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), w, LSX_AVX_WIDTH_128);  \
+    } else {                                                                                 \
+        SMREAD();                                                                            \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, D); \
+        VLD(SCRATCH, ed, fixedaddress);                                                      \
+        a = SCRATCH;                                                                         \
+    }
+#define GETEYy_AES(a, w, D)                                                                  \
+    if (MODREG) {                                                                            \
+        a = avx_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), w, LSX_AVX_WIDTH_256);  \
+    } else {                                                                                 \
+        SMREAD();                                                                            \
+        addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, D); \
+        XVLD(SCRATCH, ed, fixedaddress);                                                     \
+        a = SCRATCH;                                                                         \
+    }
+#define GETEYxy_AES(a, w, D)  \
+    if (vex.l) {              \
+        GETEYy_AES(a, w, D);  \
+    } else {                  \
+        GETEYx_AES(a, w, D);  \
+    }
+#define GETGY_empty_VYEYxy_AES(gx, vx, ex, D) \
+    GETVYxy(vx, 0);                            \
+    GETEYxy_AES(ex, 0, D);                     \
+    GETGYxy_empty(gx);
 
 #define GETEYy(a, w, D)                                                                      \
     if (MODREG) {                                                                            \
@@ -1102,6 +1142,10 @@ static inline int comis_fuse_inverted(int condition)
 #define BEQ_MARK2(reg1, reg2) Bxx_gen(EQ, MARK2, reg1, reg2)
 // Branch to MARK3 if reg1==reg2 (use j64)
 #define BEQ_MARK3(reg1, reg2) Bxx_gen(EQ, MARK3, reg1, reg2)
+// Branch to MARKF if reg1==reg2 (use j64)
+#define BEQ_MARKF(reg1, reg2) Bxx_gen(EQ, MARKF, reg1, reg2)
+// Branch to MARKF2 if reg1==reg2 (use j64)
+#define BEQ_MARKF2(reg1, reg2) Bxx_gen(EQ, MARKF2, reg1, reg2)
 // Branch to MARKLOCK if reg1==reg2 (use j64)
 #define BEQ_MARKLOCK(reg1, reg2) Bxx_gen(EQ, MARKLOCK, reg1, reg2)
 // Branch to MARKLOCK2 if reg1==reg2 (use j64)
@@ -1127,6 +1171,14 @@ static inline int comis_fuse_inverted(int condition)
 #define BNEZ_MARKLOCK(reg) BxxZ_gen(NE, MARKLOCK, reg)
 // Branch to MARKLOCK2 if reg1!=0 (use j64)
 #define BNEZ_MARKLOCK2(reg) BxxZ_gen(NE, MARKLOCK2, reg)
+// Branch to MARKF if reg1!=reg2 (use j64)
+#define BNE_MARKF(reg1, reg2) Bxx_gen(NE, MARKF, reg1, reg2)
+// Branch to MARKF2 if reg1!=reg2 (use j64)
+#define BNE_MARKF2(reg1, reg2) Bxx_gen(NE, MARKF2, reg1, reg2)
+// Branch to MARKF if reg1!=0 (use j64)
+#define BNEZ_MARKF(reg) BxxZ_gen(NE, MARKF, reg)
+// Branch to MARKF2 if reg1!=0 (use j64)
+#define BNEZ_MARKF2(reg) BxxZ_gen(NE, MARKF2, reg)
 
 // Branch to MARK if fcc!=0 (use j64)
 #define BCNEZ_MARK(fcc) BCxxZ_gen(NE, MARK, fcc)
@@ -1135,9 +1187,9 @@ static inline int comis_fuse_inverted(int condition)
 // Branch to MARK3 if fcc!=0 (use j64)
 #define BCNEZ_MARK3(fcc) BCxxZ_gen(NE, MARK3, fcc)
 // Branch to MARKLOCK if fcc!=0 (use j64)
-#define BCNEZ_MARKLOCK(fcc) BxxZ_gen(NE, MARKLOCK, fcc)
+#define BCNEZ_MARKLOCK(fcc) BCxxZ_gen(NE, MARKLOCK, fcc)
 // Branch to MARKLOCK2 if fcc!=0 (use j64)
-#define BCNEZ_MARKLOCK2(fcc) BxxZ_gen(NE, MARKLOCK2, fcc)
+#define BCNEZ_MARKLOCK2(fcc) BCxxZ_gen(NE, MARKLOCK2, fcc)
 
 // Branch to MARK if fcc==0 (use j64)
 #define BCEQZ_MARK(fcc) BCxxZ_gen(EQ, MARK, fcc)
@@ -1146,9 +1198,9 @@ static inline int comis_fuse_inverted(int condition)
 // Branch to MARK3 if fcc==0 (use j64)
 #define BCEQZ_MARK3(fcc) BCxxZ_gen(EQ, MARK3, fcc)
 // Branch to MARKLOCK if fcc==0 (use j64)
-#define BCEQZ_MARKLOCK(fcc) BxxZ_gen(EQ, MARKLOCK, fcc)
+#define BCEQZ_MARKLOCK(fcc) BCxxZ_gen(EQ, MARKLOCK, fcc)
 // Branch to MARKLOCK2 if fcc==0 (use j64)
-#define BCEQZ_MARKLOCK2(fcc) BxxZ_gen(EQ, MARKLOCK2, fcc)
+#define BCEQZ_MARKLOCK2(fcc) BCxxZ_gen(EQ, MARKLOCK2, fcc)
 
 // Branch to MARK if reg1<reg2 (use j64)
 #define BLT_MARK(reg1, reg2) Bxx_gen(LT, MARK, reg1, reg2)
@@ -1876,7 +1928,7 @@ void emit_test32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int 
 void emit_test32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s3, int s4, int s5);
 void emit_test8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
 void emit_test8c(dynarec_la64_t* dyn, int ninst, int s1, uint8_t c, int s3, int s4, int s5);
-void emit_xor16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5);
+void emit_xor16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
 void emit_xor32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4);
 void emit_xor32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s3, int s4);
 void emit_xor8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4);
@@ -2338,8 +2390,8 @@ uintptr_t dynarec64_DF(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 #define LOCK_8_OP(op, s1, wback, s3, s4, s5, s6)    \
     if (cpuext.lamcas) {                            \
         LD_BU(s5, wback, 0);                        \
-        MV(s1, s5);                                 \
         MARKLOCK2;                                  \
+        MV(s1, s5);                                 \
         MV(s6, s5);                                 \
         op;                                         \
         AMCAS_DB_B(s5, s4, wback);                  \

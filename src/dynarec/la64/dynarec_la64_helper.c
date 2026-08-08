@@ -812,6 +812,11 @@ void x87_reget_st(dynarec_la64_t* dyn, int ninst, int s1, int s2, int st)
     for (int i = 0; (i < 8) && (ret == -1); ++i)
         if (dyn->lsx.x87cache[i] == -1)
             ret = i;
+    if (ret == -1) {
+        MESSAGE(LOG_DUMP, "Incoherent x87 stack cache, aborting\n");
+        dyn->abort = 1;
+        return;
+    }
     // found, setup and grab the value
     dyn->lsx.x87cache[ret] = st;
     dyn->lsx.x87reg[ret] = fpu_get_reg_x87(dyn, LSX_CACHE_ST_D, st);
@@ -863,15 +868,6 @@ void x87_free(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int st)
         dyn->lsx.lsxcache[reg].v = 0;
         dyn->lsx.x87cache[ret] = -1;
         dyn->lsx.x87reg[ret] = -1;
-    } else {
-        // Get top
-        LD_W(s2, xEmu, offsetof(x64emu_t, top));
-        // Update
-        int ast = st - dyn->lsx.x87stack;
-        if (ast) {
-            ADDI_D(s2, s2, ast);
-            ANDI(s2, s2, 7); // (emu->top + i)&7
-        }
     }
     // add mark in the freed array
     dyn->lsx.tags |= 0b11 << (st * 2);
@@ -1083,7 +1079,8 @@ void x87_purgecache(dynarec_la64_t* dyn, int ninst, int next, int s1, int s2, in
         if (a > 0) {
             SLLI_D(s1, s1, a * 2);
         } else {
-            BSTRINS_D(s1, xZR, 15, 0);
+            MOV32w(s3, 0xffff0000);
+            OR(s1, s1, s3);
             SRLI_D(s1, s1, -a * 2);
         }
         ST_H(s1, xEmu, offsetof(x64emu_t, fpu_tags));
@@ -1284,6 +1281,11 @@ int x87_get_cache(dynarec_la64_t* dyn, int ninst, int populate, int s1, int s2, 
     for (int i = 0; (i < 8) && (ret == -1); ++i)
         if (dyn->lsx.x87cache[i] == -1)
             ret = i;
+    if (ret == -1) {
+        MESSAGE(LOG_DUMP, "Incoherent x87 stack cache, aborting\n");
+        dyn->abort = 1;
+        return -1;
+    }
     // found, setup and grab the value
     dyn->lsx.x87cache[ret] = st;
     dyn->lsx.x87reg[ret] = fpu_get_reg_x87(dyn, LSX_CACHE_ST_D, st);
@@ -1473,7 +1475,7 @@ void sse_purge07cache(dynarec_la64_t* dyn, int ninst, int s1)
                 ++old;
             }
             dyn->lsx.xmm_used |= 1 << i;
-            if (dyn->lsx.lsxcache[dyn->lsx.avxcache[i].reg].t == LSX_CACHE_YMMW) {
+            if (dyn->lsx.avxcache[i].v != -1 && dyn->lsx.lsxcache[dyn->lsx.avxcache[i].reg].t == LSX_CACHE_YMMW) {
                 VST(dyn->lsx.avxcache[i].reg, xEmu, offsetof(x64emu_t, xmm[i]));
                 if (dyn->lsx.avxcache[i].upper_zero_pending) {
                     VST(VZERO, xEmu, offsetof(x64emu_t, ymm[i]));
@@ -1483,7 +1485,7 @@ void sse_purge07cache(dynarec_la64_t* dyn, int ninst, int s1)
                 }
                 fpu_free_reg(dyn, dyn->lsx.avxcache[i].reg);
                 dyn->lsx.avxcache[i].v = -1;
-            } else if (dyn->lsx.lsxcache[dyn->lsx.ssecache[i].reg].t == LSX_CACHE_XMMW) {
+            } else if (dyn->lsx.ssecache[i].v != -1 && dyn->lsx.lsxcache[dyn->lsx.ssecache[i].reg].t == LSX_CACHE_XMMW) {
                 VST(dyn->lsx.ssecache[i].reg, xEmu, offsetof(x64emu_t, xmm[i]));
                 fpu_free_reg(dyn, dyn->lsx.ssecache[i].reg);
                 dyn->lsx.ssecache[i].v = -1;
@@ -1975,8 +1977,7 @@ static void swapCache(dynarec_la64_t* dyn, int ninst, int i, int j, lsxcache_t* 
     // SWAP
     lsx_cache_t tmp;
     MESSAGE(LOG_DUMP, "\t  - Swapping %d <-> %d\n", i, j);
-    // There is no VSWP in Arm64 NEON to swap 2 register contents!
-    // so use a scratch...
+    // LSX/LASX has no register-swap instruction, so use a scratch...
     switch (quad) {
         case 2:
             XVOR_V(SCRATCH, i, i);
@@ -2015,8 +2016,12 @@ static void loadCache(dynarec_la64_t* dyn, int ninst, int stack_cnt, int s1, int
         if (cache->lsxcache[i].t == LSX_CACHE_YMMR || cache->lsxcache[i].t == LSX_CACHE_YMMW)
             quad = 2;
         int j = i + 1;
-        while (cache->lsxcache[j].v)
+        while (j < 24 && cache->lsxcache[j].v)
             ++j;
+        if (j >= 24) {
+            dyn->abort = 1;
+            j = 23;
+        }
         MESSAGE(LOG_DUMP, "\t  - Moving away %d\n", i);
         switch (quad) {
             case 2:
@@ -2236,7 +2241,7 @@ static void fpuCacheTransform(dynarec_la64_t* dyn, int ninst, int s1, int s2, in
                 } else if (cache.lsxcache[i].t == LSX_CACHE_ST_F && cache_i2.lsxcache[i].t == LSX_CACHE_ST_I64) {
                     MESSAGE(LOG_DUMP, "\t  - Convert %s\n", getCacheName(cache.lsxcache[i].t, cache.lsxcache[i].n));
                     VFTINTRZL_L_S(i, i);
-                    cache.lsxcache[i].t = LSX_CACHE_ST_D;
+                    cache.lsxcache[i].t = LSX_CACHE_ST_I64;
                 } else if (cache.lsxcache[i].t == LSX_CACHE_ST_I64 && cache_i2.lsxcache[i].t == LSX_CACHE_ST_F) {
                     MESSAGE(LOG_DUMP, "\t  - Convert %s\n", getCacheName(cache.lsxcache[i].t, cache.lsxcache[i].n));
                     VFFINT_S_L(i, i, i);

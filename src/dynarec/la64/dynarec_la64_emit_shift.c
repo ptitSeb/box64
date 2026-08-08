@@ -65,12 +65,10 @@ void emit_shl16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
     }
     SLL_D(s1, s1, s2);
 
-    IFX (X_CF | X_OF) {
+    IFX (X_CF) {
         SRLI_D(s5, s1, 16);
         ANDI(s5, s5, 1); // LSB == F_CF
-        IFX (X_CF) {
-            OR(xFlags, xFlags, s5);
-        }
+        OR(xFlags, xFlags, s5);
     }
 
     SLLI_D(s1, s1, 48);
@@ -478,7 +476,6 @@ void emit_shr8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
 // emit SAR8 instruction, from s1 , shift s2 (!0 and and'd already), store result in s1 using s3, s4 and s5 as scratch
 void emit_sar8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5)
 {
-    int64_t j64;
     IFX (X_PEND) {
         ST_B(s2, xEmu, offsetof(x64emu_t, op2));
         ST_B(s1, xEmu, offsetof(x64emu_t, op1));
@@ -673,7 +670,6 @@ void emit_sar8c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
 // emit SHR16 instruction, from s1 , shift s2 (!0 and and'd already), store result in s1 using s3 and s4 as scratch
 void emit_shr16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5)
 {
-    int64_t j64;
     IFX (X_PEND) {
         ST_H(s2, xEmu, offsetof(x64emu_t, op2));
         ST_H(s1, xEmu, offsetof(x64emu_t, op1));
@@ -804,7 +800,6 @@ void emit_shr16c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int
 // emit SHR32 instruction, from s1 , shift s2 (!0 and and'd already), store result in s1 using s3 and s4 as scratch
 void emit_shr32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4)
 {
-    int64_t j64;
     IFX (X_PEND) {
         SDxw(s2, xEmu, offsetof(x64emu_t, op2));
         SDxw(s1, xEmu, offsetof(x64emu_t, op1));
@@ -957,7 +952,6 @@ void emit_shr32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
 // emit SAR16 instruction, from s1, shift s2 (!0 and and'd already), store result in s1 using s3, s4 and s5 as scratch
 void emit_sar16(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5)
 {
-    int64_t j64;
     IFX (X_PEND) {
         ST_H(s2, xEmu, offsetof(x64emu_t, op2));
         ST_H(s1, xEmu, offsetof(x64emu_t, op1));
@@ -1315,7 +1309,6 @@ void emit_rol8(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 // emit ROL8 instruction, from s1, c, store result in s1 using s3 s4 and s5 as scratch
 void emit_rol8c(dynarec_la64_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4, int s5)
 {
-    int64_t j64;
     if (!c) return;
     if (cpuext.lbt) {
         IFX (X_CF | X_OF) X64_ROTLI_B(s1, c);
@@ -1650,7 +1643,6 @@ void emit_shrd32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, uin
 
 void emit_shrd32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s5, int s3, int s4, int s6)
 {
-    int64_t j64;
     IFX (X_PEND) {
         SDxw(s1, xEmu, offsetof(x64emu_t, op1));
         SDxw(s5, xEmu, offsetof(x64emu_t, op2));
@@ -1699,7 +1691,6 @@ void emit_shrd32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int 
 
 void emit_shld32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s5, int s3, int s4, int s6)
 {
-    int64_t j64;
     IFX (X_PEND) {
         SDxw(s1, xEmu, offsetof(x64emu_t, op1));
         SDxw(s5, xEmu, offsetof(x64emu_t, op2));
