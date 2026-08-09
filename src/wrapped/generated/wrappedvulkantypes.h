@@ -47,6 +47,7 @@ typedef int32_t (*iFpppuppp_t)(void*, void*, void*, uint32_t, void*, void*, void
 	GO(vkDestroyDescriptorUpdateTemplate, vFppp_t) \
 	GO(vkDestroyDescriptorUpdateTemplateKHR, vFppp_t) \
 	GO(vkDestroyEvent, vFppp_t) \
+	GO(vkDestroyExternalComputeQueueNV, vFppp_t) \
 	GO(vkDestroyFence, vFppp_t) \
 	GO(vkDestroyFramebuffer, vFppp_t) \
 	GO(vkDestroyImage, vFppp_t) \
@@ -103,6 +104,7 @@ typedef int32_t (*iFpppuppp_t)(void*, void*, void*, uint32_t, void*, void*, void
 	GO(vkCreateDevice, iFpppp_t) \
 	GO(vkCreateDisplayPlaneSurfaceKHR, iFpppp_t) \
 	GO(vkCreateEvent, iFpppp_t) \
+	GO(vkCreateExternalComputeQueueNV, iFpppp_t) \
 	GO(vkCreateFence, iFpppp_t) \
 	GO(vkCreateFramebuffer, iFpppp_t) \
 	GO(vkCreateHeadlessSurfaceEXT, iFpppp_t) \

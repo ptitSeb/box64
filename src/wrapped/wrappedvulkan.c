@@ -885,3 +885,6 @@ CREATE(vkCreateWin32SurfaceKHR)
 
 CREATE(vkCreateShaderInstrumentationARM)
 DESTROY(vkDestroyShaderInstrumentationARM)
+
+CREATE(vkCreateExternalComputeQueueNV)
+DESTROY(vkDestroyExternalComputeQueueNV)

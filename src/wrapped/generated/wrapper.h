@@ -2531,6 +2531,7 @@ void vFpuuuup(x64emu_t *emu, uintptr_t fnc);
 void vFpuuupp(x64emu_t *emu, uintptr_t fnc);
 void vFpuupuu(x64emu_t *emu, uintptr_t fnc);
 void vFpuuppp(x64emu_t *emu, uintptr_t fnc);
+void vFpuUUuu(x64emu_t *emu, uintptr_t fnc);
 void vFpudddd(x64emu_t *emu, uintptr_t fnc);
 void vFpuLuuu(x64emu_t *emu, uintptr_t fnc);
 void vFpupuuu(x64emu_t *emu, uintptr_t fnc);

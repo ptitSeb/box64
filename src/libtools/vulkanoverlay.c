@@ -206,6 +206,7 @@ void freeVulkanOverlay(my_vulkanoverlay_t* v)
 #define GO_vFpUuuup(A, B, N)   static void my_##A##_##N(void* a, uint64_t b, uint32_t c, uint32_t d, uint32_t e, void* f) {F6(A, SIGFMT(B), N);}
 #define GO_vFpupuuu(A, B, N)   static void my_##A##_##N(void* a, uint32_t b, void* c, uint32_t d, uint32_t e, uint32_t f) {F6(A, SIGFMT(B), N);}
 #define GO_vFpuuuuu(A, B, N)   static void my_##A##_##N(void* a, uint32_t b, uint32_t c, uint32_t d, uint32_t e, uint32_t f) {F6(A, SIGFMT(B), N);}
+#define GO_vFpuUUuu(A, B, N)   static void my_##A##_##N(void* a, uint32_t b, uint64_t c, uint64_t d, uint32_t e, uint32_t f) {F6(A, SIGFMT(B), N);}
 #define GO_vFpUiUiup(A, B, N)  static void my_##A##_##N(void* a, uint64_t b, int c, uint64_t d, int e, uint32_t f, void* g) {F7(A, SIGFMT(B), N);}
 #define GO_vFpuupppp(A, B, N)  static void my_##A##_##N(void* a, uint32_t b, uint32_t c, void* d, void* e, void* f, void* g) {F7(A, SIGFMT(B), N);}
 #define GO_vFpUuupup(A, B, N)  static void my_##A##_##N(void* a, uint64_t b, uint32_t c, uint32_t d, void* e, uint32_t f, void* g) {F7(A, SIGFMT(B), N);}
@@ -633,6 +634,7 @@ CREATE(vkCreateDebugUtilsMessengerEXT)  // Needs better wrapping?
 CREATE(vkRegisterDeviceEventEXT)
 CREATE(vkCreateWin32SurfaceKHR)
 CREATE(vkCreateShaderInstrumentationARM)
+CREATE(vkCreateExternalComputeQueueNV)
 #undef CREATE
 #undef GO
 // DESTROY64
@@ -705,6 +707,7 @@ DESTROY(vkDestroyTensorARM)
 DESTROY(vkDestroyTensorViewARM)
 DESTROY(vkDestroyDataGraphPipelineSessionARM)
 DESTROY(vkDestroyShaderInstrumentationARM)
+DESTROY(vkDestroyExternalComputeQueueNV)
 
 #undef DESTROY
 #undef GO

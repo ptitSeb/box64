@@ -2494,6 +2494,7 @@
 #() vFpuuupp
 #() vFpuupuu
 #() vFpuuppp
+#() vFpuUUuu
 #() vFpudddd
 #() vFpuLuuu
 #() vFpupuuu
@@ -7482,6 +7483,7 @@ wrappedvulkan:
   - vkDestroyDescriptorUpdateTemplate
   - vkDestroyDescriptorUpdateTemplateKHR
   - vkDestroyEvent
+  - vkDestroyExternalComputeQueueNV
   - vkDestroyFence
   - vkDestroyFramebuffer
   - vkDestroyImage
@@ -7540,6 +7542,7 @@ wrappedvulkan:
   - vkCreateDevice
   - vkCreateDisplayPlaneSurfaceKHR
   - vkCreateEvent
+  - vkCreateExternalComputeQueueNV
   - vkCreateFence
   - vkCreateFramebuffer
   - vkCreateHeadlessSurfaceEXT

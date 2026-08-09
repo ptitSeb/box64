@@ -1143,6 +1143,41 @@ GO(vkGetPhysicalDeviceQueueFamilyDataGraphOpticalFlowImageFormatsARM, iFpupppp)
 // VK_NV_push_constant_bank
 // no new functions
 
+// VK_QCOM_tile_shading
+GO(vkCmdBeginPerTileExecutionQCOM, vFpp)
+GO(vkCmdEndPerTileExecutionQCOM, vFpp)
+GO(vkCmdDispatchTileQCOM, vFpp)
+
+// VK_QCOM_tile_memory_heap
+GO(vkCmdBindTileMemoryQCOM, vFpp)
+
+// VK_KHR_copy_memory_indirect
+GO(vkCmdCopyMemoryIndirectKHR, vFpp)
+GO(vkCmdCopyMemoryToImageIndirectKHR, vFpp)
+
+//VK_EXT_memory_decompression
+GO(vkCmdDecompressMemoryEXT, vFpp)
+GO(vkCmdDecompressMemoryIndirectCountEXT, vFpuUUuu)
+
+// VK_NV_external_compute_queue
+GOM(vkCreateExternalComputeQueueNV, iFEpppp)
+GOM(vkDestroyExternalComputeQueueNV, vFEppp)
+GO(vkGetExternalComputeQueueDataNV, vFppp)
+
+// VK_NV_cluster_acceleration_structure
+GO(vkGetClusterAccelerationStructureBuildSizesNV, vFppp)
+GO(vkCmdBuildClusterAccelerationStructureIndirectNV, vFpp)
+
+// VK_NV_partitioned_acceleration_structure
+GO(vkGetPartitionedAccelerationStructuresBuildSizesNV, vFppp)
+GO(vkCmdBuildPartitionedAccelerationStructuresNV, vFpp)
+
+// VK_EXT_custom_resolve
+GO(vkCmdBeginCustomResolveEXT, vFpp)
+
+// VK_NV_compute_occupancy_priority
+GO(vkCmdSetComputeOccupancyPriorityNV, vFpp)
+
 // Layer stuffs
 GO(vk_icdNegotiateLoaderICDInterfaceVersion, iFp)
 //GO(vkNegotiateLoaderLayerInterfaceVersion, iFp)
