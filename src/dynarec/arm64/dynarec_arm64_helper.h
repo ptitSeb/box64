@@ -83,7 +83,7 @@
     }
 #define GETEDw(D)                                                                                                     \
     if (MODREG) {                                                                                                     \
-        ed = xEAX + (nextop & 7) + (rex.b << 3);                                                                      \
+        ed = TO_NAT((nextop & 7) + (rex.b << 3));                                                                     \
         wback = 0;                                                                                                    \
     } else {                                                                                                          \
         SMREAD();                                                                                                     \
@@ -132,7 +132,7 @@
 #define WBACKx      if(wback) {STx(ed, wback, fixedaddress); SMWRITE();}
 // Write back ed in wback (if wback not 0)
 #define WBACKw      if(wback) {STW(ed, wback, fixedaddress); SMWRITE();}
-//FAKEELike GETED, but doesn't get anything
+//FAKEED like GETED, but doesn't get anything
 #define FAKEED                                    \
     if (MODREG) {                                 \
         ed = TO_NAT((nextop & 7) + (rex.b << 3)); \
@@ -167,7 +167,7 @@
         ed = i;                                                                                                                 \
         wb1 = 1;                                                                                                                \
     }
-//Compute wback for MDREG only, no fetching
+//Compute wback for MODREG only, no fetching
 #define CALCEW()                                                                                                                \
     wback = TO_NAT((nextop & 7) + (rex.b << 3));                                                                                \
 //GETEW will use i for ed, and can use r3 for wback.
@@ -183,20 +183,6 @@
         LDH(i, wback, fixedaddress);                                                                                             \
         ed = i;                                                                                                                  \
         wb1 = 1;                                                                                                                 \
-    }
-//GETEW will use i for ed, and can use r3 for wback.
-#define GETEW32(i, D)                                                                                                              \
-    if (MODREG) {                                                                                                                  \
-        wback = TO_NAT((nextop & 7) + (rex.b << 3));                                                                               \
-        UXTHw(i, wback);                                                                                                           \
-        ed = i;                                                                                                                    \
-        wb1 = 0;                                                                                                                   \
-    } else {                                                                                                                       \
-        SMREAD();                                                                                                                  \
-        addr = geted32(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff << 1, (1 << 1) - 1, rex, NULL, 0, D); \
-        LDH(i, wback, fixedaddress);                                                                                               \
-        ed = i;                                                                                                                    \
-        wb1 = 1;                                                                                                                   \
     }
 //GETSEW will use i for ed, and can use r3 for wback. This is the Signed version
 #define GETSEW(i, D)                                                                                                             \
@@ -269,27 +255,6 @@
         LDSBx(i, wback, fixedaddress);                                                                           \
         wb1 = 1;                                                                                                 \
         ed = i;                                                                                                  \
-    }
-//GETEB will use i for ed, and can use r3 for wback.
-#define GETEB32(i, D)                                                                                              \
-    if (MODREG) {                                                                                                  \
-        if (rex.rex) {                                                                                             \
-            wback = TO_NAT((nextop & 7) + (rex.b << 3));                                                           \
-            wb2 = 0;                                                                                               \
-        } else {                                                                                                   \
-            wback = (nextop & 7);                                                                                  \
-            wb2 = (wback >> 2) * 8;                                                                                \
-            wback = TO_NAT(wback & 3);                                                                             \
-        }                                                                                                          \
-        UBFXx(i, wback, wb2, 8);                                                                                   \
-        wb1 = 0;                                                                                                   \
-        ed = i;                                                                                                    \
-    } else {                                                                                                       \
-        SMREAD();                                                                                                  \
-        addr = geted32(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff, 0, rex, NULL, 0, D); \
-        LDB(i, wback, fixedaddress);                                                                               \
-        wb1 = 1;                                                                                                   \
-        ed = i;                                                                                                    \
     }
 // Write eb (ed) back to original register / memory
 #define EBBACK   if(wb1) {STB(ed, wback, fixedaddress); SMWRITE();} else {BFIx(wback, ed, wb2, 8);}
@@ -506,7 +471,7 @@
         a = fpu_get_scratch(dyn, ninst);                                                                       \
         VLDR128_U12(a, ed, fixedaddress);                                                                      \
     }
-// Get EX as a quad, (x3 is used)
+// Get EX as a quad but don't load anything, just reserve an empty reg (x3 is used)
 #define GETEX_empty_Y(a, D)                                                                             \
     if(MODREG) {                                                                                        \
         a = sse_get_reg_empty(dyn, ninst, x3, (nextop&7)+(rex.b<<3));                                   \
@@ -597,7 +562,7 @@
         SMWRITE2();                 \
     }
 
-#define YMM0(a) ymm_mark_zero(dyn, ninst, a);
+#define YMM0(a) ymm_mark_zero(dyn, ninst, a)
 
 // Get Direction with size Z and based of F_DF flag, on register r ready for LDR/STR fetching
 // F_DF is 1<<10, so 1 ROR 11*2 (so F_OF)
@@ -708,7 +673,7 @@
 #define B_MARK3(cond)                   \
     j64 = GETMARK3-(dyn->native_size);  \
     Bcond(cond, j64)
-// Test bit N of A and branch to MARK3 if not set
+// Test bit N of A and branch to MARK2 if not set
 #define TBZ_MARK2(A, N)                 \
     j64 = GETMARK2-(dyn->native_size);  \
     TBZ(A, N, j64)
@@ -1309,7 +1274,7 @@
 #define x87_get_cache   STEPNAME(x87_get_cache)
 #define x87_get_neoncache STEPNAME(x87_get_neoncache)
 #define x87_get_st      STEPNAME(x87_get_st)
-#define x87_get_st_empty  STEPNAME(x87_get_st)
+#define x87_get_st_empty  STEPNAME(x87_get_st_empty)
 #define x87_free        STEPNAME(x87_free)
 #define x87_forget      STEPNAME(x87_forget)
 #define x87_reget_st    STEPNAME(x87_reget_st)

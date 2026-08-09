@@ -2706,10 +2706,9 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     } else {
                         SETFLAGS(X_CF, SF_SUBSET);
                     }
-                    gd = x2;
                     GETEW(x1, 1);
                     u8 = F8;
-                    u8&=rex.w?0x3f:0x0f;
+                    u8&=0x0f;
                     IFX(X_CF) {
                         BFXILxw(xFlags, ed, u8, 1);  // inject 1 bit from u8 to F_CF (i.e. pos 0)
                     }
@@ -2723,7 +2722,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     }
                     GETEW(x1, 1);
                     u8 = F8;
-                    u8&=(rex.w?0x3f:0x0f);
+                    u8&=0x0f;
                     IFX(X_CF) {
                         BFXILxw(xFlags, ed, u8, 1);  // inject 1 bit from u8 to F_CF (i.e. pos 0)
                     }
@@ -2740,7 +2739,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     }
                     GETEW(x1, 1);
                     u8 = F8;
-                    u8&=(rex.w?0x3f:0x0f);
+                    u8&=0x0f;
                     IFX(X_CF) {
                         BFXILxw(xFlags, ed, u8, 1);  // inject 1 bit from u8 to F_CF (i.e. pos 0)
                     }
@@ -2756,7 +2755,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     }
                     GETEW(x1, 1);
                     u8 = F8;
-                    u8&=(rex.w?0x3f:0x0f);
+                    u8&=0x0f;
                     IFX(X_CF) {
                         BFXILxw(xFlags, ed, u8, 1);  // inject 1 bit from u8 to F_CF (i.e. pos 0)
                     }

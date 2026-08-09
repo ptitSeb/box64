@@ -129,20 +129,20 @@ static int arch_build(dynarec_arm_t* dyn, int ninst, arch_build_t* arch, int noa
                         case NEON_CACHE_ST_D:
                             arch->x87 = 1;
                             arch->x87_.x87 |= 1<<dyn->insts[ninst].n.neoncache[i].n;
-                            arch->x87_.x87_pos = (i-EMM0)<<(dyn->insts[ninst].n.neoncache[i].n*4);
-                            arch->x87_.x87_type = (X87_ST_D)<<(dyn->insts[ninst].n.neoncache[i].n*2);
+                            arch->x87_.x87_pos |= (i-EMM0)<<(dyn->insts[ninst].n.neoncache[i].n*4);
+                            arch->x87_.x87_type |= (X87_ST_D)<<(dyn->insts[ninst].n.neoncache[i].n*2);
                             break;
                         case NEON_CACHE_ST_F:
                             arch->x87 = 1;
                             arch->x87_.x87 |= 1<<dyn->insts[ninst].n.neoncache[i].n;
-                            arch->x87_.x87_pos = (i-EMM0)<<(dyn->insts[ninst].n.neoncache[i].n*4);
-                            arch->x87_.x87_type = (X87_ST_F)<<(dyn->insts[ninst].n.neoncache[i].n*2);
+                            arch->x87_.x87_pos |= (i-EMM0)<<(dyn->insts[ninst].n.neoncache[i].n*4);
+                            arch->x87_.x87_type |= (X87_ST_F)<<(dyn->insts[ninst].n.neoncache[i].n*2);
                             break;
                         case NEON_CACHE_ST_I64:
                             arch->x87 = 1;
                             arch->x87_.x87 |= 1<<dyn->insts[ninst].n.neoncache[i].n;
-                            arch->x87_.x87_pos = (i-EMM0)<<(dyn->insts[ninst].n.neoncache[i].n*4);
-                            arch->x87_.x87_type = (X87_ST_I64)<<(dyn->insts[ninst].n.neoncache[i].n*2);
+                            arch->x87_.x87_pos |= (i-EMM0)<<(dyn->insts[ninst].n.neoncache[i].n*4);
+                            arch->x87_.x87_type |= (X87_ST_I64)<<(dyn->insts[ninst].n.neoncache[i].n*2);
                             break;
                         case NEON_CACHE_XMMR:
                         case NEON_CACHE_YMMR:
@@ -358,12 +358,8 @@ void adjust_arch(dynablock_t* db, x64emu_t* emu, ucontext_t* p, uintptr_t x64pc)
         dynarec_log_prefix(0, LOG_INFO, " ymm[%x, pos=%x, 0=%x (fpsimd=%p)] ", ymm->ymm, ymm->ymm_pos, ymm->ymm0, fpsimd);
         for(int i=0; i<16; ++i) {
             if(fpsimd && (ymm->ymm>>i)&1) {
-                int idx = (ymm->ymm_pos>>(i*4))&0xf;
-                if(i>7) {
-                    idx = SCRATCH0 + i - 8;
-                } else {
-                    idx = EMM0 + i;
-                }
+                int pos = (ymm->ymm_pos>>(i*4))&0xf;
+                int idx = (pos>7) ? (SCRATCH0 + pos - 8) : (EMM0 + pos);
                 emu->ymm[i].u128 = fpsimd->vregs[idx];
             }
             if(ymm->ymm0&(1<<i))
@@ -383,7 +379,7 @@ void adjust_arch(dynablock_t* db, x64emu_t* emu, ucontext_t* p, uintptr_t x64pc)
         emu->top -= x87->delta;
         for(int i=0; i<8; ++i) {
             if(x87->x87&(1<<i)) {
-                int idx = EMM0 + (x87->x87_pos>>(i*4))&0x0f;
+                int idx = EMM0 + ((x87->x87_pos>>(i*4))&0x0f);
                 int t = (x87->x87_type>>(i*2))&0x3;
                 switch (t) {
                     case X87_ST_F:

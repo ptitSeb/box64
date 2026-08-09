@@ -294,7 +294,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                 VMOVQ(v0, v2);
             }
             VMOVeS(v0, 0, q2, 0);
-            YMM0(gd)
+            YMM0(gd);
             break;
         case 0x59:
             INST_NAME("VMULSS Gx, Vx, Ex");
@@ -325,7 +325,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                 VMOVQ(v0, v2);
             }
             VMOVeS(v0, 0, q2, 0);
-            YMM0(gd)
+            YMM0(gd);
             break;
         case 0x5A:
             INST_NAME("VCVTSS2SD Gx, Vx, Ex");
@@ -404,7 +404,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                 VMOVQ(v0, v2);
             }
             VMOVeS(v0, 0, q2, 0);
-            YMM0(gd)
+            YMM0(gd);
             break;
         case 0x5D:
             INST_NAME("VMINSS Gx, Vx, Ex");
@@ -418,7 +418,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                 VMOVQ(v0, v2);
             }
             VMOVeS(v0, 0, d1, 0);   // to not erase uper part
-            YMM0(gd)
+            YMM0(gd);
             break;
         case 0x5E:
             INST_NAME("VDIVSS Gx, Vx, Ex");
@@ -449,7 +449,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                 VMOVQ(v0, v2);
             }
             VMOVeS(v0, 0, q2, 0);
-            YMM0(gd)
+            YMM0(gd);
             break;
         case 0x5F:
             INST_NAME("VMAXSS Gx, Vx, Ex");
@@ -463,7 +463,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                 VMOVQ(v0, v2);
             }
             VMOVeS(v0, 0, d1, 0);   // to not erase uper part
-            YMM0(gd)
+            YMM0(gd);
             break;
 
         case 0x6F:

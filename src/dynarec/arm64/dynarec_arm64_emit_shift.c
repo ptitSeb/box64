@@ -1774,7 +1774,6 @@ void emit_shld16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s5, int s3, 
     } else {
         SET_DFNONE();
     }
-    uint8_t mask = X_CF;
     if(BOX64ENV(cputype)) {
         IFX(X_CF|X_OF) {
             MOV32w(s3, 16);

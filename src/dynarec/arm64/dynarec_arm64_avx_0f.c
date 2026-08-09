@@ -417,7 +417,7 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
             if(vex.l) {
                 GETGY_empty_VYEY(v0, v2, v1);
                 VANDQ(v0, v2, v1);
-            } else YMM0(gd)
+            } else YMM0(gd);
             break;
         case 0x55:
             INST_NAME("VANDNPS Gx, Vx, Ex");
@@ -427,7 +427,7 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
             if(vex.l) {
                 GETGY_empty_VYEY(v0, v2, v1);
                 VBICQ(v0, v1, v2);
-            } else YMM0(gd)
+            } else YMM0(gd);
             break;
         case 0x56:
             INST_NAME("VORPS Gx, Vx, Ex");
@@ -437,7 +437,7 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
             if(vex.l) {
                 GETGY_empty_VYEY(v0, v2, v1);
                 VORRQ(v0, v2, v1);
-            } else YMM0(gd)
+            } else YMM0(gd);
             break;
         case 0x57:
             INST_NAME("VXORPS Gx, Vx, Ex");
@@ -447,7 +447,7 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
             if(vex.l) {
                 GETGY_empty_VYEY(v0, v2, v1);
                 VEORQ(v0, v2, v1);
-            } else YMM0(gd)
+            } else YMM0(gd);
             break;
         case 0x58:
             INST_NAME("VADDPS Gx, Vx, Ex");
@@ -477,7 +477,7 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
                     VBIFQ(v0, q2, q0);         // where src1 NaN, use QNaN(src1)
                 }
             }
-            if(!vex.l) YMM0(gd)
+            if(!vex.l) YMM0(gd);
             break;
         case 0x59:
             INST_NAME("VMULPS Gx, Vx, Ex");
@@ -507,7 +507,7 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
                     VBIFQ(v0, q2, q0);         // where src1 NaN, use QNaN(src1)
                 }
             }
-            if(!vex.l) YMM0(gd)
+            if(!vex.l) YMM0(gd);
             break;
         case 0x5A:
             INST_NAME("VCVTPS2PD Gx, Ex");
@@ -521,7 +521,7 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
             if(vex.l) {
                 GETGY_empty(q0, -1, -1, -1);
                 FCVTL2(q0, v1);
-            } else YMM0(gd)
+            } else YMM0(gd);
             FCVTL(v0, v1);
             break;
         case 0x5B:
@@ -532,7 +532,7 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
             if(vex.l) {
                 GETGY_empty_EY(v0, v1);
                 SCVTQFS(v0, v1);
-            } else YMM0(gd)
+            } else YMM0(gd);
             break;
         case 0x5C:
             INST_NAME("VSUBPS Gx, Vx, Ex");
@@ -562,7 +562,7 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
                     VBIFQ(v0, q2, q0);         // where src1 NaN, use QNaN(src1)
                 }
             }
-            if(!vex.l) YMM0(gd)
+            if(!vex.l) YMM0(gd);
             break;
         case 0x5D:
             INST_NAME("VMINPS Gx, Vx, Ex");
@@ -606,7 +606,7 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
                     VBIFQ(v0, q2, q0);         // where src1 NaN, use QNaN(src1)
                 }
             }
-            if(!vex.l) YMM0(gd)
+            if(!vex.l) YMM0(gd);
             break;
         case 0x5F:
             INST_NAME("VMAXPS Gx, Vx, Ex");

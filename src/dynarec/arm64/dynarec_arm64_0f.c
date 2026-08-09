@@ -1596,7 +1596,6 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     }
                     break;
                 default:
-                    *ok = 0;
                     DEFAULT;
             }
             break;

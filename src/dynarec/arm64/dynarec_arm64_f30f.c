@@ -802,7 +802,6 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETEXSD(v1, 0, 0);
             GETGX_empty(v0);
-            d0 = fpu_get_scratch(dyn, ninst);
             SXTL_32(v0, v1);
             SCVTQFD(v0, v0);    // there is only I64 -> Double vector conversion, not from i32
             break;

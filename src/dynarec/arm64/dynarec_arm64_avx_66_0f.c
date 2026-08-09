@@ -321,7 +321,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             if(vex.l) {
                 GETGY_empty_VYEY(v0, v2, v1);
                 VANDQ(v0, v2, v1);
-            } else YMM0(gd)
+            } else YMM0(gd);
             break;
         case 0x55:
             INST_NAME("VANDNPD Gx, Vx, Ex");
@@ -331,7 +331,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             if(vex.l) {
                 GETGY_empty_VYEY(v0, v2, v1);
                 VBICQ(v0, v1, v2);
-            } else YMM0(gd)
+            } else YMM0(gd);
             break;
         case 0x56:
             INST_NAME("VORPD Gx, Vx, Ex");
@@ -341,7 +341,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             if(vex.l) {
                 GETGY_empty_VYEY(v0, v2, v1);
                 VORRQ(v0, v2, v1);
-            } else YMM0(gd)
+            } else YMM0(gd);
             break;
         case 0x57:
             INST_NAME("VXORPD Gx, Vx, Ex");
@@ -351,7 +351,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             if(vex.l) {
                 GETGY_empty_VYEY(v0, v2, v1);
                 VEORQ(v0, v2, v1);
-            } else YMM0(gd)
+            } else YMM0(gd);
             break;
         case 0x58:
             INST_NAME("VADDPD Gx, Vx, Ex");
@@ -413,7 +413,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                     VBIFQ(v0, q2, q0); // where src1 NaN, use QNaN(src1)
                 }
             }
-            if(!vex.l) YMM0(gd)
+            if(!vex.l) YMM0(gd);
             break;
         case 0x5A:
             INST_NAME("VCVTPD2PS Gx, Ex");
@@ -1464,8 +1464,9 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             MOVI_32(q1, 64);
             UQXTN_32(q0, v1);
             UMIN_32(q0, q0, q1);    // limit to 0 .. +64 values
-            NEG_32(q0, q0);         // neg to do shr
-            VDUPQ_32(q0, q0, 0);    // only the low 8bits will be used anyway
+            UXTL_32(q0, q0);        // zero-extend 32->64 per lane
+            VDUPQ_64(q0, q0, 0);    // x86 uses the scalar count from bits[63:0] for both lanes
+            NEGQ_64(q0, q0);        // negate at full 64-bit width, to do shr
             for(int l=0; l<1+vex.l; ++l) {
                 if(!l) { GETGX_empty_VX(v0, v2); } else { GETGY_empty_VY(v0, v2, 0, -1, -1); }
                 USHLQ_64(v0, v2, q0);
