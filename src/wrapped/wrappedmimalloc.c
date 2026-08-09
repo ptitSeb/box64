@@ -42,7 +42,7 @@ EXPORT void* my_mi_malloc_aligned(size_t size, size_t align)
 {
     if(!align) return NULL;
     if(!ispot(align)) return NULL;
-    return __libc_memalign(align, size);
+    return memalign(align, size);
 }
 
 EXPORT void* my_mi_realloc_aligned(void* p, size_t newsize, size_t align)
@@ -52,7 +52,7 @@ EXPORT void* my_mi_realloc_aligned(void* p, size_t newsize, size_t align)
     size_t size = malloc_usable_size(p);
     if((size>=newsize) && !((uintptr_t)p&(align-1)))
         return p;
-    void* newp = __libc_memalign(align, newsize);
+    void* newp = memalign(align, newsize);
     size_t copy_size = (size<newsize)?size:newsize;
     memcpy(newp, p, copy_size);
     free(p);
