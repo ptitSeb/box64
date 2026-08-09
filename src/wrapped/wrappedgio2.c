@@ -157,6 +157,18 @@ static void* findGDBusProxyTypeFuncFct(void* fct)
     return NULL;
 }
 
+static void bridgeGInitableNewProperties(x64emu_t* emu, const char* property, uintptr_t* b)
+{
+    // GDBusObjectManagerClient callback properties can also arrive through this generic constructor.
+    for (int n = 0; property; n += 2) {
+        if (!strcmp(property, "get-proxy-type-func"))
+            setVArgs(emu, 4, b, n, (uintptr_t)findGDBusProxyTypeFuncFct((void*)getVArgs(emu, 4, b, n)));
+        else if (!strcmp(property, "get-proxy-type-destroy-notify"))
+            setVArgs(emu, 4, b, n, (uintptr_t)findGDestroyNotifyFct((void*)getVArgs(emu, 4, b, n)));
+        property = (const char*)getVArgs(emu, 4, b, n + 1);
+    }
+}
+
 // GSimpleAsyncThreadFunc
 #define GO(A)   \
 static uintptr_t my_GSimpleAsyncThreadFunc_fct_##A = 0;                                             \
@@ -658,22 +670,8 @@ EXPORT void my_g_simple_async_result_set_error(x64emu_t* emu, void* simple, uint
 
 EXPORT void* my_g_initable_new(x64emu_t* emu, size_t type, void* cancel, void* err, void* first, uintptr_t* b)
 {
-    #if 0
-    // look for number of pairs
-    int n = 1;
-    emu->scratch[0] = (uint64_t)first;
-    emu->scratch[1] = getVArgs(emu, 4, b, 0);
-    while(getVArgs(emu, 4, b, n)) {
-        emu->scratch[n+1] = getVArgs(emu, 4, b, n);
-        emu->scratch[n+2] = getVArgs(emu, 4, b, n+1);
-        n+=2;
-    }
-    emu->scratch[n+1] = 0;
-    emu->scratch[n+2] = 0;
-    PREPARE_VALIST;
-    #else
+    bridgeGInitableNewProperties(emu, first, b);
     CREATE_VALIST_FROM_VAARG(b, emu->scratch, 4);
-    #endif
     return my->g_initable_new_valist(type, first, VARARGS, cancel, err);
 }
 
