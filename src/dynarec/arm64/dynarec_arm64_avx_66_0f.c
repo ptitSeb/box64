@@ -1464,9 +1464,8 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             MOVI_32(q1, 64);
             UQXTN_32(q0, v1);
             UMIN_32(q0, q0, q1);    // limit to 0 .. +64 values
-            UXTL_32(q0, q0);        // zero-extend 32->64 per lane
-            VDUPQ_64(q0, q0, 0);    // x86 uses the scalar count from bits[63:0] for both lanes
-            NEGQ_64(q0, q0);        // negate at full 64-bit width, to do shr
+            NEG_32(q0, q0);         // neg to do shr
+            VDUPQ_32(q0, q0, 0);    // only the low 8bits will be used anyway
             for(int l=0; l<1+vex.l; ++l) {
                 if(!l) { GETGX_empty_VX(v0, v2); } else { GETGY_empty_VY(v0, v2, 0, -1, -1); }
                 USHLQ_64(v0, v2, q0);
