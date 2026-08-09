@@ -74,8 +74,8 @@ GOM(mmap64, pFEpLiiil)
 GO(mremap, pFpuuip)
 GOM(munmap, iFEpL)
 GO(nallocx, LFLi)
-GO(__posix_memalign, iFpuu)
-GO(posix_memalign, iFpuu)
+GO(__posix_memalign, iFpLL)
+GO(posix_memalign, iFpLL)
 //GO(RunningOnValgrind, 
 GO(sbrk, pFl)
 //GO(tc_calloc, 

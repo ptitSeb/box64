@@ -6789,6 +6789,34 @@ wrappedlzma:
   - lzma_index_buffer_decode
 - iFpupppLppL:
   - lzma_stream_buffer_decode
+wrappedmimalloc:
+- vFv:
+  - mi_process_init
+  - mi_thread_init
+- vFi:
+  - mi_collect
+- vFp:
+  - mi_heap_destroy
+- pFv:
+  - mi_heap_new
+- pFL:
+  - mi_zalloc
+- pFp:
+  - mallinfo
+- vFul:
+  - mi_option_set
+- vFpp:
+  - mi_register_error
+  - mi_register_output
+  - mi_stats_print_out
+- pFLL:
+  - mi_malloc_aligned
+- pFpL:
+  - mi_heap_malloc
+- pFpLL:
+  - mi_realloc_aligned
+- vFpppppppp:
+  - mi_process_info
 wrappedmpg123:
 - iFpppp:
   - mpg123_reader64

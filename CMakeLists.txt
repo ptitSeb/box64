@@ -810,6 +810,7 @@ set(WRAPPEDS
     "${BOX64_ROOT}/src/wrapped/wrappedtbbmalloc.c"
     "${BOX64_ROOT}/src/wrapped/wrappedtbbmallocproxy.c"
     "${BOX64_ROOT}/src/wrapped/wrappedtcmallocminimal.c"
+    "${BOX64_ROOT}/src/wrapped/wrappedmimalloc.c"
     "${BOX64_ROOT}/src/wrapped/wrappedudev0.c"
     "${BOX64_ROOT}/src/wrapped/wrappedudev1.c"
     "${BOX64_ROOT}/src/wrapped/wrappedunwind.c"

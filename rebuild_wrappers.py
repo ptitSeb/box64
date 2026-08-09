@@ -416,8 +416,12 @@ def readFiles(files: Iterable[Filename]) -> Tuple[JumbledGlobals, JumbledRedirec
 							 or match("libc", "tcmallocminimal") \
 							 or match("libc", "tbbmallocproxy") \
 							 or match("libc", "androidshmem") \
+							 or match("libc", "mimalloc") \
 							 or match("crypto", "libssl3") \
 							 or match("tcmallocminimal", "tbbmallocproxy") \
+							 or match("tcmallocminimal", "mimalloc") \
+							 or match("tbbmallocproxy", "mimalloc") \
+							 or match("libbsd", "mimalloc") \
 							 or match("iconv", "libunistring2") \
 							 or match("gomp", "libomp"):
 								continue
