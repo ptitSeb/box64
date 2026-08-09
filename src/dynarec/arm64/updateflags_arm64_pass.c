@@ -164,7 +164,7 @@ SETMARK(d_inc64);
     RET(xLR);
 SETMARK(d_imul8);
     LDRSH_U12(x1, xEmu, offsetof(x64emu_t, res));
-    ASRxw(x2, x1, 7);
+    ASRw(x2, x1, 7);
     CMPSw_REG_ASR(x2, x1, 16);
     CSETw(x3, cNE);
     BFIw(xFlags, x3, F_CF, 1);
@@ -822,8 +822,8 @@ SETMARK(d_rol64);
         BFIw(xFlags, x2, F_OF, 1);
     } else {
         LDRx_U12(x2, xEmu, offsetof(x64emu_t, op1));
-        LSRw_IMM(x3, x2, 62);
-        EORw_REG_LSR(x3, x3, x3, 1);
+        LSRx(x3, x2, 62);
+        EORx_REG_LSR(x3, x3, x3, 1);
         BFIw(xFlags, x3, F_OF, 1);
     }
     BFXILw(xFlags, x1, 0, 1);
@@ -831,7 +831,7 @@ SETMARK(d_rol64);
 SETMARK(d_ror8);
     LDRB_U12(x1, xEmu, offsetof(x64emu_t, res));
     if(BOX64ENV(cputype)) {
-        LSLw_IMM(x2, x1, 6);
+        LSRw(x2, x1, 6);
         EORw_REG_LSR(x3, x2, x2, 1);
         BFIw(xFlags, x3, F_OF, 1);
     } else {
@@ -844,7 +844,7 @@ SETMARK(d_ror8);
 SETMARK(d_ror16);
     LDRH_U12(x1, xEmu, offsetof(x64emu_t, res));
     if(BOX64ENV(cputype)) {
-        LSLw_IMM(x2, x1, 14);
+        LSRw(x2, x1, 14);
         EORw_REG_LSR(x3, x2, x2, 1);
         BFIw(xFlags, x3, F_OF, 1);
     } else {
@@ -857,7 +857,7 @@ SETMARK(d_ror16);
 SETMARK(d_ror32);
     LDRw_U12(x1, xEmu, offsetof(x64emu_t, res));
     if(BOX64ENV(cputype)) {
-        LSLw_IMM(x2, x1, 30);
+        LSRw(x2, x1, 30);
         EORw_REG_LSR(x3, x2, x2, 1);
         BFIw(xFlags, x3, F_OF, 1);
     } else {
@@ -870,8 +870,8 @@ SETMARK(d_ror32);
 SETMARK(d_ror64);
     LDRx_U12(x1, xEmu, offsetof(x64emu_t, res));
     if(BOX64ENV(cputype)) {
-        LSLx_IMM(x2, x1, 62);
-        EORw_REG_LSR(x3, x2, x2, 1);
+        LSRx(x2, x1, 62);
+        EORx_REG_LSR(x3, x2, x2, 1);
         BFIw(xFlags, x3, F_OF, 1);
     } else {
         LDRx_U12(x2, xEmu, offsetof(x64emu_t, op1));
@@ -884,6 +884,8 @@ SETMARK(d_shrd16);
     LDRH_U12(x1, xEmu, offsetof(x64emu_t, res));
     LDRH_U12(x2, xEmu, offsetof(x64emu_t, op1));
     LDRH_U12(x3, xEmu, offsetof(x64emu_t, op2));
+    CBNZw(x3, 4+4);
+    RET(xLR);
     if(BOX64ENV(cputype)) {
         LSRw(x4, x1, 14);
         EORw_REG_LSR(x4, x4, x4, 1);
@@ -898,8 +900,6 @@ SETMARK(d_shrd16);
         BFIw(xFlags, x4, F_OF, 1);
         BFCw(xFlags, F_AF, 1);
     }
-    CBNZw(x3, 4+4);
-    RET(xLR);
     SUBw_U12(x4, x3, 1);
     LSRw_REG(x4, x2, x4);
     if(BOX64ENV(cputype)) {

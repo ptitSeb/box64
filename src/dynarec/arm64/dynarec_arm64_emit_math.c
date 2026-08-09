@@ -1727,10 +1727,8 @@ void emit_neg16(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
     }
     IFX(X_AF) {
         ORRw_REG(s3, s3, s1);                        // bc = op1 | res
-        IFX(X_AF) {
-            LSRw(s4, s3, 3);
-            BFIw(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
-        }
+        LSRw(s4, s3, 3);
+        BFIw(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
     }
     IFX(X_ZF) {
         IFNATIVE(NF_EQ) {} else {
@@ -1783,10 +1781,8 @@ void emit_neg8(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
     }
     IFX(X_AF) {
         ORRw_REG(s3, s3, s1);                        // bc = op1 | res
-        IFX(X_AF) {
-            LSRw(s4, s3, 3);
-            BFIw(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
-        }
+        LSRw(s4, s3, 3);
+        BFIw(xFlags, s4, F_AF, 1);    // AF: bc & 0x08
     }
     IFX(X_ZF) {
         IFNATIVE(NF_EQ) {} else {

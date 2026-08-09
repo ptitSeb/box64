@@ -227,7 +227,7 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                 VMOVQ(v0, v2);
             }
             VMOVeD(v0, 0, d1, 0);
-            YMM0(gd)
+            YMM0(gd);
             break;
 
         case 0x58:
@@ -259,7 +259,7 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                 VMOVQ(v0, v2);
             }
             VMOVeD(v0, 0, q2, 0);
-            YMM0(gd)
+            YMM0(gd);
             break;
         case 0x59:
             INST_NAME("VMULSD Gx, Vx, Ex");
@@ -309,7 +309,7 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                 VMOVQ(v0, v2);
             }
             VMOVeS(v0, 0, d1, 0);
-            YMM0(gd)
+            YMM0(gd);
             break;
 
         case 0x5C:
@@ -341,7 +341,7 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                 VMOVQ(v0, v2);
             }
             VMOVeD(v0, 0, q2, 0);
-            YMM0(gd)
+            YMM0(gd);
             break;
         case 0x5D:
             INST_NAME("VMINSD Gx, Vx, Ex");
@@ -356,7 +356,7 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                 VMOVQ(v0, v2);
             }
             VMOVeD(v0, 0, d1, 0);   // to not erase uper part
-            YMM0(gd)
+            YMM0(gd);
             break;
         case 0x5E:
             INST_NAME("VDIVSD Gx, Vx, Ex");
@@ -387,7 +387,7 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                 VMOVQ(v0, v2);
             }
             VMOVeD(v0, 0, q2, 0);
-            YMM0(gd)
+            YMM0(gd);
             break;
         case 0x5F:
             INST_NAME("VMAXSD Gx, Vx, Ex");
@@ -401,7 +401,7 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                 VMOVQ(v0, v2);
             }
             VMOVeD(v0, 0, d1, 0);   // to not erase uper part
-            YMM0(gd)
+            YMM0(gd);
             break;
 
         case 0x70:

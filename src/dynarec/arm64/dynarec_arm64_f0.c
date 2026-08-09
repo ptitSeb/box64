@@ -371,7 +371,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         // Will fetch only 1 byte, to avoid alignment issue
                         ANDw_mask(x2, gd, 0, 0b00010);  //mask=0x000000007
                         addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
-                        ASRx(x1, gd, 3); // r1 = (gd>>3), there might be an issue for negative 32bits values here
+                        ASRxw(x1, gd, 3); // r1 = (gd>>3)
                         if(!rex.w && !rex.is32bits) {SXTWx(x1, x1);}
                         ADDy_REG_LSL(x3, wback, x1, 0); //(&ed)+=r1;
                         ed = x1;
@@ -547,7 +547,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         // Will fetch only 1 byte, to avoid alignment issue
                         ANDw_mask(x2, gd, 0, 0b00010);  //mask=0x000000007
                         addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
-                        ASRx(x1, gd, 3); // r1 = (gd>>3), there might be an issue for negative 32bits values here
+                        ASRxw(x1, gd, 3); // r1 = (gd>>3)
                         if(!rex.w && !rex.is32bits) {SXTWx(x1, x1);}
                         ADDy_REG_LSL(x3, wback, x1, 0); //(&ed)+=r1;
                         ed = x1;
@@ -869,7 +869,6 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 INST_NAME("LOCK AND Eb, Gb");
                 SETFLAGS(X_ALL, SF_SET_PENDING);
-                GETGD;
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
                 GETGB(x5);
                 if(cpuext.atomics) {

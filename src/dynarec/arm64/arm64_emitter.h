@@ -463,9 +463,9 @@ int convert_bitmask(uint64_t bitmask);
 #define CSINVx(Rd, Rn, Rm, cond)            EMIT(CSINV_gen(1, Rm, cond, Rn, Rd))
 #define CSINVw(Rd, Rn, Rm, cond)            EMIT(CSINV_gen(0, Rm, cond, Rn, Rd))
 #define CSINVxw(Rd, Rn, Rm, cond)           EMIT(CSINV_gen(rex.w, Rm, cond, Rn, Rd))
-#define CINVx(Rd, Rn, cond)                 CSINVx(Rd, Rn, Rn, invertCond(cond))
-#define CINVw(Rd, Rn, cond)                 CSINVw(Rd, Rn, Rn, invertCond(cond))
-#define CINVxw(Rd, Rn, cond)                CSINVxw(Rd, Rn, Rn, invertCond(cond))
+#define CINVx(Rd, Rn, cond)                 CSINVx(Rd, Rn, Rn, invCond(cond))
+#define CINVw(Rd, Rn, cond)                 CSINVw(Rd, Rn, Rn, invCond(cond))
+#define CINVxw(Rd, Rn, cond)                CSINVxw(Rd, Rn, Rn, invCond(cond))
 #define CSETMx(Rd, cond)                    CSINVx(Rd, xZR, xZR, invCond(cond))
 #define CSETMw(Rd, cond)                    CSINVw(Rd, xZR, xZR, invCond(cond))
 #define CSETMxw(Rd, cond)                   CSINVxw(Rd, xZR, xZR, invCond(cond))
@@ -479,9 +479,9 @@ int convert_bitmask(uint64_t bitmask);
 #define CSNEGx(Rd, Rn, Rm, cond)            EMIT(CSNEG_gen(1, Rm, cond, Rn, Rd))
 #define CSNEGw(Rd, Rn, Rm, cond)            EMIT(CSNEG_gen(0, Rm, cond, Rn, Rd))
 #define CSNEGxw(Rd, Rn, Rm, cond)           EMIT(CSNEG_gen(rex.w, Rm, cond, Rn, Rd))
-#define CNEGx(Rd, Rn, cond)                 CSNEGx(Rn, Rn, Rd, invCond(cond))
-#define CNEGw(Rd, Rn, cond)                 CSNEGw(Rn, Rn, Rd, invCond(cond))
-#define CNEGxw(Rd, Rn, cond)                CSNEGxw(Rn, Rn, Rd, invCond(cond))
+#define CNEGx(Rd, Rn, cond)                 CSNEGx(Rd, Rn, Rn, invCond(cond))
+#define CNEGw(Rd, Rn, cond)                 CSNEGw(Rd, Rn, Rn, invCond(cond))
+#define CNEGxw(Rd, Rn, cond)                CSNEGxw(Rd, Rn, Rn, invCond(cond))
 
 // AND / ORR
 #define LOGIC_gen(sf, opc, N, immr, imms, Rn, Rd)  ((sf)<<31 | (opc)<<29 | 0b100100<<23 | (N)<<22 | (immr)<<16 | (imms)<<10 | (Rn)<<5 | Rd)
@@ -648,9 +648,9 @@ int convert_bitmask(uint64_t bitmask);
 #define ASRx(Rd, Rn, shift)             SBFMx(Rd, Rn, shift, 63)
 #define ASRw(Rd, Rn, shift)             SBFMw(Rd, Rn, shift, 31)
 #define ASRxw(Rd, Rn, shift)            SBFMxw(Rd, Rn, shift, rex.w?63:31)
-#define SBFIZx(Rd, Rn, lsb, width)      SFBFMx(Rd, Rn, ((-(lsb))%64), (width)-1)
-#define SBFIZw(Rd, Rn, lsb, width)      SFBFMw(Rd, Rn, ((-(lsb))%32), (width)-1)
-#define SBFIZxw(Rd, Rn, lsb, width)     SFBFMxw(Rd, Rn, ((-(lsb))%(rex.w?64:32)), (width)-1)
+#define SBFIZx(Rd, Rn, lsb, width)      SBFMx(Rd, Rn, ((-(lsb))%64), (width)-1)
+#define SBFIZw(Rd, Rn, lsb, width)      SBFMw(Rd, Rn, ((-(lsb))%32), (width)-1)
+#define SBFIZxw(Rd, Rn, lsb, width)     SBFMxw(Rd, Rn, ((-(lsb))%(rex.w?64:32)), (width)-1)
 
 // EXTR
 #define EXTR_gen(sf, N, Rm, imms, Rn, Rd)   ((sf)<<31 | 0b00<<29 | 0b100111<<23 | (N)<<22 | (Rm)<<16 | (imms)<<10 | (Rn)<<5 | (Rd))
@@ -902,7 +902,7 @@ int convert_bitmask(uint64_t bitmask);
 #define VEORQ(Vd, Vn, Vm)                   EMIT(VLOGIC_gen(1, 0b00, Vm, Vn, Vd))
 #define VEOR(Vd, Vn, Vm)                    EMIT(VLOGIC_gen(0, 0b00, Vm, Vn, Vd))
 
-#define VLOGIC_immediate(Q, op, abc, cmade, defgh, Rd)  ((Q)<<30 | (op)<<29 | 0b0111100000<<19 | (abc)<<16 | (cmode)<<12 | 1<<10 | (defgh)<<5 | (Rd))
+#define VLOGIC_immediate(Q, op, abc, cmode, defgh, Rd)  ((Q)<<30 | (op)<<29 | 0b0111100000<<19 | (abc)<<16 | (cmode)<<12 | 1<<10 | (defgh)<<5 | (Rd))
 //#define V
 
 #define SHL_vector(Q, immh, immb, Rn, Rd)   ((Q)<<30 | 0b011110<<23 | (immh)<<19 | (immb)<<16 | 0b01010<<11 | 1<<10 | (Rn)<<5 | (Rd))
@@ -962,7 +962,7 @@ int convert_bitmask(uint64_t bitmask);
 #define VEXTQ_8(Rd, Rn, Rm, index)          EMIT(EXT_vector(1, Rm, index, Rn, Rd))
 
 // Shift Left and Insert (not touching lower part of dest)
-#define SLI_vector(Q, immh, immb, Rn, Rd)   ((Q)<<30 | 1<<29 | 0b011110<<23 | (immh)<<19 | (immb)<<16 | 0b01010<<1 | 1<<10 | (Rn)<<5 | (Rd))
+#define VSLI_vector(Q, immh, immb, Rn, Rd)  ((Q)<<30 | 1<<29 | 0b011110<<23 | (immh)<<19 | (immb)<<16 | 0b01010<<11 | 1<<10 | (Rn)<<5 | (Rd))
 #define VSLIQ_8(Vd, Vn, shift)              EMIT(VSLI_vector(1, 0b0001, (shift)&7, Vn, Vd))
 #define VSLIQ_16(Vd, Vn, shift)             EMIT(VSLI_vector(1, 0b0010 | ((shift)>>3)&1, (shift)&7, Vn, Vd))
 #define VSLIQ_32(Vd, Vn, shift)             EMIT(VSLI_vector(1, 0b0100 | (((shift)>>3)&3), (shift)&7, Vn, Vd))
@@ -972,14 +972,14 @@ int convert_bitmask(uint64_t bitmask);
 #define VSLI_32(Vd, Vn, shift)              EMIT(VSLI_vector(0, 0b0100 | (((shift)>>3)&3), (shift)&7, Vn, Vd))
 
 // Shift Right and Insert (not touching higher part of dest)
-#define SRI_vector(Q, immh, immb, Rn, Rd)   ((Q)<<30 | 1<<29 | 0b011110<<23 | (immh)<<19 | (immb)<<16 | 0b01000<<1 | 1<<10 | (Rn)<<5 | (Rd))
-#define VSRIQ_8(Vd, Vn, shift)              EMIT(VSRI_vector(1, 0b0001, (shift)&7, Vn, Vd))
-#define VSRIQ_16(Vd, Vn, shift)             EMIT(VSRI_vector(1, 0b0010 | ((shift)>>3)&1, (shift)&7, Vn, Vd))
-#define VSRIQ_32(Vd, Vn, shift)             EMIT(VSRI_vector(1, 0b0100 | (((shift)>>3)&3), (shift)&7, Vn, Vd))
-#define VSRIQ_64(Vd, Vn, shift)             EMIT(VSRI_vector(1, 0b1000 | (((shift)>>3)&7), (shift)&7, Vn, Vd))
-#define VSRI_8(Vd, Vn, shift)               EMIT(VSRI_vector(0, 0b0001, (shift)&7, Vn, Vd))
-#define VSRI_16(Vd, Vn, shift)              EMIT(VSRI_vector(0, 0b0010 | ((shift)>>3)&1, (shift)&7, Vn, Vd))
-#define VSRI_32(Vd, Vn, shift)              EMIT(VSRI_vector(0, 0b0100 | (((shift)>>3)&3), (shift)&7, Vn, Vd))
+#define VSRI_vector(Q, immh, immb, Rn, Rd)  ((Q)<<30 | 1<<29 | 0b011110<<23 | (immh)<<19 | (immb)<<16 | 0b01000<<11 | 1<<10 | (Rn)<<5 | (Rd))
+#define VSRIQ_8(Vd, Vn, shift)             EMIT(VSRI_vector(1, 0b0001, (8-(shift))&7, Vn, Vd))
+#define VSRIQ_16(Vd, Vn, shift)            EMIT(VSRI_vector(1, 0b0010 | ((16-(shift))>>3)&1, (16-(shift))&7, Vn, Vd))
+#define VSRIQ_32(Vd, Vn, shift)            EMIT(VSRI_vector(1, 0b0100 | ((32-(shift))>>3)&3, (32-(shift))&7, Vn, Vd))
+#define VSRIQ_64(Vd, Vn, shift)            EMIT(VSRI_vector(1, 0b1000 | ((64-(shift))>>3)&7, (64-(shift))&7, Vn, Vd))
+#define VSRI_8(Vd, Vn, shift)              EMIT(VSRI_vector(0, 0b0001, (8-(shift))&7, Vn, Vd))
+#define VSRI_16(Vd, Vn, shift)             EMIT(VSRI_vector(0, 0b0010 | ((16-(shift))>>3)&1, (16-(shift))&7, Vn, Vd))
+#define VSRI_32(Vd, Vn, shift)             EMIT(VSRI_vector(0, 0b0100 | ((32-(shift))>>3)&3, (32-(shift))&7, Vn, Vd))
 
 // Reverse elements in 64-bit doublewords (vector). This instruction reverses the order of 8-bit, 16-bit, or 32-bit elements in each doubleword
 #define VREVx_vector(Q, U, size, o0, Rn, Rd)    ((Q)<<30 | (U)<<29 | 0b01110<<24 | (size)<<22 | 0b10000<<17 | (o0)<<12 | 0b10<<10 | (Rn)<<5 | (Rd))
@@ -1044,7 +1044,7 @@ int convert_bitmask(uint64_t bitmask);
 // Double-precision to 64-bit
 #define FMOVxD(Xd, Dn)                      EMIT(FMOV_general(1, 0b01, 0b00, 0b110, Dn, Xd))
 // Top half of 128-bit to 64-bit
-#define FMOVxD1(Xd, Vn)                     EMIT(FMOV_general(1, 0b10, 0b01, ob110, Vn, Xd))
+#define FMOVxD1(Xd, Vn)                     EMIT(FMOV_general(1, 0b10, 0b01, 0b110, Vn, Xd))
 
 #define FMOV_register(type, Rn, Rd)         (0b11110<<24 | (type)<<22 | 1<<21 | 0b10000<<10 | (Rn)<<5 | (Rd))
 #define FMOVS(Sd, Sn)                       EMIT(FMOV_register(0b00, Sn, Sd))
@@ -1251,7 +1251,7 @@ int convert_bitmask(uint64_t bitmask);
 #define FCVTMUxwS(Xd, Sn)           EMIT(FCVT_scalar(rex.w, 0b00, 0b10, 0b101, Sn, Xd))
 #define FCVTMUwD(Wd, Dn)            EMIT(FCVT_scalar(0, 0b01, 0b10, 0b101, Dn, Wd))
 #define FCVTMUxD(Xd, Dn)            EMIT(FCVT_scalar(1, 0b01, 0b10, 0b101, Dn, Xd))
-#define FCVTMUxwD(Xd, Dn)           EMIT(FCVT_scalar(rfex.w, 0b01, 0b10, 0b101, Dn, Xd))
+#define FCVTMUxwD(Xd, Dn)           EMIT(FCVT_scalar(rex.w, 0b01, 0b10, 0b101, Dn, Xd))
 // Floating-point Convert to Signed integer, rounding to nearest with ties to even
 #define FCVTNSwS(Wd, Sn)            EMIT(FCVT_scalar(0, 0b00, 0b00, 0b000, Sn, Wd))
 #define FCVTNSxS(Xd, Sn)            EMIT(FCVT_scalar(1, 0b00, 0b00, 0b000, Sn, Xd))

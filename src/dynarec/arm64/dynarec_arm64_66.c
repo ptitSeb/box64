@@ -1122,7 +1122,8 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     break;
                 case 1:
                     INST_NAME("ROR Ew, Ib");
-                    if (geted_ib(dyn, addr, ninst, nextop) & 0x1f) {
+                    u8 = geted_ib(dyn, addr, ninst, nextop) & 0x1f;
+                    if (u8) {
                         SETFLAGS((!BOX64ENV(cputype) && (u8 > 1) && MODREG) ? X_CF : (X_OF | X_CF), SF_SUBSET); // removed PENDING on purpose
                         GETEW(x1, 1);
                         u8 = (F8)&0x1f;

@@ -1054,6 +1054,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 TABLE64(x3, addr-4);
                 LDRSW_U12(x1, x3, 0);
                 PUSH1z(x1);
+                SMWRITE();
             } else {
                 if (!i64) {
                     PUSH1z(xZR);
@@ -1213,7 +1214,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
         case 0x6E:
         case 0x6F:
-            INST_NAME(opcode == 0x6C ? "OUTSB" : "OUTSD");
+            INST_NAME(opcode == 0x6E ? "OUTSB" : "OUTSD");
             if(BOX64DRENV(dynarec_safeflags)>1) {
                 READFLAGS(X_PEND);
             } else {
@@ -4517,8 +4518,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             SET_DFNONE();
             ORRx_mask(xFlags, xFlags, 1, 0, 0); // xFlags | 1
             break;
-        case 0xFA:                      /* STI */
-        case 0xFB:                      /* CLI */
+        case 0xFA:                      /* CLI */
+        case 0xFB:                      /* STI */
             INST_NAME(opcode==0xFA?"CLI":"STI");
             if(rex.is32bits && BOX64ENV(ignoreint3))
             {} else {

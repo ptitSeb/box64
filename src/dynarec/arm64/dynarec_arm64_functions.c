@@ -28,6 +28,11 @@
 // Get a FPU scratch reg
 int fpu_get_scratch(dynarec_arm_t* dyn, int ninst)
 {
+    if(dyn->n.fpu_scratch >= 8) {
+        printf_log(LOG_INFO, "BOX64 Dynarec: out of FPU scratch registers at inst=%d\n", ninst);
+        dyn->abort = 1;
+        return SCRATCH0;
+    }
     int ret = SCRATCH0 + dyn->n.fpu_scratch++;
     if(dyn->n.ymm_used) {
         printf_log(LOG_INFO, "Warning, getting a scratch register after getting some YMM at inst=%d", ninst);
@@ -44,6 +49,11 @@ int fpu_get_scratch(dynarec_arm_t* dyn, int ninst)
 // Get 2 consicutive FPU scratch reg
 int fpu_get_double_scratch(dynarec_arm_t* dyn, int ninst)
 {
+    if(dyn->n.fpu_scratch >= 7) {
+        printf_log(LOG_INFO, "BOX64 Dynarec: out of FPU double scratch registers at inst=%d\n", ninst);
+        dyn->abort = 1;
+        return SCRATCH0;
+    }
     int ret = SCRATCH0 + dyn->n.fpu_scratch;
     if(dyn->n.ymm_used) {
         printf_log(LOG_INFO, "Warning, getting a double scratch register after getting some YMM at inst=%d", ninst);
@@ -83,7 +93,12 @@ void fpu_reset_scratch(dynarec_arm_t* dyn)
 int fpu_get_reg_x87(dynarec_arm_t* dyn, int ninst, int t, int n)
 {
     int i=X870;
-    while (dyn->n.fpuused[i]) ++i;
+    while (i<32 && dyn->n.fpuused[i]) ++i;
+    if(i==32) {
+        printf_log(LOG_INFO, "BOX64 Dynarec: out of FPU x87 registers at inst=%d\n", ninst);
+        dyn->abort = 1;
+        return X870;
+    }
     if(dyn->n.neoncache[i].t==NEON_CACHE_YMMR || dyn->n.neoncache[i].t==NEON_CACHE_YMMW) {
         // should only happens in step 0...
         dyn->insts[ninst].purge_ymm |= (1<<dyn->n.neoncache[i].n); // mark as purged
@@ -111,7 +126,7 @@ void fpu_free_reg(dynarec_arm_t* dyn, int reg)
         dyn->n.ymm_removed |= 1<<n;
         if(t==NEON_CACHE_YMMW)
             dyn->n.ymm_write |= 1<<n;
-        if(reg>SCRATCH0)
+        if(reg>=SCRATCH0)
             dyn->n.ymm_regs |= (8LL+reg-SCRATCH0)<<(n*4);
         else
             dyn->n.ymm_regs |= ((uint64_t)(reg-EMM0))<<(n*4);
@@ -431,7 +446,7 @@ static int isCacheEmpty(dynarec_native_t* dyn, int ninst) {
     if(dyn->insts[ninst].n.stack_next) {
         return 0;
     }
-    for(int i=0; i<24; ++i)
+    for(int i=0; i<32; ++i)
         if(dyn->insts[ninst].n.neoncache[i].v) {       // there is something at ninst for i
             if(!(
             (dyn->insts[ninst].n.neoncache[i].t==NEON_CACHE_ST_F
@@ -640,49 +655,6 @@ void neoncacheUnwind(neoncache_t* cache)
     cache->ymm_used = 0;
 }
 
-#define F8      *(uint8_t*)(addr++)
-#define F32S64  (uint64_t)(int64_t)*(int32_t*)(addr+=4, addr-4)
-// Get if ED will have the correct parity. Not emitting anything. Parity is 2 for DWORD or 3 for QWORD
-int getedparity(dynarec_arm_t* dyn, int ninst, uintptr_t addr, uint8_t nextop, int parity, int delta)
-{
-    (void)dyn; (void)ninst;
-
-    uint32_t tested = (1<<parity)-1;
-    if((nextop&0xC0)==0xC0)
-        return 0;   // direct register, no parity...
-    if(!(nextop&0xC0)) {
-        if((nextop&7)==4) {
-            uint8_t sib = F8;
-            int sib_reg = (sib>>3)&7;
-            if((sib&0x7)==5) {
-                uint64_t tmp = F32S64;
-                if (sib_reg!=4) {
-                    // if XXXXXX+reg<<N then check parity of XXXXX and N should be enough
-                    return ((tmp&tested)==0 && (sib>>6)>=parity)?1:0;
-                } else {
-                    // just a constant...
-                    return (tmp&tested)?0:1;
-                }
-            } else {
-                if(sib_reg==4 && parity<3)
-                    return 0;   // simple [reg]
-                // don't try [reg1 + reg2<<N], unless reg1 is ESP
-                return ((sib&0x7)==4 && (sib>>6)>=parity)?1:0;
-            }
-        } else if((nextop&7)==5) {
-            uint64_t tmp = F32S64;
-            tmp+=addr+delta;
-            return (tmp&tested)?0:1;
-        } else {
-            return 0;
-        }
-    } else {
-        return 0; //Form [reg1 + reg2<<N + XXXXXX]
-    }
-}
-#undef F8
-#undef F32S64
-
 const char* getCacheName(int t, int n)
 {
     static char buff[20];
@@ -722,22 +694,22 @@ static register_mapping_t register_mappings[] = {
     { "bx", "x13" },
     { "bh", "x13" },
     { "bl", "x13" },
-    { "rsi", "x14" },
-    { "esi", "w14" },
-    { "si", "x14" },
-    { "sil", "x14" },
-    { "rdi", "x15" },
-    { "edi", "w15" },
-    { "di", "x15" },
-    { "dil", "x15" },
-    { "rsp", "x16" },
-    { "esp", "w16" },
-    { "sp", "x16" },
-    { "spl", "x16" },
-    { "rbp", "x17" },
-    { "ebp", "w17" },
-    { "bp", "x17" },
-    { "bpl", "x17" },
+    { "rsp", "x14" },
+    { "esp", "w14" },
+    { "sp", "x14" },
+    { "spl", "x14" },
+    { "rbp", "x15" },
+    { "ebp", "w15" },
+    { "bp", "x15" },
+    { "bpl", "x15" },
+    { "rsi", "x16" },
+    { "esi", "w16" },
+    { "si", "x16" },
+    { "sil", "x16" },
+    { "rdi", "x17" },
+    { "edi", "w17" },
+    { "di", "x17" },
+    { "dil", "x17" },
     { "r8", "x18" },
     { "r8d", "w18" },
     { "r8w", "x18" },
