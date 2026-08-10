@@ -576,6 +576,7 @@ EXPORT int my32_pthread_cond_destroy_old(x64emu_t* emu, pthread_cond_2_0_t* cond
     pthread_cond_t * c = get_cond_old(cond);
     int ret = pthread_cond_destroy(c);
     box_free(from_ptrv(cond->cond));
+    cond->cond = 0;
     return ret;
 }
 
