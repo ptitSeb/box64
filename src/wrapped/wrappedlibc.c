@@ -3207,6 +3207,30 @@ EXPORT int32_t my_execlp(x64emu_t* emu, const char* path)
     return my_execvp(emu, path, argv);
 }
 
+static char** spawn_env_with_arg0(char* const envp[], const char* name, const char* arg0, char** added)
+{
+    size_t n = 0;
+    size_t replace = (size_t)-1;
+    size_t name_len = strlen(name);
+
+    while (envp && envp[n]) {
+        if (!strncmp(envp[n], name, name_len) && envp[n][name_len] == '=')
+            replace = n;
+        ++n;
+    }
+
+    char** ret = (char**)box_calloc(n + (replace == (size_t)-1 ? 2 : 1), sizeof(char*));
+    if (n)
+        memcpy(ret, envp, n * sizeof(char*));
+    *added = (char*)box_malloc(name_len + strlen(arg0) + 2);
+    sprintf(*added, "%s=%s", name, arg0);
+    if (replace == (size_t)-1)
+        ret[n] = *added;
+    else
+        ret[replace] = *added;
+    return ret;
+}
+
 EXPORT int32_t my_posix_spawn(x64emu_t* emu, pid_t* pid, const char* fullpath,
     const posix_spawn_file_actions_t *actions, const posix_spawnattr_t* attrp,  char* const argv[], char* const envp[])
 {
@@ -3231,15 +3255,20 @@ EXPORT int32_t my_posix_spawn(x64emu_t* emu, pid_t* pid, const char* fullpath,
         if(script) newargv[1] = emu->context->bashpath; // script needs to be launched with bash
         if(python) newargv[1] = emu->context->pythonpath; // python scripts need box64-python
         memcpy(newargv+toadd, argv, (n+1)*sizeof(char*));
+        char** spawn_envp = (char**)envp;
+        char* arg0_env = NULL;
         if(self) newargv[toadd] = emu->context->fullpath;
         else {
-            // TODO check if envp is not environ and add the value on a copy
             if(strcmp(newargv[toadd], fullpath))
-                setenv(x86?"BOX86_ARG0":"BOX64_ARG0", newargv[toadd], 1);
+                spawn_envp = spawn_env_with_arg0(envp, x86?"BOX86_ARG0":"BOX64_ARG0", newargv[toadd], &arg0_env);
             newargv[toadd] = fullpath;
         }
         printf_log(/*LOG_DEBUG*/LOG_INFO, " => posix_spawn(%p, \"%s\", %p, %p, %p [\"%s\", \"%s\", \"%s\"...:%d], %p)\n", pid, newargv[0], actions, attrp, newargv, newargv[0], newargv[1], newargv[2]?newargv[2]:"", n, envp);
-        ret = posix_spawn(pid, newargv[0], actions, attrp, (char* const*)newargv, envp);
+        ret = posix_spawn(pid, newargv[0], actions, attrp, (char* const*)newargv, spawn_envp);
+        if (spawn_envp != envp) {
+            box_free(arg0_env);
+            box_free(spawn_envp);
+        }
         printf_log(/*LOG_DEBUG*/LOG_INFO, "posix_spawn returned %d\n", ret);
         //box_free(newargv);
     } else
@@ -3275,15 +3304,20 @@ EXPORT int32_t my_posix_spawnp(x64emu_t* emu, pid_t* pid, const char* path,
         if(script) newargv[1] = emu->context->bashpath; // script needs to be launched with bash
         if(python) newargv[1] = emu->context->pythonpath; // python scripts need box64-python
         memcpy(newargv+toadd, argv, (n+1)*sizeof(char*));
+        char** spawn_envp = (char**)envp;
+        char* arg0_env = NULL;
         if(self) newargv[toadd] = emu->context->fullpath;
         else {
-            // TODO check if envp is not environ and add the value on a copy
             if(strcmp(newargv[toadd], fullpath))
-                setenv(x86?"BOX86_ARG0":"BOX64_ARG0", newargv[toadd], 1);
+                spawn_envp = spawn_env_with_arg0(envp, x86?"BOX86_ARG0":"BOX64_ARG0", newargv[toadd], &arg0_env);
             newargv[toadd] = fullpath;
         }
         printf_log(/*LOG_DEBUG*/LOG_INFO, " => posix_spawn(%p, \"%s\", %p, %p, %p [\"%s\", \"%s\", \"%s\"...:%d], %p)\n", pid, newargv[0], actions, attrp, newargv, newargv[0], newargv[1], newargv[2]?newargv[2]:"", n, envp);
-        ret = posix_spawn(pid, newargv[0], actions, attrp, (char* const*)newargv, envp);
+        ret = posix_spawn(pid, newargv[0], actions, attrp, (char* const*)newargv, spawn_envp);
+        if (spawn_envp != envp) {
+            box_free(arg0_env);
+            box_free(spawn_envp);
+        }
         printf_log(/*LOG_DEBUG*/LOG_INFO, "posix_spawn returned %d\n", ret);
         //box_free(newargv);
     } else
