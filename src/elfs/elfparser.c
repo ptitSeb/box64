@@ -87,7 +87,7 @@ static void* LoadSubLoadSection(FILE *f, elfheader_t* h, uintptr_t offset, size_
 {
     if(!size && !h->Dynamic._64) return NULL;
     void* ret = NULL;
-    for (size_t i=0; i<h->numDynamic && !ret; ++i) {
+    for (size_t i=0; i<h->numPHEntries && !ret; ++i) {
         if(h->PHEntries._64[i].p_type == PT_LOAD) {
             if(offset>=h->PHEntries._64[i].p_paddr && offset<h->PHEntries._64[i].p_paddr+h->PHEntries._64[i].p_memsz) {
                 if(!size) {
