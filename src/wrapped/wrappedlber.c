@@ -178,21 +178,54 @@ static void* find_sbi_close_Fct(void* fct)
 
 #undef SUPER
 
+// sockbuf_io
+#define SUPER() \
+GO(0)           \
+GO(1)           \
+GO(2)           \
+GO(3)           \
+GO(4)
+
+#define GO(A)                                           \
+static my_sockbuf_io_t* my_sockbuf_io_ref_##A = NULL;   \
+static my_sockbuf_io_t my_sockbuf_io_struct_##A = {0};
+SUPER()
+#undef GO
+
+static void wrap_sockbuf_io(my_sockbuf_io_t* dst, my_sockbuf_io_t* src)
+{
+    #define GO(A) dst->A = find_##A##_Fct(src->A)
+    GO(sbi_setup);
+    GO(sbi_remove);
+    GO(sbi_ctrl);
+    GO(sbi_read);
+    GO(sbi_write);
+    GO(sbi_close);
+    #undef GO
+}
+
+static my_sockbuf_io_t* find_sockbuf_io_Struct(my_sockbuf_io_t* io)
+{
+    if(!io) return NULL;
+    #define GO(A) if(my_sockbuf_io_ref_##A == io) return &my_sockbuf_io_struct_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(!my_sockbuf_io_ref_##A) {              \
+        wrap_sockbuf_io(&my_sockbuf_io_struct_##A, io);     \
+        my_sockbuf_io_ref_##A = io;                         \
+        return &my_sockbuf_io_struct_##A;                   \
+    }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for liblber sockbuf_io\n");
+    return NULL;
+}
+
+#undef SUPER
+
 EXPORT int my_ber_sockbuf_add_io(x64emu_t* emu, void* sb, my_sockbuf_io_t* io, int layer, void* arg)
 {
-    my_sockbuf_io_t my_io = {0};
-    if(io) {
-        #define GO(A) my_io.A = find_##A##_Fct(io->A)
-        GO(sbi_setup);
-        GO(sbi_remove);
-        GO(sbi_ctrl);
-        GO(sbi_read);
-        GO(sbi_write);
-        GO(sbi_close);
-        #undef GO
-    }
-    return my->ber_sockbuf_add_io(sb, io?&my_io:NULL, layer, arg);
+    return my->ber_sockbuf_add_io(sb, find_sockbuf_io_Struct(io), layer, arg);
 }
 
 #include "wrappedlib_init.h"
-
