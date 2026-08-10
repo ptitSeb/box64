@@ -1421,6 +1421,11 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("EMMS");
             // empty MMX, FPU now usable
             mmx_purgecache(dyn, ninst, 0, x1);
+            x87_purgecache(dyn, ninst, 0, x1, x2, x3);  // also purge x87 and hard reset it
+            ST_W(xZR, xEmu, offsetof(x64emu_t, top));
+            ST_W(xZR, xEmu, offsetof(x64emu_t, fpu_stack));
+            MOV32w(x1, TAGS_EMPTY);
+            ST_D(x1, xEmu, offsetof(x64emu_t, fpu_tags));
             break;
         case 0x7E:
             INST_NAME("MOVD Ed, Gm");
