@@ -132,16 +132,55 @@ static void* find_release_Fct(void* fct)
 
 #undef SUPER
 
+// gpgme_data_cbs_t
+#define SUPER() \
+GO(0)           \
+GO(1)           \
+GO(2)           \
+GO(3)           \
+GO(4)
+
+#define GO(A)                                                   \
+static my_gpgme_data_cbs_t* my_gpgme_data_cbs_ref_##A = NULL;   \
+static my_gpgme_data_cbs_t my_gpgme_data_cbs_struct_##A = {0};
+SUPER()
+#undef GO
+
+static void wrap_gpgme_data_cbs(my_gpgme_data_cbs_t* dst, my_gpgme_data_cbs_t* src)
+{
+    #define GO(A) dst->A = find_##A##_Fct(src->A)
+    GO(read);
+    GO(write);
+    GO(seek);
+    GO(release);
+    #undef GO
+}
+
+static my_gpgme_data_cbs_t* find_gpgme_data_cbs_Struct(my_gpgme_data_cbs_t* cbs)
+{
+    if(!cbs) return NULL;
+    #define GO(A) if(my_gpgme_data_cbs_ref_##A == cbs) {       \
+        return &my_gpgme_data_cbs_struct_##A;                  \
+    }
+    SUPER()
+    #undef GO
+    #define GO(A) if(!my_gpgme_data_cbs_ref_##A) {             \
+        wrap_gpgme_data_cbs(&my_gpgme_data_cbs_struct_##A, cbs); \
+        my_gpgme_data_cbs_ref_##A = cbs;                       \
+        return &my_gpgme_data_cbs_struct_##A;                  \
+    }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gpgme_data_cbs\n");
+    return NULL;
+}
+
+#undef SUPER
+
+
 EXPORT uint32_t my_gpgme_data_new_from_cbs(x64emu_t* emu, void* data, my_gpgme_data_cbs_t* cbs, void* stream)
 {
-    my_gpgme_data_cbs_t cbs_ = {0};
-    if(cbs) {
-        cbs_.read = find_read_Fct(cbs->read);
-        cbs_.write = find_write_Fct(cbs->write);
-        cbs_.seek = find_seek_Fct(cbs->seek);
-        cbs_.release = find_release_Fct(cbs->release);
-    }
-    return my->gpgme_data_new_from_cbs(data, cbs?&cbs_:NULL, stream);
+    return my->gpgme_data_new_from_cbs(data, find_gpgme_data_cbs_Struct(cbs), stream);
 }
 
 #include "wrappedlib_init.h"
