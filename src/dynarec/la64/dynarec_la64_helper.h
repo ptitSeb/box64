@@ -1615,6 +1615,10 @@ static inline int comis_fuse_inverted(int condition)
 #define updateflags_pass STEPNAME(updateflags_pass)
 
 #define dynarec64_00          STEPNAME(dynarec64_00)
+#define dynarec64_00_0        STEPNAME(dynarec64_00_0)
+#define dynarec64_00_1        STEPNAME(dynarec64_00_1)
+#define dynarec64_00_2        STEPNAME(dynarec64_00_2)
+#define dynarec64_00_3        STEPNAME(dynarec64_00_3)
 #define dynarec64_0F          STEPNAME(dynarec64_0F)
 #define dynarec64_66          STEPNAME(dynarec64_66)
 #define dynarec64_F30F        STEPNAME(dynarec64_F30F)
@@ -2063,6 +2067,10 @@ int lsxcache_st_coherency(dynarec_la64_t* dyn, int ninst, int a, int b);
 
 
 uintptr_t dynarec64_00(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
+uintptr_t dynarec64_00_0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
+uintptr_t dynarec64_00_1(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
+uintptr_t dynarec64_00_2(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
+uintptr_t dynarec64_00_3(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
 uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
 uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog);
 uintptr_t dynarec64_64(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int seg, int* ok, int* need_epilog);
