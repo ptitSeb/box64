@@ -176,6 +176,26 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             }
             YMM0(gd);
             break;
+        case 0x6F:
+            INST_NAME("VMOVDQU Gx, Ex");
+            nextop = F8;
+            GETEX(x2, 0, vex.l ? 24 : 8);
+            GETGX();
+            GETGY();
+            LD(x7, wback, fixedaddress + 0);
+            LD(x4, wback, fixedaddress + 8);
+            SD(x7, gback, gdoffset + 0);
+            SD(x4, gback, gdoffset + 8);
+            if (vex.l) {
+                GETEY();
+                LD(x7, wback, fixedaddress + 0);
+                LD(x4, wback, fixedaddress + 8);
+                SD(x7, gback, gyoffset + 0);
+                SD(x4, gback, gyoffset + 8);
+            } else {
+                YMM0(gd);
+            }
+            break;
         case 0x7E:
             INST_NAME("VMOVQ Gx, Ex");
             nextop = F8;
@@ -186,6 +206,27 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             SD(x3, gback, gdoffset + 0);
             SD(xZR, gback, gdoffset + 8);
             YMM0(gd);
+            break;
+        case 0x7F:
+            INST_NAME("VMOVDQU Ex, Gx");
+            nextop = F8;
+            GETEX(x2, 0, vex.l ? 24 : 8);
+            GETGX();
+            GETGY();
+            LD(x7, gback, gdoffset + 0);
+            LD(x4, gback, gdoffset + 8);
+            SD(x7, wback, fixedaddress + 0);
+            SD(x4, wback, fixedaddress + 8);
+            if (vex.l) {
+                GETEY();
+                LD(x7, gback, gyoffset + 0);
+                LD(x4, gback, gyoffset + 8);
+                SD(x7, wback, fixedaddress + 0);
+                SD(x4, wback, fixedaddress + 8);
+            } else if (MODREG) {
+                YMM0(ed);
+            }
+            if (!MODREG) SMWRITE2();
             break;
         case 0xC2:
             INST_NAME("VCMPSS Gx, Vx, Ex, Ib");
