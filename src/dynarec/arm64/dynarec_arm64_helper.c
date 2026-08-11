@@ -420,16 +420,18 @@ void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst, int is32
     }
     if(dyn->have_purge && !dyn->insts[ninst].x64.has_callret)
         doLeaveBlock(dyn, ninst, x4, x5, x6);
-    #ifdef HAVE_TRACE
-    //MOVx(x3, 15);    no access to PC reg
-    BLR(dest); // save LR...
-    #else
+    // #ifdef HAVE_TRACE
+    // The BLR form is only for gdb backtraces, but it breaks the
+    // return-address-stack prediction on every block-to-block jump, which is
+    // not worth it. Uncomment temporarily when debugging with gdb.
+    // BLR(dest); // save LR...
+    // #else
     if (dyn->insts[ninst].x64.has_callret) {
         BLR(dest); // save LR...
     } else {
         BR(dest);
     }
-    #endif
+    // #endif
 }
 
 void ret_to_next(dynarec_arm_t* dyn, uintptr_t ip, int ninst, rex_t rex)
