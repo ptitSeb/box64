@@ -941,8 +941,6 @@ void emit_rol32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     if (!rex.w) {
         ZEROUP(s1);
     }
-    ANDI(s2, s2, rex.w ? 0x3f : 0x1f);
-    BEQ_NEXT(s2, xZR);
 
     IFX (X_CF | X_OF) {
         ANDI(xFlags, xFlags, ~((1UL << F_CF) | (1UL << F_OF2)));
@@ -990,8 +988,6 @@ void emit_ror32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     if (!rex.w) {
         ZEROUP(s1);
     }
-    ANDI(s2, s2, rex.w ? 0x3f : 0x1f);
-    BEQ_NEXT(s2, xZR);
 
     IFX (X_CF) ANDI(xFlags, xFlags, ~(1UL << F_CF));
     IFX (X_OF) ANDI(xFlags, xFlags, ~(1UL << F_OF2));
@@ -1568,7 +1564,6 @@ void emit_rcl32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     int64_t j64;
     SET_DFNONE();
     if (!rex.w) ZEROUP(s1);
-    BEQ_NEXT(s2, xZR);
 
     IFX (X_OF) {
         ANDI(xFlags, xFlags, ~(1UL << F_OF2));
@@ -1613,7 +1608,6 @@ void emit_rcr32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     int64_t j64;
     SET_DFNONE();
     if (!rex.w) ZEROUP(s1);
-    BEQ_NEXT(s2, xZR);
 
     IFX (X_OF) {
         ANDI(xFlags, xFlags, ~(1UL << F_OF2));
