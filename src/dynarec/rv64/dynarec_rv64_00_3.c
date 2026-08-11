@@ -657,10 +657,16 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         emit_rol8c(dyn, ninst, ed, 1, x4, x5);
                     } else {
                         INST_NAME("ROL Eb, CL");
-                        SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
+                        if (BOX64DRENV(dynarec_safeflags) > 1) {
+                            READFLAGS(X_OF | X_CF);
+                        }
+                        SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION); // removed PENDING on purpose
                         GETEB(x1, 0);
-                        ANDI(x2, xRCX, 0x1f);
-                        BEQ_NEXT(x2, xZR);
+                        UFLAG_IF {
+                            ANDI(x2, xRCX, 0x1f);
+                            BEQ_NEXT(x2, xZR);
+                        }
+                        ANDI(x2, xRCX, 7);
                         emit_rol8(dyn, ninst, ed, x2, x4, x5);
                     }
                     EBBACK(x5, 0);
@@ -673,10 +679,16 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         emit_ror8c(dyn, ninst, ed, 1, x4, x5);
                     } else {
                         INST_NAME("ROR Eb, CL");
-                        SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
+                        if (BOX64DRENV(dynarec_safeflags) > 1) {
+                            READFLAGS(X_OF | X_CF);
+                        }
+                        SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION); // removed PENDING on purpose
                         GETEB(x1, 0);
-                        ANDI(x2, xRCX, 0x1f);
-                        BEQ_NEXT(x2, xZR);
+                        UFLAG_IF {
+                            ANDI(x2, xRCX, 0x1f);
+                            BEQ_NEXT(x2, xZR);
+                        }
+                        ANDI(x2, xRCX, 7);
                         emit_ror8(dyn, ninst, ed, x2, x4, x5);
                     }
                     EBBACK(x5, 0);
@@ -690,10 +702,15 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         emit_rcl8c(dyn, ninst, ed, 1, x4, x5);
                     } else {
                         INST_NAME("RCL Eb, CL");
-                        READFLAGS(X_CF);
-                        SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
+                        if (BOX64DRENV(dynarec_safeflags) > 1) {
+                            READFLAGS(X_OF | X_CF);
+                        } else {
+                            READFLAGS(X_CF);
+                        }
+                        SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION);
                         GETEB(x1, 0);
                         ANDI(x2, xRCX, 0x1f);
+                        BEQ_NEXT(x2, xZR);
                         emit_rcl8(dyn, ninst, ed, x2, x4, x5, x6);
                     }
                     EBBACK(x5, 0);
@@ -707,10 +724,15 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         emit_rcr8c(dyn, ninst, ed, 1, x4, x5);
                     } else {
                         INST_NAME("RCR Eb, CL");
-                        READFLAGS(X_CF);
-                        SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
+                        if (BOX64DRENV(dynarec_safeflags) > 1) {
+                            READFLAGS(X_OF | X_CF);
+                        } else {
+                            READFLAGS(X_CF);
+                        }
+                        SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION);
                         GETEB(x1, 0);
                         ANDI(x2, xRCX, 0x1f);
+                        BEQ_NEXT(x2, xZR);
                         emit_rcr8(dyn, ninst, ed, x2, x4, x5, x6);
                     }
                     EBBACK(x5, 0);
@@ -858,9 +880,10 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     if (BOX64DRENV(dynarec_safeflags) > 1) {
                         READFLAGS(X_OF | X_CF);
                     }
-                    SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION);
+                    SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION); // removed PENDING on purpose
                     GETED(0);
                     ANDI(x6, xRCX, rex.w ? 0x3f : 0x1f);
+                    BEQ_NEXT(x6, xZR);
                     emit_rol32(dyn, ninst, rex, ed, x6, x3, x4);
                     WBACK;
                     if (!wback && !rex.w) ZEROUP(ed);
@@ -870,9 +893,10 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     if (BOX64DRENV(dynarec_safeflags) > 1) {
                         READFLAGS(X_OF | X_CF);
                     }
-                    SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION);
+                    SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION); // removed PENDING on purpose
                     GETED(0);
                     ANDI(x6, xRCX, rex.w ? 0x3f : 0x1f);
+                    BEQ_NEXT(x6, xZR);
                     emit_ror32(dyn, ninst, rex, ed, x6, x3, x4);
                     WBACK;
                     if (!wback && !rex.w) ZEROUP(ed);
@@ -884,9 +908,10 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     } else {
                         READFLAGS(X_CF);
                     }
-                    SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
+                    SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION);
                     GETED(0);
                     ANDI(x6, xRCX, rex.w ? 0x3f : 0x1f);
+                    BEQ_NEXT(x6, xZR);
                     emit_rcl32(dyn, ninst, rex, ed, x6, x3, x4, x5);
                     WBACK;
                     if (!wback && !rex.w) ZEROUP(ed);
@@ -898,9 +923,10 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     } else {
                         READFLAGS(X_CF);
                     }
-                    SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
+                    SETFLAGS(X_OF | X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION);
                     GETED(0);
                     ANDI(x6, xRCX, rex.w ? 0x3f : 0x1f);
+                    BEQ_NEXT(x6, xZR);
                     emit_rcr32(dyn, ninst, rex, ed, x6, x3, x4, x5);
                     WBACK;
                     if (!wback && !rex.w) ZEROUP(ed);
