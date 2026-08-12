@@ -782,6 +782,38 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     }
                     SSE_LOOP_Q(x3, x4, XOR(x3, x3, x4));
                     break;
+                case 0xF6:
+                    INST_NAME("ADCX Gd, Ed");
+                    nextop = F8;
+                    READFLAGS(X_CF);
+                    SETFLAGS(X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION);
+                    GETGD;
+                    GETED(0);
+                    ANDI(x3, xFlags, 1 << F_CF);
+                    IFX (X_CF) {
+                        if (rex.w) {
+                            ADD(x4, gd, ed);
+                            SLTU(x5, x4, gd);
+                            ADD(gd, x4, x3);
+                            SLTU(x6, gd, x4);
+                        } else {
+                            ADDW(x4, gd, ed);
+                            ZEROUP(x4);
+                            ZEROUP(gd);
+                            SLTU(x5, x4, gd);
+                            ADDW(gd, x4, x3);
+                            ZEROUP(gd);
+                            SLTU(x6, gd, x4);
+                        }
+                        OR(x5, x5, x6);
+                        ANDI(xFlags, xFlags, ~(1 << F_CF));
+                        OR(xFlags, xFlags, x5);
+                    } else {
+                        ADDxw(x5, gd, ed);
+                        ADDxw(gd, x5, x3);
+                        if (!rex.w) ZEROUP(gd);
+                    }
+                    break;
                 case 0xF0:
                     INST_NAME("MOVBE Gw, Ew");
                     nextop = F8;
