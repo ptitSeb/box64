@@ -204,7 +204,7 @@ static void wrap_sockbuf_io(my_sockbuf_io_t* dst, my_sockbuf_io_t* src)
     #undef GO
 }
 
-static my_sockbuf_io_t* find_sockbuf_io_Struct(my_sockbuf_io_t* io)
+static my_sockbuf_io_t* allocate_sockbuf_io_Struct(my_sockbuf_io_t* io)
 {
     if(!io) return NULL;
     #define GO(A) if(my_sockbuf_io_ref_##A == io) return &my_sockbuf_io_struct_##A;
@@ -221,11 +221,41 @@ static my_sockbuf_io_t* find_sockbuf_io_Struct(my_sockbuf_io_t* io)
     return NULL;
 }
 
+static my_sockbuf_io_t* find_sockbuf_io_Struct(my_sockbuf_io_t* io)
+{
+    if(!io) return NULL;
+    #define GO(A) if(my_sockbuf_io_ref_##A == io) return &my_sockbuf_io_struct_##A;
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, No available liblber sockbuf_io slot found.\n");
+    return NULL;
+}
+
+static void reset_sockbuf_io_Struct(my_sockbuf_io_t* io)
+{
+    if(!io) return;
+    #define GO(A) if(my_sockbuf_io_ref_##A == io) {         \
+        my_sockbuf_io_ref_##A = NULL;                       \
+        memset(&my_sockbuf_io_struct_##A, 0, sizeof(*io));  \
+        return;                                             \
+    }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, No available liblber sockbuf_io slot found.\n");
+}
+
 #undef SUPER
 
 EXPORT int my_ber_sockbuf_add_io(x64emu_t* emu, void* sb, my_sockbuf_io_t* io, int layer, void* arg)
 {
-    return my->ber_sockbuf_add_io(sb, find_sockbuf_io_Struct(io), layer, arg);
+    return my->ber_sockbuf_add_io(sb, allocate_sockbuf_io_Struct(io), layer, arg);
+}
+
+EXPORT int my_ber_sockbuf_remove_io(x64emu_t* emu, void* sb, my_sockbuf_io_t* io, int layer)
+{
+    int ret = my->ber_sockbuf_remove_io(sb, find_sockbuf_io_Struct(io), layer);
+    reset_sockbuf_io_Struct(io);
+    return ret;
 }
 
 #include "wrappedlib_init.h"

@@ -122,7 +122,7 @@ GOM(ber_sockbuf_add_io, iFEppip)
 //DATA(ber_sockbuf_io_fd, 
 //DATA(ber_sockbuf_io_readahead, 
 //DATA(ber_sockbuf_io_tcp, 
-//GO(ber_sockbuf_remove_io, 
+GOM(ber_sockbuf_remove_io, iFEppi)
 //GO(ber_sos_dump, 
 //GO(ber_start, 
 GO(ber_start_seq, iFpL)

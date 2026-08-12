@@ -5401,6 +5401,8 @@ wrappedkrb5:
 - iFppppppipp:
   - krb5_get_init_creds_password
 wrappedlber:
+- iFppi:
+  - ber_sockbuf_remove_io
 - iFppip:
   - ber_sockbuf_add_io
 wrappedlcms2:
