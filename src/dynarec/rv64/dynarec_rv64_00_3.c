@@ -1420,8 +1420,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     ZEXTH(x1, x1);
                     OR(xRAX, xRAX, x1);
                     IFX (X_SF) {
-                        SRLI(x3, xRAX, 7);
-                        SLLI(x3, x3, F_SF);
+                        ANDI(x3, xRAX, 1 << F_SF);
                         OR(xFlags, xFlags, x3);
                     }
                     IFX (X_PF) emit_pf(dyn, ninst, xRAX, x3, x4);
@@ -1451,8 +1450,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     ZEXTH(x1, x1);
                     OR(xRAX, xRAX, x1);
                     IFX (X_SF) {
-                        SRLI(x3, xRAX, 7);
-                        SLLI(x3, x3, F_SF);
+                        ANDI(x3, xRAX, 1 << F_SF);
                         OR(xFlags, xFlags, x3);
                     }
                     IFX (X_PF) emit_pf(dyn, ninst, xRAX, x3, x4);
