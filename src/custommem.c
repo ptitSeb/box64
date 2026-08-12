@@ -3366,7 +3366,7 @@ EXPORT void* box_mmap(void *addr, size_t length, int prot, int flags, int fd, ss
         if(old_addr && ret!=old_addr && ret!=MAP_FAILED)
             errno = olderr;
     } else if((ret!=MAP_FAILED) && !(flags&MAP_FIXED) && ((box64_wine)) && (addr && (addr!=ret)) &&
-             (((uintptr_t)ret>0x7fffffffffffLL) || ((uintptr_t)ret&0xffff))) {
+             (((uintptr_t)ret>0x7fffffffffffLL) || (box64_pagesize == X86_PAGE_SIZE && ((uintptr_t)ret&0xffff)))) {
         int olderr = errno;
         InternalMunmap(ret, length);
         loadProtectionFromMap();    // reload map, because something went wrong previously
