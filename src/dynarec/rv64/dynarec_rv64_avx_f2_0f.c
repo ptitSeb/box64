@@ -115,10 +115,16 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             FADDD(v1, v1, v0);
             if (!BOX64ENV(dynarec_fastnan)) {
                 FEQD(x5, v1, v1);
-                BNEZ(x5, 4 + 4);
+                BNEZ_MARK(x5);
                 FNEGD(v1, v1);
                 BNEZ(x4, 4 + 4);
                 FMVD(v1, v0);
+                // SNaN -> QNaN
+                FMVXD(x5, v1);
+                MOV64x(x3, 0x0008000000000000LL);
+                OR(x5, x5, x3);
+                FMVDX(v1, x5);
+                MARK;
             }
             FMVD(v0, v1);
             FSD(v0, gback, gdoffset + 0);
@@ -147,10 +153,16 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             FMULD(v1, v1, v0);
             if (!BOX64ENV(dynarec_fastnan)) {
                 FEQD(x5, v1, v1);
-                BNEZ(x5, 4 + 4);
+                BNEZ_MARK(x5);
                 FNEGD(v1, v1);
                 BNEZ(x4, 4 + 4);
                 FMVD(v1, v0);
+                // SNaN -> QNaN
+                FMVXD(x5, v1);
+                MOV64x(x3, 0x0008000000000000LL);
+                OR(x5, x5, x3);
+                FMVDX(v1, x5);
+                MARK;
             }
             FMVD(v0, v1);
             FSD(v0, gback, gdoffset + 0);
@@ -179,10 +191,16 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             FSUBD(v1, v0, v1);
             if (!BOX64ENV(dynarec_fastnan)) {
                 FEQD(x5, v1, v1);
-                BNEZ(x5, 4 + 4);
+                BNEZ_MARK(x5);
                 FNEGD(v1, v1);
                 BNEZ(x4, 4 + 4);
                 FMVD(v1, v0);
+                // SNaN -> QNaN
+                FMVXD(x5, v1);
+                MOV64x(x3, 0x0008000000000000LL);
+                OR(x5, x5, x3);
+                FMVDX(v1, x5);
+                MARK;
             }
             FMVD(v0, v1);
             FSD(v0, gback, gdoffset + 0);
@@ -237,10 +255,16 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             FDIVD(v1, v0, v1);
             if (!BOX64ENV(dynarec_fastnan)) {
                 FEQD(x5, v1, v1);
-                BNEZ(x5, 4 + 4);
+                BNEZ_MARK(x5);
                 FNEGD(v1, v1);
                 BNEZ(x4, 4 + 4);
                 FMVD(v1, v0);
+                // SNaN -> QNaN
+                FMVXD(x5, v1);
+                MOV64x(x3, 0x0008000000000000LL);
+                OR(x5, x5, x3);
+                FMVDX(v1, x5);
+                MARK;
             }
             FMVD(v0, v1);
             FSD(v0, gback, gdoffset + 0);
