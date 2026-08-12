@@ -3353,7 +3353,7 @@ EXPORT void* box_mmap(void *addr, size_t length, int prot, int flags, int fd, ss
     // original address here.
     if (ret == MAP_FAILED && old_addr == NULL && fd >= 0)
         ret = InternalMmap(old_addr, length, prot, new_flags, fd, offset);
-#if !defined(NOALIGN)
+    #if !defined(NOALIGN)
     if((ret!=MAP_FAILED) && (flags&MAP_32BIT) &&
       (((uintptr_t)ret>0xffffffffLL) || ((box64_wine) && ((uintptr_t)ret&0xffff) && (ret!=addr)))) {
         int olderr = errno;
@@ -3366,7 +3366,7 @@ EXPORT void* box_mmap(void *addr, size_t length, int prot, int flags, int fd, ss
         if(old_addr && ret!=old_addr && ret!=MAP_FAILED)
             errno = olderr;
     } else if((ret!=MAP_FAILED) && !(flags&MAP_FIXED) && ((box64_wine)) && (addr && (addr!=ret)) &&
-             (((uintptr_t)ret>0x7fffffffffffLL) || ((uintptr_t)ret&~0xffff))) {
+             (((uintptr_t)ret>0x7fffffffffffLL) || ((uintptr_t)ret&0xffff))) {
         int olderr = errno;
         InternalMunmap(ret, length);
         loadProtectionFromMap();    // reload map, because something went wrong previously
