@@ -773,6 +773,7 @@ static int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, int 
                   || !((tmp>=head->plt && tmp<head->plt_end) || (tmp>=head->gotplt && tmp<head->gotplt_end))
                   || !need_resolv
                   || bindnow
+                  || (!sym_elf && isInlinableNativeCall(offs))
                   ) {
                     if (!offs) {
                         if(bind==STB_WEAK) {

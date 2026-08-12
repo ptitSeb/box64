@@ -26,6 +26,7 @@ uintptr_t AddVSyscall(bridge_t* bridge, int num);
 
 const char* getBridgeName(void* addr);
 void* getBridgeFnc2(void* addr);
+int isInlinableNativeCall(uintptr_t addr);
 
 void init_bridge_helper(void);
 void fini_bridge_helper(void);
