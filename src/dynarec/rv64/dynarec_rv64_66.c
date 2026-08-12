@@ -1510,8 +1510,8 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SRLI(x1, x1, 16);
                     OR(xRDX, xRDX, x1);
                     IFX (X_SF) {
-                        SRLI(x3, xRDX, 15);
-                        SLLI(x3, x3, F_SF);
+                        SRLI(x3, xRAX, 15 - F_SF);
+                        ANDI(x3, x3, 1 << F_SF);
                         OR(xFlags, xFlags, x3);
                     }
                     IFX (X_PF) emit_pf(dyn, ninst, xRAX, x3, x4);
@@ -1543,8 +1543,8 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SRLI(x1, x1, 16);
                     OR(xRDX, xRDX, x1);
                     IFX (X_SF) {
-                        SRLI(x3, xRAX, 15);
-                        SLLI(x3, x3, F_SF);
+                        SRLI(x3, xRAX, 15 - F_SF);
+                        ANDI(x3, x3, 1 << F_SF);
                         OR(xFlags, xFlags, x3);
                     }
                     IFX (X_PF) emit_pf(dyn, ninst, xRAX, x3, x4);

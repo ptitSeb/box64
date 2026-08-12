@@ -1454,8 +1454,8 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             ZEXTH(x2, x2);
             GWBACK;
             IFX (X_SF) {
-                SRLI(x3, x2, 15);
-                SLLI(x3, x3, F_SF);
+                SRLI(x3, x2, 15 - F_SF);
+                ANDI(x3, x3, 1 << F_SF);
                 OR(xFlags, xFlags, x3);
             }
             IFX (X_PF) emit_pf(dyn, ninst, x2, x3, x4);
