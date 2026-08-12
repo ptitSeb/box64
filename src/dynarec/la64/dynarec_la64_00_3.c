@@ -26,6 +26,7 @@
 #include "dynarec_la64_private.h"
 #include "dynarec_la64_functions.h"
 #include "../dynarec_helper.h"
+#include "dynarec_la64_native.h"
 
 int isSimpleWrapper(wrapper_t fun);
 int isRetX87Wrapper(wrapper_t fun);
@@ -571,32 +572,44 @@ uintptr_t dynarec64_00_3(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     *need_epilog = 1;
                 } else {
                     MESSAGE(LOG_DUMP, "Native Call to %s\n", GetNativeName(GetNativeFnc(ip), 1));
-                    x87_stackcount(dyn, ninst, x1);
-                    x87_forget(dyn, ninst, x3, x4, 0);
-                    sse_purge07cache(dyn, ninst, x3);
-                    // Partially support isSimpleWrapper
-                    tmp = isSimpleWrapper(*(wrapper_t*)(addr));
-                    if (isRetX87Wrapper(*(wrapper_t*)(addr)))
-                        // return value will be on the stack, so the stack depth needs to be updated
-                        x87_purgecache(dyn, ninst, 0, x3, x1, x4);
-                    if ((BOX64ENV(log) < 2 && !BOX64ENV(rolling_log)) && tmp) {
-                        call_n(dyn, ninst, (void*)(addr + 8), tmp);
-                        SMWRITE2();
+                    la64_native_call_t inline_native_call = LA64_NATIVE_NONE;
+                    if (BOX64ENV(log) < 2 && !BOX64ENV(rolling_log))
+                        inline_native_call = la64_get_native_call(ip);
+                    if (inline_native_call != LA64_NATIVE_NONE) {
+                        if (la64_native_call_writes_memory(inline_native_call))
+                            WILLWRITE();
+                        la64_emit_native_call(dyn, ninst, inline_native_call);
+                        if (la64_native_call_writes_memory(inline_native_call))
+                            SMWRITE2();
                         addr += 8 + 8;
                     } else {
-                        GETIP(ip + 1, x7); // read the 0xCC
-                        STORE_XEMU_CALL();
-                        ADDI_D(x3, xRIP, 8 + 8 + 2);                        // expected return address
-                        ADDI_D(x1, xEmu, (uint32_t)offsetof(x64emu_t, ip)); // setup addr as &emu->ip
-                        CALL_(const_int3, -1, x3, x1, 0);
-                        SMWRITE2();
-                        LOAD_XEMU_CALL();
-                        addr += 8 + 8;
-                        BNE_MARK(xRIP, x3);
-                        LD_W(x1, xEmu, offsetof(x64emu_t, quit));
-                        CBZ_NEXT(x1);
-                        MARK;
-                        jump_to_epilog_fast(dyn, 0, xRIP, ninst);
+                        x87_stackcount(dyn, ninst, x1);
+                        x87_forget(dyn, ninst, x3, x4, 0);
+                        sse_purge07cache(dyn, ninst, x3);
+                        // Partially support isSimpleWrapper
+                        tmp = isSimpleWrapper(*(wrapper_t*)(addr));
+                        if (isRetX87Wrapper(*(wrapper_t*)(addr)))
+                            // return value will be on the stack, so the stack depth needs to be updated
+                            x87_purgecache(dyn, ninst, 0, x3, x1, x4);
+                        if ((BOX64ENV(log) < 2 && !BOX64ENV(rolling_log)) && tmp) {
+                            call_n(dyn, ninst, (void*)(addr + 8), tmp);
+                            SMWRITE2();
+                            addr += 8 + 8;
+                        } else {
+                            GETIP(ip + 1, x7); // read the 0xCC
+                            STORE_XEMU_CALL();
+                            ADDI_D(x3, xRIP, 8 + 8 + 2);                        // expected return address
+                            ADDI_D(x1, xEmu, (uint32_t)offsetof(x64emu_t, ip)); // setup addr as &emu->ip
+                            CALL_(const_int3, -1, x3, x1, 0);
+                            SMWRITE2();
+                            LOAD_XEMU_CALL();
+                            addr += 8 + 8;
+                            BNE_MARK(xRIP, x3);
+                            LD_W(x1, xEmu, offsetof(x64emu_t, quit));
+                            CBZ_NEXT(x1);
+                            MARK;
+                            jump_to_epilog_fast(dyn, 0, xRIP, ninst);
+                        }
                     }
                 }
             } else {
@@ -1292,7 +1305,10 @@ uintptr_t dynarec64_00_3(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 case 3:
                     SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags to "dont'care" state
                     SKIPTEST(x1);
-                    BARRIER(BARRIER_FULL);
+                    la64_native_call_t inline_native_call = LA64_NATIVE_NONE;
+                    if (BOX64ENV(log) < 2 && !BOX64ENV(rolling_log) && dyn->insts[ninst].natcall)
+                        inline_native_call = la64_get_native_call(dyn->insts[ninst].natcall - 1);
+                    BARRIER(inline_native_call != LA64_NATIVE_NONE ? BARRIER_FLOAT : BARRIER_FULL);
                     if (dyn->last_ip && ((addr - dyn->last_ip < 0x800) || (dyn->last_ip - addr < 0x800))) {
                         ADDI_D(x2, xRIP, addr - dyn->last_ip);
                     } else {
@@ -1304,6 +1320,16 @@ uintptr_t dynarec64_00_3(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     }
                     PUSH1(x2);
                     MESSAGE(LOG_DUMP, "Native Call to %s (retn=%d)\n", GetNativeName(GetNativeFnc(dyn->insts[ninst].natcall - 1), 1), dyn->insts[ninst].retn);
+                    if (inline_native_call != LA64_NATIVE_NONE) {
+                        if (la64_native_call_writes_memory(inline_native_call))
+                            WILLWRITE();
+                        la64_emit_native_call(dyn, ninst, inline_native_call);
+                        if (la64_native_call_writes_memory(inline_native_call))
+                            SMWRITE2();
+                        POP1(xRIP);
+                        dyn->last_ip = addr;
+                        break;
+                    }
                     // calling a native function
                     sse_purge07cache(dyn, ninst, x3);
                     if ((BOX64ENV(log) < 2 && !BOX64ENV(rolling_log)) && dyn->insts[ninst].natcall) {

@@ -328,6 +328,14 @@ const char* getBridgeName(void* addr)
     return NULL;
 }
 
+#if !defined(DYNAREC) || !defined(LA64)
+int isInlinableNativeCall(uintptr_t addr)
+{
+    (void)addr;
+    return 0;
+}
+#endif
+
 void* getBridgeFnc2(void* addr)
 {
     if(!memExist((uintptr_t)addr))

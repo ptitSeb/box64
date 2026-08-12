@@ -24,6 +24,7 @@
 #include "dynarec/dynarec_next.h"
 #include "bitutils.h"
 #include "random.h"
+#include "dynarec_la64_native.h"
 
 void* create_updateflags();
 
@@ -179,6 +180,13 @@ uintptr_t getConst(la64_consts_t which)
         case const_getsegmentbase: return (uintptr_t)GetSegmentBaseEmu;
         case const_updateflags: return (uintptr_t)UpdateFlags;
         case const_updateflags_la64: return (uintptr_t)create_updateflags();
+        case const_native_memcmp: return (uintptr_t)create_native_call(LA64_NATIVE_MEMCMP);
+        case const_native_memcpy: return (uintptr_t)create_native_call(LA64_NATIVE_MEMCPY);
+        case const_native_memmove: return (uintptr_t)create_native_call(LA64_NATIVE_MEMMOVE);
+        case const_native_memset: return (uintptr_t)create_native_call(LA64_NATIVE_MEMSET);
+        case const_native_memchr: return (uintptr_t)create_native_call(LA64_NATIVE_MEMCHR);
+        case const_native_strcmp: return (uintptr_t)create_native_call(LA64_NATIVE_STRCMP);
+        case const_native_strlen: return (uintptr_t)create_native_call(LA64_NATIVE_STRLEN);
         case const_reset_fpu: return (uintptr_t)reset_fpu;
         case const_sha1nexte: return (uintptr_t)sha1nexte;
         case const_sha1msg1: return (uintptr_t)sha1msg1;
