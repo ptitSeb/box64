@@ -1287,6 +1287,7 @@ EXPORT int my_pthread_cond_destroy_old(x64emu_t* emu, pthread_cond_old_t* cond)
 	pthread_cond_t * c = get_cond(cond);
 	int ret = pthread_cond_destroy(c);
 	box_free(cond->cond);
+	cond->cond = NULL;
 	return ret;
 }
 EXPORT int my_pthread_cond_init_old(x64emu_t* emu, pthread_cond_old_t* cond, void* attr)
