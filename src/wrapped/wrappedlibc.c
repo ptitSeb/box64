@@ -3764,7 +3764,9 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, size_t length, int prot, int f
             saved_errno = errno;
         }
 
-        if(!failed) {
+        // Wine restores reserved ranges with PROT_NONE | MAP_NORESERVE.
+        // Do not zero the edge: it may still be MAP_SHARED, and memset would modify its backing object.
+        if(!failed && (!box64_wine || prot || !(flags & MAP_NORESERVE))) {
             if(emulated_first_edge) {
                 uintptr_t edge_end = mapped_end < host_start + box64_pagesize ? mapped_end : host_start + box64_pagesize;
                 memset((void*)start, 0, edge_end - start);
