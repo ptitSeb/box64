@@ -1523,7 +1523,6 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     SLLI(x2, xRAX, 16);
                     SRAIW(x2, x2, 16);
                     MULW(x1, x2, x1);
-                    ZEROUP(x1);
                     SET_DFNONE();
                     CLEAR_FLAGS();
                     IFX (X_CF | X_OF) {
@@ -1537,6 +1536,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             OR(xFlags, xFlags, x3);
                         }
                     }
+                    ZEROUP(x1);
                     INSHz(xRAX, x1, x4, x5, 1, 1);
                     SRLI(xRDX, xRDX, 16);
                     SLLI(xRDX, xRDX, 16);

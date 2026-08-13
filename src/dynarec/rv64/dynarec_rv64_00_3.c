@@ -1437,7 +1437,9 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     IFX (X_CF | X_OF) {
                         SLLI(x3, x1, 48);
                         SRAI(x3, x3, 48); // x3 = SignExtend16(result)
-                        XOR(x3, x3, x1);
+                        SLLI(x4, x1, 56);
+                        SRAI(x4, x4, 56); // x4 = SignExtend8(result)
+                        XOR(x3, x3, x4);
                         SNEZ(x3, x3);
                         IFX (X_CF) OR(xFlags, xFlags, x3); // F_CF == 0
                         IFX (X_OF) {
