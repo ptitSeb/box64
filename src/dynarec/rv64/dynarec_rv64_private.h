@@ -109,7 +109,7 @@ typedef struct instruction_rv64_s {
     int                 size2;      // size of the riscv emitted instruction after pass2
     int                 pred_sz;    // size of predecessor list
     int                 *pred;      // predecessor array
-    uintptr_t           mark[3];
+    uintptr_t           mark[4];
     uintptr_t           markf[2];
     uintptr_t           markseg;
     uintptr_t           marklock;
