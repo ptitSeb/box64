@@ -294,16 +294,28 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 ANDI(x1, wback, (1 << (rex.w + 2)) - 1);
                                 BNEZ_MARK3(x1);
                                 // Aligned
-                                MARKLOCK;
-                                MV(x4, gd);
-                                LLxw(x1, wback, 0);
-                                SUBxw(x3, x1, xRAX);
-                                BNEZ(x3, 4 + (rex.w ? 8 : 12));
-                                // EAX == Ed
-                                SCxw(x4, wback, 0);
-                                BEQZ_MARKLOCK(x4);
-                                if (!rex.w) { B_MARK_nocond; }
-                                MVxw(xRAX, x1);
+                                if (cpuext.lamcas) {
+                                    MVxw(x1, xRAX);
+                                    if (rex.w) {
+                                        AMCAS_DB_D(x1, gd, wback);
+                                    } else {
+                                        AMCAS_DB_W(x1, gd, wback);
+                                    }
+                                    SUBxw(x3, x1, xRAX);
+                                    BEQZ(x3, 8);
+                                    MVxw(xRAX, x1);
+                                } else {
+                                    MARKLOCK;
+                                    MV(x4, gd);
+                                    LLxw(x1, wback, 0);
+                                    SUBxw(x3, x1, xRAX);
+                                    BNEZ(x3, 4 + (rex.w ? 8 : 12));
+                                    // EAX == Ed
+                                    SCxw(x4, wback, 0);
+                                    BEQZ_MARKLOCK(x4);
+                                    if (!rex.w) { B_MARK_nocond; }
+                                    MVxw(xRAX, x1);
+                                }
                                 B_MARK_nocond;
                                 MARK3;
                                 // Unaligned
