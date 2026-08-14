@@ -346,6 +346,8 @@ EXPORT void* my_sqlite3_mprintf(x64emu_t *emu, void* fmt, void* b) {
 EXPORT void* my_sqlite3_database_file_object(x64emu_t* emu, void* a)
 {
     my_sqlite3_file_t* ret = my->sqlite3_database_file_object(a);
+    if(!ret || !ret->pMethods)
+        return ret;
     // add autobridge on all the functions
     #define GO(A, W)    if(ret->pMethods->A) AddAutomaticBridge(my_lib->w.bridge, W, ret->pMethods->A, 0, #A)
     GO(xClose, iFp);
