@@ -2706,8 +2706,8 @@ start_cur_token:
 						if (!mtok) {
 							log_memory("failed to allocate new m-token concatenation (defining %s)\n", string_content(defname));
 							string_del(defname);
-							macro_del(&m);
 							vector_pop_nodel(mtoken, m.toks);
+							macro_del(&m);  // macro_del will free m.toks
 							src->st = PPST_NONE;
 							ret.tokt = PTOK_INVALID;
 							ret.loginfo = tok.loginfo;

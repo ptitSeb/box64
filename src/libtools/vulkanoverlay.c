@@ -99,9 +99,13 @@ void freeVulkanOverlay(my_vulkanoverlay_t* v)
     kh_cstr_t k;
     kh_foreach_ref(v->wrappers, k, w, *w->x64 = 0;);
     kh_destroy(x64wrappers, v->wrappers);
+    v->wrappers = NULL;
     box_free((void*)v->lib_name);
     v->lib_name = NULL;
     v->idx = 0;
+    v->handle = NULL;
+    v->functions = NULL;
+    v->n_functions = 0;
 }
 
 #define MAPNAME3(N,M) N##M
