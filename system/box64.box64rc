@@ -547,10 +547,7 @@ BOX64_MAXCPU=8
 [b1-win64-shipping.exe]
 #Block Myth: Wukong
 BOX64_DYNAREC_BIGBLOCK=1   #3 generates unreasonable large amount of dynarec code!
-BOX64_DYNAREC_CALLRET=1 #generates too much code if enable, unless SEP is supported
-BOX64_DYNAREC_SEP=2
 BOX64_DYNAREC_DIRTY=1
-BOX64_SSE_FLUSHTO0=1
 
 [BangBangRacing.exe]
 BOX64_DYNAREC_STRONGMEM=2
