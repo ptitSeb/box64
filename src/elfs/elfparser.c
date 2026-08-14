@@ -238,7 +238,7 @@ elfheader_t* ParseElfHeader64(FILE* f, const char* name, int exec)
             printf_dump(LOG_DEBUG, "Read number of String Table in 1st Section\n");
             h->SHIdx = h->SHEntries._64[0].sh_link;
         }
-        if(h->SHIdx > h->numSHEntries) {
+        if(h->SHIdx >= h->numSHEntries) {
             printf_log(LOG_INFO, "Incoherent Section String Table Index : %zu / %zu\n", h->SHIdx, h->numSHEntries);
             FreeElfHeader(&h);
             return NULL;

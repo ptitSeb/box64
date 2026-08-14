@@ -268,7 +268,8 @@ static int remove_node(rbtree_t *tree, rbnode *node) {
     // Update cache
     if (node == tree->leftmost)
         tree->leftmost = succ_node(node);
-    else if (node == tree->rightmost)
+    // If the rbtree has only one node, the rightmost also needs to be updated.
+    if (node == tree->rightmost)
         tree->rightmost = pred_node(node);
     
     if (node->left && node->right) {
