@@ -1125,7 +1125,7 @@ EXPORT uint32_t my_g_child_watch_add(x64emu_t* emu, int pid, void* f, void* data
 
 EXPORT uint32_t my_g_child_watch_add_full(x64emu_t* emu, int priority, int pid, void* f, void* data, void* notify)
 {
-    return my->g_idle_add_full(priority, findGChildWatchFuncFct(f), data, findGDestroyNotifyFct(notify));
+    return my->g_child_watch_add_full(priority, pid, findGChildWatchFuncFct(f), data, findGDestroyNotifyFct(notify));
 }
 
 EXPORT void* my_g_private_new(x64emu_t* emu, void* notify)
