@@ -487,12 +487,12 @@ static void* findUnloadFct(void* fct)
 
 #include "super100.h"
 
-// GCallback  (generic function with 6 arguments, hopefully it's enough)
+// GCallback  (generic function with 10 arguments, hopefully it's enough)
 #define GO(A)   \
 static uintptr_t my_GCallback_fct_##A = 0;                                                      \
-static void* my_GCallback_##A(void* a, void* b, void* c, void* d, void* e, void* f)             \
+static void* my_GCallback_##A(void* a, void* b, void* c, void* d, void* e, void* f, void* g, void* h, void* i, void* j) \
 {                                                                                               \
-    return (void*)RunFunctionFmt(my_GCallback_fct_##A, "pppppp", a, b, c, d, e, f); \
+    return (void*)RunFunctionFmt(my_GCallback_fct_##A, "pppppppppp", a, b, c, d, e, f, g, h, i, j); \
 }
 SUPER()
 #undef GO
