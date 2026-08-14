@@ -281,8 +281,14 @@ void* my_dlvsym(x64emu_t* emu, void *handle, void *symbol, void *version);
 EXPORT void * my_snd_dlopen(x64emu_t* emu, void* name, int mode, void* errbuf, size_t errbuflen)
 {
     void* ret = my_dlopen(emu, name, mode);  // Does NULL name (so dlopen libasound) need special treatment?
-    if(!ret && errbuf) {
-        strncpy(errbuf, my_dlerror(emu), errbuflen);
+    if(!ret && errbuf && errbuflen) {
+        const char* err = my_dlerror(emu);
+        if(err) {
+            strncpy(errbuf, err, errbuflen-1);
+            ((char *)errbuf)[errbuflen-1] = '\0';
+        } else {
+            ((char *)errbuf)[0] = '\0';
+        }
     }
     return ret;
 }
