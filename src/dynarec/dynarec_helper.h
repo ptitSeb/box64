@@ -70,7 +70,7 @@
         dyn->insts[ninst].will_read = 1;                       \
     } while (0)
 
-#define SMREADLOCK(lock)
+#define SMREADLOCK(lock) SMREAD()
 #define WILLWRITE()
 #define WILLWRITELOCK(lock)
 
