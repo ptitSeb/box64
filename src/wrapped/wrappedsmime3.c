@@ -266,9 +266,9 @@ static void* find_CERTImportCertificateFunc_Fct(void* fct)
 
 #undef SUPER
 
-EXPORT void my_SEC_PKCS12CreateExportContext(x64emu_t* emu, void* f, void* pwfnarg, void* slot, void* wincx)
+EXPORT void* my_SEC_PKCS12CreateExportContext(x64emu_t* emu, void* f, void* pwfnarg, void* slot, void* wincx)
 {
-    my->SEC_PKCS12CreateExportContext(find_SECKEYGetPasswordKey_Fct(f), pwfnarg, slot, wincx);
+    return my->SEC_PKCS12CreateExportContext(find_SECKEYGetPasswordKey_Fct(f), pwfnarg, slot, wincx);
 }
 
 EXPORT void* my_SEC_PKCS12DecoderStart(x64emu_t* emu, void* item, void* slot, void* wincx, void* dOpen, void* dClose,
