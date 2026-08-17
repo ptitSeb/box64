@@ -66,6 +66,7 @@
 #ifndef RBTREE_H
 #define RBTREE_H
 
+#include <stddef.h>
 #include <stdint.h>
 
 typedef struct rbtree rbtree_t;
@@ -135,6 +136,20 @@ int rb_get_end(rbtree_t* tree, uintptr_t addr, uint32_t* val, uintptr_t* end);
  * Return: 1 if a node containing the address is found, otherwise 0.
  */
 int rb_get_end_64(rbtree_t* tree, uintptr_t addr, uint64_t* val, uintptr_t* end);
+
+/**
+ * rb_find_free_range() - Finds the first suitably aligned free address range.
+ * @tree: Tree containing the occupied address ranges.
+ * @start: Inclusive lower bound for the search.
+ * @upper: Exclusive upper bound for the search.
+ * @size: Required size of the free range.
+ * @align_mask: Alignment mask applied after occupied ranges are skipped.
+ * @result: Pointer receiving the start of the first matching range.
+ *
+ * This function performs one tree descent followed by an in-order traversal.
+ * Return: 1 if a matching range was found, otherwise 0.
+ */
+int rb_find_free_range(rbtree_t* tree, uintptr_t start, uintptr_t upper, size_t size, uintptr_t align_mask, uintptr_t* result);
 
 /**
  * rb_set() - Set an address range in a red-black tree.
