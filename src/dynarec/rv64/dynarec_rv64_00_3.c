@@ -1328,7 +1328,11 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 INST_NAME("OUT DX, AL");
             else
                 INST_NAME("OUT DX, EAX");
-            SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags in "don't care" state
+            if (BOX64DRENV(dynarec_safeflags) > 1) {
+                READFLAGS(X_PEND);
+            } else {
+                SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags in "don't care" state
+            }
             GETIP(ip, x7);
             STORE_XEMU_CALL(xRIP);
             CALL(const_native_priv, -1, 0, 0);
