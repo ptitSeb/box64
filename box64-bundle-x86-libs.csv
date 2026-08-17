@@ -1,5 +1,9 @@
 https://archive.debian.org/debian/pool/main/c/curl/libcurl3-gnutls_7.74.0-1.3+deb11u7~bpo11+1_amd64.deb,d5ae55e3a9838d12358530cd03218cc0d18127a84e9cfc73bdf79dacd40b25e4
 https://archive.debian.org/debian/pool/main/c/curl/libcurl3-gnutls_7.74.0-1.3+deb11u7~bpo11+1_i386.deb,625e5189304d4d3bfb27cb821e257816c5ce761b1696b5da5ca4fa1035c48463
+https://archive.debian.org/debian/pool/main/g/gcc-10/libgfortran5_10.2.1-6_amd64.deb,6fe41d04ea9ef8c5c684b14585caa7a4a7e04ad6805d59cdd29016960b737123
+https://archive.debian.org/debian/pool/main/g/gcc-10/libgfortran5_10.2.1-6_i386.deb,6d72a7ac94c0e3faa32f7dc07a1f4bc8a782d0ab39defca6e9322dd06afd638f
+https://archive.debian.org/debian/pool/main/g/gcc-10/libquadmath0_10.2.1-6_amd64.deb,a9a5e1f53b7e27a3f2b8388929bb622d3c6c35a4e42ac166697444e5ed662fd5
+https://archive.debian.org/debian/pool/main/g/gcc-10/libquadmath0_10.2.1-6_i386.deb,15f81212576c500e47e72ff05b1b705ef62640ef0a1b8e2c34d848c16ee30728
 https://archive.debian.org/debian/pool/main/o/openssl/libssl1.0.0_1.0.2l-1~bpo8+1_amd64.deb,6e85968afe1a6643f4e82e1cc168f848c5967a131bb1c7392f11974953db0e67
 https://archive.debian.org/debian/pool/main/o/openssl/libssl1.0.0_1.0.2l-1~bpo8+1_i386.deb,4e8b924286a064c257ca50b8ecd44fe71226443daef62b6836010590e2157329
 https://archive.debian.org/debian/pool/main/p/pipewire/libpipewire-0.3-0_0.3.65-2~bpo11+1_amd64.deb,b49a24743eb2b6d1198c7cf014ee791bccd5d3223ed8a1e4769d899e1f894a5b
