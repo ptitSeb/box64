@@ -180,12 +180,12 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             GETED(0);
             GETGD;
             CHECK_FLAGS(emu);
-            tmp8u = ED->word[0]>>3;
-            tmp8s = !!(ED->word[0]&2);
-            if (tmp8u>0x10 || !tmp8s?emu->segldt[tmp8u].present:my_context->seggdt[tmp8u].present) {
+            tmp32u = ED->word[0]>>3;
+            tmp8s = !!(ED->word[0]&4);
+            if (tmp32u >= 16 || !(tmp8s?emu->segldt[tmp32u].present:my_context->seggdt[tmp32u].present)) {
                 CLEAR_FLAG(F_ZF);
             } else {
-                GD->dword[0] = tmp8s?emu->segldt[tmp8u].limit:my_context->seggdt[tmp8u].limit;
+                GD->dword[0] = tmp8s?emu->segldt[tmp32u].limit:my_context->seggdt[tmp32u].limit;
                 SET_FLAG(F_ZF);
             }
             break;
