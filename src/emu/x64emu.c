@@ -1452,6 +1452,7 @@ void UpdateFlags(x64emu_t* emu)
             break;
         case d_tst8:
             CLEAR_FLAG(F_OF);
+            CLEAR_FLAG(F_AF);
             CONDITIONAL_SET_FLAG(emu->res.u8 & 0x80, F_SF);
             CONDITIONAL_SET_FLAG(!emu->res.u8, F_ZF);
             CONDITIONAL_SET_FLAG(PARITY(emu->res.u8), F_PF);
@@ -1459,6 +1460,7 @@ void UpdateFlags(x64emu_t* emu)
             break;
         case d_tst16:
             CLEAR_FLAG(F_OF);
+            CLEAR_FLAG(F_AF);
             CONDITIONAL_SET_FLAG(emu->res.u16 & 0x8000, F_SF);
             CONDITIONAL_SET_FLAG(!emu->res.u16, F_ZF);
             CONDITIONAL_SET_FLAG(PARITY(emu->res.u8), F_PF);
@@ -1466,6 +1468,7 @@ void UpdateFlags(x64emu_t* emu)
             break;
         case d_tst32:
             CLEAR_FLAG(F_OF);
+            CLEAR_FLAG(F_AF);
             CONDITIONAL_SET_FLAG(emu->res.u32 & 0x80000000, F_SF);
             CONDITIONAL_SET_FLAG(!emu->res.u32, F_ZF);
             CONDITIONAL_SET_FLAG(PARITY(emu->res.u8), F_PF);
@@ -1473,6 +1476,7 @@ void UpdateFlags(x64emu_t* emu)
             break;
         case d_tst64:
             CLEAR_FLAG(F_OF);
+            CLEAR_FLAG(F_AF);
             CONDITIONAL_SET_FLAG(emu->res.u64 & 0x8000000000000000LL, F_SF);
             CONDITIONAL_SET_FLAG(!emu->res.u64, F_ZF);
             CONDITIONAL_SET_FLAG(PARITY(emu->res.u8), F_PF);

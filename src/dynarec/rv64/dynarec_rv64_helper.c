@@ -2513,7 +2513,6 @@ static void flagsCacheTransform(dynarec_rv64_t* dyn, int ninst, int s1)
         }
         CALL_(const_updateflags, -1, 0, 0, 0);
         MARKF2;
-        dyn->f = status_none;
     }
     MESSAGE(LOG_DUMP, "\t---- Flags fetch\n");
 }

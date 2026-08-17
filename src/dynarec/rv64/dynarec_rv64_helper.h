@@ -886,16 +886,12 @@
         }                                 \
     } while (0)
 
-#define SET_DF(S, N)                                                                                                                               \
-    if ((N) != d_none) {                                                                                                                           \
-        MOV_U12(S, (N));                                                                                                                           \
-        SW(S, xEmu, offsetof(x64emu_t, df));                                                                                                       \
-        dyn->f = status_set;                                                                                                                       \
-        if (dyn->insts[ninst].x64.state_flags == SF_PENDING && dyn->insts[ninst].x64.need_after && !(dyn->insts[ninst].x64.need_after & X_PEND)) { \
-            CALL_(const_updateflags, -1, 0, 0, 0);                                                                                                 \
-            dyn->f = status_none;                                                                                                                  \
-        }                                                                                                                                          \
-    } else                                                                                                                                         \
+#define SET_DF(S, N)                         \
+    if ((N) != d_none) {                     \
+        MOV_U12(S, (N));                     \
+        SW(S, xEmu, offsetof(x64emu_t, df)); \
+        dyn->f = status_set;                 \
+    } else                                   \
         SET_DFNONE()
 
 #define CLEAR_FLAGS() \
