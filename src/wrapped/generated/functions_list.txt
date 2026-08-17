@@ -4222,6 +4222,8 @@
 #() iFEpuvvppp -> iFEpuppp
 wrappedalure:
 wrappedalut:
+wrappedandroidshmem:
+wrappedandroidsupport:
 wrappedanl:
 wrappedatk:
 - vFp:
@@ -5378,6 +5380,7 @@ wrappedgtkx112:
 - pFpipppppppi:
   - gtk_toolbar_insert_element
 wrappedharfbuzzsubset:
+wrappediconv:
 wrappedicui18n64:
 wrappedicui18n66:
 wrappedicui18n67:
@@ -7436,6 +7439,7 @@ wrappedtcmallocminimal:
 - pFpLiiil:
   - mmap
   - mmap64
+wrappedtermuxexec:
 wrappedudev0:
 wrappedudev1:
 - vFpp:
