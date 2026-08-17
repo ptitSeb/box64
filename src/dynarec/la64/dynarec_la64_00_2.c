@@ -229,7 +229,7 @@ uintptr_t dynarec64_00_2(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             la64_move32(dyn, ninst, x3, (int32_t)i64, 0);
                             AND(ed, ed, x3);
                             UP32_WRITE32(ed);
-                            if (NEED_ZEROUP32(ed)) ZEROUP(ed);
+                            if (NEED_ZEROUP32(ed)) ZEROUP_RESULT(ed);
                         }
                         break;
                     }
@@ -439,6 +439,7 @@ uintptr_t dynarec64_00_2(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             SCRATCH_USAGE(0);
             if (MODREG) { // reg <= reg
                 GETEDsd(0);
+                if (!rex.w) UP32_ZERO(ed);
                 MVxw(ed, gd);
             } else { // mem <= reg
                 IF_UNALIGNED(ip) {
@@ -504,6 +505,7 @@ uintptr_t dynarec64_00_2(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             INST_NAME("MOV Gd, Ed");
             nextop = F8;
             GETGDd;
+            if (!rex.w) UP32_ZERO(gd);
             SCRATCH_USAGE(0);
             if (MODREG) {
                 GETED(0);
@@ -553,12 +555,15 @@ uintptr_t dynarec64_00_2(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 SCRATCH_USAGE(0);
                 addr = geted(dyn, addr, ninst, nextop, &ed, gd, x1, &fixedaddress, rex, NULL, 0, 0);
                 if (gd != ed) {
-                    if (rex.w && rex.is67)
+                    if (rex.w && rex.is67) {
                         ZEROUP2(gd, ed);
-                    else
+                        UP32_ZERO(gd);
+                    } else {
                         MVxw(gd, ed);
+                        UP32_ZERO(gd);
+                    }
                 } else if (!rex.w && !rex.is32bits) {
-                    if (NEED_ZEROUP(gd)) ZEROUP(gd); // truncate the higher 32bits as asked
+                    if (NEED_ZEROUP(gd)) ZEROUP_RESULT(gd); // truncate the higher 32bits as asked
                 }
             }
             break;
@@ -1414,7 +1419,10 @@ uintptr_t dynarec64_00_2(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             } else {
                 u32 = F32;
                 la64_move32(dyn, ninst, gd, u32, 0);
-                if (NEED_ZEROUP(gd) && (int32_t)u32 < 0) ZEROUP(gd);
+                if ((int32_t)u32 >= 0)
+                    UP32_ZERO(gd);
+                else if (NEED_ZEROUP(gd))
+                    ZEROUP_RESULT(gd);
             }
             break;
         default:

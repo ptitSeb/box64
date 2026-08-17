@@ -158,6 +158,21 @@ static inline void ymm_live_zero(dynarec_la64_t* dyn, int ninst, int reg)
 #define UP32_READALL()  ((void)0)
 #endif
 
+#if STEP == 1
+#define UP32_ZERO(r)                                                                \
+    do {                                                                            \
+        if (IS_GPR(r)) dyn->insts[ninst].up32_zero |= (uint16_t)(1 << (TO_X64(r))); \
+    } while (0)
+#else
+#define UP32_ZERO(r) ((void)(r))
+#endif
+
+#define ZEROUP_RESULT(r) \
+    do {                 \
+        ZEROUP(r);       \
+        UP32_ZERO(r);    \
+    } while (0)
+
 static inline int xmm_preserved_lanes_dead(dynarec_la64_t* dyn, int ninst, int reg, xmm_scalar_kind_t kind)
 {
 #if STEP == 0
