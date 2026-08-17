@@ -288,7 +288,7 @@ uintptr_t dynarec64_00_1(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 } else {
                     MUL_W(gd, ed, x4);
                 }
-                if (NEED_ZEROUP(gd)) ZEROUP(gd);
+                if (NEED_ZEROUP(gd)) ZEROUP_RESULT(gd);
             }
             IFX (X_SF) {
                 SRLI_D(x3, gd, rex.w ? 63 : 31);
@@ -349,7 +349,7 @@ uintptr_t dynarec64_00_1(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 } else {
                     MUL_W(gd, ed, x4);
                 }
-                if (NEED_ZEROUP(gd)) ZEROUP(gd);
+                if (NEED_ZEROUP(gd)) ZEROUP_RESULT(gd);
             }
             IFX (X_SF) {
                 SRLI_D(x3, gd, rex.w ? 63 : 31);

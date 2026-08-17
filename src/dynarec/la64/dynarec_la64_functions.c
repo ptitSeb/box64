@@ -20,6 +20,7 @@
 #include "x64trace.h"
 #include "signals.h"
 #include "dynarec_native.h"
+#include "la64_mapping.h"
 #include "dynarec_la64_private.h"
 #include "dynarec_la64_functions.h"
 #include "custommem.h"
@@ -823,6 +824,23 @@ void fpu_unwind_restore(dynarec_la64_t* dyn, int ninst, lsxcache_t* cache)
 static int hasLinearPredecessor(const dynarec_la64_t* dyn, int ninst)
 {
     return ninst > 0 && dyn->insts[ninst].pred_sz == 1 && dyn->insts[ninst].pred[0] == ninst - 1;
+}
+
+int isUpper32Zero(dynarec_la64_t* dyn, int ninst, int reg)
+{
+    if (!IS_GPR(reg))
+        return 0;
+
+    const uint16_t bit = (uint16_t)(1 << TO_X64(reg));
+    int current = ninst;
+    for (int depth = 0; depth < 4 && hasLinearPredecessor(dyn, current); ++depth) {
+        const instruction_la64_t* prev = &dyn->insts[current - 1];
+        if (prev->x64.has_callret || prev->host_call || prev->x64.barrier)
+            return 0;
+        if (prev->up32_write64 & bit) return prev->up32_zero & bit;
+        --current;
+    }
+    return 0;
 }
 
 void updateNativeFlags(dynarec_la64_t* dyn)

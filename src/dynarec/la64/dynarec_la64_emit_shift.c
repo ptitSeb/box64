@@ -220,7 +220,7 @@ void emit_shl32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
             X64_SET_EFLAGS(s3, (X_OF | X_AF));
         }
         SLL_D(s1, s1, s2);
-        if (NEED_ZEROUP(s1)) ZEROUP(s1);
+        if (NEED_ZEROUP(s1)) ZEROUP_RESULT(s1);
         IFX (X_PEND) {
             SDxw(s1, xEmu, offsetof(x64emu_t, res));
         }
@@ -304,7 +304,7 @@ void emit_shl32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
             SLLI_D(s1, s1, c);
         else
             SLLI_W(s1, s1, c);
-        if (NEED_ZEROUP(s1)) ZEROUP(s1);
+        if (NEED_ZEROUP(s1)) ZEROUP_RESULT(s1);
         IFX (X_PEND) {
             SDxw(s1, xEmu, offsetof(x64emu_t, res));
         }
@@ -824,7 +824,7 @@ void emit_shr32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
             SRL_D(s1, s1, s2);
         else
             SRL_W(s1, s1, s2);
-        if (NEED_ZEROUP(s1)) ZEROUP(s1);
+        if (NEED_ZEROUP(s1)) ZEROUP_RESULT(s1);
         IFX (X_PEND) {
             SDxw(s1, xEmu, offsetof(x64emu_t, res));
         }
@@ -1115,7 +1115,7 @@ void emit_sar32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
             SRAI_D(s1, s1, c);
         else
             SRAI_W(s1, s1, c);
-        if (NEED_ZEROUP(s1)) ZEROUP(s1);
+        if (NEED_ZEROUP(s1)) ZEROUP_RESULT(s1);
         IFX (X_PEND) {
             SDxw(s1, xEmu, offsetof(x64emu_t, res));
         }
@@ -1186,7 +1186,7 @@ void emit_sar32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
             SRA_D(s1, s1, s2);
         else
             SRA_W(s1, s1, s2);
-        if (NEED_ZEROUP(s1)) ZEROUP(s1);
+        if (NEED_ZEROUP(s1)) ZEROUP_RESULT(s1);
         IFX (X_PEND) {
             SDxw(s1, xEmu, offsetof(x64emu_t, res));
         }
@@ -1249,7 +1249,7 @@ void emit_ror32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
             ROTRI_D(s1, s1, c);
         else
             ROTRI_W(s1, s1, c);
-        if (NEED_ZEROUP(s1)) ZEROUP(s1);
+        if (NEED_ZEROUP(s1)) ZEROUP_RESULT(s1);
 
         if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
         return;
@@ -1418,7 +1418,7 @@ void emit_rol32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     } else {
         ROTR_W(s1, s1, s3);
     }
-    if (!rex.w) ZEROUP(s1);
+    if (!rex.w) ZEROUP_RESULT(s1);
     if (cpuext.lbt) {
         if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
         return;
@@ -1463,7 +1463,7 @@ void emit_ror32(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     }
 
     if (cpuext.lbt) {
-        if (NEED_ZEROUP(s1)) ZEROUP(s1);
+        if (NEED_ZEROUP(s1)) ZEROUP_RESULT(s1);
         if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
         return;
     } else if (!rex.w) ZEROUP(s1);
@@ -1501,7 +1501,7 @@ void emit_rol32c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
             ROTRI_D(s1, s1, (rex.w ? 64 : 32) - c);
         else
             ROTRI_W(s1, s1, (rex.w ? 64 : 32) - c);
-        if (NEED_ZEROUP(s1)) ZEROUP(s1);
+        if (NEED_ZEROUP(s1)) ZEROUP_RESULT(s1);
 
         if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
         return;
