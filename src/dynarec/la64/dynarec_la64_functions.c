@@ -48,6 +48,8 @@ void fpu_reset_scratch(dynarec_la64_t* dyn)
     dyn->lsx.fpu_scratch = 0;
     dyn->lsx.ymm_used = 0;
     dyn->lsx.xmm_used = 0;
+    dyn->lsx.ymm_load = 0;
+    dyn->lsx.xmm_load = 0;
 }
 // Get a x87 double reg
 int fpu_get_reg_x87(dynarec_la64_t* dyn, int t, int n)
@@ -95,6 +97,22 @@ int fpu_get_reg_xmm(dynarec_la64_t* dyn, int t, int xmm)
     dyn->lsx.lsxcache[i].t = t;
     dyn->lsx.lsxcache[i].n = xmm;
     dyn->lsx.news |= (1 << i);
+    dyn->use_xmm = 1;
+    return i;
+}
+
+int fpu_get_reg_xmm_scalar(dynarec_la64_t* dyn, int t, int xmm)
+{
+    if (dyn->use_x87 || dyn->use_mmx) return -1;
+    int i = X870;
+    while (i < 24 && dyn->lsx.fpuused[i])
+        ++i;
+    if (i >= 24) return -1;
+    dyn->lsx.fpuused[i] = 1;
+    dyn->lsx.lsxcache[i].t = t;
+    dyn->lsx.lsxcache[i].n = xmm;
+    dyn->lsx.scalarcache[xmm] = i;
+    dyn->lsx.news |= 1u << i;
     dyn->use_xmm = 1;
     return i;
 }
@@ -457,6 +475,8 @@ void lsxcacheUnwind(lsxcache_t* cache)
         cache->ssecache[i * 2 + 1].v = -1;
         cache->avxcache[i * 2].v = -1;
         cache->avxcache[i * 2 + 1].v = -1;
+        cache->scalarcache[i * 2] = -1;
+        cache->scalarcache[i * 2 + 1] = -1;
     }
     int x87reg = 0;
     for (int i = 0; i < 24; ++i) {
@@ -471,6 +491,10 @@ void lsxcacheUnwind(lsxcache_t* cache)
                 case LSX_CACHE_XMMW:
                     cache->ssecache[cache->lsxcache[i].n].reg = i;
                     cache->ssecache[cache->lsxcache[i].n].write = (cache->lsxcache[i].t == LSX_CACHE_XMMW) ? 1 : 0;
+                    break;
+                case LSX_CACHE_XMM_S:
+                case LSX_CACHE_XMM_D:
+                    cache->scalarcache[cache->lsxcache[i].n] = i;
                     break;
                 case LSX_CACHE_YMMR:
                 case LSX_CACHE_YMMW:
@@ -506,6 +530,8 @@ const char* getCacheName(int t, int n)
         case LSX_CACHE_MM: sprintf(buff, "MM%d", n); break;
         case LSX_CACHE_XMMW: sprintf(buff, "XMM%d", n); break;
         case LSX_CACHE_XMMR: sprintf(buff, "xmm%d", n); break;
+        case LSX_CACHE_XMM_S: sprintf(buff, "XMM%d.s", n); break;
+        case LSX_CACHE_XMM_D: sprintf(buff, "XMM%d.d", n); break;
         case LSX_CACHE_YMMW: sprintf(buff, "YMM%d", n); break;
         case LSX_CACHE_YMMR: sprintf(buff, "ymm%d", n); break;
         case LSX_CACHE_SCR: sprintf(buff, "Scratch"); break;
@@ -625,6 +651,8 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
         length += sprintf(buf + length, ", jmp=%d", dyn->insts[ninst].x64.jmp_insts);
     if (dyn->insts[ninst].x64.jmp && dyn->insts[ninst].x64.jmp_insts == -1)
         length += sprintf(buf + length, ", jmp=out");
+    if (dyn->insts[ninst].preload_xmmymm)
+        length += sprintf(buf + length, ", preload=%x/%d", dyn->insts[ninst].preload_xmmymm, dyn->insts[ninst].preload_from);
     if (dyn->last_ip)
         length += sprintf(buf + length, ", last_ip=%p", (void*)dyn->last_ip);
     for (int ii = 0; ii < 24; ++ii) {
@@ -635,6 +663,8 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
             case LSX_CACHE_MM: length += sprintf(buf + length, " %s:%s", Ft[ii], getCacheName(dyn->insts[ninst].lsx.lsxcache[ii].t, dyn->insts[ninst].lsx.lsxcache[ii].n)); break;
             case LSX_CACHE_XMMW: length += sprintf(buf + length, " %s:%s", Vt[ii], getCacheName(dyn->insts[ninst].lsx.lsxcache[ii].t, dyn->insts[ninst].lsx.lsxcache[ii].n)); break;
             case LSX_CACHE_XMMR: length += sprintf(buf + length, " %s:%s", Vt[ii], getCacheName(dyn->insts[ninst].lsx.lsxcache[ii].t, dyn->insts[ninst].lsx.lsxcache[ii].n)); break;
+            case LSX_CACHE_XMM_S: length += sprintf(buf + length, " %s:%s", Ft[ii], getCacheName(dyn->insts[ninst].lsx.lsxcache[ii].t, dyn->insts[ninst].lsx.lsxcache[ii].n)); break;
+            case LSX_CACHE_XMM_D: length += sprintf(buf + length, " %s:%s", Ft[ii], getCacheName(dyn->insts[ninst].lsx.lsxcache[ii].t, dyn->insts[ninst].lsx.lsxcache[ii].n)); break;
             case LSX_CACHE_YMMW: length += sprintf(buf + length, " %s:%s", XVt[ii], getCacheName(dyn->insts[ninst].lsx.lsxcache[ii].t, dyn->insts[ninst].lsx.lsxcache[ii].n)); break;
             case LSX_CACHE_YMMR: length += sprintf(buf + length, " %s:%s", XVt[ii], getCacheName(dyn->insts[ninst].lsx.lsxcache[ii].t, dyn->insts[ninst].lsx.lsxcache[ii].n)); break;
             case LSX_CACHE_SCR: length += sprintf(buf + length, " %s:%s", Ft[ii], getCacheName(dyn->insts[ninst].lsx.lsxcache[ii].t, dyn->insts[ninst].lsx.lsxcache[ii].n)); break;
@@ -778,8 +808,10 @@ static void mmx_reset(lsxcache_t* lsx)
 
 static void sse_reset(lsxcache_t* lsx)
 {
-    for (int i = 0; i < 16; ++i)
+    for (int i = 0; i < 16; ++i) {
         lsx->ssecache[i].v = -1;
+        lsx->scalarcache[i] = -1;
+    }
 }
 static void avx_reset(lsxcache_t* lsx)
 {
@@ -1002,6 +1034,155 @@ static vector_upper_t transferXmmCopyLiveness(vector_upper_t live_out, const vec
     return live_out;
 }
 
+static uint32_t getFullXYMMMask(const dynarec_la64_t* dyn, int ninst)
+{
+    if (ninst < 0)
+        return 0;
+    uint32_t ret = 0;
+    for (int i = 0; i < 24; ++i) {
+        const lsx_cache_t cache = dyn->insts[ninst].lsx.lsxcache[i];
+        if (cache.t == LSX_CACHE_XMMR || cache.t == LSX_CACHE_XMMW)
+            ret |= 1u << cache.n;
+        else if (cache.t == LSX_CACHE_YMMR || cache.t == LSX_CACHE_YMMW)
+            ret |= 1u << (16 + cache.n);
+    }
+    return ret;
+}
+
+static uint16_t getCachedVectorMask(const dynarec_la64_t* dyn, int ninst)
+{
+    if (ninst < 0)
+        return 0;
+    uint16_t ret = 0;
+    for (int i = 0; i < 24; ++i) {
+        int type = dyn->insts[ninst].lsx.lsxcache[i].t;
+        if (type == LSX_CACHE_XMMR || type == LSX_CACHE_XMMW
+            || type == LSX_CACHE_XMM_S || type == LSX_CACHE_XMM_D
+            || type == LSX_CACHE_YMMR || type == LSX_CACHE_YMMW)
+            ret |= 1u << dyn->insts[ninst].lsx.lsxcache[i].n;
+    }
+    return ret;
+}
+
+static uint32_t filterPreloadLoads(const dynarec_la64_t* dyn, int first, int last, uint32_t preload)
+{
+    uint16_t pending_xmm = preload;
+    uint16_t pending_ymm = preload >> 16;
+    uint32_t ret = 0;
+    for (int i = first; i <= last && (pending_xmm || pending_ymm); ++i) {
+        const lsxcache_t* cache = &dyn->insts[i].lsx;
+        uint16_t touched = cache->xmm_used | cache->ymm_used;
+        uint16_t first_xmm = pending_xmm & touched;
+        uint16_t first_ymm = pending_ymm & touched;
+        ret |= first_xmm & cache->xmm_load;
+        ret |= (uint32_t)(first_ymm & cache->ymm_load) << 16;
+        pending_xmm &= ~touched;
+        pending_ymm &= ~touched;
+    }
+    return ret;
+}
+
+static int tryApplyPreloadCache(dynarec_la64_t* dyn, int first, int last, int reg, int ymm)
+{
+    uint16_t bit = 1u << reg;
+    int first_use = -1;
+    for (int i = first; i <= last; ++i) {
+        if ((dyn->insts[i].lsx.xmm_used | dyn->insts[i].lsx.ymm_used) & bit) {
+            first_use = i;
+            break;
+        }
+    }
+    if (first_use < 0) return 0;
+
+    for (int i = first; i < first_use; ++i)
+        if (dyn->insts[i].lsx.lsxcache[reg].v)
+            return 0;
+
+    lsx_cache_t first_cache = dyn->insts[first_use].lsx.lsxcache[reg];
+    if (first_cache.n != reg) return 0;
+    if (ymm) {
+        if (first_cache.t != LSX_CACHE_YMMR && first_cache.t != LSX_CACHE_YMMW)
+            return 0;
+    } else if (first_cache.t != LSX_CACHE_XMMR && first_cache.t != LSX_CACHE_XMMW) {
+        return 0;
+    }
+
+    for (int i = first; i < first_use; ++i) {
+        lsxcache_t* cache = &dyn->insts[i].lsx;
+        cache->lsxcache[reg].t = ymm ? LSX_CACHE_YMMR : LSX_CACHE_XMMR;
+        cache->lsxcache[reg].n = reg;
+        cache->fpuused[reg] = 1;
+        cache->news &= ~(1u << reg);
+        if (ymm) {
+            cache->ssecache[reg].v = -1;
+            cache->avxcache[reg].reg = reg;
+            cache->avxcache[reg].upper_zero_pending = 0;
+            cache->avxcache[reg].write = 0;
+        } else {
+            cache->avxcache[reg].v = -1;
+            cache->ssecache[reg].reg = reg;
+            cache->ssecache[reg].write = 0;
+        }
+    }
+    dyn->insts[first_use].lsx.news &= ~(1u << reg);
+    return 1;
+}
+
+static void addSSEPreload(dynarec_la64_t* dyn, int last, int first, uint32_t preload)
+{
+    if (first < 0 || first > last || !preload || dyn->insts[first].preload_xmmymm)
+        return;
+    if (first && !dyn->insts[first - 1].x64.has_next)
+        return;
+    for (int i = first; i < last; ++i) {
+        const instruction_la64_t* inst = &dyn->insts[i];
+        if (!inst->x64.has_next || (inst->x64.barrier & BARRIER_FLOAT)
+            || inst->x64.jmp || inst->x64.has_callret || inst->fpupurge || inst->host_call)
+            return;
+    }
+
+    uint32_t accepted = 0;
+    for (int reg = 0; reg < 16; ++reg) {
+        if ((preload & (1u << reg)) && tryApplyPreloadCache(dyn, first, last, reg, 0))
+            accepted |= 1u << reg;
+        if ((preload & (1u << (16 + reg))) && tryApplyPreloadCache(dyn, first, last, reg, 1))
+            accepted |= 1u << (16 + reg);
+    }
+    if (!accepted)
+        return;
+    dyn->insts[first].preload_xmmymm = accepted;
+    dyn->insts[first].preload_from = last;
+}
+
+void updatePreloads(dynarec_la64_t* dyn)
+{
+    if (!dyn->use_xmm && !dyn->use_ymm)
+        return;
+    for (int first = 0; first < dyn->size; ++first) {
+        if ((first && dyn->insts[first].pred_sz <= 1) || (!first && !dyn->insts[first].pred_sz))
+            continue;
+        int last = dyn->size + 1;
+        for (int j = 0; j < dyn->insts[first].pred_sz; ++j) {
+            int pred = dyn->insts[first].pred[j];
+            if (pred != first - 1 && pred < last)
+                last = pred;
+        }
+        if (last > dyn->size || last <= first)
+            continue;
+        int prev = getNominalPred(dyn, first);
+        if (first && prev != first - 1)
+            continue;
+
+        uint32_t preload = getFullXYMMMask(dyn, last);
+        uint16_t occupied = getCachedVectorMask(dyn, prev);
+        preload &= ~(uint32_t)occupied;
+        preload &= ~((uint32_t)occupied << 16);
+        preload = filterPreloadLoads(dyn, first, last, preload);
+        if (preload)
+            addSSEPreload(dyn, last, first, preload);
+    }
+}
+
 static int fpuCacheTransformStoresXmm(dynarec_la64_t* dyn, int ninst)
 {
     const instruction_la64_t* inst = &dyn->insts[ninst];
@@ -1086,9 +1267,6 @@ void updateUpperLiveness(dynarec_la64_t* dyn)
             vector_live_in.xmm_lane1 = 0xFFFF;
             vector_live_in.xmm_lanes23 = 0xFFFF;
             vector_live_in.ymm_upper = 0xFFFF;
-        } else if (fpuCacheTransformStoresXmm(dyn, i)) {
-            vector_live_in.xmm_lane1 = 0xFFFF;
-            vector_live_in.xmm_lanes23 = 0xFFFF;
         } else {
             const vector_liveness_t* liveness = &inst->vector_liveness;
             vector_upper_t vector_live_out = {.raw = combined_out >> UPPER_LIVENESS_VECTOR_SHIFT};
@@ -1098,6 +1276,10 @@ void updateUpperLiveness(dynarec_la64_t* dyn)
             uint16_t untracked = touched & (uint16_t)~liveness->xmm_tracked;
             vector_live_in.xmm_lane1 |= untracked;
             vector_live_in.xmm_lanes23 |= untracked;
+            if (fpuCacheTransformStoresXmm(dyn, i)) {
+                vector_live_in.xmm_lane1 = 0xFFFF;
+                vector_live_in.xmm_lanes23 = 0xFFFF;
+            }
         }
         uint64_t combined_in = gpr_live_in | (vector_live_in.raw << UPPER_LIVENESS_VECTOR_SHIFT);
         if (combined_in != live_in[i]) {

@@ -1,7 +1,13 @@
 #define INIT dyn->native_size = 0
+#define ENDPREFIX                                        \
+    dyn->prefixsize = dyn->native_size;                  \
+    dyn->insts[ninst].address = dyn->native_size;        \
+    dyn->insts[ninst].branch_address = dyn->native_size; \
+    dyn->insts[ninst].size = 0
 #define FINI                                                                                                                                                                   \
     if (ninst) {                                                                                                                                                               \
         dyn->insts[ninst].address = (dyn->insts[ninst - 1].address + dyn->insts[ninst - 1].size);                                                                              \
+        dyn->insts[ninst].branch_address = dyn->native_size;                                                                                                                   \
         dyn->insts_size += 1 + ((dyn->insts[ninst - 1].x64.size > (dyn->insts[ninst - 1].size / 4)) ? dyn->insts[ninst - 1].x64.size : (dyn->insts[ninst - 1].size / 4)) / 15; \
     }
 
@@ -16,15 +22,22 @@
 #define NEW_INST                                                                                                                                                               \
     if (ninst) {                                                                                                                                                               \
         dyn->insts[ninst].address = (dyn->insts[ninst - 1].address + dyn->insts[ninst - 1].size);                                                                              \
+        dyn->insts[ninst].branch_address = dyn->native_size;                                                                                                                   \
         dyn->insts_size += 1 + ((dyn->insts[ninst - 1].x64.size > (dyn->insts[ninst - 1].size / 4)) ? dyn->insts[ninst - 1].x64.size : (dyn->insts[ninst - 1].size / 4)) / 15; \
         dyn->insts[ninst].ymm0_pass2 = dyn->ymm_zero;                                                                                                                          \
     }                                                                                                                                                                          \
-    AREFLAGSNEEDED()
+    AREFLAGSNEEDED();                                                                                                                                                          \
+    if (dyn->insts[ninst].x64.jmp || (dyn->insts[ninst].x64.barrier & BARRIER_FLOAT)                                                                                           \
+        || dyn->insts[ninst].x64.has_callret || dyn->insts[ninst].fpupurge || dyn->insts[ninst].host_call)                                                                     \
+    sse_merge_all(dyn, ninst)
 
-#define INST_EPILOG                                  \
-    do {                                             \
-        dyn->insts[ninst].epilog = dyn->native_size; \
-        avx_cleancache(dyn, ninst);                  \
+#define INST_EPILOG                                                                            \
+    do {                                                                                       \
+        if (dyn->insts[ninst].x64.has_next && ninst + 1 < dyn->size                            \
+            && (dyn->insts[ninst + 1].pred_sz != 1 || dyn->insts[ninst + 1].pred[0] != ninst)) \
+            sse_merge_all(dyn, ninst);                                                         \
+        dyn->insts[ninst].epilog = dyn->native_size;                                           \
+        avx_cleancache(dyn, ninst);                                                            \
     } while (0)
 
 #define INST_NAME(name)

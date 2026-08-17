@@ -1,4 +1,5 @@
 #define INIT
+#define ENDPREFIX   dyn->insts[ninst].size2 = 0
 #define FINI                                                                                                      \
     if (ninst)                                                                                                    \
         addInst(dyn->instsize, &dyn->insts_size, dyn->insts[ninst - 1].x64.size, dyn->insts[ninst - 1].size / 4); \
@@ -22,11 +23,17 @@
         addInst(dyn->instsize, &dyn->insts_size, dyn->insts[ninst - 1].x64.size, dyn->insts[ninst - 1].size / 4); \
         dyn->insts[ninst].ymm0_pass3 = dyn->ymm_zero;                                                             \
     }                                                                                                             \
-    AREFLAGSNEEDED()
+    AREFLAGSNEEDED();                                                                                             \
+    if (dyn->insts[ninst].x64.jmp || (dyn->insts[ninst].x64.barrier & BARRIER_FLOAT)                              \
+        || dyn->insts[ninst].x64.has_callret || dyn->insts[ninst].fpupurge || dyn->insts[ninst].host_call)        \
+    sse_merge_all(dyn, ninst)
 
-#define INST_EPILOG                 \
-    do {                            \
-        avx_cleancache(dyn, ninst); \
+#define INST_EPILOG                                                                            \
+    do {                                                                                       \
+        if (dyn->insts[ninst].x64.has_next && ninst + 1 < dyn->size                            \
+            && (dyn->insts[ninst + 1].pred_sz != 1 || dyn->insts[ninst + 1].pred[0] != ninst)) \
+            sse_merge_all(dyn, ninst);                                                         \
+        avx_cleancache(dyn, ninst);                                                            \
     } while (0)
 
 #define INST_NAME(name) inst_name_pass3(dyn, ninst, name, rex)

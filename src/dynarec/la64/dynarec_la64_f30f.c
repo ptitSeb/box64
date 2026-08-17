@@ -55,7 +55,7 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETG;
             if (MODREG) {
                 v0 = sse_get_reg(dyn, ninst, x1, gd, 1);
-                v1 = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0);
+                v1 = sse_get_reg_scalar(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0, XMM_SCALAR_SS);
                 xmm_live_read(dyn, ninst, (nextop & 7) + (rex.b << 3), XMM_WIDTH_32);
                 xmm_scalar_move(dyn, ninst, v0, v1, gd, XMM_SCALAR_SS, XMM_UPPER_PRESERVE);
             } else {
@@ -71,7 +71,7 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             INST_NAME("MOVSS Ex, Gx");
             nextop = F8;
             GETG;
-            v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
+            v0 = sse_get_reg_scalar(dyn, ninst, x1, gd, 0, XMM_SCALAR_SS);
             if (MODREG) {
                 q0 = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 1);
                 xmm_live_read(dyn, ninst, gd, XMM_WIDTH_32);
@@ -105,7 +105,7 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x2A:
             INST_NAME("CVTSI2SS Gx, Ed");
             nextop = F8;
-            GETGX(v0, 1);
+            GETGXSS(v0, 1);
             GETED(0);
             d1 = xmm_scalar_begin(dyn, ninst, &scalar, v0, gd, 1, XMM_SCALAR_SS, XMM_UPPER_PRESERVE);
             MOVGR2FR_D(d1, ed);
@@ -268,7 +268,7 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x51:
             INST_NAME("SQRTSS Gx, Ex");
             nextop = F8;
-            GETGX(v0, 1);
+            GETGXSS(v0, 1);
             GETEXSS(d0, 0, 0);
             d1 = xmm_scalar_begin(dyn, ninst, &scalar, v0, gd, BOX64ENV(dynarec_fastnan), XMM_SCALAR_SS, XMM_UPPER_PRESERVE);
             FSQRT_S(d1, d0);
@@ -284,7 +284,7 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x52:
             INST_NAME("RSQRTSS Gx, Ex");
             nextop = F8;
-            GETGX(v0, 1);
+            GETGXSS(v0, 1);
             GETEXSS(v1, 0, 0);
             q0 = xmm_scalar_begin(dyn, ninst, &scalar, v0, gd, 1, XMM_SCALAR_SS, XMM_UPPER_PRESERVE);
             if (cpuext.frecipe) {
@@ -297,7 +297,7 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x53:
             INST_NAME("RCPSS Gx, Ex");
             nextop = F8;
-            GETGX(v0, 1);
+            GETGXSS(v0, 1);
             GETEXSS(v1, 0, 0);
             d1 = xmm_scalar_begin(dyn, ninst, &scalar, v0, gd, 1, XMM_SCALAR_SS, XMM_UPPER_PRESERVE);
             FRECIP_S(d1, v1);
@@ -306,7 +306,7 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x58:
             INST_NAME("ADDSS Gx, Ex");
             nextop = F8;
-            GETGX(v0, 1);
+            GETGXSS(v0, 1);
             GETEXSS(d0, 0, 0);
             d1 = xmm_scalar_begin(dyn, ninst, &scalar, v0, gd, BOX64ENV(dynarec_fastnan), XMM_SCALAR_SS, XMM_UPPER_PRESERVE);
             FADD_S(d1, v0, d0);
@@ -330,7 +330,7 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x59:
             INST_NAME("MULSS Gx, Ex");
             nextop = F8;
-            GETGX(v0, 1);
+            GETGXSS(v0, 1);
             GETEXSS(d0, 0, 0);
             d1 = xmm_scalar_begin(dyn, ninst, &scalar, v0, gd, BOX64ENV(dynarec_fastnan), XMM_SCALAR_SS, XMM_UPPER_PRESERVE);
             FMUL_S(d1, v0, d0);
@@ -354,7 +354,7 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x5A:
             INST_NAME("CVTSS2SD Gx, Ex");
             nextop = F8;
-            GETGX(v0, 1);
+            GETGXSD(v0, 1);
             GETEXSS(v1, 0, 0);
             d1 = xmm_scalar_begin(dyn, ninst, &scalar, v0, gd, 1, XMM_SCALAR_SD, XMM_UPPER_PRESERVE);
             FCVT_D_S(d1, v1);
@@ -388,7 +388,7 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x5C:
             INST_NAME("SUBSS Gx, Ex");
             nextop = F8;
-            GETGX(v0, 1);
+            GETGXSS(v0, 1);
             GETEXSS(d0, 0, 0);
             d1 = xmm_scalar_begin(dyn, ninst, &scalar, v0, gd, BOX64ENV(dynarec_fastnan), XMM_SCALAR_SS, XMM_UPPER_PRESERVE);
             FSUB_S(d1, v0, d0);
@@ -412,7 +412,7 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x5D:
             INST_NAME("MINSS Gx, Ex");
             nextop = F8;
-            GETGX(d0, 1);
+            GETGXSS(d0, 1);
             GETEXSS(d1, 0, 0);
             q0 = xmm_scalar_begin(dyn, ninst, &scalar, d0, gd, 1, XMM_SCALAR_SS, XMM_UPPER_PRESERVE);
             FCMP_S(fcc0, d1, d0, cULE);
@@ -422,7 +422,7 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x5E:
             INST_NAME("DIVSS Gx, Ex");
             nextop = F8;
-            GETGX(v0, 1);
+            GETGXSS(v0, 1);
             GETEXSS(d0, 0, 0);
             d1 = xmm_scalar_begin(dyn, ninst, &scalar, v0, gd, BOX64ENV(dynarec_fastnan), XMM_SCALAR_SS, XMM_UPPER_PRESERVE);
             FDIV_S(d1, v0, d0);
@@ -446,7 +446,7 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x5F:
             INST_NAME("MAXSS Gx, Ex");
             nextop = F8;
-            GETGX(d0, 1);
+            GETGXSS(d0, 1);
             GETEXSS(d1, 0, 0);
             q0 = xmm_scalar_begin(dyn, ninst, &scalar, d0, gd, 1, XMM_SCALAR_SS, XMM_UPPER_PRESERVE);
             FCMP_S(fcc0, d1, d0, cLT);
