@@ -1271,14 +1271,14 @@ EXPORT void my_pa_context_set_state_callback(x64emu_t* emu, void* context, void*
     my->pa_context_set_state_callback(context, find_state_context_Fct(cb), data);
 }
 
-EXPORT void my_pa_context_set_default_sink(x64emu_t* emu, void* context, void* name, void* cb, void* data)
+EXPORT void* my_pa_context_set_default_sink(x64emu_t* emu, void* context, void* name, void* cb, void* data)
 {
-    my->pa_context_set_default_sink(context, name, find_success_context_Fct(cb), data);
+    return my->pa_context_set_default_sink(context, name, find_success_context_Fct(cb), data);
 }
 
-EXPORT void my_pa_context_set_default_source(x64emu_t* emu, void* context, void* name, void* cb, void* data)
+EXPORT void* my_pa_context_set_default_source(x64emu_t* emu, void* context, void* name, void* cb, void* data)
 {
-    my->pa_context_set_default_source(context, name, find_success_context_Fct(cb), data);
+    return my->pa_context_set_default_source(context, name, find_success_context_Fct(cb), data);
 }
 
 EXPORT void* my_pa_context_move_sink_input_by_index(x64emu_t* emu, void* context, uint32_t idx, uint32_t sink_idx, void* cb, void* data)
@@ -1325,14 +1325,14 @@ EXPORT void* my_pa_context_get_source_info_list(x64emu_t* emu, void* context, vo
     return my->pa_context_get_source_info_list(context, find_module_info_Fct(cb), data);
 }
 
-EXPORT void my_pa_context_set_sink_input_mute(x64emu_t* emu, void* context, uint32_t idx, int mute, void* cb, void* data)
+EXPORT void* my_pa_context_set_sink_input_mute(x64emu_t* emu, void* context, uint32_t idx, int mute, void* cb, void* data)
 {
-    my->pa_context_set_sink_input_mute(context, idx, mute, find_success_context_Fct(cb), data);
+    return my->pa_context_set_sink_input_mute(context, idx, mute, find_success_context_Fct(cb), data);
 }
 
-EXPORT void my_pa_context_set_sink_input_volume(x64emu_t* emu, void* context, uint32_t idx, void* volume, void* cb, void* data)
+EXPORT void* my_pa_context_set_sink_input_volume(x64emu_t* emu, void* context, uint32_t idx, void* volume, void* cb, void* data)
 {
-    my->pa_context_set_sink_input_volume(context, idx, volume, find_success_context_Fct(cb), data);
+    return my->pa_context_set_sink_input_volume(context, idx, volume, find_success_context_Fct(cb), data);
 }
 
 EXPORT void* my_pa_context_get_sink_info_by_index(x64emu_t* emu, void* context, uint32_t idx, void* cb, void* data)
@@ -1345,19 +1345,19 @@ EXPORT void* my_pa_context_get_source_info_by_index(x64emu_t* emu, void* context
     return my->pa_context_get_source_info_by_index(context, idx, find_module_info_Fct(cb), data);
 }
 
-EXPORT void my_pa_context_set_source_volume_by_index(x64emu_t* emu, void* context, uint32_t idx, void* volume, void* cb, void* data)
+EXPORT void* my_pa_context_set_source_volume_by_index(x64emu_t* emu, void* context, uint32_t idx, void* volume, void* cb, void* data)
 {
-    my->pa_context_set_source_volume_by_index(context, idx, volume, find_success_context_Fct(cb), data);
+    return my->pa_context_set_source_volume_by_index(context, idx, volume, find_success_context_Fct(cb), data);
 }
 
-EXPORT void my_pa_context_set_source_mute_by_index(x64emu_t* emu, void* context, uint32_t idx, int mute, void* cb, void* data)
+EXPORT void* my_pa_context_set_source_mute_by_index(x64emu_t* emu, void* context, uint32_t idx, int mute, void* cb, void* data)
 {
-    my->pa_context_set_source_mute_by_index(context, idx, mute, find_success_context_Fct(cb), data);
+    return my->pa_context_set_source_mute_by_index(context, idx, mute, find_success_context_Fct(cb), data);
 }
 
-EXPORT void my_pa_context_set_sink_volume_by_index(x64emu_t* emu, void* context, uint32_t idx, void* volume, void* cb, void* data)
+EXPORT void* my_pa_context_set_sink_volume_by_index(x64emu_t* emu, void* context, uint32_t idx, void* volume, void* cb, void* data)
 {
-    my->pa_context_set_sink_volume_by_index(context, idx, volume, find_success_context_Fct(cb), data);
+    return my->pa_context_set_sink_volume_by_index(context, idx, volume, find_success_context_Fct(cb), data);
 }
 
 EXPORT void* my_pa_context_unload_module(x64emu_t* emu, void* context, uint32_t idx, void* cb, void* data)

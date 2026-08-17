@@ -167,7 +167,7 @@ int            vector_push_vec_impl(VECTOR(voidp) *v1, VECTOR(voidp) *v2, size_t
 		}                                                                                              \
 	}                                                                                                  \
 	pre void vector_popn_del_##name(VECTOR(name) *v, size_t n) {                                       \
-		if (v->vsize > n) n = v->vsize;                                                                \
+		if (v->vsize < n) n = v->vsize;                                                                \
 		vector_for_from(name, it, v, v->vsize - n) { dtor(it); }                                       \
 		vector_common_popn_impl((VECTOR(voidp)*)v, n, sizeof(VECTOR_ELEM(name)));                      \
 	}                                                                                                  \

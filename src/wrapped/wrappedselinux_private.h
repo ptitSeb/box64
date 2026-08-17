@@ -175,7 +175,7 @@ GO(selinux_file_context_path, pFv)
 //GO(selinux_file_context_subs_path, 
 //GO(selinux_file_context_verify, 
 //GO(selinuxfs_exists, 
-GOM(selinux_get_callback, pFi)
+GOM(selinux_get_callback, pFEi)
 //GO(selinux_getenforcemode, 
 //GO(selinux_getpolicytype, 
 //GO(selinux_homedir_context_path, 

@@ -770,7 +770,7 @@ GO(xmlPopInput, CFp)
 GO(xmlPopInputCallbacks, iFv)
 GO(xmlPreviousElementSibling, pFp)
 //GO(xmlPrintURI, 
-GO(xmlPushInput, iFpi)
+GO(xmlPushInput, iFpp)
 //GO(__xmlRaiseError, 
 GO(xmlReadDoc, pFpppi)
 GO(xmlReaderForDoc, pFpppi)

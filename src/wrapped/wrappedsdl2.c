@@ -545,7 +545,7 @@ EXPORT void my2_SDL_AddHintCallback(x64emu_t* emu, char* name, void* callback, v
 }
 EXPORT void my2_SDL_DelHintCallback(x64emu_t* emu, char* name, void* callback, void* userdata)
 {
-    my->SDL_DelHintCallback(name, reverse_Hint_Fct(callback), userdata);
+    my->SDL_DelHintCallback(name, find_Hint_Fct(callback), userdata);
 }
 
 EXPORT int my2_SDL_vsnprintf(x64emu_t* emu, void* buff, size_t s, void * fmt, x64_va_list_t b)
