@@ -52,7 +52,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             if (MODREG) {
                 ed = (nextop & 7) + (rex.b << 3);
                 v0 = sse_get_reg(dyn, ninst, x1, gd, 1);
-                v1 = sse_get_reg(dyn, ninst, x1, ed, 0);
+                v1 = sse_get_reg_scalar(dyn, ninst, x1, ed, 0, XMM_SCALAR_SD);
                 xmm_live_read(dyn, ninst, ed, XMM_WIDTH_64);
                 xmm_scalar_move(dyn, ninst, v0, v1, gd, XMM_SCALAR_SD, XMM_UPPER_PRESERVE);
             } else {
@@ -68,7 +68,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             INST_NAME("MOVSD Ex, Gx");
             nextop = F8;
             GETG;
-            v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
+            v0 = sse_get_reg_scalar(dyn, ninst, x1, gd, 0, XMM_SCALAR_SD);
             if (MODREG) {
                 ed = (nextop & 7) + (rex.b << 3);
                 d0 = sse_get_reg(dyn, ninst, x1, ed, 1);
@@ -99,7 +99,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x2A:
             INST_NAME("CVTSI2SD Gx, Ed");
             nextop = F8;
-            GETGX(v0, 1);
+            GETGXSD(v0, 1);
             GETED(0);
             d1 = xmm_scalar_begin(dyn, ninst, &scalar, v0, gd, 1, XMM_SCALAR_SD, XMM_UPPER_PRESERVE);
             if (rex.w) {
@@ -202,7 +202,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x51:
             INST_NAME("SQRTSD Gx, Ex");
             nextop = F8;
-            GETGX(v0, 1);
+            GETGXSD(v0, 1);
             GETEXSD(d0, 0, 0);
             d1 = xmm_scalar_begin(dyn, ninst, &scalar, v0, gd, BOX64ENV(dynarec_fastnan), XMM_SCALAR_SD, XMM_UPPER_PRESERVE);
             FSQRT_D(d1, d0);
@@ -218,7 +218,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x58:
             INST_NAME("ADDSD Gx, Ex");
             nextop = F8;
-            GETGX(v0, 1);
+            GETGXSD(v0, 1);
             GETEXSD(v1, 0, 0);
             xmm_live_read(dyn, ninst, gd, XMM_WIDTH_64);
             d0 = xmm_scalar_begin(dyn, ninst, &scalar, v0, gd, BOX64ENV(dynarec_fastnan), XMM_SCALAR_SD, XMM_UPPER_PRESERVE);
@@ -243,7 +243,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x59:
             INST_NAME("MULSD Gx, Ex");
             nextop = F8;
-            GETGX(v0, 1);
+            GETGXSD(v0, 1);
             GETEXSD(v1, 0, 0);
             xmm_live_read(dyn, ninst, gd, XMM_WIDTH_64);
             d0 = xmm_scalar_begin(dyn, ninst, &scalar, v0, gd, BOX64ENV(dynarec_fastnan), XMM_SCALAR_SD, XMM_UPPER_PRESERVE);
@@ -268,7 +268,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x5A:
             INST_NAME("CVTSD2SS Gx, Ex");
             nextop = F8;
-            GETGX(v0, 1);
+            GETGXSS(v0, 1);
             GETEXSD(d0, 0, 0);
             d1 = xmm_scalar_begin(dyn, ninst, &scalar, v0, gd, 1, XMM_SCALAR_SS, XMM_UPPER_PRESERVE);
             FCVT_S_D(d1, d0);
@@ -277,7 +277,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x5C:
             INST_NAME("SUBSD Gx, Ex");
             nextop = F8;
-            GETGX(v0, 1);
+            GETGXSD(v0, 1);
             GETEXSD(v1, 0, 0);
             xmm_live_read(dyn, ninst, gd, XMM_WIDTH_64);
             d0 = xmm_scalar_begin(dyn, ninst, &scalar, v0, gd, BOX64ENV(dynarec_fastnan), XMM_SCALAR_SD, XMM_UPPER_PRESERVE);
@@ -316,7 +316,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x5E:
             INST_NAME("DIVSD Gx, Ex");
             nextop = F8;
-            GETGX(v0, 1);
+            GETGXSD(v0, 1);
             GETEXSD(v1, 0, 0);
             xmm_live_read(dyn, ninst, gd, XMM_WIDTH_64);
             d0 = xmm_scalar_begin(dyn, ninst, &scalar, v0, gd, BOX64ENV(dynarec_fastnan), XMM_SCALAR_SD, XMM_UPPER_PRESERVE);

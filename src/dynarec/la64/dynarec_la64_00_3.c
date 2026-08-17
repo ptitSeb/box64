@@ -1154,33 +1154,33 @@ uintptr_t dynarec64_00_3(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             addr = dynarec64_DF(dyn, addr, ip, ninst, rex, ok, need_epilog);
             break;
 
-#define GO(Z, R)                                                                            \
-    JUMP(addr + i8, 1);                                                                     \
-    if (dyn->insts[ninst].x64.jmp_insts == -1 || CHECK_CACHE()) {                           \
-        /* out of the block */                                                              \
-        i32 = dyn->insts[ninst].epilog - (dyn->native_size);                                \
-        if (Z) {                                                                            \
-            BNE(R, xZR, i32);                                                               \
-        } else {                                                                            \
-            BEQ(R, xZR, i32);                                                               \
-        }                                                                                   \
-        if (dyn->insts[ninst].x64.jmp_insts == -1) {                                        \
-            if (!(dyn->insts[ninst].x64.barrier & BARRIER_FLOAT))                           \
-                fpu_purgecache(dyn, ninst, 1, x1, x2, x3);                                  \
-            jump_to_next(dyn, addr + i8, 0, ninst, rex.is32bits);                           \
-        } else {                                                                            \
-            CacheTransform(dyn, ninst, cacheupd, x1, x2, x3);                               \
-            i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address - (dyn->native_size); \
-            B(i32);                                                                         \
-        }                                                                                   \
-    } else {                                                                                \
-        /* inside the block */                                                              \
-        i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address - (dyn->native_size);     \
-        if (Z) {                                                                            \
-            BEQ(R, xZR, i32);                                                               \
-        } else {                                                                            \
-            BNE(R, xZR, i32);                                                               \
-        };                                                                                  \
+#define GO(Z, R)                                                                                   \
+    JUMP(addr + i8, 1);                                                                            \
+    if (dyn->insts[ninst].x64.jmp_insts == -1 || CHECK_CACHE()) {                                  \
+        /* out of the block */                                                                     \
+        i32 = dyn->insts[ninst].epilog - (dyn->native_size);                                       \
+        if (Z) {                                                                                   \
+            BNE(R, xZR, i32);                                                                      \
+        } else {                                                                                   \
+            BEQ(R, xZR, i32);                                                                      \
+        }                                                                                          \
+        if (dyn->insts[ninst].x64.jmp_insts == -1) {                                               \
+            if (!(dyn->insts[ninst].x64.barrier & BARRIER_FLOAT))                                  \
+                fpu_purgecache(dyn, ninst, 1, x1, x2, x3);                                         \
+            jump_to_next(dyn, addr + i8, 0, ninst, rex.is32bits);                                  \
+        } else {                                                                                   \
+            CacheTransform(dyn, ninst, cacheupd, x1, x2, x3);                                      \
+            i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].branch_address - (dyn->native_size); \
+            B(i32);                                                                                \
+        }                                                                                          \
+    } else {                                                                                       \
+        /* inside the block */                                                                     \
+        i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].branch_address - (dyn->native_size);     \
+        if (Z) {                                                                                   \
+            BEQ(R, xZR, i32);                                                                      \
+        } else {                                                                                   \
+            BNE(R, xZR, i32);                                                                      \
+        };                                                                                         \
     }
 
         case 0xE0:
@@ -1464,7 +1464,7 @@ uintptr_t dynarec64_00_3(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 } else {
                     // inside the block
                     CacheTransform(dyn, ninst, CHECK_CACHE(), x1, x2, x3);
-                    tmp = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address - (dyn->native_size);
+                    tmp = dyn->insts[dyn->insts[ninst].x64.jmp_insts].branch_address - (dyn->native_size);
                     MESSAGE(1, "Jump to %d / 0x%x\n", tmp, tmp);
                     if (tmp == 4) {
                         NOP();

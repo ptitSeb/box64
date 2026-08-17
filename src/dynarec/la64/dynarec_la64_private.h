@@ -20,6 +20,8 @@ typedef struct box64env_s box64env_t;
 #define LSX_CACHE_YMMW   7
 #define LSX_CACHE_YMMR   8
 #define LSX_CACHE_SCR    9
+#define LSX_CACHE_XMM_S  10
+#define LSX_CACHE_XMM_D  11
 
 #define LSX_AVX_WIDTH_128 0
 #define LSX_AVX_WIDTH_256 1
@@ -70,12 +72,15 @@ typedef struct lsxcache_s {
     int8_t          mmxcache[8];    // cache status for the 8 MMX registers
     sse_cache_t     ssecache[16];   // cache status for the 16 SSE(2) registers
     avx_cache_t     avxcache[16];   // cache status for the 16 YMM registers
+    int8_t          scalarcache[16]; // pending "scalar" register for each XMM
     int8_t          fpuused[24];    // all 0..24 double reg from fpu, used by x87, sse and mmx
     int8_t          x87stack;       // cache stack counter
     int8_t          mmxcount;       // number of mmx register used (not both mmx and x87 at the same time)
     int8_t          fpu_scratch;    // scratch counter
     uint16_t        xmm_used;       // mask of the xmm regs used in this opcode
     uint16_t        ymm_used;       // mask of the ymm regs used in this opcode
+    uint16_t        xmm_load;       // mask of cache-miss XMM loads emitted by this opcode
+    uint16_t        ymm_load;       // mask of cache-miss YMM loads emitted by this opcode
 } lsxcache_t;
 
 typedef enum flagcache_s {
@@ -115,7 +120,8 @@ typedef struct vector_liveness_s {
 
 typedef struct instruction_la64_s {
     instruction_x64_t   x64;
-    uintptr_t           address;    // (start) address of the native emitted instruction
+    uintptr_t           address;        // start of native bytes attributed to this instruction
+    uintptr_t           branch_address; // internal branch target after any preload
     uintptr_t           epilog;     // epilog of current instruction (can be start of next, or barrier stuff)
     int                 size;       // size of the native emitted instruction
     int                 size2;      // size of the native emitted instrucion after pass2
@@ -130,6 +136,8 @@ typedef struct instruction_la64_s {
     uintptr_t           natcall;
     uint16_t            retn;
     uint16_t            ymm0_pass2, ymm0_pass3;
+    uint32_t            preload_xmmymm;
+    int                 preload_from;
     uint8_t             barrier_maybe;
     uint8_t             will_write:2;    // [strongmem] will write to memory
     uint8_t             will_read:1;     // [strongmem] will read from memory

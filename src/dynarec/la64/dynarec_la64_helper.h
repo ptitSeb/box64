@@ -23,6 +23,10 @@
 #include "dynarec_la64_consts.h"
 #include "dynarec_la64_functions.h"
 
+#ifndef ENDPREFIX
+#define ENDPREFIX
+#endif
+
 #define LA64_RESTORE_VZERO()              \
     do {                                  \
         if (cpuext.lasx)                  \
@@ -66,9 +70,11 @@ typedef enum xmm_upper_policy_s {
 
 typedef struct xmm_scalar_s {
     int host_dst;
+    int guest_dst;
     int result;
     xmm_scalar_kind_t kind;
     xmm_upper_policy_t upper_policy;
+    int renamed;
 } xmm_scalar_t;
 
 static inline void xmm_live_track(dynarec_la64_t* dyn, int ninst, int reg)
@@ -202,18 +208,81 @@ static inline void xmm_scalar_track_write(dynarec_la64_t* dyn, int ninst, int re
         xmm_live_track(dyn, ninst, reg);
 }
 
+static inline void xmm_scalar_merge(dynarec_la64_t* dyn, int ninst, int reg)
+{
+    int renamed = dyn->lsx.scalarcache[reg];
+    if (renamed < 0) return;
+    int full = dyn->lsx.ssecache[reg].reg;
+    if (dyn->lsx.lsxcache[renamed].t == LSX_CACHE_XMM_S)
+        VEXTRINS_W(full, renamed, 0);
+    else
+        VEXTRINS_D(full, renamed, 0);
+    dyn->lsx.lsxcache[full].t = LSX_CACHE_XMMW;
+    dyn->lsx.ssecache[reg].write = 1;
+    fpu_free_reg(dyn, renamed);
+    dyn->lsx.scalarcache[reg] = -1;
+}
+
+static inline void xmm_scalar_discard(dynarec_la64_t* dyn, int reg)
+{
+    int renamed = dyn->lsx.scalarcache[reg];
+    if (renamed < 0) return;
+    fpu_free_reg(dyn, renamed);
+    dyn->lsx.scalarcache[reg] = -1;
+}
+
 static inline int xmm_scalar_begin(dynarec_la64_t* dyn, int ninst, xmm_scalar_t* scalar, int host_dst, int guest_dst, int allow_direct, xmm_scalar_kind_t kind, xmm_upper_policy_t upper_policy)
 {
     xmm_scalar_track_write(dyn, ninst, guest_dst, upper_policy);
-    scalar->host_dst = host_dst;
-    scalar->result = allow_direct && xmm_preserved_lanes_dead(dyn, ninst, guest_dst, kind) ? host_dst : fpu_get_scratch(dyn);
+    int full_dst = dyn->lsx.ssecache[guest_dst].reg;
+    int renamed = dyn->lsx.scalarcache[guest_dst];
+    if (renamed >= 0 && dyn->lsx.lsxcache[renamed].t != (kind == XMM_SCALAR_SS ? LSX_CACHE_XMM_S : LSX_CACHE_XMM_D)) {
+        xmm_scalar_merge(dyn, ninst, guest_dst);
+        renamed = -1;
+        host_dst = full_dst;
+    }
+    if (!allow_direct && renamed >= 0) {
+        xmm_scalar_merge(dyn, ninst, guest_dst);
+        renamed = -1;
+        host_dst = full_dst;
+    }
+    scalar->host_dst = full_dst;
+    scalar->guest_dst = guest_dst;
     scalar->kind = kind;
     scalar->upper_policy = upper_policy;
+    scalar->renamed = 0;
+    int preserved_dead = xmm_preserved_lanes_dead(dyn, ninst, guest_dst, kind);
+    if (allow_direct && renamed >= 0) {
+        scalar->result = renamed;
+        scalar->renamed = 1;
+        return scalar->result;
+    }
+    if (allow_direct && preserved_dead) {
+        scalar->result = full_dst;
+        return scalar->result;
+    }
+#if STEP > 0
+    if (allow_direct) {
+        int result = fpu_get_reg_xmm_scalar(dyn, kind == XMM_SCALAR_SS ? LSX_CACHE_XMM_S : LSX_CACHE_XMM_D, guest_dst);
+        if (result >= 0) {
+            if (upper_policy == XMM_UPPER_CLEAR)
+                VXOR_V(full_dst, full_dst, full_dst);
+            scalar->result = result;
+            scalar->renamed = 1;
+            return scalar->result;
+        }
+    }
+#endif
+    scalar->result = fpu_get_scratch(dyn);
     return scalar->result;
 }
 
 static inline void xmm_scalar_end(dynarec_la64_t* dyn, int ninst, const xmm_scalar_t* scalar)
 {
+    dyn->lsx.ssecache[scalar->guest_dst].write = 1;
+    dyn->lsx.lsxcache[scalar->host_dst].t = LSX_CACHE_XMMW;
+    if (scalar->renamed)
+        return;
     if (scalar->host_dst == scalar->result)
         return;
     if (scalar->upper_policy == XMM_UPPER_CLEAR)
@@ -731,6 +800,14 @@ static inline int comis_fuse_inverted(int condition)
     gd = ((nextop & 0x38) >> 3) + (rex.r << 3); \
     a = sse_get_reg(dyn, ninst, x1, gd, w)
 
+#define GETGXSS(a, w)                           \
+    gd = ((nextop & 0x38) >> 3) + (rex.r << 3); \
+    a = sse_get_reg_scalar(dyn, ninst, x1, gd, w, XMM_SCALAR_SS)
+
+#define GETGXSD(a, w)                           \
+    gd = ((nextop & 0x38) >> 3) + (rex.r << 3); \
+    a = sse_get_reg_scalar(dyn, ninst, x1, gd, w, XMM_SCALAR_SD)
+
 
 #define GETGX_empty(a)                          \
     gd = ((nextop & 0x38) >> 3) + (rex.r << 3); \
@@ -767,7 +844,7 @@ static inline int comis_fuse_inverted(int condition)
 // Get Ex as a double, not a quad (warning, x1 get used, x2 might too)
 #define GETEXSD(a, w, D)                                                                     \
     if (MODREG) {                                                                            \
-        a = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), w);                     \
+        a = sse_get_reg_scalar(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), w, XMM_SCALAR_SD); \
         xmm_live_read(dyn, ninst, (nextop & 7) + (rex.b << 3), XMM_WIDTH_64);                \
     } else {                                                                                 \
         SMREAD(); /* TODO */                                                                 \
@@ -782,7 +859,7 @@ static inline int comis_fuse_inverted(int condition)
 // Get Ex as a single, not a quad (warning, x1 get used)
 #define GETEXSS(a, w, D)                                                                     \
     if (MODREG) {                                                                            \
-        a = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), w);                     \
+        a = sse_get_reg_scalar(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), w, XMM_SCALAR_SS); \
         xmm_live_read(dyn, ninst, (nextop & 7) + (rex.b << 3), XMM_WIDTH_32);                \
     } else {                                                                                 \
         SMREAD();                                                                            \
@@ -1826,7 +1903,9 @@ static inline int comis_fuse_inverted(int condition)
 #define mmx_get_reg       STEPNAME(mmx_get_reg)
 #define mmx_get_reg_empty STEPNAME(mmx_get_reg_empty)
 #define sse_purge07cache  STEPNAME(sse_purge07cache)
+#define sse_merge_all STEPNAME(sse_merge_all)
 #define sse_get_reg       STEPNAME(sse_get_reg)
+#define sse_get_reg_scalar STEPNAME(sse_get_reg_scalar)
 #define sse_get_reg_empty STEPNAME(sse_get_reg_empty)
 #define sse_forget_reg    STEPNAME(sse_forget_reg)
 #define sse_reflect_reg   STEPNAME(sse_reflect_reg)
@@ -1848,7 +1927,8 @@ static inline int comis_fuse_inverted(int condition)
 #define fpu_reflectcache    STEPNAME(fpu_reflectcache)
 #define fpu_unreflectcache  STEPNAME(fpu_unreflectcache)
 
-#define checkCRC          STEPNAME(checkCRC)
+#define doPreload        STEPNAME(doPreload)
+#define checkCRC         STEPNAME(checkCRC)
 
 #define CacheTransform STEPNAME(CacheTransform)
 #define la64_move64    STEPNAME(la64_move64)
@@ -2031,8 +2111,12 @@ void sse_fcsr3_from_mxcsr(dynarec_la64_t* dyn, int ninst, int s1);
 // SSE/SSE2 helpers
 // purge the XMM0..XMM7 cache (before function call)
 void sse_purge07cache(dynarec_la64_t* dyn, int ninst, int s1);
+// merge all pending renamed scalars back into their full XMM registers
+void sse_merge_all(dynarec_la64_t* dyn, int ninst);
 // get lsx register for a SSE reg, create the entry if needed
 int sse_get_reg(dynarec_la64_t* dyn, int ninst, int s1, int a, int forwrite);
+// get an XMM scalar lane without materializing preserved lanes unless the requested lane needs it
+int sse_get_reg_scalar(dynarec_la64_t* dyn, int ninst, int s1, int a, int forwrite, int kind);
 // get lsx register for an SSE reg, but don't try to synch it if it needed to be created
 int sse_get_reg_empty(dynarec_la64_t* dyn, int ninst, int s1, int a);
 // forget float register for a SSE reg, create the entry if needed
@@ -2060,6 +2144,7 @@ void avx_reflect_reg_upper128(dynarec_la64_t* dyn, int ninst, int a, int forwrit
 void avx_cleancache(dynarec_la64_t* dyn, int ninst);
 
 // in case of always_test, this insert a check of crc of the dynablock (and exit to ArmNext if wrong)
+void doPreload(dynarec_la64_t* dyn, int ninst);
 void checkCRC(dynarec_la64_t* dyn, int ninst);
 
 void CacheTransform(dynarec_la64_t* dyn, int ninst, int cacheupd, int s1, int s2, int s3);

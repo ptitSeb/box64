@@ -66,7 +66,7 @@ extern void arm64_next_invalid();
 #define RAZ_SPECIFIC(A, N)
 #define UPDATE_SPECIFICS(A)    propagateFpuBarrier(A)
 #define PREUPDATE_SPECIFICS(A) updateNativeFlags(A)
-#define POSTUPDATE_SPECIFICS(A)
+#define POSTUPDATE_SPECIFICS(A) updatePreloads(A)
 
 #define ARCH_SIZE(A)    get_size_arch(A)
 #define ARCH_FILL(A, B, C)  populate_arch(A, B, C)
