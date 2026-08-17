@@ -1144,22 +1144,20 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETEYxy(v1, 0, 0);
             GETGYx_empty(v0);
             if (vex.l) {
-                d1 = fpu_get_scratch(dyn);
-                XVFTINTRZ_W_D(d1, VZERO, v1); // v0 [lo0, lo1, --, --, hi0, hi1, --, -- ]
                 if (!BOX64ENV(dynarec_fastround)) {
+                    d1 = fpu_get_scratch(dyn);
                     d0 = fpu_get_scratch(dyn);
                     q0 = fpu_get_scratch(dyn);
                     q1 = fpu_get_scratch(dyn);
+                    XVFTINTRZ_W_D(d1, VZERO, v1);
                     XVLDI(q0, 0b1001110000000); // broadcast 0x80000000 to all
-                    /*
-                        VCVTTPD2DQ has default rounding mode RZ
-                        so we could combine +-NAN +overflow to xvfcmp.cule 0x41e0000000000000
-                    */
                     LU52I_D(x5, xZR, 0x41e);
                     XVREPLGR2VR_D(q1, x5);
                     XVFCMP_D(d0, q1, v1, cULE); // get Nan mask
                     XVSRLNI_W_D(d0, d0, 0);
                     XVBITSEL_V(v0, d1, q0, d0);
+                } else {
+                    XVFTINTRZ_W_D(v0, VZERO, v1);
                 }
                 XVPERMI_D(v0, v0, 0b11011000);
             } else {
