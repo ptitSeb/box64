@@ -1163,8 +1163,9 @@ void* inplace_XkbNamesRec_shrink(void* a)
         my_XkbNamesRec_t* src = a;
         my_XkbNamesRec_32_t* dst = a;
 
+        XID_32* dst_rg = (XID_32*)src->radio_groups;
         for(int i=0; i<src->num_rg; ++i)
-            src->radio_groups[i] = to_ulong(src->radio_groups[i]);
+            dst_rg[i] = to_ulong(src->radio_groups[i]);
         dst->keycodes = to_ulong(src->keycodes);
         dst->geometry = to_ulong(src->geometry);
         dst->symbols = to_ulong(src->symbols);
@@ -1192,12 +1193,14 @@ void* inplace_XkbNamesRec_enlarge(void* a)
         my_XkbNamesRec_32_t* src = a;
         my_XkbNamesRec_t* dst = a;
 
+        int num_rg = src->num_rg;
         dst->num_rg = src->num_rg;
         dst->num_key_aliases = src->num_key_aliases;
         dst->num_keys = src->num_keys;
         dst->phys_symbols = from_ulong(src->phys_symbols);
         dst->radio_groups = from_ptrv(src->radio_groups);
         dst->key_aliases = from_ptrv(src->key_aliases);
+        dst->keys = from_ptrv(src->keys);
         for(int i=4-1; i>=0; --i)
             dst->groups[i] = from_ulong(src->groups[i]);
         for(int i=32-1; i>=0; --i)
@@ -1208,11 +1211,11 @@ void* inplace_XkbNamesRec_enlarge(void* a)
         dst->types = from_ulong(src->types);
         dst->symbols = from_ulong(src->symbols);
         dst->geometry = from_ulong(src->geometry);
-        dst->keys = from_ptrv(src->keys);
         dst->keycodes = from_ulong(src->keycodes);
 
-        for(int i=src->num_rg-1; i>=0; --i)
-            dst->radio_groups[i] = from_ulong(dst->radio_groups[i]);
+        XID_32* src_rg = (XID_32*)dst->radio_groups;
+        for(int i=num_rg-1; i>=0; --i)
+            dst->radio_groups[i] = from_ulong(src_rg[i]);
     }
     return a;
 }
