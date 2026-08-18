@@ -80,7 +80,7 @@ struct x64_fpstate
   uint64_t          rdp;
   uint32_t          mxcsr;
   uint32_t          mxcsr_mask;
-  struct x64_fpreg  _st[8];
+  struct x64_fpxreg  _st[8];
   struct x64_xmmreg _xmm[16];
   uint32_t          res[24];
 }__attribute__((packed));

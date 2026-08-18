@@ -78,7 +78,7 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
             GETED(0);                                               \
             GETGD;                                                  \
             if(F) {CHECK_FLAGS(emu); eflags=emu->eflags;}           \
-            if(((uintptr_t)ED)&(3<<rex.w)) {                        \
+            if(((uintptr_t)ED)&(rex.w?7:3)) {                       \
                 if(rex.w) {                                         \
                     do {                                            \
                         if(F) emu->eflags = eflags;                 \

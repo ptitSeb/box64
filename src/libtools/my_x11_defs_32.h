@@ -1765,9 +1765,9 @@ typedef struct my_XIEnterEvent_32_s {
     int                     deviceid;
     int                     sourceid;
     int                     detail;
-    XID                     root;
-    XID                     event;
-    XID                     child;
+    XID_32                  root;
+    XID_32                  event;
+    XID_32                  child;
     double                  root_x;
     double                  root_y;
     double                  event_x;
