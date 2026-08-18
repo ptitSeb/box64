@@ -2,35 +2,35 @@
 #error meh!
 #endif
 
-//GO(notify_get_app_name, 
-//GO(notify_get_server_caps, 
-//GO(notify_get_server_info, 
-//GO(notify_init, 
-//GO(notify_is_initted, 
-//GO(notify_marshal_VOID__UINT_STRING, 
-//GO(notify_marshal_VOID__UINT_UINT, 
-//GO(notify_notification_add_action, 
-//GO(notify_notification_clear_actions, 
-//GO(notify_notification_clear_hints, 
-//GO(notify_notification_close, 
-//GO(notify_notification_get_closed_reason, 
-//GO(notify_notification_get_type, 
-//GO(notify_notification_new, 
-//GO(notify_notification_set_app_name, 
-//GO(notify_notification_set_category, 
-//GO(notify_notification_set_hint, 
-//GO(notify_notification_set_hint_byte, 
-//GO(notify_notification_set_hint_byte_array, 
-//GO(notify_notification_set_hint_double, 
-//GO(notify_notification_set_hint_int32, 
-//GO(notify_notification_set_hint_string, 
-//GO(notify_notification_set_hint_uint32, 
-//GO(notify_notification_set_icon_from_pixbuf, 
-//GO(notify_notification_set_image_from_pixbuf, 
-//GO(notify_notification_set_timeout, 
-//GO(notify_notification_set_urgency, 
-//GO(notify_notification_show, 
-//GO(notify_notification_update, 
-//GO(notify_set_app_name, 
-//GO(notify_uninit, 
-//GO(notify_urgency_get_type, 
+GO(notify_get_app_name, pFv)
+GO(notify_get_server_caps, pFv)
+GO(notify_get_server_info, iFpppp)
+GO(notify_init, iFp)
+GO(notify_is_initted, iFv)
+//GOM(notify_marshal_VOID__UINT_STRING, vFEppuppp)
+//GOM(notify_marshal_VOID__UINT_UINT, vFEppuppp)
+//GOM(notify_notification_add_action, vFEpppppp)
+GO(notify_notification_clear_actions, vFp)
+GO(notify_notification_clear_hints, vFp)
+GO(notify_notification_close, iFpp)
+GO(notify_notification_get_closed_reason, iFp)
+GO(notify_notification_get_type, LFv)
+GO(notify_notification_new, pFppp)
+GO(notify_notification_set_app_name, vFpp)
+GO(notify_notification_set_category, vFpp)
+GO(notify_notification_set_hint, vFppp)
+GO(notify_notification_set_hint_byte, vFppC)
+GO(notify_notification_set_hint_byte_array, vFpppL)
+GO(notify_notification_set_hint_double, vFppd)
+GO(notify_notification_set_hint_int32, vFppi)
+GO(notify_notification_set_hint_string, vFppp)
+GO(notify_notification_set_hint_uint32, vFppu)
+GO(notify_notification_set_icon_from_pixbuf, vFpp)
+GO(notify_notification_set_image_from_pixbuf, vFpp)
+GO(notify_notification_set_timeout, vFpi)
+GO(notify_notification_set_urgency, vFpu)
+GO(notify_notification_show, iFpp)
+GO(notify_notification_update, iFpppp)
+GO(notify_set_app_name, vFp)
+GO(notify_uninit, vFv)
+GO(notify_urgency_get_type, LFv)

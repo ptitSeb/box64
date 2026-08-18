@@ -578,6 +578,7 @@ typedef void (*vFpLu_t)(void*, uintptr_t, uint32_t);
 typedef void (*vFpLL_t)(void*, uintptr_t, uintptr_t);
 typedef void (*vFpLp_t)(void*, uintptr_t, void*);
 typedef void (*vFppi_t)(void*, void*, int32_t);
+typedef void (*vFppC_t)(void*, void*, uint8_t);
 typedef void (*vFppu_t)(void*, void*, uint32_t);
 typedef void (*vFppU_t)(void*, void*, uint64_t);
 typedef void (*vFppf_t)(void*, void*, float);
@@ -4831,6 +4832,7 @@ void vFpLu(x64emu_t *emu, uintptr_t fcn) { vFpLu_t fn = (vFpLu_t)fcn; fn((void*)
 void vFpLL(x64emu_t *emu, uintptr_t fcn) { vFpLL_t fn = (vFpLL_t)fcn; fn((void*)R_RDI, (uintptr_t)R_RSI, (uintptr_t)R_RDX); }
 void vFpLp(x64emu_t *emu, uintptr_t fcn) { vFpLp_t fn = (vFpLp_t)fcn; fn((void*)R_RDI, (uintptr_t)R_RSI, (void*)R_RDX); }
 void vFppi(x64emu_t *emu, uintptr_t fcn) { vFppi_t fn = (vFppi_t)fcn; fn((void*)R_RDI, (void*)R_RSI, (int32_t)R_RDX); }
+void vFppC(x64emu_t *emu, uintptr_t fcn) { vFppC_t fn = (vFppC_t)fcn; fn((void*)R_RDI, (void*)R_RSI, (uint8_t)R_RDX); }
 void vFppu(x64emu_t *emu, uintptr_t fcn) { vFppu_t fn = (vFppu_t)fcn; fn((void*)R_RDI, (void*)R_RSI, (uint32_t)R_RDX); }
 void vFppU(x64emu_t *emu, uintptr_t fcn) { vFppU_t fn = (vFppU_t)fcn; fn((void*)R_RDI, (void*)R_RSI, (uint64_t)R_RDX); }
 void vFppf(x64emu_t *emu, uintptr_t fcn) { vFppf_t fn = (vFppf_t)fcn; fn((void*)R_RDI, (void*)R_RSI, emu->xmm[0].f[0]); }
@@ -9012,6 +9014,7 @@ int isSimpleWrapper(wrapper_t fun) {
 	if (fun == &vFpLL) return 1;
 	if (fun == &vFpLp) return 1;
 	if (fun == &vFppi) return 1;
+	if (fun == &vFppC) return 1;
 	if (fun == &vFppu) return 1;
 	if (fun == &vFppU) return 1;
 	if (fun == &vFppf) return 2;
@@ -11441,6 +11444,7 @@ int isSimpleWrapper(wrapper_t fun) {
 	if (fun == &vFpLL) return 1;
 	if (fun == &vFpLp) return 1;
 	if (fun == &vFppi) return 65;
+	if (fun == &vFppC) return 1;
 	if (fun == &vFppu) return 65;
 	if (fun == &vFppU) return 1;
 	if (fun == &vFppf) return 2;
@@ -13870,6 +13874,7 @@ int isSimpleWrapper(wrapper_t fun) {
 	if (fun == &vFpLL) return 1;
 	if (fun == &vFpLp) return 1;
 	if (fun == &vFppi) return 65;
+	if (fun == &vFppC) return 1;
 	if (fun == &vFppu) return 65;
 	if (fun == &vFppU) return 1;
 	if (fun == &vFppf) return 2;
