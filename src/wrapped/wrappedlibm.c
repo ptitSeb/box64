@@ -234,15 +234,15 @@ FROUND(llrintf, float, long)
 FROUND(nearbyint, double, double)
 FROUND(nearbyintf, float, float)
 #ifdef HAVE_LD80BITS
-FROUND(llrintl, long double, long double)
+FROUND(llrintl, long double, long long)
 #else
-EXPORT double my_llrintl(x64emu_t* emu, double val)
+EXPORT int64_t my_llrintl(x64emu_t* emu, double val)
 {
     if (BOX64ENV(sync_rounding)) {
         int round = emu->cw.x16 & 0xc00;
         fesetround(TO_NATIVE(round));
     }
-    return llrint(val);
+    return (int64_t)llrint(val);
 }
 EXPORT double my_nexttoward(x64emu_t* emu, double val, double to)
 {

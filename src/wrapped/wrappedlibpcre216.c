@@ -129,9 +129,9 @@ static void* find_private_free_Fct(void* fct)
 // callout_function
 #define GO(A)   \
 static uintptr_t my_callout_function_fct_##A = 0;                       \
-static int my_callout_function_##A(void* a)                             \
+static int my_callout_function_##A(void* a, void *b)                    \
 {                                                                       \
-    return (int)RunFunctionFmt(my_callout_function_fct_##A, "p", a);    \
+    return (int)RunFunctionFmt(my_callout_function_fct_##A, "pp", a, b);\
 }
 SUPER()
 #undef GO

@@ -655,7 +655,7 @@ GO(PORT_NewArena, pFL)
 GO(PORT_Realloc, pFpL)
 GO(PORT_SetError, vFi)
 GOM(PORT_SetUCS2_ASCIIConversionFunction, vFEp)
-GO(PORT_SetUCS2_UTF8ConversionFunction, vFi)
+GOM(PORT_SetUCS2_UTF8ConversionFunction, vFEp)
 //GO(PORT_SetUCS4_UTF8ConversionFunction, 
 GO(PORT_Strdup, pFp)
 GO(PORT_UCS2_ASCIIConversion, iFipupupi)

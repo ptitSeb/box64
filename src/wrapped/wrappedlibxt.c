@@ -124,6 +124,16 @@ static void* findXtErrorMsgHandlerFct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for libXt XtErrorMsgHandler callback\n");
     return NULL;
 }
+static void* reverseXtErrorMsgHandlerFct(void* fct)
+{
+    if(!fct) return fct;
+    uintptr_t bridge = CheckBridged(my_lib->w.bridge, vFpppppp, fct);
+    if(bridge) return (void*)bridge;
+    #define GO(A) if(my_XtErrorMsgHandler_##A == fct) return (void*)my_XtErrorMsgHandler_fct_##A;
+    SUPER()
+    #undef GO
+    return (void*)AddBridge(my_lib->w.bridge, vFpppppp, fct, 0, NULL);
+}
 // XtErrorHandler
 #define GO(A)   \
 static uintptr_t my_XtErrorHandler_fct_##A = 0;         \
@@ -145,6 +155,16 @@ static void* findXtErrorHandlerFct(void* fct)
     #undef GO
     printf_log(LOG_NONE, "Warning, no more slot for libXt XtErrorHandler callback\n");
     return NULL;
+}
+static void* reverseXtErrorHandlerFct(void* fct)
+{
+    if(!fct) return fct;
+    uintptr_t bridge = CheckBridged(my_lib->w.bridge, vFp, fct);
+    if(bridge) return (void*)bridge;
+    #define GO(A) if(my_XtErrorHandler_##A == fct) return (void*)my_XtErrorHandler_fct_##A;
+    SUPER()
+    #undef GO
+    return (void*)AddBridge(my_lib->w.bridge, vFp, fct, 0, NULL);
 }
 // XtEventHandler
 #define GO(A)   \
@@ -175,7 +195,7 @@ static void* findXtEventHandlerFct(void* fct)
 EXPORT void my_XtAddEventHandler(x64emu_t* emu, void* w, uint32_t mask, int32_t maskable, void* cb, void* data)
 {
     (void)emu;
-    void* fct = findEventFct(cb);
+    void* fct = findXtEventHandlerFct(cb);
     my->XtAddEventHandler(w, mask, maskable, fct, data);
 }
 
@@ -191,24 +211,24 @@ EXPORT long my_XtAppAddInput(x64emu_t* emu, void* context, int source, void* con
     return my->XtAppAddInput(context, source, cond, findInputCallbackFct(proc), data);
 }
 
-EXPORT void my_XtAppSetWarningMsgHandler(x64emu_t* emu, void* ctx, void* f)
+EXPORT void* my_XtAppSetWarningMsgHandler(x64emu_t* emu, void* ctx, void* f)
 {
-    my->XtAppSetWarningMsgHandler(ctx, findXtErrorMsgHandlerFct(f));
+    return reverseXtErrorMsgHandlerFct(my->XtAppSetWarningMsgHandler(ctx, findXtErrorMsgHandlerFct(f)));
 }
 
-EXPORT void my_XtAppSetErrorMsgHandler(x64emu_t* emu, void* ctx, void* f)
+EXPORT void* my_XtAppSetErrorMsgHandler(x64emu_t* emu, void* ctx, void* f)
 {
-    my->XtAppSetErrorMsgHandler(ctx, findXtErrorMsgHandlerFct(f));
+    return reverseXtErrorMsgHandlerFct(my->XtAppSetErrorMsgHandler(ctx, findXtErrorMsgHandlerFct(f)));
 }
 
-EXPORT void my_XtAppSetWarningHandler(x64emu_t* emu, void* ctx, void* f)
+EXPORT void* my_XtAppSetWarningHandler(x64emu_t* emu, void* ctx, void* f)
 {
-    my->XtAppSetWarningHandler(ctx, findXtErrorHandlerFct(f));
+    return reverseXtErrorHandlerFct(my->XtAppSetWarningHandler(ctx, findXtErrorHandlerFct(f)));
 }
 
-EXPORT void my_XtAppSetErrorHandler(x64emu_t* emu, void* ctx, void* f)
+EXPORT void* my_XtAppSetErrorHandler(x64emu_t* emu, void* ctx, void* f)
 {
-    my->XtAppSetErrorHandler(ctx, findXtErrorHandlerFct(f));
+    return reverseXtErrorHandlerFct(my->XtAppSetErrorHandler(ctx, findXtErrorHandlerFct(f)));
 }
 
 EXPORT void my_XtAddRawEventHandler(x64emu_t* emu, void* w, uint32_t mask, int nonmaskable, void* f, void* data)

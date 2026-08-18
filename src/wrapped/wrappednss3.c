@@ -228,6 +228,11 @@ EXPORT void my_PORT_SetUCS2_ASCIIConversionFunction(x64emu_t* emu, void* f)
     my->PORT_SetUCS2_ASCIIConversionFunction(find_PORTCharConversionWSwapFunc_Fct(f));
 }
 
+EXPORT void my_PORT_SetUCS2_UTF8ConversionFunction(x64emu_t* emu, void* f)
+{
+    my->PORT_SetUCS2_UTF8ConversionFunction(find_PORTCharConversionWSwapFunc_Fct(f));
+}
+
 EXPORT int my_NSS_RegisterShutdown(x64emu_t* emu, void* f, void* data)
 {
     return my->NSS_RegisterShutdown(find_NSS_ShutdownFunc_Fct(f), data);

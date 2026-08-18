@@ -60,9 +60,9 @@ static void* find_TIFFReadWriteProc_Fct(void* fct)
 // TIFFSeekProc
 #define GO(A)   \
 static uintptr_t my_TIFFSeekProc_fct_##A = 0;                               \
-static ssize_t my_TIFFSeekProc_##A(void* a, ssize_t b)                      \
+static ssize_t my_TIFFSeekProc_##A(void* a, ssize_t b, int c)               \
 {                                                                           \
-    return (ssize_t)RunFunctionFmt(my_TIFFSeekProc_fct_##A, "pl", a, b);    \
+    return (ssize_t)RunFunctionFmt(my_TIFFSeekProc_fct_##A, "pli", a, b, c);\
 }
 SUPER()
 #undef GO

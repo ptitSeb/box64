@@ -286,8 +286,8 @@ static void* find_getattr_Fct(void* fct)
 static uintptr_t my_setattr_fct_##A = 0;                                            \
 static void my_setattr_##A(void* a, unsigned long b, struct stat* c, int d, void* e)\
 {                                                                                   \
-    struct stat c_;                                                                 \
-    AlignStat64(c, &c_);                                                            \
+    struct x64_stat64 c_;                                                           \
+    UnalignStat64(c, &c_);                                                          \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "setattr");                            \
     RunFunctionFmt(my_setattr_fct_##A, "pLpip", a, b, &c_, d, e);       \
 }
@@ -337,7 +337,7 @@ static uintptr_t my_mknod_fct_##A = 0;                                          
 static void my_mknod_##A(void* a, unsigned long b, const char* c, mode_t d, dev_t e)    \
 {                                                                                       \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "mknod");                                  \
-    RunFunctionFmt(my_mknod_fct_##A, "pLpuL", a, b, c, of_convert(d), e);   \
+    RunFunctionFmt(my_mknod_fct_##A, "pLpuL", a, b, c, d, e);                           \
 }
 SUPER()
 #undef GO
@@ -361,7 +361,7 @@ static uintptr_t my_mkdir_fct_##A = 0;                                          
 static void my_mkdir_##A(void* a, unsigned long b, const char* c, mode_t d)         \
 {                                                                                   \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "mkdir");                              \
-    RunFunctionFmt(my_mkdir_fct_##A, "pLpu", a, b, c, of_convert(d));   \
+    RunFunctionFmt(my_mkdir_fct_##A, "pLpu", a, b, c, d);                           \
 }
 SUPER()
 #undef GO
@@ -889,7 +889,7 @@ static uintptr_t my_create_fct_##A = 0;                                         
 static void my_create_##A(void* a, unsigned long b, const char* c, mode_t d, void* e)   \
 {                                                                                       \
     printf_log(LOG_DEBUG, "fuse: call %s\n", "create");             \
-    RunFunctionFmt(my_create_fct_##A, "pLpup", a, b, c, of_convert(d), e);           \
+    RunFunctionFmt(my_create_fct_##A, "pLpup", a, b, c, d, e);                          \
 }
 SUPER()
 #undef GO

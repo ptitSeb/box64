@@ -442,10 +442,10 @@ EXPORT void my_SSL_set_verify(x64emu_t* emu, void* ctx, int mode, void* f)
     my->SSL_set_verify(ctx, mode, find_verify_Fct(f));
 }
 
-EXPORT void my_SSL_get_ex_new_index(x64emu_t* emu, long argl, void* argp, void* new_func, void* dup_func, void* free_func)
+EXPORT int my_SSL_get_ex_new_index(x64emu_t* emu, long argl, void* argp, void* new_func, void* dup_func, void* free_func)
 {
     (void)emu;
-    my->SSL_get_ex_new_index(argl, argp, find_ex_new_Fct(new_func), find_ex_dup_Fct(dup_func), find_ex_free_Fct(free_func));
+    return my->SSL_get_ex_new_index(argl, argp, find_ex_new_Fct(new_func), find_ex_dup_Fct(dup_func), find_ex_free_Fct(free_func));
 }
 
 EXPORT void my_SSL_set_psk_client_callback(x64emu_t* emu, void* ctx, void* cb)

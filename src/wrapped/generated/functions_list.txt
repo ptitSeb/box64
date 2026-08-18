@@ -6836,6 +6836,7 @@ wrappednss3:
 - vFp:
   - PK11_SetPasswordFunc
   - PORT_SetUCS2_ASCIIConversionFunction
+  - PORT_SetUCS2_UTF8ConversionFunction
 - iFpp:
   - CERT_RegisterAlternateOCSPAIAInfoCallBack
   - NSS_RegisterShutdown
