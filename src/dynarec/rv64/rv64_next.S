@@ -14,6 +14,8 @@
 
 // rv64(void)
 rv64_next:
+    sd      RSP, (8 * 4)(Emu)
+    sd      RIP, (8 * 17)(Emu)
 
     // 16 bytes aligned
     addi    sp,  sp,  -(8 * 10)

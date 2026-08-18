@@ -14,6 +14,8 @@
 arm64_next:
     // emu is r0
     // IP address is r1
+    str     x14, [x0, #(8 * 4)]   // RSP
+    str     x27, [x0, #(8 * 17)]  // RIP
     sub     sp,  sp,  (8 * 12)
     stp     x0,  x1,  [sp, (8 *  0)]
     stp     x10, x11, [sp, (8 *  2)]
@@ -47,6 +49,8 @@ arm64_next:
 arm64_next_invalid:
     // emu is r0
     // IP address is r1
+    str     x14, [x0, #(8 * 4)]   // RSP
+    str     x27, [x0, #(8 * 17)]  // RIP
     sub     sp,  sp,  (8 * 12)
     stp     x0,  x1,  [sp, (8 *  0)]
     stp     x10, x11, [sp, (8 *  2)]

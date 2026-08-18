@@ -22,6 +22,8 @@
     // NULL pointer before ppc64le_next, for getDB
     .8byte  0
 ppc64le_next:
+    std     RSP, (8 * 4)(Emu)
+    std     RIP, (8 * 17)(Emu)
     // Save volatile registers that the dynarec uses
     // We need to preserve: r3-r10 (args/scratch used by dynarec)
     // and RIP (r9), plus the LR (return "from" address)
