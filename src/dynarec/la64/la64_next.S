@@ -31,6 +31,8 @@
 la64_next:
     // move emu to a0
     // move IP address to a1
+    st.d   RSP, Emu, (8 * 4)
+    st.d   RIP, Emu, (8 * 17)
     addi.d $sp, $sp, -(8 * 12)
     st.d   RDI, $sp, 0
     st.d   RSI, $sp, 8
@@ -87,6 +89,8 @@ la64_next:
 la64_next_invalid:
     // move emu to a0
     // move IP address to a1
+    st.d   RSP, Emu, (8 * 4)
+    st.d   RIP, Emu, (8 * 17)
     addi.d $sp, $sp, -(8 * 12)
     st.d   RDI, $sp, 0
     st.d   RSI, $sp, 8
