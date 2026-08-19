@@ -15,6 +15,7 @@ typedef void (*vFppp_t)(void*, void*, void*);
 typedef uint32_t (*uFpiV_t)(void*, int32_t, ...);
 typedef uint32_t (*uFpiA_t)(void*, int32_t, va_list);
 typedef void (*vFpppp_t)(void*, void*, void*, void*);
+typedef void (*vFpppV_t)(void*, void*, void*, ...);
 typedef uint32_t (*uFpipp_t)(void*, int32_t, void*, void*);
 typedef uint32_t (*uFppiV_t)(void*, void*, int32_t, ...);
 typedef uint32_t (*uFppiA_t)(void*, void*, int32_t, va_list);
@@ -33,6 +34,7 @@ typedef uint32_t (*uFpppppp_t)(void*, void*, void*, void*, void*, void*);
 	GO(dbus_connection_set_unix_user_function, vFpppp_t) \
 	GO(dbus_connection_set_wakeup_main_function, vFpppp_t) \
 	GO(dbus_server_set_new_connection_function, vFpppp_t) \
+	GO(dbus_set_error, vFpppV_t) \
 	GO(dbus_connection_set_data, uFpipp_t) \
 	GO(dbus_message_set_data, uFpipp_t) \
 	GO(dbus_pending_call_set_data, uFpipp_t) \

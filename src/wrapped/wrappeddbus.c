@@ -690,5 +690,12 @@ EXPORT void* my_dbus_message_new_error_printf(x64emu_t* emu, void* to, void* nam
     return ret;
 }
 
+EXPORT void my_dbus_set_error(x64emu_t* emu, void* error, void* name, void* message, uint64_t* V)
+{
+    (void)emu;
+    CREATE_VALIST_FROM_VAARG(V, emu->scratch, 3);
+    my->dbus_set_error(error, name, message, VARARGS);
+}
+
 
 #include "wrappedlib_init.h"
