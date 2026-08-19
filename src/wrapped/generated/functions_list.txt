@@ -6370,6 +6370,7 @@ wrappedlibpthread:
   - pthread_mutexattr_setprotocol
   - pthread_mutexattr_setpshared
   - pthread_mutexattr_setrobust
+  - pthread_mutexattr_setrobust_np
   - pthread_mutexattr_settype
 - iFpL:
   - pthread_attr_setguardsize
