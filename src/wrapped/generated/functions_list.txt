@@ -4984,6 +4984,8 @@ wrappedgnutls:
   - gnutls_global_set_log_function
 - vFpp:
   - gnutls_certificate_set_retrieve_function
+  - gnutls_certificate_set_verify_function
+  - gnutls_session_set_verify_function
   - gnutls_transport_set_pull_function
   - gnutls_transport_set_pull_timeout_function
   - gnutls_transport_set_push_function

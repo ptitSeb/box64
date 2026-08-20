@@ -155,6 +155,54 @@ static void* find_gnutls_certificate_retrieve_function_Fct(void* fct)
     return NULL;
 }
 
+#define GO(A)                                                                  \
+static uintptr_t my_gnutls_certificate_verify_function_fct_##A = 0;            \
+static int my_gnutls_certificate_verify_function_##A(void* session)            \
+{                                                                              \
+    return (int)RunFunctionFmt(my_gnutls_certificate_verify_function_fct_##A,  \
+                               "p", session);                                  \
+}
+SUPER()
+#undef GO
+static void* find_gnutls_certificate_verify_function_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_gnutls_certificate_verify_function_fct_##A == (uintptr_t)fct) return my_gnutls_certificate_verify_function_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_gnutls_certificate_verify_function_fct_##A == 0) { my_gnutls_certificate_verify_function_fct_##A = (uintptr_t)fct; return my_gnutls_certificate_verify_function_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slots for libgnutls.so.30 gnutls_certificate_verify_function callback\n");
+    return NULL;
+}
+
+#define GO(A)                                                              \
+static uintptr_t my_gnutls_session_verify_function_fct_##A = 0;            \
+static int my_gnutls_session_verify_function_##A(void* session)            \
+{                                                                          \
+    return (int)RunFunctionFmt(my_gnutls_session_verify_function_fct_##A,  \
+                               "p", session);                              \
+}
+SUPER()
+#undef GO
+static void* find_gnutls_session_verify_function_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my_gnutls_session_verify_function_fct_##A == (uintptr_t)fct) return my_gnutls_session_verify_function_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_gnutls_session_verify_function_fct_##A == 0) { my_gnutls_session_verify_function_fct_##A = (uintptr_t)fct; return my_gnutls_session_verify_function_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slots for libgnutls.so.30 gnutls_session_verify_function callback\n");
+    return NULL;
+}
+
 #undef SUPER
 
 
@@ -185,6 +233,18 @@ EXPORT void my_gnutls_certificate_set_retrieve_function(x64emu_t* emu, void* cer
 {
     (void)emu;
     my->gnutls_certificate_set_retrieve_function(cert, find_gnutls_certificate_retrieve_function_Fct(f));
+}
+
+EXPORT void my_gnutls_certificate_set_verify_function(x64emu_t* emu, void* cert, void* f)
+{
+    (void)emu;
+    my->gnutls_certificate_set_verify_function(cert, find_gnutls_certificate_verify_function_Fct(f));
+}
+
+EXPORT void my_gnutls_session_set_verify_function(x64emu_t* emu, void* session, void* f)
+{
+    (void)emu;
+    my->gnutls_session_set_verify_function(session, find_gnutls_session_verify_function_Fct(f));
 }
 
 #include "wrappedlib_init.h"
