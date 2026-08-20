@@ -1140,6 +1140,8 @@ EXPORT int my_pthread_mutexattr_setrobust(x64emu_t* emu, my_mutexattr_t *attr, i
 	attr->x86 = mattr.x86;
 	return ret;
 }
+EXPORT int my_pthread_mutexattr_setrobust_np(x64emu_t* emu, my_mutexattr_t *attr, int t)
+    __attribute__((alias("my_pthread_mutexattr_setrobust")));
 #endif
 
 #ifdef __SIZEOF_PTHREAD_MUTEX_T

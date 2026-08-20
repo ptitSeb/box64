@@ -175,7 +175,7 @@ GO(pthread_mutexattr_setprioceiling, iFpi)
 GO(pthread_mutexattr_setprotocol, iFpi)
 GO(pthread_mutexattr_setpshared, iFpi)
 GO(pthread_mutexattr_setrobust, iFpi)
-//GO(pthread_mutexattr_setrobust_np, 
+GO2(pthread_mutexattr_setrobust_np, iFpi, pthread_mutexattr_setrobust)
 GO(__pthread_mutexattr_settype, iFpi)
 GO(pthread_mutexattr_settype, iFpi)
 #else
@@ -195,11 +195,11 @@ GOM(pthread_mutexattr_setprioceiling, iFEpi)
 GOM(pthread_mutexattr_setprotocol, iFEpi)
 GOM(pthread_mutexattr_setpshared, iFEpi)
 GOM(pthread_mutexattr_setrobust, iFEpi)
-//GO(pthread_mutexattr_setrobust_np, 
+GOM(pthread_mutexattr_setrobust_np, iFEpi)
 GOM(__pthread_mutexattr_settype, iFEpi)
 GOM(pthread_mutexattr_settype, iFEpi)
 #endif
-//GO(pthread_mutex_consistent_np, 
+GO2(pthread_mutex_consistent_np, iFp, pthread_mutex_consistent)
 GO(pthread_mutex_clocklock, iFpip)
 GO(pthread_mutex_consistent, iFp)
 GO(__pthread_mutex_destroy, iFp)

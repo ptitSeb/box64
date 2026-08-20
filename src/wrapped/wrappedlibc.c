@@ -18,6 +18,8 @@ struct argp_state;
 #endif
 #ifdef STATICBUILD
 extern int _nl_msg_cat_cntr __attribute__((weak));
+extern const char *const _sys_siglist[] __asm__("__sys_siglist");
+extern const char *const sys_siglist[] __asm__("__sys_siglist");
 #endif
 #include <stdlib.h>
 #include <stdio.h>

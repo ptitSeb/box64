@@ -2198,8 +2198,8 @@ GOW(sysinfo, iFp)
 GOM(syslog, vFEipV)
 GOM(__syslog_chk, vFEiipV)
 //DATA(sys_sigabbrev, 
-//DATA(_sys_siglist, 
-//DATA(sys_siglist, 
+DATA(_sys_siglist, 8)
+DATA(sys_siglist, 8)
 GOW(system, iFp)
 GOM(__sysv_signal, pFEip)
 GOWM(sysv_signal, pFEip)

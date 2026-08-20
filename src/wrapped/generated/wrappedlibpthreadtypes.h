@@ -68,6 +68,7 @@ typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 	GO(pthread_mutexattr_setprotocol, iFpi_t) \
 	GO(pthread_mutexattr_setpshared, iFpi_t) \
 	GO(pthread_mutexattr_setrobust, iFpi_t) \
+	GO(pthread_mutexattr_setrobust_np, iFpi_t) \
 	GO(pthread_mutexattr_settype, iFpi_t) \
 	GO(pthread_attr_setguardsize, iFpL_t) \
 	GO(pthread_attr_setstacksize, iFpL_t) \
