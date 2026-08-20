@@ -17,6 +17,8 @@ typedef void (*vFpp_t)(void*, void*);
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(gnutls_global_set_log_function, vFp_t) \
 	GO(gnutls_certificate_set_retrieve_function, vFpp_t) \
+	GO(gnutls_certificate_set_verify_function, vFpp_t) \
+	GO(gnutls_session_set_verify_function, vFpp_t) \
 	GO(gnutls_transport_set_pull_function, vFpp_t) \
 	GO(gnutls_transport_set_pull_timeout_function, vFpp_t) \
 	GO(gnutls_transport_set_push_function, vFpp_t)
