@@ -1407,6 +1407,15 @@ void* box32_dynarec_mmap(size_t size, int fd, off_t offset)
     return ret;
 }
 
+static int alignGuestPageRange(uintptr_t* addr, size_t size, uintptr_t* end)
+{
+    if (!size) return 0;
+    *end = *addr + size;
+    *addr &= ~(X86_PAGE_SIZE - 1);
+    *end = (*end + X86_PAGE_SIZE - 1) & ~(X86_PAGE_SIZE - 1);
+    return *end > *addr;
+}
+
 #ifdef DYNAREC
 typedef struct mmaplist_s {
     blocklist_t**   chunks;
@@ -2249,15 +2258,6 @@ uintptr_t getJumpAddress64(uintptr_t addr)
     #else
     return (uintptr_t)box64_jmptbl2[idx2][idx1][idx0];
     #endif
-}
-
-static int alignGuestPageRange(uintptr_t* addr, size_t size, uintptr_t* end)
-{
-    if (!size) return 0;
-    *end = *addr + size;
-    *addr &= ~(X86_PAGE_SIZE - 1);
-    *end = (*end + X86_PAGE_SIZE - 1) & ~(X86_PAGE_SIZE - 1);
-    return *end > *addr;
 }
 
 static void setGuestDynProtection_locked(uintptr_t addr, size_t size)
