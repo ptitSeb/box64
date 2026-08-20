@@ -100,14 +100,102 @@ FILE* ftrace = NULL;
 char* ftrace_name = NULL;
 int ftrace_opened = 0;
 
+static const char* get_basename(const char* path)
+{
+    if (!path)
+        return "";
 
-static void openFTrace(void)
+    const char* slash = strrchr(path, '/');
+    const char* backslash = strrchr(path, '\\');
+    const char* base = (slash && backslash)
+        ? ((slash > backslash) ? slash : backslash)
+        : (slash ? slash : backslash);
+    return base ? (base + 1) : path;
+}
+
+static const char* sanitize_name(const char* name, const char* fallback)
+{
+    if (!name || !*name)
+        return fallback;
+
+    const unsigned char* p = (const unsigned char*)name;
+    int needs_sanitize = 0;
+    while (*p) {
+        if (*p == '/' || *p == '\\' || iscntrl(*p)) {
+            needs_sanitize = 1;
+            break;
+        }
+        ++p;
+    }
+
+    if (!needs_sanitize)
+        return name;
+
+    static char sanitized[PATH_MAX];
+    size_t pos = 0;
+    for (p = (const unsigned char*)name; *p && pos < sizeof(sanitized) - 1; ++p) {
+        unsigned char c = *p;
+        if (c == '/' || c == '\\' || iscntrl(c))
+            c = '_';
+        sanitized[pos++] = (char)c;
+    }
+    sanitized[pos] = '\0';
+
+    return pos ? sanitized : fallback;
+}
+
+const char* GetName(int argc, const char** argv, int nextarg, const char* prog)
+{
+    const char* name = get_basename(prog);
+
+    if ((!strcmp(name, "wine-preloader") || !strcmp(name, "wine64-preloader"))
+        && nextarg >= 0 && nextarg < argc && argv[nextarg]) {
+        int x64 = FileIsX64ELF(argv[nextarg]);
+        #ifdef BOX32
+        int x86 = FileIsX86ELF(argv[nextarg]);
+        #else
+        int x86 = 0;
+        #endif
+        if (x64 || x86) {
+            const char* candidate = get_basename(argv[nextarg]);
+            if ((!strcmp(candidate, "wine-preloader") || !strcmp(candidate, "wine64-preloader"))
+                && nextarg + 1 >= 0 && nextarg + 1 < argc && argv[nextarg + 1]) {
+                candidate = get_basename(argv[nextarg + 1]);
+            }
+            name = candidate;
+        }
+    }
+
+    if ((!strcmp(name, "wine") || !strcmp(name, "wine64") || !strcmp(name, "wine64-development"))
+        && nextarg + 1 >= 0 && nextarg + 1 < argc && argv[nextarg + 1]
+        && argv[nextarg + 1][0] != '-') {
+        name = get_basename(argv[nextarg + 1]);
+    }
+
+    if (prog && strstr(prog, "ld-musl-x86_64.so.1")) {
+        int i = nextarg + 1;
+        while (i >= 0 && i < argc && argv[i] && strcmp(argv[i], "--")) {
+            if (!strcmp(argv[i], "--library-path"))
+                ++i;
+            ++i;
+        }
+        if (i >= 0 && i < argc && argv[i] && !strcmp(argv[i], "--")
+            && i + 1 < argc && argv[i + 1]) {
+            name = get_basename(argv[i + 1]);
+        }
+    }
+
+    return sanitize_name(name, "unknown");
+}
+
+static void openFTrace(int argc, const char** argv, int nextarg, const char* prog)
 {
     const char* p = BOX64ENV(trace_file);
     #ifndef MAX_PATH
     #define MAX_PATH 4096
     #endif
-    char tmp[MAX_PATH];
+    char tmp_pid[MAX_PATH];
+    char tmp_name[MAX_PATH];
     char tmp2[MAX_PATH];
     int append = 0;
 
@@ -124,23 +212,35 @@ static void openFTrace(void)
     if (!p || ftrace_opened) return;
     ftrace_opened = 1;
 
+    if (strstr(p, "\%name")) {
+        strcpy(tmp_name, p);
+        char* c = strstr(tmp_name, "%name");
+        *c = 0;
+        char name[MAX_PATH];
+        snprintf(name, sizeof(name), "%s", GetName(argc, argv, nextarg, prog));
+        strcat(tmp_name, name);
+        c = strstr(p, "\%name") + strlen("\%name");
+        strcat(tmp_name, c);
+        p = tmp_name;
+    }
+
     if (strstr(p, "\%pid")) {
         int next = 0;
         do {
-            strcpy(tmp, p);
-            char* c = strstr(tmp, "%pid");
+            strcpy(tmp_pid, p);
+            char* c = strstr(tmp_pid, "%pid");
             *c = 0; // cut
             char pid[16];
             if (next)
                 sprintf(pid, "%d-%d", GetTID(), next);
             else
                 sprintf(pid, "%d", GetTID());
-            strcat(tmp, pid);
+            strcat(tmp_pid, pid);
             c = strstr(p, "\%pid") + strlen("\%pid");
-            strcat(tmp, c);
+            strcat(tmp_pid, c);
             ++next;
-        } while (FileExist(tmp, IS_FILE) && !append);
-        p = tmp;
+        } while (FileExist(tmp_pid, IS_FILE) && !append);
+        p = tmp_pid;
     }
 
     if (!strcmp(p, "stdout"))
@@ -205,9 +305,9 @@ void computeRDTSC()
     printf_log_prefix(0, LOG_INFO, "\n");
 }
 
-static void displayMiscInfo(void)
+static void displayMiscInfo(int argc, const char** argv, int nextarg, const char* prog)
 {
-    openFTrace();
+    openFTrace(argc, argv, nextarg, prog);
 
     if ((BOX64ENV(nobanner) || BOX64ENV(log)) && ftrace == stdout)
         box64_stdout_no_w = 1;
@@ -903,7 +1003,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     if (!BOX64ENV(nobanner)) PrintBox64Version(1);
 
     InitializeSystemInfo();
-    displayMiscInfo();
+    displayMiscInfo(argc, argv, nextarg, prog);
 
     hookMangoHud();
 
@@ -1176,7 +1276,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     }
     if (applied) {
         printf_log(LOG_INFO, "Applied settings from rcfile\n");
-        displayMiscInfo();
+        displayMiscInfo(argc, argv, nextarg, prog);
     }
     PrintEnvVariables(&box64env, LOG_INFO);
     setupZydis(my_context);
