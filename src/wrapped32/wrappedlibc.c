@@ -976,6 +976,14 @@ EXPORT int my32_wprintf(x64emu_t *emu, void* fmt, void* V) {
     }
     return vwprintf(fmt, VARARGS_32);
 }
+EXPORT int my32_vwprintf(x64emu_t *emu, void* fmt, void* b) __attribute__((alias("my32_wprintf")));
+EXPORT int my32_fwprintf(x64emu_t *emu, void* F, void* fmt, void* V)  {
+    // need to align on arm
+    myStackAlignW32((const char*)fmt, V, emu->scratch);
+    PREPARE_VALIST_32;
+    return vfwprintf((FILE*)F, fmt, VARARGS_32);
+}
+EXPORT int my32_vfwprintf(x64emu_t *emu, void* F, void* fmt, void* b) __attribute__((alias("my32_fwprintf")));
 #if 0
 EXPORT int my32___wprintf_chk(x64emu_t *emu, int flag, void* fmt, void* V) {
     #ifndef NOALIGN
@@ -989,42 +997,7 @@ EXPORT int my32___wprintf_chk(x64emu_t *emu, int flag, void* fmt, void* V) {
     return vwprintf((const wchar_t*)fmt, (va_list)V);
     #endif
 }
-EXPORT int my32_fwprintf(x64emu_t *emu, void* F, void* fmt, void* V)  {
-    #ifndef NOALIGN
-    // need to align on arm
-    myStackAlignW((const char*)fmt, V, emu->scratch);
-    PREPARE_VALIST_32;
-    void* f = vfwprintf;
-    return ((iFppp_t)f)(F, fmt, VARARGS_32);
-    #else
-    // other platform don't need that
-    return vfwprintf((FILE*)F, (const wchar_t*)fmt, V);
-    #endif
-}
 EXPORT int my32___fwprintf_chk(x64emu_t *emu, void* F, void* fmt, void* V) __attribute__((alias("my32_fwprintf")));
-
-EXPORT int my32_vfwprintf(x64emu_t *emu, void* F, void* fmt, void* b) {
-    #ifndef NOALIGN
-    myStackAlignW((const char*)fmt, b, emu->scratch);
-    PREPARE_VALIST_32;
-    void* f = vfwprintf;
-    return ((iFppp_t)f)(F, fmt, VARARGS_32);
-    #else
-    return vfwprintf(F, fmt, b);
-    #endif
-}
-
-EXPORT int my32_vwprintf(x64emu_t *emu, void* fmt, void* b) {
-    #ifndef NOALIGN
-    myStackAlignW((const char*)fmt, b, emu->scratch);
-    PREPARE_VALIST_32;
-    void* f = vwprintf;
-    return ((iFpp_t)f)(fmt, VARARGS_32);
-    #else
-    void* f = vwprintf;
-    return ((iFpp_t)f)(fmt, b);
-    #endif
-}
 #endif
 EXPORT void *my32_div(void *result, int numerator, int denominator) {
     *(div_t *)result = div(numerator, denominator);

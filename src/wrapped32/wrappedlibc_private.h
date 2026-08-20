@@ -454,7 +454,7 @@ GO2(__futimens64, iEip, futimens)
 GOWM(futimes, iEEip)
 //GO(futimesat, iEippp)
 // fwide
-//GOWM(fwprintf, iEEppV)   //%%
+GOWM(fwprintf, iEESpV)   //%%
 //GOM(__fwprintf_chk, iEEpvpV) //%%
 //GO(__fwritable, iEp)
 GOW(fwrite, LEpLLS)
@@ -1951,7 +1951,7 @@ GOM(vfprintf, iEESpp) //%%
 GOM(__vfprintf_chk, iEESipp) //%%
 //GOWM(vfscanf, iEEppp)  //%%
 // __vfscanf
-//GOWM(vfwprintf, iEEppp)    //%%
+GOWM(vfwprintf, iEESpp)    //%%
 //GO2(__vfwprintf_chk, iEEpvpp, my_vfwprintf)
 //GOW(vfwscanf, iEppp)
 // vhangup
@@ -1976,7 +1976,7 @@ GOM(__vsyslog_chk, vEEiipp)
 // vtimes
 //GOM(vwarn, vEEppp) //%%
 // vwarnx
-//GOM(vwprintf, iEEpp) //%%
+GOM(vwprintf, iEEpp) //%%
 //GO2(__vwprintf_chk, iEEvpp, my_vwprintf)
 //GO(vwscanf, iEpp)
 GOW(wait, iEp)
