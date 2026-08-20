@@ -101,12 +101,18 @@ uintptr_t getJumpAddress64(uintptr_t addr);
 #endif //SAVE_MEM
 #endif
 
-#define PROT_NEVERCLEAN 0x100
-#define PROT_DYNAREC    0x80
-#define PROT_DYNAREC_R  0x40
-#define PROT_NOPROT     0x20
-#define PROT_DYN        (PROT_DYNAREC | PROT_DYNAREC_R | PROT_NOPROT | PROT_NEVERCLEAN)
-#define PROT_CUSTOM     (PROT_DYNAREC | PROT_DYNAREC_R | PROT_NOPROT | PROT_NEVERCLEAN)
+// used when Box64 cannot rely on write protection, so translated code must check whether its source bytes changed
+#define PROT_NEVERCLEAN       0x100
+// the NEVERCLEAN state is specifically caused by mixed 4 KiB pages inside a larger host page and may later be removed
+#define PROT_NEVERCLEAN_MIXED 0x200
+// the guest logically allows writing, but Box64 normally removed physical write permission to detect code changes
+#define PROT_DYNAREC          0x80
+// the guest page was already non-writable; Box64 did not artificially remove write permission.
+#define PROT_DYNAREC_R        0x40
+// Box64 should not manipulate this page’s protection.
+#define PROT_NOPROT           0x20
+#define PROT_DYN        (PROT_DYNAREC | PROT_DYNAREC_R | PROT_NOPROT | PROT_NEVERCLEAN | PROT_NEVERCLEAN_MIXED)
+#define PROT_CUSTOM     (PROT_DYNAREC | PROT_DYNAREC_R | PROT_NOPROT | PROT_NEVERCLEAN | PROT_NEVERCLEAN_MIXED)
 #define PROT_NEVERPROT  (PROT_NOPROT | PROT_NEVERCLEAN)
 #define PROT_WAIT       0xFF
 
@@ -117,8 +123,8 @@ void setProtection_box(uintptr_t addr, size_t size, uint32_t prot);
 void setProtection_stack(uintptr_t addr, size_t size, uint32_t prot);
 void setProtection_elf(uintptr_t addr, size_t size, uint32_t prot);
 void freeProtection(uintptr_t addr, size_t size);
-void setGuestFakeProtection(uintptr_t addr, size_t size, uint32_t prot);
-void freeGuestFakeProtection(uintptr_t addr, size_t size);
+void setGuestProtection(uintptr_t addr, size_t size, uint32_t prot, int new_mapping);
+void freeGuestProtection(uintptr_t addr, size_t size);
 int isGuestRangeFakelyProtected(uintptr_t addr, size_t size, uint32_t prot);
 void refreshProtection(uintptr_t addr);
 uint32_t getProtection(uintptr_t addr);
