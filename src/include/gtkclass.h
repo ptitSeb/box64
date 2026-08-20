@@ -608,6 +608,21 @@ typedef struct my_GtkBin3Class_s
   void (*_gtk_reserved4) (void);
 } my_GtkBin3Class_t;
 
+typedef struct my_GtkEventBox3_s
+{
+  my_GtkBin3_t parent;
+  void*        priv;
+} my_GtkEventBox3_t;
+
+typedef struct my_GtkEventBox3Class_s
+{
+  my_GtkBin3Class_t parent_class;
+  void (*_gtk_reserved1) (void);
+  void (*_gtk_reserved2) (void);
+  void (*_gtk_reserved3) (void);
+  void (*_gtk_reserved4) (void);
+} my_GtkEventBox3Class_t;
+
 typedef struct my_GtkWindow2_s
 {
   my_GtkBin2_t  parent;
@@ -868,6 +883,36 @@ typedef struct my_GtkComboBox2Class_s {
   void (*_gtk_reserved3) (void);
   void (*_gtk_reserved4) (void);
 } my_GtkComboBox2Class_t;
+
+typedef struct my_GtkComboBox3_s
+{
+  my_GtkBin3_t parent;
+  void*        priv;
+} my_GtkComboBox3_t;
+
+typedef struct my_GtkComboBox3Class_s {
+  my_GtkBin3Class_t parent_class;
+  void (* changed)        (void* combo_box);
+  void*(* get_active_text)(void* combo_box);
+  void (*_gtk_reserved1) (void);
+  void (*_gtk_reserved2) (void);
+  void (*_gtk_reserved3) (void);
+  void (*_gtk_reserved4) (void);
+} my_GtkComboBox3Class_t;
+
+typedef struct my_GtkComboBoxText3_s
+{
+  my_GtkComboBox3_t parent;
+  void*              priv;
+} my_GtkComboBoxText3_t;
+
+typedef struct my_GtkComboBoxText3Class_s {
+  my_GtkComboBox3Class_t parent_class;
+  void (*_gtk_reserved1) (void);
+  void (*_gtk_reserved2) (void);
+  void (*_gtk_reserved3) (void);
+  void (*_gtk_reserved4) (void);
+} my_GtkComboBoxText3Class_t;
 
 typedef struct my_GtkEntry2_s
 {
@@ -2460,6 +2505,7 @@ GTKCLASS(GtkImage3)                 \
 GTKCLASS(GtkTreeView2)              \
 GTKCLASS(GtkBin2)                   \
 GTKCLASS(GtkBin3)                   \
+GTKCLASS(GtkEventBox3)              \
 GTKCLASS(GtkWindow2)                \
 GTKCLASS(GtkWindow3)                \
 GTKCLASS(GtkTable2)                 \
@@ -2471,6 +2517,8 @@ GTKCLASS(GtkListBoxRow)             \
 GTKCLASS(GtkButton2)                \
 GTKCLASS(GtkButton3)                \
 GTKCLASS(GtkComboBox2)              \
+GTKCLASS(GtkComboBox3)              \
+GTKCLASS(GtkComboBoxText3)          \
 GTKCLASS(GtkToggleButton2)          \
 GTKCLASS(GtkToggleButton3)          \
 GTKCLASS(GtkMenuButton3)            \
