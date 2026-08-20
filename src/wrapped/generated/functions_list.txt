@@ -1177,6 +1177,7 @@
 #() iFEupp
 #() iFEpii
 #() iFEpip
+#() iFEpiV
 #() iFEpui
 #() iFEpup
 #() iFEpuV
@@ -1592,6 +1593,7 @@
 #() pFEppA
 #() pFiiii
 #() pFiiiu
+#() pFiiip
 #() pFiiuu
 #() pFiiup
 #() pFiiLp
@@ -2885,6 +2887,7 @@
 #() pFEppppp
 #() pFiiiiii
 #() pFiiiiid
+#() pFiiiipp
 #() pFipippp
 #() pFWCiWCi
 #() pFuCCCCp
@@ -3143,8 +3146,10 @@
 #() iFupupppu
 #() iFpiiiiii
 #() iFpiiiiup
+#() iFpiiiipi
 #() iFpiiiuwp
 #() iFpiiifff
+#() iFpiiippi
 #() iFpiiCCCC
 #() iFpiiuiip
 #() iFpiiffff
@@ -3296,6 +3301,8 @@
 #() pFEppppip
 #() pFEpppppi
 #() pFEpppppp
+#() pFiiiipip
+#() pFiiippip
 #() pFifffppp
 #() pFWpppppp
 #() pFuuuiiip
@@ -3477,6 +3484,7 @@
 #() iFupipppip
 #() iFdiippppL
 #() iFpiiiiiiu
+#() iFpiiipppi
 #() iFpiiupppp
 #() iFpiuiiLLL
 #() iFpipiipip
@@ -3588,6 +3596,7 @@
 #() pFEpppppiV
 #() pFEppppppi
 #() pFEppppppp
+#() pFiiipppip
 #() pFiippipip
 #() pFiupppppp
 #() pFuiiiuuuu
@@ -6309,6 +6318,14 @@ wrappedlibomp:
   - GOMP_parallel
 - vFppplliupi:
   - GOMP_task
+wrappedlibopus:
+- iFpiV:
+  - opus_decoder_ctl
+  - opus_encoder_ctl
+  - opus_multistream_decoder_ctl
+  - opus_multistream_encoder_ctl
+  - opus_projection_decoder_ctl
+  - opus_projection_encoder_ctl
 wrappedlibpanel:
 wrappedlibpci:
 wrappedlibpcre:
