@@ -1577,6 +1577,32 @@ static void bridgeGtkBin3Instance(my_GtkBin3_t* class)
 {
     bridgeGtkContainer3Instance(&class->container);
 }
+// ----- GtkEventBox3Class ------
+// wrap (so bridge all calls, just in case)
+static void wrapGtkEventBox3Class(my_GtkEventBox3Class_t* class)
+{
+    wrapGtkBin3Class(&class->parent_class);
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGtkEventBox3Class(my_GtkEventBox3Class_t* class)
+{
+    unwrapGtkBin3Class(&class->parent_class);
+}
+// autobridge
+static void bridgeGtkEventBox3Class(my_GtkEventBox3Class_t* class)
+{
+    bridgeGtkBin3Class(&class->parent_class);
+}
+
+static void unwrapGtkEventBox3Instance(my_GtkEventBox3_t* class)
+{
+    unwrapGtkBin3Instance(&class->parent);
+}
+// autobridge
+static void bridgeGtkEventBox3Instance(my_GtkEventBox3_t* class)
+{
+    bridgeGtkBin3Instance(&class->parent);
+}
 // ----- GtkWindow2Class ------
 // wrapper x86 -> natives of callbacks
 WRAPPER(GtkWindow2, set_focus, void, (void* window, void* focus), "pp", window, focus);
@@ -2332,7 +2358,81 @@ static void bridgeGtkComboBox2Instance(my_GtkComboBox2_t* class)
     bridgeGtkBin2Instance(&class->parent);
 }
 
-// ----- GtkToggleButton2Class ------
+// ----- GtkComboBox3Class ------
+// wrapper x86 -> natives of callbacks
+WRAPPER(GtkComboBox3, changed, void, (void* combo_box), "p", combo_box);
+WRAPPER(GtkComboBox3, get_active_text, void*, (void* combo_box), "p", combo_box);
+
+#define SUPERGO()               \
+    GO(changed, vFp);           \
+    GO(get_active_text, pFp);   \
+
+
+// wrap (so bridge all calls, just in case)
+static void wrapGtkComboBox3Class(my_GtkComboBox3Class_t* class)
+{
+    wrapGtkBin3Class(&class->parent_class);
+    #define GO(A, W) class->A = reverse_##A##_GtkComboBox3 (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGtkComboBox3Class(my_GtkComboBox3Class_t* class)
+{
+    unwrapGtkBin3Class(&class->parent_class);
+    #define GO(A, W)   class->A = find_##A##_GtkComboBox3 (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+// autobridge
+static void bridgeGtkComboBox3Class(my_GtkComboBox3Class_t* class)
+{
+    bridgeGtkBin3Class(&class->parent_class);
+    #define GO(A, W) autobridge_##A##_GtkComboBox3 (W, class->A)
+    SUPERGO()
+    #undef GO
+}
+
+#undef SUPERGO
+
+static void unwrapGtkComboBox3Instance(my_GtkComboBox3_t* class)
+{
+    unwrapGtkBin3Instance(&class->parent);
+}
+// autobridge
+static void bridgeGtkComboBox3Instance(my_GtkComboBox3_t* class)
+{
+    bridgeGtkBin3Instance(&class->parent);
+}
+
+// ----- GtkComboBoxText3Class ------
+// wrap (so bridge all calls, just in case)
+static void wrapGtkComboBoxText3Class(my_GtkComboBoxText3Class_t* class)
+{
+    wrapGtkComboBox3Class(&class->parent_class);
+}
+// unwrap (and use callback if not a native call anymore)
+static void unwrapGtkComboBoxText3Class(my_GtkComboBoxText3Class_t* class)
+{
+    unwrapGtkComboBox3Class(&class->parent_class);
+}
+// autobridge
+static void bridgeGtkComboBoxText3Class(my_GtkComboBoxText3Class_t* class)
+{
+    bridgeGtkComboBox3Class(&class->parent_class);
+}
+
+static void unwrapGtkComboBoxText3Instance(my_GtkComboBoxText3_t* class)
+{
+    unwrapGtkComboBox3Instance(&class->parent);
+}
+// autobridge
+static void bridgeGtkComboBoxText3Instance(my_GtkComboBoxText3_t* class)
+{
+    bridgeGtkComboBox3Instance(&class->parent);
+}
+
+// ------ GtkToggleButton2Class ------
 // wrapper x86 -> natives of callbacks
 WRAPPER(GtkToggleButton2, toggled, void, (void* toggle_button), "p", toggle_button);
 

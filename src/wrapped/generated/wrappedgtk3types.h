@@ -15,6 +15,7 @@ typedef void (*vFpp_t)(void*, void*);
 typedef void (*vFpV_t)(void*, ...);
 typedef void (*vFpA_t)(void*, va_list);
 typedef int32_t (*iFpp_t)(void*, void*);
+typedef uint32_t (*uFpp_t)(void*, void*);
 typedef void* (*pFiV_t)(int32_t, ...);
 typedef void (*vFpuV_t)(void*, uint32_t, ...);
 typedef void (*vFpuA_t)(void*, uint32_t, va_list);
@@ -39,6 +40,7 @@ typedef void (*vFpppppuu_t)(void*, void*, void*, void*, void*, uint32_t, uint32_
 	GO(gtk_style_context_get_style, vFpV_t) \
 	GO(gtk_style_context_get_style_valist, vFpA_t) \
 	GO(gtk_init_check, iFpp_t) \
+	GO(gtk_key_snooper_install, uFpp_t) \
 	GO(gtk_tree_store_new, pFiV_t) \
 	GO(gtk_style_context_get, vFpuV_t) \
 	GO(gtk_style_context_get_valist, vFpuA_t) \

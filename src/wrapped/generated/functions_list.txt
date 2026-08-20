@@ -5250,6 +5250,8 @@ wrappedgtk3:
   - gtk_style_context_get_style_valist
 - iFpp:
   - gtk_init_check
+- uFpp:
+  - gtk_key_snooper_install
 - pFiV:
   - gtk_tree_store_new
 - vFpuV:

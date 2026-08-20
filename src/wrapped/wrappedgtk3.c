@@ -59,11 +59,13 @@ typedef void (*vFppip_t)(void*, void*, int, void*);
     GO(gtk_table_get_type, LFv_t)                      \
     GO(gtk_fixed_get_type, LFv_t)                      \
     GO(gtk_combo_box_get_type, LFv_t)                  \
+    GO(gtk_combo_box_text_get_type, LFv_t)             \
     GO(gtk_toggle_button_get_type, LFv_t)              \
     GO(gtk_check_button_get_type, LFv_t)               \
     GO(gtk_text_view_get_type, LFv_t)                  \
     GO(gtk_frame_get_type, LFv_t)                      \
     GO(gtk_entry_get_type, LFv_t)                      \
+    GO(gtk_event_box_get_type, LFv_t)                  \
     GO(gtk_spin_button_get_type, LFv_t)                \
     GO(gtk_progress_get_type, LFv_t)                   \
     GO(gtk_progress_bar_get_type, LFv_t)               \
@@ -594,6 +596,29 @@ static void* findGCallbackFct(void* fct)
     return NULL;
 }
 
+// GtkKeySnoopFunc ...
+#define GO(A)   \
+static uintptr_t my_GtkKeySnoopFunc_fct_##A = 0;                    \
+static int my_GtkKeySnoopFunc_##A(void* a, void* b, void* c)       \
+{                                                                   \
+    return (int)RunFunctionFmt(my_GtkKeySnoopFunc_fct_##A, "ppp", a, b, c);     \
+}
+SUPER()
+#undef GO
+static void* find_GtkKeySnoopFunc_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GtkKeySnoopFunc_fct_##A == (uintptr_t)fct) return my_GtkKeySnoopFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GtkKeySnoopFunc_fct_##A == 0) {my_GtkKeySnoopFunc_fct_##A = (uintptr_t)fct; return my_GtkKeySnoopFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gtk-3 GtkKeySnoopFunc callback\n");
+    return NULL;
+}
+
 #undef SUPER
 
 EXPORT void my3_gtk_dialog_add_buttons(x64emu_t* emu, void* dialog, void* first, uintptr_t* b)
@@ -948,6 +973,12 @@ EXPORT uint32_t my3_gtk_widget_add_tick_callback(x64emu_t* emu, void* widget, vo
     return my->gtk_widget_add_tick_callback(widget, findGTickCallbackFct(callback), data, findGDestroyNotifyFct(d));
 }
 
+EXPORT uint32_t my3_gtk_key_snooper_install(x64emu_t* emu, void* f, void* data)
+{
+    (void)emu;
+    return my->gtk_key_snooper_install(find_GtkKeySnoopFunc_Fct(f), data);
+}
+
 #define PRE_INIT \
     if (BOX64ENV(nogtk)) return -2;
 
@@ -966,6 +997,9 @@ EXPORT uint32_t my3_gtk_widget_add_tick_callback(x64emu_t* emu, void* widget, vo
     SetGtkApplicationWindowID(my->gtk_application_window_get_type());\
     SetGtkListBoxID(my->gtk_list_box_get_type());               \
     SetGtkListBoxRowID(my->gtk_list_box_row_get_type());        \
+    SetGtkComboBox3ID(my->gtk_combo_box_get_type());            \
+    SetGtkComboBoxText3ID(my->gtk_combo_box_text_get_type());   \
+    SetGtkEventBox3ID(my->gtk_event_box_get_type());            \
     SetGtkTextView3ID(my->gtk_text_view_get_type());            \
     SetGtkGrid3ID(my->gtk_grid_get_type());                     \
     SetGtkMisc3ID(my->gtk_misc_get_type());                     \
