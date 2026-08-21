@@ -836,6 +836,8 @@ static int getSymbolInDataMaps(library_t*lib, const char* name, int noweak, uint
         symbol = (void*)(kh_value(lib->w.datamap, k).addr);
         #else
         symbol = dlsym(lib->w.lib, kh_key(lib->w.datamap, k));
+        if(!symbol)
+            symbol = GetNativeSymbolUnversioned(lib->w.lib, kh_key(lib->w.datamap, k));
         #endif
         if(symbol) {
             // found!
@@ -856,6 +858,8 @@ static int getSymbolInDataMaps(library_t*lib, const char* name, int noweak, uint
             symbol = (void*)(kh_value(lib->w.wdatamap, k).addr);
             #else
             symbol = dlsym(lib->w.lib, kh_key(lib->w.wdatamap, k));
+            if(!symbol)
+                symbol = GetNativeSymbolUnversioned(lib->w.lib, kh_key(lib->w.wdatamap, k));
             #endif
             if(symbol) {
                 // found!
