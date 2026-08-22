@@ -1147,6 +1147,34 @@ void updateNativeFlags(dynarec_native_t* dyn)
         if(flag2native(dyn->insts[ninst].x64.gen_flags,(dyn->insts[ninst].set_nat_flags&NF_PF_V)?1:0) && (dyn->insts[ninst].nat_flags_op==NAT_FLAG_OP_TOUCH)) {
             propagateNativeFlags(dyn, ninst);
         }
+    // BOX64_DYNAREC_LOOPFLAGS: a flag producer that ends a block has X_PEND forced
+    // onto it so the deferred op1/op2/res spill keeps full EFLAGS reconstructable for
+    // any successor or signal. When the producer's whole real flag need
+    // (gen_flags & X_ALL) is ZF/SF/CF/OF and reaches its downstream consumers purely
+    // through native NZCV (e.g. a loop-control CMP feeding a native Jcc), that spill is
+    // redundant for the branch. Clearing X_PEND makes emit_cmp/emit_test take the
+    // SET_DFNONE path. ZF/SF/CF/OF stay reconstructable at faults through adjust_arch's
+    // NZCV overlay (kept in need_nat_flags); only PF/AF turn approximate across the
+    // block exit, which the dynarec already is for native flags and which the x86 ABI
+    // (arithmetic flags not preserved across calls) makes safe across the exit.
+    if(BOX64ENV(dynarec_loopflags))
+        for(int ninst=0; ninst<dyn->size; ++ninst) {
+            uint8_t gf = dyn->insts[ninst].x64.gen_flags;
+            if(!(gf&X_PEND) || dyn->insts[ninst].nat_flags_op!=NAT_FLAG_OP_TOUCH)
+                continue;
+            uint8_t xflags = gf & X_ALL;
+            if(xflags & (X_AF|X_PF))    // native NZCV cannot carry AF/PF at a fault
+                continue;
+            int vf_is_p = (dyn->insts[ninst].set_nat_flags&NF_PF_V)?1:0;
+            uint8_t need_nat = flag2native(xflags, vf_is_p);
+            if(!need_nat || (dyn->insts[ninst].set_nat_flags & need_nat) != need_nat)
+                continue;               // producer must emit exactly the native flags needed
+            if(getNativeFlagsUsed(dyn, ninst, need_nat, vf_is_p) != need_nat)
+                continue;               // every real consumer takes them natively, nothing else
+            // keep all NZCV flags this op sets alive so adjust_arch reconstructs ZF/SF/CF/OF
+            dyn->insts[ninst].need_nat_flags |= dyn->insts[ninst].set_nat_flags & (NF_EQ|NF_SF|NF_VF|NF_CF);
+            dyn->insts[ninst].x64.gen_flags = gf & ~X_PEND;
+        }
 }
 
 void rasNativeState(dynarec_arm_t* dyn, int ninst)
