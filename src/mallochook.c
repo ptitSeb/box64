@@ -144,7 +144,7 @@ uint32_t getProtection(uintptr_t addr);
 // mmap history
 static int malloc_hack_2 = 0;
 
-#define ALLOC 0
+#define ALLOC 1
 #define FREE 1
 
 char* box_strdup(const char* s) {
@@ -258,7 +258,7 @@ char* box32_strdup(const char* s) {
 #endif
 
 // redefining all libc memory allocation routines
-EXPORT void* malloc(size_t l)
+EXPORT void* my1_malloc(size_t l)
 {
     if(malloc_hack_2 && ALLOC && real_malloc) {
         return (void*)RunFunctionFmtNoAlt(real_malloc, "L", l);
@@ -266,7 +266,7 @@ EXPORT void* malloc(size_t l)
     return actual_calloc(1, l);
 }
 
-EXPORT void free(void* p)
+EXPORT void my1_free(void* p)
 {
     if(malloc_hack_2 && p) {
         if(getMmapped((uintptr_t)p)) {
@@ -280,7 +280,7 @@ EXPORT void free(void* p)
     actual_free(p);
 }
 
-EXPORT void* calloc(size_t n, size_t s)
+EXPORT void* my1_calloc(size_t n, size_t s)
 {
     if(malloc_hack_2 && ALLOC && real_calloc) {
         return (void*)RunFunctionFmtNoAlt(real_calloc, "LL", n,s);
@@ -288,7 +288,7 @@ EXPORT void* calloc(size_t n, size_t s)
     return actual_calloc(n, s);
 }
 
-EXPORT void* realloc(void* p, size_t s)
+EXPORT void* my1_realloc(void* p, size_t s)
 {
     if(malloc_hack_2)
         if(getMmapped((uintptr_t)p) || (!p && ALLOC && real_realloc)) {
@@ -311,7 +311,7 @@ EXPORT void* realloc(void* p, size_t s)
     return actual_realloc(p, s);
 }
 
-EXPORT void* memalign(size_t align, size_t size)
+EXPORT void* my1_memalign(size_t align, size_t size)
 {
     if(malloc_hack_2 && ALLOC && real_aligned_alloc) {
         return (void*)RunFunctionFmtNoAlt(real_aligned_alloc, "LL", align, size);
@@ -321,7 +321,7 @@ EXPORT void* memalign(size_t align, size_t size)
     return actual_memalign(align, size);
 }
 
-EXPORT void* aligned_alloc(size_t align, size_t size)
+EXPORT void* my1_aligned_alloc(size_t align, size_t size)
 {
     if(malloc_hack_2 && ALLOC && real_aligned_alloc) {
         return (void*)RunFunctionFmtNoAlt(real_aligned_alloc, "LL", align, size);
@@ -332,7 +332,7 @@ EXPORT void* aligned_alloc(size_t align, size_t size)
     return actual_memalign(align, size);
 }
 
-EXPORT int posix_memalign(void** p, size_t align, size_t size)
+EXPORT int my1_posix_memalign(void** p, size_t align, size_t size)
 {
     if(malloc_hack_2 && ALLOC && real_posix_memalign) {
         return RunFunctionFmtNoAlt(real_posix_memalign, "pLL", p, align, size);
@@ -348,7 +348,7 @@ EXPORT int posix_memalign(void** p, size_t align, size_t size)
     return 0;
 }
 
-EXPORT void* valloc(size_t size)
+EXPORT void* my1_valloc(size_t size)
 {
     if(malloc_hack_2 && ALLOC && real_valloc) {
         return (void*)RunFunctionFmtNoAlt(real_valloc, "L", size);
@@ -356,7 +356,7 @@ EXPORT void* valloc(size_t size)
     return actual_memalign(box64_pagesize, size);
 }
 
-EXPORT void* pvalloc(size_t size)
+EXPORT void* my1_pvalloc(size_t size)
 {
     if(malloc_hack_2 && ALLOC && real_pvalloc) {
         return (void*)RunFunctionFmtNoAlt(real_pvalloc, "L", size);
@@ -364,7 +364,7 @@ EXPORT void* pvalloc(size_t size)
     return actual_memalign(box64_pagesize, (size+box64_pagesize-1)&~(box64_pagesize-1));
 }
 
-EXPORT void cfree(void* p)
+EXPORT void my1_cfree(void* p)
 {
     if(malloc_hack_2 && p) {
         if(getMmapped((uintptr_t)p)) {
@@ -378,7 +378,7 @@ EXPORT void cfree(void* p)
     actual_free(p);
 }
 
-EXPORT size_t malloc_usable_size(void* p)
+EXPORT size_t my1_malloc_usable_size(void* p)
 {
     if(malloc_hack_2 && real_malloc_usable_size) {
         if(getMmapped((uintptr_t)p))
@@ -995,12 +995,12 @@ void checkHookedSymbols(elfheader_t* h)
                 const char * symname = h->StrTab+h->SymTab._64[i].st_name;
                 uintptr_t offs = h->SymTab._64[i].st_value + h->delta;
                 size_t sz = h->SymTab._64[i].st_size;
-                #define GO(A, B) if(!strcmp(symname, "__libc_" #A)) {uintptr_t alt = AddCheckBridge(my_context->system, B, A, 0, #A); printf_log(LOG_DEBUG, "Redirecting %s function from %p (%s)\n", symname, (void*)offs, ElfName(h)); addRelocJmp((void*)offs, (void*)alt, sz, "__libc_" #A, h, NULL);}
+                #define GO(A, B) if(!strcmp(symname, "__libc_" #A)) {uintptr_t alt = AddCheckBridge(my_context->system, B, my1_##A, 0, "my1_" #A); printf_log(LOG_DEBUG, "Redirecting %s function from %p (%s)\n", symname, (void*)offs, ElfName(h)); addRelocJmp((void*)offs, (void*)alt, sz, "__libc_" #A, h, NULL);}
                 #define GO2(A, B)
                 SUPER()
                 #undef GO
                 #undef GO2
-                #define GO(A, B) if(!strcmp(symname, #A)) {uintptr_t alt = AddCheckBridge(my_context->system, B, A, 0, #A); printf_log(LOG_DEBUG, "Redirecting %s function from %p (%s)\n", symname, (void*)offs, ElfName(h)); addRelocJmp((void*)offs, (void*)alt, sz, #A, h, &real_##A);}
+                #define GO(A, B) if(!strcmp(symname, #A)) {uintptr_t alt = AddCheckBridge(my_context->system, B, my1_##A, 0, "my1_" #A); printf_log(LOG_DEBUG, "Redirecting %s function from %p (%s)\n", symname, (void*)offs, ElfName(h)); addRelocJmp((void*)offs, (void*)alt, sz, "my1_" #A, h, &real_##A);}
                 #define GO2(A, B) if(!strcmp(symname, #A) && (BOX64ENV(malloc_hack)>1)) {uintptr_t alt = AddCheckBridge(my_context->system, B, my_##A, 0, "my_" #A); printf_log(LOG_DEBUG, "Redirecting %s function from %p (%s)\n", symname, (void*)offs, ElfName(h)); addRelocJmp((void*)offs, (void*)alt, sz, "my_" #A, h, &real_##A);}
                 SUPER()
                 #undef GO
@@ -1018,12 +1018,12 @@ void checkHookedSymbols(elfheader_t* h)
                 uintptr_t offs = h->DynSym._64[i].st_value + h->delta;
                 size_t sz = h->DynSym._64[i].st_size;
                 if(bind!=STB_LOCAL && bind!=STB_WEAK) {
-                    #define GO(A, B) if(!strcmp(symname, "__libc_" #A)) {uintptr_t alt = AddCheckBridge(my_context->system, B, A, 0, #A); printf_log(LOG_DEBUG, "Redirecting %s function from %p (%s)\n", symname, (void*)offs, ElfName(h)); addRelocJmp((void*)offs, (void*)alt, sz, "__libc_" #A, h, NULL);}
+                    #define GO(A, B) if(!strcmp(symname, "__libc_" #A)) {uintptr_t alt = AddCheckBridge(my_context->system, B, my1_##A, 0, "my1_" #A); printf_log(LOG_DEBUG, "Redirecting %s function from %p (%s)\n", symname, (void*)offs, ElfName(h)); addRelocJmp((void*)offs, (void*)alt, sz, "__libc_" #A, h, NULL);}
                     #define GO2(A, B)
                     SUPER()
                     #undef GO
                     #undef GO2
-                    #define GO(A, B) if(!strcmp(symname, #A)) {uintptr_t alt = AddCheckBridge(my_context->system, B, A, 0, #A); printf_log(LOG_DEBUG, "Redirecting %s function from %p (%s)\n", symname, (void*)offs, ElfName(h)); addRelocJmp((void*)offs, (void*)alt, sz, #A, h, &real_##A);}
+                    #define GO(A, B) if(!strcmp(symname, #A)) {uintptr_t alt = AddCheckBridge(my_context->system, B, my1_##A, 0, "my1_" #A); printf_log(LOG_DEBUG, "Redirecting %s function from %p (%s)\n", symname, (void*)offs, ElfName(h)); addRelocJmp((void*)offs, (void*)alt, sz, "my1_" #A, h, &real_##A);}
                     #define GO2(A, B) if(!strcmp(symname, #A) && (BOX64ENV(malloc_hack)>1)) {uintptr_t alt = AddCheckBridge(my_context->system, B, my_##A, 0, "my_" #A); printf_log(LOG_DEBUG, "Redirecting %s function from %p (%s)\n", symname, (void*)offs, ElfName(h)); addRelocJmp((void*)offs, (void*)alt, sz, "my_" #A, h, &real_##A);}
                     SUPER()
                     #undef GO
@@ -1048,7 +1048,7 @@ void endMallocHook()
 EXPORT int my___TBB_internal_find_original_malloc(int n, char* names[], void* ptr[])
 {
     int ret = 1;
-    #define GO(A, B) else if(!strcmp(names[i], #A)) {ptr[i] = A;}
+    #define GO(A, B) else if(!strcmp(names[i], #A)) {ptr[i] = my1_##A;}
     #define GO2(A, B) 
     for (int i=0; i<n; ++i)
         if (0) {}
