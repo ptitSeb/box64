@@ -79,7 +79,7 @@ void myStackAlign32(const char* fmt, uint32_t* st, uint64_t* mystack)
                     case 's': state = 30; break; // pointers
                     case '$': ++p; break; // should issue a warning, it's not handled...
                     case '*': *(mystack++) = *(st++); ++p; break; // fetch an int in the stack....
-                    case ' ': state=(state==1)?6:0; ++p; break;
+                    case ' ': ++p; break;
                     default:
                         state=20; // other stuff, put an int...
                 }
@@ -216,7 +216,7 @@ size_t myStackAlignScanf32(const char* fmt, uint32_t* st, uint64_t* mystack, siz
                     case '+': 
                     case '-': ++p; break; // formating, ignored
                     case '[': state += 60; ++p; break;
-                    case 'm': state = 0; ++p; break; // no argument
+                    case 'm': ++p; break; // no argument
                     case 'p': state = 30; break; // pointers
                     case 'S':
                     case 's': state = 50; break; // string
@@ -351,7 +351,7 @@ void myStackAlignScanf32_final(const char* fmt, uint32_t* st, uint64_t* mystack,
                     case '+': 
                     case '-': ++p; break; // formating, ignored
                     case '[': state += 60; ++p; break;
-                    case 'm': state = 0; ++p; break; // no argument
+                    case 'm': ++p; break; // no argument
                     case 'p': state = 30; break; // pointers
                     case 'S':
                     case 's': state = 50; break; // strings
@@ -494,7 +494,7 @@ size_t myStackAlignScanfW32(const char* fmt, uint32_t* st, uint64_t* mystack, si
                     case '#':
                     case '+': 
                     case '-': ++p; break; // formating, ignored
-                    case 'm': state = 0; ++p; break; // no argument
+                    case 'm': ++p; break; // no argument
                     case 'p': state = 30; break; // pointers
                     case 'S':
                     case 's': state = 50; break; // strings
@@ -619,9 +619,9 @@ void myStackAlignScanfW32_final(const char* fmt, uint32_t* st, uint64_t* mystack
                     case '9':
                     case '.': 
                     case '#':
-                    case '+': 
+                    case '+': state = 0;
                     case '-': ++p; break; // formating, ignored
-                    case 'm': state = 0; ++p; break; // no argument
+                    case 'm': ++p; break; // no argument
                     case 'p': state = 30; break; // pointers
                     case 'S':
                     case 's': state = 50; break; // string
@@ -757,7 +757,7 @@ void myStackAlignW32(const char* fmt, uint32_t* st, uint64_t* mystack)
                     case 's': state = 30; break; // pointers
                     case '$': ++p; break; // should issue a warning, it's not handled...
                     case '*': *(mystack++) = *(st++); ++p; break; // fetch an int in the stack....
-                    case ' ': state=(state==1)?6:0; ++p; break;
+                    case ' ': ++p; break;
                     default:
                         state=20; // other stuff, put an int...
                 }
