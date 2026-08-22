@@ -897,6 +897,7 @@ GDBJIT 调试支持，仅在使用 `-DGDBJIT=ON` 构建时可用，通过 gdb �
 将所有日志和追踪发送到文件而非 `stdout`。
 
  * XXXX: 将所有日志和追踪发送到文件 XXXX。
+ * XXXX%name: 将所有日志和追踪发送到文件 XXXX，文件名中附加可执行文件名。
  * XXXX%pid: 将所有日志和追踪发送到文件 XXXX，文件名中附加 pid。
  * stderr: 将所有日志和追踪发送到 `stderr`。 [默认值]
  * stdout: 将所有日志和追踪发送到 `stdout`。

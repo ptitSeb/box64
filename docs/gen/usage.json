@@ -2186,6 +2186,11 @@
         "default": false
       },
       {
+        "key": "XXXX%name",
+        "description": "Send all log and trace to file XXXX with executable name appended.",
+        "default": false
+      },
+      {
         "key": "XXXX%pid",
         "description": "Send all log and trace to file XXXX with pid appended.",
         "default": false
