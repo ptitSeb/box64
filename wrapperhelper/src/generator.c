@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #include "generator.h"
 
 #include "lang.h"
@@ -334,7 +335,7 @@ static void reference_output(FILE *f, const reference_t *ref, int check_only) {
 	}
 }
 void output_from_references(FILE *f, const VECTOR(references) *refs, int check_only) {
-	fprintf(f, "#if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))\n#error Meh...\n#endif\n");
+	fprintf(f, "// SPDX-License-Identifier: MIT\n#if !(defined(GO) && defined(GOM) && defined(GO2) && defined(DATA))\n#error Meh...\n#endif\n");
 	vector_for(references, ref, refs) {
 		reference_output(f, ref, check_only);
 	}
@@ -358,13 +359,13 @@ VECTOR(references) *references_from_file(const char *filename, FILE *f) {
 	
 	int lineno = 1;
 	
-	// Ignore the first 3 lines
+	// Ignore the first 4 lines
 	preproc_token_t tok;
 	do {
 		tok = pre_next_token(prep, 0);
 		if (tok.tokt == PPTOK_NEWLINE) ++lineno;
 		else preproc_token_del(&tok); // NEWLINE has no destructor
-	} while (!preproc_token_isend(&tok) && (lineno < 4));
+	} while (!preproc_token_isend(&tok) && (lineno < 5));
 	
 	// TODO: better conditionals handling
 	// Also, for now assume we have no definition

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 //arm update linker table for dynarec
 //called with pointer to emu as 1st parameter
 

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 // PPC64LE epilog for dynarec
 // Store x86 register state back to emu struct,
 // restore callee-saved registers, return to caller.

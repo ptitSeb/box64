@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __GDBJIT_H__
 #define __GDBJIT_H__
 

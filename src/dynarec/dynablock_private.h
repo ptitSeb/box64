@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __DYNABLOCK_PRIVATE_H_
 #define __DYNABLOCK_PRIVATE_H_
 

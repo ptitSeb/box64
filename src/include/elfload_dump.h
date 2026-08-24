@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef ELFLOADER_DUMP_H
 #define ELFLOADER_DUMP_H
 

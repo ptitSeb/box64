@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #define _GNU_SOURCE
 #include <sys/syscall.h>
 #include <sched.h>

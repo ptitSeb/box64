@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __LIBRARIAN_PRIVATE_H_
 #define __LIBRARIAN_PRIVATE_H_
 #include <stdint.h>

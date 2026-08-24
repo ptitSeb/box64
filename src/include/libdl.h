@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __LIBDL_H__
 #define __LIBDL_H__
 

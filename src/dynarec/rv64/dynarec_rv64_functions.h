@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __DYNAREC_RV64_FUNCTIONS_H__
 #define __DYNAREC_RV64_FUNCTIONS_H__
 

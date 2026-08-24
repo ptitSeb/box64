@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __SYMBOLFUNCS_H__
 #define __SYMBOLFUNCS_H__
 

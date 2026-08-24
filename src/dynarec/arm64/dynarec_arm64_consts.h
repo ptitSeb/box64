@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __DYNAREC_ARM64_CONSTS__
 #define __DYNAREC_ARM64_CONSTS__
 #include <stdint.h>

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __SDL1RWOPS_H__
 #define __SDL1RWOPS_H__
 

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #define _GNU_SOURCE 1
 #define __USE_MISC 1
 #define PORTMAP

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #include <stdio.h>
 int myfunc1() { return 1; }
 int myfunc2() { return 2; }

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 // Copy from Box86/tests/test26.c (Box64/tests32/test26.c)
 // Build with `gcc -march=core2 -O0 test31.c -o test31 -std=c99 -masm=intel -mfpmath=387 -frounding-math`
 #include <fenv.h>

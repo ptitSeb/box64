@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 // gcc test33.c -o test33 -O2
 
 #include <stdint.h>

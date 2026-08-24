@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 // build with gcc -march=corei7 -O2 -g -maes -mpclmul -m32 test22.c -o test22
 #include <stdio.h>
 #include <stdint.h>

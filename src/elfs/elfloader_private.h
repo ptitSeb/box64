@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __ELFLOADER_PRIVATE_H_
 #define __ELFLOADER_PRIVATE_H_
 

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 /*
  * Compile with (on x86_64 archs):
  *  gcc -m32 -DV1 -shared -o test16_v1.so test16.c -Wl,--version-script=test16_version.map

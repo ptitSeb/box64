@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 
 #define INIT uintptr_t sav_addr = addr
 #define FINI                           \

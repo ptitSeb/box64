@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifdef GDBJIT
 #include <stdint.h>
 #include <stdlib.h>

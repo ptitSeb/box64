@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #include <stdint.h>
 #include <sys/mman.h>
 

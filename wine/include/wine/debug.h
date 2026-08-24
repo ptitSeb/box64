@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __WINE_DEBUG_H__
 #define __WINE_DEBUG_H__
 

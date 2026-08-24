@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #define INIT dyn->native_size = 0
 #define ENDPREFIX                                        \
     dyn->prefixsize = dyn->native_size;                  \

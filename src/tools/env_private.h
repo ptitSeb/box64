@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __ENV_PRIVATE_H__
 #define __ENV_PRIVATE_H__
 

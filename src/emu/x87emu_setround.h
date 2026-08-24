@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __SETROUND_H__
 #define __SETROUND_H__
 #pragma STDC FENV_ACCESS ON

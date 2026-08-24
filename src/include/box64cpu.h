@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __BOX64CPU_H_
 #define __BOX64CPU_H_
 

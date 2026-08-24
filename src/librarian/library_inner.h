@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __LIBRARY_INNER_H__
 #define __LIBRARY_INNER_H__
 

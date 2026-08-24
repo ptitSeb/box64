@@ -29,3 +29,4 @@ Before submitting your PR:
 # Coding guidelines
 
 - Avoid adding third-party dependencies, extra files, extra headers, etc.
+- New C source files must start with the license header `// SPDX-License-Identifier: MIT` or `# SPDX-License-Identifier: MIT` for Bash and Python scripts. Do not add headers to third-party files in `external/` or `src/include/`.

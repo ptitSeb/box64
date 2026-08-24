@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #define INIT dyn->native_size = 0
 #define FINI                                                                                                                                                   \
     if (ninst) {                                                                                                                                               \

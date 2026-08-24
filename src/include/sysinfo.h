@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __SYSINFO_H_
 #define __SYSINFO_H_
 #include <stdio.h>

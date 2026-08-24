@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #define _LARGEFILE_SOURCE 1
 #define _FILE_OFFSET_BITS 64
 #define _GNU_SOURCE         /* See feature_test_macros(7) */

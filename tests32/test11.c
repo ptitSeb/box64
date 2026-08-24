@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #define _MULTI_THREADED
 #include <stdio.h>
 #include <stdlib.h>

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __ELFDWARF_PRIVATE_H_
 #define __ELFDWARF_PRIVATE_H_
 

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __PPC64LE_MAPPING_H__
 #define __PPC64LE_MAPPING_H__
 

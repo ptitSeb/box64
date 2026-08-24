@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 // Code from https://martin.uy/blog/pthread_cancel-glibc-stack-unwinding/
 #include <pthread.h>
 #include <stddef.h>

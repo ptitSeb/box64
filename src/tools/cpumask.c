@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef _WIN32
 #define _GNU_SOURCE
 #include <sched.h>

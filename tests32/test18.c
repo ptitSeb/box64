@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #include <signal.h>
 #include <setjmp.h>
 #include <stdio.h>

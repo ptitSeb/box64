@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __GL_TOOLS_H__
 #define __GL_TOOLS_H__
 

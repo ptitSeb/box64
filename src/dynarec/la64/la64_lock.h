@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __LA64_LOCK__H__
 #define __LA64_LOCK__H__
 #include <stdint.h>

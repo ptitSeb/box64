@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #include <stdint.h>
 
 #include "dynarec_ppc64le_consts.h"

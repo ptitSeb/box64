@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 // build with  gcc -O0 -g -msse -msse2 -mssse3 -msse4.1 -msse4.2 -m32 test25.c -o test25
 // and -m32 for 32bits version
 #include <inttypes.h>

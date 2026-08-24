@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 // PPC64LE lock helper functions
 // Atomic read/write operations using Load-and-Reserve / Store-Conditional
 // PPC64LE uses: lbarx/stbcx. (byte), lharx/sthcx. (halfword),

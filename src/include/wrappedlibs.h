@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __WRAPPEDLIBS_H__
 #define __WRAPPEDLIBS_H__
 #include <stdint.h>

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #include <fenv.h>
 #include <float.h>
 #include <inttypes.h>

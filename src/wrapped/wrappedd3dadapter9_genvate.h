@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 GO(AddDirtyBox, iWpp)
 GO(AddDirtyRect, iWpip)
 GO(AddDirtyRect, iWpp)

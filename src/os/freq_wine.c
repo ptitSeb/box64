@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #include "freq.h"
 
 // TODO: box64_rdtsc?

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 # Usage: python gen.py
 
 import json

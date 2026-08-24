@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #define __USE_UNIX98
 #define _GNU_SOURCE
 #include <stdio.h>

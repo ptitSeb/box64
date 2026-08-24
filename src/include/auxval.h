@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __AUXVAL_H__
 #define __AUXVAL_H__
 

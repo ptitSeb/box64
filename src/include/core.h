@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __CORE_H
 #define __CORE_H
 

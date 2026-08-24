@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __DYNAREC_RV64_PRIVATE_H_
 #define __DYNAREC_RV64_PRIVATE_H_
 #include <stdint.h>

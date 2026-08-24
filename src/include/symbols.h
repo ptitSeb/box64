@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __SYMBOLS_PRIVATE_H_
 #define __SYMBOLS_PRIVATE_H_
 #include <stdint.h>

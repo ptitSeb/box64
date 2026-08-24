@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __HOSTEXT_H__
 #define __HOSTEXT_H__
 

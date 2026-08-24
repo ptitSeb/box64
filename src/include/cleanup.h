@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __CLEANUP_H_
 #define __CLEANUP_H_
 

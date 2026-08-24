@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __DYNAREC_LA64_NATIVE_H__
 #define __DYNAREC_LA64_NATIVE_H__
 

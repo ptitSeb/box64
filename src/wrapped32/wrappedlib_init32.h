@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef LIBNAME
 #error Meh
 #endif

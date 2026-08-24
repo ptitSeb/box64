@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #include "sdl2align32.h"
 #include <stdio.h>
 #include <stdlib.h>

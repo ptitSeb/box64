@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __EMIT_SIGNALS_H_
 #define __EMIT_SIGNALS_H_
 

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 // PPC64LE prolog for dynarec
 // Save callee-saved registers, load x86 state from emu struct,
 // then jump to the dynarec block.

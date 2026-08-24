@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #define INIT    
 #define FINI
 #define MESSAGE(A, ...) do {} while (0)

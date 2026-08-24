@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #define ASM_MAPPING 1
 #include "rv64_mapping.h"
 #undef ASM_MAPPING

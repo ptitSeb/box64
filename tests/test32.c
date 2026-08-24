@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 // gcc -mfpmath=387 -o test32 test32.c -lm
 #include <stdio.h>
 #include <stdint.h>

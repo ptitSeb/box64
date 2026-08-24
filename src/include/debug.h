@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __DEBUG_H_
 #define __DEBUG_H_
 #include <stdint.h>

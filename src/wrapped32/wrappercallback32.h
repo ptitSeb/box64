@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #define TYPENAME3(N,M) N##M
 #define TYPENAME2(N,M) TYPENAME3(N,M)
 #define TYPENAME(N) TYPENAME2(LIBNAME, _my_t)
