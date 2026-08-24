@@ -90,6 +90,8 @@ typedef struct register_mapping_s {
 void x64disas_add_register_mapping_annotations(char* buf, const char* disas, const register_mapping_t* mappings, size_t mappings_sz);
 void dynarec_stopped(uintptr_t x64addr, int is32bits);
 
+int interblock_flags_needed(dynarec_native_t* dyn, uintptr_t addr, int is32bits);
+
 ADDITIONNAL_DEFINITION()
 
 #endif //__DYNAREC_NATIVE_FUNCTIONS_H__

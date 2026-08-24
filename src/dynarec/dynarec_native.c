@@ -70,6 +70,11 @@ void printf_x64_instruction(dynarec_native_t* dyn, zydis_dec_t* dec, instruction
 void add_next(dynarec_native_t *dyn, uintptr_t addr) {
     if (!BOX64DRENV(dynarec_bigblock))
         return;
+    if (dyn->peeking_flags) {
+        if (dyn->next_sz < dyn->next_cap)
+            dyn->next[dyn->next_sz++] = addr;
+        return;
+    }
     int ret;
     kh_put(nextset, khnextset, addr, &ret);
     if(!ret)
@@ -87,7 +92,7 @@ uintptr_t get_closest_next(dynarec_native_t *dyn, uintptr_t addr) {
     while(i<dyn->next_sz) {
         uintptr_t next = dyn->next[i];
         if(!next || next<addr) {
-            if(next) {
+            if (next && !dyn->peeking_flags) {
                 khint_t k = kh_get(nextset, khnextset, next);
                 if(k != kh_end(khnextset))
                     kh_del(nextset, khnextset, k);
@@ -107,7 +112,7 @@ void add_jump(dynarec_native_t *dyn, int ninst) {
         printf_log(LOG_NONE, "Warning, overallocating jmps\n");
     }
     dyn->jmps[dyn->jmp_sz++] = ninst;
-    if(dyn->insts[ninst].x64.jmp) {
+    if (dyn->insts[ninst].x64.jmp && !dyn->peeking_flags) {
         if(!khjumpaddr)
             khjumpaddr = kh_init(jumpaddr);
         int ret;
@@ -122,7 +127,7 @@ int get_first_jump(dynarec_native_t *dyn, int next) {
     return get_first_jump_addr(dyn, dyn->insts[next].x64.addr);
 }
 int get_first_jump_addr(dynarec_native_t *dyn, uintptr_t next) {
-    if(khjumpaddr) {
+    if (khjumpaddr && !dyn->peeking_flags) {
         khint_t k = kh_get(jumpaddr, khjumpaddr, next);
         if(k != kh_end(khjumpaddr)) {
             int ninst = kh_value(khjumpaddr, k);
@@ -409,6 +414,91 @@ uintptr_t native_pass1(dynarec_native_t* dyn, uintptr_t addr, int alternate, int
 uintptr_t native_pass2(dynarec_native_t* dyn, uintptr_t addr, int alternate, int is32bits, int inst_max);
 uintptr_t native_pass3(dynarec_native_t* dyn, uintptr_t addr, int alternate, int is32bits, int inst_max);
 
+#define PEEK_FLAGS_INSTS 16
+
+typedef struct peek_flags_state_s {
+    dynarec_native_t dyn;
+    instruction_native_t insts[PEEK_FLAGS_INSTS + 2];
+    int jmps[PEEK_FLAGS_INSTS + 2];
+    uintptr_t next[PEEK_FLAGS_INSTS + 2];
+} peek_flags_state_t;
+
+static peek_flags_state_t peek_flags_state;
+
+static int peek_flags_readable(uintptr_t addr)
+{
+    const uintptr_t size = PEEK_FLAGS_INSTS * 16;
+    uintptr_t end = addr + size - 1;
+    if (end < addr)
+        return 0;
+    for (uintptr_t page = addr & ~(box64_pagesize - 1); page <= end; page += box64_pagesize) {
+        uint32_t prot = getProtection(page);
+        if (!(prot & PROT_READ) || !(prot & PROT_EXEC) || (prot & (PROT_WRITE | PROT_DYNAREC | PROT_NOPROT | PROT_NEVERCLEAN | PROT_NEVERCLEAN_MIXED)))
+            return 0;
+    }
+    return 1;
+}
+
+int interblock_flags_needed(dynarec_native_t* dyn, uintptr_t addr, int is32bits)
+{
+    if (!BOX64ENV(dynarec_df) || !addr || dyn->peeking_flags)
+        return 1;
+    if (BOX64ENV(dynarec_test) || BOX64ENV(dynarec_trace))
+        return 1;
+
+    if (addr >= BOX64ENV(nodynarec_start) && addr < BOX64ENV(nodynarec_end))
+        return 1;
+    if (checkInHotPage(addr) && !BOX64ENV(dynarec_dirty))
+        return 1;
+    #ifdef HAVE_ALTJUMP
+    if (getAlternateJump((void*)addr, is32bits))
+        return 1;
+    #endif
+    const uint32_t req_prot = (box64_pagesize == 4096) ? (PROT_EXEC | PROT_READ) : PROT_READ;
+    uint32_t prot = getProtection_fast(addr);
+    if ((prot & req_prot) != req_prot || (prot & (PROT_WRITE | PROT_DYNAREC | PROT_NOPROT | PROT_NEVERCLEAN | PROT_NEVERCLEAN_MIXED)))
+        return 1;
+
+    if (!peek_flags_readable(addr))
+        return 1;
+
+    if (current_helper && ((dynarec_native_t*)current_helper)->start == addr)
+        return 1;
+
+    memset(&peek_flags_state, 0, sizeof(peek_flags_state));
+    dynarec_native_t* peek_dyn = &peek_flags_state.dyn;
+
+    peek_dyn->start = addr;
+    peek_dyn->end = addr + SizeFileMapped(addr);
+    if (peek_dyn->end == peek_dyn->start)
+        peek_dyn->end = (uintptr_t)~0ULL;
+    peek_dyn->cap = PEEK_FLAGS_INSTS + 2;
+    peek_dyn->insts = peek_flags_state.insts;
+    peek_dyn->jmp_cap = PEEK_FLAGS_INSTS + 2;
+    peek_dyn->jmps = peek_flags_state.jmps;
+    peek_dyn->next_cap = PEEK_FLAGS_INSTS + 2;
+    peek_dyn->next = peek_flags_state.next;
+    peek_dyn->env = GetCurEnvByAddr(addr);
+    if (peek_dyn->env && (peek_dyn->env->dynarec_test || peek_dyn->env->dynarec_trace))
+        return 1;
+    peek_dyn->is_file_mapped = IsAddrElfOrFileMapped(addr);
+
+    peek_dyn->peeking_flags = 1;
+    native_pass0(peek_dyn, addr, 0, is32bits, PEEK_FLAGS_INSTS);
+
+    if (peek_dyn->size <= 0 || peek_dyn->size > PEEK_FLAGS_INSTS)
+        return 1;
+
+    for (int i = 0; i < peek_dyn->size; ++i) {
+        instruction_x64_t* inst = &peek_dyn->insts[i].x64;
+        if (inst->use_flags || inst->jmp || inst->has_callret || !inst->has_next)
+            return 1;
+        if (inst->set_flags == X_ALL && (inst->state_flags == SF_SET || inst->state_flags == SF_SET_NODF))
+            return 0;
+    }
+    return 1;
+}
+
 dynablock_t* CreateEmptyBlock(uintptr_t addr, int is32bits, int is_new) {
     size_t sz = JMPNEXT_SIZE + sizeof(dynablock_t);
     void* actual_p = (void*)AllocDynarecMap(addr, sz, is_new);
@@ -625,7 +715,9 @@ dynablock_t* FillBlock64(uintptr_t addr, int is32bits, int inst_max, int is_new,
                 if(j<start || j>=end)
                 #endif
                 {
-                    helper.insts[i].x64.need_after |= X_PEND;
+                    int need_df = helper.insts[i].x64.has_callret || !j || j == helper.insts[i].x64.addr || interblock_flags_needed(dyn, j, is32bits);
+                    if (need_df)
+                        helper.insts[i].x64.need_after |= X_PEND;
                     if(helper.insts[i].barrier_maybe) {
                         helper.insts[i].x64.barrier|=BARRIER_FLOAT;
                         helper.insts[i].barrier_maybe = 0;
