@@ -452,7 +452,6 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
                 if(!dyn->insts[ninst].x64.barrier) {
                     BARRIER(BARRIER_FLOAT);
                 }
-                dyn->insts[ninst].x64.need_after |= X_PEND;
                 ++ninst;
             }
             if(dyn->forward) {
@@ -465,6 +464,8 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
                 dyn->forward_size = 0;
                 dyn->forward_ninst = 0;
             }
+            if(ninst && interblock_flags_needed(dyn, addr, rex.is32bits))
+                dyn->insts[ninst - 1].x64.need_after |= X_PEND;
             #endif
         }
         if((ok>0) && dyn->insts[ninst].x64.has_callret)
@@ -498,7 +499,8 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
                 BARRIER(BARRIER_FLOAT);
             }
             #if STEP == 0
-            dyn->insts[ninst].x64.need_after |= X_PEND;
+            if(interblock_flags_needed(dyn, addr, rex.is32bits))
+                dyn->insts[ninst].x64.need_after |= X_PEND;
             #endif
             ++ninst;
             NOTEST(x3);

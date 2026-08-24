@@ -173,6 +173,7 @@ typedef struct dynarec_ppc64le_s {
     int*                jmps;       // variable array of jump instructions
     int                 jmp_sz;
     int                 jmp_cap;
+    int                 peeking_flags;
     int*                predecessor;// single array of all predecessor
     dynablock_t*        dynablock;
     instsize_t*         instsize;
