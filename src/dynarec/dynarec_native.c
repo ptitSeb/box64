@@ -423,7 +423,7 @@ typedef struct peek_flags_state_s {
     uintptr_t next[PEEK_FLAGS_INSTS + 2];
 } peek_flags_state_t;
 
-static __thread peek_flags_state_t peek_flags_state;
+static peek_flags_state_t peek_flags_state;
 
 static int peek_flags_readable(uintptr_t addr)
 {
