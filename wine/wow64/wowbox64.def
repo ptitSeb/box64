@@ -5,6 +5,7 @@ EXPORTS
   BTCpuFlushInstructionCacheHeavy
   BTCpuGetBopCode
   BTCpuGetContext
+  BTCpuIsProcessorFeaturePresent
   BTCpuNotifyMemoryDirty
   BTCpuNotifyMemoryFree
   BTCpuNotifyMemoryProtect
@@ -14,4 +15,5 @@ EXPORTS
   BTCpuSetContext
   BTCpuSimulate
   BTCpuThreadInit
+  BTCpuUpdateProcessorInformation
   __wine_get_unix_opcode

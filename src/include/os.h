@@ -34,6 +34,11 @@ void* WinMalloc(size_t size);
 void* WinRealloc(void* ptr, size_t size);
 void* WinCalloc(size_t nmemb, size_t size);
 void WinFree(void* ptr);
+
+struct _SYSTEM_CPU_INFORMATION;
+BOOLEAN Box64WineIsProcessorFeaturePresent(UINT feature);
+void Box64WineUpdateProcessorInformation(struct _SYSTEM_CPU_INFORMATION* info,
+                                         USHORT architecture);
 #endif
 
 void* InternalMmap(void* addr, unsigned long length, int prot, int flags, int fd, ssize_t offset);

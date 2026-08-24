@@ -6,6 +6,7 @@
 
 #include "os.h"
 #include "debug.h"
+#include "env.h"
 #include "wine/compiler.h"
 #include "wine/debug.h"
 
@@ -14,6 +15,99 @@
 NTSTATUS WINAPI NtYieldExecution(void);
 
 int box64_isAddressSpace32 = 0;
+
+enum {
+    CPU_FEATURE_VME   = 0x00000005,
+    CPU_FEATURE_TSC   = 0x00000002,
+    CPU_FEATURE_CMOV  = 0x00000008,
+    CPU_FEATURE_PGE   = 0x00000014,
+    CPU_FEATURE_PSE   = 0x00000024,
+    CPU_FEATURE_MTRR  = 0x00000040,
+    CPU_FEATURE_CX8   = 0x00000080,
+    CPU_FEATURE_MMX   = 0x00000100,
+    CPU_FEATURE_X86   = 0x00000200,
+    CPU_FEATURE_PAT   = 0x00000400,
+    CPU_FEATURE_FXSR  = 0x00000800,
+    CPU_FEATURE_SEP   = 0x00001000,
+    CPU_FEATURE_SSE   = 0x00002000,
+    CPU_FEATURE_SSSE3 = 0x00008000,
+    CPU_FEATURE_SSE2  = 0x00010000,
+    CPU_FEATURE_SSE3  = 0x00080000,
+    CPU_FEATURE_CX128 = 0x00100000,
+    CPU_FEATURE_PAE   = 0x00200000,
+    CPU_FEATURE_DAZ   = 0x00400000,
+    CPU_FEATURE_XSAVE = 0x00800000,
+    CPU_FEATURE_SSE41 = 0x01000000,
+    CPU_FEATURE_SSE42 = 0x02000000,
+    CPU_FEATURE_RDFS  = 0x10000000,
+    CPU_FEATURE_NX    = 0x20000000,
+    CPU_FEATURE_AVX   = 0x40000000,
+    CPU_FEATURE_AVX2  = 0x80000000u,
+};
+
+static ULONG wine_processor_feature_bits(void)
+{
+    ULONG features = CPU_FEATURE_VME | CPU_FEATURE_TSC | CPU_FEATURE_CMOV |
+                     CPU_FEATURE_PGE | CPU_FEATURE_PSE | CPU_FEATURE_MTRR |
+                     CPU_FEATURE_CX8 | CPU_FEATURE_MMX | CPU_FEATURE_X86 |
+                     CPU_FEATURE_PAT | CPU_FEATURE_FXSR | CPU_FEATURE_SEP |
+                     CPU_FEATURE_SSE | CPU_FEATURE_SSSE3 |
+                     CPU_FEATURE_SSE2 | CPU_FEATURE_SSE3 | CPU_FEATURE_CX128 |
+                     CPU_FEATURE_PAE | CPU_FEATURE_DAZ | CPU_FEATURE_SSE41 |
+                     CPU_FEATURE_RDFS | CPU_FEATURE_NX;
+
+    if (BOX64ENV(sse42))
+        features |= CPU_FEATURE_SSE42;
+    if (BOX64ENV(avx))
+        features |= CPU_FEATURE_XSAVE | CPU_FEATURE_AVX;
+    if (BOX64ENV(avx) == 2)
+        features |= CPU_FEATURE_AVX2;
+    return features;
+}
+
+BOOLEAN Box64WineIsProcessorFeaturePresent(UINT feature)
+{
+    static const ULONGLONG features =
+        (1ull << PF_COMPARE_EXCHANGE_DOUBLE) |
+        (1ull << PF_MMX_INSTRUCTIONS_AVAILABLE) |
+        (1ull << PF_XMMI_INSTRUCTIONS_AVAILABLE) |
+        (1ull << PF_RDTSC_INSTRUCTION_AVAILABLE) |
+        (1ull << PF_PAE_ENABLED) |
+        (1ull << PF_XMMI64_INSTRUCTIONS_AVAILABLE) |
+        (1ull << PF_SSE_DAZ_MODE_AVAILABLE) |
+        (1ull << PF_NX_ENABLED) |
+        (1ull << PF_SSE3_INSTRUCTIONS_AVAILABLE) |
+        (1ull << PF_COMPARE_EXCHANGE128) |
+        (1ull << PF_RDWRFSGSBASE_AVAILABLE) |
+        (1ull << PF_FASTFAIL_AVAILABLE) |
+        (1ull << PF_RDTSCP_INSTRUCTION_AVAILABLE) |
+        (1ull << PF_SSSE3_INSTRUCTIONS_AVAILABLE) |
+        (1ull << PF_SSE4_1_INSTRUCTIONS_AVAILABLE);
+
+    if (feature == PF_SSE4_2_INSTRUCTIONS_AVAILABLE)
+        return BOX64ENV(sse42) != 0;
+    if (feature == PF_XSAVE_ENABLED || feature == PF_AVX_INSTRUCTIONS_AVAILABLE)
+        return BOX64ENV(avx) != 0;
+    if (feature == PF_AVX2_INSTRUCTIONS_AVAILABLE)
+        return BOX64ENV(avx) == 2;
+    return feature < 64 && (features & (1ull << feature));
+}
+
+void Box64WineUpdateProcessorInformation(SYSTEM_CPU_INFORMATION* info,
+                                         USHORT architecture)
+{
+    if (!info)
+        return;
+    info->ProcessorArchitecture = architecture;
+    if (BOX64ENV(cputype)) {
+        info->ProcessorLevel = 23;
+        info->ProcessorRevision = 0x710c;
+    } else {
+        info->ProcessorLevel = 6;
+        info->ProcessorRevision = 0x4601;
+    }
+    info->ProcessorFeatureBits = wine_processor_feature_bits();
+}
 
 int GetTID(void)
 {
