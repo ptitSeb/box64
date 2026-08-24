@@ -785,7 +785,7 @@ uintptr_t dynarec64_F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                     }
                                     B_MARK3_nocond;
                                     MARKSEG;
-                                    STLXRB(x4, x5, wback); //write back
+                                    STLXRB(x4, x2, wback); //write back
                                     CBNZx_MARK2(x4);
                                     MOVxw_REG(xRAX, x2);
                                     MOVxw_REG(xRDX, x3);
