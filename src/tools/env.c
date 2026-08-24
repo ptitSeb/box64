@@ -586,9 +586,8 @@ void InitializeEnvFiles()
     char* p = GetEnv(HOME);
     if (p) {
         static char tmp[4096];
-        strncpy(tmp, p, 4095);
-        strncat(tmp, PATHSEP ".box64rc", 4095);
-        if (FileExist(tmp, IS_FILE)) {
+        int len = snprintf(tmp, sizeof(tmp), "%s" PATHSEP ".box64rc", p);
+        if (len > 0 && len < (int)sizeof(tmp) && FileExist(tmp, IS_FILE)) {
             initializeEnvFile(tmp, priority++);
         }
     }
