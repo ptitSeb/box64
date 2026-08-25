@@ -65,7 +65,7 @@ void* wrapVulkanSymbol(my_vulkanoverlay_t* v, const char* name, uintptr_t x64)
         if(!strcmp(name, v->functions[i].f))
             rname = v->functions[i].name;
     if(!rname) rname = name;
-    khint_t k = kh_get(x64wrappers, v->wrappers, name);
+    khint_t k = kh_get(x64wrappers, v->wrappers, rname);
     if(k==kh_end(v->wrappers)) {
         printf_log(LOG_INFO, "Warning, unknown wrapper for %s in Vulkan Overlay\n", rname);
         return NULL;

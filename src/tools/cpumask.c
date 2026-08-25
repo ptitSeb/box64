@@ -61,7 +61,7 @@ void cpumask_maxcpu(void* mask, uint32_t sz, uint32_t n)
     for(int i=(n+7)/8; i<sz; ++i)
         m[i] = 0;
     // mask individual bits
-    for(int i=(n%8)+1; i<8; ++i)
+    for(int i=(n%8); i<8; ++i)
         m[n/8] &= ~(1<<i);
 }
 
