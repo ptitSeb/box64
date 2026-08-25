@@ -78,6 +78,8 @@ void CallAllCleanup(x64emu_t *emu)
     }
     box_free(my_context->cleanups);
     my_context->cleanups = NULL;
+    my_context->clean_sz = 0;
+    my_context->clean_cap = 0;
 }
 
 void CallQuickCleanup(x64emu_t *emu, int status)
