@@ -50,6 +50,7 @@ option(LARCH64_ABI_1 "Set to ON if building for Loongarch64 ABI 1.0 system" ${LA
 option(GDBJIT "Set to ON to enable GDB JIT support" ${GDBJIT})
 option(WOW64 "Set to ON if you want a WOW64 PE build in addition")
 option(BOX64_KDE_PROFILE_PLUGIN "Build the Dolphin/KIO Box64 profile properties plugin when KF5 or KF6 is available" OFF)
+option(BOX64_CONFIGURATOR "Set to OFF to not build and install the box64-configurator GUI tool" ON)
 
 if(TERMUX)
     set(TERMUX_PATH "/data/data/com.termux/files")
@@ -1413,32 +1414,36 @@ if(NOT _x86 AND NOT _x86_64)
       GROUP_READ GROUP_EXECUTE
       WORLD_READ WORLD_EXECUTE)
   if(NOT TERMUX)
-   set(BOX64_CONFIGURATOR_OUTPUT ${CMAKE_BINARY_DIR}/bin/box64-configurator)
-   set(BOX64_CONFIGURATOR_SOURCES
-       ${CMAKE_SOURCE_DIR}/configurator/build_standalone.py
-       ${CMAKE_SOURCE_DIR}/configurator/box64rc.py
-       ${CMAKE_SOURCE_DIR}/configurator/configurator.py
-       ${CMAKE_SOURCE_DIR}/configurator/configurator.ui
-       ${CMAKE_SOURCE_DIR}/configurator/model.py
-       ${CMAKE_SOURCE_DIR}/configurator/usage.py
-       ${CMAKE_SOURCE_DIR}/configurator/text_en.json
-       ${CMAKE_SOURCE_DIR}/configurator/text_zh.json
-       ${CMAKE_SOURCE_DIR}/docs/gen/usage.json
-       ${CMAKE_SOURCE_DIR}/docs/gen/usage_cn.json)
-   add_custom_command(
-       OUTPUT ${BOX64_CONFIGURATOR_OUTPUT}
-       COMMAND "${PYTHON_EXECUTABLE}" "${CMAKE_SOURCE_DIR}/configurator/build_standalone.py"
-               --output "${BOX64_CONFIGURATOR_OUTPUT}"
-               --configurator-dir "${CMAKE_SOURCE_DIR}/configurator"
-               --usage "${CMAKE_SOURCE_DIR}/docs/gen/usage.json"
-               --usage-cn "${CMAKE_SOURCE_DIR}/docs/gen/usage_cn.json"
-       DEPENDS ${BOX64_CONFIGURATOR_SOURCES}
-       VERBATIM)
-   add_custom_target(box64-configurator ALL DEPENDS ${BOX64_CONFIGURATOR_OUTPUT})
    install(TARGETS ${BOX64} RUNTIME DESTINATION bin)
-   install(PROGRAMS ${BOX64_CONFIGURATOR_OUTPUT} DESTINATION bin)
-   install(FILES ${CMAKE_SOURCE_DIR}/system/box64-configurator.desktop DESTINATION share/applications)
-   if(BOX64_KDE_PROFILE_PLUGIN)
+   if(BOX64_CONFIGURATOR)
+    set(BOX64_CONFIGURATOR_OUTPUT ${CMAKE_BINARY_DIR}/bin/box64-configurator)
+    set(BOX64_CONFIGURATOR_SOURCES
+        ${CMAKE_SOURCE_DIR}/configurator/build_standalone.py
+        ${CMAKE_SOURCE_DIR}/configurator/box64rc.py
+        ${CMAKE_SOURCE_DIR}/configurator/configurator.py
+        ${CMAKE_SOURCE_DIR}/configurator/configurator.ui
+        ${CMAKE_SOURCE_DIR}/configurator/model.py
+        ${CMAKE_SOURCE_DIR}/configurator/usage.py
+        ${CMAKE_SOURCE_DIR}/configurator/text_en.json
+        ${CMAKE_SOURCE_DIR}/configurator/text_zh.json
+        ${CMAKE_SOURCE_DIR}/docs/gen/usage.json
+        ${CMAKE_SOURCE_DIR}/docs/gen/usage_cn.json)
+    add_custom_command(
+        OUTPUT ${BOX64_CONFIGURATOR_OUTPUT}
+        COMMAND "${PYTHON_EXECUTABLE}" "${CMAKE_SOURCE_DIR}/configurator/build_standalone.py"
+                --output "${BOX64_CONFIGURATOR_OUTPUT}"
+                --configurator-dir "${CMAKE_SOURCE_DIR}/configurator"
+                --usage "${CMAKE_SOURCE_DIR}/docs/gen/usage.json"
+                --usage-cn "${CMAKE_SOURCE_DIR}/docs/gen/usage_cn.json"
+        DEPENDS ${BOX64_CONFIGURATOR_SOURCES}
+        VERBATIM)
+    add_custom_target(box64-configurator ALL DEPENDS ${BOX64_CONFIGURATOR_OUTPUT})
+    install(PROGRAMS ${BOX64_CONFIGURATOR_OUTPUT} DESTINATION bin)
+    install(FILES ${CMAKE_SOURCE_DIR}/system/box64-configurator.desktop DESTINATION share/applications)
+   else()
+    message(STATUS "box64-configurator disabled")
+   endif()
+   if(BOX64_KDE_PROFILE_PLUGIN AND BOX64_CONFIGURATOR)
        include(CheckLanguage)
        check_language(CXX)
        if(CMAKE_CXX_COMPILER)
