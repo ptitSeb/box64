@@ -3847,6 +3847,8 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, size_t length, int prot, int f
     }
     #endif
     if(ret!=MAP_FAILED) {
+        if(fd >= 0 && io_uring_is_ring(fd))
+            io_uring_mmap_register(fd, offset, ret, length);
         if (emu && !(flags & MAP_ANONYMOUS) && (fd > 0)) {
             // the last_mmap will allow mmap created by wine, even those that have hole, to be fully tracked as one single mmap
             // check if the file is actually a PE file to be safe.
