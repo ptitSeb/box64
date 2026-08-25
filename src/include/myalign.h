@@ -324,17 +324,5 @@ typedef struct my_x64_user_s
   unsigned long long int	u_debugreg [8];
 } my_x64_user_t;
 
-// io_uring sqe epoll_event alignment
-typedef struct io_uring_aligned_token_s {
-    void* entries;
-    uint32_t count;
-} my_io_uring_aligned_token_t;
-
-int  io_uring_is_ring(int fd);
-void io_uring_setup_register(int fd, const void* params_ptr);
-void io_uring_setup_unregister(int fd);
-void io_uring_mmap_register(int fd, off_t offset, void* addr, size_t length);
-void io_uring_enter_before(int fd, uint32_t submit, my_io_uring_aligned_token_t* tok);
-void io_uring_enter_after(my_io_uring_aligned_token_t* token);
 
 #endif  //__MY_ALIGN__H_

@@ -33,7 +33,7 @@
 #include "x64run_private.h"
 //#include "x64primop.h"
 #include "x64trace.h"
-#include "myalign.h"
+//#include "myalign.h"
 #include "box64context.h"
 #include "callback.h"
 #include "signals.h"
@@ -377,10 +377,10 @@ static const scwrap_t syscallwrap[] = {
     [332] = {__NR_statx, 5},
     #endif
     #ifdef __NR_io_uring_setup
-    //[425] = {__NR_io_uring_setup, 2},
+    [425] = {__NR_io_uring_setup, 2},
     #endif
     #ifdef __NR_io_uring_enter
-    //[426] = {__NR_io_uring_enter, 6},
+    [426] = {__NR_io_uring_enter, 6},
     #endif
     #ifdef __NR_io_uring_register
     [427] = {__NR_io_uring_register, 4},
@@ -618,7 +618,6 @@ void EXPORT x64Syscall_linux(x64emu_t *emu)
                 S_RAX = -errno;
             break;
         case 3:  // sys_close
-            io_uring_setup_unregister(S_EDI);
             S_RAX = close(S_EDI);
             if(S_RAX==-1)
                 S_RAX = -errno;
@@ -1039,30 +1038,6 @@ void EXPORT x64Syscall_linux(x64emu_t *emu)
         case 317:   // sys_seccomp
             R_RAX = 0;  // ignoring call
             break;
-        #ifdef __NR_io_uring_setup
-        case 425: { // sys_io_uring_setup
-            void* params = (void*)R_RSI;
-            S_RAX = syscall(__NR_io_uring_setup, R_EDI, params);
-            if(S_RAX==-1)
-                S_RAX = -errno;
-            else
-                io_uring_setup_register(S_RAX, params);
-            break;
-        }
-        #endif
-        #ifdef __NR_io_uring_enter
-        case 426: { // sys_io_uring_enter
-            my_io_uring_aligned_token_t tok = {0};
-            io_uring_enter_before(S_EDI, R_ESI, &tok);
-            S_RAX = syscall(__NR_io_uring_enter, R_EDI, R_ESI, R_EDX, R_R10, R_R8, R_R9);
-            int e = errno;
-            io_uring_enter_after(&tok);
-            errno = e;
-            if(S_RAX==-1)
-                S_RAX = -errno;
-            break;
-        }
-        #endif
         case 334: // It is helpeful to run static binary
             R_RAX = -ENOSYS;
             break;
@@ -1146,7 +1121,6 @@ long EXPORT my_syscall(x64emu_t *emu)
         case 2: // sys_open
             return my_open(emu, (char*)R_RSI, of_convert(R_EDX), R_ECX);
         case 3:  // sys_close
-            io_uring_setup_unregister(R_ESI);
             return close(R_ESI);
         case 4: // sys_stat
             return my_stat(emu, (void*)R_RSI, (void*)R_RDX);
@@ -1439,26 +1413,6 @@ long EXPORT my_syscall(x64emu_t *emu)
         #endif
         case 317:   // sys_seccomp
             return 0;  // ignoring call
-        #ifdef __NR_io_uring_setup
-        case 425: { // sys_io_uring_setup
-            void* params = (void*)R_RDX;
-            long r = syscall(__NR_io_uring_setup, R_ESI, params);
-            if(r >= 0)
-                io_uring_setup_register((int)r, params);
-            return r;
-        }
-        #endif
-        #ifdef __NR_io_uring_enter
-        case 426: { // sys_io_uring_enter
-            my_io_uring_aligned_token_t tok = {0};
-            io_uring_enter_before(S_ESI, R_EDX, &tok);
-            long r = syscall(__NR_io_uring_enter, R_RSI, R_RDX, R_RCX, R_R8, R_R9, u64(0));
-            int e = errno;
-            io_uring_enter_after(&tok);
-            errno = e;
-            return r;
-        }
-        #endif
         #ifndef __NR_faccessat2
         case 439:
             return faccessat(S_ESI, (void*)R_RDX, (mode_t)R_RCX, S_R8d);
