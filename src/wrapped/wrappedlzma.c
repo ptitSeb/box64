@@ -257,6 +257,7 @@ EXPORT void my_lzma_end(x64emu_t* emu, lzma_stream_t* stream)
 {
     wrap_alloc_struct(stream->allocator);
     my->lzma_end(stream);
+    unwrap_alloc_struct(stream->allocator);
 }
 
 #include "wrappedlib_init.h"

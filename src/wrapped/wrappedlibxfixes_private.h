@@ -15,7 +15,7 @@ GO(XFixesCreateRegionFromWindow, LFpLi)
 GO(XFixesDestroyPointerBarrier, vFpL)
 GO(XFixesDestroyRegion, vFpL)
 GO(XFixesExpandRegion, vFpLLuuuu)
-DATA(XFixesExtensionInfo, sizeof(void*))    //B
+DATAB(XFixesExtensionInfo, 3 * sizeof(void*))    //B
 DATA(XFixesExtensionName, sizeof(void*))    //D
 GO(XFixesFetchRegion, pFpLp)
 GO(XFixesFetchRegionAndBounds, pFpLpp)

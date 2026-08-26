@@ -25,7 +25,7 @@ GO(XRenderCreateLinearGradient, LFppppi)
 GO(XRenderCreatePicture, LFpLpLp)
 GO(XRenderCreateRadialGradient, LFppppi)
 GO(XRenderCreateSolidFill, LFpp)
-DATAB(XRenderExtensionInfo, sizeof(void*))
+DATAB(XRenderExtensionInfo, 3 * sizeof(void*))
 DATA(XRenderExtensionName, sizeof(void*))   //D
 GO(XRenderFillRectangle, vFpiLpiiuu)
 GO(XRenderFillRectangles, vFpiLppi)

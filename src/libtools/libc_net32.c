@@ -744,16 +744,19 @@ void libc32_net_init()
 
 int ioctl_cgifconf(x64emu_t* emu, int fd, void* arg)
 {
+    struct ifconf conf;
     i386_ifconf_t *i386_conf = (i386_ifconf_t*)arg;
+    conf.ifc_len = i386_conf->ifc_len;
+    conf.ifc_buf = from_ptrv(i386_conf->i386_ifc_buf);
     if(!i386_conf->i386_ifc_buf)
     {
-        return ioctl(fd, SIOCGIFCONF, i386_conf);
+        int ret = ioctl(fd, SIOCGIFCONF, &conf);
+        if(ret >= 0)
+            i386_conf->ifc_len = conf.ifc_len * sizeof(i386_ifreq_t) / sizeof(struct ifreq);
+        return ret;
     }
     else
     {
-        struct ifconf conf;
-        conf.ifc_len = i386_conf->ifc_len;
-        conf.ifc_buf = from_ptrv(i386_conf->i386_ifc_buf);
         int ret = ioctl(fd, SIOCGIFCONF, &conf);
         if(ret<0) return ret;
         i386_ifreq_t *i386_reqs = (i386_ifreq_t*)conf.ifc_buf;
