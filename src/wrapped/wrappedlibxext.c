@@ -308,9 +308,9 @@ static void* find_error_Fct(void* fct)
 // error_string ...
 #define GO(A)   \
 static uintptr_t my_error_string_fct_##A = 0;                               \
-static int my_error_string_##A(void* a, int b, void* c, void* d, int e)     \
+static void* my_error_string_##A(void* a, int b, void* c, void* d, int e)   \
 {                                                                           \
-    return RunFunctionFmt(my_error_string_fct_##A, "pippi", a, b, c, d, e); \
+    return (void *)RunFunctionFmt(my_error_string_fct_##A, "pippi", a, b, c, d, e); \
 }
 SUPER()
 #undef GO

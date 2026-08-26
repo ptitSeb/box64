@@ -157,6 +157,7 @@ EXPORT int my_inflateEnd(x64emu_t* emu, void* str)
 {
     wrapper_stream_z(emu, str);
     int r = my->inflateEnd(str);
+    unwrapper_stream_z(emu, str);
     return r;
 }
 
@@ -181,6 +182,7 @@ EXPORT int my_deflateEnd(x64emu_t* emu, void* str)
 {
     wrapper_stream_z(emu, str);
     int r = my->deflateEnd(str);
+    unwrapper_stream_z(emu, str);
     return r;
 }
 
