@@ -679,7 +679,7 @@ EXPORT void my_dbus_connection_set_unix_user_function(x64emu_t* emu, void* conn,
 
 EXPORT void* my_dbus_message_new_error_printf(x64emu_t* emu, void* to, void* name, void* fmt, uint64_t* b)
 {
-    myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 1);
+    myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 3);
     PREPARE_VALIST;
     char* buff = NULL;
     int va = vasprintf(&buff, (char*)fmt, VARARGS);

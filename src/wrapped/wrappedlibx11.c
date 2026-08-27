@@ -1379,7 +1379,7 @@ EXPORT int my_XRegisterIMInstantiateCallback(x64emu_t* emu, void* d, void* db, v
 
 EXPORT int my_XUnregisterIMInstantiateCallback(x64emu_t* emu, void* d, void* db, void* res_name, void* res_class, void* cb, void* data)
 {
-    return my->XUnregisterIMInstantiateCallback(d, db, res_name, res_class, reverse_register_imFct(my_lib, cb), data);
+    return my->XUnregisterIMInstantiateCallback(d, db, res_name, res_class, findregister_imFct(cb), data);
 }
 
 EXPORT int my_XQueryExtension(x64emu_t* emu, void* display, char* name, int* major, int* first_event, int* first_error)
