@@ -31,7 +31,7 @@ GOM(lio_listio, iFEipip)
 // lio_listio64
 GO(mq_close, iFi)
 GO(mq_getattr, iFip)
-GO(mq_notify, iFip)
+GOM(mq_notify, iFEip)
 GO(mq_open, iFpONN)
 GO(__mq_open_2, iFpO)
 GO(mq_receive, lFipLp)

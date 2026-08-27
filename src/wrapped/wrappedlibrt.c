@@ -6,6 +6,7 @@
 #include <signal.h>
 #ifndef ANDROID
 #include <aio.h>
+#include <mqueue.h>
 #else
 #include <errno.h>
 #endif
@@ -82,6 +83,21 @@ EXPORT int my_timer_create(x64emu_t* emu, uint32_t clockid, void* sevp, timer_t*
     return timer_create(clockid, &sevent, timerid);
 }
 #ifndef ANDROID
+EXPORT int my_mq_notify(x64emu_t* emu, int mqid, void* sevp)
+{
+    (void)emu;
+    if (!sevp)
+        return mq_notify(mqid, sevp);
+
+    struct sigevent sevent;
+    memcpy(&sevent, sevp, sizeof(sevent));
+
+    if(sevent.sigev_notify == SIGEV_THREAD) {
+        sevent.sigev_notify_function = findsigev_notifyFct(sevent.sigev_notify_function);
+    }
+
+    return mq_notify(mqid, &sevent);
+}
 EXPORT int my_aio_cancel(x64emu_t emu, int fd, struct aiocb* aiocbp)
 {
     if(aiocbp && aiocbp->aio_sigevent.sigev_notify == SIGEV_THREAD)
@@ -156,7 +172,6 @@ EXPORT int my_lio_listio(x64emu_t* emu, int mode, void* list[], int nent, struct
 #endif
 
 #ifdef STATICBUILD
-#include <mqueue.h>
 #include <sys/mman.h>
 
 extern int __mq_open_2(const char*, int);

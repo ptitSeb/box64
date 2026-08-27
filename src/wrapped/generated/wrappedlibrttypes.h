@@ -22,6 +22,7 @@ typedef int32_t (*iFipip_t)(int32_t, void*, int32_t, void*);
 	GO(aio_write, iFp_t) \
 	GO(aio_write64, iFp_t) \
 	GO(aio_cancel, iFip_t) \
+	GO(mq_notify, iFip_t) \
 	GO(timer_create, iFipp_t) \
 	GO(lio_listio, iFipip_t)
 

@@ -225,7 +225,7 @@ static void* findPollFct(void* fct)
 static void* reversePollFct(void* fct)
 {
     if(!fct) return fct;
-    #define GO(A) if((uintptr_t)fct == my_poll_fct_##A) return (void*)my_poll_fct_##A;
+    #define GO(A) if(fct == my_poll_##A) return (void*)my_poll_fct_##A;
     SUPER()
     #undef GO
     return (void*)AddCheckBridge(my_lib->w.bridge, iFpui, fct, 0, "GPollFunc");
@@ -586,7 +586,7 @@ static void* findGLogFuncFct(void* fct)
 static void* reverseGLogFuncFct(void* fct)
 {
     if(!fct) return fct;
-    #define GO(A) if((uintptr_t)fct == my_GLogFunc_fct_##A) return (void*)my_GLogFunc_fct_##A;
+    #define GO(A) if(fct == my_GLogFunc_##A) return (void*)my_GLogFunc_fct_##A;
     SUPER()
     #undef GO
     return (void*)AddCheckBridge(my_lib->w.bridge, vFpipp, fct, 0, "GLogFunc");
@@ -616,7 +616,7 @@ static void* findGPrintFuncFct(void* fct)
 static void* reverseGPrintFuncFct(void* fct)
 {
     if(!fct) return fct;
-    #define GO(A) if((uintptr_t)fct == my_GPrintFunc_fct_##A) return (void*)my_GPrintFunc_fct_##A;
+    #define GO(A) if(fct == my_GPrintFunc_##A) return (void*)my_GPrintFunc_fct_##A;
     SUPER()
     #undef GO
     return NULL;
@@ -650,7 +650,7 @@ static void* findGOptionArgFct(void* fct)
 static void* reverseGOptionArgFct(void* fct)
 {
     if(!fct) return fct;
-    #define GO(A) if((uintptr_t)fct == my_GOptionArg_fct_##A) return (void*)my_GOptionArg_fct_##A;
+    #define GO(A) if(fct == my_GOptionArg_##A) return (void*)my_GOptionArg_fct_##A;
     SUPER()
     #undef GO
     return (void*)AddCheckBridge(my_lib->w.bridge, iFpppp, fct, 0, "GOptionArgFunc");
@@ -1425,7 +1425,7 @@ EXPORT void my_g_propagate_prefixed_error(x64emu_t* emu, void* dest, void* src, 
 
 EXPORT int my_g_fprintf(x64emu_t* emu, void* f, void* fmt, uintptr_t* b)
 {
-    myStackAlign(emu, fmt, b, emu->scratch, R_EAX, 3);
+    myStackAlign(emu, fmt, b, emu->scratch, R_EAX, 2);
     PREPARE_VALIST;
     return my->g_vfprintf(f, fmt, VARARGS);
 }
