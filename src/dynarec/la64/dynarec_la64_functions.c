@@ -104,7 +104,7 @@ int fpu_get_reg_xmm(dynarec_la64_t* dyn, int t, int xmm)
 
 int fpu_get_reg_xmm_scalar(dynarec_la64_t* dyn, int t, int xmm)
 {
-    if (dyn->use_x87 || dyn->use_mmx) return -1;
+    if (dyn->use_x87 || dyn->use_mmx || dyn->no_scalar_renaming) return -1;
     int i = X870;
     while (i < 24 && dyn->lsx.fpuused[i])
         ++i;
@@ -877,6 +877,10 @@ int isUpper32Zero(dynarec_la64_t* dyn, int ninst, int reg)
 
 void updateNativeFlags(dynarec_la64_t* dyn)
 {
+    dyn->no_scalar_renaming = 0;
+    for (int i = 0; i < dyn->size && !dyn->no_scalar_renaming; ++i)
+        if (dyn->insts[i].x87_used || dyn->insts[i].mmx_used)
+            dyn->no_scalar_renaming = 1;
     if (!BOX64ENV(dynarec_nativeflags))
         return;
     for (int i = 0; i < dyn->size; ++i) {
@@ -1136,10 +1140,12 @@ static int tryApplyPreloadCache(dynarec_la64_t* dyn, int first, int last, int re
             cache->avxcache[reg].reg = reg;
             cache->avxcache[reg].upper_zero_pending = 0;
             cache->avxcache[reg].write = 0;
+            if (!cache->avxcache[reg].v) cache->avxcache[reg].write = 1;
         } else {
             cache->avxcache[reg].v = -1;
             cache->ssecache[reg].reg = reg;
             cache->ssecache[reg].write = 0;
+            if (!cache->ssecache[reg].v) cache->ssecache[reg].write = 1;
         }
     }
     dyn->insts[first_use].lsx.news &= ~(1u << reg);
