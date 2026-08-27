@@ -251,14 +251,11 @@ static inline int xmm_scalar_begin(dynarec_la64_t* dyn, int ninst, xmm_scalar_t*
     scalar->kind = kind;
     scalar->upper_policy = upper_policy;
     scalar->renamed = 0;
-    int preserved_dead = xmm_preserved_lanes_dead(dyn, ninst, guest_dst, kind);
     if (allow_direct && renamed >= 0) {
+        if (upper_policy == XMM_UPPER_CLEAR)
+            VXOR_V(full_dst, full_dst, full_dst);
         scalar->result = renamed;
         scalar->renamed = 1;
-        return scalar->result;
-    }
-    if (allow_direct && preserved_dead) {
-        scalar->result = full_dst;
         return scalar->result;
     }
 #if STEP > 0
@@ -296,6 +293,8 @@ static inline void xmm_scalar_end(dynarec_la64_t* dyn, int ninst, const xmm_scal
 static inline void xmm_scalar_move(dynarec_la64_t* dyn, int ninst, int host_dst, int host_src, int guest_dst, xmm_scalar_kind_t kind, xmm_upper_policy_t upper_policy)
 {
     xmm_scalar_track_write(dyn, ninst, guest_dst, upper_policy);
+    if (dyn->lsx.scalarcache[guest_dst] != -1)
+        xmm_scalar_merge(dyn, ninst, guest_dst);
     if (xmm_preserved_lanes_dead(dyn, ninst, guest_dst, kind)) {
         if (upper_policy == XMM_UPPER_PRESERVE || host_dst != host_src) {
             if (kind == XMM_SCALAR_SS)

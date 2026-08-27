@@ -1357,6 +1357,7 @@ int mmx_get_reg(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int a)
         x87_purgecache(dyn, ninst, 0, s1, s2, s3);
     if (dyn->lsx.mmxcache[a] != -1)
         return dyn->lsx.mmxcache[a];
+    if (dyn->lsx.scalarcache[a] != -1) xmm_scalar_merge(dyn, ninst, a);
     ++dyn->lsx.mmxcount;
     int ret = dyn->lsx.mmxcache[a] = fpu_get_reg_emm(dyn, a);
     FLD_D(ret, xEmu, offsetof(x64emu_t, mmx[a]));
@@ -1443,12 +1444,16 @@ int sse_get_reg_scalar(dynarec_la64_t* dyn, int ninst, int s1, int a, int forwri
         xmm_scalar_merge(dyn, ninst, a);
     }
     if (dyn->lsx.ssecache[a].v != -1) {
+        if (forwrite) {
+            dyn->lsx.ssecache[a].write = 1;
+            dyn->lsx.lsxcache[dyn->lsx.ssecache[a].reg].t = LSX_CACHE_XMMW;
+        }
         return dyn->lsx.ssecache[a].reg;
     }
     avx_forget_reg(dyn, ninst, a);
-    dyn->lsx.ssecache[a].reg = fpu_get_reg_xmm(dyn, LSX_CACHE_XMMR, a);
+    dyn->lsx.ssecache[a].reg = fpu_get_reg_xmm(dyn, forwrite ? LSX_CACHE_XMMW : LSX_CACHE_XMMR, a);
     int ret = dyn->lsx.ssecache[a].reg;
-    dyn->lsx.ssecache[a].write = 0;
+    dyn->lsx.ssecache[a].write = forwrite;
     dyn->lsx.xmm_load |= 1 << a;
     VLD(ret, xEmu, offsetof(x64emu_t, xmm[a]));
     return ret;
@@ -2441,6 +2446,7 @@ void doPreload(dynarec_la64_t* dyn, int ninst)
             dyn->lsx.avxcache[i].v = -1;
             dyn->lsx.ssecache[i].reg = fpu_get_reg_xmm(dyn, LSX_CACHE_XMMR, i);
             dyn->lsx.ssecache[i].write = 0;
+            if (!dyn->lsx.ssecache[i].v) dyn->lsx.ssecache[i].write = 1;
             VLD(dyn->lsx.ssecache[i].reg, xEmu, offsetof(x64emu_t, xmm[i]));
         }
         if (preload & (1u << (16 + i))) {
@@ -2449,6 +2455,7 @@ void doPreload(dynarec_la64_t* dyn, int ninst)
             dyn->lsx.avxcache[i].reg = fpu_get_reg_ymm(dyn, LSX_CACHE_YMMR, i);
             dyn->lsx.avxcache[i].upper_zero_pending = 0;
             dyn->lsx.avxcache[i].write = 0;
+            if (!dyn->lsx.avxcache[i].v) dyn->lsx.avxcache[i].write = 1;
             VLD(dyn->lsx.avxcache[i].reg, xEmu, offsetof(x64emu_t, xmm[i]));
             VLD(SCRATCH, xEmu, offsetof(x64emu_t, ymm[i]));
             XVPERMI_Q(dyn->lsx.avxcache[i].reg, SCRATCH, XVPERMI_IMM_4_0(0, 2));

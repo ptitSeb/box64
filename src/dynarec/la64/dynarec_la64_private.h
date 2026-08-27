@@ -228,6 +228,7 @@ typedef struct dynarec_la64_s {
     uint8_t              use_mmx:1;
     uint8_t              use_xmm:1;
     uint8_t              use_ymm:1;
+    uint8_t              no_scalar_renaming:1;
     uint8_t              is_file_mapped:1;
     void*                gdbjit_block;
     uint32_t             need_x87check; // x87 low precision check
