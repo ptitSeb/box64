@@ -4136,6 +4136,7 @@ void pFppLppppiiLpip(x64emu_t *emu, uintptr_t fnc);
 void pFpppppppuipppp(x64emu_t *emu, uintptr_t fnc);
 void pFppppppppppppp(x64emu_t *emu, uintptr_t fnc);
 void pFbuupppwwwwWWC(x64emu_t *emu, uintptr_t fnc);
+void vFEpppppppuipppp(x64emu_t *emu, uintptr_t fnc);
 void vFippppppppppppp(x64emu_t *emu, uintptr_t fnc);
 void vFuuuullfplplfpl(x64emu_t *emu, uintptr_t fnc);
 void vFuuuulldplpldpl(x64emu_t *emu, uintptr_t fnc);

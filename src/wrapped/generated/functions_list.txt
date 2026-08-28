@@ -4099,6 +4099,7 @@
 #() pFpppppppuipppp
 #() pFppppppppppppp
 #() pFbuupppwwwwWWC
+#() vFEpppppppuipppp
 #() vFippppppppppppp
 #() vFuuuullfplplfpl
 #() vFuuuulldplpldpl
@@ -4777,6 +4778,8 @@ wrappedgio2:
   - g_dbus_connection_signal_subscribe
 - vFpppppppuippp:
   - g_dbus_connection_call
+- vFpppppppuipppp:
+  - g_dbus_connection_call_with_unix_fd_list
 wrappedglesv2:
 wrappedglib2:
 - vFp:
@@ -4881,6 +4884,7 @@ wrappedglib2:
   - g_hash_table_foreach_steal
 - pFppp:
   - g_hash_table_find
+  - g_list_copy_deep
   - g_list_find_custom
   - g_list_insert_sorted
   - g_list_sort_with_data

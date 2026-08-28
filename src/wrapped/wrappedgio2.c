@@ -611,6 +611,11 @@ EXPORT void my_g_dbus_connection_call(x64emu_t* emu, void* connection, void* bus
     my->g_dbus_connection_call(connection, bus, object, interface, method, param, reply, flags, timeout, cancellable, findGAsyncReadyCallbackFct(cb), data);
 }
 
+EXPORT void my_g_dbus_connection_call_with_unix_fd_list(x64emu_t* emu, void* connection, void* bus, void* object, void* interface, void* method, void* param, void* reply, uint32_t flags, int timeout, void* fd_list, void* cancellable, void* cb, void* data)
+{
+    my->g_dbus_connection_call_with_unix_fd_list(connection, bus, object, interface, method, param, reply, flags, timeout, fd_list, cancellable, findGAsyncReadyCallbackFct(cb), data);
+}
+
 EXPORT uint32_t my_g_dbus_connection_signal_subscribe(x64emu_t* emu, void* connection, void* sender, void* interface, void* member, void* object, void* arg0, uint32_t flags, void* cb, void* data, void* notify)
 {
     return my->g_dbus_connection_signal_subscribe(connection, sender, interface, member, object, arg0, flags, findGDBusSignalCallbackFct(cb), data, findGDestroyNotifyFct(notify));

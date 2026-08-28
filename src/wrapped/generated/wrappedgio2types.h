@@ -45,6 +45,7 @@ typedef void (*vFpppuipppp_t)(void*, void*, void*, uint32_t, int32_t, void*, voi
 typedef void* (*pFiuppppppp_t)(int32_t, uint32_t, void*, void*, void*, void*, void*, void*, void*);
 typedef uint32_t (*uFppppppuppp_t)(void*, void*, void*, void*, void*, void*, uint32_t, void*, void*, void*);
 typedef void (*vFpppppppuippp_t)(void*, void*, void*, void*, void*, void*, void*, uint32_t, int32_t, void*, void*, void*);
+typedef void (*vFpppppppuipppp_t)(void*, void*, void*, void*, void*, void*, void*, uint32_t, int32_t, void*, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(g_task_run_in_thread, vFpp_t) \
@@ -95,6 +96,7 @@ typedef void (*vFpppppppuippp_t)(void*, void*, void*, void*, void*, void*, void*
 	GO(g_dbus_proxy_call_with_unix_fd_list, vFpppuipppp_t) \
 	GO(g_dbus_object_manager_client_new_for_bus_sync, pFiuppppppp_t) \
 	GO(g_dbus_connection_signal_subscribe, uFppppppuppp_t) \
-	GO(g_dbus_connection_call, vFpppppppuippp_t)
+	GO(g_dbus_connection_call, vFpppppppuippp_t) \
+	GO(g_dbus_connection_call_with_unix_fd_list, vFpppppppuipppp_t)
 
 #endif // __wrappedgio2TYPES_H_

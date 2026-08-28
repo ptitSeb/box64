@@ -151,6 +151,7 @@ typedef int32_t (*iFpppuppppppp_t)(void*, void*, void*, uint32_t, void*, void*, 
 	GO(g_hash_table_foreach_remove, uFppp_t) \
 	GO(g_hash_table_foreach_steal, uFppp_t) \
 	GO(g_hash_table_find, pFppp_t) \
+	GO(g_list_copy_deep, pFppp_t) \
 	GO(g_list_find_custom, pFppp_t) \
 	GO(g_list_insert_sorted, pFppp_t) \
 	GO(g_list_sort_with_data, pFppp_t) \

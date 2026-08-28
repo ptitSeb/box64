@@ -1667,6 +1667,11 @@ EXPORT void* my_g_slist_copy_deep(x64emu_t* emu, void* list, void* f, void* data
     return my->g_slist_copy_deep(list, findCopyFct(f), data);
 }
 
+EXPORT void* my_g_list_copy_deep(x64emu_t* emu, void* list, void* f, void* data)
+{
+    return my->g_list_copy_deep(list, findCopyFct(f), data);
+}
+
 EXPORT void* my_g_thread_try_new(x64emu_t* emu, void* name, void* f, void* data, void* err)
 {
     return my->g_thread_try_new(name, findGThreadFuncFct(f), data, err);
