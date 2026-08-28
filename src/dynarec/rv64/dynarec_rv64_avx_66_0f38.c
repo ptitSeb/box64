@@ -1022,6 +1022,40 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             } else
                 YMM0(gd);
             break;
+        case 0x58:
+            INST_NAME("VPBROADCASTD Gx, Ex");
+            nextop = F8;
+            GETGX();
+            GETEX(x2, 0, 1);
+            LWU(x4, wback, fixedaddress);
+            SLLI(x5, x4, 32);
+            OR(x4, x4, x5);
+            SD(x4, gback, gdoffset);
+            SD(x4, gback, gdoffset + 8);
+            if (vex.l) {
+                GETGY();
+                SD(x4, gback, gyoffset);
+                SD(x4, gback, gyoffset + 8);
+            } else {
+                YMM0(gd);
+            }
+            break;
+        case 0x59:
+            INST_NAME("VPBROADCASTQ Gx, Ex");
+            nextop = F8;
+            GETGX();
+            GETEX(x2, 0, 1);
+            LD(x4, wback, fixedaddress);
+            SD(x4, gback, gdoffset);
+            SD(x4, gback, gdoffset + 8);
+            if (vex.l) {
+                GETGY();
+                SD(x4, gback, gyoffset);
+                SD(x4, gback, gyoffset + 8);
+            } else {
+                YMM0(gd);
+            }
+            break;
         case 0x5A:
             INST_NAME("VBROADCASTI128 Gx, Ex");
             nextop = F8;
@@ -1035,6 +1069,48 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             SD(x5, gback, gdoffset + 8);
             SD(x4, gback, gyoffset);
             SD(x5, gback, gyoffset + 8);
+            break;
+        case 0x78:
+            INST_NAME("VPBROADCASTB Gx, Ex");
+            nextop = F8;
+            GETGX();
+            GETEX(x2, 0, 1);
+            LBU(x4, wback, fixedaddress);
+            SLLI(x5, x4, 8);
+            OR(x4, x4, x5);
+            SLLI(x5, x4, 16);
+            OR(x4, x4, x5);
+            SLLI(x5, x4, 32);
+            OR(x4, x4, x5);
+            SD(x4, gback, gdoffset);
+            SD(x4, gback, gdoffset + 8);
+            if (vex.l) {
+                GETGY();
+                SD(x4, gback, gyoffset);
+                SD(x4, gback, gyoffset + 8);
+            } else {
+                YMM0(gd);
+            }
+            break;
+        case 0x79:
+            INST_NAME("VPBROADCASTW Gx, Ex");
+            nextop = F8;
+            GETGX();
+            GETEX(x2, 0, 1);
+            LHU(x4, wback, fixedaddress);
+            SLLI(x5, x4, 16);
+            OR(x4, x4, x5);
+            SLLI(x5, x4, 32);
+            OR(x4, x4, x5);
+            SD(x4, gback, gdoffset);
+            SD(x4, gback, gdoffset + 8);
+            if (vex.l) {
+                GETGY();
+                SD(x4, gback, gyoffset);
+                SD(x4, gback, gyoffset + 8);
+            } else {
+                YMM0(gd);
+            }
             break;
         default:
             DEFAULT;
