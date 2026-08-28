@@ -160,6 +160,22 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 
         case 0x05:
             INST_NAME("SYSCALL");
+            if (rex.is32bits) {
+                if (BOX64DRENV(dynarec_safeflags) > 1) {
+                    READFLAGS(X_PEND);
+                } else {
+                    SETFLAGS(X_ALL, SF_SET_NODF); // Hack to set flags in "don't care" state
+                }
+                BARRIER(BARRIER_FLOAT);
+                GETIP(ip);
+                STORE_XEMU_CALL(xRIP);
+                CALL(const_native_ud, -1);
+                LOAD_XEMU_CALL(xRIP);
+                jump_to_epilog(dyn, 0, xRIP, ninst);
+                *need_epilog = 0;
+                *ok = 0;
+                break;
+            }
             NOTEST(x1);
             SMEND();
             GETIP(addr);
