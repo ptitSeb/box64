@@ -262,18 +262,7 @@ void EmuRun(x64emu_t* emu, int use_dynarec, int no_alt)
             int newis32bits = (emu->segs[_CS]==0x23);
             if(newis32bits!=is32bits) {
                 is32bits = newis32bits;
-                if(is32bits) {
-                    // Zero upper part of the 32bits regs
-                    R_RAX = R_EAX;
-                    R_RBX = R_EBX;
-                    R_RCX = R_ECX;
-                    R_RDX = R_EDX;
-                    R_RSP = R_ESP;
-                    R_RBP = R_EBP;
-                    R_RSI = R_ESI;
-                    R_RDI = R_EDI;
-                    running32bits = 1;
-                }
+                running32bits = 1;
             }
             dynablock_t* block = (skip || ACCESS_FLAG(F_TF))?NULL:fastDBGetBlock(emu, R_RIP, 1, is32bits);
             #ifdef HAVE_ALTJUMP

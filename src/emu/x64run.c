@@ -1779,17 +1779,6 @@ x64emurun:
                 R_RIP = addr;
                 if(is32bits!=(emu->segs[_CS]==0x23)) {
                     is32bits = (emu->segs[_CS]==0x23);
-                    if(is32bits) {
-                        // Zero upper part of the 32bits regs
-                        R_RAX = R_EAX;
-                        R_RBX = R_EBX;
-                        R_RCX = R_ECX;
-                        R_RDX = R_EDX;
-                        R_RSP = R_ESP;
-                        R_RBP = R_EBP;
-                        R_RSI = R_ESI;
-                        R_RDI = R_EDI;
-                    }
                     #ifndef TEST_INTERPRETER
                     if(is32bits)
                         running32bits = 1;
@@ -2125,17 +2114,6 @@ x64emurun:
                 addr = new_addr;
                 if(is32bits!=(emu->segs[_CS]==0x23)) {
                     is32bits = (emu->segs[_CS]==0x23);
-                    if(is32bits) {
-                        // Zero upper part of the 32bits regs
-                        R_RAX = R_EAX;
-                        R_RBX = R_EBX;
-                        R_RCX = R_ECX;
-                        R_RDX = R_EDX;
-                        R_RSP = R_ESP;
-                        R_RBP = R_EBP;
-                        R_RSI = R_ESI;
-                        R_RDI = R_EDI;
-                    }
                     if(is32bits)
                         running32bits = 1;
                 }
@@ -2425,18 +2403,6 @@ x64emurun:
                         STEP2;
                         if(is32bits!=(emu->segs[_CS]==0x23)) {
                             is32bits = (emu->segs[_CS]==0x23);
-                            if(is32bits) {
-                                // Zero upper part of the 32bits regs
-                                R_RAX = R_EAX;
-                                R_RBX = R_EBX;
-                                R_RCX = R_ECX;
-                                R_RDX = R_EDX;
-                                R_RSP = R_ESP;
-                                R_RBP = R_EBP;
-                                R_RSI = R_ESI;
-                                R_RDI = R_EDI;
-                                addr = addr & 0xffffffff;   // including IP
-                            }
                             #ifndef TEST_INTERPRETER
                             if(is32bits)
                                 running32bits = 1;
@@ -2476,17 +2442,6 @@ x64emurun:
                         STEP2;
                         if(is32bits!=(emu->segs[_CS]==0x23)) {
                             is32bits = (emu->segs[_CS]==0x23);
-                            if(is32bits) {
-                                // Zero upper part of the 32bits regs
-                                R_RAX = R_EAX;
-                                R_RBX = R_EBX;
-                                R_RCX = R_ECX;
-                                R_RDX = R_EDX;
-                                R_RSP = R_ESP;
-                                R_RBP = R_EBP;
-                                R_RSI = R_ESI;
-                                R_RDI = R_EDI;
-                            }
                             #ifndef TEST_INTERPRETER
                             if(is32bits)
                                 running32bits = 1;
