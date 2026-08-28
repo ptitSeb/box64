@@ -4858,6 +4858,7 @@ typedef struct clone_arg_s {
  int stack_clone_used;
  int flags;
  void* tls;
+ int new_process;
 } clone_arg_t;
 void init_mutexes(box64context_t* context);
 static int clone_fn(void* p)
@@ -4867,6 +4868,10 @@ static int clone_fn(void* p)
     x64emu_t *emu = arg->emu;
     R_RSP = arg->stack;
     emu->flags.quitonexit = 1;
+    if(arg->new_process) {
+        // the host signal handlers are not inherited by a new process, re-install handlers
+        init_signal_helper(my_context);
+    }
     if(arg->flags & CLONE_SETTLS) SetFSBaseEmu(emu, arg->tls);
     thread_forget_emu();    //TODO: not all will flags needs this, probably just CLONE_VM?
     thread_set_emu(emu);
@@ -4911,8 +4916,12 @@ EXPORT int my_clone(x64emu_t* emu, void* fn, void* stack, int flags, void* args,
     arg->flags = flags;
     // the emulated callback can use wrapped libc before exec, so it cannot safely
     // share the host allocator and address space with a suspended parent.
-    if((flags & (CLONE_VM|CLONE_VFORK)) == (CLONE_VM|CLONE_VFORK))
-        flags &=~ (CLONE_VM|CLONE_VFORK);
+    if((flags & (CLONE_VM|CLONE_VFORK)) == (CLONE_VM|CLONE_VFORK)) {
+        if (!(flags & CLONE_THREAD)) {
+            flags &= ~(CLONE_VM|CLONE_VFORK|CLONE_SIGHAND);
+            arg->new_process = 1;
+        }
+    }
     flags &=~ CLONE_SETTLS;   // guest TLS is applied to the emulated FS base in clone_fn
     int64_t ret = clone(clone_fn, (void*)((uintptr_t)mystack+1024*1024), flags, arg, parent, NULL, child);
     return (uintptr_t)ret;
