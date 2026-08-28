@@ -1013,6 +1013,9 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         box64_wine = 1;
     }
     // Create a new context
+    #ifdef BOX32
+    box64_is32bits = FileIsX86ELF(prog);
+    #endif
     my_context = NewBox64Context(argc - nextarg);
 
     addLibPaths(my_context);
