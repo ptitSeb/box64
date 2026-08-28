@@ -159,7 +159,7 @@ static const scwrap_t syscallwrap[] = {
     //{ 241, __NR_sched_setaffinity, 3 },
     //{ 242, __NR_sched_getaffinity, 3 },
     //{ 243, __NR_set_thread_area, 1 },
-    //{ 252, __NR_exit_group, 1 },
+    { 252, __NR_exit_group, 1 },
     //{ 254, __NR_epoll_create, 1 },
     //{ 255, __NR_epoll_ctl, 4 },
     //{ 256, __NR_epoll_wait, 4 },
