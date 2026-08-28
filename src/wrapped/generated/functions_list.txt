@@ -6687,8 +6687,15 @@ wrappedlibx11:
   - XAddConnectionWatch
 - pFpip:
   - XESetCloseDisplay
+  - XESetCopyGC
+  - XESetCreateFont
+  - XESetCreateGC
   - XESetError
+  - XESetErrorString
   - XESetEventToWire
+  - XESetFlushGC
+  - XESetFreeFont
+  - XESetFreeGC
   - XESetWireToEvent
 - pFpCL:
   - _XGetRequest
