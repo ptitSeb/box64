@@ -352,6 +352,30 @@ int my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigin
 
     printf_log(LOG_DEBUG, "Sigactionhanlder for signal #%d called (jump to %p/%s)\n", sig, (void*)my_context->signals[sig], GetNativeName((void*)my_context->signals[sig], 1));
 
+    uintptr_t fnc = my_context->signals[sig];
+    if (fnc == 0 || fnc == 1) {
+        int host_sig = signal_from_x64(sig);
+        if (fnc == 1 || host_sig == SIGCHLD || host_sig == SIGURG || host_sig == SIGWINCH || host_sig == SIGCONT) {
+            // SIG_IGN, or a signal which default action is to ignore
+            relockMutex(Locks);
+            return 1;
+        }
+        printf_log(LOG_NONE, "%04d|Warning, calling Signal %d function handler SIG_DFL\n", GetTID(), sig);
+        printf_log(LOG_NONE, "Unhandled signal caught, dying with the signal\n");
+        struct sigaction sa;
+        memset(&sa, 0, sizeof(sa));
+        sa.sa_handler = SIG_DFL;
+        sigemptyset(&sa.sa_mask);
+        sigaction(host_sig, &sa, NULL);
+        sigset_t rmask;
+        sigemptyset(&rmask);
+        sigaddset(&rmask, host_sig);
+        sigprocmask(SIG_UNBLOCK, &rmask, NULL);
+        relockMutex(Locks);
+        raise(host_sig);
+        abort(); // should not reach here
+    }
+
     uintptr_t restorer = my_context->restorer[sig];
     // get that actual ESP first!
     if(!emu)
