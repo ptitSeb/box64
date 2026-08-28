@@ -1172,6 +1172,90 @@ EXPORT int my_pthread_mutex_init(pthread_mutex_t *m, my_mutexattr_t *att)
 }
 EXPORT int my___pthread_mutex_init(pthread_mutex_t *m, my_mutexattr_t *att) __attribute__((alias("my_pthread_mutex_init")));
 
+// C11 threads (ISO/IEC 9899:2011 7.26). glibc builds them on top of the pthread
+// API, and thrd_t/mtx_t/cnd_t/once_flag are layout compatible with pthread_t/
+// pthread_mutex_t/pthread_cond_t/pthread_once_t, so most of the family goes
+// straight through to the native libc (see wrappedlibc_private.h). Only the
+// ones here need help, for the same reasons their pthread counterparts do:
+//  - thrd_create runs a guest function, so it needs an emulated thread,
+//  - call_once runs a guest callback,
+//  - mtx_init would let the native pthread_mutex_init write 48 bytes into the
+//    40 an x86_64 guest reserves for a mtx_t,
+//  - cnd_* need the same alignment fixup as the pthread_cond_* wrappers.
+#define THRD_SUCCESS	0
+#define THRD_BUSY		1
+#define THRD_ERROR		2
+#define THRD_NOMEM		3
+#define THRD_TIMEDOUT	4
+#define MTX_RECURSIVE	1
+
+// same mapping as glibc's thrd_err_map
+static int thrd_err(int err)
+{
+	switch(err) {
+		case 0:			return THRD_SUCCESS;
+		case ENOMEM:	return THRD_NOMEM;
+		case ETIMEDOUT:	return THRD_TIMEDOUT;
+		case EBUSY:		return THRD_BUSY;
+		default:		return THRD_ERROR;
+	}
+}
+
+EXPORT int my_thrd_create(x64emu_t* emu, void* thr, void* func, void* arg)
+{
+	// thrd_start_t is int(*)(void*) where pthread_create wants void*(*)(void*),
+	// but both return through RAX and thrd_join truncates, so the emulated
+	// thread creation is reused as-is.
+	return thrd_err(my_pthread_create(emu, thr, NULL, func, arg));
+}
+
+EXPORT void my_call_once(x64emu_t* emu, void* flag, void* cb)
+{
+	my_pthread_once(emu, (int*)flag, cb);
+}
+
+EXPORT int my_mtx_init(x64emu_t* emu, void* m, int type)
+{
+	my_mutexattr_t attr = {0};
+	my_pthread_mutexattr_init(emu, &attr);
+	if(type&MTX_RECURSIVE)
+		my_pthread_mutexattr_settype(emu, &attr, PTHREAD_MUTEX_RECURSIVE);
+	int ret = my_pthread_mutex_init((pthread_mutex_t*)m, &attr);
+	my_pthread_mutexattr_destroy(emu, &attr);
+	return thrd_err(ret);
+}
+
+EXPORT int my_cnd_init(x64emu_t* emu, void* cond)
+{
+	(void)emu;
+	return thrd_err(pthread_cond_init(alignCond((pthread_cond_t*)cond), NULL));
+}
+EXPORT void my_cnd_destroy(x64emu_t* emu, void* cond)
+{
+	(void)emu;
+	pthread_cond_destroy(alignCond((pthread_cond_t*)cond));
+}
+EXPORT int my_cnd_signal(x64emu_t* emu, void* cond)
+{
+	(void)emu;
+	return thrd_err(pthread_cond_signal(alignCond((pthread_cond_t*)cond)));
+}
+EXPORT int my_cnd_broadcast(x64emu_t* emu, void* cond)
+{
+	(void)emu;
+	return thrd_err(pthread_cond_broadcast(alignCond((pthread_cond_t*)cond)));
+}
+EXPORT int my_cnd_wait(x64emu_t* emu, void* cond, void* mutex)
+{
+	(void)emu;
+	return thrd_err(pthread_cond_wait(alignCond((pthread_cond_t*)cond), (pthread_mutex_t*)mutex));
+}
+EXPORT int my_cnd_timedwait(x64emu_t* emu, void* cond, void* mutex, void* abstime)
+{
+	(void)emu;
+	return thrd_err(pthread_cond_timedwait(alignCond((pthread_cond_t*)cond), (pthread_mutex_t*)mutex, (const struct timespec*)abstime));
+}
+
 typedef union my_condattr_s {
 	int					x86;
 	pthread_condattr_t 	nat;

@@ -91,6 +91,11 @@ GO(__bzero, vFpL)
 GO(bzero, vFpL)
 GO(c16rtomb, LFpWp)
 GOW(c32rtomb, LFpup)
+#ifdef STATICBUILD
+//GOM(call_once,
+#else
+GOM(call_once, vFEpp)
+#endif
 GOW(calloc, pFLL)
 //GOM(callrpc, iFpiiipppp)
 //GO(__call_tls_dtors, vFv)
@@ -172,6 +177,21 @@ GO(closelog, vFv)
 //GO(__close_nocancel, 
 GO(close_range, iFuui)
 GO(__cmsg_nxthdr, pFpp)
+#ifdef STATICBUILD
+//GOM(cnd_broadcast,
+//GOM(cnd_destroy,
+//GOM(cnd_init,
+//GOM(cnd_signal,
+//GOM(cnd_timedwait,
+//GOM(cnd_wait,
+#else
+GOM(cnd_broadcast, iFEp)
+GOM(cnd_destroy, vFEp)
+GOM(cnd_init, iFEp)
+GOM(cnd_signal, iFEp)
+GOM(cnd_timedwait, iFEppp)
+GOM(cnd_wait, iFEpp)
+#endif
 GO(confstr, LFipL)
 GO(__confstr_chk, LFipLL)
 GOW(__connect, iFipu)
@@ -1371,6 +1391,21 @@ GOW(msgrcv, lFipLli)
 GOW(msgsnd, iFipLi)
 GO(msync, iFpLi)
 GO(mtrace, vFv)
+#ifdef STATICBUILD
+//GO(mtx_destroy,
+//GOM(mtx_init,
+//GO(mtx_lock,
+//GO(mtx_timedlock,
+//GO(mtx_trylock,
+//GO(mtx_unlock,
+#else
+GO(mtx_destroy, vFp)
+GOM(mtx_init, iFEpi)
+GO(mtx_lock, iFp)
+GO(mtx_timedlock, iFpp)
+GO(mtx_trylock, iFp)
+GO(mtx_unlock, iFp)
+#endif
 GO(munlock, iFpL)
 GO(munlockall, iFv)
 //GO(__munmap, 
@@ -2223,13 +2258,17 @@ GOW(textdomain, pFp)
 GOWM(tfind, pFEppp)
 GOW(tgkill, iFiii)
 #ifdef STATICBUILD
+//GOM(thrd_create,
 //GO(thrd_current, 
 #else
+GOM(thrd_create, iFEppp)
 GO(thrd_current, LFv)
 #endif
 GO(thrd_exit, vFi)
 #ifdef STATICBUILD
+//GO(thrd_detach,
 //GO(thrd_equal, 
+//GO(thrd_join,
 //GO(thrd_sleep, 
 //GO(thrd_yield, 
 //GO(tss_create,
@@ -2237,7 +2276,9 @@ GO(thrd_exit, vFi)
 //GO(tss_delete,
 //GO(tss_set,
 #else
+GO(thrd_detach, iFL)
 GO(thrd_equal, iFLL)
+GO(thrd_join, iFLp)
 GO(thrd_sleep, iFpp)
 GO(thrd_yield, vFv)
 GOM(tss_create, iFEpp)

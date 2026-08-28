@@ -5522,6 +5522,7 @@ wrappedlibc:
   - _ITM_deregisterTMCloneTable
   - _ZGTtdlPv
   - __cxa_finalize
+  - cnd_destroy
 - iFv:
   - __getpagesize
   - fork
@@ -5535,6 +5536,9 @@ wrappedlibc:
   - _setjmp
   - at_quick_exit
   - atexit
+  - cnd_broadcast
+  - cnd_init
+  - cnd_signal
   - getcontext
   - register_printf_type
   - setcontext
@@ -5572,6 +5576,7 @@ wrappedlibc:
 - vFpp:
   - __register_frame_info
   - _obstack_free
+  - call_once
   - obstack_free
   - tdestroy
   - twalk
@@ -5595,6 +5600,7 @@ wrappedlibc:
 - iFpi:
   - __sigsetjmp
   - backtrace
+  - mtx_init
   - sigsetjmp
 - iFpu:
   - delete_module
@@ -5604,6 +5610,7 @@ wrappedlibc:
 - iFpp:
   - __cxa_at_quick_exit
   - __vprintf_chk
+  - cnd_wait
   - dl_iterate_phdr
   - execv
   - execvp
@@ -5714,8 +5721,10 @@ wrappedlibc:
   - __cxa_thread_atexit_impl
   - __vfprintf_chk
   - __vsscanf
+  - cnd_timedwait
   - execve
   - execvpe
+  - thrd_create
 - iFppV:
   - __asprintf
   - __isoc23_sscanf
