@@ -131,9 +131,9 @@ static void* find_free_fnc_Fct(void* fct)
 // copy_fnc
 #define GO(A)   \
 static uintptr_t my3_copy_fnc_fct_##A = 0;               \
-static void my3_copy_fnc_##A(void* p)                    \
-{                                                       \
-    RunFunctionFmt(my3_copy_fnc_fct_##A, "p", p); \
+static void* my3_copy_fnc_##A(void* p)                   \
+{                                                        \
+    return (void *)RunFunctionFmt(my3_copy_fnc_fct_##A, "p", p); \
 }
 SUPER()
 #undef GO

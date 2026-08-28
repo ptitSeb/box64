@@ -316,7 +316,8 @@ typedef struct my_GParamSpecTypeInfo_s {
 
 #define GO(A)   \
 static my_GParamSpecTypeInfo_t     my_GParamSpecTypeInfo_##A = {0};   \
-static my_GParamSpecTypeInfo_t   *ref_GParamSpecTypeInfo_##A = NULL;
+static my_GParamSpecTypeInfo_t     ref_GParamSpecTypeInfo_##A = {0};  \
+static int used_GParamSpecTypeInfo_##A = 0;
 SUPER()
 #undef GO
 // then the static functions callback that may be used with the structure, but dispatch also have a callback...
@@ -344,15 +345,29 @@ static int my_funcs_values_cmp_##A(void* pspec, void* value1, void* value2) {   
 
 SUPER()
 #undef GO
+static int compare_GParamSpecTypeInfo(my_GParamSpecTypeInfo_t* a, my_GParamSpecTypeInfo_t* b)
+{
+    if (a->instance_size != b->instance_size ||
+        a->n_preallocs != b->n_preallocs     ||
+        a->instance_init != b->instance_init ||
+        a->value_type != b->value_type       ||
+        a->finalize != b->finalize           ||
+        a->value_set_default != b->value_set_default ||
+        a->value_validate != b->value_validate       ||
+        a->values_cmp != b->values_cmp)
+        return 0;
+    return 1;
+}
 // and now the get slot / assign... Taking into account that the desired callback may already be a wrapped one (so unwrapping it)
 static my_GParamSpecTypeInfo_t* findFreeGParamSpecTypeInfo(my_GParamSpecTypeInfo_t* fcts)
 {
     if(!fcts) return fcts;
-    #define GO(A) if(ref_GParamSpecTypeInfo_##A == fcts) return &my_GParamSpecTypeInfo_##A;
+    #define GO(A) if(used_GParamSpecTypeInfo_##A && compare_GParamSpecTypeInfo(&ref_GParamSpecTypeInfo_##A, fcts)) return &my_GParamSpecTypeInfo_##A;
     SUPER()
     #undef GO
-    #define GO(A) if(ref_GParamSpecTypeInfo_##A == 0) {   \
-        ref_GParamSpecTypeInfo_##A = fcts;                 \
+    #define GO(A) if(used_GParamSpecTypeInfo_##A == 0) {   \
+        used_GParamSpecTypeInfo_##A = 1;                   \
+        memcpy(&ref_GParamSpecTypeInfo_##A, fcts, sizeof(*fcts)); \
         my_GParamSpecTypeInfo_##A.instance_init = (fcts->instance_init)?((GetNativeFnc((uintptr_t)fcts->instance_init))?(void (*)(void *))GetNativeFnc((uintptr_t)fcts->instance_init):my_funcs_instance_init_##A):NULL;    \
         fct_funcs_instance_init_##A = (uintptr_t)fcts->instance_init;                            \
         my_GParamSpecTypeInfo_##A.finalize = (fcts->finalize)?((GetNativeFnc((uintptr_t)fcts->finalize))?(void (*)(void *))GetNativeFnc((uintptr_t)fcts->finalize):my_funcs_finalize_##A):NULL;    \
@@ -363,6 +378,9 @@ static my_GParamSpecTypeInfo_t* findFreeGParamSpecTypeInfo(my_GParamSpecTypeInfo
         fct_funcs_value_validate_##A = (uintptr_t)fcts->value_validate;                            \
         my_GParamSpecTypeInfo_##A.values_cmp = (fcts->values_cmp)?((GetNativeFnc((uintptr_t)fcts->values_cmp))?(int (*)(void *, void *, void *))GetNativeFnc((uintptr_t)fcts->values_cmp):my_funcs_values_cmp_##A):NULL;    \
         fct_funcs_values_cmp_##A = (uintptr_t)fcts->values_cmp;                            \
+        my_GParamSpecTypeInfo_##A.instance_size = fcts->instance_size;     \
+        my_GParamSpecTypeInfo_##A.n_preallocs   = fcts->n_preallocs;       \
+        my_GParamSpecTypeInfo_##A.value_type    = fcts->value_type;        \
         return &my_GParamSpecTypeInfo_##A;                \
     }
     SUPER()
