@@ -193,7 +193,10 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         case 0x05:                      /* SYSCALL */
             #ifndef TEST_INTERPRETER
             R_RIP = addr;
-            EmuX64Syscall(emu);
+            if (R_CS == 0x23)
+                EmitSignal(emu, X64_SIGILL, (void*)R_RIP, 0);
+            else
+                EmuX64Syscall(emu);
             #endif
             break;
         case 0x06:                      /* CLTS */
@@ -469,8 +472,12 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
 
         case 0x34:                  /* SYSENTER */
             #ifndef TEST_INTERPRETER
-            EmitSignal(emu, X64_SIGSEGV, (void*)R_RIP, 0xbad0);
-            STEP;
+            if (R_CS == 0x23) {
+                R_RIP = addr;
+                EmuX86Syscall(emu);
+                STEP2;
+            } else
+                EmitSignal(emu, X64_SIGSEGV, (void*)R_RIP, 0xbad0);
             #endif
             break;
         case 0x35:                  /* SYSEXIT */
