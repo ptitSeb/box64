@@ -1468,7 +1468,8 @@ EXPORT void* my_g_error_new_valist(x64emu_t* emu, uint32_t domain, int code, voi
     #ifdef CONVERT_VALIST
     CONVERT_VALIST(V);
     #else
-    CREATE_VALIST_FROM_VALIST(V, emu->scratch);
+    myStackAlignValist(emu, (const char*)fmt, emu->scratch, V);
+    PREPARE_VALIST;
     #endif
     return my->g_error_new_valist(domain, code, fmt, VARARGS);
 }
@@ -1492,7 +1493,8 @@ EXPORT void my_g_logv(x64emu_t* emu, void* domain, int level, void* fmt, x64_va_
     #ifdef CONVERT_VALIST
     CONVERT_VALIST(V);
     #else
-    CREATE_VALIST_FROM_VALIST(V, emu->scratch);
+    myStackAlignValist(emu, (const char*)fmt, emu->scratch, V);
+    PREPARE_VALIST;
     #endif
     my->g_logv(domain, level, fmt, VARARGS);
 }

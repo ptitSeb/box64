@@ -1182,7 +1182,8 @@ EXPORT int my_gst_info_vasprintf(x64emu_t* emu, void* res, void* fmt, x64_va_lis
     #ifdef CONVERT_VALIST
     CONVERT_VALIST(V);
     #else
-    CREATE_VALIST_FROM_VALIST(V, emu->scratch);
+    myStackAlignValist(emu, (const char*)fmt, emu->scratch, V);
+    PREPARE_VALIST;
     #endif
     return my->gst_info_vasprintf(res, fmt, VARARGS);
 }
@@ -1261,7 +1262,8 @@ EXPORT void* my_gst_pad_create_stream_id_printf_valist(x64emu_t* emu, void* pad,
     #ifdef CONVERT_VALIST
     CONVERT_VALIST(V);
     #else
-    CREATE_VALIST_FROM_VALIST(V, emu->scratch);
+    myStackAlignValist(emu, (const char*)id, emu->scratch, V);
+    PREPARE_VALIST;
     #endif
     return my->gst_pad_create_stream_id_printf_valist(pad, parent, id, VARARGS);
 }
@@ -1466,7 +1468,8 @@ EXPORT void my_gst_debug_log_id_valist(x64emu_t* emu, void* cat, uint32_t level,
     #ifdef CONVERT_VALIST
     CONVERT_VALIST(V);
     #else
-    CREATE_VALIST_FROM_VALIST(V, emu->scratch);
+    myStackAlignValist(emu, (const char*)fmt, emu->scratch, V);
+    PREPARE_VALIST;
     #endif
     my->gst_debug_log_id_valist(cat, level, f, func, l, id, fmt, VARARGS);
 }
