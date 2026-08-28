@@ -2308,6 +2308,10 @@ static int shm_unlink(const char *name) {
 #define TMP_CPUCACHE_SIZE "box64_cpucachesize"
 EXPORT int32_t my_open(x64emu_t* emu, void* pathname, int32_t flags, uint32_t mode)
 {
+    if(!pathname) {
+        errno = EFAULT;
+        return -1;
+    }
     if(isProcSelf((const char*) pathname, "cmdline")) {
         // special case for self command line...
         #if 0
@@ -2451,6 +2455,10 @@ EXPORT int32_t my___open(x64emu_t* emu, void* pathname, int32_t flags, uint32_t 
 
 EXPORT int32_t my_open64(x64emu_t* emu, void* pathname, int32_t flags, uint32_t mode)
 {
+    if(!pathname) {
+        errno = EFAULT;
+        return -1;
+    }
     if(isProcSelf((const char*)pathname, "cmdline")) {
         // special case for self command line...
         #if 0
