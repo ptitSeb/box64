@@ -278,7 +278,7 @@ static const scwrap_t syscallwrap[] = {
     //[204] = {__NR_sched_getaffinity, 3},
     [206] = {__NR_io_setup, 2},
     [207] = {__NR_io_destroy, 1},
-    [208] = {__NR_io_getevents, 4},
+    [208] = {__NR_io_getevents, 5},
     [209] = {__NR_io_submit, 3},
     [210] = {__NR_io_cancel, 3},
     [212] = {__NR_lookup_dcookie, 3},
@@ -565,7 +565,8 @@ void EXPORT x64Syscall_linux(x64emu_t *emu)
     }
     // check wrapper first
     uint32_t cnt = sizeof(syscallwrap) / sizeof(scwrap_t);
-    if(s<cnt && syscallwrap[s].nats) {
+    // __NR_io_setup is 0, so syscallwrap[s].nats alone is not enough
+    if(s<cnt && !(syscallwrap[s].nats == 0 && syscallwrap[s].nbpars == 0)) {
         int sc = syscallwrap[s].nats;
         switch(syscallwrap[s].nbpars) {
             case 0: S_RAX = syscall(sc); break;
@@ -1097,7 +1098,8 @@ long EXPORT my_syscall(x64emu_t *emu)
     }
     // check wrapper first
     uint32_t cnt = sizeof(syscallwrap) / sizeof(scwrap_t);
-    if(s<cnt && syscallwrap[s].nats) {
+    // __NR_io_setup is 0, so syscallwrap[s].nats alone is not enough
+    if(s<cnt && !(syscallwrap[s].nats == 0 && syscallwrap[s].nbpars == 0)) {
         int sc = syscallwrap[s].nats;
         switch(syscallwrap[s].nbpars) {
             case 0: return syscall(sc);
