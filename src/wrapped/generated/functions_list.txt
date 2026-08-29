@@ -5581,6 +5581,7 @@ wrappedlibc:
   - pidfd_open
 - iFip:
   - __getrlimit
+  - arch_prctl
   - fstat
   - fstat64
 - iFup:
