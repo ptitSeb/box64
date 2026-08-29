@@ -230,6 +230,24 @@ uintptr_t dynarec64_DA(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 VLD32(v2, ed, fixedaddress);
                 SXTL_32(v2, v2);    // i32 -> i64
                 SCVTFDD(v2, v2);    // i64 -> double
+                if(BOX64ENV(dynarec_div0)) {
+                    FCMPD_0(v2);
+                    B_MARK3(cNE);
+                    LDRH_U12(x5, xEmu, offsetof(x64emu_t, cw));
+                    TBNZ_MARK2(x5, 2); // set SW.ZE flag if bit 2 is set
+                    GETIP_(ip);
+                    STORE_XEMU_CALL(xRIP);
+                    CALL_S(const_native_div0, -1);
+                    CLEARIP();
+                    LOAD_XEMU_CALL(xRIP);
+                    jump_to_epilog(dyn, 0, xRIP, ninst);
+                    MARK2;
+                    LDRH_U12(x5, xEmu, offsetof(x64emu_t, sw));
+                    MOV32w(x4, 0x4); // ZE flag
+                    ORRw_REG(x5, x5, x4);
+                    STRH_U12(x5, xEmu, offsetof(x64emu_t, sw));
+                    MARK3;
+                }
                 if(!BOX64ENV(dynarec_fastround))
                     u8 = x87_setround(dyn, ninst, x1, x5, x4);
                 FDIVD(v1, v1, v2);

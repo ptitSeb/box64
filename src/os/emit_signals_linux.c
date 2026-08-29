@@ -142,8 +142,8 @@ void EmitInterruption(x64emu_t* emu, int num, void* addr)
 void EmitDiv0(x64emu_t* emu, void* addr, int code)
 {
     siginfo_t info = { 0 };
-    info.si_signo = X64_SIGSEGV;
-    info.si_errno = 0xcafe;
+    info.si_signo = X64_SIGFPE;
+    info.si_errno = 0;
     info.si_code = code;
     info.si_addr = addr;
     const char* x64name = NULL;
@@ -155,7 +155,7 @@ void EmitDiv0(x64emu_t* emu, void* addr, int code)
             elfname = ElfName(elf);
         printf_log(LOG_NONE, "Emit Divide by 0 at IP=%p(%s / %s) / addr=%p\n", (void*)R_RIP, x64name ? x64name : "???", elfname ? elfname : "?", addr);
     }
-    my_sigactionhandler_oldcode(emu, X64_SIGSEGV, 0, &info, NULL, NULL, NULL, R_RIP);
+    my_sigactionhandler_oldcode(emu, X64_SIGFPE, 0, &info, NULL, NULL, NULL, R_RIP);
 }
 
 void EmitWineInt(x64emu_t* emu, int num, void* addr)
