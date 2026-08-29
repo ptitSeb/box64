@@ -69,6 +69,7 @@ typedef int32_t (*iFppA_t)(void*, void*, va_list);
 typedef int32_t (*iFpON_t)(void*, int32_t, ...);
 typedef int32_t (*iFSpV_t)(void*, void*, ...);
 typedef int32_t (*iFSpA_t)(void*, void*, va_list);
+typedef intptr_t (*lFipL_t)(int32_t, void*, uintptr_t);
 typedef intptr_t (*lFipV_t)(int32_t, void*, ...);
 typedef intptr_t (*lFppL_t)(void*, void*, uintptr_t);
 typedef uintptr_t (*LFppL_t)(void*, void*, uintptr_t);
@@ -315,6 +316,7 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(vfscanf, iFSpA_t) \
 	GO(vfwprintf, iFSpA_t) \
 	GO(vfwscanf, iFSpA_t) \
+	GO(write, lFipL_t) \
 	GO(__wprintf_chk, lFipV_t) \
 	GO(readlink, lFppL_t) \
 	GO(strlcat, LFppL_t) \

@@ -2511,7 +2511,7 @@ GO(wordfree, vFp)
 GOM(wprintf, iFEpV)
 GOM(__wprintf_chk, lFEipV)
 GOW(__write, lFipL)
-GO(write, lFipL)
+GOM(write, lFEipL)
 //GO(__write_nocancel, 
 GOW(writev, lFipi)
 GOM(wscanf, iFEpV)

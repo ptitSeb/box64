@@ -44,6 +44,7 @@ static inline int IsTraceAddr(uintptr_t addr) {
 extern int box64_mapclean;
 extern int box64_steam;
 extern int box64_steamcmd;
+extern int box64_srt_logger;
 extern int box64_wine;
 extern int box64_musl;
 extern int box64_isglibc234; // is the program linked with glibc 2.34+

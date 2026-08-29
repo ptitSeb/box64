@@ -1512,6 +1512,7 @@
 #() UFbuup
 #() dFppdd
 #() dFpppp
+#() lFEipL
 #() lFEipV
 #() lFEpip
 #() lFEppL
@@ -5748,6 +5749,8 @@ wrappedlibc:
   - vfscanf
   - vfwprintf
   - vfwscanf
+- lFipL:
+  - write
 - lFipV:
   - __wprintf_chk
 - lFppL:
