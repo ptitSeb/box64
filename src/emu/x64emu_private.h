@@ -168,7 +168,7 @@ typedef struct x64emu_s {
 #define EMUTYPE_MAIN    1
 #define EMUTYPE_SIGNAL  2
 
-//#define INTR_RAISE_DIV0(emu) {emu->error |= ERR_DIVBY0; emu->quit=1;}
+void EmitDiv0(x64emu_t* emu, void* addr, int code);
 #define INTR_RAISE_DIV0(emu) {emu->error |= ERR_DIVBY0;} // should rise a SIGFPE and not quit
 
 void applyFlushTo0(x64emu_t* emu);
