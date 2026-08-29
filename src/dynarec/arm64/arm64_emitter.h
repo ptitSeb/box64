@@ -841,12 +841,12 @@ int convert_bitmask(uint64_t bitmask);
 #define VMEMW_gen(size, opc, imm9, op2, Rn, Rt)  ((size)<<30 | 0b111<<27 | 1<<26 | (opc)<<22 | (imm9)<<12 | (op2)<<10 | 0b01<<10 | (Rn)<<5 | (Rt))
 #define VLDR64_S9_postindex(Rt, Rn, imm9)   EMIT(VMEMW_gen(0b11, 0b01, (imm9)&0x1ff, 0b01, Rn, Rt))
 #define VLDR64_S9_preindex(Rt, Rn, imm9)    EMIT(VMEMW_gen(0b11, 0b01, (imm9)&0x1ff, 0b11, Rn, Rt))
-#define VLDR128_S9_postindex(Rt, Rn, imm9)  EMIT(VMEMW_gen(0b11, 0b11, (imm9)&0x1ff, 0b01, Rn, Rt))
-#define VLDR128_S9_preindex(Rt, Rn, imm9)   EMIT(VMEMW_gen(0b11, 0b11, (imm9)&0x1ff, 0b11, Rn, Rt))
+#define VLDR128_S9_postindex(Rt, Rn, imm9)  EMIT(VMEMW_gen(0b00, 0b11, (imm9)&0x1ff, 0b01, Rn, Rt))
+#define VLDR128_S9_preindex(Rt, Rn, imm9)   EMIT(VMEMW_gen(0b00, 0b11, (imm9)&0x1ff, 0b11, Rn, Rt))
 #define VSTR64_S9_postindex(Rt, Rn, imm9)   EMIT(VMEMW_gen(0b11, 0b00, (imm9)&0x1ff, 0b01, Rn, Rt))
 #define VSTR64_S9_preindex(Rt, Rn, imm9)    EMIT(VMEMW_gen(0b11, 0b00, (imm9)&0x1ff, 0b11, Rn, Rt))
-#define VSTR128_S9_postindex(Rt, Rn, imm9)  EMIT(VMEMW_gen(0b11, 0b10, (imm9)&0x1ff, 0b01, Rn, Rt))
-#define VSTR128_S9_preindex(Rt, Rn, imm9)   EMIT(VMEMW_gen(0b11, 0b10, (imm9)&0x1ff, 0b11, Rn, Rt))
+#define VSTR128_S9_postindex(Rt, Rn, imm9)  EMIT(VMEMW_gen(0b00, 0b10, (imm9)&0x1ff, 0b01, Rn, Rt))
+#define VSTR128_S9_preindex(Rt, Rn, imm9)   EMIT(VMEMW_gen(0b00, 0b10, (imm9)&0x1ff, 0b11, Rn, Rt))
 
 #define VMEM_REG_gen(size, opc, Rm, option, S, Rn, Rt)  ((size)<<30 | 0b111<<27 | 1<<26 | (opc)<<22 | 1<<21 | (Rm)<<16 | (option)<<13 | (S)<<12 | 0b10<<10 | (Rn)<<5 | (Rt))
 
