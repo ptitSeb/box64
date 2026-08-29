@@ -185,6 +185,7 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(vwarnx, vFpA_t) \
 	GO(pidfd_open, iFiu_t) \
 	GO(__getrlimit, iFip_t) \
+	GO(arch_prctl, iFip_t) \
 	GO(fstat, iFip_t) \
 	GO(fstat64, iFip_t) \
 	GO(getrlimit, iFup_t) \

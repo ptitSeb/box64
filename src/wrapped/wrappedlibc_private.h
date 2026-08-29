@@ -21,7 +21,7 @@ GO(aligned_alloc, pFLL)
 GOW(alphasort, iFpp)
 GOW(alphasort64, iFpp)
 //GO(__arch_prctl, 
-//GOW(arch_prctl, 
+GOM(arch_prctl, iFEip)
 //DATA(argp_err_exit_status, 4)
 GOWM(argp_error, vFEppV)
 GOWM(argp_failure, vFEpiipV)

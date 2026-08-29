@@ -153,7 +153,7 @@ void SetFSBaseEmu(x64emu_t* emu, void* addr)
     emu->segs_offs[_FS] = (uintptr_t)addr;
 }
 
-int my_arch_prctl(x64emu_t *emu, int code, void* addr)
+int EXPORT my_arch_prctl(x64emu_t *emu, int code, void* addr)
 {
     printf_log(LOG_DEBUG, "%04d| arch_prctl(%s, %p) (RSP=%p, FS=0x%x, GS=0x%x)\n", GetTID(), arch_prctl_param(code), addr,(void*)R_RSP, emu->segs[_FS], emu->segs[_GS]);
 
@@ -182,6 +182,11 @@ int my_arch_prctl(x64emu_t *emu, int code, void* addr)
         case ARCH_SET_GS:
             seg=(code==ARCH_SET_FS)?_FS:_GS;
             int idx = -1;
+            // Refer to https://github.com/torvalds/linux/blob/v7.2/arch/x86/kernel/process_64.c#L904
+            if((uintptr_t)addr >= 0x800000000000ULL) {
+                errno = EPERM;
+                return -EPERM;
+            }
             if(emu->segs[_CS]!=0x23) {
                 // 64bits version, simply using FSGSBASE....
                 emu->segs[seg] = 0;
