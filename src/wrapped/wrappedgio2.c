@@ -745,13 +745,6 @@ EXPORT void* my_g_memory_input_stream_new_from_data(x64emu_t* emu, void* data, s
 }
 
 
-// GIO spawns the child process itself, from native code and with the native
-// libc, so an x86_64 argv[0] reaches execvp() unchanged: the kernel answers
-// ENOEXEC and glibc then retries the whole command line through /bin/sh, which
-// reads the ELF as a shell script ("ELF: not found", "Unterminated quoted
-// string") and the child never starts. Prefix argv with box64 so the child is
-// emulated, the way my_execv and friends do for the libc exec family.
-// Returns NULL when argv needs no change, else a box_malloc'ed argv.
 static const char** prepare_spawn_argv(const char* const* argv)
 {
     if (!argv || !argv[0]) return NULL;

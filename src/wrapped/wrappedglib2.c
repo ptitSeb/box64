@@ -1136,12 +1136,6 @@ EXPORT void* my_g_hash_table_find(x64emu_t* emu, void* table, void* f, void* dat
 }
 
 
-// g_spawn runs the child from native code with the native libc, so an x86_64
-// argv[0] reaches execvp() unchanged: the kernel answers ENOEXEC and glibc
-// retries the command through /bin/sh, which reads the ELF as a shell script.
-// Prefix argv with box64 so the child is emulated. argv[0] resolved through
-// G_SPAWN_SEARCH_PATH is left alone, as it is not a path we can inspect.
-// Returns NULL when argv needs no change, else a box_malloc'ed argv.
 static const char** prepare_spawn_argv(const char* const* argv)
 {
     if (!argv || !argv[0]) return NULL;

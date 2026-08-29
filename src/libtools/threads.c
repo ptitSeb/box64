@@ -1172,16 +1172,6 @@ EXPORT int my_pthread_mutex_init(pthread_mutex_t *m, my_mutexattr_t *att)
 }
 EXPORT int my___pthread_mutex_init(pthread_mutex_t *m, my_mutexattr_t *att) __attribute__((alias("my_pthread_mutex_init")));
 
-// C11 threads (ISO/IEC 9899:2011 7.26). glibc builds them on top of the pthread
-// API, and thrd_t/mtx_t/cnd_t/once_flag are layout compatible with pthread_t/
-// pthread_mutex_t/pthread_cond_t/pthread_once_t, so most of the family goes
-// straight through to the native libc (see wrappedlibc_private.h). Only the
-// ones here need help, for the same reasons their pthread counterparts do:
-//  - thrd_create runs a guest function, so it needs an emulated thread,
-//  - call_once runs a guest callback,
-//  - mtx_init would let the native pthread_mutex_init write 48 bytes into the
-//    40 an x86_64 guest reserves for a mtx_t,
-//  - cnd_* need the same alignment fixup as the pthread_cond_* wrappers.
 #define THRD_SUCCESS	0
 #define THRD_BUSY		1
 #define THRD_ERROR		2
@@ -1189,7 +1179,6 @@ EXPORT int my___pthread_mutex_init(pthread_mutex_t *m, my_mutexattr_t *att) __at
 #define THRD_TIMEDOUT	4
 #define MTX_RECURSIVE	1
 
-// same mapping as glibc's thrd_err_map
 static int thrd_err(int err)
 {
 	switch(err) {
@@ -1203,9 +1192,6 @@ static int thrd_err(int err)
 
 EXPORT int my_thrd_create(x64emu_t* emu, void* thr, void* func, void* arg)
 {
-	// thrd_start_t is int(*)(void*) where pthread_create wants void*(*)(void*),
-	// but both return through RAX and thrd_join truncates, so the emulated
-	// thread creation is reused as-is.
 	return thrd_err(my_pthread_create(emu, thr, NULL, func, arg));
 }
 

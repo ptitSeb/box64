@@ -311,9 +311,6 @@ static void* reverse_close_displayFct(library_t* lib, void* fct)
     return (void*)AddBridge(lib->w.bridge, iFpp, fct, 0, NULL);
 }
 
-// ext_hook: shared pool for the XESetCreateGC/CopyGC/FlushGC/FreeGC/CreateFont/FreeFont
-// handlers, that all share the same int(Display*, GC or XFontStruct*, XExtCodes*) prototype.
-// It has more slots than SUPER(), as a single program can register the 6 hooks for several extensions.
 #define SUPER_EXT() \
 GO(0)   GO(1)   GO(2)   GO(3)   GO(4)   GO(5)   GO(6)   GO(7)   \
 GO(8)   GO(9)   GO(10)  GO(11)  GO(12)  GO(13)  GO(14)  GO(15)  \
@@ -352,7 +349,6 @@ static void* reverse_ext_hookFct(library_t* lib, void* fct)
     return (void*)AddBridge(lib->w.bridge, iFppp, fct, 0, NULL);
 }
 
-// ext_error_string
 #define GO(A)   \
 static uintptr_t my_ext_error_string_fct_##A = 0;                                       \
 static char* my_ext_error_string_##A(void* dpy, int code, void* codes, char* buf, int nbytes) \

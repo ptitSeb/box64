@@ -706,7 +706,6 @@ int my_swapcontext(x64emu_t* emu, void* ucp1, void* ucp2);
 // this one is defined in elfloader.c
 int my_dl_iterate_phdr(x64emu_t *emu, void* F, void *data);
 
-// C11 threads, defined in threads.c along with the pthread wrappers they use
 int my_thrd_create(x64emu_t* emu, void* thr, void* func, void* arg);
 void my_call_once(x64emu_t* emu, void* flag, void* cb);
 int my_mtx_init(x64emu_t* emu, void* m, int type);
