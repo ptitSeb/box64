@@ -140,6 +140,7 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(_ITM_deregisterTMCloneTable, vFp_t) \
 	GO(_ZGTtdlPv, vFp_t) \
 	GO(__cxa_finalize, vFp_t) \
+	GO(cnd_destroy, vFp_t) \
 	GO(__getpagesize, iFv_t) \
 	GO(fork, iFv_t) \
 	GO(getpagesize, iFv_t) \
@@ -150,6 +151,9 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(_setjmp, iFp_t) \
 	GO(at_quick_exit, iFp_t) \
 	GO(atexit, iFp_t) \
+	GO(cnd_broadcast, iFp_t) \
+	GO(cnd_init, iFp_t) \
+	GO(cnd_signal, iFp_t) \
 	GO(getcontext, iFp_t) \
 	GO(register_printf_type, iFp_t) \
 	GO(setcontext, iFp_t) \
@@ -176,6 +180,7 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(_ITM_registerTMCloneTable, vFpu_t) \
 	GO(__register_frame_info, vFpp_t) \
 	GO(_obstack_free, vFpp_t) \
+	GO(call_once, vFpp_t) \
 	GO(obstack_free, vFpp_t) \
 	GO(tdestroy, vFpp_t) \
 	GO(twalk, vFpp_t) \
@@ -193,12 +198,14 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(setrlimit, iFup_t) \
 	GO(__sigsetjmp, iFpi_t) \
 	GO(backtrace, iFpi_t) \
+	GO(mtx_init, iFpi_t) \
 	GO(sigsetjmp, iFpi_t) \
 	GO(delete_module, iFpu_t) \
 	GO(fsopen, iFpu_t) \
 	GO(munmap, iFpL_t) \
 	GO(__cxa_at_quick_exit, iFpp_t) \
 	GO(__vprintf_chk, iFpp_t) \
+	GO(cnd_wait, iFpp_t) \
 	GO(dl_iterate_phdr, iFpp_t) \
 	GO(execv, iFpp_t) \
 	GO(execvp, iFpp_t) \
@@ -282,8 +289,10 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(__cxa_thread_atexit_impl, iFppp_t) \
 	GO(__vfprintf_chk, iFppp_t) \
 	GO(__vsscanf, iFppp_t) \
+	GO(cnd_timedwait, iFppp_t) \
 	GO(execve, iFppp_t) \
 	GO(execvpe, iFppp_t) \
+	GO(thrd_create, iFppp_t) \
 	GO(__asprintf, iFppV_t) \
 	GO(__isoc23_sscanf, iFppV_t) \
 	GO(__isoc23_swscanf, iFppV_t) \

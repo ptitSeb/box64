@@ -19,6 +19,7 @@
 #include "emu/x64emu_private.h"
 #include "myalign.h"
 #include "gtkclass.h"
+#include "fileutils.h"
 #include "threads.h"
 
 const char* glib2Name = "libglib-2.0.so.0";
@@ -1134,19 +1135,43 @@ EXPORT void* my_g_hash_table_find(x64emu_t* emu, void* table, void* f, void* dat
     return my->g_hash_table_find(table, findGHRFuncFct(f), data);
 }
 
+
+static const char** prepare_spawn_argv(const char* const* argv)
+{
+    if (!argv || !argv[0]) return NULL;
+    int x86 = my_context->box86path ? FileIsX86ELF(argv[0]) : 0;
+    if (!x86 && !FileIsX64ELF(argv[0])) return NULL;
+    int n = 0;
+    while (argv[n]) ++n;
+    const char** newargv = (const char**)box_malloc((n + 2) * sizeof(char*));
+    newargv[0] = x86 ? my_context->box86path : my_context->box64path;
+    memcpy(newargv + 1, argv, (n + 1) * sizeof(char*));
+    printf_log(LOG_DEBUG, "g_spawn of \"%s\" redirected through \"%s\"\n", argv[0], newargv[0]);
+    return newargv;
+}
+
 EXPORT int my_g_spawn_async_with_pipes(x64emu_t* emu, void* dir, void* argv, void* envp, uint32_t flags, void* f, void* data, void* child, void* input, void* output, void* err, void* error)
 {
-    return my->g_spawn_async_with_pipes(dir, argv, envp, flags, findSpawnChildSetupFct(f), data, child, input, output, err, error);
+    const char** newargv = prepare_spawn_argv((const char* const*)argv);
+    int ret = my->g_spawn_async_with_pipes(dir, newargv?(void*)newargv:argv, envp, flags, findSpawnChildSetupFct(f), data, child, input, output, err, error);
+    box_free(newargv);
+    return ret;
 }
 
 EXPORT int my_g_spawn_async(x64emu_t* emu, void* dir, void* argv, void* envp, uint32_t flags, void* f, void* data, void* child, void* error)
 {
-    return my->g_spawn_async(dir, argv, envp, flags, findSpawnChildSetupFct(f), data, child, error);
+    const char** newargv = prepare_spawn_argv((const char* const*)argv);
+    int ret = my->g_spawn_async(dir, newargv?(void*)newargv:argv, envp, flags, findSpawnChildSetupFct(f), data, child, error);
+    box_free(newargv);
+    return ret;
 }
 
 EXPORT int my_g_spawn_sync(x64emu_t* emu, void* dir, void* argv, void* envp, uint32_t flags, void* f, void* data, void* input, void* output, void* status, void* error)
 {
-    return my->g_spawn_sync(dir, argv, envp, flags, findSpawnChildSetupFct(f), data, input, output, status, error);
+    const char** newargv = prepare_spawn_argv((const char* const*)argv);
+    int ret = my->g_spawn_sync(dir, newargv?(void*)newargv:argv, envp, flags, findSpawnChildSetupFct(f), data, input, output, status, error);
+    box_free(newargv);
+    return ret;
 }
 
 EXPORT uint32_t my_g_child_watch_add(x64emu_t* emu, int pid, void* f, void* data)
@@ -1665,6 +1690,11 @@ EXPORT void* my_g_node_copy_deep(x64emu_t* emu, void* node, void* f, void* data)
 EXPORT void* my_g_slist_copy_deep(x64emu_t* emu, void* list, void* f, void* data)
 {
     return my->g_slist_copy_deep(list, findCopyFct(f), data);
+}
+
+EXPORT void* my_g_list_copy_deep(x64emu_t* emu, void* list, void* f, void* data)
+{
+    return my->g_list_copy_deep(list, findCopyFct(f), data);
 }
 
 EXPORT void* my_g_thread_try_new(x64emu_t* emu, void* name, void* f, void* data, void* err)

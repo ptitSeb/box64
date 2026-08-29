@@ -19,6 +19,7 @@
 #include "emu/x64emu_private.h"
 #include "myalign.h"
 #include "gtkclass.h"
+#include "fileutils.h"
 
 const char* gio2Name = "libgio-2.0.so.0";
 #define ALTNAME "libgio-2.0.so"
@@ -611,6 +612,11 @@ EXPORT void my_g_dbus_connection_call(x64emu_t* emu, void* connection, void* bus
     my->g_dbus_connection_call(connection, bus, object, interface, method, param, reply, flags, timeout, cancellable, findGAsyncReadyCallbackFct(cb), data);
 }
 
+EXPORT void my_g_dbus_connection_call_with_unix_fd_list(x64emu_t* emu, void* connection, void* bus, void* object, void* interface, void* method, void* param, void* reply, uint32_t flags, int timeout, void* fd_list, void* cancellable, void* cb, void* data)
+{
+    my->g_dbus_connection_call_with_unix_fd_list(connection, bus, object, interface, method, param, reply, flags, timeout, fd_list, cancellable, findGAsyncReadyCallbackFct(cb), data);
+}
+
 EXPORT uint32_t my_g_dbus_connection_signal_subscribe(x64emu_t* emu, void* connection, void* sender, void* interface, void* member, void* object, void* arg0, uint32_t flags, void* cb, void* data, void* notify)
 {
     return my->g_dbus_connection_signal_subscribe(connection, sender, interface, member, object, arg0, flags, findGDBusSignalCallbackFct(cb), data, findGDestroyNotifyFct(notify));
@@ -736,6 +742,37 @@ EXPORT void my_g_action_map_add_action_entries(x64emu_t* emu, void* map, my_GAct
 EXPORT void* my_g_memory_input_stream_new_from_data(x64emu_t* emu, void* data, ssize_t len, void* f)
 {
     return my->g_memory_input_stream_new_from_data(data, len, findGDestroyNotifyFct(f));
+}
+
+
+static const char** prepare_spawn_argv(const char* const* argv)
+{
+    if (!argv || !argv[0]) return NULL;
+    int x86 = my_context->box86path ? FileIsX86ELF(argv[0]) : 0;
+    if (!x86 && !FileIsX64ELF(argv[0])) return NULL;
+    int n = 0;
+    while (argv[n]) ++n;
+    const char** newargv = (const char**)box_malloc((n + 2) * sizeof(char*));
+    newargv[0] = x86 ? my_context->box86path : my_context->box64path;
+    memcpy(newargv + 1, argv, (n + 1) * sizeof(char*));
+    printf_log(LOG_DEBUG, "gio spawn of \"%s\" redirected through \"%s\"\n", argv[0], newargv[0]);
+    return newargv;
+}
+
+EXPORT void* my_g_subprocess_launcher_spawnv(x64emu_t* emu, void* launcher, const char* const* argv, void* error)
+{
+    const char** newargv = prepare_spawn_argv(argv);
+    void* ret = my->g_subprocess_launcher_spawnv(launcher, (void*)(newargv ? newargv : argv), error);
+    box_free(newargv);
+    return ret;
+}
+
+EXPORT void* my_g_subprocess_newv(x64emu_t* emu, const char* const* argv, uint32_t flags, void* error)
+{
+    const char** newargv = prepare_spawn_argv(argv);
+    void* ret = my->g_subprocess_newv((void*)(newargv ? newargv : argv), flags, error);
+    box_free(newargv);
+    return ret;
 }
 
 #define PRE_INIT \

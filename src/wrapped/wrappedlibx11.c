@@ -311,6 +311,76 @@ static void* reverse_close_displayFct(library_t* lib, void* fct)
     return (void*)AddBridge(lib->w.bridge, iFpp, fct, 0, NULL);
 }
 
+#define SUPER_EXT() \
+GO(0)   GO(1)   GO(2)   GO(3)   GO(4)   GO(5)   GO(6)   GO(7)   \
+GO(8)   GO(9)   GO(10)  GO(11)  GO(12)  GO(13)  GO(14)  GO(15)  \
+GO(16)  GO(17)  GO(18)  GO(19)  GO(20)  GO(21)  GO(22)  GO(23)  \
+GO(24)  GO(25)  GO(26)  GO(27)  GO(28)  GO(29)  GO(30)  GO(31)
+
+#define GO(A)   \
+static uintptr_t my_ext_hook_fct_##A = 0;                           \
+static int my_ext_hook_##A(void* dpy, void* obj, void* codes)       \
+{                                                                   \
+    return (int)RunFunctionFmt(my_ext_hook_fct_##A, "ppp", dpy, obj, codes);\
+}
+SUPER_EXT()
+#undef GO
+static void* findext_hookFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_ext_hook_fct_##A == (uintptr_t)fct) return my_ext_hook_##A;
+    SUPER_EXT()
+    #undef GO
+    #define GO(A) if(my_ext_hook_fct_##A == 0) {my_ext_hook_fct_##A = (uintptr_t)fct; return my_ext_hook_##A; }
+    SUPER_EXT()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libX11 ext_hook callback\n");
+    return NULL;
+}
+static void* reverse_ext_hookFct(library_t* lib, void* fct)
+{
+    if(!fct) return fct;
+    if(CheckBridged(lib->w.bridge, iFppp, fct))
+        return (void*)CheckBridged(lib->w.bridge, iFppp, fct);
+    #define GO(A) if(my_ext_hook_##A == fct) return (void*)my_ext_hook_fct_##A;
+    SUPER_EXT()
+    #undef GO
+    return (void*)AddBridge(lib->w.bridge, iFppp, fct, 0, NULL);
+}
+
+#define GO(A)   \
+static uintptr_t my_ext_error_string_fct_##A = 0;                                       \
+static char* my_ext_error_string_##A(void* dpy, int code, void* codes, char* buf, int nbytes) \
+{                                                                                       \
+    return (char*)RunFunctionFmt(my_ext_error_string_fct_##A, "pippi", dpy, code, codes, buf, nbytes);\
+}
+SUPER()
+#undef GO
+static void* findext_error_stringFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_ext_error_string_fct_##A == (uintptr_t)fct) return my_ext_error_string_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_ext_error_string_fct_##A == 0) {my_ext_error_string_fct_##A = (uintptr_t)fct; return my_ext_error_string_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libX11 ext_error_string callback\n");
+    return NULL;
+}
+static void* reverse_ext_error_stringFct(library_t* lib, void* fct)
+{
+    if(!fct) return fct;
+    if(CheckBridged(lib->w.bridge, pFpippi, fct))
+        return (void*)CheckBridged(lib->w.bridge, pFpippi, fct);
+    #define GO(A) if(my_ext_error_string_##A == fct) return (void*)my_ext_error_string_fct_##A;
+    SUPER()
+    #undef GO
+    return (void*)AddBridge(lib->w.bridge, pFpippi, fct, 0, NULL);
+}
+
 // register_im
 #define GO(A)   \
 static uintptr_t my_register_im_fct_##A = 0;                        \
@@ -1202,6 +1272,48 @@ EXPORT void* my_XESetCloseDisplay(x64emu_t* emu, void* display, int32_t extensio
 {
     void* ret = my->XESetCloseDisplay(display, extension, findclose_displayFct(handler));
     return reverse_close_displayFct(my_lib, ret);
+}
+
+EXPORT void* my_XESetCreateGC(x64emu_t* emu, void* display, int32_t extension, void* handler)
+{
+    void* ret = my->XESetCreateGC(display, extension, findext_hookFct(handler));
+    return reverse_ext_hookFct(my_lib, ret);
+}
+
+EXPORT void* my_XESetCopyGC(x64emu_t* emu, void* display, int32_t extension, void* handler)
+{
+    void* ret = my->XESetCopyGC(display, extension, findext_hookFct(handler));
+    return reverse_ext_hookFct(my_lib, ret);
+}
+
+EXPORT void* my_XESetFlushGC(x64emu_t* emu, void* display, int32_t extension, void* handler)
+{
+    void* ret = my->XESetFlushGC(display, extension, findext_hookFct(handler));
+    return reverse_ext_hookFct(my_lib, ret);
+}
+
+EXPORT void* my_XESetFreeGC(x64emu_t* emu, void* display, int32_t extension, void* handler)
+{
+    void* ret = my->XESetFreeGC(display, extension, findext_hookFct(handler));
+    return reverse_ext_hookFct(my_lib, ret);
+}
+
+EXPORT void* my_XESetCreateFont(x64emu_t* emu, void* display, int32_t extension, void* handler)
+{
+    void* ret = my->XESetCreateFont(display, extension, findext_hookFct(handler));
+    return reverse_ext_hookFct(my_lib, ret);
+}
+
+EXPORT void* my_XESetFreeFont(x64emu_t* emu, void* display, int32_t extension, void* handler)
+{
+    void* ret = my->XESetFreeFont(display, extension, findext_hookFct(handler));
+    return reverse_ext_hookFct(my_lib, ret);
+}
+
+EXPORT void* my_XESetErrorString(x64emu_t* emu, void* display, int32_t extension, void* handler)
+{
+    void* ret = my->XESetErrorString(display, extension, findext_error_stringFct(handler));
+    return reverse_ext_error_stringFct(my_lib, ret);
 }
 
 EXPORT int32_t my_XIfEvent(x64emu_t* emu, void* d,void* ev, EventHandler h, void* arg)

@@ -1451,6 +1451,50 @@ static void* find_zwp_pointer_gesture_pinch_v1_listener_Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for wayland-client zwp_pointer_gesture_pinch_v1_listener callback\n");
     return NULL;
 }
+// zwp_pointer_gesture_swipe_v1 ...
+typedef struct my_zwp_pointer_gesture_swipe_v1_listener_s {
+    uintptr_t begin;  // vFppuuup
+    uintptr_t update; // vFppuii
+    uintptr_t end;    // vFppuui
+} my_zwp_pointer_gesture_swipe_v1_listener_t;
+#define GO(A)                                                                                                                     \
+    static my_zwp_pointer_gesture_swipe_v1_listener_t* ref_zwp_pointer_gesture_swipe_v1_listener_##A = NULL;                      \
+    static void my_zwp_pointer_gesture_swipe_v1_listener_begin_##A(void* a, void* b, uint32_t c, uint32_t d, void* e, uint32_t f) \
+    {                                                                                                                             \
+        RunFunctionFmt(ref_zwp_pointer_gesture_swipe_v1_listener_##A->begin, "ppuuup", a, b, c, d, e, f);                         \
+    }                                                                                                                             \
+    static void my_zwp_pointer_gesture_swipe_v1_listener_update_##A(void* a, void* b, uint32_t c, int32_t d, int32_t e)           \
+    {                                                                                                                             \
+        RunFunctionFmt(ref_zwp_pointer_gesture_swipe_v1_listener_##A->update, "ppuii", a, b, c, d, e);                            \
+    }                                                                                                                             \
+    static void my_zwp_pointer_gesture_swipe_v1_listener_end_##A(void* a, void* b, uint32_t c, uint32_t d, int32_t e)             \
+    {                                                                                                                             \
+        RunFunctionFmt(ref_zwp_pointer_gesture_swipe_v1_listener_##A->end, "ppuui", a, b, c, d, e);                               \
+    }                                                                                                                             \
+    static my_zwp_pointer_gesture_swipe_v1_listener_t my_zwp_pointer_gesture_swipe_v1_listener_fct_##A = {                        \
+        (uintptr_t)my_zwp_pointer_gesture_swipe_v1_listener_begin_##A,                                                            \
+        (uintptr_t)my_zwp_pointer_gesture_swipe_v1_listener_update_##A,                                                           \
+        (uintptr_t)my_zwp_pointer_gesture_swipe_v1_listener_end_##A,                                                              \
+    };
+SUPER()
+#undef GO
+static void* find_zwp_pointer_gesture_swipe_v1_listener_Fct(void* fct)
+{
+    if (!fct) return fct;
+#define GO(A) \
+    if (ref_zwp_pointer_gesture_swipe_v1_listener_##A == fct) return &my_zwp_pointer_gesture_swipe_v1_listener_fct_##A;
+    SUPER()
+#undef GO
+#define GO(A)                                                     \
+    if (ref_zwp_pointer_gesture_swipe_v1_listener_##A == 0) {     \
+        ref_zwp_pointer_gesture_swipe_v1_listener_##A = fct;      \
+        return &my_zwp_pointer_gesture_swipe_v1_listener_fct_##A; \
+    }
+    SUPER()
+#undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for wayland-client zwp_pointer_gesture_swipe_v1_listener callback\n");
+    return NULL;
+}
 // zwp_locked_pointer_v1 ...
 typedef struct my_zwp_locked_pointer_v1_listener_s {
     uintptr_t locked;  // vFpp
@@ -1599,6 +1643,8 @@ EXPORT int my_wl_proxy_add_listener(x64emu_t* emu, void* proxy, void** l, void* 
         l = find_wp_image_description_v1_listener_Fct(l);
     } else if (!strcmp(proxy_name, "zwp_pointer_gesture_pinch_v1")) {
         l = find_zwp_pointer_gesture_pinch_v1_listener_Fct(l);
+    } else if (!strcmp(proxy_name, "zwp_pointer_gesture_swipe_v1")) {
+        l = find_zwp_pointer_gesture_swipe_v1_listener_Fct(l);
     } else if (!strcmp(proxy_name, "zwp_locked_pointer_v1")) {
         l = find_zwp_locked_pointer_v1_listener_Fct(l);
     } else if (!strcmp(proxy_name, "zwp_confined_pointer_v1")) {

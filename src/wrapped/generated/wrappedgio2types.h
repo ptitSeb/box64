@@ -13,7 +13,9 @@
 
 typedef void (*vFpp_t)(void*, void*);
 typedef void (*vFppp_t)(void*, void*, void*);
+typedef void* (*pFpup_t)(void*, uint32_t, void*);
 typedef void* (*pFplp_t)(void*, intptr_t, void*);
+typedef void* (*pFppp_t)(void*, void*, void*);
 typedef void (*vFippp_t)(int32_t, void*, void*, void*);
 typedef void (*vFppip_t)(void*, void*, int32_t, void*);
 typedef void (*vFpppp_t)(void*, void*, void*, void*);
@@ -45,6 +47,7 @@ typedef void (*vFpppuipppp_t)(void*, void*, void*, uint32_t, int32_t, void*, voi
 typedef void* (*pFiuppppppp_t)(int32_t, uint32_t, void*, void*, void*, void*, void*, void*, void*);
 typedef uint32_t (*uFppppppuppp_t)(void*, void*, void*, void*, void*, void*, uint32_t, void*, void*, void*);
 typedef void (*vFpppppppuippp_t)(void*, void*, void*, void*, void*, void*, void*, uint32_t, int32_t, void*, void*, void*);
+typedef void (*vFpppppppuipppp_t)(void*, void*, void*, void*, void*, void*, void*, uint32_t, int32_t, void*, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(g_task_run_in_thread, vFpp_t) \
@@ -52,7 +55,9 @@ typedef void (*vFpppppppuippp_t)(void*, void*, void*, void*, void*, void*, void*
 	GO(g_simple_async_result_set_op_res_gpointer, vFppp_t) \
 	GO(g_task_return_pointer, vFppp_t) \
 	GO(g_task_set_task_data, vFppp_t) \
+	GO(g_subprocess_newv, pFpup_t) \
 	GO(g_memory_input_stream_new_from_data, pFplp_t) \
+	GO(g_subprocess_launcher_spawnv, pFppp_t) \
 	GO(g_bus_get, vFippp_t) \
 	GO(g_action_map_add_action_entries, vFppip_t) \
 	GO(g_simple_async_result_run_in_thread, vFppip_t) \
@@ -95,6 +100,7 @@ typedef void (*vFpppppppuippp_t)(void*, void*, void*, void*, void*, void*, void*
 	GO(g_dbus_proxy_call_with_unix_fd_list, vFpppuipppp_t) \
 	GO(g_dbus_object_manager_client_new_for_bus_sync, pFiuppppppp_t) \
 	GO(g_dbus_connection_signal_subscribe, uFppppppuppp_t) \
-	GO(g_dbus_connection_call, vFpppppppuippp_t)
+	GO(g_dbus_connection_call, vFpppppppuippp_t) \
+	GO(g_dbus_connection_call_with_unix_fd_list, vFpppppppuipppp_t)
 
 #endif // __wrappedgio2TYPES_H_

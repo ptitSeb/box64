@@ -52,8 +52,15 @@ typedef uintptr_t (*LFpLiiuuuiupLp_t)(void*, uintptr_t, int32_t, int32_t, uint32
 	GO(XRemoveConnectionWatch, vFppp_t) \
 	GO(XAddConnectionWatch, iFppp_t) \
 	GO(XESetCloseDisplay, pFpip_t) \
+	GO(XESetCopyGC, pFpip_t) \
+	GO(XESetCreateFont, pFpip_t) \
+	GO(XESetCreateGC, pFpip_t) \
 	GO(XESetError, pFpip_t) \
+	GO(XESetErrorString, pFpip_t) \
 	GO(XESetEventToWire, pFpip_t) \
+	GO(XESetFlushGC, pFpip_t) \
+	GO(XESetFreeFont, pFpip_t) \
+	GO(XESetFreeGC, pFpip_t) \
 	GO(XESetWireToEvent, pFpip_t) \
 	GO(_XGetRequest, pFpCL_t) \
 	GO(XCheckIfEvent, iFpppp_t) \

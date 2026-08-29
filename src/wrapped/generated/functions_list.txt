@@ -1585,6 +1585,7 @@
 #() pFEpip
 #() pFEpiV
 #() pFEpCL
+#() pFEpup
 #() pFEplp
 #() pFEppi
 #() pFEppu
@@ -4099,6 +4100,7 @@
 #() pFpppppppuipppp
 #() pFppppppppppppp
 #() pFbuupppwwwwWWC
+#() vFEpppppppuipppp
 #() vFippppppppppppp
 #() vFuuuullfplplfpl
 #() vFuuuulldplpldpl
@@ -4701,8 +4703,12 @@ wrappedgio2:
   - g_simple_async_result_set_op_res_gpointer
   - g_task_return_pointer
   - g_task_set_task_data
+- pFpup:
+  - g_subprocess_newv
 - pFplp:
   - g_memory_input_stream_new_from_data
+- pFppp:
+  - g_subprocess_launcher_spawnv
 - vFippp:
   - g_bus_get
 - vFppip:
@@ -4777,6 +4783,8 @@ wrappedgio2:
   - g_dbus_connection_signal_subscribe
 - vFpppppppuippp:
   - g_dbus_connection_call
+- vFpppppppuipppp:
+  - g_dbus_connection_call_with_unix_fd_list
 wrappedglesv2:
 wrappedglib2:
 - vFp:
@@ -4881,6 +4889,7 @@ wrappedglib2:
   - g_hash_table_foreach_steal
 - pFppp:
   - g_hash_table_find
+  - g_list_copy_deep
   - g_list_find_custom
   - g_list_insert_sorted
   - g_list_sort_with_data
@@ -5518,6 +5527,7 @@ wrappedlibc:
   - _ITM_deregisterTMCloneTable
   - _ZGTtdlPv
   - __cxa_finalize
+  - cnd_destroy
 - iFv:
   - __getpagesize
   - fork
@@ -5531,6 +5541,9 @@ wrappedlibc:
   - _setjmp
   - at_quick_exit
   - atexit
+  - cnd_broadcast
+  - cnd_init
+  - cnd_signal
   - getcontext
   - register_printf_type
   - setcontext
@@ -5568,6 +5581,7 @@ wrappedlibc:
 - vFpp:
   - __register_frame_info
   - _obstack_free
+  - call_once
   - obstack_free
   - tdestroy
   - twalk
@@ -5591,6 +5605,7 @@ wrappedlibc:
 - iFpi:
   - __sigsetjmp
   - backtrace
+  - mtx_init
   - sigsetjmp
 - iFpu:
   - delete_module
@@ -5600,6 +5615,7 @@ wrappedlibc:
 - iFpp:
   - __cxa_at_quick_exit
   - __vprintf_chk
+  - cnd_wait
   - dl_iterate_phdr
   - execv
   - execvp
@@ -5710,8 +5726,10 @@ wrappedlibc:
   - __cxa_thread_atexit_impl
   - __vfprintf_chk
   - __vsscanf
+  - cnd_timedwait
   - execve
   - execvpe
+  - thrd_create
 - iFppV:
   - __asprintf
   - __isoc23_sscanf
@@ -6687,8 +6705,15 @@ wrappedlibx11:
   - XAddConnectionWatch
 - pFpip:
   - XESetCloseDisplay
+  - XESetCopyGC
+  - XESetCreateFont
+  - XESetCreateGC
   - XESetError
+  - XESetErrorString
   - XESetEventToWire
+  - XESetFlushGC
+  - XESetFreeFont
+  - XESetFreeGC
   - XESetWireToEvent
 - pFpCL:
   - _XGetRequest
