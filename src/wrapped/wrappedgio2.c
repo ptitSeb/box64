@@ -19,6 +19,7 @@
 #include "emu/x64emu_private.h"
 #include "myalign.h"
 #include "gtkclass.h"
+#include "fileutils.h"
 
 const char* gio2Name = "libgio-2.0.so.0";
 #define ALTNAME "libgio-2.0.so"
@@ -741,6 +742,44 @@ EXPORT void my_g_action_map_add_action_entries(x64emu_t* emu, void* map, my_GAct
 EXPORT void* my_g_memory_input_stream_new_from_data(x64emu_t* emu, void* data, ssize_t len, void* f)
 {
     return my->g_memory_input_stream_new_from_data(data, len, findGDestroyNotifyFct(f));
+}
+
+
+// GIO spawns the child process itself, from native code and with the native
+// libc, so an x86_64 argv[0] reaches execvp() unchanged: the kernel answers
+// ENOEXEC and glibc then retries the whole command line through /bin/sh, which
+// reads the ELF as a shell script ("ELF: not found", "Unterminated quoted
+// string") and the child never starts. Prefix argv with box64 so the child is
+// emulated, the way my_execv and friends do for the libc exec family.
+// Returns NULL when argv needs no change, else a box_malloc'ed argv.
+static const char** prepare_spawn_argv(const char* const* argv)
+{
+    if (!argv || !argv[0]) return NULL;
+    int x86 = my_context->box86path ? FileIsX86ELF(argv[0]) : 0;
+    if (!x86 && !FileIsX64ELF(argv[0])) return NULL;
+    int n = 0;
+    while (argv[n]) ++n;
+    const char** newargv = (const char**)box_malloc((n + 2) * sizeof(char*));
+    newargv[0] = x86 ? my_context->box86path : my_context->box64path;
+    memcpy(newargv + 1, argv, (n + 1) * sizeof(char*));
+    printf_log(LOG_DEBUG, "gio spawn of \"%s\" redirected through \"%s\"\n", argv[0], newargv[0]);
+    return newargv;
+}
+
+EXPORT void* my_g_subprocess_launcher_spawnv(x64emu_t* emu, void* launcher, const char* const* argv, void* error)
+{
+    const char** newargv = prepare_spawn_argv(argv);
+    void* ret = my->g_subprocess_launcher_spawnv(launcher, (void*)(newargv ? newargv : argv), error);
+    box_free(newargv);
+    return ret;
+}
+
+EXPORT void* my_g_subprocess_newv(x64emu_t* emu, const char* const* argv, uint32_t flags, void* error)
+{
+    const char** newargv = prepare_spawn_argv(argv);
+    void* ret = my->g_subprocess_newv((void*)(newargv ? newargv : argv), flags, error);
+    box_free(newargv);
+    return ret;
 }
 
 #define PRE_INIT \
