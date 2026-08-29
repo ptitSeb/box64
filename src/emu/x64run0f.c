@@ -463,7 +463,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             R_RAX = tmp64u&0xFFFFFFFF;
             break;
         case 0x32:                   /* RDMSR */
-            // priviledge instruction
+            // privilege instruction
             #ifndef TEST_INTERPRETER
             EmitSignal(emu, X64_SIGSEGV, (void*)R_RIP, 0xbad0);
             STEP;
