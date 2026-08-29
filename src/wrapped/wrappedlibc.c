@@ -5314,6 +5314,7 @@ EXPORT int my_sched_getaffinity(x64emu_t* emu, pid_t pid, size_t sz, cpu_set_t* 
     if(!skipcpu)
         return sched_getaffinity(pid, sz, mask);
     uint8_t mask_[sz];
+    memset(mask_, 0, sz);
     int ret = sched_getaffinity(pid, sz, (cpu_set_t*)mask_);
     if(ret>=0) {
         cpumask_shiftright(mask_, sz, skipcpu);

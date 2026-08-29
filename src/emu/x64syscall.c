@@ -940,6 +940,7 @@ void EXPORT x64Syscall_linux(x64emu_t *emu)
         case 204:   // sys_sched_getaffinity
             {
                 uint8_t new_mask[R_ESI];
+                memset(new_mask, 0, R_ESI);
                 R_RAX = syscall(__NR_sched_getaffinity, S_EDI, R_ESI, new_mask);
                 if(S_RAX==-1)
                     S_RAX = -errno;
@@ -1341,24 +1342,22 @@ long EXPORT my_syscall(x64emu_t *emu)
                 memcpy(new_mask, (void*)R_RCX, R_EDX);
                 cpumask_maxcpu(new_mask, R_EDX, BOX64ENV(maxcpu));
                 cpumask_shiftleft(new_mask, R_EDX, BOX64ENV(skipcpu));
-                R_RAX = syscall(__NR_sched_setaffinity, S_ESI, R_EDX, new_mask);
+                return syscall(__NR_sched_setaffinity, S_ESI, R_EDX, new_mask);
             }
-            if(S_RAX==-1)
-                S_RAX = -errno;
-            break;
         case 204:   // sys_sched_getaffinity
             {
                 uint8_t new_mask[R_EDX];
-                R_RAX = syscall(__NR_sched_getaffinity, S_ESI, R_EDX, new_mask);
-                if(S_RAX==-1)
-                    S_RAX = -errno;
-                else {
-                    cpumask_shiftright(new_mask, R_EDX, BOX64ENV(skipcpu));
-                    cpumask_maxcpu(new_mask, R_EDX, BOX64ENV(maxcpu));
-                    memcpy((void*)R_RCX, new_mask, R_EDX);
+                memset(new_mask, 0, R_EDX);
+                long ret = syscall(__NR_sched_getaffinity, S_ESI, R_EDX, new_mask);
+                if(ret<0) {
+                    errno = -ret;
+                    return -1;
                 }
+                cpumask_shiftright(new_mask, R_EDX, BOX64ENV(skipcpu));
+                cpumask_maxcpu(new_mask, R_EDX, BOX64ENV(maxcpu));
+                memcpy((void*)R_RCX, new_mask, R_EDX);
+                return ret;
             }
-            break;
         #ifndef __NR_epoll_create
         case 213:
             return epoll_create(S_ESI);
