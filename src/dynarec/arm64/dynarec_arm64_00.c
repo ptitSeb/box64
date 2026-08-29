@@ -3012,20 +3012,11 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 INST_NAME("INT 3");
                 if(!BOX64ENV(ignoreint3)) {
-                    // check if TRAP signal is handled
-                    TABLE64C(x1, const_context);
-                    MOV32w(x2, offsetof(box64context_t, signals[X64_SIGTRAP]));
-                    LDRx_REG(x3, x1, x2);
-                    //LDRx_U12(x3, x1, offsetof(box64context_t, signals[X64_SIGTRAP]));
-                    CMPSx_U12(x3, 0);
-                    // commit df before branch, CALL_S in int3 path has FORCE_DFNONE
                     CHECK_DFNONE(0);
-                    B_MARK(cEQ);
                     GETIP(addr);  // update RIP
                     STORE_XEMU_CALL(xRIP);
                     CALL_S(const_native_int3, -1);
                     LOAD_XEMU_CALL(xRIP);
-                    MARK;
                     jump_to_epilog(dyn, addr, 0, ninst);
                     *need_epilog = 0;
                     *ok = 0;
