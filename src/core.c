@@ -68,6 +68,7 @@ int box64_mapclean = 0;
 int box64_zoom = 0;
 int box64_steam = 0;
 int box64_steamcmd = 0;
+int box64_srt_logger = 0;
 int box64_musl = 0;
 int box64_nolibs = 0;
 int box64_hasinterp = 0;
@@ -1008,6 +1009,8 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     } else if(!strcmp(prog_, "steamcmd")) {
         printf_log(LOG_INFO, "steamcmd detected\n");
         box64_steamcmd = 1;
+    } else if(!strcmp(prog_, "srt-logger")) {
+        box64_srt_logger = 1;
     } else  if(!strcmp(prog_, "wineserver")) {
         // check if this is wineserver
         box64_wine = 1;

@@ -105,6 +105,16 @@ extern const char *const sys_siglist[] __asm__("__sys_siglist");
 #define LOG_DEBUG 2
 #endif
 
+EXPORT ssize_t my_write(x64emu_t* emu, int fd, const void* buf, size_t count)
+{
+    (void)emu;
+    if (box64_srt_logger && count == 1 && *(const char*)buf == '\n' && isatty(fd)) {
+        ssize_t ret = write(fd, "\r\n", 2);
+        return ret == 2 ? 1 : ret;
+    }
+    return write(fd, buf, count);
+}
+
 
 #define LIBNAME libc
 const char* libcName = "libc.so.6";
