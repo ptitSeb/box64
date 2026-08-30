@@ -51,6 +51,12 @@ int fpu_get_scratch(dynarec_rv64_t* dyn)
 // Get a FPU scratch reg aligned to LMUL
 int fpu_get_scratch_lmul(dynarec_rv64_t* dyn, int lmul)
 {
+    if (cpuext.xtheadvector) {
+        int reg = SCRATCH0 + dyn->e.fpu_scratch;
+        int skip = (reg % (1 << lmul)) ? (1 << lmul) - (reg % (1 << lmul)) : 0;
+        dyn->e.fpu_scratch += skip + 1;
+        return reg + skip;
+    }
     int n = dyn->e.fpu_scratch;
     int reg = fpu_scratch_vreg(n);
     int skip = (reg % (1 << lmul)) ? (1 << lmul) - (reg % (1 << lmul)) : 0;
