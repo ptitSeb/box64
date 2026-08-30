@@ -33,19 +33,35 @@
 #define X870 XMM0 + 16
 #define EMM0 XMM0 + 16
 
+static int fpu_scratch_vreg(int n)
+{
+    if (n < 7)
+        return SCRATCH0 + n;
+    if (n < 13)
+        return 26 + (n - 7);
+    return ((n - 13) & 1) + 1;
+}
+
 // Get a FPU scratch reg
 int fpu_get_scratch(dynarec_rv64_t* dyn)
 {
-    return SCRATCH0 + dyn->e.fpu_scratch++; // return an Sx
+    return fpu_scratch_vreg(dyn->e.fpu_scratch++); // return an Sx
 }
 
 // Get a FPU scratch reg aligned to LMUL
 int fpu_get_scratch_lmul(dynarec_rv64_t* dyn, int lmul)
 {
-    int reg = SCRATCH0 + dyn->e.fpu_scratch;
+    if (cpuext.xtheadvector) {
+        int reg = SCRATCH0 + dyn->e.fpu_scratch;
+        int skip = (reg % (1 << lmul)) ? (1 << lmul) - (reg % (1 << lmul)) : 0;
+        dyn->e.fpu_scratch += skip + 1;
+        return reg + skip;
+    }
+    int n = dyn->e.fpu_scratch;
+    int reg = fpu_scratch_vreg(n);
     int skip = (reg % (1 << lmul)) ? (1 << lmul) - (reg % (1 << lmul)) : 0;
-    dyn->e.fpu_scratch += skip + 1;
-    return reg + skip;
+    dyn->e.fpu_scratch += skip + (1 << lmul);
+    return fpu_scratch_vreg(n + skip);
 }
 
 // Reset scratch regs counter
@@ -755,7 +771,7 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
             (void*)(dyn->native_start + dyn->insts[ninst].address), dyn->insts[ninst].size / 4, ninst, buf, (dyn->need_dump > 1) ? "\e[m" : "");
     }
     if (BOX64ENV(dynarec_gdbjit)) {
-        static char buf2[4096+64];
+        static char buf2[4096 + 64];
         if (BOX64ENV(dynarec_gdbjit) > 1) {
             snprintf(buf2, sizeof(buf2), "; %d: %d opcodes, %s", ninst, dyn->insts[ninst].size / 4, buf);
             dyn->gdbjit_block = GdbJITBlockAddLine(dyn->gdbjit_block, (dyn->native_start + dyn->insts[ninst].address), buf2);
@@ -872,15 +888,16 @@ void get_free_scratch(dynarec_rv64_t* dyn, int ninst, uint8_t* tmp1, uint8_t* tm
 {
     uint8_t n1 = dyn->insts[ninst].nat_flags_op1;
     uint8_t n2 = dyn->insts[ninst].nat_flags_op2;
-    uint8_t tmp[5] = {0};
+    uint8_t tmp[5] = { 0 };
     int idx = 0;
-    #define GO(s) if((s!=n1) && (s!=n2)) tmp[idx++] = s
+#define GO(s) \
+    if ((s != n1) && (s != n2)) tmp[idx++] = s
     GO(s1);
     GO(s2);
     GO(s3);
     GO(s4);
     GO(s5);
-    #undef GO
+#undef GO
     *tmp1 = tmp[0];
     *tmp2 = tmp[1];
     *tmp3 = tmp[2];
