@@ -1112,6 +1112,116 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 YMM0(gd);
             }
             break;
+        case 0xDC:
+            INST_NAME("VAESENC Gx, Vx, Ex");
+            nextop = F8;
+            GETGX();
+            GETVX();
+            if (vex.l) {
+                GETGY();
+                GETVY();
+            }
+            GETEX(x2, 0, vex.l ? 30 : 14);
+            for (int i = 0; i < 2; ++i) {
+                LD(x3, wback, fixedaddress + i * 8);
+                SD(x3, xEmu, offsetof(x64emu_t, scratch) + i * 8);
+            }
+            if (vex.l) {
+                GETEY();
+                for (int i = 0; i < 2; ++i) {
+                    LD(x3, wback, fixedaddress + i * 8);
+                    SD(x3, xEmu, offsetof(x64emu_t, scratch) + 16 + i * 8);
+                }
+            }
+            if (gd != vex.v) {
+                for (int i = 0; i < 2; ++i) {
+                    LD(x3, vback, vxoffset + i * 8);
+                    SD(x3, xEmu, gdoffset + i * 8);
+                }
+                if (vex.l) {
+                    for (int i = 0; i < 2; ++i) {
+                        LD(x3, vback, vyoffset + i * 8);
+                        SD(x3, xEmu, gyoffset + i * 8);
+                    }
+                }
+            }
+            MOV32w(x1, gd);
+            CALL(const_native_aese, -1, x1, 0);
+            if (vex.l) {
+                MOV32w(x1, gd);
+                CALL(const_native_aese_y, -1, x1, 0);
+            }
+            for (int i = 0; i < 2; ++i) {
+                LD(x3, xEmu, gdoffset + i * 8);
+                LD(x4, xEmu, offsetof(x64emu_t, scratch) + i * 8);
+                XOR(x3, x3, x4);
+                SD(x3, xEmu, gdoffset + i * 8);
+            }
+            if (vex.l) {
+                for (int i = 0; i < 2; ++i) {
+                    LD(x3, xEmu, gyoffset + i * 8);
+                    LD(x4, xEmu, offsetof(x64emu_t, scratch) + 16 + i * 8);
+                    XOR(x3, x3, x4);
+                    SD(x3, xEmu, gyoffset + i * 8);
+                }
+            } else
+                YMM0(gd);
+            break;
+        case 0xDD:
+            INST_NAME("VAESENCLAST Gx, Vx, Ex");
+            nextop = F8;
+            GETGX();
+            GETVX();
+            if (vex.l) {
+                GETGY();
+                GETVY();
+            }
+            GETEX(x2, 0, vex.l ? 30 : 14);
+            for (int i = 0; i < 2; ++i) {
+                LD(x3, wback, fixedaddress + i * 8);
+                SD(x3, xEmu, offsetof(x64emu_t, scratch) + i * 8);
+            }
+            if (vex.l) {
+                GETEY();
+                for (int i = 0; i < 2; ++i) {
+                    LD(x3, wback, fixedaddress + i * 8);
+                    SD(x3, xEmu, offsetof(x64emu_t, scratch) + 16 + i * 8);
+                }
+            }
+            if (gd != vex.v) {
+                for (int i = 0; i < 2; ++i) {
+                    LD(x3, vback, vxoffset + i * 8);
+                    SD(x3, xEmu, gdoffset + i * 8);
+                }
+                if (vex.l) {
+                    for (int i = 0; i < 2; ++i) {
+                        LD(x3, vback, vyoffset + i * 8);
+                        SD(x3, xEmu, gyoffset + i * 8);
+                    }
+                }
+            }
+            MOV32w(x1, gd);
+            CALL(const_native_aeselast, -1, x1, 0);
+            if (vex.l) {
+                MOV32w(x1, gd);
+                CALL(const_native_aeselast_y, -1, x1, 0);
+            }
+            for (int i = 0; i < 2; ++i) {
+                LD(x3, xEmu, gdoffset + i * 8);
+                LD(x4, xEmu, offsetof(x64emu_t, scratch) + i * 8);
+                XOR(x3, x3, x4);
+                SD(x3, xEmu, gdoffset + i * 8);
+            }
+            if (vex.l) {
+                for (int i = 0; i < 2; ++i) {
+                    LD(x3, xEmu, gyoffset + i * 8);
+                    LD(x4, xEmu, offsetof(x64emu_t, scratch) + 16 + i * 8);
+                    XOR(x3, x3, x4);
+                    SD(x3, xEmu, gyoffset + i * 8);
+                }
+            } else
+                YMM0(gd);
+            break;
         default:
             DEFAULT;
     }

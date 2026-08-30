@@ -48,25 +48,74 @@ uintptr_t dynarec64_AVX(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int n
     uint8_t opcode = PK(0);
     rex_t rex = vex.rex;
 
-    if ((vex.m == VEX_M_0F) && (vex.p == VEX_P_NONE))
-        addr = dynarec64_AVX_0F(dyn, addr, ip, ninst, vex, ok, need_epilog);
-    else if ((vex.m == VEX_M_0F) && (vex.p == VEX_P_66))
-        addr = dynarec64_AVX_66_0F(dyn, addr, ip, ninst, vex, ok, need_epilog);
-    else if ((vex.m == VEX_M_0F) && (vex.p == VEX_P_F2))
-        addr = dynarec64_AVX_F2_0F(dyn, addr, ip, ninst, vex, ok, need_epilog);
-    else if ((vex.m == VEX_M_0F) && (vex.p == VEX_P_F3))
-        addr = dynarec64_AVX_F3_0F(dyn, addr, ip, ninst, vex, ok, need_epilog);
-    else if ((vex.m == VEX_M_0F38) && (vex.p == VEX_P_66))
-        addr = dynarec64_AVX_66_0F38(dyn, addr, ip, ninst, vex, ok, need_epilog);
-    else if ((vex.m == VEX_M_0F38) && (vex.p == VEX_P_NONE))
+    uintptr_t retaddr = 0;
+    if ((vex.m == VEX_M_0F) && (vex.p == VEX_P_NONE)) {
+        if (cpuext.vector && cpuext.vlen >= 32) {
+            retaddr = dynarec64_AVX_0F_vector(dyn, addr, ip, ninst, vex, ok, need_epilog);
+            if (retaddr) {
+                if (dyn->vector_sew != VECTOR_SEWNA)
+                    avx_set_vector_width(dyn, ninst, x1, dyn->vector_sew, 16);
+            } else
+                fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
+        }
+        addr = retaddr ? retaddr : dynarec64_AVX_0F(dyn, addr, ip, ninst, vex, ok, need_epilog);
+    } else if ((vex.m == VEX_M_0F) && (vex.p == VEX_P_66)) {
+        if (cpuext.vector && cpuext.vlen >= 32) {
+            retaddr = dynarec64_AVX_66_0F_vector(dyn, addr, ip, ninst, vex, ok, need_epilog);
+            if (retaddr) {
+                if (dyn->vector_sew != VECTOR_SEWNA)
+                    avx_set_vector_width(dyn, ninst, x1, dyn->vector_sew, 16);
+            } else
+                fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
+        }
+        addr = retaddr ? retaddr : dynarec64_AVX_66_0F(dyn, addr, ip, ninst, vex, ok, need_epilog);
+    } else if ((vex.m == VEX_M_0F) && (vex.p == VEX_P_F2)) {
+        if (cpuext.vector && cpuext.vlen >= 32) {
+            retaddr = dynarec64_AVX_F2_0F_vector(dyn, addr, ip, ninst, vex, ok, need_epilog);
+            if (retaddr) {
+                if (dyn->vector_sew != VECTOR_SEWNA)
+                    avx_set_vector_width(dyn, ninst, x1, dyn->vector_sew, 16);
+            } else
+                fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
+        }
+        addr = retaddr ? retaddr : dynarec64_AVX_F2_0F(dyn, addr, ip, ninst, vex, ok, need_epilog);
+    } else if ((vex.m == VEX_M_0F) && (vex.p == VEX_P_F3)) {
+        if (cpuext.vector && cpuext.vlen >= 32) {
+            retaddr = dynarec64_AVX_F3_0F_vector(dyn, addr, ip, ninst, vex, ok, need_epilog);
+            if (retaddr) {
+                if (dyn->vector_sew != VECTOR_SEWNA)
+                    avx_set_vector_width(dyn, ninst, x1, dyn->vector_sew, 16);
+            } else
+                fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
+        }
+        addr = retaddr ? retaddr : dynarec64_AVX_F3_0F(dyn, addr, ip, ninst, vex, ok, need_epilog);
+    } else if ((vex.m == VEX_M_0F38) && (vex.p == VEX_P_66)) {
+        if (cpuext.vector && cpuext.vlen >= 32) {
+            retaddr = dynarec64_AVX_66_0F38_vector(dyn, addr, ip, ninst, vex, ok, need_epilog);
+            if (retaddr) {
+                if (dyn->vector_sew != VECTOR_SEWNA)
+                    avx_set_vector_width(dyn, ninst, x1, dyn->vector_sew, 16);
+            } else
+                fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
+        }
+        addr = retaddr ? retaddr : dynarec64_AVX_66_0F38(dyn, addr, ip, ninst, vex, ok, need_epilog);
+    } else if ((vex.m == VEX_M_0F38) && (vex.p == VEX_P_NONE))
         addr = dynarec64_AVX_0F38(dyn, addr, ip, ninst, vex, ok, need_epilog);
     else if ((vex.m == VEX_M_0F38) && (vex.p == VEX_P_F2))
         addr = dynarec64_AVX_F2_0F38(dyn, addr, ip, ninst, vex, ok, need_epilog);
     else if ((vex.m == VEX_M_0F38) && (vex.p == VEX_P_F3))
         addr = dynarec64_AVX_F3_0F38(dyn, addr, ip, ninst, vex, ok, need_epilog);
-    else if ((vex.m == VEX_M_0F3A) && (vex.p == VEX_P_66))
-        addr = dynarec64_AVX_66_0F3A(dyn, addr, ip, ninst, vex, ok, need_epilog);
-    else if ((vex.m == VEX_M_0F3A) && (vex.p == VEX_P_F2))
+    else if ((vex.m == VEX_M_0F3A) && (vex.p == VEX_P_66)) {
+        if (cpuext.vector && cpuext.vlen >= 32) {
+            retaddr = dynarec64_AVX_66_0F3A_vector(dyn, addr, ip, ninst, vex, ok, need_epilog);
+            if (retaddr) {
+                if (dyn->vector_sew != VECTOR_SEWNA)
+                    avx_set_vector_width(dyn, ninst, x1, dyn->vector_sew, 16);
+            } else
+                fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
+        }
+        addr = retaddr ? retaddr : dynarec64_AVX_66_0F3A(dyn, addr, ip, ninst, vex, ok, need_epilog);
+    } else if ((vex.m == VEX_M_0F3A) && (vex.p == VEX_P_F2))
         addr = dynarec64_AVX_F2_0F3A(dyn, addr, ip, ninst, vex, ok, need_epilog);
     else {
         DEFAULT;

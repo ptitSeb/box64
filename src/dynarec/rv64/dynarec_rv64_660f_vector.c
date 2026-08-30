@@ -1025,10 +1025,12 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                         LDxw(x4, ed, fixedaddress);
                         ed = x4;
                     }
-                    VECTOR_LOAD_VMASK((1 << u8), x5, 1);
                     v0 = fpu_get_scratch(dyn);
-                    VMERGE_VXM(v0, q0, ed); // uses VMASK
+                    VID_V(v0, VECTOR_UNMASKED);
+                    VMSEQ_VI(VMASK, v0, u8, VECTOR_UNMASKED);
+                    VMERGE_VXM(v0, q0, ed);
                     VMV_V_V(q0, v0);
+                    sse_forget_reg_vector(dyn, ninst, x1, gd);
                     break;
                 case 0x40:
                     INST_NAME("DPPS Gx, Ex, Ib");
@@ -1708,45 +1710,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             VMERGE_VIM(q0, q0, 0b11111); // implies vmask and widened it
             break;
         case 0x7C:
-            INST_NAME("HADDPD Gx, Ex");
-            nextop = F8;
-            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
-            GETGX_vector(q0, 1, VECTOR_SEW64);
-            GETEX_vector(q1, 0, 0, VECTOR_SEW64);
-            v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-            v1 = fpu_get_scratch(dyn);
-            d1 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-            d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2); // no more scratches!
-            VMV_V_V(v0, q0);
-            if (q1 & 1) VMV_V_V(d1, q1);
-            VMV_V_I(VMASK, cpuext.xtheadvector ? 1 : 0b0101);
-            vector_vsetvli(dyn, ninst, x1, VECTOR_SEW64, VECTOR_LMUL2, 2);
-            VSLIDEUP_VI(v0, (q1 & 1) ? d1 : q1, 2, VECTOR_UNMASKED);
-            VCOMPRESS_VM(d0, v0, VMASK);
-            VMNAND_MM(VMASK, VMASK, VMASK);
-            VCOMPRESS_VM(d1, v0, VMASK);
-            vector_vsetvli(dyn, ninst, x1, VECTOR_SEW64, VECTOR_LMUL1, 1);
-            if (!BOX64ENV(dynarec_fastnan)) {
-                VMFEQ_VV(v0, d0, d0, VECTOR_UNMASKED);
-                VMFEQ_VV(v1, d1, d1, VECTOR_UNMASKED);
-            }
-            VFADD_VV(q0, d0, d1, VECTOR_UNMASKED);
-            if (!BOX64ENV(dynarec_fastnan)) {
-                MOV64x(x3, 0x0008000000000000ULL);
-                VMNAND_MM(VMASK, v0, v0);
-                VOR_VX(d0, d0, x3, VECTOR_MASKED);
-                VMNAND_MM(VMASK, v1, v1);
-                VOR_VX(d1, d1, x3, VECTOR_MASKED);
-                VMANDN_MM(VMASK, v0, v1);
-                VMERGE_VVM(q0, q0, d1);
-                VMNAND_MM(VMASK, v0, v0);
-                VMERGE_VVM(q0, q0, d0);
-                VMAND_MM(VMASK, v0, v1);
-                VMFEQ_VV(d0, q0, q0, VECTOR_UNMASKED);
-                VMANDN_MM(VMASK, VMASK, d0);
-                VFSGNJN_VV(q0, q0, q0, VECTOR_MASKED);
-            }
-            break;
+            return 0;
         case 0x7E:
             return 0;
         case 0x7F:
@@ -2318,6 +2282,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
             GETGX_vector(q0, 1, VECTOR_SEW8);
             GETEX_vector(q1, 0, 0, VECTOR_SEW8);
+            VECTOR_LOAD_VMASK(0xFF, x4, 2);
             v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
             v1 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
             d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2); // no more scratches!
@@ -2326,7 +2291,6 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             VSRA_VI(v1, v0, 15, VECTOR_UNMASKED);
             VXOR_VV(v0, v1, v0, VECTOR_UNMASKED);
             VSUB_VV(v1, v0, v1, VECTOR_UNMASKED);
-            VECTOR_LOAD_VMASK(0xFF, x4, 2);
             VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
             VREDSUM_VS(v0, v1, v0, VECTOR_MASKED); // sum low 64
             VSLIDEDOWN_VI(d0, v1, 8, VECTOR_UNMASKED);

@@ -4,8 +4,8 @@
 #include <stdint.h>
 #include <unistd.h>
 
-#define BOX64ENV(name)            (box64env.name)
-#define BOX64DRENV(name)          ((dyn->env && dyn->env->is_##name##_overridden)?dyn->env->name:box64env.name)
+#define BOX64ENV(name)   (box64env.name)
+#define BOX64DRENV(name) ((dyn->env && dyn->env->is_##name##_overridden) ? dyn->env->name : box64env.name)
 #define SET_BOX64ENV(name, value)            \
     do {                                     \
         box64env.name = (value);             \
@@ -28,15 +28,15 @@
 */
 
 #ifdef _WIN32
-#define DEFAULT_LOG_LEVEL (LOG_INFO)
+#define DEFAULT_LOG_LEVEL      (LOG_INFO)
 #define BOX64_NOBANNER_DEFAULT (0)
 #else
 extern char* ftrace_name;
-#define DEFAULT_LOG_LEVEL (ftrace_name ? LOG_INFO : (isatty(fileno(stdout)) ? LOG_INFO : LOG_NONE))
+#define DEFAULT_LOG_LEVEL      (ftrace_name ? LOG_INFO : (isatty(fileno(stdout)) ? LOG_INFO : LOG_NONE))
 #define BOX64_NOBANNER_DEFAULT (isatty(fileno(stdout)) ? 0 : 1)
 #endif
 
-#define ENVSUPER1()                                                           \
+#define ENVSUPER1()                                                              \
     STRING(BOX64_ADDLIBS, addlibs, 0, 0)                                         \
     BOOLEAN(BOX64_AES, aes, 1, 1, 1)                                             \
     BOOLEAN(BOX64_ALLOWMISSINGLIBS, allow_missing_libs, 0, 0, 0)                 \
@@ -155,7 +155,7 @@ extern char* ftrace_name;
     INTEGER(BOX64_DYNACACHE_LIMIT, dynacache_limit, 2048, 0, 1048576, 0, 0)      \
     INTEGER(BOX64_DYNACACHE_MIN, dynacache_min, 30, 0, 10240, 0, 0)
 
-#if defined(ARM64) || defined (LA64)
+#if defined(ARM64) || defined(LA64) || defined(RV64)
 #define ENVSUPER2() \
     INTEGER(BOX64_AVX, avx, 2, 0, 2, 1, 2)
 #else
@@ -173,10 +173,10 @@ extern char* ftrace_name;
 
 #ifdef WINLATOR_GLIBC
 #define ENVSUPER4() \
-        INTEGER(BOX64_DYNACACHE, dynacache, 0, 0, 2, 0, 0)
+    INTEGER(BOX64_DYNACACHE, dynacache, 0, 0, 2, 0, 0)
 #else
 #define ENVSUPER4() \
-        INTEGER(BOX64_DYNACACHE, dynacache, 1, 0, 2, 0, 0)
+    INTEGER(BOX64_DYNACACHE, dynacache, 1, 0, 2, 0, 0)
 #endif
 
 #ifndef _WIN32
