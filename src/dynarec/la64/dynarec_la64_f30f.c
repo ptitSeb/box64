@@ -425,6 +425,26 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGXSS(v0, 1);
             GETEXSS(d0, 0, 0);
             d1 = xmm_scalar_begin(dyn, ninst, &scalar, v0, gd, BOX64ENV(dynarec_fastnan), XMM_SCALAR_SS, XMM_UPPER_PRESERVE);
+            if (BOX64ENV(dynarec_div0)) {
+                LD_WU(x5, xEmu, offsetof(x64emu_t, mxcsr));
+                ANDI(x5, x5, 1 << 9); // ZE mask bit
+                BNEZ_MARK2(x5);       // masked -> only set ZE flag
+                q0 = fpu_get_scratch(dyn);
+                MOVGR2FR_W(q0, xZR); // +0.0 divisor for comparison
+                FCMP_S(fcc0, d0, q0, cNE);
+                BCNEZ_MARK3(fcc0);   // divisor != 0
+                GETIP_(ip, x7);
+                STORE_XEMU_CALL();
+                CALL(const_native_div0, -1, 0, 0);
+                CLEARIP();
+                LOAD_XEMU_CALL();
+                jump_to_epilog(dyn, 0, xRIP, ninst);
+                MARK2;
+                LD_WU(x5, xEmu, offsetof(x64emu_t, mxcsr));
+                ORI(x5, x5, 0x4); // ZE flag
+                ST_W(x5, xEmu, offsetof(x64emu_t, mxcsr));
+                MARK3;
+            }
             FDIV_S(d1, v0, d0);
             if (!BOX64ENV(dynarec_fastnan)) {
                 q0 = fpu_get_scratch(dyn);

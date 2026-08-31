@@ -615,16 +615,10 @@ uintptr_t dynarec64_00_3(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             } else {
                 INST_NAME("INT 3");
                 if (!BOX64ENV(ignoreint3)) {
-                    // check if TRAP signal is handled
-                    TABLE64C(x1, const_context);
-                    MOV32w(x2, offsetof(box64context_t, signals[X64_SIGTRAP]));
-                    LDX_D(x3, x1, x2);
-                    BEQZ_MARK(x3);
                     GETIP(addr, x7);
                     STORE_XEMU_CALL();
                     CALL(const_native_int3, -1, 0, 0);
                     LOAD_XEMU_CALL();
-                    MARK;
                     jump_to_epilog(dyn, addr, 0, ninst);
                     *need_epilog = 0;
                     *ok = 0;

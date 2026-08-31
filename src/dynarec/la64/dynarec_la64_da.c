@@ -188,6 +188,26 @@ uintptr_t dynarec64_DA(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
                 FLD_S(v2, ed, fixedaddress);
                 FFINT_D_W(v2, v2); // i32 -> double
+                if (BOX64ENV(dynarec_div0)) {
+                    d0 = fpu_get_scratch(dyn);
+                    MOVGR2FR_D(d0, xZR); // +0.0 divisor for comparison
+                    FCMP_D(fcc0, v2, d0, cNE);
+                    BCNEZ_MARK3(fcc0);   // divisor != 0
+                    LD_HU(x5, xEmu, offsetof(x64emu_t, cw));
+                    ANDI(x5, x5, 1 << 2); // ZE mask bit
+                    BNEZ_MARK2(x5);       // masked -> only set SW.ZE flag
+                    GETIP_(ip, x7);
+                    STORE_XEMU_CALL();
+                    CALL(const_native_div0, -1, 0, 0);
+                    CLEARIP();
+                    LOAD_XEMU_CALL();
+                    jump_to_epilog(dyn, 0, xRIP, ninst);
+                    MARK2;
+                    LD_HU(x5, xEmu, offsetof(x64emu_t, sw));
+                    ORI(x5, x5, 0x4); // ZE flag
+                    ST_H(x5, xEmu, offsetof(x64emu_t, sw));
+                    MARK3;
+                }
                 if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x5);
                 FDIV_D(v1, v1, v2);
                 X87_CHECK_PRECISION(v1);
