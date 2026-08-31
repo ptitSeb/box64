@@ -692,6 +692,21 @@ uintptr_t dynarec64_00_2(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             break;
         case 0x9B:
             INST_NAME("FWAIT");
+            if (BOX64ENV(dynarec_div0)) {
+                LD_HU(x1, xEmu, offsetof(x64emu_t, sw));
+                LD_HU(x2, xEmu, offsetof(x64emu_t, cw));
+                NOR(x2, x2, x2);     // ~CW
+                AND(x1, x1, x2);     // SW & ~CW
+                ANDI(x1, x1, 0x3F);  // 6 exception flag bits
+                BEQZ_MARK3(x1);      // no pending unmasked exception
+                GETIP_(ip, x7);
+                STORE_XEMU_CALL();
+                CALL(const_native_div0, -1, 0, 0);
+                CLEARIP();
+                LOAD_XEMU_CALL();
+                jump_to_epilog(dyn, 0, xRIP, ninst);
+                MARK3;
+            }
             break;
         case 0x9C:
             INST_NAME("PUSHF");
