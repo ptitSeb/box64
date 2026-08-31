@@ -1897,6 +1897,7 @@ void vFpuppp(x64emu_t *emu, uintptr_t fnc);
 void vFpUpUu(x64emu_t *emu, uintptr_t fnc);
 void vFpfffi(x64emu_t *emu, uintptr_t fnc);
 void vFpffff(x64emu_t *emu, uintptr_t fnc);
+void vFpffpp(x64emu_t *emu, uintptr_t fnc);
 void vFpdull(x64emu_t *emu, uintptr_t fnc);
 void vFpddii(x64emu_t *emu, uintptr_t fnc);
 void vFpdddd(x64emu_t *emu, uintptr_t fnc);
