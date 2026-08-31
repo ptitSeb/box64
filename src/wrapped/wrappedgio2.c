@@ -502,12 +502,14 @@ EXPORT void* my_g_simple_async_result_new(x64emu_t* emu, void* source, void* cb,
     return my->g_simple_async_result_new(source, findGAsyncReadyCallbackFct(cb), data, tag);
 }
 
-EXPORT void* my_g_simple_async_result_new_error(x64emu_t* emu, void* source, void* cb, void* data, uint32_t domain, int code, void* fmt, va_list b)
+EXPORT void* my_g_simple_async_result_new_error(x64emu_t* emu, void* source, void* cb, void* data, uint32_t domain, int code, void* fmt, uintptr_t* b)
 {
-    char* tmp;
-    int dummy = vasprintf(&tmp, fmt, b);
+    myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 6);
+    PREPARE_VALIST;
+    char* tmp = NULL;
+    int dummy = vasprintf(&tmp, fmt, VARARGS);
     (void)dummy;
-    void* ret = my->g_simple_async_result_new_error(source, findGAsyncReadyCallbackFct(cb), data, domain, code, tmp);
+    void* ret = my->g_simple_async_result_new_error(source, findGAsyncReadyCallbackFct(cb), data, domain, code, "%s", tmp ? tmp : "");
     free(tmp);
     return ret;
 }
@@ -532,12 +534,14 @@ EXPORT void my_g_simple_async_result_run_in_thread(x64emu_t* emu, void* simple, 
     return my->g_simple_async_result_run_in_thread(simple, findGSimpleAsyncThreadFuncFct(fnc), priority, cancellable);
 }
 
-EXPORT void my_g_simple_async_report_error_in_idle(x64emu_t* emu, void* object, void* cb, void* data, uint32_t domain, int code, void* fmt, va_list b)
+EXPORT void my_g_simple_async_report_error_in_idle(x64emu_t* emu, void* object, void* cb, void* data, uint32_t domain, int code, void* fmt, uintptr_t* b)
 {
-    char* tmp;
-    int dummy = vasprintf(&tmp, fmt, b);
+    myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 6);
+    PREPARE_VALIST;
+    char* tmp = NULL;
+    int dummy = vasprintf(&tmp, fmt, VARARGS);
     (void)dummy;
-    my->g_simple_async_report_error_in_idle(object, findGAsyncReadyCallbackFct(cb), data, domain, code, tmp);
+    my->g_simple_async_report_error_in_idle(object, findGAsyncReadyCallbackFct(cb), data, domain, code, "%s", tmp ? tmp : "");
     free(tmp);
 }
 
@@ -691,12 +695,14 @@ EXPORT void* my_g_initable_new_valist(x64emu_t* emu, size_t type, void* first, x
     return my->g_initable_new_valist(type, first, VARARGS, cancel, err);
 }
 
-EXPORT void my_g_task_return_new_error(x64emu_t* emu, void* task, uint32_t domain, int code, void *fmt, va_list b)
+EXPORT void my_g_task_return_new_error(x64emu_t* emu, void* task, uint32_t domain, int code, void* fmt, uintptr_t* b)
 {
-    char* tmp;
-    int dummy = vasprintf(&tmp, fmt, b);
+    myStackAlign(emu, (const char*)fmt, b, emu->scratch, R_EAX, 4);
+    PREPARE_VALIST;
+    char* tmp = NULL;
+    int dummy = vasprintf(&tmp, fmt, VARARGS);
     (void)dummy;
-    my->g_task_return_new_error(task, domain, code, tmp);
+    my->g_task_return_new_error(task, domain, code, "%s", tmp ? tmp : "");
     free(tmp);
 }
 
