@@ -1270,8 +1270,7 @@ long EXPORT my_syscall(x64emu_t *emu)
                 return ret;
             }
         case 72:    //fcntl
-            R_RAX = (uint64_t)my_fcntl(emu, S_ESI, S_EDX, (void*)R_RCX);
-            break;
+            return my_fcntl(emu, S_ESI, S_EDX, (void*)R_RCX);
         #ifndef __NR_getdents
         case 78:
             {
