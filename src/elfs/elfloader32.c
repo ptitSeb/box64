@@ -212,13 +212,13 @@ int AllocLoadElfMemory32(box64context_t* context, elfheader_t* head, int mainbin
 
             head->multiblocks[n].flags = e->p_flags;
             head->multiblocks[n].offs = e->p_offset;
-            head->multiblocks[n].paddr = e->p_paddr + offs;
+            head->multiblocks[n].paddr = e->p_vaddr + offs;
             head->multiblocks[n].size = e->p_filesz;
             head->multiblocks[n].align = e->p_align;
             uint8_t prot = PROT_READ|PROT_WRITE|((e->p_flags & PF_X)?PROT_EXEC:0);
-            head->multiblocks[n].asize = (e->p_memsz + (e->p_paddr & (box64_pagesize - 1)) + (box64_pagesize - 1)) & ~(box64_pagesize - 1);
+            head->multiblocks[n].asize = (e->p_memsz + (e->p_vaddr & (box64_pagesize - 1)) + (box64_pagesize - 1)) & ~(box64_pagesize - 1);
             int try_mmap = 1;
-            if(e->p_paddr&(box64_pagesize - 1))
+            if(e->p_vaddr&(box64_pagesize - 1))
                 try_mmap = 0;
             if(e->p_offset&(box64_pagesize-1))
                 try_mmap = 0;
