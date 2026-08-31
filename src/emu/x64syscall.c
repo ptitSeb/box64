@@ -434,35 +434,39 @@ typedef struct nat_linux_dirent64_s {
     char           d_name[];
 } nat_linux_dirent64_t;
 
-ssize_t DirentFromDirent64(void* dest, void* source, ssize_t count)
+ssize_t DirentFromDirent64(int fd, void* dest, void* source, ssize_t count)
 {
-    nat_linux_dirent64_t *src = (nat_linux_dirent64_t*)source;
-    x86_linux_dirent_t *dst = (x86_linux_dirent_t*)dest;
-    x86_linux_dirent_t *old = NULL;
-    ssize_t ret = 0;
-    while(count>0) {
-        ssize_t sz = src->d_reclen+sizeof(x86_linux_dirent_t)-sizeof(nat_linux_dirent64_t)+2;
-        if(sz>=count) {
-            dst->d_ino = src->d_ino;
-            dst->d_reclen = sz;
-            ret+=sz;
-            strcpy(dst->d_name, src->d_name);
-            dst->d_off = src->d_off?(src->d_off+sizeof(x86_linux_dirent_t)-sizeof(nat_linux_dirent64_t)+2):0;
-            *(uint8_t*)((uintptr_t)dst + dst->d_reclen -2) = 0;
-            *(uint8_t*)((uintptr_t)dst + dst->d_reclen -1) = src->d_type;
-
-            count -= src->d_reclen;
-            ret += 1;
-            old = dst;
-            src = (nat_linux_dirent64_t*)(((uintptr_t)src) + src->d_reclen);
-            dst = (x86_linux_dirent_t*)(((uintptr_t)dst) + dst->d_reclen);
-        } else {
-            if(old)
-                old->d_off = 0;
-            count = 0;
+    nat_linux_dirent64_t* src = (nat_linux_dirent64_t*)source;
+    if (count <= 0) return count;
+    ssize_t in_off = 0;
+    ssize_t out_off = 0;
+    uint64_t cookie = 0;
+    uintptr_t limit = ((uintptr_t)dest + box64_pagesize) & ~((uintptr_t)box64_pagesize - 1);
+    if ((uintptr_t)dest + count < limit)
+        limit = (uintptr_t)dest + count;
+    limit -= (uintptr_t)dest;
+    while (in_off < count) {
+        nat_linux_dirent64_t* d64 = (nat_linux_dirent64_t*)((uintptr_t)src + in_off);
+        if (!d64->d_reclen) break;
+        size_t namlen = strlen(d64->d_name);
+        size_t sz = (18 /* fixed header */ + namlen /* the name */ + 2 /* NUL and d_type */ + 7) & ~7;
+        if (out_off + (ssize_t)sz > limit) {
+            if (!out_off) return -EINVAL;
+            lseek(fd, cookie, SEEK_SET);
+            return out_off;
         }
+        x86_linux_dirent_t* dst = (x86_linux_dirent_t*)((uintptr_t)dest + out_off);
+        dst->d_ino = d64->d_ino;
+        dst->d_off = d64->d_off;
+        cookie = d64->d_off;
+        dst->d_reclen = sz;
+        memcpy(dst->d_name, d64->d_name, namlen + 1);
+        memset((uint8_t*)dst + 18 + namlen + 1, 0, sz - (18 + namlen + 2));
+        *((uint8_t*)dst + sz - 1) = d64->d_type;
+        out_off += sz;
+        in_off += d64->d_reclen;
     }
-    return (count<0)?count:ret;
+    return out_off;
 }
 
 #endif
@@ -828,7 +832,7 @@ void EXPORT x64Syscall_linux(x64emu_t *emu)
                 size_t count = R_RDX;
                 nat_linux_dirent64_t *d64 = (nat_linux_dirent64_t*)alloca(count);
                 ssize_t ret = syscall(__NR_getdents64, R_EDI, d64, count);
-                ret = DirentFromDirent64((void*)R_RSI, d64, ret);
+                ret = DirentFromDirent64(R_EDI, (void*)R_RSI, d64, ret);
                 R_RAX = (uint64_t)ret;
                 if(ret==-1)
                     R_RAX = (uint64_t)-errno;
@@ -1277,7 +1281,7 @@ long EXPORT my_syscall(x64emu_t *emu)
                 size_t count = R_RCX;
                 nat_linux_dirent64_t *d64 = (nat_linux_dirent64_t*)alloca(count);
                 ssize_t ret = syscall(__NR_getdents64, R_ESI, d64, count);
-                ret = DirentFromDirent64((void*)R_RDX, d64, ret);
+                ret = DirentFromDirent64(R_ESI, (void*)R_RDX, d64, ret);
                 return ret;
             }
         #endif
