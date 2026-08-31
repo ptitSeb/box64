@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __PATHCOLL_H_
 #define __PATHCOLL_H_
 

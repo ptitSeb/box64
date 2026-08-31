@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __BOX32_INPUTEVENT_H__
 #define __BOX32_INPUTEVENT_H__
 

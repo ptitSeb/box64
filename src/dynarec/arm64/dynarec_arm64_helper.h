@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __DYNAREC_ARM64_HELPER_H__
 #define __DYNAREC_ARM64_HELPER_H__
 

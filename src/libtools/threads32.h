@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __THREADS_32_H_
 #define __THREADS_32_H_
 #include "box32.h"

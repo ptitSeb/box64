@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __X64INT_PRIVATE_H_
 #define __X64INT_PRIVATE_H_
 

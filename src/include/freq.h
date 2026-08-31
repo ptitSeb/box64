@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __FREQ_H_
 #define __FREQ_H_
 

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __BITUTILS_H_
 #define __BITUTILS_H_
 #include <stdint.h>

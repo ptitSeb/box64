@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 // Manually created for now
 #include "converter32.h"
 

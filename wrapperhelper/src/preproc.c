@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 // I think this file is too big for GCC to handle properly, there are curious false-positive analyzer warnings
 //  that didn't appear before adding preproc_eval
 #include "preproc.h"

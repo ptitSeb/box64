@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #include <pthread.h>
 
 typedef struct x64emu_s x64emu_t;

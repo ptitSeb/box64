@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __CPU_INFO__H_
 #define __CPU_INFO__H_
 enum ProcessorVendors {

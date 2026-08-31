@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef _GLOBAL_SYMBOLS_H_
 #define _GLOBAL_SYMBOLS_H_
 

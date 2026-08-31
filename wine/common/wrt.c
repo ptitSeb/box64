@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #include <stddef.h>
 #include <windows.h>
 #include <ntstatus.h>

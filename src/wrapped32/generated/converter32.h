@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 // Manually created for now
 #ifndef __CONVERTER_H_
 #define __CONVERTER_H_

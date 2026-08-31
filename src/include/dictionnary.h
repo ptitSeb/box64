@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __DICTIONNARY_H_
 #define __DICTIONNARY_H_
 #include <stdint.h>

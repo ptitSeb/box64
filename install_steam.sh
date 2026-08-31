@@ -1,4 +1,5 @@
 #!/bin/bash
+# SPDX-License-Identifier: MIT
 
 # create necessary directories
 mkdir -p ~/steam/tmp # makes both ~/steam and ~/steam/tmp in one cmd

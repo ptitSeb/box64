@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __ELF_LOADER_H_
 #define __ELF_LOADER_H_
 #include <stdio.h>

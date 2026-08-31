@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 /*
 **
 ** LINPACK.C        Linpack benchmark, calculates FLOPS.

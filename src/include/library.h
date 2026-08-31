@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __LIBRARY_H_
 #define __LIBRARY_H_
 #include <stdint.h>

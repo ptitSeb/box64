@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #define __USE_GNU
 #include <signal.h>
 #include <setjmp.h>

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __MYSIGNAL_H_
 #define __MYSIGNAL_H_
 

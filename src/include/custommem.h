@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __CUSTOM_MEM__H_
 #define __CUSTOM_MEM__H_
 #include <unistd.h>

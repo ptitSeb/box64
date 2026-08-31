@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #define INIT
 #define ENDPREFIX   dyn->insts[ninst].size2 = 0
 #define FINI                                                                                                      \

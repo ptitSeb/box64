@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __ALTERNATE_H__
 #define __ALTERNATE_H__
 #include <stdint.h>

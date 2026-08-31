@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __SIGNAL_PRIVATE_H__
 #define __SIGNAL_PRIVATE_H__
 

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #define _FILE_OFFSET_BITS 64
 #include <stdio.h>
 #include <stdlib.h>

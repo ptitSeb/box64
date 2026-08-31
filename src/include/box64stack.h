@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __BOX64_STACK_H_
 #define __BOX64_STACK_H_
 

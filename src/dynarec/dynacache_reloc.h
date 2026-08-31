@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __DYNACACHE_RELOC_H__
 #define __DYNACACHE_RELOC_H__
 

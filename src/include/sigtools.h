@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __SIGTOOLS_H__
 #define __SIGTOOLS_H__
 

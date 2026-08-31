@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #include <stdio.h>
 #include "debug.h"
 #include "box64version.h"

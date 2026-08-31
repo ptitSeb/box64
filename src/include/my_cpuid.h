@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __MY_CPUID_H__
 #define __MY_CPUID_H__
 #include <stdint.h>

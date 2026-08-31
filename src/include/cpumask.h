@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __CPU_MASK__H__
 #define __CPU_MASK__H__
 

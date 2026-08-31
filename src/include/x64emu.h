@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __X86EMU_H_
 #define __X86EMU_H_
 

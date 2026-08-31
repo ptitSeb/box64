@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __MY_ALIGN__H_
 #define __MY_ALIGN__H_
 #include <stdint.h>

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef MY_X11_CONV
 #define MY_X11_CONV
 #include <stdint.h>

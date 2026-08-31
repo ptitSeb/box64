@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 // gcc `pkg-config --cflags glib-2.0` `pkg-config --libs glib-2.0` -O1 gvariant.c -o gvariant
 #include <glib.h>
 

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #include <stddef.h>
 
 #define F8      *(uint8_t*)(addr++)

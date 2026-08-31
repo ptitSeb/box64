@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #include <stdio.h>
 // Build with `gcc -march=core2 -O2 test25.c -o test25`
 

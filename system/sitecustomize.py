@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MIT
 import platform
 
 # override platform.machine to return a fake value

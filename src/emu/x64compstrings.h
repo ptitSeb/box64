@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __X64_CMPSTRINGS_H__
 #define __X64_CMPSTRINGS_H__
 

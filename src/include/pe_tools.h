@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __PE_TOOLS_H__
 #define __PE_TOOLS_H__
 

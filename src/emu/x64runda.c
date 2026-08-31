@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #define _GNU_SOURCE
 #include <fenv.h>
 #include <stdint.h>

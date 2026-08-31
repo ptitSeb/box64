@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef _X86_ZYDIS_H_
 #define _X86_ZYDIS_H_
 

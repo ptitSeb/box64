@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #include <stdint.h>
 
 const uint8_t deBruijn64tab[64] = {

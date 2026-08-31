@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #include "vector.h"
 
 VECTOR_IMPL(voidp, (void))

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __DYNAREC_PPC64LE_PRIVATE_H_
 #define __DYNAREC_PPC64LE_PRIVATE_H_
 

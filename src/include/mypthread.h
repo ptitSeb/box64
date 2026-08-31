@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __MYPTHREAD_H_
 #define __MYPTHREAD_H_
 

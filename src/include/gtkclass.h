@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __GTKCLASS_H__
 #define __GTKCLASS_H__
 

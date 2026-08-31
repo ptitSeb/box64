@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __DYNACACHE_COMPRESS__H__
 #define __DYNACACHE_COMPRESS__H__
 

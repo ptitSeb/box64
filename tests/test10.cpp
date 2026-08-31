@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 // using atomic as a lock
 #include <iostream>       // std::cout
 #include <atomic>         // std::atomic

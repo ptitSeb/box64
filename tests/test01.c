@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #include <sys/syscall.h>
 #include <unistd.h>
 // build with `gcc test01.c -o test01 -march=core2 -Wl,--hash-style=both`

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __MY_SDL1ALIGN32_H_
 #define __MY_SDL1ALIGN32_H_
 #include <stdint.h>

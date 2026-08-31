@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __BRIDGE_PRIVATE_H_
 #define __BRIDGE_PRIVATE_H_
 #include <stdint.h>

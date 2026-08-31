@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 // PPC64LE next linker for dynarec
 // Called when a dynarec block needs to jump to the next block.
 // Saves volatile state, calls LinkNext to resolve the target,

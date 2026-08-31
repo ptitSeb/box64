@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 /*
  * The primary function of red-black trees in Box64 is to provide an O(log n) method for managing memory mappings.
  * This provides a mechanism that allows retrieving the memory range or associated data based on an address.

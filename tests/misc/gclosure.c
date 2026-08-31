@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 // gcc gclosure.c -o gclosure `pkg-config --cflags --libs gobject-2.0`
 #include <glib-object.h>
 

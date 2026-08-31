@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef GO
 #error Nope
 #endif

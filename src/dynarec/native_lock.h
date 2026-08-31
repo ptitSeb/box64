@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __NATIVE_LOCK__H__
 #define __NATIVE_LOCK__H__
 

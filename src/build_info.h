@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #include "box64version.h"
 #ifdef NOGIT
 #define GITREV "nogit"

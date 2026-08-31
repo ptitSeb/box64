@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __SIGNALS_H__
 #define __SIGNALS_H__
 #include <stdint.h>

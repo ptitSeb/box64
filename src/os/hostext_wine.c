@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #include <winternl.h>
 #include <stdio.h>
 

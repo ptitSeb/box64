@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #include <windows.h>
 
 #include "my_cpuid.h"

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #include "symbolfuncs.h"
 #include "elfloader.h"
 #include "debug.h"

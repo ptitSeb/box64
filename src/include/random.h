@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __RANDOM_H_
 #define __RANDOM_H_
 uint32_t get_random32(void);

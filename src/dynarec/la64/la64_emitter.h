@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #ifndef __LA64_EMITTER_H__
 #define __LA64_EMITTER_H__
 /*

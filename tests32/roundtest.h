@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 #pragma STDC FENV_ACCESS ON
 #include <assert.h>
 #include <stdio.h>

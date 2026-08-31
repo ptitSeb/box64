@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 // build with  gcc -O0 -g -msse -msse2 -mssse3 -msse4.1 -mavx test30.c -o test30 -march=native
 #include <inttypes.h>
 #include <string.h>

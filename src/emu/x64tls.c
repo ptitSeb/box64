@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 // Handling of TLS calls, include x86 specifi set_thread_area
 #include <unistd.h>
 #include <string.h>
