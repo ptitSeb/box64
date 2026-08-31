@@ -746,6 +746,12 @@ void EXPORT x64Syscall_linux(x64emu_t *emu)
         case 56: // sys_clone
             // x86_64 raw syscall is long clone(unsigned long flags, void *stack, int *parent_tid, int *child_tid, unsigned long tls);
             // so flags=R_RDI, stack=R_RSI, parent_tid=R_RDX, child_tid=R_R10, tls=R_R8
+            if ((R_EDI & CLONE_SETTLS) && R_R8 >= (0x800000000000ULL - X86_PAGE_SIZE)) {
+                // x86_64 kernel calls do_arch_prctl_64 in this case, which is the same case as my_arch_prctl.
+                // Refer to https://github.com/torvalds/linux/blob/v7.2/arch/x86/kernel/process_64.c#L904
+                S_RAX = -EPERM;
+                break;
+            }
             if((R_EDI&~0xff)==0x4100) {
                 // this is a case of vfork...
                 S_RAX = my_vfork(emu);
@@ -1198,6 +1204,12 @@ long EXPORT my_syscall(x64emu_t *emu)
         case 56: // sys_clone
             // x86_64 raw syscall is long clone(unsigned long flags, void *stack, int *parent_tid, int *child_tid, unsigned long tls);
             // so flags=R_RSI, stack=R_RDX, parent_tid=R_RCX, child_tid=R_R8, tls=R_R9
+            if ((R_RSI & CLONE_SETTLS) && R_R9 >= (0x800000000000ULL - X86_PAGE_SIZE)) {
+                // x86_64 kernel calls do_arch_prctl_64 in this case, which is the same case as my_arch_prctl.
+                // Refer to https://github.com/torvalds/linux/blob/v7.2/arch/x86/kernel/process_64.c#L904
+                errno = EPERM;
+                return -1;
+            }
             if(R_RDX)
             {
                 uint64_t flags = R_RSI;

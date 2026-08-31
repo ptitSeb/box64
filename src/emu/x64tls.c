@@ -183,7 +183,7 @@ int EXPORT my_arch_prctl(x64emu_t *emu, int code, void* addr)
             seg=(code==ARCH_SET_FS)?_FS:_GS;
             int idx = -1;
             // Refer to https://github.com/torvalds/linux/blob/v7.2/arch/x86/kernel/process_64.c#L904
-            if((uintptr_t)addr >= 0x800000000000ULL) {
+            if ((uintptr_t)addr >= (0x800000000000ULL - X86_PAGE_SIZE)) {
                 errno = EPERM;
                 return -EPERM;
             }
