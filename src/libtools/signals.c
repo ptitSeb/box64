@@ -1447,7 +1447,7 @@ EXPORT sighandler_t my_signal(x64emu_t* emu, int signum, sighandler_t handler)
     my_context->is_sigaction[signum] = 0;
     my_context->restorer[signum] = 0;
     my_context->onstack[signum] = 0;
-    my_context->sigflags[signum] = 0;
+    my_context->sigflags[signum] = SA_RESTART;
     memset(&my_context->sigmask[signum], 0, sizeof(sigset_t));
 
     if(signum==X64_SIGSEGV || signum==X64_SIGBUS || signum==X64_SIGILL || signum==X64_SIGABRT)
@@ -1456,7 +1456,7 @@ EXPORT sighandler_t my_signal(x64emu_t* emu, int signum, sighandler_t handler)
     if(handler!=NULL && handler!=(sighandler_t)1) {
         struct sigaction newact = {0};
         struct sigaction oldact = {0};
-        newact.sa_flags = 0x04;
+        newact.sa_flags = SA_SIGINFO | SA_RESTART;
         newact.sa_sigaction = MY_SIGHANDLER;
         if(sigaction(signal_from_x64(signum), &newact, &oldact)<0)
             return SIG_ERR;
