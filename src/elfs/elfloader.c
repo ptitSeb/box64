@@ -133,27 +133,23 @@ int hasElfInterp(elfheader_t* head)
 int CalcLoadAddr(elfheader_t* head)
 {
     head->memsz = 0;
-    head->paddr = head->vaddr = ~(uintptr_t)0;
+    head->vaddr = ~(uintptr_t)0;
     head->align = box64_pagesize;
     if(box64_is32bits) {
         for (size_t i=0; i<head->numPHEntries; ++i)
-            if(head->PHEntries._32[i].p_type == PT_LOAD) {
-                if(head->paddr > (uintptr_t)head->PHEntries._32[i].p_paddr)
-                    head->paddr = (uintptr_t)head->PHEntries._32[i].p_paddr;
+            if (head->PHEntries._32[i].p_type == PT_LOAD) {
                 if(head->vaddr > (uintptr_t)head->PHEntries._32[i].p_vaddr)
                     head->vaddr = (uintptr_t)head->PHEntries._32[i].p_vaddr;
             }
     } else {
         for (size_t i=0; i<head->numPHEntries; ++i)
-            if(head->PHEntries._64[i].p_type == PT_LOAD) {
-                if(head->paddr > (uintptr_t)head->PHEntries._64[i].p_paddr)
-                    head->paddr = (uintptr_t)head->PHEntries._64[i].p_paddr;
+            if (head->PHEntries._64[i].p_type == PT_LOAD) {
                 if(head->vaddr > (uintptr_t)head->PHEntries._64[i].p_vaddr)
                     head->vaddr = (uintptr_t)head->PHEntries._64[i].p_vaddr;
             }
     }
 
-    if(head->vaddr==~(uintptr_t)0 || head->paddr==~(uintptr_t)0) {
+    if(head->vaddr==~(uintptr_t)0) {
         printf_log(LOG_NONE, "Error: v/p Addr for Elf Load not set\n");
         return 1;
     }
@@ -212,7 +208,7 @@ int CalcLoadAddr(elfheader_t* head)
                         head->tlssize++;
             }
         }
-    printf_log(LOG_DEBUG, "Elf Addr(v/p)=%p/%p Memsize=0x%zx (align=0x%zx)\n", (void*)head->vaddr, (void*)head->paddr, head->memsz, head->align);
+    printf_log(LOG_DEBUG, "Elf Addr(v/p)=%p/%p Memsize=0x%zx (align=0x%zx)\n", (void*)head->vaddr, head->memsz, head->align);
     printf_log(LOG_DEBUG, "Elf Stack Memsize=%zu (align=%zu)\n", head->stacksz, head->stackalign);
     printf_log(LOG_DEBUG, "Elf TLS Memsize=%zu (align=%zu)\n", head->tlssize, head->tlsalign);
 
@@ -317,14 +313,14 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
 
             head->multiblocks[n].flags = e->p_flags;
             head->multiblocks[n].offs = e->p_offset;
-            head->multiblocks[n].paddr = e->p_paddr + offs;
+            head->multiblocks[n].paddr = e->p_vaddr + offs;
             head->multiblocks[n].size = e->p_filesz;
             head->multiblocks[n].align = e->p_align;
             // HACK: Mark all the code pages writable in unittest mode because some tests mix code and (writable) data...
             uint8_t prot = ((e->p_flags & PF_R)?PROT_READ:0)|(((e->p_flags & PF_W) || box64_unittest_mode)?PROT_WRITE:0)|((e->p_flags & PF_X)?PROT_EXEC:0);
-            head->multiblocks[n].asize = (e->p_memsz + (e->p_paddr & (box64_pagesize - 1)) + (box64_pagesize - 1)) & ~(box64_pagesize - 1);
+            head->multiblocks[n].asize = (e->p_memsz + (e->p_vaddr & (box64_pagesize - 1)) + (box64_pagesize - 1)) & ~(box64_pagesize - 1);
             int try_mmap = 1;
-            if(e->p_paddr&(box64_pagesize - 1))
+            if(e->p_vaddr&(box64_pagesize - 1))
                 try_mmap = 0;
             if(e->p_offset&(box64_pagesize-1))
                 try_mmap = 0;

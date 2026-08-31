@@ -89,10 +89,10 @@ static void* LoadSubLoadSection(FILE *f, elfheader_t* h, uintptr_t offset, size_
     void* ret = NULL;
     for (size_t i=0; i<h->numPHEntries && !ret; ++i) {
         if(h->PHEntries._64[i].p_type == PT_LOAD) {
-            if(offset>=h->PHEntries._64[i].p_paddr && offset<h->PHEntries._64[i].p_paddr+h->PHEntries._64[i].p_memsz) {
+            if (offset >= h->PHEntries._64[i].p_vaddr && offset < h->PHEntries._64[i].p_vaddr + h->PHEntries._64[i].p_memsz) {
                 if(!size) {
                     uintptr_t start = offset;
-                    uintptr_t end = h->PHEntries._64[i].p_paddr + h->PHEntries._64[i].p_memsz;
+                    uintptr_t end = h->PHEntries._64[i].p_vaddr + h->PHEntries._64[i].p_memsz;
                     for(size_t j=0; j<h->numDynamic; ++j) {
                         if(isDynamicTagPointer(h->Dynamic._64[j].d_tag)) {
                             uintptr_t ptr = h->Dynamic._64[j].d_un.d_ptr;
@@ -103,10 +103,10 @@ static void* LoadSubLoadSection(FILE *f, elfheader_t* h, uintptr_t offset, size_
                     size = end - start;
                 }
                 ret = box_calloc(1, size);
-                fseeko64(f, h->PHEntries._64[i].p_offset+offset-h->PHEntries._64[i].p_paddr ,SEEK_SET);
+                fseeko64(f, h->PHEntries._64[i].p_offset + offset - h->PHEntries._64[i].p_vaddr, SEEK_SET);
                 size_t to_read = size;
-                if(size+offset-h->PHEntries._64[i].p_paddr>h->PHEntries._64[i].p_filesz)
-                    to_read -= (size+offset-h->PHEntries._64[i].p_paddr) - h->PHEntries._64[i].p_filesz;
+                if (size + offset - h->PHEntries._64[i].p_vaddr > h->PHEntries._64[i].p_filesz)
+                    to_read -= (size + offset - h->PHEntries._64[i].p_vaddr) - h->PHEntries._64[i].p_filesz;
                 if(fread(ret, to_read, 1, f)!=1) {
                     printf_log(LOG_INFO, "Cannot read Sub Program Header for %p %zd/%zd\n", offset, size, to_read);
                     box_free(ret);
