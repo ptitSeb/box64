@@ -235,7 +235,7 @@ void myStackAlignScanf(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* m
                     case '#':
                     case '+': 
                     case '-': ++p; break; // formating, ignored
-                    case 'm': state = 0; ++p; break; // no argument
+                    case 'm': ++p; break; // modifier: does not consume an argument itself
                     case 'n':
                     case 'p':
                     case 'S':
@@ -493,7 +493,7 @@ void myStackAlignScanfW(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* 
                     case '#':
                     case '+': 
                     case '-': ++p; break; // formating, ignored
-                    case 'm': state = 0; ++p; break; // no argument
+                    case 'm': ++p; break; // modifier: does not consume an argument itself
                     case 'n':
                     case 'p':
                     case 'S':
@@ -1050,7 +1050,7 @@ void myStackAlignScanfValist(x64emu_t* emu, const char* fmt, uint64_t* mystack, 
                     case '#':
                     case '+':
                     case '-': ++p; break; // formating, ignored
-                    case 'm': state = 0; ++p; break; // no argument
+                    case 'm': ++p; break; // modifier: does not consume an argument itself
                     case 'n':
                     case 'p':
                     case 'S':
@@ -1157,7 +1157,7 @@ void myStackAlignScanfWValist(x64emu_t* emu, const char* fmt, uint64_t* mystack,
                     case '.': 
                     case '+': 
                     case '-': ++p; break; // formating, ignored
-                    case 'm': state = 0; ++p; break; // no argument
+                    case 'm': ++p; break; // modifier: does not consume an argument itself
                     case 'n':
                     case 'p':
                     case 'S':
