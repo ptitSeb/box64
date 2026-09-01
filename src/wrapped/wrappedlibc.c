@@ -2768,6 +2768,30 @@ EXPORT char** my_environ = NULL;
 EXPORT char** my__environ = NULL;
 EXPORT char** my___environ = NULL;  // all aliases
 
+static char** spawn_env_with_arg0(char* const envp[], const char* name, const char* arg0, char** added)
+{
+    size_t n = 0;
+    size_t replace = (size_t)-1;
+    size_t name_len = strlen(name);
+
+    while (envp && envp[n]) {
+        if (!strncmp(envp[n], name, name_len) && envp[n][name_len] == '=')
+            replace = n;
+        ++n;
+    }
+
+    char** ret = (char**)box_calloc(n + (replace == (size_t)-1 ? 2 : 1), sizeof(char*));
+    if (n)
+        memcpy(ret, envp, n * sizeof(char*));
+    *added = (char*)box_malloc(name_len + strlen(arg0) + 2);
+    sprintf(*added, "%s=%s", name, arg0);
+    if (replace == (size_t)-1)
+        ret[n] = *added;
+    else
+        ret[replace] = *added;
+    return ret;
+}
+
 EXPORT int32_t my_execv(x64emu_t* emu, const char* path, char* const argv[])
 {
     int ret;
@@ -2835,25 +2859,33 @@ EXPORT int32_t my_execv(x64emu_t* emu, const char* path, char* const argv[])
         if(script) newargv[1] = emu->context->bashpath; // script needs to be launched with bash
         if(python) newargv[1] = emu->context->pythonpath; // python scripts need box64-python
         memcpy(newargv+toadd, argv+skip_first, sizeof(char*)*(n+1-skip_first));
+        char** envv = NULL;
+        if (my_environ != my_context->envv) envv = my_environ;
+        if (my__environ != my_context->envv) envv = my__environ;
+        if (my___environ != my_context->envv) envv = my___environ;
+        char* arg0_env = NULL;
         if(self)
             newargv[1] = emu->context->fullpath;
         else {
-            // TODO check if envp is not environ and add the value on a copy
-            if(strcmp(newargv[toadd], skip_first?argv[skip_first]:path))
-                setenv(x86?"BOX86_ARG0":"BOX64_ARG0", newargv[toadd], 1);
+            if (strcmp(newargv[toadd], skip_first ? argv[skip_first] : path)) {
+                if (envv)
+                    envv = spawn_env_with_arg0(envv, x86 ? "BOX86_ARG0" : "BOX64_ARG0", newargv[toadd], &arg0_env);
+                else
+                    setenv(x86 ? "BOX86_ARG0" : "BOX64_ARG0", newargv[toadd], 1);
+            }
             newargv[toadd] = skip_first?argv[skip_first]:path;
         }
-        printf_log(LOG_DEBUG, " => execv(\"%s\", %p [\"%s\", \"%s\", \"%s\"...:%d])\n", newargv[0], newargv, newargv[0], n?newargv[1]:"", (n>1)?newargv[2]:"",n);
-        char** envv = NULL;
-        if(my_environ!=my_context->envv) envv = my_environ;
-        if(my__environ!=my_context->envv) envv = my__environ;
-        if(my___environ!=my_context->envv) envv = my___environ;
+        printf_log(LOG_DEBUG, " => execv(\"%s\", %p [\"%s\", \"%s\", \"%s\"...:%d])\n", newargv[0], newargv, newargv[0], n ? newargv[1] : "", (n > 1) ? newargv[2] : "", n);
 
         int ret;
         if(envv)
             ret = execve(newargv[0], (char* const*)newargv, envv);
         else
             ret = execv(newargv[0], (char* const*)newargv);
+        if (arg0_env) {
+            box_free(arg0_env);
+            box_free(envv);
+        }
         box_free(newargv);
         return ret;
     }
@@ -2897,15 +2929,21 @@ EXPORT int32_t my_execve(x64emu_t* emu, const char* path, char* const argv[], ch
         if(script) newargv[1] = emu->context->bashpath; // script needs to be launched with bash
         if(python) newargv[1] = emu->context->pythonpath; // script needs to be launched with bash
         memcpy(newargv+toadd, argv+skip_first, sizeof(char*)*(n+1-skip_first));
+        char* arg0_env = NULL;
         if(self) newargv[toadd] = emu->context->fullpath;
         else {
-            // TODO check if envp is not environ and add the value on a copy
-            if(strcmp(newargv[toadd], path))
-                setenv(x86?"BOX86_ARG0":"BOX64_ARG0", newargv[toadd], 1);
+            if (strcmp(newargv[toadd], path)) {
+                if (!envp) envp = environ;
+                envp = spawn_env_with_arg0(envp, x86 ? "BOX86_ARG0" : "BOX64_ARG0", newargv[toadd], &arg0_env);
+            }
             newargv[toadd] = path;
         }
         printf_log(LOG_DEBUG, " => execve(\"%s\", %p [\"%s\", \"%s\", \"%s\"...:%d], %p)\n", newargv[0], newargv, newargv[0], (n+toadd-skip_first)?newargv[1]:"", ((n+toadd-skip_first)>1)?newargv[2]:"",n, envp);
         int ret = execve(newargv[0], (char* const*)newargv, envp);
+        if (arg0_env) {
+            box_free(arg0_env);
+            box_free((char**)envp);
+        }
         return ret;
     }
     if(!strcmp(path + strlen(path) - strlen("/uname"), "/uname")
@@ -3168,18 +3206,24 @@ EXPORT int32_t my_execvpe(x64emu_t* emu, const char* path, char* argv[], char* c
         if(python) newargv[1] = emu->context->pythonpath; // python scripts need box64-python
         for (int j=0; j<i; ++j)
             newargv[j+toadd] = argv[j];
+        char* arg0_env = NULL;
         if(self) newargv[1] = emu->context->fullpath;
         //else if(script) newargv[2] = fullpath;
         else {
-            // TODO check if envp is not environ and add the value on a copy
-            if(strcmp(newargv[toadd], path))
-                setenv(x86?"BOX86_ARG0":"BOX64_ARG0", newargv[toadd], 1);
+            if (strcmp(newargv[toadd], path)) {
+                if (!envp) envp = environ;
+                envp = spawn_env_with_arg0(envp, x86 ? "BOX86_ARG0" : "BOX64_ARG0", newargv[toadd], &arg0_env);
+            }
             newargv[toadd] = fullpath;
         }
 
         printf_log(LOG_DEBUG, " => execvpe(\"%s\", %p [\"%s\", \"%s\"...:%d])\n", newargv[0], newargv, newargv[1], i?newargv[2]:"", i);
         int ret;
         ret = execvpe(newargv[0], newargv, envp);
+        if (arg0_env) {
+            box_free(arg0_env);
+            box_free((char**)envp);
+        }
         box_free(fullpath);
         return ret;
     }
@@ -3236,30 +3280,6 @@ EXPORT int32_t my_execlp(x64emu_t* emu, const char* path)
     for(int i=0; i<cnt; ++i)
         argv[i] = getVargN(emu, i+1);
     return my_execvp(emu, path, argv);
-}
-
-static char** spawn_env_with_arg0(char* const envp[], const char* name, const char* arg0, char** added)
-{
-    size_t n = 0;
-    size_t replace = (size_t)-1;
-    size_t name_len = strlen(name);
-
-    while (envp && envp[n]) {
-        if (!strncmp(envp[n], name, name_len) && envp[n][name_len] == '=')
-            replace = n;
-        ++n;
-    }
-
-    char** ret = (char**)box_calloc(n + (replace == (size_t)-1 ? 2 : 1), sizeof(char*));
-    if (n)
-        memcpy(ret, envp, n * sizeof(char*));
-    *added = (char*)box_malloc(name_len + strlen(arg0) + 2);
-    sprintf(*added, "%s=%s", name, arg0);
-    if (replace == (size_t)-1)
-        ret[n] = *added;
-    else
-        ret[replace] = *added;
-    return ret;
 }
 
 EXPORT int32_t my_posix_spawn(x64emu_t* emu, pid_t* pid, const char* fullpath,
