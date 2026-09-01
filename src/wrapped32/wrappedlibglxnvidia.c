@@ -410,7 +410,7 @@ EXPORT void my32nv_glBindBuffersRange(x64emu_t* emu, uint32_t target, uint32_t f
         offsets_l[i] = from_long(offsets[i]);
         sizes_l[i] = from_long(sizes[i]);
     }
-    fnc(target, first, count, buffers, offsets_l, sizes);
+    fnc(target, first, count, buffers, offsets_l, sizes_l);
 }
 // glBindVertexBuffers ...
 EXPORT void my32nv_glBindVertexBuffers(x64emu_t* emu, uint32_t first, int count, void* buffers, ptr_t* offsets, void* strides)

@@ -36,7 +36,7 @@ GO(context_range_set, iFpp)
 //GO(context_role_get, 
 GO(context_role_set, iFpp)
 GO(context_str, pFp)
-GO(context_type_get, iFpp)
+GO(context_type_get, pFp)
 GO(context_type_set, iFpp)
 //GO(context_user_get, 
 GO(context_user_set, iFpp)

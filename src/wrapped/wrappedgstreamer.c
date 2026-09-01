@@ -1390,7 +1390,7 @@ EXPORT void* my_gst_task_new(x64emu_t* emu, void* f, void* data, void* d)
 
 EXPORT int my_gst_type_find_register(x64emu_t* emu, void* plugin, void* name, uint32_t rank, void* f, void* ext, void* caps, void* data, void* d)
 {
-    return my->gst_type_find_register(plugin, name, rank, findGstTypeFindFunctionFct(f), ext, caps, data, findDestroyFct(f));
+    return my->gst_type_find_register(plugin, name, rank, findGstTypeFindFunctionFct(f), ext, caps, data, findDestroyFct(d));
 }
 
 EXPORT void my_gst_pad_set_iterate_internal_links_function_full(x64emu_t* emu, void* pad, void* f, void* data, void* d)

@@ -2462,7 +2462,7 @@ EXPORT int my32_FT_Request_Size(x64emu_t* emu, void* face, FT_Size_RequestRec_32
     convert_FT_Size_RequestRec_to_64(&req_l, req);
     inplace_FT_FaceRec_enlarge(face);
     int ret = my->FT_Request_Size(face, &req_l);
-    inplace_FT_FaceRec_enlarge(face);
+    inplace_FT_FaceRec_shrink(face);
     return ret;
 }
 

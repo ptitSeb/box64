@@ -109,9 +109,9 @@ static void* find_free_Fct(void* fct)
 // paaswd_changereq
 #define GO(A)   \
 static uintptr_t my_paaswd_changereq_fct_##A = 0;                                               \
-static void my_paaswd_changereq_##A(void* a, int b, void* c, int d, void* e, int f, void* g)    \
+static int my_paaswd_changereq_##A(void* a, void* b, void* c, void* d)                          \
 {                                                                                               \
-    RunFunctionFmt(my_paaswd_changereq_fct_##A, "pipipip", a, b, c, d, e, f, g);                \
+    return RunFunctionFmt(my_paaswd_changereq_fct_##A, "pppp", a, b, c, d);                     \
 }
 SUPER()
 #undef GO
