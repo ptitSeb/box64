@@ -628,7 +628,7 @@ static elfheader_t* checkElfLib(elfheader_t* h, library_t* lib)
     return h;
 }
 
-static int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, int deepbind, elfheader_t* head, int cnt, Elf64_Rela *rela, int* need_resolv)
+static int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, int deepbind, elfheader_t* head, int cnt, Elf64_Rela *rela)
 {
     int ret_ok = 0;
     for (int i=0; i<cnt; ++i) {
@@ -768,7 +768,6 @@ static int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, int 
                   || ((symname && strstr(symname, "__pthread_unwind_next")==symname))
                   || !tmp
                   || !((tmp>=head->plt && tmp<head->plt_end) || (tmp>=head->gotplt && tmp<head->gotplt_end))
-                  || !need_resolv
                   || bindnow
                   || (!sym_elf && isInlinableNativeCall(offs))
                   ) {
@@ -794,7 +793,6 @@ static int RelocateElfRELA(lib_t *maplib, lib_t *local_maplib, int bindnow, int 
                     printf_dump(LOG_NEVER, "Preparing (if needed) %s R_X86_64_JUMP_SLOT @%p (0x%lx->0x%0lx) with sym=%s to be apply later (addend=%ld)\n",
                         BindSym(bind), p, *p, *p+head->delta, symname, rela[i].r_addend);
                     *p += head->delta;
-                    *need_resolv = 1;
                 }
                 break;
             case R_X86_64_64:
@@ -925,12 +923,34 @@ int RelocateElf32(lib_t *maplib, lib_t *local_maplib, int bindnow, int deepbind,
 #else
  ;
 #endif
+static void SeedPltResolver64(elfheader_t* head)
+{
+    if (!head->pltrel)
+        return;
+
+    uintptr_t got_addr = head->pltgot ? head->pltgot : head->got;
+    if (!got_addr)
+        return;
+
+    if(pltResolver64==(uintptr_t)-1)
+        pltResolver64 = AddBridge(my_context->system, vFE, PltResolver64, 0, "PltResolver");
+
+    uintptr_t* got = (uintptr_t*)(got_addr + head->delta);
+    if(got[1] == (uintptr_t)head && got[2] == pltResolver64)
+        return;
+
+    got[2] = pltResolver64;
+    got[1] = (uintptr_t)head;
+    printf_dump(LOG_DEBUG, "PLT Resolver injected in %s at %p\n", head->pltgot ? "plt.got" : "got", &got[2]);
+}
+
 int RelocateElf64(lib_t *maplib, lib_t *local_maplib, int bindnow, int deepbind, elfheader_t* head)
 {
     if((head->flags&DF_BIND_NOW) && !bindnow) {
         bindnow = 1;
         printf_log(LOG_DEBUG, "Forcing %s to Bind Now\n", head->name);
     }
+    SeedPltResolver64(head);
     if(head->relr) {
         int cnt = head->relrsz / head->relrent;
         DumpRelRTable64(head, cnt, (Elf64_Relr *)(head->relr + head->delta), "RelR");
@@ -949,7 +969,7 @@ int RelocateElf64(lib_t *maplib, lib_t *local_maplib, int bindnow, int deepbind,
         int cnt = head->relasz / head->relaent;
         DumpRelATable64(head, cnt, (Elf64_Rela *)(head->rela + head->delta), "RelA");
         printf_dump(LOG_DEBUG, "Applying %d Relocation(s) with Addend for %s bindnow=%d, deepbind=%d\n", cnt, head->name, bindnow, deepbind);
-        if(RelocateElfRELA(maplib, local_maplib, bindnow, deepbind, head, cnt, (Elf64_Rela *)(head->rela + head->delta), NULL))
+        if(RelocateElfRELA(maplib, local_maplib, bindnow, deepbind, head, cnt, (Elf64_Rela *)(head->rela + head->delta)))
             return -1;
     }
     return 0;
@@ -967,7 +987,6 @@ int RelocateElfPlt32(lib_t *maplib, lib_t *local_maplib, int bindnow, int deepbi
 #endif
 int RelocateElfPlt64(lib_t *maplib, lib_t *local_maplib, int bindnow, int deepbind, elfheader_t* head)
 {
-    int need_resolver = 0;
     if((head->flags&DF_BIND_NOW) && !bindnow) {
         bindnow = 1;
         printf_log(LOG_DEBUG, "Forcing %s to Bind Now\n", head->name);
@@ -982,22 +1001,8 @@ int RelocateElfPlt64(lib_t *maplib, lib_t *local_maplib, int bindnow, int deepbi
         } else if(head->pltrel==DT_RELA) {
             DumpRelATable64(head, cnt, (Elf64_Rela *)(head->jmprel + head->delta), "PLT");
             printf_dump(LOG_DEBUG, "Applying %d PLT Relocation(s) with Addend for %s bindnow=%d, deepbind=%d\n", cnt, head->name, bindnow, deepbind);
-            if(RelocateElfRELA(maplib, local_maplib, bindnow, deepbind, head, cnt, (Elf64_Rela *)(head->jmprel + head->delta), &need_resolver))
+            if(RelocateElfRELA(maplib, local_maplib, bindnow, deepbind, head, cnt, (Elf64_Rela *)(head->jmprel + head->delta)))
                 return -1;
-        }
-        if(need_resolver) {
-            if(pltResolver64==(uintptr_t)-1) {
-                pltResolver64 = AddBridge(my_context->system, vFE, PltResolver64, 0, "PltResolver");
-            }
-            if(head->pltgot) {
-                *(uintptr_t*)(head->pltgot+head->delta+16) = pltResolver64;
-                *(uintptr_t*)(head->pltgot+head->delta+8) = (uintptr_t)head;
-                printf_dump(LOG_DEBUG, "PLT Resolver injected in plt.got at %p\n", (void*)(head->pltgot+head->delta+16));
-            } else if(head->got) {
-                *(uintptr_t*)(head->got+head->delta+16) = pltResolver64;
-                *(uintptr_t*)(head->got+head->delta+8) = (uintptr_t)head;
-                printf_dump(LOG_DEBUG, "PLT Resolver injected in got at %p\n", (void*)(head->got+head->delta+16));
-            }
         }
     }
 
