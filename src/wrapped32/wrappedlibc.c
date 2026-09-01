@@ -460,9 +460,9 @@ static void* findfilter_dirFct(void* fct)
 static uintptr_t my32_compare_dir_fct_##A = 0;                                      \
 static int my32_compare_dir_##A(const struct dirent* a, const struct dirent* b)     \
 {                                                                                   \
-    static struct i386_dirent d1, d2;                                               \
+    struct i386_dirent d1, d2;                                               \
     UnalignDirent_32(a, &d1);                                                       \
-    UnalignDirent_32(a, &d2);                                                       \
+    UnalignDirent_32(b, &d2);                                                       \
     return (int)RunFunctionFmt(my32_compare_dir_fct_##A, "pp", &d1, &d2);           \
 }
 SUPER()
@@ -2357,9 +2357,13 @@ EXPORT int my32_setrlimit(x64emu_t* emu, int what, uint32_t* pr)
 
 EXPORT void* my32___localtime64(x64emu_t* emu, void* t)
 {
-    static struct tm l = {};
-    l = *localtime(t);
-    return &l;
+    static struct_iiiiiiiiilt_t res_ = {0};
+    void* ret = localtime(t);
+    if(ret) {
+        to_struct_iiiiiiiiilt(to_ptrv(&res_), ret);
+        return &res_;
+    }
+    return NULL;
 }
 
 EXPORT void* my32_localtime(x64emu_t* emu, void* t)

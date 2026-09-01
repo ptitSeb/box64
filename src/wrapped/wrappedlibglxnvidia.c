@@ -173,7 +173,7 @@ static void* find_get_blob_func_Fct(void* fct)
     return NULL;
 }
 #undef SUPER
-#define ALTMY mynv
+#define ALTMY mynv_
 #include "wrappedlib_init.h"
 
 // glDebugMessageCallback

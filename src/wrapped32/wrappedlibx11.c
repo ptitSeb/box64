@@ -2652,7 +2652,7 @@ EXPORT int my32_XTextWidth(x64emu_t* emu, void* font, void* string, int count)
 {
     inplace_XFontStruct_enlarge(font);
     int ret = my->XTextWidth(font, string, count);
-    inplace_XFontProp_shrink(font);
+    inplace_XFontStruct_shrink(font);
     return ret;
 }
 
@@ -2660,7 +2660,7 @@ EXPORT int my32_XTextWidth16(x64emu_t* emu, void* font, void* string, int count)
 {
     inplace_XFontStruct_enlarge(font);
     int ret = my->XTextWidth16(font, string, count);
-    inplace_XFontProp_shrink(font);
+    inplace_XFontStruct_shrink(font);
     return ret;
 }
 

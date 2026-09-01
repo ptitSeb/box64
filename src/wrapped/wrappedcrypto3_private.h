@@ -1565,7 +1565,7 @@ GO(ENGINE_get_ECDSA, pFp)
 //GO(ENGINE_get_ex_data, 
 //GO(ENGINE_get_ex_new_index, 
 //GOM(ENGINE_get_finish_function, pFEp)
-GO(ENGINE_get_first, iFp)
+GO(ENGINE_get_first, pFv)
 GO(ENGINE_get_flags, iFp)
 GO(ENGINE_get_id, pFp)
 //GOM(ENGINE_get_init_function, pFEp)
