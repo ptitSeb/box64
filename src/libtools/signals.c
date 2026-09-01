@@ -389,7 +389,7 @@ int my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigin
     if(p) {
         pc = (void*)CONTEXT_PC(p);
         if(db) {
-            if(ARCH_HOST_CALL(db, x64pc))
+            if(ARCH_HOST_CALL(db, pc, x64pc))
                 frame = R_RSP;
             else
                 frame = (uintptr_t)CONTEXT_REG(p, xRSP); //this should not be needed, as emu has been "adjusted" to dynablock value already in the caller

@@ -23,6 +23,7 @@ typedef struct arch_arch_s
     uint16_t up32;          // GPRs with pending 32-bit zero-up at this instruction
     uint16_t ymm_zero;      // YMM upper halves with a deferred architectural zero
     int16_t rsp;            // pending rsp offset at this instruction
+    uint32_t call_window;   // spill offset within the instruction
 } arch_arch_t;
 
 typedef struct arch_build_s
@@ -32,6 +33,7 @@ typedef struct arch_build_s
     uint16_t up32;
     uint16_t ymm_zero;
     int16_t rsp;
+    uint32_t call_window;
 } arch_build_t;
 
 static int arch_build(dynarec_la64_t* dyn, int ninst, arch_build_t* arch)
@@ -40,6 +42,7 @@ static int arch_build(dynarec_la64_t* dyn, int ninst, arch_build_t* arch)
     // opcode can handle unaligned
     arch->unaligned = dyn->insts[ninst].unaligned;
     arch->host_call = dyn->insts[ninst].host_call;
+    arch->call_window = dyn->insts[ninst].call_window;
     // pending 32-bit zero-ups at this instruction
     arch->up32 = dyn->insts[ninst].up32_pending;
     arch->ymm_zero = dyn->insts[ninst].vector_liveness.ymm_pending;
@@ -77,6 +80,7 @@ static void build_next(arch_arch_t* arch, arch_build_t* build)
 {
     arch->unaligned = build->unaligned;
     arch->host_call = build->host_call;
+    arch->call_window = build->call_window;
     arch->seq = 0;
     arch->up32 = build->up32;
     arch->ymm_zero = build->ymm_zero;
@@ -138,14 +142,24 @@ int arch_unaligned(dynablock_t* db, uintptr_t x64pc)
     return arch->unaligned;
 }
 
-int arch_host_call(dynablock_t* db, uintptr_t x64pc)
+int arch_host_call(dynablock_t* db, void* native_pc, uintptr_t x64pc)
 {
     if (!db) return 0;
     if (!db->arch_size || !db->arch) return 0;
     int ninst = getX64AddressInst(db, x64pc);
     if (ninst < 0 || ninst >= db->isize) return 0;
     arch_arch_t* arch = arch_for_ninst(db, ninst);
-    return arch->host_call;
+    if (!arch->host_call || !arch->call_window) return 0;
+    // getX64Address
+    uintptr_t addr = (uintptr_t)db->block + db->prefixsize;
+    int i = 0;
+    for (int inst = 0; inst < ninst; ++inst) {
+        do {
+            addr += db->instsize[i].nat * 4;
+            ++i;
+        } while ((db->instsize[i - 1].x64 == 15) || (db->instsize[i - 1].nat == 15));
+    }
+    return ((uintptr_t)native_pc - addr) >= arch->call_window;
 }
 
 void adjust_arch(dynablock_t* db, x64emu_t* emu, ucontext_t* p, uintptr_t x64pc)
