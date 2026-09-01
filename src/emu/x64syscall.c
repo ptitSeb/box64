@@ -183,6 +183,9 @@ static const scwrap_t syscallwrap[] = {
     #endif
     [79] = {__NR_getcwd, 2},
     [80] = {__NR_chdir, 1},
+    #ifdef __NR_fchdir
+    [81] = {__NR_fchdir, 1},
+    #endif
     #ifdef __NR_rename
     [82] = {__NR_rename, 2},
     #endif
