@@ -16,6 +16,7 @@
 #include "box64stack.h"
 #include "callback.h"
 #include "emu/x64run_private.h"
+#include "emu/x87emu_private.h"
 #include "x64trace.h"
 #include "dynarec_native.h"
 #include "../dynablock_private.h"
@@ -28,6 +29,45 @@
 #include "dynarec_la64_helper.h"
 
 static_assert(offsetof(x64emu_t, mxcsr) == EMU_MXCSR, "EMU_MXCSR out of sync with x64emu_t");
+static_assert((offsetof(x64emu_t, fpu_ld) & 1) == 0, "fpu_ld must be halfword-aligned");
+static_assert((offsetof(fpu_ld_t, uref) & 1) == 0, "fpu_ld_t.uref must be halfword-aligned");
+static_assert((offsetof(fpu_ld_t, ld.l.upper) & 1) == 0, "fpu_ld_t.ld.l.upper must be halfword-aligned");
+
+static void ld80_get_addr(dynarec_la64_t* dyn, int ninst, int addr, int tmp, int st)
+{
+    MAYUSE(ninst);
+    MAYUSE(tmp);
+
+    // addr = &emu->fpu_ld[(emu->top + st - dyn->lsx.x87stack) & 7]
+    LD_WU(addr, xEmu, offsetof(x64emu_t, top));
+    if (st - dyn->lsx.x87stack)
+        ADDI_D(addr, addr, st - dyn->lsx.x87stack);
+    ANDI(addr, addr, 7);
+
+    if (sizeof(fpu_ld_t) == 64) {
+        SLLI_D(addr, addr, 6);
+    } else {
+        /* idx * 18 = idx * 16 + idx * 2 */
+        SLLI_D(tmp, addr, 4);
+        SLLI_D(addr, addr, 1);
+        ADD_D(addr, addr, tmp);
+    }
+    ADDI_D(addr, addr, offsetof(x64emu_t, fpu_ld));
+    ADD_D(addr, xEmu, addr);
+}
+
+static void ld80_load_u64(dynarec_la64_t* dyn, int ninst, int dst, int addr, int tmp, int offset)
+{
+    MAYUSE(dyn);
+    MAYUSE(ninst);
+
+    // fpu_ld_t is packed; load 64-bit fields as four halfwords.
+    LD_HU(dst, addr, offset);
+    for (int i = 2; i < sizeof(uint64_t); i += 2) {
+        LD_HU(tmp, addr, offset + i);
+        BSTRINS_D(dst, tmp, i * 8 + 15, i * 8);
+    }
+}
 
 /* setup r2 to address pointed by ED, also fixaddress is an optionnal delta in the range [-absmax, +absmax], with delta&mask==0 to be added to ed for LDR/STR */
 uintptr_t geted(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, uint8_t scratch, int64_t* fixaddress, rex_t rex, int* l, int i12, int delta)
@@ -876,6 +916,305 @@ void x87_free(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int st)
     // add mark in the freed array
     dyn->lsx.tags |= 0b11 << (st * 2);
     MESSAGE(LOG_DUMP, "\t--------x87 FFREE for ST%d\n", st);
+}
+
+void x87_update_fpu_ld_sign(dynarec_la64_t* dyn, int ninst, int addr, int tmp, int tmp2, int oldq, int newq, int st, int chs)
+{
+    MAYUSE(dyn);
+    MAYUSE(ninst);
+    MAYUSE(addr);
+    MAYUSE(tmp);
+    MAYUSE(tmp2);
+    MAYUSE(oldq);
+    MAYUSE(newq);
+    MAYUSE(st);
+    MAYUSE(chs);
+
+    int j64;
+    ld80_get_addr(dyn, ninst, addr, tmp, st);
+
+    MOV64x(tmp, FPU_LD80_INVALID_REF);
+    BEQ_MARK(oldq, tmp);
+
+    ld80_load_u64(dyn, ninst, tmp, addr, tmp2, offsetof(fpu_ld_t, uref));
+    BNE_MARK(tmp, oldq);
+
+    /* Update the raw sign bit, then rebind the shadow to the new ST.q. */
+    LD_HU(tmp, addr, offsetof(fpu_ld_t, ld.l.upper));
+    if (chs) {
+        MOV32w(tmp2, 0x8000);
+        XOR(tmp, tmp, tmp2);
+    } else {
+        BSTRINS_D(tmp, xZR, 15, 15);
+    }
+    ST_H(tmp, addr, offsetof(fpu_ld_t, ld.l.upper));
+
+    for (int i = 0; i < sizeof(uint64_t); i += 2) {
+        ST_H(newq, addr, offsetof(fpu_ld_t, uref) + i);
+        if (i + 2 < sizeof(uint64_t))
+            SRLI_D(newq, newq, 16);
+    }
+
+    B_MARK2_nocond;
+
+    MARK;
+    /*STld(0).uref = INVALID;*/
+    MOV64x(tmp, FPU_LD80_INVALID_REF);
+    for (int i = 0; i < sizeof(uint64_t); i += 2) {
+        ST_H(tmp, addr, offsetof(fpu_ld_t, uref) + i);
+        if (i + 2 < sizeof(uint64_t))
+            SRLI_D(tmp, tmp, 16);
+    }
+    MARK2;
+}
+
+void x87_fcomi_fpu_ld(dynarec_la64_t* dyn, int ninst, int ret, int addr0, int addri, int tmp1, int tmp2, int q0, int qi, int st)
+{
+    MAYUSE(dyn);
+    MAYUSE(ninst);
+    MAYUSE(ret);
+    MAYUSE(addr0);
+    MAYUSE(addri);
+    MAYUSE(tmp1);
+    MAYUSE(tmp2);
+    MAYUSE(q0);
+    MAYUSE(qi);
+    MAYUSE(st);
+
+    int j64;
+
+    /* Default: raw shadow not handled, caller must fallback to FCOMIS/FCOMID. */
+    MOV32w(ret, 0);
+
+    ld80_get_addr(dyn, ninst, addr0, tmp1, 0);
+    ld80_get_addr(dyn, ninst, addri, tmp1, st);
+
+    /*
+     * Check both raw shadows are still valid:
+     *   fpu_ld[i].uref != INVALID
+     *   fpu_ld[i].uref == current ST(i).q
+     *
+     * fpu_ld_t is packed, so uref may not be 8-byte aligned.  Load it as
+     * four 16-bit chunks before comparing.
+     */
+    MOV64x(tmp1, FPU_LD80_INVALID_REF);
+    BEQ_MARK2(q0, tmp1);
+    BEQ_MARK2(qi, tmp1);
+
+    ld80_load_u64(dyn, ninst, tmp1, addr0, tmp2, offsetof(fpu_ld_t, uref));
+    BNE_MARK2(q0, tmp1);
+    ld80_load_u64(dyn, ninst, tmp1, addri, tmp2, offsetof(fpu_ld_t, uref));
+    BNE_MARK2(qi, tmp1);
+
+    /*
+     * From here on, q0/qi are scratch.
+     * Clear FCOMI-owned EFLAGS bits before setting the final result.
+     */
+    IFX (X_OF | X_AF | X_SF | X_PEND) {
+        MOV64x(tmp2, ((1 << F_OF) | (1 << F_AF) | (1 << F_SF)));
+        ANDN(xFlags, xFlags, tmp2);
+    }
+    IFX (X_CF | X_PF | X_ZF | X_PEND) {
+        MOV32w(tmp2, ((1 << F_CF) | (1 << F_PF) | (1 << F_ZF)));
+        ANDN(xFlags, xFlags, tmp2);
+    }
+
+    /* x87 FCOMI clears C1. */
+    LD_HU(tmp1, xEmu, offsetof(x64emu_t, sw));
+    BSTRINS_D(tmp1, xZR, 9, 9);
+    ST_H(tmp1, xEmu, offsetof(x64emu_t, sw));
+
+    /*
+     * Cache both raw 80-bit values:
+     *   tmp1 = a_lower, tmp2 = b_lower
+     *   q0   = a_upper, qi   = b_upper
+     * addr0/addri are scratch from here on.
+     */
+    ld80_load_u64(dyn, ninst, tmp1, addr0, tmp2, offsetof(fpu_ld_t, ld.l.lower));
+    ld80_load_u64(dyn, ninst, tmp2, addri, q0, offsetof(fpu_ld_t, ld.l.lower));
+    LD_HU(q0, addr0, offsetof(fpu_ld_t, ld.l.upper));
+    LD_HU(qi, addri, offsetof(fpu_ld_t, ld.l.upper));
+
+    /*
+     * NaN test:
+     *   exp == 0x7fff && lower != 0x8000000000000000
+     * means unordered.
+     */
+    BSTRPICK_D(addr0, q0, 14, 0); /* ae */
+    MOV32w(ret, 0x7fff);
+    XOR(addr0, addr0, ret);
+    SEQZ(addr0, addr0);
+    MOV64x(ret, UINT64_C(0x8000000000000000));
+    XOR(addri, tmp1, ret);
+    SNEZ(addri, addri);
+    AND(addr0, addr0, addri);
+    BxxZ_gen(NE, MARKSEG, addr0);
+
+    BSTRPICK_D(addr0, qi, 14, 0); /* be */
+    MOV32w(ret, 0x7fff);
+    XOR(addr0, addr0, ret);
+    SEQZ(addr0, addr0);
+    MOV64x(ret, UINT64_C(0x8000000000000000));
+    XOR(addri, tmp2, ret);
+    SNEZ(addri, addri);
+    AND(addr0, addr0, addri);
+    BxxZ_gen(NE, MARKSEG, addr0);
+
+    /*
+     * Both zero compare equal, regardless of sign.
+     * zero means exp == 0 && lower == 0.
+     */
+    BSTRPICK_D(addr0, q0, 14, 0);
+    SNEZ(addr0, addr0);
+    SNEZ(addri, tmp1);
+    OR(addr0, addr0, addri); /* a_nonzero */
+
+    BSTRPICK_D(addri, qi, 14, 0);
+    SNEZ(addri, addri);
+    SNEZ(ret, tmp2);
+    OR(addri, addri, ret); /* b_nonzero */
+
+    OR(addr0, addr0, addri);
+    BEQZ_MARKLOCK(addr0); /* both zero => equal */
+
+    /*
+     * Sign handling.
+     * If signs differ: negative < positive.
+     */
+    BSTRPICK_D(addr0, q0, 15, 15); /* a_sign */
+    BSTRPICK_D(addri, qi, 15, 15); /* b_sign */
+    Bxx_gen(NE, MARKF, addr0, addri);
+
+    /*
+     * Same sign.
+     * If negative, magnitude comparison is reversed.
+     */
+    BxxZ_gen(NE, MARKF2, addr0);
+
+    /*
+     * Same sign, positive:
+     * less = ae < be || (ae == be && a_lower < b_lower)
+     * greater = ae > be || (ae == be && a_lower > b_lower)
+     *
+     * Both signs are zero here, so comparing raw upper words is equivalent to
+     * comparing exponents.
+     */
+    SLTU(addr0, q0, qi); /* exp_less */
+    SLTU(addri, qi, q0); /* exp_greater */
+    OR(ret, addr0, addri);
+    SEQZ(ret, ret);         /* exp_equal */
+
+    SLTU(q0, tmp1, tmp2); /* lower_less */
+    AND(q0, q0, ret);
+    OR(addr0, addr0, q0); /* mag_less */
+    BxxZ_gen(NE, MARKLOCK2, addr0);
+
+    SLTU(qi, tmp2, tmp1); /* lower_greater */
+    AND(qi, qi, ret);
+    OR(addri, addri, qi); /* mag_greater */
+    BEQZ_MARKLOCK(addri);
+
+    /* greater */
+    MOV32w(ret, 1);
+    SPILL_EFLAGS();
+    SET_DFNONE();
+    B_MARK3_nocond;
+
+    /*
+     * Sign differs.
+     * a_sign != b_sign:
+     *   a_sign == 1 => a < b
+     *   a_sign == 0 => a > b
+     */
+    MARKF;
+    BxxZ_gen(NE, MARKLOCK2, addr0);
+
+    /* greater */
+    MOV32w(ret, 1);
+    SPILL_EFLAGS();
+    SET_DFNONE();
+    B_MARK3_nocond;
+
+    /*
+     * Same sign, negative: reverse magnitude comparison.
+     * Both signs are one here, so raw upper-word order still matches exponent
+     * order, then the final compare sense is reversed.
+     */
+    MARKF2;
+    SLTU(addr0, qi, q0); /* exp_greater => less for negative */
+    SLTU(addri, q0, qi); /* exp_less    => greater for negative */
+    OR(ret, addr0, addri);
+    SEQZ(ret, ret);       /* exp_equal */
+
+    SLTU(q0, tmp2, tmp1); /* lower_greater => less for negative */
+    AND(q0, q0, ret);
+    OR(addr0, addr0, q0);
+    BxxZ_gen(NE, MARKLOCK2, addr0);
+
+    SLTU(qi, tmp1, tmp2); /* lower_less => greater for negative */
+    AND(qi, qi, ret);
+    OR(addri, addri, qi);
+    BEQZ_MARKLOCK(addri);
+
+    /* greater */
+    MOV32w(ret, 1);
+    SPILL_EFLAGS();
+    SET_DFNONE();
+    B_MARK3_nocond;
+
+    /* unordered: CF=1 PF=1 ZF=1 */
+    MARKSEG;
+    ORI(xFlags, xFlags, (1 << F_CF) | (1 << F_PF) | (1 << F_ZF));
+    MOV32w(ret, 1);
+    SPILL_EFLAGS();
+    SET_DFNONE();
+    B_MARK3_nocond;
+
+    /* equal: ZF=1 */
+    MARKLOCK;
+    ORI(xFlags, xFlags, 1 << F_ZF);
+    MOV32w(ret, 1);
+    SPILL_EFLAGS();
+    SET_DFNONE();
+    B_MARK3_nocond;
+
+    /* less: CF=1 */
+    MARKLOCK2;
+    ORI(xFlags, xFlags, 1 << F_CF);
+    MOV32w(ret, 1);
+    SPILL_EFLAGS();
+    SET_DFNONE();
+    B_MARK3_nocond;
+
+    /* fallback */
+    MARK2;
+    MOV32w(ret, 0);
+    MARK3;
+}
+
+void x87_swap_fpu_ld(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3, int s4, int a, int b)
+{
+    MAYUSE(dyn);
+    MAYUSE(ninst);
+    MAYUSE(s1);
+    MAYUSE(s2);
+    MAYUSE(s3);
+    MAYUSE(s4);
+    MAYUSE(a);
+    MAYUSE(b);
+
+    if (a == b)
+        return;
+
+    ld80_get_addr(dyn, ninst, s1, s4, a);
+    ld80_get_addr(dyn, ninst, s2, s4, b);
+
+    for (int i = 0; i < sizeof(fpu_ld_t); i += 2) {
+        LD_HU(s3, s1, i);
+        LD_HU(s4, s2, i);
+        ST_H(s4, s1, i);
+        ST_H(s3, s2, i);
+    }
 }
 
 void x87_swapreg(dynarec_la64_t* dyn, int ninst, int s1, int s2, int a, int b)
