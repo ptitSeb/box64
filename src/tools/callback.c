@@ -73,7 +73,7 @@ uint64_t RunFunction(uintptr_t fnc, int nargs, ...)
         if(box64_is32bits) {
             R_RSP = R_EBP;          // mov esp, ebp
             R_EBP = Pop_32(emu);    // pop ebp
-        }
+        } else
         #endif
         {
             R_RSP = R_RBP;          // mov rsp, rbp

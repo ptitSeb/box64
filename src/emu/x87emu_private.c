@@ -421,7 +421,7 @@ void fpu_fxsave64(x64emu_t* emu, void* ed)
     uint8_t tags = 0;
     for (int i=0; i<8; ++i)
         tags |= (((emu->fpu_tags>>(i*2))&0b11)?0:1)<<i;
-    p->TagWord = emu->fpu_tags;
+    p->TagWord = tags;
     p->ErrorOpcode = 0;
     p->ErrorOffset = 0;
     p->DataOffset = 0;
@@ -506,7 +506,7 @@ void fpu_xsave_mask(x64emu_t* emu, void* ed, int is32bits, uint64_t mask)
         uint8_t tags = 0;
         for (int i=0; i<8; ++i)
             tags |= (((emu->fpu_tags>>(i*2))&0b11)?0:1)<<i;
-        p->TagWord = emu->fpu_tags;
+        p->TagWord = tags;
         p->ErrorOpcode = 0;
         p->ErrorOffset = 0;
         p->DataOffset = 0;
