@@ -1533,7 +1533,7 @@ __attribute__((alias("my_sigaction")));
 int EXPORT my_syscall_rt_sigaction(x64emu_t* emu, int signum, const x64_sigaction_restorer_t *act, x64_sigaction_restorer_t *oldact, int sigsetsize)
 {
     printf_log(LOG_DEBUG, "Syscall/Sigaction(signum=%d, act=%p, old=%p, size=%d)\n", signum, act, oldact, sigsetsize);
-    if (signum < 0 || signum > MAX_SIGNAL || sigsetsize != sizeof(sigset_t)) {
+    if (signum < 0 || signum > MAX_SIGNAL || sigsetsize != 8 /* sizeof(sigset_t) */) {
         errno = EINVAL;
         return -1;
     }
