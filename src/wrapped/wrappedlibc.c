@@ -4418,8 +4418,8 @@ EXPORT int my_getrlimit64(x64emu_t* emu, uint32_t resource, struct rlimit64* rli
 
 EXPORT int my_setrlimit(x64emu_t* emu, int ressource, const struct rlimit *rlim)
 {
-    int ret = (ressource==RLIMIT_AS)?0:setrlimit(ressource, rlim);
-    if(ressource==RLIMIT_AS) printf_log(LOG_DEBUG, " (ignored) RLIMIT_AS, cur=0x%lx, max=0x%lx ", rlim->rlim_cur, rlim->rlim_max);
+    int ret = setrlimit(ressource, rlim);
+    if(ressource==RLIMIT_AS) printf_log(LOG_DEBUG, " RLIMIT_AS, cur=0x%lx, max=0x%lx ", rlim->rlim_cur, rlim->rlim_max);
     return ret;
 }
 
