@@ -4134,6 +4134,10 @@ EXPORT int my_madvise(x64emu_t* emu, void* addr, size_t length, int advice)
         return -1;
     }
     if(!length) return 0;
+    if (length > (UINTPTR_MAX - start - (X86_PAGE_SIZE - 1))) {
+        errno = EINVAL;
+        return -1;
+    }
     uintptr_t end = (start + length + X86_PAGE_SIZE - 1) & ~(X86_PAGE_SIZE - 1);
 
     if(advice != MADV_DONTNEED) {
