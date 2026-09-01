@@ -584,6 +584,7 @@ void call_c(dynarec_la64_t* dyn, int ninst, la64_consts_t fnc, int reg, int ret,
         STORE_REG(RSP);
         STORE_REG(RBP);
         ST_D(xRIP, xEmu, offsetof(x64emu_t, ip));
+        dyn->insts[ninst].call_window = dyn->native_size - dyn->insts[ninst].address;
     }
     TABLE64C(reg, fnc);
     if (arg1) MV(A1, arg1);
@@ -641,6 +642,7 @@ void call_n(dynarec_la64_t* dyn, int ninst, void* fnc, int w)
     ST_D(xRSP, xEmu, offsetof(x64emu_t, regs[_SP]));
     ST_D(xRBP, xEmu, offsetof(x64emu_t, regs[_BP]));
     ST_D(xRBX, xEmu, offsetof(x64emu_t, regs[_BX]));
+    dyn->insts[ninst].call_window = dyn->native_size - dyn->insts[ninst].address;
     int nfp = (abs(w) & 15) - 1;
     if (nfp > 0)
         for (int i = 0; i < nfp; ++i)

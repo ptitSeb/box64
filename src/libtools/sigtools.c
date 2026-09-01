@@ -720,10 +720,12 @@ void adjustregs(x64emu_t* emu, void* pc)
 #endif
 }
 
-void copyUCTXreg2Emu(x64emu_t* emu, ucontext_t* p, uintptr_t ip)
+void copyUCTXreg2Emu(x64emu_t* emu, ucontext_t* p, dynablock_t* db, uintptr_t ip)
 {
 #ifdef DYNAREC
-    #define GO(R) emu->regs[_##R].q[0] = CONTEXT_REG(p, x##R)
+    int host_call = p ? ARCH_HOST_CALL(db, (void*)CONTEXT_PC(p), ip) : 0;
+#define GO(R) \
+    if (!host_call) emu->regs[_##R].q[0] = CONTEXT_REG(p, x##R)
     GO(RAX);
     GO(RCX);
     GO(RDX);
@@ -734,6 +736,8 @@ void copyUCTXreg2Emu(x64emu_t* emu, ucontext_t* p, uintptr_t ip)
     GO(RDI);
     GO(R8);
     GO(R9);
+#undef GO
+#define GO(R) emu->regs[_##R].q[0] = CONTEXT_REG(p, x##R)
     GO(R10);
     GO(R11);
     GO(R12);

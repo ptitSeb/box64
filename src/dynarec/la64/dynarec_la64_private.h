@@ -174,6 +174,7 @@ typedef struct instruction_la64_s {
     int8_t              comis_fusion;
     uint8_t             comis_mark:1;
     uint8_t             host_call:1;
+    int                 call_window;     // native byte offset where the regs have been spilled to emu before a native call
     int16_t             rsp_entry;       // pending rsp offset at entry
     int16_t             rsp_flush;       // rsp offset to emit right after this push/pop
     uint8_t             rsp_merge : 1;   // this push/pop is emitted with merged rsp offset

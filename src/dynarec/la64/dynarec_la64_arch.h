@@ -17,4 +17,6 @@ void* populate_arch(dynarec_la64_t* dyn, void* p, size_t sz);
 void adjust_arch(dynablock_t* db, x64emu_t* emu, ucontext_t* p, uintptr_t x64pc);
 // get if instruction can be regenerated for unaligned access
 int arch_unaligned(dynablock_t* db, uintptr_t x64pc);
+// get if the native pc is in the native call window of the instruction
+int arch_host_call(dynablock_t* db, void* native_pc, uintptr_t x64pc);
 #endif // __DYNAREC_LA_ARCH_H__

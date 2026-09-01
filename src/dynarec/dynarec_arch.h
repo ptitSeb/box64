@@ -33,6 +33,7 @@
 #define ARCH_ADJUST(A, B, C, D) adjust_arch(A, B, C, D)
 #define STOP_NATIVE_FLAGS(A, B)   A->insts[B].nat_flags_op = NAT_FLAG_OP_UNUSABLE
 #define ARCH_UNALIGNED(A, B) arch_unaligned(A, B)
+#define ARCH_HOST_CALL(A, B, C) 0
 extern uint32_t arm64_crc(void* p, uint32_t len);
 extern uint32_t arm64_x31_hash(void* p, uint32_t len);
 #define ARCH_CRC(A, B)  if(cpuext.crc32) return arm64_crc(A, B); else return arm64_x31_hash(A, B)
@@ -74,6 +75,7 @@ extern void arm64_next_invalid();
 #define ARCH_ADJUST(A, B, C, D) adjust_arch(A, B, C, D)
 #define STOP_NATIVE_FLAGS(A, B) {}
 #define ARCH_UNALIGNED(A, B) arch_unaligned(A, B)
+#define ARCH_HOST_CALL(A, B, C) arch_host_call(A, B, C)
 extern uint32_t la64_crc(void* p, uint32_t len);
 extern void la64_crc_autocrc(); // same as la64_crc, but not using regular ABI
 #define ARCH_CRC(A, B)       return la64_crc(A, B)
@@ -117,6 +119,7 @@ extern void la64_next_invalid();
 #define ARCH_ADJUST(A, B, C, D) {}
 #define STOP_NATIVE_FLAGS(A, B) {}
 #define ARCH_UNALIGNED(A, B) arch_unaligned(A, B)
+#define ARCH_HOST_CALL(A, B, C) 0
 
 #define ARCH_NOP    0b0010011
 #define ARCH_UDF    0xc0001073
@@ -153,6 +156,7 @@ extern void la64_next_invalid();
 #define ARCH_ADJUST(A, B, C, D) adjust_arch(A, B, C, D)
 #define STOP_NATIVE_FLAGS(A, B) {}
 #define ARCH_UNALIGNED(A, B) arch_unaligned(A, B)
+#define ARCH_HOST_CALL(A, B, C) 0
 extern uint32_t ppc64le_fast_hash(void* p, uint32_t len);
 #define ARCH_CRC(A, B)       return ppc64le_fast_hash(A, B)
 
