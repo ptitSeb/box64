@@ -54,7 +54,7 @@ int checkMutex(uint32_t mask);
 int write_opcode(uintptr_t rip, uintptr_t native_ip, int is32bits);
 void adjustregs(x64emu_t* emu, void* pc);
 
-void copyUCTXreg2Emu(x64emu_t* emu, ucontext_t* p, uintptr_t ip);
+void copyUCTXreg2Emu(x64emu_t* emu, ucontext_t* p, dynablock_t* db, uintptr_t ip);
 #ifdef DYNAREC
 void copyEmu2USignalCTXreg(ucontext_t* p, x64emu_t* emu, void* new_pc);
 #endif

@@ -39,7 +39,7 @@
 #define AUDIT_ARCH_I386 (EM_386 | __AUDIT_ARCH_LE)
 #endif
 
-int my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, siginfo_t* info, void* ucntx, int* old_code, void* cur_db);
+int my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, siginfo_t* info, void* ucntx, int* old_code, void* cur_db, uintptr_t x64pc);
 #ifdef BOX32
 int my_sigactionhandler_oldcode_32(x64emu_t* emu, int32_t sig, int simple, siginfo_t* info, void* ucntx, int* old_code, void* cur_db);
 #endif
@@ -63,7 +63,7 @@ static void sud_emit_sigsys(x64emu_t* emu, uintptr_t call_addr, long syscall_nr,
 #else
     (void)is32bits;
 #endif
-    my_sigactionhandler_oldcode_64(emu, X64_SIGSYS, 0, &info, NULL, NULL, NULL);
+    my_sigactionhandler_oldcode_64(emu, X64_SIGSYS, 0, &info, NULL, NULL, NULL, call_addr);
 }
 
 long my_syscall_user_dispatch_prctl(x64emu_t* emu, unsigned long op, unsigned long offset, unsigned long len, void* selector)

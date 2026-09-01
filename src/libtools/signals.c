@@ -346,7 +346,7 @@ void leave_critical_section()
     emu->deferred_signal_processing = 0;
 }
 
-int my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, siginfo_t* info, void * ucntx, int* old_code, void* cur_db)
+int my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, siginfo_t* info, void * ucntx, int* old_code, void* cur_db, uintptr_t x64pc)
 {
     int Locks = unlockMutex();
     int log_minimum = (BOX64ENV(showsegv))?LOG_NONE:LOG_DEBUG;
@@ -388,8 +388,12 @@ int my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigin
     void* pc = NULL;
     if(p) {
         pc = (void*)CONTEXT_PC(p);
-        if(db)
-            frame = (uintptr_t)CONTEXT_REG(p, xRSP);    //this should not be needed, as emu has been "adjusted" to dynablock value already in the caller
+        if(db) {
+            if(ARCH_HOST_CALL(db, x64pc))
+                frame = R_RSP;
+            else
+                frame = (uintptr_t)CONTEXT_REG(p, xRSP); //this should not be needed, as emu has been "adjusted" to dynablock value already in the caller
+        }
     }
 #else
     (void)ucntx; (void)cur_db;
@@ -757,7 +761,7 @@ void my_sigactionhandler_oldcode(x64emu_t* emu, int32_t sig, int simple, siginfo
     dynablock_t* db = cur_db;
     if(db && ucntx) {
         void * pc =(void*)CONTEXT_PC((ucontext_t*)ucntx);
-        copyUCTXreg2Emu(emu, ucntx, x64pc);
+        copyUCTXreg2Emu(emu, ucntx, db, x64pc);
         adjustregs(emu, pc);
         if(db && db->arch_size)
             ARCH_ADJUST(db, emu, ucntx, x64pc);
@@ -769,7 +773,7 @@ void my_sigactionhandler_oldcode(x64emu_t* emu, int32_t sig, int simple, siginfo
         direct_ret = my_sigactionhandler_oldcode_32(emu, sig, simple, info, ucntx, old_code, cur_db);
     } else
     #endif
-    direct_ret = my_sigactionhandler_oldcode_64(emu, sig, simple, info, ucntx, old_code, cur_db);
+    direct_ret = my_sigactionhandler_oldcode_64(emu, sig, simple, info, ucntx, old_code, cur_db, x64pc);
     if(direct_ret)
         return;
     #define GO(A) R_##A = old_##A
@@ -957,7 +961,7 @@ void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
                     return;
                 } else {
                     // dynablock got dirty! need to get out of it!!!
-                    copyUCTXreg2Emu(emu, p, x64pc);
+                    copyUCTXreg2Emu(emu, p, db, x64pc);
                     // only copy as it's a return address, so there is just the "epilog" to mimic here on "ret" type. "loop" type need everything
                     if(type_callret) {
                         adjustregs(emu, pc);
@@ -1010,7 +1014,7 @@ else dynarec_log(LOG_INFO, "SIGILL at %p/%p for Dynablock (%p, x64addr=%p) with 
             emu = getEmuSignal(emu, p, db);
             // dynablock got auto-dirty! need to get out of it!!!
             uintptr_t x64pc = getX64Address(db, (uintptr_t)pc);
-            copyUCTXreg2Emu(emu, p, x64pc);
+            copyUCTXreg2Emu(emu, p, db, x64pc);
             adjustregs(emu, pc);
             if(db && db->arch_size)
                 ARCH_ADJUST(db, emu, p, x64pc);
@@ -1258,7 +1262,7 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "%04d|Repeated SIGSEGV with Access error on %
         #undef GO
         #ifdef DYNAREC
         if(db)
-            copyUCTXreg2Emu(emu, p, x64pc);
+            copyUCTXreg2Emu(emu, p, db, x64pc);
         #endif
         nptrs = my_backtrace_ip(emu, buffer, BT_BUF_SIZE);
         strings = my_backtrace_symbols(emu, (uintptr_t*)buffer, nptrs);
