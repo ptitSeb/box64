@@ -4,9 +4,39 @@ The script `box64-bundle-x86-libs.sh` is provided to download, extract, and re-b
 
 ## Usage
 
+### User
+
+Add `--debug` to any command to log every command that is run, along with every file that `tar`, `cpio`, and `unzip` handle. Without it, `--build` is silent unless it fails.
+
+Install the bundle from the latest [GitHub release](https://github.com/ptitSeb/box64/releases/latest). This only requires `coreutils`, `curl`, and `tar`.
+
+```
+sudo ./box64-bundle-x86-libs.sh --install
+```
+
+The bundle can also be installed as part of a Box64 installation by turning on the `BUNDLE_X86_LIBS` option. It is off by default. From the `build` directory of a [compiled Box64](COMPILE.md):
+
+```
+cmake .. -D BUNDLE_X86_LIBS=ON
+make -j4
+sudo make install
+```
+
+Optionally set the environment variable `DESTDIR` to extract to a different location than `/`.
+
+```
+DESTDIR=/tmp/box64 ./box64-bundle-x86-libs.sh --install
+```
+
+```
+make install DESTDIR=/tmp/box64
+```
+
+The checksums of the latest release are compared to the local files first. If every file matches, nothing is downloaded. If at least one file is missing or different, the whole bundle is downloaded, extracted, and then verified.
+
 ### Administrator
 
-Install required dependencies for the bundle script.
+Build the bundle from Linux distribution packages. Install the required dependencies for the bundle script.
 
 - Arch Linux
     ```
@@ -23,11 +53,11 @@ Install required dependencies for the bundle script.
     sudo dnf install binutils coreutils curl tar zstd
     ```
 
-Run `box64-bundle-x86-libs.sh`. This will create two archives:
+Run `box64-bundle-x86-libs.sh --build`. This will create two archives:
 - `box64-bundle-x86-libs.tar.gz` = All of the extracted library files in the directory structure of `usr/lib/box64-i386-linux-gnu` and `usr/lib/box64-x86_64-linux-gnu`.
 - `box64-bundle-x86-pkgs.tar.gz` = All of the Linux distribution packages used to extract the library files. This is only created for preservation purposes and is otherwise unused.
 
-Extract the library archive. Box will automatically search these paths for library files to emulate.
+Extract the library archive manually. Box will automatically search these paths for library files to emulate.
 
 ```
 sudo tar --extract --no-same-owner --file box64-bundle-x86-libs.tar.gz --directory /
