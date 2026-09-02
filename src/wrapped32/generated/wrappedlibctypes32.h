@@ -150,6 +150,7 @@ typedef int32_t (*iEpLiipp_t)(void*, uintptr_t, int32_t, int32_t, void*, void*);
 typedef int32_t (*iEpLiipV_t)(void*, uintptr_t, int32_t, int32_t, void*, ...);
 typedef int32_t (*iEpLiLpV_t)(void*, uintptr_t, int32_t, uintptr_t, void*, ...);
 typedef int32_t (*iFpppupp_t)(void*, void*, void*, uint32_t, void*, void*);
+typedef int32_t (*iEppppup_t)(void*, void*, void*, void*, uint32_t, void*);
 typedef int32_t (*iEpppppp_t)(void*, void*, void*, void*, void*, void*);
 typedef intptr_t (*lEipLpLL_t)(int32_t, void*, uintptr_t, void*, uintptr_t, uintptr_t);
 typedef void* (*pEpLiiiI_t)(void*, uintptr_t, int32_t, int32_t, int32_t, int64_t);
@@ -311,6 +312,7 @@ typedef int32_t (*iFpuippupp_t)(void*, uint32_t, int32_t, void*, void*, uint32_t
 	GO(getpwnam_r, iEpppLp_t) \
 	GO(recvmmsg, iEipuurLL__t) \
 	GO(gethostbyname_r, iFpppupp_t) \
+	GO(getservbyname_r, iEppppup_t) \
 	GO(process_vm_readv, lEipLpLL_t) \
 	GO(process_vm_writev, lEipLpLL_t) \
 	GO(gethostbyname2_r, iFpippupp_t) \

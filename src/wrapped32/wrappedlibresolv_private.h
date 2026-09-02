@@ -8,7 +8,7 @@ GO(__b64_pton, iFppL)
 GO(__dn_comp, iFppipp)
 GO(__dn_count_labels, iFp)
 GO2(__dn_expand, iFppppi, dn_expand)
-//GOW(dn_expand, iFppppi)
+GOW(dn_expand, iFppppi)
 GO(__dn_skipname, iFpp)
 GO(__fp_nquery, vFpiS)
 GO(__fp_query, vFpS)
@@ -87,6 +87,7 @@ GO(__res_mailok, iFp)
 GO(__res_nameinquery, iFpiipp)
 //GO(__res_nmkquery,
 GO2(__res_nquery, iFppiipi, res_nquery)
+GOW(res_nquery, iFppiipi)
 //GO(__res_nquerydomain,
 GO2(__res_nsearch, iFppiipi, res_nsearch)
 //GO(__res_nsend,
