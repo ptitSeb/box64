@@ -4,9 +4,19 @@ The script `box64-bundle-x86-libs.sh` is provided to download, extract, and re-b
 
 ## Usage
 
+### User
+
+Install the bundle from the latest [GitHub release](https://github.com/ptitSeb/box64/releases/latest). This only requires `coreutils`, `curl`, and `tar`.
+
+```
+sudo ./box64-bundle-x86-libs.sh --install
+```
+
+The checksums of the latest release are compared to the local files first. If every file matches, nothing is downloaded. If at least one file is missing or different, the whole bundle is downloaded, extracted to `/`, and then verified.
+
 ### Administrator
 
-Install required dependencies for the bundle script.
+Build the bundle from Linux distribution packages. Install the required dependencies for the bundle script.
 
 - Arch Linux
     ```
@@ -27,7 +37,7 @@ Run `box64-bundle-x86-libs.sh`. This will create two archives:
 - `box64-bundle-x86-libs.tar.gz` = All of the extracted library files in the directory structure of `usr/lib/box64-i386-linux-gnu` and `usr/lib/box64-x86_64-linux-gnu`.
 - `box64-bundle-x86-pkgs.tar.gz` = All of the Linux distribution packages used to extract the library files. This is only created for preservation purposes and is otherwise unused.
 
-Extract the library archive. Box will automatically search these paths for library files to emulate.
+Extract the library archive manually. Box will automatically search these paths for library files to emulate.
 
 ```
 sudo tar --extract --no-same-owner --file box64-bundle-x86-libs.tar.gz --directory /

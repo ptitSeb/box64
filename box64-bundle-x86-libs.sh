@@ -11,17 +11,98 @@ cleanup_exit()
     rm -rf /tmp/box64-bundle.*
 }
 
+usage()
+{
+    cat << EOF
+Usage: ${0} [OPTION]
+
+Options:
+  (none)      Build the x86 library bundle archives from Linux distribution
+              packages.
+  --install   Install the x86 library bundle from the latest GitHub release.
+              The bundle is only downloaded when at least one local file does
+              not match the checksums of the latest release. Requires root.
+  --help      Show this help message.
+EOF
+}
+
+repo_url="https://github.com/ptitSeb/box64"
+
+# compare the local files to the latest release and, on any mismatch, install it
+install_bundle()
+{
+    # find the latest release
+    release=$(basename "$(${curl} -Ls -o /dev/null -w '%{url_effective}' "${repo_url}/releases/latest")")
+    case "${release}" in
+        v*) ;;
+        *)
+            echo "E: Unable to determine the latest release"
+            exit 1
+            ;;
+    esac
+    bundle_url="${repo_url}/releases/download/${release}/box64-bundle-x86-libs-${release}"
+    bundle_checksums="${dir_tmp}/box64-bundle-x86-libs-${release}.sha256"
+    bundle_archive="${dir_tmp}/box64-bundle-x86-libs-${release}.tar.gz"
+
+    # the checksum paths are relative to the root of the file system
+    ${curl_cmd} "${bundle_checksums}" "${bundle_url}.sha256"
+    cd /
+    if ${sha256sum} --check --quiet "${bundle_checksums}" \
+        > "${dir_tmp}/mismatches" 2> /dev/null; then
+        echo "I: The x86 library bundle ${release} is already installed"
+        return 0
+    fi
+
+    # a single mismatch means the whole bundle is downloaded and extracted again
+    echo "I: $(wc -l < "${dir_tmp}/mismatches") file(s) do not match the latest bundle"
+    if [ "$(id -u)" -ne 0 ]; then
+        echo "E: The x86 library bundle ${release} must be installed as root"
+        exit 1
+    fi
+    ${curl_cmd} "${bundle_archive}" "${bundle_url}.tar.gz"
+    ${tar} --extract --no-same-owner --file "${bundle_archive}" --directory /
+
+    # verify the installation
+    cd /
+    if ! ${sha256sum} --check --quiet "${bundle_checksums}"; then
+        echo "E: Invalid checksums after installing the x86 library bundle ${release}"
+        exit 1
+    fi
+    echo "I: Installed the x86 library bundle ${release}"
+}
+
 # we must have few tools
 awk=$(which awk) || { echo "E: You must have awk" && exit 1; }
-cpio=$(which cpio) || { echo "E: You must have cpio" && exit 1; }
 curl=$(which curl) || { echo "E: You must have curl" && exit 1; }
 curl_cmd="${curl} --connect-timeout 5 --retry 5 --retry-delay 1 --create-dirs -fsSLo"
-rpm2cpio=$(which rpm2cpio) || { echo "E: You must have rpm2cpio" && exit 1; }
 sha256sum=$(which sha256sum) || { echo "E: You must have sha256sum" && exit 1; }
-unzip=$(which unzip) || { echo "E: You must have unzip" && exit 1; }
+tar=$(which tar) || { echo "E: You must have tar" && exit 1; }
 
 current_dir=$(pwd)
 dir_tmp="$(mktemp -d /tmp/box64-bundle.XXXXXX)"
+
+case "${1}" in
+    "")
+        ;;
+    --install)
+        install_bundle
+        exit 0
+        ;;
+    --help|-h)
+        usage
+        exit 0
+        ;;
+    *)
+        echo "E: Unknown argument (${1})"
+        usage
+        exit 1
+        ;;
+esac
+
+# we must have few more tools to build the bundle
+cpio=$(which cpio) || { echo "E: You must have cpio" && exit 1; }
+rpm2cpio=$(which rpm2cpio) || { echo "E: You must have rpm2cpio" && exit 1; }
+unzip=$(which unzip) || { echo "E: You must have unzip" && exit 1; }
 
 # download the packages
 while IFS= read -r line; do
