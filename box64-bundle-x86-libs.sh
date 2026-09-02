@@ -1,14 +1,22 @@
 #!/bin/sh
 # SPDX-License-Identifier: MIT
 
-set -ex
+set -e
 
 trap cleanup_exit INT TERM EXIT
 
 cleanup_exit()
 {
-    echo "Running cleanup_exit..."
+    log "Running cleanup_exit..."
     rm -rf /tmp/box64-bundle.*
+}
+
+# progress messages are only printed with --debug
+log()
+{
+    if [ -n "${verbose}" ]; then
+        echo "$@"
+    fi
 }
 
 usage()
@@ -17,14 +25,48 @@ usage()
 Usage: ${0} [OPTION]
 
 Options:
-  (none)      Build the x86 library bundle archives from Linux distribution
+  --build     Build the x86 library bundle archives from Linux distribution
               packages.
   --install   Install the x86 library bundle from the latest GitHub release.
               The bundle is only downloaded when at least one local file does
               not match the checksums of the latest release. Requires root.
+  --debug     Log every command that is run and every file that is extracted
+              or archived. Without it, --build is silent unless it fails. Can
+              be combined with --build or --install.
   --help      Show this help message.
 EOF
 }
+
+# parse the arguments before anything else so that --debug logs everything
+mode=""
+verbose=""
+quiet="q"
+for arg in "$@"; do
+    case "${arg}" in
+        --build|--install)
+            mode="${arg}"
+            ;;
+        --debug)
+            set -x
+            verbose="v"
+            quiet=""
+            ;;
+        --help|-h)
+            usage
+            exit 0
+            ;;
+        *)
+            echo "E: Unknown argument (${arg})"
+            usage
+            exit 1
+            ;;
+    esac
+done
+if [ -z "${mode}" ]; then
+    echo "E: A --build or --install argument is required"
+    usage
+    exit 1
+fi
 
 repo_url="https://github.com/ptitSeb/box64"
 
@@ -81,23 +123,10 @@ tar=$(which tar) || { echo "E: You must have tar" && exit 1; }
 current_dir=$(pwd)
 dir_tmp="$(mktemp -d /tmp/box64-bundle.XXXXXX)"
 
-case "${1}" in
-    "")
-        ;;
-    --install)
-        install_bundle
-        exit 0
-        ;;
-    --help|-h)
-        usage
-        exit 0
-        ;;
-    *)
-        echo "E: Unknown argument (${1})"
-        usage
-        exit 1
-        ;;
-esac
+if [ "${mode}" = "--install" ]; then
+    install_bundle
+    exit 0
+fi
 
 # we must have few more tools to build the bundle
 cpio=$(which cpio) || { echo "E: You must have cpio" && exit 1; }
@@ -123,7 +152,7 @@ while IFS= read -r line; do
 done < box64-bundle-x86-libs.csv
 
 # generate the bundle packages archive
-tar -C "${dir_tmp}"/bundle-pkgs -czvf "${current_dir}"/box64-bundle-x86-pkgs.tar.gz .
+tar -C "${dir_tmp}"/bundle-pkgs -cz"${verbose}"f "${current_dir}"/box64-bundle-x86-pkgs.tar.gz .
 
 # extract the packages
 cd "${dir_tmp}"/bundle-pkgs
@@ -136,21 +165,26 @@ for file in *.deb *.eopkg *.rpm *.xbps; do
     cd "${dir_tmp}"/bundle-libs
     case "${extension}" in
         deb)
-            echo "I: DEB (Debian) package detected (${file})"
+            log "I: DEB (Debian) package detected (${file})"
             ar x "${dir_tmp}"/bundle-pkgs/"${file}"
             tar -xf data.tar*
             ;;
         eopkg)
-            echo "I: EOPKG (Solus Linux) package detected (${file})"
-            ${unzip} -o "${dir_tmp}"/bundle-pkgs/"${file}"
+            log "I: EOPKG (Solus Linux) package detected (${file})"
+            ${unzip} -o"${quiet}" "${dir_tmp}"/bundle-pkgs/"${file}"
             tar -xf install.tar.xz
             ;;
         rpm)
-            echo "I: RPM (Fedora) detected (${file})"
-            ${rpm2cpio} "${dir_tmp}"/bundle-pkgs/"${file}" | ${cpio} -idmv
+            log "I: RPM (Fedora) detected (${file})"
+            if [ -n "${verbose}" ]; then
+                ${rpm2cpio} "${dir_tmp}"/bundle-pkgs/"${file}" | ${cpio} -idmv
+            else
+                ${rpm2cpio} "${dir_tmp}"/bundle-pkgs/"${file}" \
+                    | ${cpio} -idm --quiet 2> /dev/null
+            fi
             ;;
         xbps)
-            echo "I: XBPS (Void Linux) package detected (${file})"
+            log "I: XBPS (Void Linux) package detected (${file})"
             tar -xf "${dir_tmp}"/bundle-pkgs/"${file}"
             ;;
     esac
@@ -206,7 +240,7 @@ for dir_lib in "${dir_tmp}"/bundle-libs/usr/lib/box64-*-linux-gnu; do
     cd "${dir_lib}"
     for lib in lib*.so*; do
         lib_base="$(echo "${lib}" | awk -F'.' '{print $1"."$2}')"
-        if ! ls "${dir_lib}/${lib_base}" 2> /dev/null; then
+        if ! ls "${dir_lib}/${lib_base}" > /dev/null 2>&1; then
             ln -s "${lib}" "${lib_base}"
         fi
     done
@@ -218,4 +252,4 @@ find usr \( -type f -o -type l \) -exec "${sha256sum}" {} + \
     | LC_ALL=C sort --key 2 > "${current_dir}"/box64-bundle-x86-libs.sha256
 
 # generate the bundle libraries archive
-tar -C "${dir_tmp}"/bundle-libs -czvf "${current_dir}"/box64-bundle-x86-libs.tar.gz .
+tar -C "${dir_tmp}"/bundle-libs -cz"${verbose}"f "${current_dir}"/box64-bundle-x86-libs.tar.gz .

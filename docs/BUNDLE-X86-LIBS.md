@@ -12,6 +12,8 @@ Install the bundle from the latest [GitHub release](https://github.com/ptitSeb/b
 sudo ./box64-bundle-x86-libs.sh --install
 ```
 
+Add `--debug` to any command to log every command that is run, along with every file that `tar`, `cpio`, and `unzip` handle. Without it, `--build` is silent unless it fails.
+
 The checksums of the latest release are compared to the local files first. If every file matches, nothing is downloaded. If at least one file is missing or different, the whole bundle is downloaded, extracted to `/`, and then verified.
 
 ### Administrator
@@ -33,7 +35,7 @@ Build the bundle from Linux distribution packages. Install the required dependen
     sudo dnf install binutils coreutils curl tar zstd
     ```
 
-Run `box64-bundle-x86-libs.sh`. This will create two archives:
+Run `box64-bundle-x86-libs.sh --build`. This will create two archives:
 - `box64-bundle-x86-libs.tar.gz` = All of the extracted library files in the directory structure of `usr/lib/box64-i386-linux-gnu` and `usr/lib/box64-x86_64-linux-gnu`.
 - `box64-bundle-x86-pkgs.tar.gz` = All of the Linux distribution packages used to extract the library files. This is only created for preservation purposes and is otherwise unused.
 
