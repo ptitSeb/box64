@@ -647,7 +647,7 @@ void myStackAlignScanfW32_final(const char* fmt, uint32_t* st, uint64_t* mystack
             case 30:    // pointer
                 if(!ign) {
                     ++conv;
-                    if(state==22 || state==0x25) {
+                    if(state==22 || state==25) {
                         int32_t* dst = from_ptrv(*st);
                         *dst = to_long(saved[nb_elem-conv]);
                     } else if(state==30) {

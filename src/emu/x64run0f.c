@@ -1366,7 +1366,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         case 0xAC:                      /* SHRD Ed,Gd,Ib */
         case 0xAD:                      /* SHRD Ed,Gd,CL */
             nextop = F8;
-            GETED((nextop==0xAC)?1:0);
+            GETED((opcode==0xAC)?1:0);
             GETGD;
             tmp8u = (opcode==0xAC)?(F8):R_CL;
             if(rex.w)

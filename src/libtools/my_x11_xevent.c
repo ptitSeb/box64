@@ -52,7 +52,7 @@ void convertXEvent(my_XEvent_32_t* dst, my_XEvent_t* src)
     int type = src->type;
     dst->type = src->type;
     dst->xany.serial = to_ulong(src->xany.serial);
-    dst->xany.send_event = src->xany.serial;
+    dst->xany.send_event = src->xany.send_event;
     dst->xany.display = to_ptrv(FindDisplay(src->xany.display));
     if(type!=XEVT_GenericEvent)
         dst->xany.window = to_ulong(src->xany.window);
@@ -295,7 +295,7 @@ void unconvertXEvent(my_XEvent_t* dst, my_XEvent_32_t* src)
     if(type!=XEVT_GenericEvent)
         dst->xany.window = from_ulong(src->xany.window);
     dst->xany.display = getDisplay(from_ptrv(src->xany.display));
-    dst->xany.send_event = src->xany.serial;
+    dst->xany.send_event = src->xany.send_event;
     dst->xany.serial = from_ulong(src->xany.serial);
     switch(type) {
         case XEVT_KeyPress:

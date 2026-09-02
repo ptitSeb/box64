@@ -6389,6 +6389,7 @@ my_GtkTypeInfo_t* findFreeGtkTypeInfo(my_GtkTypeInfo_t* fcts, size_t parent)
     SUPER()
     #undef GO
     #define GO(A) if(used_gtktypeinfo_##A == 0) {          \
+        used_gtktypeinfo_##A = 1;                          \
         memcpy(&ref_gtktypeinfo_##A, fcts, sizeof(my_GtkTypeInfo_t));        \
         fct_gtk_parent_##A = parent;                        \
         my_gtktypeinfo_##A.type_name = fcts->type_name; \
