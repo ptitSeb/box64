@@ -14,6 +14,14 @@ sudo ./box64-bundle-x86-libs.sh --install
 
 Add `--debug` to any command to log every command that is run, along with every file that `tar`, `cpio`, and `unzip` handle. Without it, `--build` is silent unless it fails.
 
+The bundle can also be installed as part of a Box64 installation by turning on the `BUNDLE_X86_LIBS` option. It is off by default. From the `build` directory of a [compiled](COMPILE.md) Box64:
+
+```
+cmake .. -D BUNDLE_X86_LIBS=ON
+make -j4
+sudo make install
+```
+
 The checksums of the latest release are compared to the local files first. If every file matches, nothing is downloaded. If at least one file is missing or different, the whole bundle is downloaded, extracted to `/`, and then verified.
 
 ### Administrator

@@ -51,6 +51,7 @@ option(LARCH64_ABI_1 "Set to ON if building for Loongarch64 ABI 1.0 system" ${LA
 option(GDBJIT "Set to ON to enable GDB JIT support" ${GDBJIT})
 option(WOW64 "Set to ON if you want a WOW64 PE build in addition")
 option(BOX64_KDE_PROFILE_PLUGIN "Build the Dolphin/KIO Box64 profile properties plugin when KF5 or KF6 is available" OFF)
+option(BUNDLE_X86_LIBS "Set to ON to download and install the x86 and x86_64 libraries bundle from the latest GitHub release during the install" OFF)
 
 if(TERMUX)
     set(TERMUX_PATH "/data/data/com.termux/files")
@@ -1622,6 +1623,18 @@ if(NOT NOBOX64)
         add_custom_target(uninstall
             COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
     endif()
+endif()
+
+if(BUNDLE_X86_LIBS)
+    install(CODE "
+        message(STATUS \"Installing the x86 and x86_64 libraries bundle\")
+        execute_process(
+            COMMAND \"${BOX64_ROOT}/box64-bundle-x86-libs.sh\" --install
+            WORKING_DIRECTORY \"${BOX64_ROOT}\"
+            RESULT_VARIABLE BUNDLE_X86_LIBS_RESULT)
+        if(NOT BUNDLE_X86_LIBS_RESULT EQUAL 0)
+            message(FATAL_ERROR \"Failed to install the x86 and x86_64 libraries bundle\")
+        endif()")
 endif()
 
 string(REPLACE ";" "," DYNAREC_ASM_STR "${DYNAREC_ASM}")
