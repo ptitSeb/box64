@@ -29,7 +29,9 @@ Options:
               packages.
   --install   Install the x86 library bundle from the latest GitHub release.
               The bundle is only downloaded when at least one local file does
-              not match the checksums of the latest release. Requires root.
+              not match the checksums of the latest release. It is extracted
+              to the root of the file system or into DESTDIR when that
+              environment variable is set.
   --debug     Log every command that is run and every file that is extracted
               or archived. Without it, --build is silent unless it fails. Can
               be combined with --build or --install.
@@ -86,31 +88,34 @@ install_bundle()
     bundle_checksums="${dir_tmp}/box64-bundle-x86-libs-${release}.sha256"
     bundle_archive="${dir_tmp}/box64-bundle-x86-libs-${release}.tar.gz"
 
-    # the checksum paths are relative to the root of the file system
+    # the checksum paths are relative to the root of the destination
     ${curl_cmd} "${bundle_checksums}" "${bundle_url}.sha256"
-    cd /
+    if [ ! -d "${dir_dest}" ]; then
+        mkdir -p "${dir_dest}"
+    fi
+    cd "${dir_dest}"
     if ${sha256sum} --check --quiet "${bundle_checksums}" \
         > "${dir_tmp}/mismatches" 2> /dev/null; then
-        echo "I: The x86 library bundle ${release} is already installed"
+        echo "I: The x86 library bundle ${release} is already installed in ${dir_dest}"
         return 0
     fi
 
     # a single mismatch means the whole bundle is downloaded and extracted again
     echo "I: $(wc -l < "${dir_tmp}/mismatches") file(s) do not match the latest bundle"
-    if [ "$(id -u)" -ne 0 ]; then
-        echo "E: The x86 library bundle ${release} must be installed as root"
+    if [ ! -w "${dir_dest}" ]; then
+        echo "E: ${dir_dest} is not writable, run as root to install the x86 library bundle ${release}"
         exit 1
     fi
     ${curl_cmd} "${bundle_archive}" "${bundle_url}.tar.gz"
-    ${tar} --extract --no-same-owner --file "${bundle_archive}" --directory /
+    ${tar} --extract --no-same-owner --file "${bundle_archive}" --directory "${dir_dest}"
 
     # verify the installation
-    cd /
+    cd "${dir_dest}"
     if ! ${sha256sum} --check --quiet "${bundle_checksums}"; then
         echo "E: Invalid checksums after installing the x86 library bundle ${release}"
         exit 1
     fi
-    echo "I: Installed the x86 library bundle ${release}"
+    echo "I: Installed the x86 library bundle ${release} into ${dir_dest}"
 }
 
 # we must have few tools
@@ -122,6 +127,7 @@ tar=$(which tar) || { echo "E: You must have tar" && exit 1; }
 
 current_dir=$(pwd)
 dir_tmp="$(mktemp -d /tmp/box64-bundle.XXXXXX)"
+dir_dest="${DESTDIR:-/}"
 
 if [ "${mode}" = "--install" ]; then
     install_bundle

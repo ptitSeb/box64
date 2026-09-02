@@ -6,15 +6,15 @@ The script `box64-bundle-x86-libs.sh` is provided to download, extract, and re-b
 
 ### User
 
+Add `--debug` to any command to log every command that is run, along with every file that `tar`, `cpio`, and `unzip` handle. Without it, `--build` is silent unless it fails.
+
 Install the bundle from the latest [GitHub release](https://github.com/ptitSeb/box64/releases/latest). This only requires `coreutils`, `curl`, and `tar`.
 
 ```
 sudo ./box64-bundle-x86-libs.sh --install
 ```
 
-Add `--debug` to any command to log every command that is run, along with every file that `tar`, `cpio`, and `unzip` handle. Without it, `--build` is silent unless it fails.
-
-The bundle can also be installed as part of a Box64 installation by turning on the `BUNDLE_X86_LIBS` option. It is off by default. From the `build` directory of a [compiled](COMPILE.md) Box64:
+The bundle can also be installed as part of a Box64 installation by turning on the `BUNDLE_X86_LIBS` option. It is off by default. From the `build` directory of a [compiled Box64](COMPILE.md):
 
 ```
 cmake .. -D BUNDLE_X86_LIBS=ON
@@ -22,7 +22,17 @@ make -j4
 sudo make install
 ```
 
-The checksums of the latest release are compared to the local files first. If every file matches, nothing is downloaded. If at least one file is missing or different, the whole bundle is downloaded, extracted to `/`, and then verified.
+Optionally set the environment variable `DESTDIR` to extract to a different location than `/`.
+
+```
+DESTDIR=/tmp/box64 ./box64-bundle-x86-libs.sh --install
+```
+
+```
+make install DESTDIR=/tmp/box64
+```
+
+The checksums of the latest release are compared to the local files first. If every file matches, nothing is downloaded. If at least one file is missing or different, the whole bundle is downloaded, extracted, and then verified.
 
 ### Administrator
 
