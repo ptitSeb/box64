@@ -1576,6 +1576,7 @@
 #() LFpppl
 #() LFpppL
 #() LFpppp
+#() pFEipi
 #() pFEipp
 #() pFEipV
 #() pFEuup
@@ -5546,6 +5547,8 @@ wrappedlibc:
   - cnd_broadcast
   - cnd_init
   - cnd_signal
+  - fts64_close
+  - fts_close
   - getcontext
   - register_printf_type
   - setcontext
@@ -5570,6 +5573,8 @@ wrappedlibc:
   - _ZGTtnam
 - pFp:
   - __deregister_frame_info
+  - fts64_read
+  - fts_read
   - mallinfo
   - mallinfo2
 - vFpi:
@@ -5656,6 +5661,7 @@ wrappedlibc:
 - pFpi:
   - __libc_dlopen_mode
   - backtrace_symbols
+  - fts64_children
 - pFpp:
   - __libc_dlsym
   - __realpath_chk
@@ -5721,6 +5727,8 @@ wrappedlibc:
 - iFpLp:
   - init_module
 - iFppi:
+  - fts64_set
+  - fts_set
   - ftw
   - ftw64
 - iFppp:
@@ -5777,6 +5785,8 @@ wrappedlibc:
 - LFppL:
   - strlcat
   - strlcpy
+- pFipi:
+  - fts_children
 - pFpip:
   - fts64_open
   - fts_open

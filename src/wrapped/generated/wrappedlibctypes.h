@@ -73,6 +73,7 @@ typedef intptr_t (*lFipL_t)(int32_t, void*, uintptr_t);
 typedef intptr_t (*lFipV_t)(int32_t, void*, ...);
 typedef intptr_t (*lFppL_t)(void*, void*, uintptr_t);
 typedef uintptr_t (*LFppL_t)(void*, void*, uintptr_t);
+typedef void* (*pFipi_t)(int32_t, void*, int32_t);
 typedef void* (*pFpip_t)(void*, int32_t, void*);
 typedef void* (*pFppp_t)(void*, void*, void*);
 typedef void* (*pFppV_t)(void*, void*, ...);
@@ -155,6 +156,8 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(cnd_broadcast, iFp_t) \
 	GO(cnd_init, iFp_t) \
 	GO(cnd_signal, iFp_t) \
+	GO(fts64_close, iFp_t) \
+	GO(fts_close, iFp_t) \
 	GO(getcontext, iFp_t) \
 	GO(register_printf_type, iFp_t) \
 	GO(setcontext, iFp_t) \
@@ -171,6 +174,8 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(_ZGTtnaX, pFL_t) \
 	GO(_ZGTtnam, pFL_t) \
 	GO(__deregister_frame_info, pFp_t) \
+	GO(fts64_read, pFp_t) \
+	GO(fts_read, pFp_t) \
 	GO(mallinfo, pFp_t) \
 	GO(mallinfo2, pFp_t) \
 	GO(__longjmp_chk, vFpi_t) \
@@ -240,6 +245,7 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(sysv_signal, pFip_t) \
 	GO(__libc_dlopen_mode, pFpi_t) \
 	GO(backtrace_symbols, pFpi_t) \
+	GO(fts64_children, pFpi_t) \
 	GO(__libc_dlsym, pFpp_t) \
 	GO(__realpath_chk, pFpp_t) \
 	GO(realpath, pFpp_t) \
@@ -284,6 +290,8 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(mprotect, iFpLi_t) \
 	GO(posix_madvise, iFpLi_t) \
 	GO(init_module, iFpLp_t) \
+	GO(fts64_set, iFppi_t) \
+	GO(fts_set, iFppi_t) \
 	GO(ftw, iFppi_t) \
 	GO(ftw64, iFppi_t) \
 	GO(__cxa_atexit, iFppp_t) \
@@ -330,6 +338,7 @@ typedef int32_t (*iFppipppp_t)(void*, void*, int32_t, void*, void*, void*, void*
 	GO(readlink, lFppL_t) \
 	GO(strlcat, LFppL_t) \
 	GO(strlcpy, LFppL_t) \
+	GO(fts_children, pFipi_t) \
 	GO(fts64_open, pFpip_t) \
 	GO(fts_open, pFpip_t) \
 	GO(tdelete, pFppp_t) \

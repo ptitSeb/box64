@@ -1988,6 +1988,51 @@ EXPORT void* my_fts64_open(x64emu_t* emu, void* path, int options, void* c)
     return my->fts64_open(path, options, findcompareFct(c));
 }
 
+EXPORT void* my_fts_children(x64emu_t* emu, void* fts, int instr)
+{
+    (void)emu;
+    FTSENT* ent = fts_children((FTS*)fts, instr);
+    if (!ent) return NULL;
+
+    struct x64_ftsent* x64_ent = get_mapped_x64_ftsent(fts, ent);
+    if (!x64_ent) return ent;
+    UnalignFTSENT(x64_ent, ent);
+    return x64_ent;
+}
+EXPORT void* my_fts64_children(x64emu_t* emu, void* fts, int instr) __attribute__((alias("my_fts_children")));
+
+EXPORT void* my_fts_read(x64emu_t* emu, void* fts)
+{
+    (void)emu;
+    FTSENT* ent = fts_read((FTS*)fts);
+    if (!ent) return NULL;
+
+    struct x64_ftsent* x64_ent = get_mapped_x64_ftsent(fts, ent);
+    if (!x64_ent) return ent;
+    UnalignFTSENT(x64_ent, ent);
+    return x64_ent;
+}
+EXPORT void* my_fts64_read(x64emu_t* emu, void* fts) __attribute__((alias("my_fts_read")));
+
+EXPORT int my_fts_set(x64emu_t* emu, void* fts, void* ftsent, int instr)
+{
+    (void)emu;
+    FTSENT ent;
+    AlignFTSENT(&ent, ftsent);
+    int r = fts_set(fts, &ent, instr);
+    if (!r) UnalignFTSENT(ftsent, &ent);
+    return r;
+}
+EXPORT int my_fts64_set(x64emu_t* emu, void* fts, void* ftsent, int instr) __attribute__((alias("my_fts_set")));
+
+EXPORT int my_fts_close(x64emu_t* emu, void* fts)
+{
+    (void)emu;
+    cleanup_fts_mappings(fts);
+    return fts_close((FTS*)fts);
+}
+EXPORT int my_fts64_close(x64emu_t* emu, void* fts) __attribute__((alias("my_fts_close")));
+
 #if 0
 struct i386_dirent {
     uint32_t d_ino;
