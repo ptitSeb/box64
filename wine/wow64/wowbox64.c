@@ -255,8 +255,9 @@ NTSTATUS WINAPI BTCpuProcessInit(void)
 #undef STATIC_ASSERT
 
     LoadEnvVariables();
-    InitializeEnvFiles();
     InitializeSystemInfo();
+    init_custommem_helper(&box64_context);
+    InitializeEnvFiles();
 
     if (!BOX64ENV(nobanner)) PrintBox64Version(1);
     if (DetectHostCpuFeatures())
@@ -282,7 +283,6 @@ NTSTATUS WINAPI BTCpuProcessInit(void)
     bopcode[0] = 0x2ecd;
     unxcode[0] = 0x2ecd;
 
-    init_custommem_helper(&box64_context);
     box64_context.db_sizes = rbtree_init("db_sizes");
 
     if ((ULONG_PTR)bopcode >> 32 || (ULONG_PTR)unxcode >> 32) {
