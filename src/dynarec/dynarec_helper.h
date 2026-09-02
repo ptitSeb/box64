@@ -38,7 +38,12 @@
 #define STRONGMEM_SEQ_WRITE  3 // The level of a barrier at every third memory store will be  put
 #define STRONGMEM_QEMU       4 // The level of a mimic to QEMU's strong memory model
 
-#define STRONGMEM_LEVEL() ((box64_wine && VolatileRangesContains(ip)) ? 0 : BOX64DRENV(dynarec_strongmem))
+#define STRONGMEM_LEVEL()                                 \
+    (LdAcqRangesContains(ip)                              \
+            ? STRONGMEM_QEMU                              \
+            : ((box64_wine && VolatileRangesContains(ip)) \
+                    ? 0                                   \
+                    : BOX64DRENV(dynarec_strongmem)))
 
 #if STEP == 1
 

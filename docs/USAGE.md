@@ -170,6 +170,12 @@ Enable the emulation of x86 strong memory model. Available in WowBox64.
  * 3: All in 2, plus more memory barriers on a regular basis.
  * 4: Mimic x86 TSO similarly to QEMU's approach, for evaluation purposes.
 
+### BOX64_DYNAREC_LDACQ
+
+Apply BOX64_DYNAREC_STRONGMEM level 4 to selected code ranges only, leaving the rest of the program at the global level.
+
+ * module:XXXX-YYYY[,...]: Basename of a module and the hexadecimal RVA range (inclusive-exclusive) to apply it to.
+
 ### BOX64_DYNAREC_VOLATILE_METADATA
 
 Use volatile metadata parsed from PE files, only valid for 64bit Windows games.

@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <strings.h>
 #include <unistd.h>
 #include <stddef.h>
 
@@ -324,4 +325,49 @@ int VolatileOpcodesHas(uintptr_t addr)
 {
     if (!volatileOpcodes) return 0;
     return kh_get(volatileopcode, volatileOpcodes, addr) != kh_end(volatileOpcodes);
+}
+
+static rbtree_t* ldacqRanges = NULL; // never freed
+
+void RegisterLdAcqRanges(const char* spec, const char* filename, void* addr)
+{
+    if (!spec || !*spec || !filename) return;
+
+    const char* baseName = strrchr(filename, '/');
+    baseName = baseName ? baseName + 1 : filename;
+    size_t baseLen = strlen(baseName);
+
+    const char* p = spec;
+    while (*p) {
+        while (*p == ',' || *p == ' ') ++p;
+        if (!*p) break;
+
+        const char* colon = strchr(p, ':');
+        const char* comma = strchr(p, ',');
+        if (!colon || (comma && colon > comma)) {
+            p = comma ? comma + 1 : p + strlen(p);
+            continue;
+        }
+        size_t nameLen = (size_t)(colon - p);
+        const char* rest = colon + 1;
+
+        unsigned long long s = 0, e = 0;
+        if (sscanf(rest, "%llx-%llx", &s, &e) == 2 && e > s
+            && nameLen == baseLen && !strncasecmp(baseName, p, nameLen)) {
+            if (!ldacqRanges) ldacqRanges = rbtree_init("ldacqRanges");
+            rb_set(ldacqRanges, (uintptr_t)addr + (uintptr_t)s, (uintptr_t)addr + (uintptr_t)e, 1);
+            printf_log(LOG_INFO, "LDACQ range for %s: %p-%p (rva %llx-%llx)\n",
+                       baseName, (void*)((uintptr_t)addr + (uintptr_t)s),
+                       (void*)((uintptr_t)addr + (uintptr_t)e), s, e);
+        }
+
+        const char* next = strchr(rest, ',');
+        p = next ? next + 1 : rest + strlen(rest);
+    }
+}
+
+int LdAcqRangesContains(uintptr_t addr)
+{
+    if (!ldacqRanges) return 0;
+    return rb_get(ldacqRanges, addr) != 0;
 }

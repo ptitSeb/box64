@@ -301,6 +301,15 @@ int VolatileOpcodesHas(uintptr_t addr)
     return 0;
 }
 
+void RegisterLdAcqRanges(const char* spec, const char* filename, void* addr)
+{
+}
+
+int LdAcqRangesContains(uintptr_t addr)
+{
+    return 0;
+}
+
 void PrintfFtrace(int prefix, const char* fmt, ...)
 {
     static char buf[1024] = { 0 };

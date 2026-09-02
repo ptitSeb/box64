@@ -11,4 +11,10 @@ int VolatileRangesContains(uintptr_t addr);
 // Check if a given address is contained within the volatile opcode entries.
 int VolatileOpcodesHas(uintptr_t addr);
 
+// Register load-acquire ranges for a module, from a "<module>:<rvaStart>-<rvaEnd>[,...]" spec.
+void RegisterLdAcqRanges(const char* spec, const char* filename, void* addr);
+
+// Check if a given address is contained within the load-acquire ranges.
+int LdAcqRangesContains(uintptr_t addr);
+
 #endif // __PE_TOOLS_H__
