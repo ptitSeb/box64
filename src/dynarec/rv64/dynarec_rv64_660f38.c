@@ -898,6 +898,62 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
         case 0x3A: // these are some more SSSE3+ opcodes
             opcode = F8;
             switch (opcode) {
+                case 0x08:
+                    INST_NAME("ROUNDPS Gx, Ex, Ib");
+                    nextop = F8;
+                    GETGX();
+                    GETEX(x2, 1, 12);
+                    u8 = F8;
+                    d0 = fpu_get_scratch(dyn);
+                    d1 = fpu_get_scratch(dyn);
+                    d2 = fpu_get_scratch(dyn);
+                    v1 = fpu_get_scratch(dyn);
+                    MOV64x(x3, 1ULL << __FLT_MANT_DIG__);
+                    FCVTSW(d1, x3, RD_RTZ);
+                    if (fixedaddress)
+                        ADDI(x1, wback, fixedaddress);
+                    else
+                        MV(x1, wback);
+                    ADDI(x2, gback, gdoffset);
+                    MOV32w(x6, 4);
+                    MARK; // loop over the 4 dwords
+                    FLW(d0, x1, 0);
+                    FABSS(v1, d0);
+                    FLTS(x3, v1, d1);
+                    FEQS(x4, d0, d0);
+                    AND(x3, x3, x4);
+                    BNEZ_MARK2(x3);
+                    FEQS(x3, d0, d0);
+                    XORI(x3, x3, 1);
+                    SLLI(x3, x3, 22);
+                    FMVXW(x4, d0);
+                    OR(x4, x4, x3);
+                    FMVWX(d2, x4);
+                    B_MARK3_nocond;
+                    MARK2; // needs rounding
+                    FMVXW(x3, d0);
+                    if (u8 & 4) {
+                        tmp8u = sse_setround(dyn, ninst, x4, x5);
+                        FCVTWS(x5, d0, RD_DYN);
+                        FCVTSW(d2, x5, RD_RTZ);
+                        x87_restoreround(dyn, ninst, tmp8u);
+                    } else {
+                        FCVTWS(x5, d0, round_round[u8 & 3]);
+                        FCVTSW(d2, x5, RD_RTZ);
+                    }
+                    SEQZ(x4, x5);
+                    SLLI(x4, x4, 31);
+                    AND(x3, x3, x4);
+                    FMVXW(x4, d2);
+                    OR(x4, x4, x3);
+                    FMVWX(d2, x4);
+                    MARK3;
+                    FSW(d2, x2, 0);
+                    ADDI(x1, x1, 4);
+                    ADDI(x2, x2, 4);
+                    ADDI(x6, x6, -1);
+                    BNEZ(x6, GETMARK - (dyn->native_size));
+                    break;
                 case 0x09:
                     INST_NAME("ROUNDPD Gx, Ex, Ib");
                     nextop = F8;

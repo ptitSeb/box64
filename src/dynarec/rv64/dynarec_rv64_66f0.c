@@ -90,6 +90,57 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         INSH(xRAX, x1, x2, x3, 1, 0);
                     }
                     break;
+                case 0xC1:
+                    nextop = F8;
+                    if (MODREG) {
+                        INST_NAME("Invalid LOCK");
+                        UDF();
+                        *need_epilog = 1;
+                        *ok = 0;
+                    } else {
+                        INST_NAME("LOCK XADD Ew, Gw");
+                        SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
+                        GETGD;
+                        ZEXTH(x6, gd);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, x2, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                        ANDI(x5, wback, 0b10);
+                        BNEZ_MARK2(x5);
+
+                        // lower 16 bits
+                        MARKLOCK;
+                        LR_W(x2, wback, 1, 1);
+                        ZEXTH(x1, x2);
+                        ADD(x4, x1, x6);
+                        SLLIW(x4, x4, 16);
+                        SRLIW(x4, x4, 16);
+                        SRLIW(x2, x2, 16);
+                        SLLIW(x2, x2, 16);
+                        OR(x4, x4, x2);
+                        SC_W(x5, x4, wback, 1, 1);
+                        BNEZ_MARKLOCK(x5);
+                        B_MARK_nocond;
+
+                        MARK2;
+                        // upper 16 bits
+                        XORI(x3, wback, 0b10);
+                        MARKLOCK2;
+                        LR_W(x2, x3, 1, 1);
+                        SRLIW(x1, x2, 16);
+                        ADD(x4, x1, x6);
+                        SLLIW(x2, x2, 16);
+                        SRLIW(x2, x2, 16);
+                        SLLIW(x4, x4, 16);
+                        OR(x4, x4, x2);
+                        SC_W(x5, x4, x3, 1, 1);
+                        BNEZ_MARKLOCK2(x5);
+                        MARK;
+                        UFLAG_IF {
+                            MV(x4, x1);
+                            emit_add16(dyn, ninst, x4, x6, x2, x3, x5);
+                        }
+                        INSH(gd, x1, x2, x3, 1, 0);
+                    }
+                    break;
                 default:
                     DEFAULT;
             }
@@ -274,6 +325,116 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         // final
                         IFXORNAT (X_ALL | X_PEND) {
                             emit_and16(dyn, ninst, x1, x5, x3, x4);
+                        }
+                    }
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
+
+        case 0xFF:
+            nextop = F8;
+            switch ((nextop >> 3) & 7) {
+                case 0: // INC
+                    if (MODREG) {
+                        INST_NAME("Invalid LOCK");
+                        UDF();
+                        *need_epilog = 1;
+                        *ok = 0;
+                    } else {
+                        INST_NAME("LOCK INC Ew");
+                        SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING, NAT_FLAGS_FUSION);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                        ANDI(x3, wback, 0b10);
+                        BNEZ_MARK(x3);
+
+                        // lower 16 bits
+                        MARKLOCK;
+                        LR_W(x1, wback, 1, 1);
+                        SRLIW(x3, x1, 16);
+                        SLLIW(x3, x3, 16);
+                        ADDIW(x4, x1, 1);
+                        SLLIW(x4, x4, 16);
+                        SRLIW(x4, x4, 16);
+                        OR(x4, x4, x3);
+                        SC_W(x3, x4, wback, 1, 1);
+                        BNEZ_MARKLOCK(x3);
+                        IFXORNAT (X_ALL | X_PEND) {
+                            SLLIW(x1, x1, 16);
+                            SRLIW(x1, x1, 16);
+                        }
+                        B_MARK3_nocond;
+
+                        MARK;
+                        // upper 16 bits
+                        XORI(x2, wback, 0b10);
+                        MARK2;
+                        LR_W(x1, x2, 1, 1);
+                        SLLIW(x3, x1, 16);
+                        SRLIW(x3, x3, 16);
+                        SRLIW(x1, x1, 16);
+                        ADDIW(x4, x1, 1);
+                        SLLIW(x4, x4, 16);
+                        OR(x4, x4, x3);
+                        SC_W(x3, x4, x2, 1, 1);
+                        BNEZ_MARK2(x3);
+
+                        MARK3;
+                        // final
+                        IFXORNAT (X_ALL | X_PEND) {
+                            emit_inc16(dyn, ninst, x1, x3, x4, x5, x6);
+                        }
+                    }
+                    break;
+                case 1: // DEC
+                    if (MODREG) {
+                        INST_NAME("Invalid LOCK");
+                        UDF();
+                        *need_epilog = 1;
+                        *ok = 0;
+                    } else {
+                        INST_NAME("LOCK DEC Ew");
+                        SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING, NAT_FLAGS_FUSION);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                        ANDI(x3, wback, 0b10);
+                        BNEZ_MARK(x3);
+
+                        // lower 16 bits
+                        MARKLOCK;
+                        LR_W(x1, wback, 1, 1);
+                        SRLIW(x3, x1, 16);
+                        SLLIW(x3, x3, 16);
+                        ADDIW(x4, x1, -1);
+                        SLLIW(x4, x4, 16);
+                        SRLIW(x4, x4, 16);
+                        OR(x4, x4, x3);
+                        SC_W(x3, x4, wback, 1, 1);
+                        BNEZ_MARKLOCK(x3);
+                        IFXORNAT (X_ALL | X_PEND) {
+                            SLLIW(x1, x1, 16);
+                            SRLIW(x1, x1, 16);
+                        }
+                        B_MARK3_nocond;
+
+                        MARK;
+                        // upper 16 bits
+                        XORI(x2, wback, 0b10);
+                        MARK2;
+                        LR_W(x1, x2, 1, 1);
+                        SLLIW(x3, x1, 16);
+                        SRLIW(x3, x3, 16);
+                        SRLIW(x1, x1, 16);
+                        ADDIW(x4, x1, -1);
+                        SLLIW(x4, x4, 16);
+                        OR(x4, x4, x3);
+                        SC_W(x3, x4, x2, 1, 1);
+                        BNEZ_MARK2(x3);
+
+                        MARK3;
+                        // final
+                        IFXORNAT (X_ALL | X_PEND) {
+                            emit_dec16(dyn, ninst, x1, x3, x4, x5, x6);
                         }
                     }
                     break;

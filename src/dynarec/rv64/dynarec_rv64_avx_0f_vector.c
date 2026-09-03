@@ -410,7 +410,65 @@ uintptr_t dynarec64_AVX_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t
             }
             break;
         case 0xAE:
-            return 0;
+            if (vex.l) return 0;
+            nextop = F8;
+            switch ((nextop >> 3) & 7) {
+                case 2:
+                    INST_NAME("VLDMXCSR Md");
+                    SMREAD();
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 0);
+                    LWU(x4, ed, fixedaddress);
+                    SW(x4, xEmu, offsetof(x64emu_t, mxcsr));
+                    if (BOX64ENV(sse_flushto0)) {
+                        // Doing x86 -> RV here, 543210 => 0123x4, ignore denormal
+                        SLLIW(x5, x4, 4);
+                        ANDI(x5, x5, 16);
+                        SLLIW(x3, x4, 1);
+                        ANDI(x3, x3, 8);
+                        OR(x3, x3, x5);
+                        SRLIW(x6, x4, 1);
+                        ANDI(x6, x6, 4);
+                        OR(x3, x3, x6);
+                        SRLIW(x6, x4, 3);
+                        ANDI(x6, x6, 2);
+                        OR(x3, x3, x6);
+                        SRLIW(x6, x4, 5);
+                        ANDI(x6, x6, 1);
+                        OR(x3, x3, x6);
+                        CSRRW(xZR, x3, /* fflags */ 0x001);
+                    }
+                    break;
+                case 3:
+                    INST_NAME("VSTMXCSR Md");
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 0);
+                    LWU(x4, xEmu, offsetof(x64emu_t, mxcsr));
+                    if (BOX64ENV(sse_flushto0)) {
+                        // Doing RV -> x86, 43210 => 02345, ignore denormal
+                        ANDI(x4, x4, 0xfc0);
+                        CSRRS(x3, xZR, /* fflags */ 0x001);
+                        SLLIW(x5, x3, 5);
+                        ANDI(x5, x5, 32);
+                        OR(x4, x4, x5);
+                        SLLIW(x6, x3, 3);
+                        ANDI(x6, x6, 16);
+                        OR(x4, x4, x6);
+                        SLLIW(x6, x3, 1);
+                        ANDI(x6, x6, 8);
+                        OR(x4, x4, x6);
+                        SRLIW(x5, x3, 1);
+                        ANDI(x5, x5, 4);
+                        OR(x4, x4, x5);
+                        SRLIW(x5, x3, 4);
+                        ANDI(x5, x5, 2);
+                        OR(x4, x4, x5);
+                    }
+                    SW(x4, ed, fixedaddress);
+                    SMWRITE2();
+                    break;
+                default:
+                    DEFAULT_VECTOR;
+            }
+            break;
         case 0xC2:
             INST_NAME("VCMPPS Gx, Vx, Ex, Ib");
             nextop = F8;

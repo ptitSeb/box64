@@ -1277,6 +1277,71 @@ uintptr_t dynarec64_AVX_66_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             VADD_VV(v0, q0, q1, VECTOR_UNMASKED);
             PUTGY_vector(v0, VECTOR_SEW32);
             break;
+        case 0xC4:
+            if (vex.l) return 0;
+            INST_NAME("VPINSRW Gx, Vx, Ed, Ib");
+            nextop = F8;
+            GETGY_empty_vector(v0);
+            q0 = fpu_get_scratch(dyn);
+            avx_load_reg_vector(dyn, ninst, x1, q0, vex.v, 16, VECTOR_SEW16);
+            if (MODREG) {
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                SLLIW(x5, ed, 16);
+                SRLIW(x5, x5, 16);
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 1);
+                LHU(x5, ed, fixedaddress);
+            }
+            u8 = F8;
+            SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW16);
+            VECTOR_LOAD_VMASK(1 << (u8 & 7), x4, 1);
+            q1 = fpu_get_scratch(dyn);
+            q2 = fpu_get_scratch(dyn);
+            VMV_V_X(q1, x5);
+            VMERGE_VVM(q2, q0, q1);
+            avx_store_reg_vector(dyn, ninst, x1, q2, gd, 16, VECTOR_SEW16);
+            break;
+        case 0xC5:
+            if (vex.l) return 0;
+            nextop = F8;
+            if (!MODREG) return 0;
+            INST_NAME("VPEXTRW Gd, Ex, Ib");
+            GETGD;
+            q0 = fpu_get_scratch(dyn);
+            avx_load_reg_vector(dyn, ninst, x1, q0, (nextop & 7) + (rex.b << 3), 16, VECTOR_SEW16);
+            SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW16);
+            u8 = F8;
+            q1 = fpu_get_scratch(dyn);
+            VSLIDEDOWN_VI(q1, q0, u8 & 7, VECTOR_UNMASKED);
+            VMV_X_S(x4, q1);
+            SLLIW(gd, x4, 16);
+            SRLIW(gd, gd, 16);
+            break;
+        case 0xD7:
+            INST_NAME("VPMOVMSKB Gd, Ex");
+            nextop = F8;
+            GETGD;
+            SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW8);
+            q0 = fpu_get_scratch(dyn);
+            avx_load_reg_vector(dyn, ninst, x1, q0, (nextop & 7) + (rex.b << 3), 16 << vex.l, VECTOR_SEW8);
+            if (cpuext.xtheadvector) {
+                v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL8);
+                VSRL_VI(v0, q0, 7, VECTOR_UNMASKED);
+                // Force the element width to 1bit
+                vector_vsetvli(dyn, ninst, x4, VECTOR_SEW8, VECTOR_LMUL8, 1);
+                VMSNE_VX(VMASK, v0, xZR, VECTOR_UNMASKED);
+            } else {
+                VMSLT_VX(VMASK, q0, xZR, VECTOR_UNMASKED);
+            }
+            avx_set_vector_width(dyn, ninst, x1, vex.l ? VECTOR_SEW32 : VECTOR_SEW16, 16);
+            VMV_X_S(gd, VMASK);
+            if (vex.l) {
+                ZEXTW2(gd, gd);
+            } else {
+                ZEXTH(gd, gd);
+            }
+            break;
         default:
             DEFAULT_VECTOR;
     }

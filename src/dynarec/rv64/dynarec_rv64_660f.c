@@ -1225,6 +1225,69 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 FSD(d0, gback, gdoffset + 8);
             }
             break;
+        case 0x7D:
+            INST_NAME("HSUBPD Gx, Ex");
+            nextop = F8;
+            GETGX();
+            d0 = fpu_get_scratch(dyn);
+            d1 = fpu_get_scratch(dyn);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                MOV64x(x7, 0x0008000000000000ULL);
+            }
+            FLD(d0, gback, gdoffset + 0);
+            FLD(d1, gback, gdoffset + 8);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                FMVXD(x5, d0);
+                FMVXD(x6, d1);
+                FEQD(x3, d0, d0);
+                FEQD(x4, d1, d1);
+                AND(x4, x3, x4);
+            }
+            FSUBD(d0, d0, d1);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                BNEZ(x4, 4 + 7 * 4);
+                BNEZ(x3, 4 + 3 * 4);
+                OR(x5, x5, x7);
+                FMVDX(d0, x5);
+                J(4 + 6 * 4);
+                OR(x6, x6, x7);
+                FMVDX(d0, x6);
+                J(4 + 3 * 4);
+                FEQD(x3, d0, d0);
+                BNEZ(x3, 4 + 4);
+                FNEGD(d0, d0);
+            }
+            FSD(d0, gback, gdoffset + 0);
+            if (MODREG && gd == (nextop & 7) + (rex.b << 3)) {
+                FSD(d0, gback, gdoffset + 8);
+            } else {
+                GETEX(x2, 0, 8);
+                FLD(d0, wback, fixedaddress + 0);
+                FLD(d1, wback, fixedaddress + 8);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    FMVXD(x5, d0);
+                    FMVXD(x6, d1);
+                    FEQD(x3, d0, d0);
+                    FEQD(x4, d1, d1);
+                    AND(x4, x3, x4);
+                }
+                FSUBD(d0, d0, d1);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    BNEZ(x4, 4 + 7 * 4);
+                    BNEZ(x3, 4 + 3 * 4);
+                    OR(x5, x5, x7);
+                    FMVDX(d0, x5);
+                    J(4 + 6 * 4);
+                    OR(x6, x6, x7);
+                    FMVDX(d0, x6);
+                    J(4 + 3 * 4);
+                    FEQD(x3, d0, d0);
+                    BNEZ(x3, 4 + 4);
+                    FNEGD(d0, d0);
+                }
+                FSD(d0, gback, gdoffset + 8);
+            }
+            break;
         case 0x7E:
             INST_NAME("MOVD Ed,Gx");
             nextop = F8;
