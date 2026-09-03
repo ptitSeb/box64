@@ -626,6 +626,7 @@
 #() iFpuC -> iFpuC
 #() iEpuu -> iEpuu
 #() iFpuu -> iFpuu
+#() iEpuU -> iEpuU
 #() iFpuU -> iFpuU
 #() iFpup -> iFpup
 #() iFpUU -> iFpUU
@@ -1959,6 +1960,7 @@
 #() iEEpLiLpV -> iEEpLiLpV
 #() iFEpppipp -> iFEpppipp
 #() iFEpppupp -> iFEpppupp
+#() iEEppppup -> iEEppppup
 #() iEEpppppp -> iEEpppppp
 #() iFEXLpiiL -> iFEXLpiiL
 #() iFEXLpppp -> iFEXLpppp
@@ -2753,6 +2755,8 @@ wrappedlibc:
 - iEpLiLpV:
 - iFpppupp:
   - gethostbyname_r
+- iEppppup:
+  - getservbyname_r
 - iEpppppp:
 - lEipLpLL:
   - process_vm_readv

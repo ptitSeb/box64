@@ -357,6 +357,34 @@ EXPORT int my32_gethostbyaddr_r(x64emu_t* emu, void* addr, uint32_t len, int typ
     return r;
 }
 
+EXPORT int my32_getservbyname_r(x64emu_t* emu, void* name, void* proto, struct i386_servent* ret, void* buff, size_t buflen, ptr_t* result)
+{
+    struct servent ret_l = {0};
+    struct servent *result_l = NULL;
+    int r = getservbyname_r(name, proto, &ret_l, buff, buflen, &result_l);
+    if(!result_l) {
+        *result = 0;
+        return r;
+    }
+    *result = to_ptrv(ret);
+    // convert result, all memory allocated should be in program space
+    ret->s_name = to_cstring(result_l->s_name);
+    ret->s_port = result_l->s_port;
+    ret->s_proto = to_cstring(result_l->s_proto);
+    ret->s_aliases = to_ptrv(result_l->s_aliases);
+    if(result_l->s_aliases) {
+        int idx = 0;
+        char** p = result_l->s_aliases;
+        ptr_t* strings = from_ptrv(ret->s_aliases);
+        while(*p) {
+            strings[idx++] = to_cstring(*p);
+            ++p;
+        }
+        strings[idx++] = 0;
+    }
+    return r;
+}
+
 EXPORT void* my32_getservbyname(x64emu_t* emu, void* name, void* proto)
 {
     static struct i386_servent ret = {0};

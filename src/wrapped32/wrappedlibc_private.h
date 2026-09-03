@@ -54,6 +54,8 @@ GO(alarm, uEu)
 GO2(aligned_alloc, pELL, memalign)
 GO(alphasort, iEpp)
 GOM(alphasort64, iEEpp)
+GO(arc4random, uEv)
+GO(arc4random_buf, vEpL)
 //DATA(argp_err_exit_status, 4)
 // argp_error   // Weak
 // argp_failure // Weak
@@ -164,6 +166,7 @@ GO(clock, lEv)
 GOWM(close, iEEi)   //%%
 // __close  // Weak
 GOW(closedir, iEp)
+GO(closefrom, iEi)
 GO(closelog, vEv)
 GO(close_range, iEuui)
 GOM(__cmsg_nxthdr, pEpp)    //%noE
@@ -171,6 +174,7 @@ GOM(__cmsg_nxthdr, pEpp)    //%noE
 // __confstr_chk
 GOW(connect, iEipu)
 GOW(__connect, iEipu)
+GO(copy_file_range, iEipipLu)
 // copysign // Weak
 // copysignf    // Weak
 // copysignl    // Weak
@@ -224,6 +228,7 @@ GOW2(dl_iterate_phdr, iEEpp, my_dl_iterate_phdr) //%%
 // _dl_starting_up // Weak
 // _dl_sym
 // _dl_vsym
+GOW(dn_expand, iFppppi)
 //GOW(dngettext, pEpppu)
 //GOM(dprintf, iEEipV)
 GOM(__dprintf_chk, iEEiipV)	//%%
@@ -598,7 +603,7 @@ GO2(__getrusage64, iEiBUUUULLLLLLLLLLLLLL_, getrusage)
 // __gets_chk
 // getsecretkey
 GOM(getservbyname, pEEpp)
-//GO(getservbyname_r, iEppppup)
+GOM(getservbyname_r, iEEppppup)
 //GO(getservbyport, pEip)
 //GO(getservbyport_r, iEipppup)
 // getservent
@@ -1008,7 +1013,7 @@ GO(killpg, iEii)
 // klogctl
 // l64a
 GO(labs, lEl)
-// lchmod
+GOW(lchmod, iEpu)
 GOW(lchown, iEpuu)
 // lckpwdf  // Weak
 // lcong48
@@ -1104,9 +1109,10 @@ GOW(malloc_trim, iEL)
 GOW(malloc_usable_size, LEp)
 GOW(mallopt, iEii)  // Weak
 // mallwatch    // type B
-//GO(mblen, iEpL)
+GO(mblen, iEpL)
 //GOW(mbrlen, LEpLp)
 //GO(__mbrlen, LEpLp)
+GOW(mbrtoc32, LEppLp)
 GOW(mbrtowc, LEppLp)
 GO(__mbrtowc, LEppLp)
 GOW(mbsinit, iEp)
@@ -1148,6 +1154,7 @@ GO(mkdirat, iEipu)
 GO(mkdtemp, pEp)
 GO(mkfifo, iEpu)
 //GO(mkfifoat, iEipu)
+GO(mknod, iEpuU)
 GO(mkostemp, iEpi)
 GO(mkostemp64, iEpi)
 GO(mkstemp, iEp)
@@ -1248,7 +1255,7 @@ GO(__open64_2, iEpO)
 //GOW(openat, iEipON)
 GO(__openat_2, iEipO)
 GOW(openat64, iEipON)
-//GO(__openat64_2, iEipON)
+GO(__openat64_2, iEipON)
 // __open_catalog
 GOW(opendir, pEp)
 GO(openlog, vEpii)
@@ -1289,6 +1296,7 @@ GO(posix_madvise, iEpLi)
 GOW(posix_memalign, iEBp_LL)
 // posix_openpt // Weak
 GOM(posix_spawn, iEEpppppp) //%%
+GO(posix_spawn_file_actions_addchdir_np, iEpp)
 GO(posix_spawnattr_destroy, iFp)
 // posix_spawnattr_getflags
 // posix_spawnattr_getpgroup
@@ -1442,6 +1450,8 @@ GO(__res_init, iEv)
 GO(__res_nclose, vEp)
 GO(__res_ninit, iEp)
 //DATA(__resp, 4)
+GOW(res_nquery, iFppiipi)
+GOW(res_nsearch, iFppiipi)
 // __res_randomid
 GOM(__res_state, pEEv)
 //DATA(re_syntax_options, 4)    // type B
@@ -1706,6 +1716,7 @@ GOW(strerror_r, tEipL)
 GO(strftime, LEpLpriiiiiiiiilt_)
 GO(__strftime_l, LEpLpriiiiiiiiilt_a)
 GOW(strftime_l, LEpLpriiiiiiiiilt_a)
+GO(__strlcpy_chk, LEppLL)
 GO(strlen, LEp)
 GOW(strncasecmp, iEppL)
 // __strncasecmp_l
