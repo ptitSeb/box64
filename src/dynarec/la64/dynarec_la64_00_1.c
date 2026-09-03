@@ -171,8 +171,22 @@ uintptr_t dynarec64_00_1(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             break;
         case 0x62:
             if (rex.is32bits) {
-                // BOUND here
-                DEFAULT;
+                nextop = F8;
+                if (MODREG) {
+                    INST_NAME("Illegal 62");
+                    if (BOX64DRENV(dynarec_safeflags) > 1) {
+                        READFLAGS(X_PEND);
+                    } else {
+                        SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
+                    }
+                    GETIP(ip, x7);
+                    UDF();
+                    *need_epilog = 1;
+                    *ok = 0;
+                } else {
+                    // BOUND here
+                    DEFAULT;
+                }
             } else {
                 INST_NAME("Illegal 62");
                 if (BOX64DRENV(dynarec_safeflags) > 1) {

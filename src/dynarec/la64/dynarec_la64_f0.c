@@ -454,8 +454,29 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 }
                             }
                             break;
+                        case 7:
+                            if (MODREG) {
+                                INST_NAME("Invalid LOCK BTC");
+                                UDF();
+                                *need_epilog = 1;
+                                *ok = 0;
+                            } else {
+                                DEFAULT;
+                            }
+                            break;
                         default:
                             DEFAULT;
+                    }
+                    break;
+                case 0xBB:
+                    nextop = F8;
+                    if (MODREG) {
+                        INST_NAME("Invalid LOCK BTC");
+                        UDF();
+                        *need_epilog = 1;
+                        *ok = 0;
+                    } else {
+                        DEFAULT;
                     }
                     break;
                 case 0xC0:
@@ -547,39 +568,107 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     nextop = F8;
                     switch ((nextop >> 3) & 7) {
                         case 1:
-                            if (rex.w) {
-                                INST_NAME("LOCK CMPXCHG16B Gq, Eq");
-                                if (!cpuext.scq) {
-                                    static int warned = 0;
-                                    PASS3(if (!warned) dynarec_log(LOG_INFO, "Warning, LOCK CMPXCHG16B is not well supported on LoongArch without SCQ and issues are expected.\n"));
-                                    warned = 1;
-                                }
+                            if (MODREG) {
+                                INST_NAME("Invalid LOCK");
+                                UDF();
+                                *need_epilog = 1;
+                                *ok = 0;
                             } else {
-                                INST_NAME("LOCK CMPXCHG8B Gq, Eq");
-                            }
-                            SETFLAGS(X_ZF, SF_SUBSET, NAT_FLAGS_NOFUSION);
-                            addr = geted(dyn, addr, ninst, nextop, &wback, x1, x2, &fixedaddress, rex, LOCK_LOCK, 0, 0);
-                            UFLAG_IF {
-                                if (cpuext.lbt) {
-                                    X64_SET_EFLAGS(xZR, X_ZF);
+                                if (rex.w) {
+                                    INST_NAME("LOCK CMPXCHG16B Gq, Eq");
+                                    if (!cpuext.scq) {
+                                        static int warned = 0;
+                                        PASS3(if (!warned) dynarec_log(LOG_INFO, "Warning, LOCK CMPXCHG16B is not well supported on LoongArch without SCQ and issues are expected.\n"));
+                                        warned = 1;
+                                    }
                                 } else {
-                                    BSTRINS_D(xFlags, xZR, F_ZF, F_ZF);
+                                    INST_NAME("LOCK CMPXCHG8B Gq, Eq");
                                 }
-                            }
-                            if (rex.w) {
-                                MARKREGsd(xRAX);
-                                MARKREGsd(xRDX);
-                                MARKREGs(xRBX);
-                                MARKREGs(xRCX);
-                                if (cpuext.scq) {
+                                SETFLAGS(X_ZF, SF_SUBSET, NAT_FLAGS_NOFUSION);
+                                addr = geted(dyn, addr, ninst, nextop, &wback, x1, x2, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                                UFLAG_IF {
+                                    if (cpuext.lbt) {
+                                        X64_SET_EFLAGS(xZR, X_ZF);
+                                    } else {
+                                        BSTRINS_D(xFlags, xZR, F_ZF, F_ZF);
+                                    }
+                                }
+                                if (rex.w) {
+                                    MARKREGsd(xRAX);
+                                    MARKREGsd(xRDX);
+                                    MARKREGs(xRBX);
+                                    MARKREGs(xRCX);
+                                    if (cpuext.scq) {
+                                        MARKLOCK;
+                                        LL_D(x2, wback, 0);
+                                        LD_D(x3, wback, 8);
+                                        // compare RDX:RAX with x3:x2
+                                        BNE_MARK(x2, xRAX);
+                                        BNE_MARK(x3, xRDX);
+                                        MV(x5, xRBX);
+                                        SC_Q(x5, xRCX, wback);
+                                        BEQZ_MARKLOCK(x5);
+                                        UFLAG_IF {
+                                            if (cpuext.lbt) {
+                                                ADDI_D(x5, xZR, -1);
+                                                X64_SET_EFLAGS(x5, X_ZF);
+                                            } else {
+                                                ORI(xFlags, xFlags, 1 << F_ZF);
+                                            }
+                                        }
+                                        B_MARK3_nocond;
+                                        MARK;
+                                        MV(xRAX, x2);
+                                        MV(xRDX, x3);
+                                        MARK3;
+                                    } else {
+                                        // if scq extension is not available, implement it with mutex
+                                        LD_D(x6, xEmu, offsetof(x64emu_t, context));
+                                        ADDI_D(x6, x6, offsetof(box64context_t, mutex_16b));
+                                        ADDI_D(x4, xZR, 1);
+                                        MARKLOCK;
+                                        AMSWAP_DB_W(x5, x4, x6);
+                                        // x4 == 1 if locked
+                                        BNEZ_MARKLOCK(x5);
+
+                                        LD_D(x2, wback, 0);
+                                        LD_D(x3, wback, 8);
+                                        BNE_MARK(x2, xRAX);
+                                        BNE_MARK(x3, xRDX);
+                                        ST_D(xRBX, wback, 0);
+                                        ST_D(xRCX, wback, 8);
+                                        UFLAG_IF {
+                                            if (cpuext.lbt) {
+                                                ADDI_D(x5, xZR, -1);
+                                                X64_SET_EFLAGS(x5, X_ZF);
+                                            } else {
+                                                ORI(xFlags, xFlags, 1 << F_ZF);
+                                            }
+                                        }
+                                        B_MARK3_nocond;
+                                        MARK;
+                                        MV(xRAX, x2);
+                                        MV(xRDX, x3);
+                                        MARK3;
+
+                                        // unlock
+                                        AMSWAP_DB_W(xZR, xZR, x6);
+                                    }
+                                } else {
+                                    UP32_READ(xRDX);
+                                    UP32_READ(xRCX);
+                                    BSTRINS_D(x3, xRAX, 31, 0);
+                                    BSTRINS_D(x3, xRDX, 63, 32);
+                                    BSTRINS_D(x4, xRBX, 31, 0);
+                                    BSTRINS_D(x4, xRCX, 63, 32);
+                                    ANDI(x2, wback, 7);
+                                    BNEZ_MARK2(x2);
+                                    // Aligned
                                     MARKLOCK;
                                     LL_D(x2, wback, 0);
-                                    LD_D(x3, wback, 8);
-                                    // compare RDX:RAX with x3:x2
-                                    BNE_MARK(x2, xRAX);
-                                    BNE_MARK(x3, xRDX);
-                                    MV(x5, xRBX);
-                                    SC_Q(x5, xRCX, wback);
+                                    BNE_MARK(x2, x3); // EDX_EAX != Ed
+                                    MV(x5, x4);
+                                    SC_D(x5, wback, 0);
                                     BEQZ_MARKLOCK(x5);
                                     UFLAG_IF {
                                         if (cpuext.lbt) {
@@ -590,26 +679,17 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                         }
                                     }
                                     B_MARK3_nocond;
-                                    MARK;
-                                    MV(xRAX, x2);
-                                    MV(xRDX, x3);
-                                    MARK3;
-                                } else {
-                                    // if scq extension is not available, implement it with mutex
-                                    LD_D(x6, xEmu, offsetof(x64emu_t, context));
-                                    ADDI_D(x6, x6, offsetof(box64context_t, mutex_16b));
-                                    ADDI_D(x4, xZR, 1);
-                                    MARKLOCK;
-                                    AMSWAP_DB_W(x5, x4, x6);
-                                    // x4 == 1 if locked
-                                    BNEZ_MARKLOCK(x5);
-
+                                    MARK2;
+                                    // Unaligned
+                                    ADDI_W(x5, xZR, 0xFF8);
+                                    AND(x5, wback, x5);
+                                    MARKLOCK2;
                                     LD_D(x2, wback, 0);
-                                    LD_D(x3, wback, 8);
-                                    BNE_MARK(x2, xRAX);
-                                    BNE_MARK(x3, xRDX);
-                                    ST_D(xRBX, wback, 0);
-                                    ST_D(xRCX, wback, 8);
+                                    LL_D(x6, x5, 0);
+                                    BNE_MARK(x2, x3); // EDX_EAX != Ed
+                                    SC_D(x6, x5, 0);
+                                    BEQZ_MARKLOCK2(x6);
+                                    ST_D(x4, wback, 0);
                                     UFLAG_IF {
                                         if (cpuext.lbt) {
                                             ADDI_D(x5, xZR, -1);
@@ -620,62 +700,10 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                     }
                                     B_MARK3_nocond;
                                     MARK;
-                                    MV(xRAX, x2);
-                                    MV(xRDX, x3);
+                                    SRLI_D(xRDX, x2, 32);
+                                    ZEROUP2(xRAX, x2);
                                     MARK3;
-
-                                    // unlock
-                                    AMSWAP_DB_W(xZR, xZR, x6);
                                 }
-                            } else {
-                                UP32_READ(xRDX);
-                                UP32_READ(xRCX);
-                                BSTRINS_D(x3, xRAX, 31, 0);
-                                BSTRINS_D(x3, xRDX, 63, 32);
-                                BSTRINS_D(x4, xRBX, 31, 0);
-                                BSTRINS_D(x4, xRCX, 63, 32);
-                                ANDI(x2, wback, 7);
-                                BNEZ_MARK2(x2);
-                                // Aligned
-                                MARKLOCK;
-                                LL_D(x2, wback, 0);
-                                BNE_MARK(x2, x3); // EDX_EAX != Ed
-                                MV(x5, x4);
-                                SC_D(x5, wback, 0);
-                                BEQZ_MARKLOCK(x5);
-                                UFLAG_IF {
-                                    if (cpuext.lbt) {
-                                        ADDI_D(x5, xZR, -1);
-                                        X64_SET_EFLAGS(x5, X_ZF);
-                                    } else {
-                                        ORI(xFlags, xFlags, 1 << F_ZF);
-                                    }
-                                }
-                                B_MARK3_nocond;
-                                MARK2;
-                                // Unaligned
-                                ADDI_W(x5, xZR, 0xFF8);
-                                AND(x5, wback, x5);
-                                MARKLOCK2;
-                                LD_D(x2, wback, 0);
-                                LL_D(x6, x5, 0);
-                                BNE_MARK(x2, x3); // EDX_EAX != Ed
-                                SC_D(x6, x5, 0);
-                                BEQZ_MARKLOCK2(x6);
-                                ST_D(x4, wback, 0);
-                                UFLAG_IF {
-                                    if (cpuext.lbt) {
-                                        ADDI_D(x5, xZR, -1);
-                                        X64_SET_EFLAGS(x5, X_ZF);
-                                    } else {
-                                        ORI(xFlags, xFlags, 1 << F_ZF);
-                                    }
-                                }
-                                B_MARK3_nocond;
-                                MARK;
-                                SRLI_D(xRDX, x2, 32);
-                                ZEROUP2(xRAX, x2);
-                                MARK3;
                             }
                             break;
                         default:
@@ -684,6 +712,17 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     break;
                 default:
                     DEFAULT;
+            }
+            break;
+        case 0x10:
+            nextop = F8;
+            if (MODREG) {
+                INST_NAME("Invalid LOCK");
+                UDF();
+                *need_epilog = 1;
+                *ok = 0;
+            } else {
+                DEFAULT;
             }
             break;
         case 0x11:
@@ -1023,6 +1062,26 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             emit_and8c(dyn, ninst, x1, u8, x2, x4);
                         }
                     }
+                    break;
+                case 0:
+                case 2:
+                case 3:
+                case 5:
+                case 6:
+                    if (MODREG) {
+                        INST_NAME("Invalid LOCK");
+                        UDF();
+                        *need_epilog = 1;
+                        *ok = 0;
+                    } else {
+                        DEFAULT;
+                    }
+                    break;
+                case 7:
+                    INST_NAME("Invalid LOCK");
+                    UDF();
+                    *need_epilog = 1;
+                    *ok = 0;
                     break;
                 default:
                     DEFAULT;
@@ -1416,8 +1475,25 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             emit_xor32c(dyn, ninst, rex, x1, i64, x3, x4);
                     }
                     break;
+                case 7:
+                    INST_NAME("Invalid LOCK");
+                    UDF();
+                    *need_epilog = 1;
+                    *ok = 0;
+                    break;
                 default:
                     DEFAULT;
+            }
+            break;
+        case 0x86:
+            nextop = F8;
+            if (MODREG) {
+                INST_NAME("Invalid LOCK");
+                UDF();
+                *need_epilog = 1;
+                *ok = 0;
+            } else {
+                DEFAULT;
             }
             break;
         case 0x87:
@@ -1466,6 +1542,13 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xF6:
             nextop = F8;
             switch ((nextop >> 3) & 7) {
+                case 0:
+                case 1:
+                    INST_NAME("Invalid LOCK");
+                    UDF();
+                    *need_epilog = 1;
+                    *ok = 0;
+                    break;
                 case 2:
                     if (MODREG) {
                         INST_NAME("Invalid LOCK");
@@ -1758,7 +1841,10 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     }
                     break;
                 default:
-                    DEFAULT;
+                    INST_NAME("Invalid LOCK");
+                    UDF();
+                    *need_epilog = 1;
+                    *ok = 0;
             }
             break;
         default:
