@@ -21,6 +21,7 @@
 #include "dynarec_la64_functions.h"
 #include "../dynarec_helper.h"
 #include "dynarec_la64_aes.h"
+#include "la64_pcmpstr.h"
 
 uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, vex_t vex, int* ok, int* need_epilog)
 {
@@ -775,6 +776,60 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             q0 = fpu_get_scratch(dyn);
             VSLTIxy(B, q0, d0, 0);
             VBITSEL_Vxy(v0, v1, v2, q0);
+            break;
+        case 0x60:
+            INST_NAME("VPCMPESTRM Gx, Ex, Ib");
+            if (vex.l) {
+                UDF();
+                break;
+            }
+            SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
+            nextop = F8;
+            GETGYx(q1, 0);
+            GETEYx(q0, 0, 1);
+            u8 = F8;
+            q2 = avx_get_reg_empty(dyn, ninst, x1, 0, LSX_AVX_WIDTH_128);
+            emit_pcmpstr(dyn, ninst, q0, q1, q2, u8, 1, 0);
+            break;
+        case 0x61:
+            INST_NAME("VPCMPESTRI Gx, Ex, Ib");
+            if (vex.l) {
+                UDF();
+                break;
+            }
+            SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
+            nextop = F8;
+            GETGYx(q1, 0);
+            GETEYx(q0, 0, 1);
+            u8 = F8;
+            emit_pcmpstr(dyn, ninst, q0, q1, -1, u8, 1, 1);
+            break;
+        case 0x62:
+            INST_NAME("VPCMPISTRM Gx, Ex, Ib");
+            if (vex.l) {
+                UDF();
+                break;
+            }
+            SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
+            nextop = F8;
+            GETGYx(q1, 0);
+            GETEYx(q0, 0, 1);
+            u8 = F8;
+            q2 = avx_get_reg_empty(dyn, ninst, x1, 0, LSX_AVX_WIDTH_128);
+            emit_pcmpstr(dyn, ninst, q0, q1, q2, u8, 0, 0);
+            break;
+        case 0x63:
+            INST_NAME("VPCMPISTRI Gx, Ex, Ib");
+            if (vex.l) {
+                UDF();
+                break;
+            }
+            SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
+            nextop = F8;
+            GETGYx(q1, 0);
+            GETEYx(q0, 0, 1);
+            u8 = F8;
+            emit_pcmpstr(dyn, ninst, q0, q1, -1, u8, 0, 1);
             break;
         case 0xDF:
             INST_NAME("VAESKEYGENASSIST Gx, Ex, Ib");

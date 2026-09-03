@@ -23,7 +23,7 @@
 #include "dynarec_la64_functions.h"
 #include "../dynarec_helper.h"
 #include "dynarec_la64_aes.h"
-#include "emu/x64compstrings.h"
+#include "la64_pcmpstr.h"
 
 uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ninst, rex_t rex, int* ok, int* need_epilog)
 {
@@ -1313,177 +1313,40 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 case 0x60:
                     INST_NAME("PCMPESTRM Gx, Ex, Ib");
                     nextop = F8;
-                    GETG;
-                    u8 = geted_ib(dyn, addr, ninst, nextop);
-                    SETFLAGS(X_ALL, SF_SET_DF, NAT_FLAGS_NOFUSION);
-                    if (gd > 7) sse_reflect_reg(dyn, ninst, gd);
-                    ADDI_D(x3, xEmu, offsetof(x64emu_t, xmm[gd]));
-                    if (MODREG) {
-                        ed = (nextop & 7) + (rex.b << 3);
-                        if (ed > 7) sse_reflect_reg(dyn, ninst, ed);
-                        ADDI_D(x1, xEmu, offsetof(x64emu_t, xmm[ed]));
-                        ed = x1;
-                    } else {
-                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 1);
-                    }
-                    SEXT_W(x2, xRDX);
-                    SEXT_W(x4, xRAX);
+                    SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
+                    GETGX(q1, 0);
+                    GETEX(q0, 0, 1);
                     u8 = F8;
-                    MOV32w(x5, u8);
-                    CALL6(const_sse42_compare_string_explicit_len, x1, ed, x2, x3, x4, x5, 0);
-                    v0 = sse_get_reg_empty(dyn, ninst, x1, 0);
-                    if (u8 & 0b1000000) {
-                        v1 = fpu_get_scratch(dyn);
-                        switch (u8 & 1) {
-                            case 0b00:
-                                VREPLGR2VR_B(v0, x1);
-                                SRLI_D(x2, x1, 8);
-                                VREPLGR2VR_B(v1, x2);
-                                VEXTRINS_D(v0, v1, 0x10);
-                                MOV64x(x2, 0x0001020304050607);
-                                VREPLGR2VR_D(v1, x2);
-                                VSLL_B(v0, v0, v1);
-                                MOV32w(x2, 0x80);
-                                VREPLGR2VR_B(v1, x2);
-                                VAND_V(v0, v0, v1);
-                                VSRAI_B(v0, v0, 7);
-                                break;
-                            case 0b01:
-                                VREPLGR2VR_H(v0, x1);
-                                MOV64x(x2, 0x000C000D000E000F);
-                                VREPLGR2VR_D(v1, x2);
-                                MOV64x(x2, 0x00080009000A000B);
-                                VINSGR2VR_D(v1, x2, 1);
-                                VSLL_H(v0, v0, v1);
-                                MOV32w(x2, 0x80);
-                                VREPLGR2VR_B(v1, x2);
-                                VAND_V(v0, v0, v1);
-                                VSRAI_H(v0, v0, 15);
-                                break;
-                        }
-                    } else {
-                        VXOR_V(v0, v0, v0);
-                        VINSGR2VR_H(v0, x1, 0);
-                    }
+                    q2 = sse_get_reg_empty(dyn, ninst, x1, 0);
+                    emit_pcmpstr(dyn, ninst, q0, q1, q2, u8, 1, 0);
                     break;
                 case 0x61:
                     INST_NAME("PCMPESTRI Gx, Ex, Ib");
                     nextop = F8;
-                    GETG;
-                    u8 = geted_ib(dyn, addr, ninst, nextop);
-                    SETFLAGS(X_ALL, SF_SET_DF, NAT_FLAGS_NOFUSION);
-                    if (gd > 7) // no need to reflect cache as xmm0-xmm7 will be saved before the function call anyway
-                        sse_reflect_reg(dyn, ninst, gd);
-                    ADDI_D(x3, xEmu, offsetof(x64emu_t, xmm[gd]));
-                    if (MODREG) {
-                        ed = (nextop & 7) + (rex.b << 3);
-                        if (ed > 7)
-                            sse_reflect_reg(dyn, ninst, ed);
-                        ADDI_D(x1, xEmu, offsetof(x64emu_t, xmm[ed]));
-                        ed = x1;
-                    } else {
-                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 1);
-                    }
-                    SEXT_W(x2, xRDX);
-                    SEXT_W(x4, xRAX);
+                    SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
+                    GETGX(q1, 0);
+                    GETEX(q0, 0, 1);
                     u8 = F8;
-                    MOV32w(x5, u8);
-                    CALL6(const_sse42_compare_string_explicit_len, x1, ed, x2, x3, x4, x5, 0);
-                    ZEROUP(x1);
-                    BNEZ_MARK(x1);
-                    MOV32w(xRCX, (u8 & 1) ? 8 : 16);
-                    B_NEXT_nocond;
-                    MARK;
-                    if (u8 & 0b1000000) {
-                        CLZ_W(xRCX, x1);
-                        ADDI_D(x2, xZR, 31);
-                        SUB_D(xRCX, x2, xRCX);
-                    } else {
-                        CTZ_W(xRCX, x1);
-                    }
+                    emit_pcmpstr(dyn, ninst, q0, q1, -1, u8, 1, 1);
                     break;
                 case 0x62:
                     INST_NAME("PCMPISTRM Gx, Ex, Ib");
-                    SETFLAGS(X_ALL, SF_SET_DF, NAT_FLAGS_NOFUSION);
+                    SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
                     nextop = F8;
-                    GETG;
-                    if (gd > 7) sse_reflect_reg(dyn, ninst, gd);
-                    if (MODREG) {
-                        ed = (nextop & 7) + (rex.b << 3);
-                        if (ed > 7) sse_reflect_reg(dyn, ninst, ed);
-                        ADDI_D(x1, xEmu, offsetof(x64emu_t, xmm[ed]));
-                        ed = x1;
-                    } else {
-                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 1);
-                    }
-                    ADDI_D(x2, xEmu, offsetof(x64emu_t, xmm[gd]));
+                    GETGX(q1, 0);
+                    GETEX(q0, 0, 1);
                     u8 = F8;
-                    MOV32w(x3, u8);
-                    CALL4(const_sse42_compare_string_implicit_len, x1, ed, x2, x3, 0);
-                    v0 = sse_get_reg_empty(dyn, ninst, x1, 0);
-                    if (u8 & 0b1000000) {
-                        v1 = fpu_get_scratch(dyn);
-                        switch (u8 & 1) {
-                            case 0b00:
-                                VREPLGR2VR_B(v0, x1);
-                                SRLI_D(x2, x1, 8);
-                                VREPLGR2VR_B(v1, x2);
-                                VEXTRINS_D(v0, v1, 0x10);
-                                MOV64x(x2, 0x0001020304050607);
-                                VREPLGR2VR_D(v1, x2);
-                                VSLL_B(v0, v0, v1);
-                                MOV32w(x2, 0x80);
-                                VREPLGR2VR_B(v1, x2);
-                                VAND_V(v0, v0, v1);
-                                VSRAI_B(v0, v0, 7);
-                                break;
-                            case 0b01:
-                                VREPLGR2VR_H(v0, x1);
-                                MOV64x(x2, 0x000C000D000E000F);
-                                VREPLGR2VR_D(v1, x2);
-                                MOV64x(x2, 0x00080009000A000B);
-                                VINSGR2VR_D(v1, x2, 1);
-                                VSLL_H(v0, v0, v1);
-                                MOV32w(x2, 0x80);
-                                VREPLGR2VR_B(v1, x2);
-                                VAND_V(v0, v0, v1);
-                                VSRAI_H(v0, v0, 15);
-                                break;
-                        }
-                    } else {
-                        VXOR_V(v0, v0, v0);
-                        VINSGR2VR_H(v0, x1, 0);
-                    }
+                    q2 = sse_get_reg_empty(dyn, ninst, x1, 0);
+                    emit_pcmpstr(dyn, ninst, q0, q1, q2, u8, 0, 0);
                     break;
                 case 0x63:
                     INST_NAME("PCMPISTRI Gx, Ex, Ib");
-                    SETFLAGS(X_ALL, SF_SET_DF, NAT_FLAGS_NOFUSION);
+                    SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
                     nextop = F8;
-                    GETG;
-                    if (gd > 7) sse_reflect_reg(dyn, ninst, gd);
-                    ADDI_D(x2, xEmu, offsetof(x64emu_t, xmm[gd]));
-                    if (MODREG) {
-                        ed = (nextop & 7) + (rex.b << 3);
-                        if (ed > 7) sse_reflect_reg(dyn, ninst, ed);
-                        ADDI_D(x1, xEmu, offsetof(x64emu_t, xmm[ed]));
-                        ed = x1;
-                    } else {
-                        addr = geted(dyn, addr, ninst, nextop, &ed, x1, x5, &fixedaddress, rex, NULL, 0, 1);
-                    }
+                    GETGX(q1, 0);
+                    GETEX(q0, 0, 1);
                     u8 = F8;
-                    MOV32w(x3, u8);
-                    CALL4(const_sse42_compare_string_implicit_len, x1, ed, x2, x3, 0);
-                    BNEZ_MARK(x1);
-                    MOV32w(xRCX, (u8 & 1) ? 8 : 16);
-                    B_NEXT_nocond;
-                    MARK;
-                    if (u8 & 0b1000000) {
-                        CLZ_W(xRCX, x1);
-                        ADDI_D(x2, xZR, 31);
-                        SUB_D(xRCX, x2, xRCX);
-                    } else {
-                        CTZ_W(xRCX, x1);
-                    }
+                    emit_pcmpstr(dyn, ninst, q0, q1, -1, u8, 0, 1);
                     break;
                 case 0xDF:
                     INST_NAME("AESKEYGENASSIST Gx, Ex, Ib"); // AES-NI
