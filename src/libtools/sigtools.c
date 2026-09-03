@@ -846,6 +846,7 @@ void mctx2emu(x64emu_t* emu, x64_mcontext_t* ctx)
     emu->ip.q[0]=ctx->gregs[X64_RIP];
     // flags
     emu->eflags.x64=ctx->gregs[X64_EFL];
+    RESET_FLAGS(emu);
     // get segments
     uint16_t seg;
     seg = (ctx->gregs[X64_CSGSFS] >> 0)&0xffff;
