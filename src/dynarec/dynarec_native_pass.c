@@ -144,6 +144,8 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         }
         if(stop_for_guard) {
             dynarec_log(LOG_INFO, "Stopping dynablock because of protection/hotpage/mmap/decode-window at %p -> %p inst=%d\n", (void*)dyn->start, (void*)addr, ninst);
+            if(ninst && interblock_flags_needed(dyn, addr, rex.is32bits))
+                dyn->insts[ninst - 1].x64.need_after |= X_PEND;
             need_epilog = 1;
             break;
         }
@@ -151,6 +153,8 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         // native_size is not exact at this point, but it should be larger, not smaller, and not by a huge margin anyway
         // so it's good enough to avoid overflow in relative to PC data fectching
         if(ninst >= inst_max) {
+            if(ninst && interblock_flags_needed(dyn, addr, rex.is32bits))
+                dyn->insts[ninst - 1].x64.need_after |= X_PEND;
             need_epilog = 1;
             break;
         }
