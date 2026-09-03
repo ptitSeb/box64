@@ -767,6 +767,7 @@ void my_sigactionhandler_oldcode(x64emu_t* emu, int32_t sig, int simple, siginfo
             ARCH_ADJUST(db, emu, ucntx, x64pc);
     }
     #endif
+    CHECK_FLAGS(emu);
     int direct_ret = 0;
     #ifdef BOX32
     if(box64_is32bits) {
