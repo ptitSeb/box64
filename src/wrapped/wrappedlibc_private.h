@@ -557,7 +557,7 @@ GO(gai_suspend, iFpip)
 //GO(__gconv_transliterate, 
 GO(gcvt, pFdip)
 GO(getaddrinfo, iFpppp)
-//GOM(getaddrinfo_a, iFipip)
+GO(getaddrinfo_a, iFipip)
 GO(getaliasbyname, pFp)
 GO(getaliasbyname_r, iFpppLp)
 GO(getaliasent, pFv)
