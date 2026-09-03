@@ -119,12 +119,12 @@ uintptr_t dynarec64_AVX_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, in
             break;
         case 0x13:
             nextop = F8;
-            INST_NAME("VMOVLPS Ex, Gx");
-            GETGYx(v0, 0);
             if (MODREG) {
-                DEFAULT;
-                return addr;
+                INST_NAME("Illegal AVX.0F 13");
+                UDF();
             } else {
+                INST_NAME("VMOVLPS Ex, Gx");
+                GETGYx(v0, 0);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x4, x5, &fixedaddress, rex, NULL, 1, 0);
                 FST_D(v0, ed, fixedaddress);
                 SMWRITE2();
@@ -215,12 +215,13 @@ uintptr_t dynarec64_AVX_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, in
             }
             break;
         case 0x2B:
-            INST_NAME("VMOVNTPS Ex, Gx");
             nextop = F8;
-            GETGYxy(q0, 0);
             if (MODREG) {
-                DEFAULT;
+                INST_NAME("Illegal AVX.0F 2B");
+                UDF();
             } else {
+                INST_NAME("VMOVNTPS Ex, Gx");
+                GETGYxy(q0, 0);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x4, x5, &fixedaddress, rex, NULL, 1, 0);
                 if (vex.l) {
                     XVST(q0, ed, fixedaddress);
