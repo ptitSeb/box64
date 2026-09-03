@@ -39,7 +39,7 @@
 #define STRONGMEM_QEMU       4 // The level of a mimic to QEMU's strong memory model
 
 #define STRONGMEM_LEVEL()                                 \
-    (LdAcqRangesContains(ip)                              \
+    (StrongMemRangesContains(ip)                          \
             ? STRONGMEM_QEMU                              \
             : ((box64_wine && VolatileRangesContains(ip)) \
                     ? 0                                   \

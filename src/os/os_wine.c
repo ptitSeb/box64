@@ -301,11 +301,11 @@ int VolatileOpcodesHas(uintptr_t addr)
     return 0;
 }
 
-void RegisterLdAcqRanges(const char* spec, const char* filename, void* addr)
+void RegisterStrongMemRanges(const char* spec, const char* filename, void* addr)
 {
 }
 
-int LdAcqRangesContains(uintptr_t addr)
+int StrongMemRangesContains(uintptr_t addr)
 {
     return 0;
 }
