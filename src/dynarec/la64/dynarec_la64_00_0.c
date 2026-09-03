@@ -462,6 +462,23 @@ uintptr_t dynarec64_00_0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             i64 = F32S;
             emit_and32c(dyn, ninst, rex, xRAX, i64, x3, x4);
             break;
+        case 0x27:
+            if (rex.is32bits) {
+                DEFAULT;
+            } else {
+                INST_NAME("Illegal 27");
+                if (BOX64DRENV(dynarec_safeflags) > 1) {
+                    READFLAGS(X_PEND);
+                } else {
+                    SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
+                }
+                GETIP(ip, x7);
+                BARRIER(BARRIER_FLOAT);
+                UDF();
+                *need_epilog = 1;
+                *ok = 0;
+            }
+            break;
         case 0x28:
             INST_NAME("SUB Eb, Gb");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
@@ -512,6 +529,23 @@ uintptr_t dynarec64_00_0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             break;
         case 0x2E:
             INST_NAME("CS:");
+            break;
+        case 0x2F:
+            if (rex.is32bits) {
+                DEFAULT;
+            } else {
+                INST_NAME("Illegal 2F");
+                if (BOX64DRENV(dynarec_safeflags) > 1) {
+                    READFLAGS(X_PEND);
+                } else {
+                    SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
+                }
+                GETIP(ip, x7);
+                BARRIER(BARRIER_FLOAT);
+                UDF();
+                *need_epilog = 1;
+                *ok = 0;
+            }
             break;
         case 0x30:
             INST_NAME("XOR Eb, Gb");
@@ -566,6 +600,23 @@ uintptr_t dynarec64_00_0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x36:
             INST_NAME("SS:");
             break;
+        case 0x37:
+            if (rex.is32bits) {
+                DEFAULT;
+            } else {
+                INST_NAME("Illegal 37");
+                if (BOX64DRENV(dynarec_safeflags) > 1) {
+                    READFLAGS(X_PEND);
+                } else {
+                    SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
+                }
+                GETIP(ip, x7);
+                BARRIER(BARRIER_FLOAT);
+                UDF();
+                *need_epilog = 1;
+                *ok = 0;
+            }
+            break;
         case 0x38:
             INST_NAME("CMP Eb, Gb");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
@@ -618,6 +669,23 @@ uintptr_t dynarec64_00_0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 emit_cmp32(dyn, ninst, rex, xRAX, x2, x3, x4, x5, x6);
             } else
                 emit_cmp32_0(dyn, ninst, rex, 0xC0 /* fake nextop */, xRAX, x3, x4, x5);
+            break;
+        case 0x3F:
+            if (rex.is32bits) {
+                DEFAULT;
+            } else {
+                INST_NAME("Illegal 3F");
+                if (BOX64DRENV(dynarec_safeflags) > 1) {
+                    READFLAGS(X_PEND);
+                } else {
+                    SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
+                }
+                GETIP(ip, x7);
+                BARRIER(BARRIER_FLOAT);
+                UDF();
+                *need_epilog = 1;
+                *ok = 0;
+            }
             break;
         default:
             DEFAULT;

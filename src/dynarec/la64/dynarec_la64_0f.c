@@ -162,10 +162,9 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else {
                 SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags in "don't care" state
             }
+            BARRIER(BARRIER_FLOAT);
             GETIP(ip, x7);
-            STORE_XEMU_CALL();
-            CALL(const_native_ud, -1, 0, 0);
-            LOAD_XEMU_CALL();
+            UDF();
             jump_to_epilog(dyn, 0, xRIP, ninst);
             *need_epilog = 0;
             *ok = 0;
@@ -255,12 +254,12 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x13:
             nextop = F8;
-            INST_NAME("MOVLPS Ex,Gx");
-            GETGX(v0, 0);
             if (MODREG) {
-                v1 = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 1);
-                VEXTRINS_D(v1, v0, 0);
+                INST_NAME("Illegal 0F 13");
+                UDF();
             } else {
+                INST_NAME("MOVLPS Ex,Gx");
+                GETGX(v0, 0);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
                 FST_D(v0, ed, fixedaddress);
                 SMWRITE2();
@@ -352,6 +351,32 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             FAKEED;
             break;
+        case 0x20:
+        case 0x21:
+        case 0x22:
+        case 0x23:
+            if (BOX64DRENV(dynarec_safeflags) > 1) {
+                READFLAGS(X_PEND);
+            } else {
+                SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
+            }
+            nextop = F8;
+            GETIP(ip, x7);
+            u8 = (rex.r * 8) + ((nextop >> 3) & 7);
+            if ((((opcode == 0x20) || (opcode == 0x22)) && ((u8 == 1) || (u8 == 5) || (u8 == 6) || (u8 == 7) || (u8 > 8)))
+                || (((opcode == 0x21) || (opcode == 0x23)) && rex.r)) {
+                INST_NAME("Illegal 0F 20..23");
+                UDF();
+            } else {
+                INST_NAME(opcode == 0x20 ? "MOV REG, crX" : (opcode == 0x21 ? "MOV REG, drX" : (opcode == 0x22 ? "MOV crX, REG" : "MOV drX, REG")));
+                STORE_XEMU_CALL();
+                CALL(const_native_priv, -1, 0, 0);
+                LOAD_XEMU_CALL();
+            }
+            jump_to_epilog(dyn, 0, xRIP, ninst);
+            *need_epilog = 0;
+            *ok = 0;
+            break;
         case 0x28:
             INST_NAME("MOVAPS Gx, Ex");
             nextop = F8;
@@ -397,12 +422,13 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             VEXTRINS_D(v0, q0, VEXTRINS_IMM_4_0(0, 0));
             break;
         case 0x2B:
-            INST_NAME("MOVNTPS Ex, Gx");
             nextop = F8;
-            GETG;
             if (MODREG) {
-                DEFAULT;
+                INST_NAME("Illegal 0F 2B");
+                UDF();
             } else {
+                INST_NAME("MOVNTPS Ex, Gx");
+                GETG;
                 v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
                 VST(v0, ed, fixedaddress);
@@ -2375,6 +2401,12 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             nextop = F8;
             if (MODREG) {
                 switch ((nextop >> 3) & 7) {
+                    case 1:
+                        INST_NAME("Invalid C7");
+                        UDF();
+                        *need_epilog = 1;
+                        *ok = 0;
+                        break;
                     default:
                         DEFAULT;
                 }

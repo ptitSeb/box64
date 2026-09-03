@@ -335,8 +335,29 @@ uintptr_t dynarec64_66F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                                 }
                             }
                             break;
+                        case 7:
+                            if (MODREG) {
+                                INST_NAME("Invalid LOCK BTC");
+                                UDF();
+                                *need_epilog = 1;
+                                *ok = 0;
+                            } else {
+                                DEFAULT;
+                            }
+                            break;
                         default:
                             DEFAULT;
+                    }
+                    break;
+                case 0xBB:
+                    nextop = F8;
+                    if (MODREG) {
+                        INST_NAME("Invalid LOCK BTC");
+                        UDF();
+                        *need_epilog = 1;
+                        *ok = 0;
+                    } else {
+                        DEFAULT;
                     }
                     break;
                 case 0xC1:
@@ -388,6 +409,18 @@ uintptr_t dynarec64_66F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     break;
                 default:
                     DEFAULT;
+            }
+            break;
+        case 0x11:
+        case 0x21:
+            nextop = F8;
+            if (MODREG) {
+                INST_NAME("Invalid LOCK");
+                UDF();
+                *need_epilog = 1;
+                *ok = 0;
+            } else {
+                DEFAULT;
             }
             break;
         case 0x81:
@@ -447,6 +480,27 @@ uintptr_t dynarec64_66F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             emit_add16(dyn, ninst, x6, x5, x3, x4, x7);
                         }
                     }
+                    break;
+                case 1:
+                case 2:
+                case 3:
+                case 4:
+                case 5:
+                case 6:
+                    if (MODREG) {
+                        INST_NAME("Invalid LOCK");
+                        UDF();
+                        *need_epilog = 1;
+                        *ok = 0;
+                    } else {
+                        DEFAULT;
+                    }
+                    break;
+                case 7:
+                    INST_NAME("Invalid LOCK");
+                    UDF();
+                    *need_epilog = 1;
+                    *ok = 0;
                     break;
                 default:
                     DEFAULT;
