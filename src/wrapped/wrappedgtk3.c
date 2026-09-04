@@ -88,6 +88,7 @@ typedef void (*vFppip_t)(void*, void*, int, void*);
     GO(g_module_open, pFpu_t)                          \
     GO(g_module_close, vFp_t)                          \
     GO(gtk_tree_store_newv, pFup_t)                    \
+    GO(gtk_list_store_newv, pFup_t)                    \
     GO(gtk_widget_style_get_valist, vFppA_t)           \
     GO(gtk_widget_style_get_property, vFppp_t)         \
     GO(gtk_list_store_insert_with_valuesv, vFppippi_t) \
@@ -501,6 +502,52 @@ static void* findGtkClipboardTextReceivedFuncFct(void* fct)
     return NULL;
 }
 
+// GtkClipboardURIReceivedFunc
+#define GO(A)                                                                             \
+static uintptr_t my_GtkClipboardURIReceivedFunc_fct_##A = 0;                              \
+static void my_GtkClipboardURIReceivedFunc_##A(void* clipboard, void* uris, void* data)   \
+{                                                                                         \
+    RunFunctionFmt(my_GtkClipboardURIReceivedFunc_fct_##A, "ppp", clipboard, uris, data); \
+}
+SUPER()
+#undef GO
+static void* findGtkClipboardURIReceivedFuncFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GtkClipboardURIReceivedFunc_fct_##A == (uintptr_t)fct) return my_GtkClipboardURIReceivedFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GtkClipboardURIReceivedFunc_fct_##A == 0) {my_GtkClipboardURIReceivedFunc_fct_##A = (uintptr_t)fct; return my_GtkClipboardURIReceivedFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gtk-3 GtkClipboardURIReceivedFunc callback\n");
+    return NULL;
+}
+
+// GtkClipboardTargetsReceivedFunc
+#define GO(A)                                                                                                 \
+static uintptr_t my_GtkClipboardTargetsReceivedFunc_fct_##A = 0;                                              \
+static void my_GtkClipboardTargetsReceivedFunc_##A(void* clipboard, void* atoms, int32_t n_atoms, void* data) \
+{                                                                                                             \
+    RunFunctionFmt(my_GtkClipboardTargetsReceivedFunc_fct_##A, "ppip", clipboard, atoms, n_atoms, data);      \
+}
+SUPER()
+#undef GO
+static void* findGtkClipboardTargetsReceivedFuncFct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_GtkClipboardTargetsReceivedFunc_fct_##A == (uintptr_t)fct) return my_GtkClipboardTargetsReceivedFunc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_GtkClipboardTargetsReceivedFunc_fct_##A == 0) {my_GtkClipboardTargetsReceivedFunc_fct_##A = (uintptr_t)fct; return my_GtkClipboardTargetsReceivedFunc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for gtk-3 GtkClipboardTargetsReceivedFunc callback\n");
+    return NULL;
+}
+
 // GtkFileFilterFunc ...
 #define GO(A)   \
 static uintptr_t my_GtkFileFilterFunc_fct_##A = 0;                                      \
@@ -798,6 +845,14 @@ EXPORT void my3_gtk_tree_view_column_set_cell_data_func(x64emu_t* emu, void* tre
     my->gtk_tree_view_column_set_cell_data_func(tree, cell, findGtkTreeCellDataFuncFct(f), data, findGDestroyNotifyFct(destroy));
 }
 
+EXPORT void* my3_gtk_list_store_new(x64emu_t* emu, uint32_t n, uintptr_t* b)
+{
+    uintptr_t c[n];
+    for(uint32_t i=0; i<n; ++i)
+        c[i] = getVArgs(emu, 1, b, i);
+    return my->gtk_list_store_newv(n, c);
+}
+
 EXPORT void* my3_gtk_tree_store_new(x64emu_t* emu, uint32_t n, uintptr_t* b)
 {
     uintptr_t c[n];
@@ -851,6 +906,16 @@ EXPORT void my3_gtk_container_foreach(x64emu_t* emu, void* container, void* cb, 
 EXPORT void my3_gtk_clipboard_request_text(x64emu_t* emu, void* clipboard, void* f, void* data)
 {
     my->gtk_clipboard_request_text(clipboard, findGtkClipboardTextReceivedFuncFct(f), data);
+}
+
+EXPORT void my3_gtk_clipboard_request_uris(x64emu_t* emu, void* clipboard, void* f, void* data)
+{
+    my->gtk_clipboard_request_uris(clipboard, findGtkClipboardURIReceivedFuncFct(f), data);
+}
+
+EXPORT void my3_gtk_clipboard_request_targets(x64emu_t* emu, void* clipboard, void* f, void* data)
+{
+    my->gtk_clipboard_request_targets(clipboard, findGtkClipboardTargetsReceivedFuncFct(f), data);
 }
 
 EXPORT void my3_gtk_style_context_get(x64emu_t* emu, void* context, uint32_t flags, uintptr_t* b)

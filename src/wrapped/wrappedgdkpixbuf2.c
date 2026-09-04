@@ -25,9 +25,11 @@ const char* gdkpixbuf2Name = "libgdk_pixbuf-2.0.so.0";
 #define LIBNAME gdkpixbuf2
 
 typedef int32_t (*iFpppppp_t)(void*, void*, void*, void*, void*, void*);
+typedef int32_t (*iFppppppp_t)(void*, void*, void*, void*, void*, void*, void*);
 
-#define ADDED_FUNCTIONS() \
-    GO(gdk_pixbuf_savev, iFpppppp_t)
+#define ADDED_FUNCTIONS()               \
+    GO(gdk_pixbuf_savev, iFpppppp_t)    \
+    GO(gdk_pixbuf_save_to_bufferv, iFppppppp_t)
 
 #include "generated/wrappedgdkpixbuf2types.h"
 
@@ -74,14 +76,31 @@ EXPORT int my_gdk_pixbuf_save(x64emu_t* emu, void* pixbuf, void* filename, void*
     int n = 0;
     while ((((void*)getVArgs(emu, 4, b, n * 2))) != NULL)
         n += 1;
-    char* keys[n];
-    char* vals[n];
+    char* keys[n + 1];
+    char* vals[n + 1];
     for (int i = 0; i < n; ++i) {
         keys[i] = (char*)getVArgs(emu, 4, b, i * 2 + 0);
         vals[i] = (char*)getVArgs(emu, 4, b, i * 2 + 1);
     }
+    keys[n] = vals[n] = NULL;
 
     return my->gdk_pixbuf_savev(pixbuf, filename, type, keys, vals, error);
+}
+
+EXPORT int my_gdk_pixbuf_save_to_buffer(x64emu_t* emu, void* pixbuf, void* buffer, void* buffer_size, void* type, void* error, uintptr_t* b)
+{
+    int n = 0;
+    while ((((void*)getVArgs(emu, 5, b, n * 2))) != NULL)
+        n += 1;
+    char* keys[n + 1];
+    char* vals[n + 1];
+    for (int i = 0; i < n; ++i) {
+        keys[i] = (char*)getVArgs(emu, 5, b, i * 2 + 0);
+        vals[i] = (char*)getVArgs(emu, 5, b, i * 2 + 1);
+    }
+    keys[n] = vals[n] = NULL;
+
+    return my->gdk_pixbuf_save_to_bufferv(pixbuf, buffer, buffer_size, type, keys, vals, error);
 }
 
 #define PRE_INIT \

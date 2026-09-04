@@ -42,11 +42,14 @@ typedef void (*vFpppppuu_t)(void*, void*, void*, void*, void*, uint32_t, uint32_
 	GO(gtk_style_context_get_style_valist, vFpA_t) \
 	GO(gtk_init_check, iFpp_t) \
 	GO(gtk_key_snooper_install, uFpp_t) \
+	GO(gtk_list_store_new, pFiV_t) \
 	GO(gtk_tree_store_new, pFiV_t) \
 	GO(gtk_style_context_get, vFpuV_t) \
 	GO(gtk_style_context_get_valist, vFpuA_t) \
 	GO(gtk_builder_connect_signals_full, vFppp_t) \
+	GO(gtk_clipboard_request_targets, vFppp_t) \
 	GO(gtk_clipboard_request_text, vFppp_t) \
+	GO(gtk_clipboard_request_uris, vFppp_t) \
 	GO(gtk_container_forall, vFppp_t) \
 	GO(gtk_container_foreach, vFppp_t) \
 	GO(gtk_menu_attach_to_widget, vFppp_t) \
