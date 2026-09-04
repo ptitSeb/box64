@@ -70,19 +70,22 @@ uintptr_t dynarec64_AVX_F2_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             } else {
                 gb1 = 0;
             }
+            MV(x2, vd);
+            MV(x4, ed);
             MOV64x(gd, 0);
-            MOV64x(x3, 1);
-            MOV64x(x4, 1);
+            BEQZ_MARK2(x4);
             MARK;
-            AND(x5, ed, x4);
-            BEQZ_MARK2(x5);
-            AND(x5, vd, x3);
-            BEQZ_MARK3(x5);
-            OR(gd, gd, x4);
-            MARK3;
-            SLLIxw(x3, x3, 1);
+            CTZxw(x3, x4);
+            ANDI(x5, x2, 1);
+            SLLxw(x5, x5, x3);
+            OR(gd, gd, x5);
+            if (rex.w)
+                ADDI_D(x5, x4, -1);
+            else
+                ADDI_W(x5, x4, -1);
+            AND(x4, x4, x5);
+            SRLIxw(x2, x2, 1);
             MARK2;
-            SLLIxw(x4, x4, 1);
             BNEZ_MARK(x4);
             if (gb1)
                 OR(gb1, gd, gd);
