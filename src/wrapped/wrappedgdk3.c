@@ -237,6 +237,6 @@ EXPORT uint32_t my3_gdk_seat_grab(x64emu_t* emu, void* seat, void* window, uint3
 
 #define ALTMY my3_
 
-#define NEEDED_LIBS "libgobject-2.0.so.0", "libgio-2.0.so.0", "libgdk_pixbuf-2.0.so.0"
+#define NEEDED_LIBS "libgobject-2.0.so.0", "libgio-2.0.so.0", "libgdk_pixbuf-2.0.so.0", "libcairo.so.2"
 
 #include "wrappedlib_init.h"
