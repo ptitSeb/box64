@@ -69,7 +69,9 @@ box64_add_test(pshufb 23)
 box64_add_test(bswap 24)
 box64_add_test(x87cache 25)
 box64_add_test(feround 26 ENV "BOX64_SYNC_ROUNDING=1")
-box64_add_test(sse4_2 27 DISABLED_ON_ANDROID)
+if(NOT (CI AND LARCH64)) # vmepatmsk.v is not implemented in QEMU yet
+    box64_add_test(sse4_2 27 DISABLED_ON_ANDROID)
+endif()
 box64_add_test(shaext 28)
 box64_add_test(lock 29)
 # disable CALLRET=2 for test30 because it breaks LoongArch CI for unknown reasons.
