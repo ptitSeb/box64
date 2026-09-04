@@ -1,12 +1,15 @@
 // SPDX-License-Identifier: MIT
 #include <string.h>
 
+#include <pthread.h>
+
 #include "debug.h"
 #include "bridge.h"
 #include "box64context.h"
 #include "box64cpu.h"
 #include "custommem.h"
 #include "dynablock.h"
+#include "khash.h"
 #include "../dynablock_private.h"
 
 #include "dynarec_la64_private.h"
@@ -44,6 +47,42 @@ int la64_native_call_writes_memory(la64_native_call_t call)
 int isInlinableNativeCall(uintptr_t addr)
 {
     return la64_get_native_call(addr) != LA64_NATIVE_NONE;
+}
+
+KHASH_SET_INIT_STR(nofpu)
+
+static kh_nofpu_t* nofpufuncs = NULL;
+static pthread_once_t nofpufuncs_once = PTHREAD_ONCE_INIT;
+
+static void init_nofpufuncs(void)
+{
+    static const char* names[] = {
+        "pthread_getspecific",
+        "__pthread_getspecific",
+        "pthread_setspecific",
+        "__pthread_setspecific",
+        "pthread_self",
+        "pthread_mutex_lock",
+        "__pthread_mutex_lock",
+        "pthread_mutex_unlock",
+        "__pthread_mutex_unlock",
+        "pthread_mutex_trylock",
+        "__pthread_mutex_trylock",
+    };
+    nofpufuncs = kh_init(nofpu);
+    int ret;
+    for (size_t i = 0; i < sizeof(names) / sizeof(names[0]); ++i)
+        kh_put(nofpu, nofpufuncs, names[i], &ret);
+}
+
+int la64_native_call_nofpu(uintptr_t addr)
+{
+    if (box64_is32bits) return 0;
+    const char* name = getBridgeName((void*)addr);
+    if (!name)
+        return 0;
+    pthread_once(&nofpufuncs_once, init_nofpufuncs);
+    return kh_get(nofpu, nofpufuncs, name) != kh_end(nofpufuncs);
 }
 
 void la64_native_call_pass2(dynarec_la64_t* dyn, la64_native_call_t call);

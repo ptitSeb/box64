@@ -20,6 +20,7 @@ typedef enum la64_native_call_e {
 
 la64_native_call_t la64_get_native_call(uintptr_t addr);
 int la64_native_call_writes_memory(la64_native_call_t call);
+int la64_native_call_nofpu(uintptr_t addr);
 void* create_native_call(la64_native_call_t call);
 
 #ifdef STEP

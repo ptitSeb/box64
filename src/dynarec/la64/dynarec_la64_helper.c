@@ -632,13 +632,13 @@ void call_c(dynarec_la64_t* dyn, int ninst, la64_consts_t fnc, int reg, int ret,
     dyn->last_ip = 0;
 }
 
-void call_n(dynarec_la64_t* dyn, int ninst, void* fnc, int w)
+void call_n(dynarec_la64_t* dyn, int ninst, void* fnc, int w, int nofpu)
 {
     MAYUSE(fnc);
     dyn->insts[ninst].host_call = 1;
     UP32_READALL();
     CHECK_DFNONE(1);
-    fpu_pushcache(dyn, ninst, x3, 1);
+    if (!nofpu) fpu_pushcache(dyn, ninst, x3, 1);
     ST_D(xRSP, xEmu, offsetof(x64emu_t, regs[_SP]));
     ST_D(xRBP, xEmu, offsetof(x64emu_t, regs[_BP]));
     ST_D(xRBX, xEmu, offsetof(x64emu_t, regs[_BX]));
@@ -660,20 +660,22 @@ void call_n(dynarec_la64_t* dyn, int ninst, void* fnc, int w)
     // Note that if need_reloc is active, the TABLE64 will trigger cancel block,
     // because native function might be very different on a next run: different function address, different brick, different everything basicaly
     // and we don't have a relocation mecanism here, it's too complex
-    MOVGR2FCSR(FCSR3, xZR);
+    if (!nofpu) MOVGR2FCSR(FCSR3, xZR);
     JIRL(xRA, x3, 0x0);
-    LA64_RESTORE_VZERO();
-    sse_fcsr3_from_mxcsr(dyn, ninst, x2);
+    if (!nofpu) {
+        LA64_RESTORE_VZERO();
+        sse_fcsr3_from_mxcsr(dyn, ninst, x2);
+    }
     // put return value in x64 regs
     if (w > 0) {
         MV(xRAX, A0);
-        MV(xRDX, A1);
+        if (!nofpu) MV(xRDX, A1);
     }
     // all done, restore all regs
     LD_D(xRSP, xEmu, offsetof(x64emu_t, regs[_SP]));
     LD_D(xRBP, xEmu, offsetof(x64emu_t, regs[_BP]));
     LD_D(xRBX, xEmu, offsetof(x64emu_t, regs[_BX]));
-    fpu_popcache(dyn, ninst, x3, 1);
+    if (!nofpu) fpu_popcache(dyn, ninst, x3, 1);
     NATIVE_RESTORE_X87PC();
     // SET_NODF();
 }
