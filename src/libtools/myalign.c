@@ -1761,3 +1761,151 @@ void unregister_xcb_display(void* d)
             return;
         }
 }
+
+struct ftsent_node {
+    void* ent;
+    struct x64_ftsent* x64_ent;
+    struct ftsent_node* next;
+};
+
+struct fts_node {
+    void* fts;
+    struct ftsent_node* head;
+    struct fts_node* next;
+};
+
+static pthread_mutex_t fts_mutex = PTHREAD_MUTEX_INITIALIZER;
+static struct fts_node* fts_list = NULL;
+
+struct x64_ftsent* get_mapped_x64_ftsent(void* fts, void* ent)
+{
+    pthread_mutex_lock(&fts_mutex);
+
+    struct x64_ftsent* x64_ent = NULL;
+
+    struct fts_node *node;
+    for (node = fts_list; node; node = node->next) {
+            if (node->fts == fts) break;
+    }
+    if (!node) {
+        node = malloc(sizeof(struct fts_node));
+        if (!node) goto out;
+        node->fts = fts;
+        node->head = NULL;
+        node->next = fts_list;
+        fts_list = node;
+    }
+
+    struct ftsent_node* n;
+    for (struct ftsent_node* n = node->head; n; n = n->next) {
+        if (n->ent == ent) {
+            x64_ent = n->x64_ent;
+            goto out;
+        }
+    }
+
+    n = malloc(sizeof(struct ftsent_node));
+    if (!n) goto out;
+    x64_ent = malloc(sizeof(struct x64_ftsent) + ((FTSENT*)ent)->fts_namelen);
+    if (!x64_ent) {
+        free(n);
+        goto out;
+    }
+    n->ent = ent;
+    n->x64_ent = x64_ent;
+    n->next = node->head;
+    node->head = n;
+
+out:
+    pthread_mutex_unlock(&fts_mutex);
+    return x64_ent;
+}
+
+void cleanup_fts_mappings(void* fts)
+{
+    pthread_mutex_lock(&fts_mutex);
+
+    struct fts_node** pp = &fts_list;
+    while (*pp) {
+        if ((*pp)->fts == fts) {
+            struct fts_node* t = *pp;
+            struct ftsent_node *n = t->head;
+            while (n) {
+                struct ftsent_node *next = n->next;
+                free(n->x64_ent);
+                free(n);
+                n = next;
+            }
+            *pp = t->next;
+            free(t);
+            break;
+        }
+        pp = &(*pp)->next;
+    }
+
+    pthread_mutex_unlock(&fts_mutex);
+}
+
+void UnalignFTSENT(void* dest, void* source)
+{
+    struct x64_ftsent* d = (struct x64_ftsent*)dest;
+    FTSENT* s = (FTSENT*)source;
+    /*
+     * fts_cycle, fts_parent, fts_link and fts_statp are copied as raw
+     * pointers without layout conversion for now. Recursively calling
+     * UnalignFTSENT on them may walk up the fts_parent chain to the
+     * root, and fts_cycle may form a loop, causing unbounded recursion
+     */
+    d->fts_cycle   = ((struct x64_ftsent*)s)->fts_cycle;
+    d->fts_parent  = ((struct x64_ftsent*)s)->fts_parent;
+    d->fts_link    = ((struct x64_ftsent*)s)->fts_link;
+    d->fts_number  = s->fts_number;
+    d->fts_pointer = s->fts_pointer;
+    d->fts_accpath = s->fts_accpath;
+    d->fts_path    = s->fts_path;
+    d->fts_errno   = s->fts_errno;
+    d->fts_symfd   = s->fts_symfd;
+    d->fts_pathlen = s->fts_pathlen;
+    d->fts_namelen = s->fts_namelen;
+    d->_pad0       = 0;
+    d->fts_ino     = s->fts_ino;
+    d->fts_dev     = s->fts_dev;
+    d->fts_nlink   = s->fts_nlink;
+    d->fts_level   = s->fts_level;
+    d->fts_info    = s->fts_info;
+    d->fts_flags   = s->fts_flags;
+    d->fts_instr   = s->fts_instr;
+    d->fts_statp   = ((struct x64_ftsent*)s)->fts_statp;
+    memcpy(d->fts_name, s->fts_name, s->fts_namelen + 1);
+}
+
+void AlignFTSENT(void* dest, void* source)
+{
+    FTSENT *d = (FTSENT*)dest;
+    struct x64_ftsent *s = (struct x64_ftsent*)source;
+    /*
+     * Reverse conversion (x64 -> native). Same rationale as UnalignFTSENT:
+     * fts_cycle, fts_parent, fts_link, fts_statp are copied verbatim
+     * without recursing.
+     */
+    d->fts_cycle   = ((FTSENT*)s)->fts_cycle;
+    d->fts_parent  = ((FTSENT*)s)->fts_parent;
+    d->fts_link    = ((FTSENT*)s)->fts_link;
+    d->fts_number  = s->fts_number;
+    d->fts_pointer = s->fts_pointer;
+    d->fts_accpath = s->fts_accpath;
+    d->fts_path    = s->fts_path;
+    d->fts_errno   = s->fts_errno;
+    d->fts_symfd   = s->fts_symfd;
+    d->fts_pathlen = s->fts_pathlen;
+    d->fts_namelen = s->fts_namelen;
+    d->fts_ino     = s->fts_ino;
+    d->fts_dev     = s->fts_dev;
+    d->fts_nlink   = s->fts_nlink;
+    d->fts_level   = s->fts_level;
+    d->fts_info    = s->fts_info;
+    d->fts_flags   = s->fts_flags;
+    d->fts_instr   = s->fts_instr;
+    d->fts_statp   = ((FTSENT*)s)->fts_statp;
+    memcpy(d->fts_name, s->fts_name, s->fts_namelen + 1);
+}

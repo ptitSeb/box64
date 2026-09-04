@@ -326,4 +326,40 @@ typedef struct my_x64_user_s
 } my_x64_user_t;
 
 
+/* FTSENT layout difference between x86_64 and other architectures:
+ * - On x86_64: nlink_t is 8 bytes
+ * - On other architectures (ARM, RISC-V, etc.): nlink_t is 4 bytes
+ *   See: https://github.com/gnutools/glibc/blob/master/sysdeps/unix/sysv/linux/x86/bits/typesizes.h
+ * - FTSENT definition: https://github.com/gnutools/glibc/blob/master/io/fts.h
+ */
+struct x64_ftsent {                     /* x86_64     other */
+  struct x64_ftsent *fts_cycle;       /* 0   */   /* 0   */
+  struct x64_ftsent *fts_parent;      /* 8   */   /* 8   */
+  struct x64_ftsent *fts_link;        /* 16  */   /* 16  */
+  long fts_number;                    /* 24  */   /* 24  */
+  void *fts_pointer;                  /* 32  */   /* 32  */
+  char *fts_accpath;                  /* 40  */   /* 40  */
+  char *fts_path;                     /* 48  */   /* 48  */
+  int fts_errno;                      /* 56  */   /* 56  */
+  int fts_symfd;                      /* 60  */   /* 60  */
+  uint16_t fts_pathlen;               /* 64  */   /* 64  */
+  uint16_t fts_namelen;               /* 66  */   /* 66  */
+  uint32_t _pad0;                     /* 68  */   /* --- */
+  uint64_t fts_ino;                   /* 72  */   /* 72  */
+  uint64_t fts_dev;                   /* 80  */   /* 80  */
+  uint64_t fts_nlink;                 /* 88  */   /* 88  */
+  int16_t fts_level;                  /* 96  */   /* 92  */
+  uint16_t fts_info;                  /* 98  */   /* 94  */
+  uint16_t fts_flags;                 /* 100 */   /* 96  */
+  uint16_t fts_instr;                 /* 102 */   /* 98  */
+  struct x64_stat64 *fts_statp;       /* 104 */   /* 104 */
+  char fts_name[1];                   /* 112 */   /* 112 */
+} __attribute__((packed));            /* 120 */   /* 120 */
+
+struct x64_ftsent* get_mapped_x64_ftsent(void* fts, void* ent);
+void cleanup_fts_mappings(void* fts);
+
+void UnalignFTSENT(void* dest, void* source);
+void AlignFTSENT(void* dest, void* source);
+
 #endif  //__MY_ALIGN__H_
