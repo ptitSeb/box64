@@ -1572,6 +1572,66 @@ static void* find_zwp_confined_pointer_v1_listener_Fct(void* fct)
     printf_log(LOG_NONE, "Warning, no more slot for wayland-client zwp_confined_pointer_v1_listener callback\n");
     return NULL;
 }
+// gtk_shell1_listener ...
+typedef struct my_gtk_shell1_listener_s {
+    uintptr_t   capabilities; //vFppu
+} my_gtk_shell1_listener_t;
+#define GO(A)                                                                     \
+static my_gtk_shell1_listener_t* ref_gtk_shell1_listener_##A = NULL;              \
+static void my_gtk_shell1_listener_capabilities_##A(void* a, void* b, uint32_t c) \
+{                                                                                 \
+    RunFunctionFmt(ref_gtk_shell1_listener_##A->capabilities, "ppu", a, b, c);    \
+}                                                                                 \
+static my_gtk_shell1_listener_t my_gtk_shell1_listener_fct_##A = {                \
+    (uintptr_t)my_gtk_shell1_listener_capabilities_##A,                           \
+};
+SUPER()
+#undef GO
+static void* find_gtk_shell1_listener_Fct(void* fct)
+{
+    if(!fct) return fct;
+    #define GO(A) if(ref_gtk_shell1_listener_##A == fct) return &my_gtk_shell1_listener_fct_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(ref_gtk_shell1_listener_##A == 0) {ref_gtk_shell1_listener_##A = fct; return &my_gtk_shell1_listener_fct_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for wayland-client gtk_shell1_listener callback\n");
+    return NULL;
+}
+// gtk_surface1_listener ...
+typedef struct my_gtk_surface1_listener_s {
+    uintptr_t   configure;       //vFppp
+    uintptr_t   configure_edges; //vFppp
+} my_gtk_surface1_listener_t;
+#define GO(A)                                                                       \
+static my_gtk_surface1_listener_t* ref_gtk_surface1_listener_##A = NULL;            \
+static void my_gtk_surface1_listener_configure_##A(void* a, void* b, void* c)       \
+{                                                                                   \
+    RunFunctionFmt(ref_gtk_surface1_listener_##A->configure, "ppp", a, b, c);       \
+}                                                                                   \
+static void my_gtk_surface1_listener_configure_edges_##A(void* a, void* b, void* c) \
+{                                                                                   \
+    RunFunctionFmt(ref_gtk_surface1_listener_##A->configure_edges, "ppp", a, b, c); \
+}                                                                                   \
+static my_gtk_surface1_listener_t my_gtk_surface1_listener_fct_##A = {              \
+    (uintptr_t)my_gtk_surface1_listener_configure_##A,                              \
+    (uintptr_t)my_gtk_surface1_listener_configure_edges_##A,                        \
+};
+SUPER()
+#undef GO
+static void* find_gtk_surface1_listener_Fct(void* fct)
+{
+    if(!fct) return fct;
+    #define GO(A) if(ref_gtk_surface1_listener_##A == fct) return &my_gtk_surface1_listener_fct_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(ref_gtk_surface1_listener_##A == 0) {ref_gtk_surface1_listener_##A = fct; return &my_gtk_surface1_listener_fct_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for wayland-client gtk_surface1_listener callback\n");
+    return NULL;
+}
 #undef SUPER
 
 EXPORT int my_wl_proxy_add_listener(x64emu_t* emu, void* proxy, void** l, void* data)
@@ -1650,6 +1710,10 @@ EXPORT int my_wl_proxy_add_listener(x64emu_t* emu, void* proxy, void** l, void* 
         l = find_zwp_locked_pointer_v1_listener_Fct(l);
     } else if (!strcmp(proxy_name, "zwp_confined_pointer_v1")) {
         l = find_zwp_confined_pointer_v1_listener_Fct(l);
+    } else if (!strcmp(proxy_name, "gtk_shell1")) {
+        l = find_gtk_shell1_listener_Fct(l);
+    } else if (!strcmp(proxy_name, "gtk_surface1")) {
+        l = find_gtk_surface1_listener_Fct(l);
     } else
         printf_log(LOG_INFO, "Error, Wayland-client, add_listener to %s unknown, will crash soon!\n", proxy_name);
     return my->wl_proxy_add_listener(proxy, l, data);
