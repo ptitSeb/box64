@@ -558,7 +558,8 @@ static void* findon_exitFct(void* fct)
 EXPORT int my32_statvfs64(x64emu_t* emu, void* f, void* r)
 {
     struct statvfs s = {0};
-    int ret = statvfs(f, r?&s:NULL);
+    struct statvfs* p = r?&s:NULL;
+    int ret = statvfs(f, p);
     if(r)
         UnalignStatVFS64_32(&s, r);
     return ret;
@@ -567,7 +568,8 @@ EXPORT int my32_statvfs64(x64emu_t* emu, void* f, void* r)
 EXPORT int my32_statvfs(x64emu_t* emu, void* f, void* r)
 {
     struct statvfs s = {0};
-    int ret = statvfs(f, r?&s:NULL);
+    struct statvfs* p = r?&s:NULL;
+    int ret = statvfs(f, p);
     if(r)
         UnalignStatVFS_32(&s, r);
     return ret;
@@ -576,7 +578,8 @@ EXPORT int my32_statvfs(x64emu_t* emu, void* f, void* r)
 EXPORT int my32_fstatvfs64(x64emu_t* emu, int fd, void* r)
 {
     struct statvfs s = {0};
-    int ret = fstatvfs(fd, r?&s:NULL);
+    struct statvfs* p = r?&s:NULL;
+    int ret = fstatvfs(fd, p);
     if(r)
         UnalignStatVFS64_32(&s, r);
     return ret;
@@ -585,7 +588,8 @@ EXPORT int my32_fstatvfs64(x64emu_t* emu, int fd, void* r)
 EXPORT int my32_fstatvfs(x64emu_t* emu, int fd, void* r)
 {
     struct statvfs s = {0};
-    int ret = fstatvfs(fd, r?&s:NULL);
+    struct statvfs* p = r?&s:NULL;
+    int ret = fstatvfs(fd, p);
     if(r)
         UnalignStatVFS_32(&s, r);
     return ret;
@@ -594,7 +598,8 @@ EXPORT int my32_fstatvfs(x64emu_t* emu, int fd, void* r)
 EXPORT int my32_fstatat(x64emu_t* emu, int fd, void* name, void* buff, int flags)
 {
     struct stat64 s = {0};
-    int ret = fstatat64(fd, name, buff?&s:NULL, flags);
+    struct stat64* p = buff?&s:NULL;
+    int ret = fstatat64(fd, name, p, flags);
     if(buff)
         FillStatFromStat64(3, &s, buff);
     return ret;
@@ -603,7 +608,8 @@ EXPORT int my32_fstatat(x64emu_t* emu, int fd, void* name, void* buff, int flags
 EXPORT int my32_fstatat64(x64emu_t* emu, int fd, void* name, void* buff, int flags)
 {
     struct stat64 s = {0};
-    int ret = fstatat64(fd, name, buff?&s:NULL, flags);
+    struct stat64* p = buff?&s:NULL;
+    int ret = fstatat64(fd, name, p, flags);
     if(buff)
         UnalignStat64_32(&s, buff);
     return ret;
@@ -612,7 +618,8 @@ EXPORT int my32_fstatat64(x64emu_t* emu, int fd, void* name, void* buff, int fla
 EXPORT int my32___stat64_time64(x64emu_t* emu, void* f, void* r)
 {
     struct stat64 s = {0};
-    int ret = stat64(f, r?&s:NULL);
+    struct stat64* p = r?&s:NULL;
+    int ret = stat64(f, p);
     if(r)
         UnalignStat64_32_t64(&s, r);
     return ret;
@@ -621,7 +628,8 @@ EXPORT int my32___stat64_time64(x64emu_t* emu, void* f, void* r)
 EXPORT int my32___lstat64_time64(x64emu_t* emu, void* f, void* r)
 {
     struct stat64 s = {0};
-    int ret = lstat64(f, r?&s:NULL);
+    struct stat64* p = r?&s:NULL;
+    int ret = lstat64(f, p);
     if(r)
         UnalignStat64_32_t64(&s, r);
     return ret;
@@ -630,7 +638,8 @@ EXPORT int my32___lstat64_time64(x64emu_t* emu, void* f, void* r)
 EXPORT int my32___fstat64_time64(x64emu_t* emu, int fd, void* r)
 {
     struct stat64 s = {0};
-    int ret = fstat64(fd, r?&s:NULL);
+    struct stat64* p = r?&s:NULL;
+    int ret = fstat64(fd, p);
     if(r)
         UnalignStat64_32_t64(&s, r);
     return ret;
@@ -1724,7 +1733,8 @@ EXPORT int32_t my32_epoll_wait(x64emu_t* emu, int32_t epfd, void* events, int32_
 {
     struct epoll_event _events[maxevents];
     //AlignEpollEvent(_events, events, maxevents);
-    int32_t ret = epoll_wait(epfd, events?_events:NULL, maxevents, timeout);
+    struct epoll_event* ev = events?_events:NULL;
+    int32_t ret = epoll_wait(epfd, ev, maxevents, timeout);
     if(ret>0)
         UnalignEpollEvent32(events, _events, ret);
     return ret;
@@ -2761,7 +2771,9 @@ EXPORT int my32_alphasort64(x64emu_t* emu, ptr_t* d1_, ptr_t* d2_)
     const struct dirent64* d2 = NULL;
     if(d1_) d1 = (struct dirent64*)from_ptrv(*d1_);
     if(d2_) d2 = (struct dirent64*)from_ptrv(*d2_);
-    return alphasort64(d1_?(&d1):NULL, d2_?(&d2):NULL);
+    const struct dirent64** e1 = d1_?(&d1):NULL;
+    const struct dirent64** e2 = d2_?(&d2):NULL;
+    return alphasort64(e1, e2);
 }
 
 #ifndef ANDROID

@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: MIT
 #include "gdbjit.h"
 #include <stdio.h>
+#include <inttypes.h>
 
-static char block_name_buffer[16];
+static char block_name_buffer[2 * sizeof(uintptr_t) + 1];
 
 static enum gdb_status read_debug_info(struct gdb_reader_funcs* self, struct gdb_symbol_callbacks* cbs, void* memory, long memory_sz)
 {
@@ -10,7 +11,7 @@ static enum gdb_status read_debug_info(struct gdb_reader_funcs* self, struct gdb
 
     struct gdb_object* object = cbs->object_open(cbs);
     struct gdb_symtab* symtab = cbs->symtab_open(cbs, object, block->filename);
-    sprintf(block_name_buffer, "%x", block->x64start);
+    sprintf(block_name_buffer, "%" PRIxPTR, block->x64start);
     cbs->block_open(cbs, symtab, NULL, block->start, block->end, block_name_buffer);
 
     cbs->line_mapping_add(cbs, symtab, block->nlines, block->lines);
