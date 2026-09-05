@@ -459,14 +459,14 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 FCVTSD(d0, d0);
                 if (!BOX64ENV(dynarec_fastnan)) {
                     BNEZ_MARKi(x4, i);
-                    SRLI(x6, x3, 63);
-                    SLLI(x6, x6, 31);
+                    SRLI(x4, x3, 63);
+                    SLLI(x4, x4, 31);
                     SRLI(x3, x3, 29);
                     MOV32w(x5, 0x007fffff);
                     AND(x3, x3, x5);
                     LUI(x5, 0x7fc00);
                     OR(x3, x3, x5);
-                    OR(x3, x3, x6);
+                    OR(x3, x3, x4);
                     FMVWX(d0, x3);
                     MARKi(i);
                 }
