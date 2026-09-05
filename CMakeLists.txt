@@ -1387,8 +1387,13 @@ if(NOT NOBOX64)
         # If symbols are missing, try this: target_link_options(${BOX64} PUBLIC -rdynamic)
         if(NOT NOLOADADDR)
             if(CMAKE_C_COMPILER_ID STREQUAL "Clang" OR WITH_MOLD)
-                if(WITH_MOLD) # --image-base requires -no-pie in mold!
-                    set_property(TARGET ${BOX64} APPEND_STRING PROPERTY LINK_FLAGS "-no-pie -lm ")
+                # --image-base alone does not disable PIE with Clang/LLD.
+                # Android requires PIE.
+                if(NOT ANDROID)
+                    target_link_options(${BOX64} PUBLIC -no-pie)
+                endif()
+                if(WITH_MOLD)
+                    set_property(TARGET ${BOX64} APPEND_STRING PROPERTY LINK_FLAGS "-lm ")
                 endif()
                 target_link_options(${BOX64} PUBLIC LINKER:--image-base=${BOX64_ELF_ADDRESS})
             else()
