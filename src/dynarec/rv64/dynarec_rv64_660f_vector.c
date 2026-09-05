@@ -669,10 +669,9 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                         GETGX_vector(v0, 1, VECTOR_SEW32);
                         GETEX_vector(v1, 0, 0, VECTOR_SEW32);
                         d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-                        d1 = fpu_get_scratch(dyn);
                         VWMUL_VV(d0, v0, v1, VECTOR_UNMASKED);
                         SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
-                        VSLIDEUP_VI(d0, d1, 1, VECTOR_UNMASKED);
+                        VSLIDEUP_VI(d0, d0 + 1, 1, VECTOR_UNMASKED);
                         VMV_V_V(v0, d0);
                     }
                     break;
