@@ -11,4 +11,11 @@ int VolatileRangesContains(uintptr_t addr);
 // Check if a given address is contained within the volatile opcode entries.
 int VolatileOpcodesHas(uintptr_t addr);
 
+// Register strong memory ranges, from a comma separated spec of "<start>-<end>" (plain addresses)
+// and/or "<module>:<rvaStart>-<rvaEnd>" (resolved when that module is mapped) entries.
+void RegisterStrongMemRanges(const char* spec, const char* filename, void* addr);
+
+// Check if a given address is contained within the strong memory ranges.
+int StrongMemRangesContains(uintptr_t addr);
+
 #endif // __PE_TOOLS_H__
