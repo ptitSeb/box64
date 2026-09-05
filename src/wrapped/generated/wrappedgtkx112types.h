@@ -58,7 +58,9 @@ typedef void* (*pFpipppppppi_t)(void*, int32_t, void*, void*, void*, void*, void
 	GO(gtk_tree_store_new, pFiV_t) \
 	GO(gtk_type_check_object_cast, pFpi_t) \
 	GO(gtk_builder_connect_signals_full, vFppp_t) \
+	GO(gtk_clipboard_request_targets, vFppp_t) \
 	GO(gtk_clipboard_request_text, vFppp_t) \
+	GO(gtk_clipboard_request_uris, vFppp_t) \
 	GO(gtk_container_forall, vFppp_t) \
 	GO(gtk_container_foreach, vFppp_t) \
 	GO(gtk_menu_attach_to_widget, vFppp_t) \

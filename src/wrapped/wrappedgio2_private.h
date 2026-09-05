@@ -1014,7 +1014,7 @@ GO(g_loadable_icon_load_finish, pFpppp)
 //GO(g_local_directory_monitor_get_type, 
 //GO(g_local_file_monitor_get_type, 
 GO(g_memory_input_stream_add_bytes, vFpp)
-//GOM(g_memory_input_stream_add_data, vFEpplp)
+GOM(g_memory_input_stream_add_data, vFEpplp)
 GO(g_memory_input_stream_get_type, LFv)
 GO(g_memory_input_stream_new, pFv)
 GO(g_memory_input_stream_new_from_bytes, pFp)

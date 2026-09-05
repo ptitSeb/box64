@@ -751,6 +751,11 @@ EXPORT void* my_g_memory_input_stream_new_from_data(x64emu_t* emu, void* data, s
     return my->g_memory_input_stream_new_from_data(data, len, findGDestroyNotifyFct(f));
 }
 
+EXPORT void my_g_memory_input_stream_add_data(x64emu_t* emu, void* stream, void* data, ssize_t len, void* f)
+{
+    my->g_memory_input_stream_add_data(stream, data, len, findGDestroyNotifyFct(f));
+}
+
 
 static const char** prepare_spawn_argv(const char* const* argv)
 {

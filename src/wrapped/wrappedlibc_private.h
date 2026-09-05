@@ -484,6 +484,13 @@ GO(__freading, iFp)
 GO(fread_unlocked, LFpLLS)
 GO(__fread_unlocked_chk, LFpLLLp)
 GO(free, vFp)
+#ifdef STATICBUILD
+//GO(free_aligned_sized, vFpLL)
+//GO(free_sized, vFpL)
+#else
+GO(free_aligned_sized, vFpLL)
+GO(free_sized, vFpL)
+#endif
 GO(freeaddrinfo, vFp)
 GOW(freeifaddrs, vFp)
 GO(__freelocale, vFp)

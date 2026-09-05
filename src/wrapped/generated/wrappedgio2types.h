@@ -19,6 +19,7 @@ typedef void* (*pFplp_t)(void*, intptr_t, void*);
 typedef void* (*pFppp_t)(void*, void*, void*);
 typedef void (*vFippp_t)(int32_t, void*, void*, void*);
 typedef void (*vFppip_t)(void*, void*, int32_t, void*);
+typedef void (*vFpplp_t)(void*, void*, intptr_t, void*);
 typedef void (*vFpppp_t)(void*, void*, void*, void*);
 typedef uint32_t (*uFpppp_t)(void*, void*, void*, void*);
 typedef uintptr_t (*LFpppp_t)(void*, void*, void*, void*);
@@ -62,6 +63,7 @@ typedef void (*vFpppppppuipppp_t)(void*, void*, void*, void*, void*, void*, void
 	GO(g_bus_get, vFippp_t) \
 	GO(g_action_map_add_action_entries, vFppip_t) \
 	GO(g_simple_async_result_run_in_thread, vFppip_t) \
+	GO(g_memory_input_stream_add_data, vFpplp_t) \
 	GO(g_dbus_connection_close, vFpppp_t) \
 	GO(g_dbus_connection_flush, vFpppp_t) \
 	GO(g_simple_async_report_gerror_in_idle, vFpppp_t) \

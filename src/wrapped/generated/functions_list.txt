@@ -384,7 +384,6 @@
 #() pFii
 #() pFiu
 #() pFip
-#() pFiV
 #() pFWW
 #() pFui
 #() pFuu
@@ -1731,6 +1730,7 @@
 #() vFEppiV
 #() vFEppuu
 #() vFEppup
+#() vFEpplp
 #() vFEppLp
 #() vFEpppi
 #() vFEpppu
@@ -3134,6 +3134,7 @@
 #() iFEpppLpp
 #() iFEpppppL
 #() iFEpppppp
+#() iFEpppppV
 #() iFiippppp
 #() iFiuuuuii
 #() iFiupuuup
@@ -4680,6 +4681,8 @@ wrappedgdk3:
 wrappedgdkpixbuf2:
 - iFppppV:
   - gdk_pixbuf_save
+- iFpppppV:
+  - gdk_pixbuf_save_to_buffer
 - pFpuiiiiipp:
   - gdk_pixbuf_new_from_data
 wrappedgdkx112:
@@ -4716,6 +4719,8 @@ wrappedgio2:
 - vFppip:
   - g_action_map_add_action_entries
   - g_simple_async_result_run_in_thread
+- vFpplp:
+  - g_memory_input_stream_add_data
 - vFpppp:
   - g_dbus_connection_close
   - g_dbus_connection_flush
@@ -5275,6 +5280,7 @@ wrappedgtk3:
 - uFpp:
   - gtk_key_snooper_install
 - pFiV:
+  - gtk_list_store_new
   - gtk_tree_store_new
 - vFpuV:
   - gtk_style_context_get
@@ -5282,7 +5288,9 @@ wrappedgtk3:
   - gtk_style_context_get_valist
 - vFppp:
   - gtk_builder_connect_signals_full
+  - gtk_clipboard_request_targets
   - gtk_clipboard_request_text
+  - gtk_clipboard_request_uris
   - gtk_container_forall
   - gtk_container_foreach
   - gtk_menu_attach_to_widget
@@ -5347,7 +5355,9 @@ wrappedgtkx112:
   - gtk_type_check_object_cast
 - vFppp:
   - gtk_builder_connect_signals_full
+  - gtk_clipboard_request_targets
   - gtk_clipboard_request_text
+  - gtk_clipboard_request_uris
   - gtk_container_forall
   - gtk_container_foreach
   - gtk_menu_attach_to_widget
