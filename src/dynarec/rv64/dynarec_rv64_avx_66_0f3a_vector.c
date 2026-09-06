@@ -49,6 +49,38 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
     MAYUSE(j64);
 
     switch (opcode) {
+        case 0x00:
+        case 0x01:
+            if (opcode)
+                INST_NAME("VPERMPD Gx, Ex, Imm8");
+            else
+                INST_NAME("VPERMQ Gx, Ex, Imm8");
+            nextop = F8;
+            GETEY_vector(q0, 1, VECTOR_SEW64);
+            GETGY_empty_vector(v0);
+            u8 = F8;
+            VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
+            for (int i = 0; i < (2 << vex.l); ++i) {
+                MOV32w(x4, (u8 >> (2 * i)) & 3);
+                q1 = fpu_get_scratch(dyn);
+                VRGATHER_VX(q1, q0, x4, VECTOR_UNMASKED);
+                VECTOR_LOAD_VMASK(1 << i, x4, vex.l ? 2 : 1);
+                VMERGE_VVM(v0, v0, q1);
+            }
+            PUTGY_vector(v0, VECTOR_SEW64);
+            break;
+        case 0x02:
+            INST_NAME("VPBLENDD Gx, Vx, Ex, Imm8");
+            nextop = F8;
+            GETVY_vector(q0, VECTOR_SEW32);
+            GETEY_vector(q1, 1, VECTOR_SEW32);
+            GETGY_empty_vector(v0);
+            u8 = F8;
+            VECTOR_LOAD_VMASK(vex.l ? u8 : (u8 & 0xf), x4, vex.l ? 2 : 1);
+            q2 = fpu_get_scratch(dyn);
+            VMERGE_VVM(q2, q0, q1);
+            PUTGY_vector(q2, VECTOR_SEW32);
+            break;
         case 0x04:
             INST_NAME("VPERMILPS Gx, Ex, Ib");
             nextop = F8;
@@ -698,20 +730,19 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             break;
         }
         case 0x4C:
-            if (vex.l || rex.w) return 0;
+            if (rex.w) return 0;
             INST_NAME("VPBLENDVB Gx, Vx, Ex, Vx2");
             nextop = F8;
             q0 = fpu_get_scratch(dyn);
-            avx_load_reg_vector(dyn, ninst, x1, q0, vex.v, 16, VECTOR_SEW8);
+            avx_load_reg_vector(dyn, ninst, x1, q0, vex.v, 16 << vex.l, VECTOR_SEW8);
             GETEY_vector(q1, 1, VECTOR_SEW8);
             GETGY_empty_vector(v0);
             u8 = F8;
             q2 = fpu_get_scratch(dyn);
-            avx_load_reg_vector(dyn, ninst, x1, q2, (u8 >> 4) & 0xf, 16, VECTOR_SEW8);
+            avx_load_reg_vector(dyn, ninst, x1, q2, (u8 >> 4) & 0xf, 16 << vex.l, VECTOR_SEW8);
             VMSLT_VX(VMASK, q2, xZR, VECTOR_UNMASKED);
-            q3 = fpu_get_scratch(dyn);
-            VMERGE_VVM(q3, q0, q1);
-            avx_store_reg_vector(dyn, ninst, x1, q3, gd, 16, VECTOR_SEW8);
+            VMERGE_VVM(v0, q0, q1);
+            PUTGY_vector(v0, VECTOR_SEW8);
             break;
         case 0x4B:
             INST_NAME("VBLENDVPD Gx, Vx, Ex, Vx2");

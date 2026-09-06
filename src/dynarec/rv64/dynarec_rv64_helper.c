@@ -2908,6 +2908,17 @@ void vector_loadmask(dynarec_rv64_t* dyn, int ninst, int vreg, uint64_t imm, int
                 case 3:
                     VMV_V_I(vreg, 1);
                     return;
+                case 0b0101: {
+                    ADDI(s1, xZR, 1);
+                    VMV_S_X(vreg, s1);
+                    int scratch = fpu_get_scratch(dyn);
+                    int scratch2 = fpu_get_scratch(dyn);
+                    VMV_S_X(scratch, s1);
+                    VXOR_VV(scratch2, scratch2, scratch2, VECTOR_UNMASKED);
+                    VSLIDEUP_VI(scratch2, scratch, 2, VECTOR_UNMASKED);
+                    VMOR_MM(vreg, vreg, scratch2);
+                    return;
+                }
                 default: abort();
             }
         } else if ((sew == VECTOR_SEW32 && vlmul == VECTOR_LMUL1) || (sew == VECTOR_SEW64 && vlmul == VECTOR_LMUL2)) {
@@ -2940,6 +2951,7 @@ void vector_loadmask(dynarec_rv64_t* dyn, int ninst, int vreg, uint64_t imm, int
                     return;
                 }
                 case 0b0101:
+                case 0x55:
                     vector_vsetvli(dyn, ninst, s1, VECTOR_SEW64, VECTOR_LMUL1, 1);
                     VMV_V_I(vreg, 1);
                     vector_vsetvli(dyn, ninst, s1, sew, vlmul, multiple);
@@ -2982,6 +2994,7 @@ void vector_loadmask(dynarec_rv64_t* dyn, int ninst, int vreg, uint64_t imm, int
                     return;
                 }
                 case 0b1010:
+                case 0xAA:
                     vector_vsetvli(dyn, ninst, s1, VECTOR_SEW64, VECTOR_LMUL1, 1);
                     MOV64x(s1, 0x100000000ULL);
                     VMV_V_X(vreg, s1);
