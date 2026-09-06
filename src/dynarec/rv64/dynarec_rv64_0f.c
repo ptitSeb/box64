@@ -864,6 +864,90 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             break;
                     }
                     nextop = F8;
+                    if (u8 == 0xCB && cpuext.vector && cpuext.zvknha) {
+                        SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+                        GETGX_vector(v0, 1, VECTOR_SEW32);
+                        GETEX_vector(v1, 0, 8, VECTOR_SEW32);
+                        if (v0 == v1) {
+                            int t = fpu_get_scratch(dyn);
+                            VMV_V_V(t, v1);
+                            v1 = t;
+                        }
+                        int vx0 = sse_get_reg_vector(dyn, ninst, x1, 0, 0, VECTOR_SEW32);
+                        if (vx0 == v0 || vx0 == v1) {
+                            int t = fpu_get_scratch(dyn);
+                            VMV_V_V(t, vx0);
+                            vx0 = t;
+                        }
+                        VSHA2CL_VV(v0, v1, vx0);
+                        if (!MODREG) PUTEX_vector(v1, VECTOR_SEW32);
+                        break;
+                    }
+                    if (u8 != 0xCB && cpuext.vector && cpuext.zvbb) {
+                        SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+                        GETGX_vector(v0, 1, VECTOR_SEW32);
+                        GETEX_vector(v1, 0, 8, VECTOR_SEW32);
+                        d0 = fpu_get_scratch(dyn);
+                        d1 = fpu_get_scratch(dyn);
+                        q1 = fpu_get_scratch(dyn);
+                        int vz = fpu_get_scratch(dyn);
+                        VXOR_VV(vz, vz, vz, 1);
+                        switch (u8) {
+                            case 0xC8:
+                                VROR_VI(d0, v0, 2, 1);
+                                VADD_VV(d0, d0, v1, 1);
+                                if (v0 != v1) VOR_VV(v0, v1, v1, 1);
+                                VSLIDEDOWN_VI(d1, d0, 3, 1);
+                                VSLIDEUP_VI(v0, d1, 3, 1);
+                                break;
+                            case 0xC9:
+                                VSLIDEDOWN_VI(d0, v1, 2, 1);
+                                VSLIDEUP_VI(d0, vz, 2, 1);
+                                VSLIDEUP_VI(d0, v0, 2, 1);
+                                VXOR_VV(v0, v0, d0, 1);
+                                break;
+                            case 0xCA:
+                                VSLIDEUP_VI(d0, vz, 0, 1);
+                                VSLIDEUP_VI(d0, v1, 1, 1);
+                                VXOR_VV(d0, d0, v0, 1);
+                                VROR_VI(v0, d0, 31, 1);
+                                VSLIDEDOWN_VI(d1, v0, 3, 1);
+                                VSLIDEUP_VI(d1, vz, 1, 1);
+                                VROR_VI(d1, d1, 31, 1);
+                                VXOR_VV(v0, v0, d1, 1);
+                                break;
+                            case 0xCC:
+                                VSLIDEDOWN_VI(d0, v0, 1, 1);
+                                VSLIDEUP_VI(d0, v1, 3, 1);
+                                VROR_VI(d1, d0, 7, 1);
+                                VROR_VI(q1, d0, 18, 1);
+                                VXOR_VV(d1, d1, q1, 1);
+                                VSRL_VI(q1, d0, 3, 1);
+                                VXOR_VV(d1, d1, q1, 1);
+                                VADD_VV(v0, v0, d1, 1);
+                                break;
+                            case 0xCD:
+                                VSLIDEDOWN_VI(d0, v1, 2, 1);
+                                VSLIDEUP_VI(d0, vz, 2, 1);
+                                VROR_VI(d1, d0, 17, 1);
+                                VROR_VI(q1, d0, 19, 1);
+                                VXOR_VV(d1, d1, q1, 1);
+                                VSRL_VI(q1, d0, 10, 1);
+                                VXOR_VV(d1, d1, q1, 1);
+                                VADD_VV(v0, v0, d1, 1);
+                                VSLIDEUP_VI(d0, vz, 0, 1);
+                                VSLIDEUP_VI(d0, v0, 2, 1);
+                                VROR_VI(d1, d0, 17, 1);
+                                VROR_VI(q1, d0, 19, 1);
+                                VXOR_VV(d1, d1, q1, 1);
+                                VSRL_VI(q1, d0, 10, 1);
+                                VXOR_VV(d1, d1, q1, 1);
+                                VADD_VV(v0, v0, d1, 1);
+                                break;
+                        }
+                        if (!MODREG) PUTEX_vector(v1, VECTOR_SEW32);
+                        break;
+                    }
                     if (MODREG) {
                         ed = (nextop & 7) + (rex.b << 3);
                         sse_reflect_reg(dyn, ninst, x6, ed);

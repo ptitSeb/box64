@@ -68,6 +68,10 @@ void PrintHostCpuFeatures(void)
     // if(cpuext.xtheadmac) printf_log_prefix(0, LOG_INFO, " xtheadmac");
     // if(cpuext.xtheadfmv) printf_log_prefix(0, LOG_INFO, " xtheadfmv");
     if (cpuext.xtheadvector) printf_log_prefix(0, LOG_INFO, "_xthvector");
+    if (cpuext.zvkned) printf_log_prefix(0, LOG_INFO, "_zvkned");
+    if (cpuext.zvknha) printf_log_prefix(0, LOG_INFO, "_zvknha");
+    if (cpuext.zvknhb) printf_log_prefix(0, LOG_INFO, "_zvknhb");
+    if (cpuext.zvbb) printf_log_prefix(0, LOG_INFO, "_zvbb");
     printf_log_prefix(0, LOG_INFO, "\n");
 #elif defined(PPC64LE)
     printf_log(LOG_INFO, "Dynarec for PPC64LE (POWER9+, ISA 3.0)");

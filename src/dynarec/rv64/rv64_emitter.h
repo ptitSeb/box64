@@ -1662,6 +1662,17 @@
 #define VS4R_V(vs3, rs1)   EMIT(I_type(0b011000101000, rs1, 0b000, vs3, 0b0100111)) // 011000101000.....000.....0100111
 #define VS8R_V(vs3, rs1)   EMIT(I_type(0b111000101000, rs1, 0b000, vs3, 0b0100111)) // 111000101000.....000.....0100111
 
+//  Vector Cryptography (Zvkned / Zvknha) — only valid with SEW=32, LMUL>=1, vl multiple of 4
+
+#define VAESEF_VV(vd, vs2) EMIT((0xA201A077) | ((vs2) << 20) | ((vd) << 7))
+#define VAESEM_VV(vd, vs2) EMIT((0xA2012077) | ((vs2) << 20) | ((vd) << 7))
+#define VAESDF_VV(vd, vs2) EMIT((0xA200A077) | ((vs2) << 20) | ((vd) << 7))
+#define VAESDM_VV(vd, vs2) EMIT((0xA2002077) | ((vs2) << 20) | ((vd) << 7))
+
+#define VSHA2MS_VV(vd, vs2, vs1) EMIT((0xB6002077) | ((vs1) << 15) | ((vs2) << 20) | ((vd) << 7))
+#define VSHA2CH_VV(vd, vs2, vs1) EMIT((0xBA002077) | ((vs1) << 15) | ((vs2) << 20) | ((vd) << 7))
+#define VSHA2CL_VV(vd, vs2, vs1) EMIT((0xBE002077) | ((vs1) << 15) | ((vs2) << 20) | ((vd) << 7))
+
 //  Vector Floating-Point Instructions
 //  https://github.com/riscv/riscv-v-spec/blob/master/v-spec.adoc#14-vector-floating-point-instructions
 
@@ -1907,6 +1918,8 @@
 #define VNSRA_WI(vd, vs2, simm5, vm)   EMIT(R_type(0b1011010 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 101101...........011.....1010111
 #define VNCLIPU_WI(vd, vs2, simm5, vm) EMIT(R_type(0b1011100 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 101110...........011.....1010111
 #define VNCLIP_WI(vd, vs2, simm5, vm)  EMIT(R_type(0b1011110 | (vm), vs2, simm5, 0b011, vd, 0b1010111)) // 101111...........011.....1010111
+
+#define VROR_VI(vd, vs2, uimm6, vm) EMIT(R_type(0b0101000 | (vm) | (((uimm6) >> 5) << 1), vs2, (uimm6) & 0x1F, 0b011, vd, 0b1010111))
 
 #define VMV1R_V(vd, vs2) EMIT(R_type(0b1001111, vs2, 0b00000, 0b011, vd, 0b1010111)) // 1001111.....00000011.....1010111
 #define VMV2R_V(vd, vs2) EMIT(R_type(0b1001111, vs2, 0b00001, 0b011, vd, 0b1010111)) // 1001111.....00001011.....1010111
