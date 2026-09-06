@@ -1903,7 +1903,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         }
                         SMREAD();
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 0, 0);
-                        LDz(x1, wback, 0);
+                        LDxw(x1, wback, 0);
                         ed = x1;
                         LHU(x3, wback, rex.w?8:4);
                         LHU(x5, xEmu, offsetof(x64emu_t, segs[_CS]));
@@ -1937,8 +1937,13 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             SD(x4, xSP, 0);
                             SD(xRIP, xSP, 8);
                         }
-                        PUSH1z(x5);
-                        PUSH1z(xRIP);
+                        if (rex.w) {
+                            PUSH1(x5);
+                            PUSH1(xRIP);
+                        } else {
+                            PUSH1_32(x5);
+                            PUSH1_32(xRIP);
+                        }
                         SH(x3, xEmu, offsetof(x64emu_t, segs[_CS]));
                         jump_to_next(dyn, 0, ed, ninst, rex.is32bits);
                         int can_continue = (addr < (dyn->start + dyn->isize));
