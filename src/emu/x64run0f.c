@@ -1864,8 +1864,21 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                                 ED->dword[1] = 0;
                         }
                         break;
-                    case 7: /* RDPID Ed */
-                        ED->q[0] = helper_getcpu(emu);
+                    case 7: /* RDSEED Ed */
+                        RESET_FLAGS(emu);
+                        CLEAR_FLAG(F_OF);
+                        CLEAR_FLAG(F_SF);
+                        CLEAR_FLAG(F_PF);
+                        CLEAR_FLAG(F_ZF);
+                        CLEAR_FLAG(F_AF);
+                        SET_FLAG(F_CF);
+                        if (rex.w)
+                            ED->q[0] = get_random64();
+                        else {
+                            ED->dword[0] = get_random32();
+                            if (MODREG)
+                                ED->dword[1] = 0;
+                        }
                         break;
                     default:
                         return 0;

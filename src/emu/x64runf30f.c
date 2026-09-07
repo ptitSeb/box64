@@ -527,7 +527,22 @@ uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr, int* step)
         GX->ud[0]=(tmp8s)?0xffffffff:0;
         break;
 
-    case 0xD6:  /* MOVQ2DQ Gx, Em */
+    case 0xC7:  
+        CHECK_FLAGS(emu);
+        nextop = F8;
+        GETE8xw(0);
+        switch(tmp8u&7) {
+            case 6: /* RDPID Ed */
+                ED->q[0] = helper_getcpu(emu);
+                SET_FLAG(F_CF);
+                break;
+            default:
+                return 0;
+        }
+        GX->ud[0]=(tmp8s)?0xffffffff:0;
+        break;
+
+        case 0xD6:  /* MOVQ2DQ Gx, Em */
         nextop = F8;
         GETEM(0);
         GETGX;
