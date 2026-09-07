@@ -124,22 +124,39 @@ uintptr_t dynarec64_DB(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
                 v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop & 7));
                 v2 = x87_get_st(dyn, ninst, x1, x2, nextop & 7, X87_COMBINE(0, nextop & 7));
+                if (!BOX64ENV(dynarec_fastround)) {
+                    MOVFR2GR_D(x6, v1);
+                    MOVFR2GR_D(x7, v2);
+                    x87_fcomi_fpu_ld(dyn, ninst, x1, x2, x3, x4, x5, x6, x7, nextop & 7);
+                    BNEZ_MARK(x1);
+                }
                 if (ST_IS_F(0)) {
                     FCOMIS(v1, v2, x1, x2);
                 } else {
                     FCOMID(v1, v2, x1, x2);
                 }
-
+                if (!BOX64ENV(dynarec_fastround)) {
+                    MARK;
+                }
                 break;
             case 0xF0 ... 0xF7:
                 INST_NAME("FCOMI ST0, STx");
                 SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
                 v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_COMBINE(0, nextop & 7));
                 v2 = x87_get_st(dyn, ninst, x1, x2, nextop & 7, X87_COMBINE(0, nextop & 7));
+                if (!BOX64ENV(dynarec_fastround)) {
+                    MOVFR2GR_D(x6, v1);
+                    MOVFR2GR_D(x7, v2);
+                    x87_fcomi_fpu_ld(dyn, ninst, x1, x2, x3, x4, x5, x6, x7, nextop & 7);
+                    BNEZ_MARK(x1);
+                }
                 if (ST_IS_F(0)) {
                     FCOMIS(v1, v2, x1, x2);
                 } else {
                     FCOMID(v1, v2, x1, x2);
+                }
+                if (!BOX64ENV(dynarec_fastround)) {
+                    MARK;
                 }
                 break;
             default:
