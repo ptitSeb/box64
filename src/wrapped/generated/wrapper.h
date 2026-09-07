@@ -1613,6 +1613,7 @@ void LFpppu(x64emu_t *emu, uintptr_t fnc);
 void LFpppl(x64emu_t *emu, uintptr_t fnc);
 void LFpppL(x64emu_t *emu, uintptr_t fnc);
 void LFpppp(x64emu_t *emu, uintptr_t fnc);
+void pFEipi(x64emu_t *emu, uintptr_t fnc);
 void pFEipp(x64emu_t *emu, uintptr_t fnc);
 void pFEipV(x64emu_t *emu, uintptr_t fnc);
 void pFEuup(x64emu_t *emu, uintptr_t fnc);
