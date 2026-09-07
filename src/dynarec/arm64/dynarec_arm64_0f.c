@@ -2682,32 +2682,43 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             }
             break;
         case 0xC7:
-            // rep has no impact here
             nextop = F8;
             if(MODREG) switch((nextop>>3)&7) {
             case 6:
-                INST_NAME("RDRAND Ed");
-                SETFLAGS(X_ALL, SF_SET_NODF);
-                SET_DFNONE();
-                GETED(0);
-                IFX(X_OF|X_SF|X_ZF|X_PF|X_AF) {
-                    MOV32w(x1, (1<<F_OF)|(1<<F_SF)|(1<<F_ZF)|(1<<F_PF)|(1<<F_AF));
-                    BICw(xFlags, xFlags, x1);
-                }
-                if(cpuext.rndr) {
-                    MRS_rndr(x1);
-                    IFX(X_CF) { CSETw(x3, cNE); }
+                if(rex.rep==2 || !rex.rep) {
+                    if(rex.rep==2)
+                        INST_NAME("RDSEED Ed");
+                    else
+                        INST_NAME("RDRAND Ed");
+                    SETFLAGS(X_ALL, SF_SET_NODF);
+                    SET_DFNONE();
+                    GETED(0);
+                    IFX(X_OF|X_SF|X_ZF|X_PF|X_AF) {
+                        MOV32w(x1, (1<<F_OF)|(1<<F_SF)|(1<<F_ZF)|(1<<F_PF)|(1<<F_AF));
+                        BICw(xFlags, xFlags, x1);
+                    }
+                    if(cpuext.rndr) {
+                        MRS_rndr(x1);
+                        IFX(X_CF) { CSETw(x3, cNE); }
+                    } else {
+                        CALL(rex.w?const_random64:const_random32, x1);
+                        IFX(X_CF) { MOV32w(x3, 1); }
+                    }
+                    IFX(X_CF) { BFIw(xFlags, x3, F_CF, 1); }
+                    MOVxw_REG(ed, x1);
                 } else {
-                    CALL(rex.w?const_random64:const_random32, x1);
-                    IFX(X_CF) { MOV32w(x3, 1); }
+                    DEFAULT;
                 }
-                IFX(X_CF) { BFIw(xFlags, x3, F_CF, 1); }
-                MOVxw_REG(ed, x1);
                 break;
             case 7:
                 INST_NAME("RDPID Ed");
+                SETFLAGS(X_CF, SF_SUBSET);
                 GETED(0);
                 CALL_(const_helper_getcpu, ed, x2);
+                IFX(X_CF) {
+                    MOV32w(x2, 1);
+                    BFIw(xFlags, x2, F_CF, 1);
+                }
                 break;
             default:
                 DEFAULT;
