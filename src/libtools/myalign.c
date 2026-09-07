@@ -1761,3 +1761,46 @@ void unregister_xcb_display(void* d)
             return;
         }
 }
+
+void UnalignFTSENT(void* a)
+{
+    struct x64_ftsent* d = a;
+    FTSENT* s = a;
+    d->fts_instr   = s->fts_instr;
+    d->fts_flags   = s->fts_flags;
+    d->fts_info    = s->fts_info;
+    d->fts_level   = s->fts_level;
+    d->fts_nlink   = s->fts_nlink;
+    d->_pad0       = 0;
+}
+
+void AlignFTSENT(void* a)
+{
+    FTSENT *d = a;
+    struct x64_ftsent *s = a;
+    d->fts_nlink   = s->fts_nlink;
+    d->fts_level   = s->fts_level;
+    d->fts_info    = s->fts_info;
+    d->fts_flags   = s->fts_flags;
+    d->fts_instr   = s->fts_instr;
+}
+
+void unalign_all_ftsent(void* fts)
+{
+    FTS* sp = (FTS*)fts;
+    for (FTSENT* p = sp->fts_cur; p; p = p->fts_parent)
+        UnalignFTSENT(p);
+    for (FTSENT* p = sp->fts_child; p; p = p->fts_link)
+        if (p != sp->fts_cur)
+            UnalignFTSENT(p);
+}
+
+void align_all_ftsent(void* fts)
+{
+    FTS* sp = (FTS*)fts;
+    for (FTSENT* p = sp->fts_cur; p; p = p->fts_parent)
+        AlignFTSENT(p);
+    for (FTSENT* p = sp->fts_child; p; p = p->fts_link)
+        if (p != sp->fts_cur)
+            AlignFTSENT(p);
+}
