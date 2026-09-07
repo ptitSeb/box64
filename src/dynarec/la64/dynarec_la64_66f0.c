@@ -481,7 +481,39 @@ uintptr_t dynarec64_66F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         }
                     }
                     break;
-                case 1:
+                case 1: // OR
+                    if (MODREG) {
+                        INST_NAME("Invalid LOCK");
+                        UDF();
+                        *need_epilog = 1;
+                        *ok = 0;
+                    } else {
+                        if (opcode == 0x81) {
+                            INST_NAME("LOCK OR Ew, Iw");
+                        } else {
+                            INST_NAME("LOCK OR Ew, Ib");
+                        }
+                        SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, (opcode == 0x81) ? 2 : 1);
+                        if (opcode == 0x81)
+                            u64 = F16;
+                        else
+                            u64 = (uint16_t)(int16_t)F8S;
+                        MOV64x(x5, u64);
+
+                        ANDI(x3, wback, 0b10);
+                        SLLI_D(x4, x3, 3);
+                        SLL_D(x7, x5, x4);
+                        MV(x6, wback);
+                        BSTRINS_D(x6, xZR, 1, 0);
+                        AMOR_DB_W(x1, x7, x6);
+                        SRL_D(x6, x1, x4);
+                        // final
+                        IFXORNAT (X_ALL | X_PEND) {
+                            emit_or16(dyn, ninst, x6, x5, x2, x3);
+                        }
+                    }
+                    break;
                 case 2:
                 case 3:
                 case 4:
