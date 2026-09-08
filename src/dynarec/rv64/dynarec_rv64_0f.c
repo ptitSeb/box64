@@ -880,7 +880,6 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             vx0 = t;
                         }
                         VSHA2CL_VV(v0, v1, vx0);
-                        if (!MODREG) PUTEX_vector(v1, VECTOR_SEW32);
                         break;
                     }
                     if (u8 != 0xCB && cpuext.vector && cpuext.zvbb) {
@@ -945,7 +944,6 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 VADD_VV(v0, v0, d1, 1);
                                 break;
                         }
-                        if (!MODREG) PUTEX_vector(v1, VECTOR_SEW32);
                         break;
                     }
                     if (MODREG) {
