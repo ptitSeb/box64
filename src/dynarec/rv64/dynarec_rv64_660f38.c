@@ -734,7 +734,6 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                         VMV_V_X(v2, x4);
                         VAESDM_VV(v2, v1);
                         VMV_V_V(v0, v2);
-                        if (!MODREG) PUTEX_vector(v1, VECTOR_SEW32);
                         break;
                     }
                     GETGX();
@@ -752,7 +751,6 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                         GETGX_vector(v0, 1, VECTOR_SEW32);
                         GETEX_vector(v1, 0, 8, VECTOR_SEW32);
                         VAESEM_VV(v0, v1);
-                        if (!MODREG) PUTEX_vector(v1, VECTOR_SEW32);
                         break;
                     }
                     GETG;
@@ -781,7 +779,6 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                         GETGX_vector(v0, 1, VECTOR_SEW32);
                         GETEX_vector(v1, 0, 8, VECTOR_SEW32);
                         VAESEF_VV(v0, v1);
-                        if (!MODREG) PUTEX_vector(v1, VECTOR_SEW32);
                         break;
                     }
                     GETG;
@@ -822,7 +819,6 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                         VMV_V_X(v2, x4);
                         VAESDM_VV(v2, v0);
                         VXOR_VV(v0, v2, v1, 1);
-                        if (!MODREG) PUTEX_vector(v1, VECTOR_SEW32);
                         break;
                     }
                     GETG;
@@ -852,7 +848,6 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                         GETGX_vector(v0, 1, VECTOR_SEW32);
                         GETEX_vector(v1, 0, 8, VECTOR_SEW32);
                         VAESDF_VV(v0, v1);
-                        if (!MODREG) PUTEX_vector(v1, VECTOR_SEW32);
                         break;
                     }
                     GETG;
