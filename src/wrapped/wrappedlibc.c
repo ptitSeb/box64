@@ -2160,6 +2160,26 @@ static long isProcMem(const char* path)
     return 0;
 }
 
+#define MAX_PATH_LENGTH 4096
+static int isPathValid(const char* path)
+{
+    if(!path)
+        return 0;
+    uintptr_t p = (uintptr_t)path;
+    uintptr_t cache_page = (uintptr_t)-1LL;
+    for(size_t i = 0; i < MAX_PATH_LENGTH; ++i) {
+        uintptr_t page = (p + i) & (~(box64_pagesize - 1));
+        if(page != cache_page) {
+            cache_page = page;
+            if(!(getProtection_fast(cache_page) & PROT_READ))
+                return 0;
+        }
+        if(!path[i])
+            return 1;
+    }
+    return 0;
+}
+
 // buf may not end with NULL and prefix must end with NULL.
 static int start_with(char *buf, ssize_t buflen, char *prefix)
 {
@@ -2923,6 +2943,9 @@ EXPORT int32_t my_execv(x64emu_t* emu, const char* path, char* const argv[])
 
 EXPORT int32_t my_execve(x64emu_t* emu, const char* path, char* const argv[], char* const envp[])
 {
+    if(!isPathValid(path))
+        return execve(path, argv, envp);
+
     int self = isProcSelf(path, "exe");
     int x64 = FileIsX64ELF(path);
     int x86 = my_context->box86path?FileIsX86ELF(path):0;
