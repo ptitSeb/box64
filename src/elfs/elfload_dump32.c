@@ -188,6 +188,7 @@ const char* DumpRelType32(int t)
         GO(R_386_GLOB_DAT);
         GO(R_386_JMP_SLOT);
         GO(R_386_RELATIVE);
+        GO(R_386_IRELATIVE);
         GO(R_386_GOTOFF);
         GO(R_386_GOTPC);
         GO(R_386_PC8);

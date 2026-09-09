@@ -950,7 +950,8 @@ int RelocateElf64(lib_t *maplib, lib_t *local_maplib, int bindnow, int deepbind,
         bindnow = 1;
         printf_log(LOG_DEBUG, "Forcing %s to Bind Now\n", head->name);
     }
-    SeedPltResolver64(head);
+    if (!bindnow)
+        SeedPltResolver64(head);
     if(head->relr) {
         int cnt = head->relrsz / head->relrent;
         DumpRelRTable64(head, cnt, (Elf64_Relr *)(head->relr + head->delta), "RelR");
