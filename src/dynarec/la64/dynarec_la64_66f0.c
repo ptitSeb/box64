@@ -71,15 +71,14 @@ uintptr_t dynarec64_66F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     BEQZ_MARKLOCK(x3);
                     B_MARK3_nocond;
                     MARK;
-                    // upper 16 bits
-                    XORI(wback, wback, 0b10);
+                    XORI(x7, wback, 0b10);
                     MARK2;
-                    LL_W(x1, wback, 0);
+                    LL_W(x1, x7, 0);
                     BSTRPICK_D(x3, x1, 15, 0);
                     SRLI_W(x1, x1, 16);
                     ADD_D(x4, x1, x5);
                     BSTRINS_D(x3, x4, 31, 16);
-                    SC_W(x3, wback, 0);
+                    SC_W(x3, x7, 0);
                     BEQZ_MARK2(x3);
                     MARK3;
                 }
@@ -103,32 +102,15 @@ uintptr_t dynarec64_66F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 GETGW(x5);
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
                 ANDI(x3, wback, 0b10);
-                BNEZ_MARK(x3);
-                // lower 16 bits
-                MARKLOCK;
-                LL_W(x1, wback, 0);
-                OR(x4, x1, x5);
-                MV(x3, x1);
-                BSTRINS_D(x3, x4, 15, 0);
-                SC_W(x3, wback, 0);
-                BEQZ_MARKLOCK(x3);
-                B_MARK3_nocond;
-                MARK;
-                // upper 16 bits
-                XORI(wback, wback, 0b10);
-                MARK2;
-                LL_W(x1, wback, 0);
-                BSTRPICK_D(x3, x1, 15, 0);
-                SRLI_W(x1, x1, 16);
-                OR(x4, x1, x5);
-                BSTRINS_D(x3, x4, 31, 16);
-                SC_W(x3, wback, 0);
-                BEQZ_MARK2(x3);
-                MARK3;
+                SLLI_D(x4, x3, 3);
+                SLL_D(x7, x5, x4);
+                MV(x6, wback);
+                BSTRINS_D(x6, xZR, 1, 0);
+                AMOR_DB_W(x1, x7, x6);
+                SRL_D(x1, x1, x4);
                 // final
                 IFXORNAT (X_ALL | X_PEND) {
-                    BSTRPICK_D(x6, x1, 15, 0);
-                    emit_or16(dyn, ninst, x6, x5, x3, x4);
+                    emit_or16(dyn, ninst, x1, x5, x2, x3);
                 }
             }
             break;
@@ -388,15 +370,14 @@ uintptr_t dynarec64_66F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             BEQZ_MARKLOCK(x3);
                             B_MARK3_nocond;
                             MARK;
-                            // upper 16 bits
-                            XORI(wback, wback, 0b10);
+                            XORI(x7, wback, 0b10);
                             MARK2;
-                            LL_W(x1, wback, 0);
+                            LL_W(x1, x7, 0);
                             BSTRPICK_D(x3, x1, 15, 0);
                             SRLI_W(x1, x1, 16);
                             ADD_D(x4, x1, x5);
                             BSTRINS_D(x3, x4, 31, 16);
-                            SC_W(x3, wback, 0);
+                            SC_W(x3, x7, 0);
                             BEQZ_MARK2(x3);
                             MARK3;
                         }
@@ -412,7 +393,6 @@ uintptr_t dynarec64_66F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             }
             break;
         case 0x11:
-        case 0x21:
             nextop = F8;
             if (MODREG) {
                 INST_NAME("Invalid LOCK");
@@ -421,6 +401,61 @@ uintptr_t dynarec64_66F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 *ok = 0;
             } else {
                 DEFAULT;
+            }
+            break;
+        case 0x21:
+            nextop = F8;
+            if (MODREG) {
+                INST_NAME("Invalid LOCK");
+                UDF();
+                *need_epilog = 1;
+                *ok = 0;
+            } else {
+                INST_NAME("LOCK AND Ew, Gw");
+                SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+                GETGW(x5);
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                ANDI(x3, wback, 0b10);
+                SLLI_D(x4, x3, 3);
+                SLL_D(x7, x5, x4);
+                MV(x6, wback);
+                BSTRINS_D(x6, xZR, 1, 0);
+                MOV64x(x2, 0xFFFF);
+                SLL_D(x2, x2, x4);
+                NOR(x2, x2, xZR);
+                OR(x2, x2, x7);
+                AMAND_DB_W(x1, x2, x6);
+                SRL_D(x1, x1, x4);
+                BSTRPICK_D(x1, x1, 15, 0);
+                // final
+                IFXORNAT (X_ALL | X_PEND) {
+                    emit_and16(dyn, ninst, x1, x5, x3, x4);
+                }
+            }
+            break;
+        case 0x31:
+            nextop = F8;
+            if (MODREG) {
+                INST_NAME("Invalid LOCK");
+                UDF();
+                *need_epilog = 1;
+                *ok = 0;
+            } else {
+                INST_NAME("LOCK XOR Ew, Gw");
+                SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+                GETGW(x5);
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                ANDI(x3, wback, 0b10);
+                SLLI_D(x4, x3, 3);
+                SLL_D(x7, x5, x4);
+                MV(x6, wback);
+                BSTRINS_D(x6, xZR, 1, 0);
+                AMXOR_DB_W(x1, x7, x6);
+                SRL_D(x1, x1, x4);
+                // final
+                IFXORNAT (X_ALL | X_PEND) {
+                    emit_xor16(dyn, ninst, x1, x5, x2, x3);
+                }
             }
             break;
         case 0x81:
@@ -462,15 +497,14 @@ uintptr_t dynarec64_66F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             BEQZ_MARKLOCK(x3);
                             B_MARK3_nocond;
                             MARK;
-                            // upper 16 bits
-                            XORI(wback, wback, 0b10);
+                            XORI(x7, wback, 0b10);
                             MARK2;
-                            LL_W(x1, wback, 0);
+                            LL_W(x1, x7, 0);
                             BSTRPICK_D(x3, x1, 15, 0);
                             SRLI_W(x1, x1, 16);
                             ADD_D(x4, x1, x5);
                             BSTRINS_D(x3, x4, 31, 16);
-                            SC_W(x3, wback, 0);
+                            SC_W(x3, x7, 0);
                             BEQZ_MARK2(x3);
                             MARK3;
                         }
@@ -516,9 +550,7 @@ uintptr_t dynarec64_66F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     break;
                 case 2:
                 case 3:
-                case 4:
                 case 5:
-                case 6:
                     if (MODREG) {
                         INST_NAME("Invalid LOCK");
                         UDF();
@@ -526,6 +558,75 @@ uintptr_t dynarec64_66F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         *ok = 0;
                     } else {
                         DEFAULT;
+                    }
+                    break;
+                case 4: // AND
+                    if (MODREG) {
+                        INST_NAME("Invalid LOCK");
+                        UDF();
+                        *need_epilog = 1;
+                        *ok = 0;
+                    } else {
+                        if (opcode == 0x81) {
+                            INST_NAME("LOCK AND Ew, Iw");
+                        } else {
+                            INST_NAME("LOCK AND Ew, Ib");
+                        }
+                        SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, (opcode == 0x81) ? 2 : 1);
+                        if (opcode == 0x81)
+                            u64 = F16;
+                        else
+                            u64 = (uint16_t)(int16_t)F8S;
+                        MOV64x(x5, u64);
+                        ANDI(x3, wback, 0b10);
+                        SLLI_D(x4, x3, 3);
+                        SLL_D(x7, x5, x4);
+                        MV(x6, wback);
+                        BSTRINS_D(x6, xZR, 1, 0);
+                        MOV64x(x2, 0xFFFF);
+                        SLL_D(x2, x2, x4);
+                        NOR(x2, x2, xZR);
+                        OR(x2, x2, x7);
+                        AMAND_DB_W(x1, x2, x6);
+                        SRL_D(x1, x1, x4);
+                        BSTRPICK_D(x1, x1, 15, 0);
+                        // final
+                        IFXORNAT (X_ALL | X_PEND) {
+                            emit_and16(dyn, ninst, x1, x5, x3, x4);
+                        }
+                    }
+                    break;
+                case 6: // XOR
+                    if (MODREG) {
+                        INST_NAME("Invalid LOCK");
+                        UDF();
+                        *need_epilog = 1;
+                        *ok = 0;
+                    } else {
+                        if (opcode == 0x81) {
+                            INST_NAME("LOCK XOR Ew, Iw");
+                        } else {
+                            INST_NAME("LOCK XOR Ew, Ib");
+                        }
+                        SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, (opcode == 0x81) ? 2 : 1);
+                        if (opcode == 0x81)
+                            u64 = F16;
+                        else
+                            u64 = (uint16_t)(int16_t)F8S;
+                        MOV64x(x5, u64);
+                        ANDI(x3, wback, 0b10);
+                        SLLI_D(x4, x3, 3);
+                        SLL_D(x7, x5, x4);
+                        MV(x6, wback);
+                        BSTRINS_D(x6, xZR, 1, 0);
+                        AMXOR_DB_W(x1, x7, x6);
+                        SRL_D(x1, x1, x4);
+                        // final
+                        IFXORNAT (X_ALL | X_PEND) {
+                            emit_xor16(dyn, ninst, x1, x5, x2, x3);
+                        }
                     }
                     break;
                 case 7:
@@ -567,15 +668,14 @@ uintptr_t dynarec64_66F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             BEQZ_MARKLOCK(x3);
                             B_MARK3_nocond;
                             MARK;
-                            // upper 16 bits
-                            XORI(wback, wback, 0b10);
+                            XORI(x7, wback, 0b10);
                             MARK2;
-                            LL_W(x1, wback, 0);
+                            LL_W(x1, x7, 0);
                             BSTRPICK_D(x3, x1, 15, 0);
                             SRLI_W(x1, x1, 16);
                             ADDI_D(x4, x1, 1);
                             BSTRINS_D(x3, x4, 31, 16);
-                            SC_W(x3, wback, 0);
+                            SC_W(x3, x7, 0);
                             BEQZ_MARK2(x3);
                             MARK3;
                         }
@@ -613,15 +713,14 @@ uintptr_t dynarec64_66F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             BEQZ_MARKLOCK(x3);
                             B_MARK3_nocond;
                             MARK;
-                            // upper 16 bits
-                            XORI(wback, wback, 0b10);
+                            XORI(x7, wback, 0b10);
                             MARK2;
-                            LL_W(x1, wback, 0);
+                            LL_W(x1, x7, 0);
                             BSTRPICK_D(x3, x1, 15, 0);
                             SRLI_W(x1, x1, 16);
                             ADDI_D(x4, x1, -1);
                             BSTRINS_D(x3, x4, 31, 16);
-                            SC_W(x3, wback, 0);
+                            SC_W(x3, x7, 0);
                             BEQZ_MARK2(x3);
                             MARK3;
                         }
