@@ -55,6 +55,7 @@ uintptr_t geted(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
     }
 
     uint8_t ret = x2;
+    int ret_is_zeroed = 0;
     *fixaddress = 0;
     if (hint > 0) ret = hint;
     int maxval = 2047;
@@ -73,10 +74,12 @@ uintptr_t geted(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
                     if (tmp && ((tmp < -2048) || (tmp > maxval) || !i12)) {
                         MOV64y(scratch, tmp);
                         ALSLy(ret, TO_NAT(sib_reg), scratch, sib >> 6);
+                        ret_is_zeroed = 1;
                         SCRATCH_USAGE(1);
                     } else {
                         if (sib >> 6) {
                             SLLIy(ret, TO_NAT(sib_reg), (sib >> 6));
+                            ret_is_zeroed = 1;
                             if (!IS_GPR(ret)) SCRATCH_USAGE(1);
                         } else {
                             ret = TO_NAT(sib_reg);
@@ -92,8 +95,10 @@ uintptr_t geted(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
                         grab_segdata(dyn, addr, ninst, ret, rex.seg);
                         if (tmp) ADDI_D(ret, ret, tmp);
                         seg_done = 1;
-                    } else
+                    } else {
                         MOV64y(ret, tmp);
+                        ret_is_zeroed = 1;
+                    }
 
                     switch (lock) {
                         case 1: addLockAddress(tmp); break;
@@ -106,6 +111,7 @@ uintptr_t geted(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
             } else {
                 if (sib_reg != 4) {
                     ALSLy(ret, TO_NAT(sib_reg), TO_NAT(sib_reg2), sib >> 6);
+                    ret_is_zeroed = 1;
                     if (!IS_GPR(ret)) SCRATCH_USAGE(1);
                 } else {
                     ret = TO_NAT(sib_reg2);
@@ -147,9 +153,11 @@ uintptr_t geted(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
                 } else if ((tmp >= -2048) && (tmp <= maxval)) {
                     GETIP(addr + delta, scratch);
                     ADDIy(ret, xRIP, tmp);
+                    ret_is_zeroed = 1;
                     SCRATCH_USAGE(1);
                 } else if (tmp + addr + delta < 0x80000000LL && !dyn->need_reloc) {
                     MOV64y(ret, tmp + addr + delta);
+                    ret_is_zeroed = 1;
                 } else {
                     if (adj) {
                         MOV64y(ret, tmp + adj);
@@ -159,6 +167,7 @@ uintptr_t geted(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
                         SCRATCH_USAGE(1);
                     }
                     ADDy(ret, ret, xRIP);
+                    ret_is_zeroed = 1;
                 }
                 if (!rex.seg)
                     switch (lock) {
@@ -193,6 +202,7 @@ uintptr_t geted(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
             if ((nextop & 7) == 4) {
                 if (sib_reg != 4) {
                     ALSLy(ret, TO_NAT(sib_reg), TO_NAT(sib_reg2), sib >> 6);
+                    ret_is_zeroed = 1;
                     if (!IS_GPR(ret)) SCRATCH_USAGE(1);
                 } else {
                     ret = TO_NAT(sib_reg2);
@@ -213,6 +223,7 @@ uintptr_t geted(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
                     scratch = TO_NAT((nextop & 0x07) + (rex.b << 3));
                 }
                 ADDIy(ret, scratch, i64);
+                ret_is_zeroed = 1;
                 if (!IS_GPR(ret)) SCRATCH_USAGE(1);
             } else {
                 int64_t lo12 = ((i64 & 0xFFF) ^ 0x800) - 0x800;
@@ -228,19 +239,23 @@ uintptr_t geted(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
                     if (sib_reg != 4) {
                         ADDy(scratch, scratch, TO_NAT(sib_reg2));
                         ALSLy(ret, TO_NAT(sib_reg), scratch, sib >> 6);
+                        ret_is_zeroed = 1;
                     } else {
                         PASS3(int tmp = TO_NAT(sib_reg2));
                         ADDy(ret, tmp, scratch);
+                        ret_is_zeroed = 1;
                     }
                 } else {
                     PASS3(int tmp = TO_NAT((nextop & 0x07) + (rex.b << 3)));
                     ADDy(ret, tmp, scratch);
+                    ret_is_zeroed = 1;
                 }
             }
         }
     }
     if (rex.is67 && IS_GPR(ret) && !rex.seg) {
-        ZEROUP2(hint, ret); // truncate for is67 case only (is32bits case regs are already 32bits only)
+        if (ret != hint || !ret_is_zeroed)
+            ZEROUP2(hint, ret); // truncate for is67 case only (is32bits case regs are already 32bits only)
         ret = hint;
     }
     if (rex.seg && !seg_done) {
