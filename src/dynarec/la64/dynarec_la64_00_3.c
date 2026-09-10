@@ -346,32 +346,64 @@ uintptr_t dynarec64_00_3(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             break;
         case 0xC2:
             INST_NAME("RETN");
+            MARK_LEAF_RET();
             if (BOX64DRENV(dynarec_safeflags)) {
                 READFLAGS(X_PEND); // lets play safe here too
             }
             BARRIER(BARRIER_FLOAT);
             u16 = F16;
             if (!rex.is32bits) UP32_READ(xRSP);
-            POP1z(xRIP);
+            if (dyn->inline_leaf) {
+                if (dyn->inline_rsp >= 0)
+                    ADDIz(xRSP, xRSP, rex.is32bits ? 4 : 8);
+            } else {
+                POP1z(xRIP);
+            }
             if (u16 < 2048)
                 ADDIz(xRSP, xRSP, u16);
             else {
                 MOV32w(x1, u16);
                 ADDz(xRSP, xRSP, x1);
             }
-            ret_to_next(dyn, ip, ninst, rex);
+            if (dyn->inline_leaf) {
+                SMEND();
+                CHECK_DFNONE(0);
+                if (ninst + 1 < dyn->size) {
+                    j64 = dyn->inline_native_end - dyn->native_size;
+                    B(j64);
+                }
+                CLEARIP();
+            } else {
+                ret_to_next(dyn, ip, ninst, rex);
+            }
             *need_epilog = 0;
             *ok = 0;
             break;
         case 0xC3:
             INST_NAME("RET");
+            MARK_LEAF_RET();
             if (BOX64DRENV(dynarec_safeflags)) {
                 READFLAGS(X_PEND); // so instead, force the deferred flags, so it's not too slow, and flags are not lost
             }
             BARRIER(BARRIER_FLOAT);
             if (!rex.is32bits) UP32_READ(xRSP);
-            POP1z(xRIP);
-            ret_to_next(dyn, ip, ninst, rex);
+            if (dyn->inline_leaf) {
+                if (dyn->inline_rsp >= 0)
+                    ADDIz(xRSP, xRSP, rex.is32bits ? 4 : 8);
+            } else {
+                POP1z(xRIP);
+            }
+            if (dyn->inline_leaf) {
+                SMEND();
+                CHECK_DFNONE(0);
+                if (ninst + 1 < dyn->size) {
+                    j64 = dyn->inline_native_end - dyn->native_size;
+                    B(j64);
+                }
+                CLEARIP();
+            } else {
+                ret_to_next(dyn, ip, ninst, rex);
+            }
             *need_epilog = 0;
             *ok = 0;
             break;
@@ -485,6 +517,7 @@ uintptr_t dynarec64_00_3(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             break;
         case 0xC8:
             INST_NAME("ENTER Iw,Ib");
+            MARK_LEAF_RSP(LEAF_RSP_PUSHPOP);
             u16 = F16;
             u8 = (F8) & 0x1f;
             if (!rex.is32bits) {
@@ -512,6 +545,7 @@ uintptr_t dynarec64_00_3(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             break;
         case 0xC9:
             INST_NAME("LEAVE");
+            MARK_LEAF_RSP(LEAF_RSP_PUSHPOP);
             MARKREGsz(xRBP);
             MVz(xRSP, xRBP);
             POP1z(xRBP);
@@ -1288,6 +1322,7 @@ uintptr_t dynarec64_00_3(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0xE8:
             INST_NAME("CALL Id");
             i32 = (rex.is32bits && rex.is66) ? F16S : F32S;
+            MARK_LEAF_CALL();
             if (addr + i32 == 0) {
 #if STEP == 3
                 printf_log(LOG_INFO, "Warning, CALL to 0x0 at %p (%p)\n", (void*)addr, (void*)(addr - 1));
@@ -1394,13 +1429,33 @@ uintptr_t dynarec64_00_3(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags to "dont'care" state
                     }
                     // regular call
-                    if (dyn->need_reloc) {
-                        TABLE64(x2, addr);
-                    } else {
-                        MOV64x(x2, addr);
-                    }
                     BARRIER(BARRIER_FLOAT);
-                    PUSH1z(x2);
+                    int leaf_call = dyn->insts[ninst].x64.leaf_call &&
+                                    dyn->insts[ninst].x64.leaf_embedded &&
+                                    BOX64DRENV(dynarec_callret) >= 3;
+                    dynarec_la64_t* leaf_embedded = leaf_call ? dynarec_get_leaf_embedded(dyn, ninst) : NULL;
+                    if (!leaf_embedded)
+                        leaf_call = 0;
+                    uintptr_t leaf_target = rex.is32bits ? (uint32_t)(addr + i32) : addr + i32;
+                    MARK_LEAF_CALL_TARGET(leaf_target);
+                    if (!leaf_call || !leaf_embedded->inline_rsp) {
+                        if (dyn->need_reloc) {
+                            TABLE64(x2, addr);
+                        } else {
+                            MOV64x(x2, addr);
+                        }
+                        PUSH1z(x2);
+                    } else if (leaf_embedded->inline_rsp > 0) {
+                        ADDIz(xRSP, xRSP, -leaf_embedded->inline_rsp);
+                    }
+                    if (leaf_call) {
+                        SET_HASCALLRET();
+                        MESSAGE(LOG_DUMP, "Embedded leaf call:\n");
+                        emit_inline_leaf(dyn, ninst);
+                        MARK3;
+                        CLEARIP();
+                        break;
+                    }
                     int can_continue = (addr < (dyn->start + dyn->isize));
                     if (BOX64DRENV(dynarec_callret)) {
                         SET_HASCALLRET();
@@ -1419,10 +1474,7 @@ uintptr_t dynarec64_00_3(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         *ok = 0;
                         *need_epilog = 0;
                     }
-                    if (rex.is32bits)
-                        j64 = (uint32_t)(addr + i32);
-                    else
-                        j64 = addr + i32;
+                    j64 = leaf_target;
                     j64 = (uintptr_t)getAlternate((void*)j64);
                     jump_to_next(dyn, j64, 0, ninst, rex.is32bits);
                     CALLRET_RET(can_continue);
@@ -2094,6 +2146,7 @@ uintptr_t dynarec64_00_3(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     break;
                 case 2:
                     INST_NAME("CALL Ed");
+                    MARK_LEAF_CALL();
                     PASS2IF ((BOX64DRENV(dynarec_safeflags) > 1) || ((ninst && dyn->insts[ninst - 1].x64.set_flags) || ((ninst > 1) && dyn->insts[ninst - 2].x64.set_flags)), 1) {
                         READFLAGS(X_PEND); // that's suspicious
                     } else {
@@ -2146,6 +2199,7 @@ uintptr_t dynarec64_00_3(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     CLEARIP();
                     break;
                 case 3: // CALL FAR Ed
+                    MARK_LEAF_CALL();
                     if (MODREG) {
                         DEFAULT;
                     } else {
@@ -2240,6 +2294,7 @@ uintptr_t dynarec64_00_3(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     break;
                 case 6: // Push Ed
                     INST_NAME("PUSH Ed");
+                    MARK_LEAF_RSP(LEAF_RSP_PUSHPOP);
                     if (!rex.is32bits) UP32_READ(xRSP);
                     GETEDz(0);
                     PUSH1z(ed);

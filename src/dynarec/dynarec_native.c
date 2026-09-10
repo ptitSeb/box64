@@ -68,14 +68,15 @@ void printf_x64_instruction(dynarec_native_t* dyn, zydis_dec_t* dec, instruction
     }
 }
 
-void add_next(dynarec_native_t *dyn, uintptr_t addr) {
-    if (!BOX64DRENV(dynarec_bigblock))
-        return;
+void add_next(dynarec_native_t* dyn, uintptr_t addr)
+{
     if (dyn->peeking_flags) {
         if (dyn->next_sz < dyn->next_cap)
             dyn->next[dyn->next_sz++] = addr;
         return;
     }
+    if (!BOX64DRENV(dynarec_bigblock))
+        return;
     int ret;
     kh_put(nextset, khnextset, addr, &ret);
     if(!ret)
@@ -415,6 +416,349 @@ uintptr_t native_pass1(dynarec_native_t* dyn, uintptr_t addr, int alternate, int
 uintptr_t native_pass2(dynarec_native_t* dyn, uintptr_t addr, int alternate, int is32bits, int inst_max);
 uintptr_t native_pass3(dynarec_native_t* dyn, uintptr_t addr, int alternate, int is32bits, int inst_max);
 
+#ifdef LA64
+#define LEAFCALL_MAX_INSTS       128
+#define LEAFCALL_MAX_BYTES       4096
+#define LEAFCALL_MAX_EMBEDDEDS   32
+#define LEAFCALL_MAX_TOTAL_INSTS 512
+
+typedef struct leafcall_peek_s {
+    dynarec_native_t dyn;
+    instruction_native_t insts[LEAFCALL_MAX_INSTS + 2];
+    int jmps[LEAFCALL_MAX_INSTS + 2];
+    uintptr_t next[LEAFCALL_MAX_INSTS + 2];
+} leafcall_peek_t;
+
+typedef struct leafcall_analysis_s {
+    uintptr_t work[LEAFCALL_MAX_INSTS];
+    uintptr_t decoded[LEAFCALL_MAX_INSTS];
+    uint8_t decoded_len[LEAFCALL_MAX_INSTS];
+    instruction_native_t* decoded_inst;
+    uintptr_t body_start;
+    uintptr_t body_end;
+    int work_size;
+    int decoded_size;
+    int saw_ret;
+    int reads_rsp;
+    int implicit_rsp;
+    int failed;
+} leafcall_analysis_t;
+
+#ifdef LA64
+typedef struct leaf_embedded_s {
+    dynarec_native_t dyn;
+} leaf_embedded_t;
+
+static leaf_embedded_t static_leaf_embeddeds[LEAFCALL_MAX_EMBEDDEDS];
+static instruction_native_t static_leafinsts[LEAFCALL_MAX_TOTAL_INSTS + LEAFCALL_MAX_EMBEDDEDS];
+static int static_leafjmps[LEAFCALL_MAX_TOTAL_INSTS];
+static int static_leafpreds[LEAFCALL_MAX_TOTAL_INSTS * 2];
+static instsize_t static_leaf_instsize[LEAFCALL_INSTSIZE_SCRATCH];
+static int static_leaf_embedded_count;
+static int static_leafinst_count;
+static int static_leafdecoded_count;
+static int static_leafpred_count;
+#endif
+
+static int leafcall_readable(uintptr_t addr, uintptr_t size)
+{
+    if (!size)
+        return 1;
+    uintptr_t end = addr + size - 1;
+    if (end < addr)
+        return 0;
+    uintptr_t cur = addr;
+    while (1) {
+        uint32_t prot = getProtection(cur);
+        if ((prot & (PROT_READ | PROT_EXEC)) != (PROT_READ | PROT_EXEC))
+            return 0;
+        uintptr_t page_end = (cur & ~(box64_pagesize - 1)) + box64_pagesize - 1;
+        if (end <= page_end)
+            return 1;
+        cur = page_end + 1;
+    }
+}
+
+static int leafcall_seen(const leafcall_analysis_t* scan, uintptr_t addr)
+{
+    for (int i = 0; i < scan->decoded_size; ++i)
+        if (scan->decoded[i] == addr)
+            return 1;
+    return 0;
+}
+
+static int leafcall_queue_jump(leafcall_analysis_t* scan, uintptr_t addr, uintptr_t continuation)
+{
+    if (!addr || addr == continuation)
+        return 0;
+    if (addr < scan->body_start || addr >= scan->body_end)
+        return 0;
+    if (leafcall_seen(scan, addr))
+        return 1;
+    for (int i = 0; i < scan->work_size; ++i)
+        if (scan->work[i] == addr)
+            return 1;
+    if (scan->work_size >= LEAFCALL_MAX_INSTS)
+        return 0;
+    scan->work[scan->work_size++] = addr;
+    return 1;
+}
+
+static int leafcall_check_segment(leafcall_analysis_t* scan, uintptr_t entry, uintptr_t continuation, int is32bits)
+{
+    if (!leafcall_readable(entry, 1) || leafcall_seen(scan, entry))
+        return leafcall_seen(scan, entry);
+
+    leafcall_peek_t peek;
+    memset(&peek, 0, sizeof(peek));
+    dynarec_native_t* dyn = &peek.dyn;
+    dyn->start = entry;
+    dyn->end = entry + LEAFCALL_MAX_BYTES;
+    if (dyn->end < entry)
+        return 0;
+    uintptr_t mapped = SizeFileMapped(entry);
+    if (mapped && mapped < LEAFCALL_MAX_BYTES)
+        dyn->end = entry + mapped;
+    dyn->cap = LEAFCALL_MAX_INSTS + 2;
+    dyn->insts = peek.insts;
+    dyn->jmp_cap = LEAFCALL_MAX_INSTS + 2;
+    dyn->jmps = peek.jmps;
+    dyn->next_cap = LEAFCALL_MAX_INSTS + 2;
+    dyn->next = peek.next;
+    dyn->env = GetCurEnvByAddr(entry);
+    dyn->is_file_mapped = IsAddrElfOrFileMapped(entry);
+    dyn->peeking_flags = 1;
+
+    uintptr_t end = native_pass0(dyn, entry, 0, is32bits, LEAFCALL_MAX_INSTS);
+    if (dyn->size <= 0 || dyn->size > LEAFCALL_MAX_INSTS || end < entry)
+        return 0;
+
+    for (int i = 0; i < dyn->size; ++i) {
+        instruction_x64_t* inst = &dyn->insts[i].x64;
+        uintptr_t ip = inst->addr;
+        uintptr_t next = (i + 1 < dyn->size) ? dyn->insts[i + 1].x64.addr : end;
+        if (ip == continuation || ip < scan->body_start || next > scan->body_end)
+            return 0;
+        if (leafcall_seen(scan, ip))
+            continue;
+        if (scan->decoded_size >= LEAFCALL_MAX_INSTS)
+            return 0;
+        scan->decoded[scan->decoded_size] = ip;
+        scan->decoded_len[scan->decoded_size] = next - ip;
+        if (scan->decoded_inst) {
+            scan->decoded_inst[scan->decoded_size] = dyn->insts[i];
+            scan->decoded_inst[scan->decoded_size].pred = NULL;
+            scan->decoded_inst[scan->decoded_size].pred_sz = 0;
+        }
+        ++scan->decoded_size;
+
+        if (dyn->insts[i].host_call)
+            return 0;
+
+        if (inst->leaf_kind == LEAF_KIND_CALL)
+            return 0;
+
+        int implicit_rsp = (inst->leaf_rsp & LEAF_RSP_PUSHPOP) ? 1 : 0;
+        if (implicit_rsp) scan->implicit_rsp = 1;
+
+        if (inst->leaf_kind == LEAF_KIND_RET) {
+            scan->saw_ret = 1;
+            continue;
+        }
+
+        uint16_t sp_bits = (dyn->insts[i].up32_read | dyn->insts[i].up32_write64 | dyn->insts[i].up32_write32 | dyn->insts[i].up32_zero) & (1u << _SP);
+        if ((inst->leaf_rsp & LEAF_RSP_REF) || (!implicit_rsp && sp_bits))
+            scan->reads_rsp = 1;
+
+        if (!inst->has_next) {
+            if (!inst->jmp || inst->jmp_cond)
+                return 0;
+            if (!leafcall_queue_jump(scan, inst->jmp, continuation))
+                return 0;
+            continue;
+        }
+        if (inst->jmp) {
+            if (!inst->jmp_cond || !leafcall_queue_jump(scan, inst->jmp, continuation))
+                return 0;
+        }
+    }
+    return 1;
+}
+
+static int leafcall_analyze_leaf(leafcall_analysis_t* scan, uintptr_t target, uintptr_t continuation, int is32bits, instruction_native_t* decoded_inst)
+{
+    memset(scan, 0, sizeof(*scan));
+    scan->decoded_inst = decoded_inst;
+    scan->body_start = target;
+    scan->body_end = target + LEAFCALL_MAX_BYTES;
+    if (scan->body_end < target)
+        return 0;
+    uintptr_t mapped = SizeFileMapped(target);
+    if (mapped && mapped < LEAFCALL_MAX_BYTES)
+        scan->body_end = target + mapped;
+    scan->work[scan->work_size++] = target;
+    while (scan->work_size && !scan->failed) {
+        uintptr_t entry = scan->work[--scan->work_size];
+        if (!leafcall_check_segment(scan, entry, continuation, is32bits))
+            scan->failed = 1;
+    }
+    if (scan->failed || !scan->saw_ret || !scan->decoded_size)
+        return 0;
+
+    for (int i = 1; i < scan->decoded_size; ++i) {
+        uintptr_t addr = scan->decoded[i];
+        uint8_t len = scan->decoded_len[i];
+        instruction_native_t inst;
+        if (decoded_inst)
+            inst = decoded_inst[i];
+        int j = i;
+        while (j && scan->decoded[j - 1] > addr) {
+            scan->decoded[j] = scan->decoded[j - 1];
+            scan->decoded_len[j] = scan->decoded_len[j - 1];
+            if (decoded_inst)
+                decoded_inst[j] = decoded_inst[j - 1];
+            --j;
+        }
+        scan->decoded[j] = addr;
+        scan->decoded_len[j] = len;
+        if (decoded_inst)
+            decoded_inst[j] = inst;
+    }
+    if (scan->decoded[0] != target)
+        return 0;
+    for (int i = 1; i < scan->decoded_size; ++i)
+        if (scan->decoded[i] < scan->decoded[i - 1] + scan->decoded_len[i - 1])
+            return 0;
+    return 1;
+}
+
+static int leaf_embedded_find(const instruction_native_t* insts, int size, uintptr_t addr)
+{
+    int low = 0;
+    int high = size - 1;
+    while (low <= high) {
+        int mid = (low + high) / 2;
+        if (insts[mid].x64.addr == addr)
+            return mid;
+        if (insts[mid].x64.addr < addr)
+            low = mid + 1;
+        else
+            high = mid - 1;
+    }
+    return -1;
+}
+
+static int leaf_embedded_build(uintptr_t target, uintptr_t continuation, int is32bits, uint8_t* embedded_id)
+{
+    instruction_native_t decoded[LEAFCALL_MAX_INSTS + 2];
+    leafcall_analysis_t scan;
+    if (!embedded_id || static_leaf_embedded_count >= LEAFCALL_MAX_EMBEDDEDS || BOX64ENV(dynarec_test) || BOX64ENV(dynarec_trace))
+        return 0;
+#ifdef HAVE_ALTJUMP
+    if (getAlternateJump((void*)target, is32bits))
+        return 0;
+#endif
+    if (!leafcall_analyze_leaf(&scan, target, continuation, is32bits, decoded))
+        return 0;
+    if (static_leafdecoded_count + scan.decoded_size > LEAFCALL_MAX_TOTAL_INSTS || static_leafinst_count + scan.decoded_size + 1 > (int)(sizeof(static_leafinsts) / sizeof(static_leafinsts[0])))
+        return 0;
+
+    leaf_embedded_t* embedded = &static_leaf_embeddeds[static_leaf_embedded_count];
+    memset(embedded, 0, sizeof(*embedded));
+    dynarec_native_t* leaf = &embedded->dyn;
+    leaf->insts = &static_leafinsts[static_leafinst_count];
+    memcpy(leaf->insts, decoded, scan.decoded_size * sizeof(decoded[0]));
+    memset(&leaf->insts[scan.decoded_size], 0, sizeof(leaf->insts[scan.decoded_size]));
+    leaf->size = scan.decoded_size;
+    leaf->cap = scan.decoded_size + 1;
+    leaf->start = target;
+    leaf->end = scan.decoded[scan.decoded_size - 1] + scan.decoded_len[scan.decoded_size - 1];
+    leaf->isize = leaf->end - target;
+    leaf->env = GetCurEnvByAddr(target);
+    leaf->is_file_mapped = IsAddrElfOrFileMapped(target);
+    leaf->peeking_flags = 2;
+    leaf->inline_leaf = 1;
+    leaf->inline_is32bits = is32bits;
+    leaf->inline_rsp = scan.reads_rsp ? 0 : (scan.implicit_rsp ? (is32bits ? 4 : 8) : -(is32bits ? 4 : 8));
+    leaf->instsize = static_leaf_instsize;
+    leaf->jmps = &static_leafjmps[static_leafdecoded_count];
+    leaf->jmp_cap = scan.decoded_size;
+
+    for (int i = 0; i < leaf->size; ++i) {
+        instruction_native_t* inst = &leaf->insts[i];
+        inst->x64.size = scan.decoded_len[i];
+        inst->x64.alive = 0;
+        inst->x64.jmp_insts = -1;
+        inst->pred = NULL;
+        inst->pred_sz = 0;
+        if (inst->x64.has_next) {
+            if (i + 1 >= leaf->size || inst->x64.addr + inst->x64.size != leaf->insts[i + 1].x64.addr)
+                return 0;
+        }
+        if (inst->x64.jmp) {
+            int target_inst = leaf_embedded_find(leaf->insts, leaf->size, inst->x64.jmp);
+            if (target_inst < 0)
+                return 0;
+            inst->x64.jmp_insts = target_inst;
+            inst->barrier_maybe = 0;
+            leaf->jmps[leaf->jmp_sz++] = i;
+        }
+        int isret = (inst->x64.leaf_kind == LEAF_KIND_RET);
+        if (isret)
+            inst->x64.need_after |= X_PEND;
+    }
+    leaf->insts[leaf->size].x64.addr = leaf->end;
+
+    sizePredecessors(leaf);
+    int predecessor_count = 0;
+    for (int i = 0; i < leaf->size; ++i)
+        predecessor_count += leaf->insts[i].pred_sz;
+    if (static_leafpred_count + predecessor_count > (int)(sizeof(static_leafpreds) / sizeof(static_leafpreds[0])))
+        return 0;
+    leaf->predecessor = &static_leafpreds[static_leafpred_count];
+    fillPredecessors(leaf);
+    for (int i = 0; i < leaf->size; ++i)
+        if (!leaf->insts[i].x64.alive)
+            return 0;
+
+    PREUPDATE_SPECIFICS(leaf);
+    int pos = leaf->size - 1;
+    while (pos >= 0)
+        pos = updateNeed(leaf, pos, 0);
+    updateUpperLiveness(leaf);
+    updateRspMerge(leaf, is32bits);
+    UPDATE_SPECIFICS(leaf);
+
+    static_leafinst_count += leaf->size + 1;
+    static_leafdecoded_count += leaf->size;
+    static_leafpred_count += predecessor_count;
+    *embedded_id = ++static_leaf_embedded_count;
+    return 1;
+}
+
+static void leaf_embedded_reset(dynarec_native_t* dyn)
+{
+    static_leaf_embedded_count = 0;
+    static_leafinst_count = 0;
+    static_leafdecoded_count = 0;
+    static_leafpred_count = 0;
+    memset(static_leaf_embeddeds, 0, sizeof(static_leaf_embeddeds));
+    dyn->leaf_embeddeds = static_leaf_embeddeds;
+}
+
+void* dynarec_get_leaf_embedded(void* owner, int ninst)
+{
+    dynarec_native_t* dyn = owner;
+    if (!dyn || !dyn->leaf_embeddeds || ninst < 0 || ninst >= dyn->size)
+        return NULL;
+    int embedded_id = dyn->insts[ninst].x64.leaf_embedded;
+    if (embedded_id <= 0 || embedded_id > static_leaf_embedded_count)
+        return NULL;
+    leaf_embedded_t* embeddeds = dyn->leaf_embeddeds;
+    return &embeddeds[embedded_id - 1].dyn;
+}
+#endif
+
 #define PEEK_FLAGS_INSTS 16
 
 typedef struct peek_flags_state_s {
@@ -606,6 +950,9 @@ dynablock_t* FillBlock64(uintptr_t addr, int is32bits, int inst_max, int is_new,
     helper.next_cap = MAX_INSTS;
     helper.table64 = NULL;
     helper.env = GetCurEnvByAddr(addr);
+    #ifdef LA64
+    leaf_embedded_reset(&helper);
+    #endif
     if(prot&PROT_NEVERCLEAN) {
         helper.always_test = 1;
     }
@@ -688,6 +1035,33 @@ dynablock_t* FillBlock64(uintptr_t addr, int is32bits, int inst_max, int is_new,
                 state = BUILD_ABORT_EMPTY;
                 continue;
             }
+            #ifdef LA64
+            if (BOX64DRENV(dynarec_callret) >= 3) {
+                for (int i = 0; i < helper.size; ++i) {
+                    instruction_x64_t* inst = &helper.insts[i].x64;
+                    if (inst->leaf_kind != LEAF_KIND_CALL)
+                        continue;
+                    uintptr_t target = inst->leaf_target;
+                    uintptr_t continuation = inst->addr + inst->size;
+                    uint8_t embedded_id = 0;
+                    if (!target || !inst->has_next || i + 1 >= helper.size || helper.insts[i + 1].x64.addr != continuation || !leaf_embedded_build(target, continuation, is32bits, &embedded_id))
+                        inst->leaf_call = 0;
+                    else
+                        inst->leaf_embedded = embedded_id;
+                }
+                for (int i = 0; i < helper.size; ++i)
+                    if (helper.insts[i].x64.leaf_call)
+                        helper.insts[i].x64.barrier = BARRIER_FLOAT;
+            } else {
+                for (int i = 0; i < helper.size; ++i) {
+                    helper.insts[i].x64.leaf_call = 0;
+                    helper.insts[i].x64.leaf_embedded = 0;
+                    helper.insts[i].x64.leaf_kind = LEAF_KIND_NONE;
+                    helper.insts[i].x64.leaf_rsp = 0;
+                    helper.insts[i].x64.leaf_target = 0;
+                }
+            }
+            #endif
             if(!is_inhotpage && !isprotectedDB(addr, 1)) {
                 dynarec_log(LOG_INFO, "Warning, write on current page on pass0, aborting dynablock creation (%p)\n", (void*)addr);
                 state = BUILD_ABORT_NULL;

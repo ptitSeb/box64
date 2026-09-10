@@ -36,6 +36,12 @@
 #define NAT_FLAGS_FUSION   0
 #define NAT_FLAGS_NOFUSION 1
 
+#define LEAF_KIND_NONE   0
+#define LEAF_KIND_CALL   1
+#define LEAF_KIND_RET    2
+#define LEAF_RSP_PUSHPOP 1
+#define LEAF_RSP_REF     2
+
 typedef struct instruction_x64_s {
     uintptr_t   addr;       //address of the instruction
     int32_t     size;       // size of the instruction
@@ -44,6 +50,7 @@ typedef struct instruction_x64_s {
     uint8_t     jmp_cond:1;   // 1 of conditionnal jump
     uint8_t     has_next:1;   // does this opcode can continue to the next?
     uint8_t     has_callret:1;    // this instruction have an optimized call setup
+    uint8_t     leaf_call:1;      // direct call to a proven closed leaf body
     uint8_t     alive:1;    // this opcode gets executed (0 if dead code in that block)
     uint8_t     self_loop:1;    // this is a landing address for a self-loop (loop on itslef with no exit)
     uint8_t     barrier;    // next instruction is a jump point, so no optim allowed
@@ -54,6 +61,10 @@ typedef struct instruction_x64_s {
     uint8_t     gen_flags;  // calculated
     uint8_t     need_before;// calculated
     uint8_t     need_after; // calculated
+    uint8_t     leaf_embedded;
+    uint8_t     leaf_kind;
+    uint8_t     leaf_rsp;
+    uintptr_t   leaf_target;
 } instruction_x64_t;
 
 #endif //__DYNAREC_PRIVATE_H_
