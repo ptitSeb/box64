@@ -80,6 +80,7 @@ Optimize CALL/RET opcodes. Available in WowBox64.
  * 0: Do not optimize CALL/RET, use jump table.
  * 1: Try to optimize CALL/RET, skipping the jump table when possible.
  * 2: Try to optimize CALL/RET, skipping the jump table when possible, adding code to handle return to dirty/modified block. Does not work on WowBox64. [Default]
+ * 3: Same as 2, with leaf call analysis that tries to duplicate leaf bodies into their callers. Only available for LoongArch for now.
 
 ### BOX64_DYNAREC_SEP
 

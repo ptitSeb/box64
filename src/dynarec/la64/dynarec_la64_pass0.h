@@ -70,6 +70,14 @@
     } else                                         \
         dyn->insts[ninst].barrier_maybe = 1
 #define SET_HASCALLRET() dyn->insts[ninst].x64.has_callret = 1
+#define MARK_LEAF_CALL() dyn->insts[ninst].x64.leaf_kind = LEAF_KIND_CALL
+#define MARK_LEAF_CALL_TARGET(T)                            \
+    do {                                                    \
+        dyn->insts[ninst].x64.leaf_kind = LEAF_KIND_CALL;   \
+        dyn->insts[ninst].x64.leaf_target = (uintptr_t)(T); \
+    } while (0)
+#define MARK_LEAF_RET()  dyn->insts[ninst].x64.leaf_kind = LEAF_KIND_RET
+#define MARK_LEAF_RSP(F) dyn->insts[ninst].x64.leaf_rsp |= (F)
 #define NEW_INST                                                                                                 \
     ++dyn->size;                                                                                                 \
     dyn->insts[ninst].x64.addr = ip;                                                                             \

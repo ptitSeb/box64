@@ -123,7 +123,11 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
     fpu_reset(dyn);
     ARCH_INIT();
     int reset_n = -1; // -1 no reset; -2 reset to 0; else reset to the state of reset_n
-    dyn->last_ip = (alternate || (dyn->insts && dyn->insts[0].pred_sz))?0:ip;  // RIP is always set at start of block unless there is a predecessor!
+    #if defined(LA64)
+    dyn->last_ip = (dyn->inline_leaf || alternate || (dyn->insts && dyn->insts[0].pred_sz)) ? 0 : ip; // RIP is always set at start of ordinary blocks unless there is a predecessor!
+    #else
+    dyn->last_ip = (alternate || (dyn->insts && dyn->insts[0].pred_sz)) ? 0 : ip; // RIP is always set at start of block unless there is a predecessor!
+    #endif
     int stopblock = 2 + !dyn->is_file_mapped;                          // if block is in elf memory or file mapped memory, it can be extended with BOX64DRENV(dynarec_bigblock)==2, else it needs 3
     // ok, go now
     INIT;
@@ -131,6 +135,10 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
     uintptr_t cur_page = (addr)&~(box64_pagesize-1);
     #endif
     while(ok) {
+        #if STEP > 0 && defined(LA64)
+        if (dyn->inline_leaf)
+            addr = dyn->insts[ninst].x64.addr;
+        #endif
         #if STEP == 0
         int stop_for_guard = 0;
         if(cur_page != ((addr)&~(box64_pagesize-1))) {
@@ -310,6 +318,12 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
             return ip;
         INST_EPILOG;
 
+        #if STEP == 0 && defined(LA64)
+        if (!dyn->peeking_flags && BOX64DRENV(dynarec_callret) >= 3 && dyn->insts[ninst].x64.leaf_kind == LEAF_KIND_CALL && dyn->insts[ninst].x64.leaf_target) {
+            dyn->insts[ninst].x64.leaf_call = 1;
+        }
+        #endif
+
         #if STEP > 1
         if (dyn->insts[ninst].lock)
             DMB_ISH();
@@ -415,7 +429,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
                 dyn->forward_ninst = 0;
             }
             // else just continue
-        } else if (!ok && !need_epilog && BOX64DRENV(dynarec_bigblock) && (getProtection(addr + 3) & ~PROT_READ))
+        } else if (!ok && !need_epilog && !dyn->peeking_flags && BOX64DRENV(dynarec_bigblock) && (getProtection(addr + 3) & ~PROT_READ))
             if(*(uint32_t*)addr!=0) {   // check if need to continue (but is next 4 bytes are 0, stop)
                 uintptr_t next = get_closest_next(dyn, addr);
                 if(next && (
@@ -531,3 +545,63 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
     MESSAGE(LOG_DUMP, "---- END OF BLOCK ---- (%d)\n", dyn->size);
     return addr;
 }
+
+#ifdef LA64
+void emit_inline_leaf(dynarec_native_t* parent, int parent_ninst)
+{
+    dynarec_native_t* leaf = dynarec_get_leaf_embedded(parent, parent_ninst);
+    if (!leaf) {
+        parent->abort = 1;
+        return;
+    }
+
+    leaf->block = parent->block;
+    leaf->native_start = parent->native_start;
+    leaf->native_size = parent->native_size;
+    leaf->table64 = parent->table64;
+    leaf->table64size = parent->table64size;
+    leaf->table64cap = parent->table64cap;
+    leaf->tablestart = parent->tablestart;
+    leaf->jmp_next = parent->jmp_next;
+    leaf->dynablock = parent->dynablock;
+    leaf->callrets = parent->callrets;
+    leaf->callret_size = parent->callret_size;
+    leaf->sep = parent->sep;
+    leaf->sep_size = parent->sep_size;
+    leaf->need_dump = parent->need_dump;
+    leaf->need_reloc = parent->need_reloc;
+    leaf->relocs = parent->relocs;
+    leaf->reloc_size = parent->reloc_size;
+    leaf->inline_native_end = parent->insts[parent_ninst].mark[2];
+    leaf->insts_size = 0;
+    leaf->abort = 0;
+
+    size_t native_start = leaf->native_size;
+    native_pass(leaf, leaf->start, 0, leaf->inline_is32bits, leaf->size);
+    size_t native_delta = leaf->native_size - native_start;
+
+    parent->block = leaf->block;
+    parent->native_size = leaf->native_size;
+    parent->table64size = leaf->table64size;
+    parent->callret_size = leaf->callret_size;
+    parent->sep_size = leaf->sep_size;
+    parent->reloc_size = leaf->reloc_size;
+    parent->abort |= leaf->abort;
+
+    #if STEP == 1
+    POSTUPDATE_SPECIFICS(leaf);
+    #elif STEP == 2
+    parent->insts[parent_ninst].size += native_delta;
+    if (leaf->insts_size > LEAFCALL_INSTSIZE_SCRATCH)
+        parent->abort = 1;
+    #elif STEP == 3
+    parent->insts[parent_ninst].size2 += native_delta;
+    for (int i = 0; i < leaf->size; ++i) {
+        if (!leaf->insts[i].x64.alive)
+            continue;
+        if (leaf->insts[i].size2 != leaf->insts[i].size)
+            parent->abort = 1;
+    }
+    #endif
+}
+#endif
