@@ -564,7 +564,10 @@ uintptr_t dynarec64_00_2(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         UP32_ZERO(gd);
                     }
                 } else if (!rex.w && !rex.is32bits) {
-                    if (NEED_ZEROUP(gd)) ZEROUP_RESULT(gd); // truncate the higher 32bits as asked
+                    if (rex.is67)
+                        UP32_ZERO(gd);
+                    else if (NEED_ZEROUP(gd))
+                        ZEROUP_RESULT(gd);
                 }
             }
             break;
