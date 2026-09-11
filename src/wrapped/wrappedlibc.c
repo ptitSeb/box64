@@ -3804,6 +3804,22 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, size_t length, int prot, int f
     (void)emu;
     if(BOX64ENV(dynarec_log)>=LOG_DEBUG) {printf_log(LOG_NONE, "mmap64(%p, 0x%zx, 0x%x, 0x%x, %d, %zd) ", addr, length, prot, flags, fd, offset);}
 
+    if(!have48bits && !box64_is32bits) {
+        int mmap_limit_flag = MAP_PRIVATE | MAP_ANONYMOUS | MAP_NORESERVE;
+        // Avoid large address-space allocations by V8 sandbox, which will try allocating
+        // 1320/512/256/128 then 64 GiB. In practice, the V8 sandbox does not require such
+        // a large address space.
+        if ((flags & mmap_limit_flag) == mmap_limit_flag &&
+            length > ((size_t)96 << 30) &&
+            !(flags & (MAP_SHARED | MAP_FIXED | MAP_FIXED_NOREPLACE)) &&
+            fd == -1 &&
+            offset == 0) {
+            printf_log(LOG_INFO, "Rejecting mmap of 0x%zx bytes, limit is %d GiB\n", length, 96);
+            errno = ENOMEM;
+            return MAP_FAILED;
+        }
+    }
+
     uintptr_t start = (uintptr_t)addr;
     uintptr_t end = start + length;
     uintptr_t mapped_end = (end + X86_PAGE_SIZE - 1) & ~(X86_PAGE_SIZE - 1);
