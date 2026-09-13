@@ -700,30 +700,29 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW32);
             q3 = fpu_get_scratch(dyn);
             VXOR_VV(q3, q3, q3, VECTOR_UNMASKED);
+            d0 = fpu_get_scratch(dyn);
+            q2 = fpu_get_scratch(dyn);
+            d1 = fpu_get_scratch(dyn);
+            d2 = fpu_get_scratch(dyn);
             int nl = vex.l ? 2 : 1;
             for (int L = 0; L < nl; ++L) {
-                d0 = fpu_get_scratch(dyn);
                 FMVWX(d0, xZR); // sum = 0.0f
                 for (int i = 0; i < 4; ++i) {
                     if ((u8 >> (4 + i)) & 1) {
-                        q2 = fpu_get_scratch(dyn);
                         VSLIDEDOWN_VI(q2, q0, L * 4 + i, VECTOR_UNMASKED);
-                        d1 = fpu_get_scratch(dyn);
                         VFMV_F_S(d1, q2);
                         VSLIDEDOWN_VI(q2, q1, L * 4 + i, VECTOR_UNMASKED);
-                        d2 = fpu_get_scratch(dyn);
                         VFMV_F_S(d2, q2);
                         FMULS(d1, d1, d2);
                         FADDS(d0, d0, d1);
                     }
                 }
-                for (int i = 0; i < 4; ++i) {
-                    if ((u8 >> i) & 1) {
-                        VECTOR_LOAD_VMASK(1 << (L * 4 + i), x4, vex.l ? 2 : 1);
-                        q2 = fpu_get_scratch(dyn);
-                        VFMV_V_F(q2, d0);
-                        VMERGE_VVM(q3, q3, q2);
-                    }
+                int out_mask = u8 & 0xF;
+                out_mask <<= 4 * L;
+                if (out_mask) {
+                    VECTOR_LOAD_VMASK(out_mask, x4, vex.l ? 2 : 1);
+                    VFMV_V_F(q2, d0);
+                    VMERGE_VVM(q3, q3, q2);
                 }
             }
             PUTGY_vector(q3, VECTOR_SEW32);
