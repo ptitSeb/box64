@@ -78,10 +78,10 @@ extern void arm64_lock_storeb(void*p, uint8_t b);
 extern int arm64_lock_incif0(void*p);
 
 // increment atomically the int at [p]. Return the old value of [p]
-extern int arm64_lock_inc(void*p);
+extern int arm64_lock_inc(volatile void*p);
 
 // decrement atomically the int at [p] (but only if p not 0)
-extern int arm64_lock_decifnot0(void*p);
+extern int arm64_lock_decifnot0(volatile void*p);
 
 // atomic store (with memory barrier)
 extern void arm64_lock_store(void*p, uint32_t v);
