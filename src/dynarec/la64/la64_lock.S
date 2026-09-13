@@ -21,6 +21,7 @@
 .global la64_lock_storeifref2_d
 .global la64_lock_storeb
 .global la64_lock_incif0
+.global la64_lock_inc
 .global la64_lock_decifnot0
 .global la64_lock_store
 .global la64_lock_store_dd
@@ -162,6 +163,17 @@ la64_lock_incif0:
     sc.w   $a2, $a0, 0
     beqz   $a2, 1b
 2:
+    move   $a0, $a1
+    ret
+
+la64_lock_inc:
+    dbar   0
+1:
+    ll.w   $a1, $a0, 0
+    addi.d $a1, $a1, 1
+    move   $a2, $a1
+    sc.w   $a2, $a0, 0
+    beqz   $a2, 1b
     move   $a0, $a1
     ret
 

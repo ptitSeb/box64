@@ -29,6 +29,7 @@
 .global ppc64le_lock_decifnot0b
 .global ppc64le_lock_storeb
 .global ppc64le_lock_incif0
+.global ppc64le_lock_inc
 .global ppc64le_lock_decifnot0
 .global ppc64le_lock_store
 .global ppc64le_lock_store_dd
@@ -346,6 +347,19 @@ ppc64le_lock_incif0:
     mr      %r3, %r4
     blr
 .size ppc64le_lock_incif0, .-ppc64le_lock_incif0
+
+.type ppc64le_lock_inc, @function
+ppc64le_lock_inc:
+    // address is r3, increment word at [r3] if 0. return old value in r3
+    lwsync
+1:
+    lwarx   %r4, 0, %r3
+    addi    %r5, %r4, 1
+    stwcx.  %r5, 0, %r3
+    bne     1b
+    mr      %r3, %r4
+    blr
+.size ppc64le_lock_inc, .-ppc64le_lock_inc
 
 .type ppc64le_lock_store, @function
 ppc64le_lock_store:

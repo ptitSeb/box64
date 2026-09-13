@@ -17,6 +17,7 @@
 .global rv64_lock_decifnot0b
 .global rv64_lock_storeb
 .global rv64_lock_incif0
+.global rv64_lock_inc
 .global rv64_lock_decifnot0
 .global rv64_lock_store
 .global rv64_lock_store_dd
@@ -211,6 +212,16 @@ rv64_lock_incif0:
     sc.w    a2, a1, (a0)
     bnez    a2, 1b
 2:
+    mv      a0, a1
+    ret
+
+rv64_lock_inc:
+    fence   rw, rw
+1:
+    lr.w    a1, (a0)
+    addi    a1, a1, 1
+    sc.w    a2, a1, (a0)
+    bnez    a2, 1b
     mv      a0, a1
     ret
 

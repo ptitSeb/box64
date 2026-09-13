@@ -2515,10 +2515,10 @@ int isprotectedDB(uintptr_t addr, size_t size)
 
 typedef union hotpage_s {
     struct {
-        uint64_t    addr:36;
-        uint64_t    cnt:28;
+        volatile uint64_t    addr:36;
+        volatile uint64_t    cnt:28;
     };
-    uint64_t    x;
+    volatile uint64_t    x;
 } hotpage_t;
 #define HOTPAGE_MAX ((1<<28)-1)
 #define N_HOTPAGE   32
@@ -2526,9 +2526,11 @@ typedef union hotpage_s {
 #define HOTPAGE_DIRTY 128
 #define HOTPAGE_DIRTY2 16
 static hotpage_t hotpage[N_HOTPAGE] = {0};
+static volatile uint32_t n_hpages_alive = 0;
 void SetHotPage(int idx, uintptr_t page)
 {
     hotpage_t tmp = hotpage[idx];
+    if(!tmp.cnt) native_lock_inc(&n_hpages_alive);
     tmp.addr = page;
     tmp.cnt = 0;
     switch(BOX64ENV(dynarec_dirty)) {
@@ -2541,9 +2543,10 @@ void SetHotPage(int idx, uintptr_t page)
 }
 int IdxHotPage(uintptr_t page)
 {
-    for(int i=0; i<N_HOTPAGE; ++i)
-        if(hotpage[i].addr == page)
-            return i;
+    if(n_hpages_alive)
+        for(int i=0; i<N_HOTPAGE; ++i)
+            if(hotpage[i].addr == page)
+                return i;
     return -1;
 }
 int IdxOldestHotPage(uintptr_t page)
@@ -2586,6 +2589,7 @@ void CheckHotPage(uintptr_t addr, uint32_t prot)
         dynarec_log(LOG_INFO, "Detecting a Hotpage at %p (idx=%d) again, switching the page to NEVERCLEAN\n", (void*)(page<<12), idx);
         neverprotectDB(page<<12, box64_pagesize, 2);
         hotpage_t hp = {0};
+        native_lock_decifnot0(&n_hpages_alive);
         native_lock_store_dd(hotpage+idx, hp.x);  // free slot
         return;
     }
@@ -2613,6 +2617,7 @@ int isInHotPage(uintptr_t addr)
             } else {
                 --hp.cnt;
                 ok = native_lock_storeifref2(hotpage+i, (void*)hp.x, (void*)old.x)==(void*)old.x;
+                if(ok && !hp.cnt) native_lock_decifnot0(&n_hpages_alive);
             }
         } while(!ok);
     }

@@ -43,6 +43,9 @@ extern void la64_lock_storeb(void* p, uint8_t b);
 // increment atomically the int at [p] only if it was 0. Return the old value of [p]
 extern int la64_lock_incif0(void* p);
 
+// increment atomically the int at [p]. Return the old value of [p]
+extern int la64_lock_inc(void* p);
+
 // decrement atomically the int at [p] (but only if p not 0)
 extern int la64_lock_decifnot0(void* p);
 

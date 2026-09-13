@@ -30,6 +30,7 @@
 .global arm64_lock_decifnot0b
 .global arm64_lock_storeb
 .global arm64_lock_incif0
+.global arm64_lock_inc
 .global arm64_lock_decifnot0
 .global arm64_lock_store
 .global arm64_lock_store_dd
@@ -402,6 +403,28 @@ arm64_atomic_incif0:
     dmb     ish
     swpal   w1, wzr, [x0]
     mov     w0, w1
+    ret
+
+arm64_lock_inc:
+    adrp    x3, cpuext
+    add     x3, x3, #:lo12:cpuext
+    ldr     w3, [x3]
+    tbnz    w3, #0, arm64_atomic_inc
+    dmb     ish
+1:
+    ldaxr   w1, [x0]
+    add     w3, w1, #1
+    stlxr   w2, w3, [x0]
+    cbnz    w2, 1b
+2:
+    mov     w0, w1
+    ret
+
+arm64_atomic_inc:
+    mov     w1, #1
+    dmb     ish
+    ldadd   w1, w2, [x0]
+    mov     w0, w2
     ret
 
 arm64_lock_store:
