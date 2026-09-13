@@ -3728,6 +3728,16 @@ EXPORT int my32_ioctl(x64emu_t* emu, int fd, unsigned long op, void* arg)
     }
 }
 
+EXPORT void* my32___sched_cpualloc(x64emu_t* emu, uint32_t count)
+{
+    return box32_malloc(CPU_ALLOC_SIZE(count));
+}
+
+EXPORT void my32___sched_cpufree(x64emu_t* emu, void* p)
+{
+    box32_free(p);
+}
+
 #undef HAS_MY
 
 #define PRE_INIT\

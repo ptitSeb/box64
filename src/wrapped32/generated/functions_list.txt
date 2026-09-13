@@ -2473,6 +2473,7 @@ wrappedlibc:
   - exit
 - vEp:
   - __libc_free
+  - __sched_cpufree
   - freeaddrinfo
   - regfree
 - vFp:
@@ -2515,6 +2516,7 @@ wrappedlibc:
 - pFv:
   - __h_errno_location
 - pEu:
+  - __sched_cpualloc
   - getpwuid
 - pFu:
   - _ZGTtnaj

@@ -164,6 +164,7 @@ typedef int32_t (*iFpuippupp_t)(void*, uint32_t, int32_t, void*, void*, uint32_t
 	GO(__cxa_pure_virtual, vFv_t) \
 	GO(exit, vFi_t) \
 	GO(__libc_free, vEp_t) \
+	GO(__sched_cpufree, vEp_t) \
 	GO(freeaddrinfo, vEp_t) \
 	GO(regfree, vEp_t) \
 	GO(_ZGTtdlPv, vFp_t) \
@@ -188,6 +189,7 @@ typedef int32_t (*iFpuippupp_t)(void*, uint32_t, int32_t, void*, void*, uint32_t
 	GO(getpwent, pEv_t) \
 	GO(localeconv, pEv_t) \
 	GO(__h_errno_location, pFv_t) \
+	GO(__sched_cpualloc, pEu_t) \
 	GO(getpwuid, pEu_t) \
 	GO(_ZGTtnaj, pFu_t) \
 	GO(__libc_malloc, pEL_t) \

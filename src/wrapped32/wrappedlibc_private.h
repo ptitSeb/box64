@@ -1485,9 +1485,9 @@ GO(__sbrk, pEl)
 GOM(scandir, iEEpppp) //%%
 GOM(scandir64, iEEpppp) //%%
 //GO2(scanf, iEpp, vscanf)
-//GO(__sched_cpualloc, pEu)   //TODO: check, return cpu_set_t* : should this be aligned/changed?
+GOM(__sched_cpualloc, pEEu)
 GO(__sched_cpucount, iEup)
-//GO(__sched_cpufree, vEp)
+GOM(__sched_cpufree, vEEp)
 GOM(sched_getaffinity, iEEiLp)
 GOM(sched_getcpu, iEEv)
 GO(__sched_getparam, iEip)
