@@ -856,9 +856,9 @@ uintptr_t dynarec64_AVX_66_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             VID_V(q2, VECTOR_UNMASKED);
             VAND_VI(q2, q2, 1, VECTOR_UNMASKED);
             VMSEQ_VX(VMASK, q2, xZR, VECTOR_UNMASKED);
-            VFADD_VV(v0, q0, q1, VECTOR_MASKED);
-            VXOR_VI(VMASK, VMASK, 0x1f, VECTOR_UNMASKED);
             VFSUB_VV(v0, q0, q1, VECTOR_MASKED);
+            VXOR_VI(VMASK, VMASK, 0x1f, VECTOR_UNMASKED);
+            VFADD_VV(v0, q0, q1, VECTOR_MASKED);
             PUTGY_vector(v0, VECTOR_SEW64);
             break;
         case 0xD1:
