@@ -650,9 +650,9 @@ dynablock_t* FillBlock64(uintptr_t addr, int is32bits, int inst_max, int is_new,
             state = BUILD_PASS0;
             if (SigSetJmp(GET_JUMPBUFF(dynarec_jmpbuf), 1)) {
                 if(state==BUILD_PASS0 && helper.size>1) {
-                    end = helper.insts[helper.size].x64.addr;
                     --helper.size;
-                    printf_log(LOG_INFO, "FillBlock at %p triggered a segfault, truncating at %d\n", (void*)addr, helper.size);
+                    end = helper.insts[helper.size].x64.addr;
+                    printf_log(LOG_INFO, "FillBlock at %p triggered a segfault, truncating at %d(%p)\n", (void*)addr, helper.size, (void*)end);
                     state = BUILD_PASS1;
                 } else {
                     printf_log(LOG_INFO, "FillBlock at %p triggered a segfault (state=%d, size=%d), canceling\n", (void*)addr, state, helper.size);
