@@ -1290,6 +1290,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             sse_forget_reg(dyn, ninst, x6, gd);
             MOV32w(x1, gd);
             CALL(const_native_aesimc, -1, x1, 0);
+            YMM0(gd);
             break;
         case 0xDE:
             INST_NAME("VAESDEC Gx, Vx, Ex");
