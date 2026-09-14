@@ -179,7 +179,6 @@ uintptr_t getConst(la64_consts_t which)
         case const_helper_getcpu: return (uintptr_t)helper_getcpu;
         case const_cpuid: return (uintptr_t)my_cpuid;
         case const_getsegmentbase: return (uintptr_t)GetSegmentBaseEmu;
-        case const_updateflags: return (uintptr_t)UpdateFlags;
         case const_updateflags_la64: return (uintptr_t)create_updateflags();
         case const_native_memcmp: return (uintptr_t)create_native_call(LA64_NATIVE_MEMCMP);
         case const_native_memcpy: return (uintptr_t)create_native_call(LA64_NATIVE_MEMCPY);

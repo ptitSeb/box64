@@ -82,7 +82,6 @@ typedef enum la64_consts_s {
     const_helper_getcpu,
     const_cpuid,
     const_getsegmentbase,
-    const_updateflags,
     const_updateflags_la64,
     const_native_memcmp,
     const_native_memcpy,

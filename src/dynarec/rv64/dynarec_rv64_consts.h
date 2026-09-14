@@ -75,7 +75,6 @@ typedef enum rv64_consts_s {
     const_helper_getcpu,
     const_cpuid,
     const_getsegmentbase,
-    const_updateflags,
     const_updateflags_rv64,
     const_reset_fpu,
     const_sha1nexte,
