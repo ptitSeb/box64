@@ -441,6 +441,51 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             }
             PUTGY_vector(q2, VECTOR_SEW32);
             break;
+        case 0x09:
+            INST_NAME("VROUNDPD Gx, Ex, Ib");
+            nextop = F8;
+            GETEY_vector(q0, 1, VECTOR_SEW64);
+            GETGY_empty_vector(v0);
+            u8 = F8;
+            SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW64);
+            q1 = fpu_get_scratch(dyn);
+            q2 = fpu_get_scratch(dyn);
+            q3 = fpu_get_scratch(dyn);
+            if (u8 & 4) {
+                u8s = sse_setround(dyn, ninst, x5, x6);
+            } else {
+                ADDI(x5, xZR, round_round[u8 & 3]);
+                FSRM(x6, x5);
+            }
+            VFCVT_X_F_V(q1, q0, VECTOR_UNMASKED);  // qi
+            VFCVT_F_X_V(q2, q1, VECTOR_UNMASKED);  // qf
+            // restore -0.0 where result is 0
+            MOV64x(x5, 0x8000000000000000LL);
+            VAND_VX(q3, q0, x5, VECTOR_UNMASKED);
+            VMSEQ_VI(VMASK, q1, 0, VECTOR_UNMASKED);
+            VMERGE_VVM(q2, q2, q3);
+            // NaN -> passthrough
+            VMFEQ_VV(VMASK, q0, q0, VECTOR_UNMASKED);
+            VMERGE_VVM(q2, q0, q2);
+            // >= 2^63 -> passthrough
+            d0 = fpu_get_scratch(dyn);
+            MOV64x(x5, 0x43e0000000000000LL);
+            FMVDX(d0, x5);
+            VMFGE_VF(VMASK, q0, d0, VECTOR_UNMASKED);
+            VMERGE_VVM(q2, q2, q0);
+            // <= -2^63 -> passthrough
+            d1 = fpu_get_scratch(dyn);
+            MOV64x(x5, 0xc3e0000000000000LL);
+            FMVDX(d1, x5);
+            VMFLE_VF(VMASK, q0, d1, VECTOR_UNMASKED);
+            VMERGE_VVM(q2, q2, q0);
+            if (u8 & 4) {
+                x87_restoreround(dyn, ninst, u8s);
+            } else {
+                FSRM(x5, x6);
+            }
+            PUTGY_vector(q2, VECTOR_SEW64);
+            break;
         case 0x0A:
             INST_NAME("VROUNDSS Gx, Vx, Ex, Ib");
             nextop = F8;
