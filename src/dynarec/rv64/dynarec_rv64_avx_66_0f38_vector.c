@@ -1073,6 +1073,10 @@ uintptr_t dynarec64_AVX_66_0F38_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
             return 0;
         case 0x13:
+            if (!cpuext.zvfh) {
+                fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
+                return 0;
+            }
             INST_NAME("VCVTPH2PS Gx, Ex");
             nextop = F8;
             v1 = fpu_get_scratch(dyn);
@@ -1087,7 +1091,7 @@ uintptr_t dynarec64_AVX_66_0F38_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             GETGY_empty_vector(v0);
             vector_vsetvli(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, vex.l ? 1 : 0.5);
             q2 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-            VFWCVT_F_F_V(q2, v1, VECTOR_UNMASKED);
+            VFWCVT_F_F_V(q2, v1, VECTOR_UNMASKED); // requires zvfh extension
             avx_set_vector_width(dyn, ninst, x1, VECTOR_SEW32, 16 << vex.l);
             q3 = fpu_get_scratch(dyn);
             VZEXT_VF2(q3, v1, VECTOR_UNMASKED); // zero-extended halves

@@ -156,27 +156,34 @@ void rv64Detect(void)
         }
     }
 
-    if (cpuext.vector) {
+    if (cpuext.vector && !cpuext.xtheadvector) {
         block = (uint32_t*)my_block;
-        VSETIVLI(x5, 4, (VECTOR_SEW32 << (3 - !!cpuext.xtheadvector)) | VECTOR_LMUL1); // vsetivli x5, 4, e32, m1
-        VAESEM_VV(3, 4);                                                               // vaesem.vv v3, v4
+        VSETIVLI(x5, 4, (VECTOR_SEW32 << 3) | VECTOR_LMUL1); // vsetivli x5, 4, e32, m1
+        VAESEM_VV(3, 4);                                     // vaesem.vv v3, v4
         ADDI(A0, xZR, 42);
         BR(xRA);
         cpuext.zvkned = Check(my_block);
 
         block = (uint32_t*)my_block;
-        VSETIVLI(x5, 4, (VECTOR_SEW32 << (3 - !!cpuext.xtheadvector)) | VECTOR_LMUL1); // vsetivli x5, 4, e32, m1
-        VSHA2MS_VV(3, 4, 5);                                                           // vsha2ms.vv v3, v4, v5
+        VSETIVLI(x5, 4, (VECTOR_SEW32 << 3) | VECTOR_LMUL1); // vsetivli x5, 4, e32, m1
+        VSHA2MS_VV(3, 4, 5);                                 // vsha2ms.vv v3, v4, v5
         ADDI(A0, xZR, 42);
         BR(xRA);
         cpuext.zvknha = cpuext.zvknhb = Check(my_block);
 
         block = (uint32_t*)my_block;
-        VSETIVLI(x5, 4, (VECTOR_SEW32 << (3 - !!cpuext.xtheadvector)) | VECTOR_LMUL1); // vsetivli x5, 4, e32, m1
-        VROR_VI(3, 4, 1, 1);                                                           // vror.vi v3, v4, 1
+        VSETIVLI(x5, 4, (VECTOR_SEW32 << 3) | VECTOR_LMUL1); // vsetivli x5, 4, e32, m1
+        VROR_VI(3, 4, 1, 1);                                 // vror.vi v3, v4, 1
         ADDI(A0, xZR, 42);
         BR(xRA);
         cpuext.zvbb = Check(my_block);
+
+        block = (uint32_t*)my_block;
+        VSETIVLI(x5, 4, (VECTOR_SEW16 << 3) | VECTOR_LMUL1); // vsetivli x5, 4, e16, m1
+        VFWCVT_F_F_V(6, 4, 1);                               // vfwcvt.f.f.v v6, v4
+        ADDI(A0, xZR, 42);
+        BR(xRA);
+        cpuext.zvfh = Check(my_block);
     }
 
     // Finish
@@ -311,6 +318,7 @@ int DetectHostCpuFeatures(void)
                     cpuext.zvknhb = 0;
                 }
                 if (!strcasecmp(p, "zvbb")) cpuext.zvbb = 0;
+                if (!strcasecmp(p, "zvfh")) cpuext.zvfh = 0;
                 p = strtok(NULL, ",");
             }
         }
