@@ -667,7 +667,8 @@ EXPORT void my_g_simple_async_result_set_error_va(x64emu_t* emu, void* simple, u
     #ifdef CONVERT_VALIST
     CONVERT_VALIST(V);
     #else
-    CREATE_VALIST_FROM_VALIST(V, emu->scratch);
+    myStackAlignValist(emu, (const char*)fmt, emu->scratch, V);
+    PREPARE_VALIST;
     #endif
     my->g_simple_async_result_set_error_va(simple, domain, code, fmt, VARARGS);
 }
