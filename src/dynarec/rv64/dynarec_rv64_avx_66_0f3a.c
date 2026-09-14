@@ -378,6 +378,78 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             } else
                 YMM0(gd);
             break;
+        case 0x61:
+            INST_NAME("VPCMPESTRI Gx, Ex, Ib");
+            nextop = F8;
+            if (vex.l) {
+                DEFAULT;
+            }
+            SETFLAGS(X_ALL, SF_SET_DF, NAT_FLAGS_NOFUSION);
+            gd = ((nextop & 0x38) >> 3) + (rex.r << 3);
+            sse_reflect_reg(dyn, ninst, x6, gd);
+            ADDI(x3, xEmu, offsetof(x64emu_t, xmm[gd]));
+            if (MODREG) {
+                ed = (nextop & 7) + (rex.b << 3);
+                sse_reflect_reg(dyn, ninst, x6, ed);
+                ADDI(x1, xEmu, offsetof(x64emu_t, xmm[ed]));
+                ed = x1;
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 1);
+            }
+            SEXT_W(x2, xRDX);
+            SEXT_W(x4, xRAX);
+            u8 = F8;
+            ADDI(x5, xZR, u8);
+            CALL6(const_sse42_compare_string_explicit_len, x1, ed, x2, x3, x4, x5, 0);
+            ZEROUP(x1);
+            BNEZ_MARK(x1);
+            MOV32w(xRCX, (u8 & 1) ? 8 : 16);
+            B_NEXT_nocond;
+            MARK;
+            if (u8 & 0b1000000) {
+                CLZxw(xRCX, x1, 0, x2, x3, x4);
+                ADDI(x2, xZR, 31);
+                SUB(xRCX, x2, xRCX);
+            } else {
+                CTZxw(xRCX, x1, 0, x2, x3);
+            }
+            break;
+        case 0x63:
+            INST_NAME("VPCMPISTRI Gx, Ex, Ib");
+            nextop = F8;
+            if (vex.l) {
+                DEFAULT;
+            }
+            SETFLAGS(X_ALL, SF_SET_DF, NAT_FLAGS_NOFUSION);
+            gd = ((nextop & 0x38) >> 3) + (rex.r << 3);
+            sse_reflect_reg(dyn, ninst, x6, gd);
+            ADDI(x2, xEmu, offsetof(x64emu_t, xmm[gd]));
+            if (MODREG) {
+                ed = (nextop & 7) + (rex.b << 3);
+                sse_reflect_reg(dyn, ninst, x6, ed);
+                ADDI(x1, xEmu, offsetof(x64emu_t, xmm[ed]));
+                ed = x1;
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, x5, &fixedaddress, rex, NULL, 0, 1);
+            }
+            u8 = F8;
+            MOV32w(x3, u8);
+            CALL4(const_sse42_compare_string_implicit_len, x1, ed, x2, x3, 0);
+            ZEROUP(x1);
+            BNEZ_MARK(x1);
+            MOV32w(xRCX, (u8 & 1) ? 8 : 16);
+            B_NEXT_nocond;
+            MARK;
+            if (u8 & 0b1000000) {
+                CLZxw(xRCX, x1, 0, x2, x3, x4);
+                ADDI(x2, xZR, 31);
+                SUB(xRCX, x2, xRCX);
+            } else {
+                CTZxw(xRCX, x1, 0, x2, x3);
+            }
+            break;
         default:
             DEFAULT;
     }
