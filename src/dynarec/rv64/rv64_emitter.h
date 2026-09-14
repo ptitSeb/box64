@@ -211,6 +211,14 @@
 // rd = rs1 != 0
 #define SNEZ(rd, rs1) SLTU(rd, xZR, rs1)
 
+#define PUTFLAG(reg, F)                     \
+    do {                                    \
+        ANDI(reg, reg, 1);                  \
+        SLLI(reg, reg, F);                  \
+        ANDI(xFlags, xFlags, ~(1 << (F)));  \
+        OR(xFlags, xFlags, reg);            \
+    } while (0)
+
 
 #define BEQ(rs1, rs2, imm13)  EMIT(B_type(imm13, rs2, rs1, 0b000, 0b1100011))
 #define BNE(rs1, rs2, imm13)  EMIT(B_type(imm13, rs2, rs1, 0b001, 0b1100011))

@@ -1071,7 +1071,8 @@
         LWU(x3, xEmu, offsetof(x64emu_t, df)); \
         j64 = (GETMARKF) - (dyn->native_size); \
         BEQ(x3, xZR, j64);                     \
-        CALL_(const_updateflags, -1, 0, 0, 0); \
+        TABLE64C(x6, const_updateflags_rv64);  \
+        JALR(xRA, x6);                         \
         MARKF;                                 \
         dyn->f = status_none;                  \
     }
@@ -1084,7 +1085,8 @@
         LWU(x3, xEmu, offsetof(x64emu_t, df));                   \
         j64 = (GETMARKF) - (dyn->native_size);                   \
         BEQ(x3, xZR, j64);                                       \
-        CALL_(const_updateflags, -1, 0, 0, 0);                   \
+        TABLE64C(x6, const_updateflags_rv64);                    \
+        JALR(xRA, x6);                                           \
         MARKF;                                                   \
         dyn->f = status_none;                                    \
     }
@@ -1453,6 +1455,8 @@
 #define emit_rcr16c         STEPNAME(emit_rcr16c)
 
 #define emit_pf STEPNAME(emit_pf)
+
+#define updateflags_pass STEPNAME(updateflags_pass)
 
 #define x87_do_push                  STEPNAME(x87_do_push)
 #define x87_do_push_empty            STEPNAME(x87_do_push_empty)

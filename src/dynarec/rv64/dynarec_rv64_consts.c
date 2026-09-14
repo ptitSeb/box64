@@ -30,6 +30,8 @@
 void PrintTrace() {}
 #endif
 
+void* create_updateflags();
+
 uintptr_t getConst(rv64_consts_t which)
 {
     switch(which) {
@@ -106,6 +108,7 @@ uintptr_t getConst(rv64_consts_t which)
         case const_cpuid: return (uintptr_t)my_cpuid;
         case const_getsegmentbase: return (uintptr_t)GetSegmentBaseEmu;
         case const_updateflags: return (uintptr_t)UpdateFlags;
+        case const_updateflags_rv64: return (uintptr_t)create_updateflags();
         case const_reset_fpu: return (uintptr_t)reset_fpu;
         case const_sha1nexte: return (uintptr_t)sha1nexte;
         case const_sha1msg1: return (uintptr_t)sha1msg1;
