@@ -182,10 +182,10 @@ extern char* ftrace_name;
 
 #ifndef _WIN32
 #define ENVSUPER5() \
-    INTEGER(BOX64_DYNAREC_CALLRET, dynarec_callret, 2, 0, 2, 1, 2)
+    INTEGER(BOX64_DYNAREC_CALLRET, dynarec_callret, 2, 0, 3, 1, 2)
 #else
 #define ENVSUPER5() \
-    INTEGER(BOX64_DYNAREC_CALLRET, dynarec_callret, 0, 0, 2, 1, 2)
+    INTEGER(BOX64_DYNAREC_CALLRET, dynarec_callret, 0, 0, 3, 1, 2)
 #endif
 
 #ifdef SAVE_MEM

@@ -7,8 +7,11 @@ typedef struct x64emu_s x64emu_t;
 typedef struct instsize_s instsize_t;
 
 #define MAX_INSTS   32760
+#define LEAFCALL_INSTSIZE_SCRATCH 32768
 
 void addInst(instsize_t* insts, size_t* size, int x64_size, int native_size);
+
+void* dynarec_get_leaf_embedded(void* owner, int ninst);
 
 void CancelBlock64(int need_lock);
 dynablock_t* FillBlock64(uintptr_t addr, int is32bits, int inst_max, int is_new, int noalt);

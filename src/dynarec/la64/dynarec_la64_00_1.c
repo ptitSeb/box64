@@ -93,6 +93,7 @@ uintptr_t dynarec64_00_1(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x56:
         case 0x57:
             INST_NAME("PUSH reg");
+            MARK_LEAF_RSP(LEAF_RSP_PUSHPOP);
             SCRATCH_USAGE(0);
             gd = TO_NAT((opcode & 0x07) + (rex.b << 3));
             MARKREGsz(gd);
@@ -109,6 +110,8 @@ uintptr_t dynarec64_00_1(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x5E:
         case 0x5F:
             INST_NAME("POP reg");
+            MARK_LEAF_RSP(LEAF_RSP_PUSHPOP);
+            if (opcode == 0x5C) MARK_LEAF_RSP(LEAF_RSP_REF);
             SCRATCH_USAGE(0);
             SMREAD();
             gd = TO_NAT((opcode & 0x07) + (rex.b << 3));
@@ -119,6 +122,7 @@ uintptr_t dynarec64_00_1(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x60:
             if (rex.is32bits) {
                 INST_NAME("PUSHAD");
+                MARK_LEAF_RSP(LEAF_RSP_PUSHPOP);
                 MV(x1, xRSP);
                 PUSH1_32(xRAX);
                 PUSH1_32(xRCX);
@@ -146,6 +150,7 @@ uintptr_t dynarec64_00_1(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x61:
             if (rex.is32bits) {
                 INST_NAME("POPAD");
+                MARK_LEAF_RSP(LEAF_RSP_PUSHPOP);
                 SMREAD();
                 POP1_32(xRDI);
                 POP1_32(xRSI);
@@ -245,6 +250,7 @@ uintptr_t dynarec64_00_1(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             break;
         case 0x68:
             INST_NAME("PUSH Id");
+            MARK_LEAF_RSP(LEAF_RSP_PUSHPOP);
             if (!rex.is32bits) UP32_READ(xRSP);
             i64 = F32S;
             if (PK(0) == 0xC3) {
@@ -314,6 +320,7 @@ uintptr_t dynarec64_00_1(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             break;
         case 0x6A:
             INST_NAME("PUSH Ib");
+            MARK_LEAF_RSP(LEAF_RSP_PUSHPOP);
             if (!rex.is32bits) UP32_READ(xRSP);
             i64 = F8S;
             if (!i64) {

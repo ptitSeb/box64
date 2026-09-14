@@ -1669,11 +1669,13 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
 #undef GO
         case 0xA0:
             INST_NAME("PUSH FS");
+            MARK_LEAF_RSP(LEAF_RSP_PUSHPOP);
             LD_HU(x2, xEmu, offsetof(x64emu_t, segs[_FS]));
             PUSH1z(x2);
             break;
         case 0xA1:
             INST_NAME("POP FS");
+            MARK_LEAF_RSP(LEAF_RSP_PUSHPOP);
             POP1z(x2);
             ST_H(x2, xEmu, offsetof(x64emu_t, segs[_FS]));
             CBZ_NEXT(x2);
@@ -1752,11 +1754,13 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0xA8:
             INST_NAME("PUSH GS");
+            MARK_LEAF_RSP(LEAF_RSP_PUSHPOP);
             LD_HU(x2, xEmu, offsetof(x64emu_t, segs[_GS]));
             PUSH1z(x2);
             break;
         case 0xA9:
             INST_NAME("POP GS");
+            MARK_LEAF_RSP(LEAF_RSP_PUSHPOP);
             POP1z(x2);
             ST_H(x2, xEmu, offsetof(x64emu_t, segs[_GS]));
             CBZ_NEXT(x2);
