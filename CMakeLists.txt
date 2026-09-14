@@ -1101,6 +1101,7 @@ if(RV64_DYNAREC)
         "${BOX64_ROOT}/src/dynarec/rv64/rv64_printer.c"
         "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_jmpnext.c"
         "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_consts.c"
+        "${BOX64_ROOT}/src/dynarec/rv64/updateflags_rv64.c"
         )
     set(DYNAREC_ASM
         ${DYNAREC_ASM}
@@ -1112,6 +1113,7 @@ if(RV64_DYNAREC)
 
     set(DYNAREC_PASS
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_helper.c"
+    "${BOX64_ROOT}/src/dynarec/rv64/updateflags_rv64_pass.c"
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_emit_tests.c"
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_emit_math.c"
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_emit_logic.c"

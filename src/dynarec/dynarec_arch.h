@@ -128,6 +128,8 @@ extern void la64_next_invalid();
 
 #define JMPNEXT_SIZE    (4*sizeof(void*))
 #define ADDITIONNAL_CHECKS()
+extern void* create_updateflags();
+#define ARCH_UPDATEFLAGS()      create_updateflags()
 
 #elif defined(PPC64LE)
 
