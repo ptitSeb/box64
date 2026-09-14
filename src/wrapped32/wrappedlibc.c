@@ -1829,9 +1829,9 @@ EXPORT int my32_scandir(x64emu_t *emu, void* dir, ptr_t* namelist, void* sel, vo
             int32_t off32 = dp64->d_off;
             dp32->d_ino = ino32;
             dp32->d_off = off32;
-            dp32->d_reclen = dp64->d_reclen-12;
+            dp32->d_reclen = dp64->d_reclen-(offsetof(struct dirent64, d_name)-offsetof(struct i386_dirent, d_name));
             dp32->d_type = dp64->d_type;
-            memmove(dp32->d_name, dp64->d_name, dp32->d_reclen-(sizeof(struct i386_dirent)-sizeof(dp32->d_name)));
+            memmove(dp32->d_name, dp64->d_name, dp32->d_reclen-offsetof(struct i386_dirent, d_name));
             // inplace shrink pointer to
             ((ptr_t*)list)[i] = to_ptrv(list[i]);
         }
