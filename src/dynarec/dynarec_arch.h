@@ -48,6 +48,8 @@ extern void arm64_next_invalid();
 #define JMPNEXT_SIZE    (4*sizeof(void*))
 #elif defined(LA64)
 
+#define HAVE_LEAFCALL
+
 #define instruction_native_t        instruction_la64_t
 #define dynarec_native_t            dynarec_la64_t
 #define extcache_native_t           lsxcache_t

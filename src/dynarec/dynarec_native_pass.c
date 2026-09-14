@@ -123,7 +123,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
     fpu_reset(dyn);
     ARCH_INIT();
     int reset_n = -1; // -1 no reset; -2 reset to 0; else reset to the state of reset_n
-    #if defined(LA64)
+    #if defined(HAVE_LEAFCALL)
     dyn->last_ip = (dyn->inline_leaf || alternate || (dyn->insts && dyn->insts[0].pred_sz)) ? 0 : ip; // RIP is always set at start of ordinary blocks unless there is a predecessor!
     #else
     dyn->last_ip = (alternate || (dyn->insts && dyn->insts[0].pred_sz)) ? 0 : ip; // RIP is always set at start of block unless there is a predecessor!
@@ -135,7 +135,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
     uintptr_t cur_page = (addr)&~(box64_pagesize-1);
     #endif
     while(ok) {
-        #if STEP > 0 && defined(LA64)
+        #if STEP > 0 && defined(HAVE_LEAFCALL)
         if (dyn->inline_leaf)
             addr = dyn->insts[ninst].x64.addr;
         #endif
@@ -318,7 +318,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
             return ip;
         INST_EPILOG;
 
-        #if STEP == 0 && defined(LA64)
+        #if STEP == 0 && defined(HAVE_LEAFCALL)
         if (!dyn->peeking_flags && BOX64DRENV(dynarec_callret) >= 3 && dyn->insts[ninst].x64.leaf_kind == LEAF_KIND_CALL && dyn->insts[ninst].x64.leaf_target) {
             dyn->insts[ninst].x64.leaf_call = 1;
         }
@@ -546,7 +546,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
     return addr;
 }
 
-#ifdef LA64
+#ifdef HAVE_LEAFCALL
 void emit_inline_leaf(dynarec_native_t* parent, int parent_ninst)
 {
     dynarec_native_t* leaf = dynarec_get_leaf_embedded(parent, parent_ninst);

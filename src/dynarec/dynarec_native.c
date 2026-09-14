@@ -416,7 +416,7 @@ uintptr_t native_pass1(dynarec_native_t* dyn, uintptr_t addr, int alternate, int
 uintptr_t native_pass2(dynarec_native_t* dyn, uintptr_t addr, int alternate, int is32bits, int inst_max);
 uintptr_t native_pass3(dynarec_native_t* dyn, uintptr_t addr, int alternate, int is32bits, int inst_max);
 
-#ifdef LA64
+#ifdef HAVE_LEAFCALL
 #define LEAFCALL_MAX_INSTS       128
 #define LEAFCALL_MAX_BYTES       4096
 #define LEAFCALL_MAX_EMBEDDEDS   32
@@ -444,7 +444,6 @@ typedef struct leafcall_analysis_s {
     int failed;
 } leafcall_analysis_t;
 
-#ifdef LA64
 typedef struct leaf_embedded_s {
     dynarec_native_t dyn;
 } leaf_embedded_t;
@@ -458,7 +457,6 @@ static int static_leaf_embedded_count;
 static int static_leafinst_count;
 static int static_leafdecoded_count;
 static int static_leafpred_count;
-#endif
 
 static int leafcall_readable(uintptr_t addr, uintptr_t size)
 {
@@ -950,7 +948,7 @@ dynablock_t* FillBlock64(uintptr_t addr, int is32bits, int inst_max, int is_new,
     helper.next_cap = MAX_INSTS;
     helper.table64 = NULL;
     helper.env = GetCurEnvByAddr(addr);
-    #ifdef LA64
+    #ifdef HAVE_LEAFCALL
     leaf_embedded_reset(&helper);
     #endif
     if(prot&PROT_NEVERCLEAN) {
@@ -1035,7 +1033,7 @@ dynablock_t* FillBlock64(uintptr_t addr, int is32bits, int inst_max, int is_new,
                 state = BUILD_ABORT_EMPTY;
                 continue;
             }
-            #ifdef LA64
+            #ifdef HAVE_LEAFCALL
             if (BOX64DRENV(dynarec_callret) >= 3) {
                 for (int i = 0; i < helper.size; ++i) {
                     instruction_x64_t* inst = &helper.insts[i].x64;
