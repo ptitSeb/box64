@@ -61,13 +61,16 @@ static kh_lockaddress_t    *lockaddress = NULL;
 #ifdef USE_CUSTOM_MUTEX
 uint32_t            mutex_prot;
 uint32_t            mutex_blocks;
+uint32_t            mutex_mmap;
 #else
 pthread_mutex_t     mutex_prot;
 pthread_mutex_t     mutex_blocks;
+pthread_mutex_t     mutex_mmap;
 #endif
 #else
 pthread_mutex_t     mutex_prot;
 pthread_mutex_t     mutex_blocks;
+pthread_mutex_t     mutex_mmap;
 #endif
 //#define TRACE_MEMSTAT
 rbtree_t* memprot = NULL;
@@ -2821,12 +2824,16 @@ void loadProtectionFromMap()
         if(sscanf(buf, "%lx-%lx %c%c%c", &s, &e, &r, &w, &x)==5) {
             uint32_t val;
             uintptr_t endb;
-            if(prev!=s && rb_get_end(mapallmem, prev, &val, &endb)) {
-                if(endb>s) endb = s;
-                if(val==MEM_EXTERNAL) {
-                    // free the place, it's not longer taken
-                    rb_unset(mapallmem, prev, endb);
+            if(prev!=s) {
+                LOCK_PROT();
+                if(rb_get_end(mapallmem, prev, &val, &endb)) {
+                    if(endb>s) endb = s; 
+                    if(val==MEM_EXTERNAL) {
+                        // free the place, it's not longer taken
+                        rb_unset(mapallmem, prev, endb);
+                    }
                 }
+                UNLOCK_PROT();
             }
             prev = e;
             int prot = ((r=='r')?PROT_READ:0)|((w=='w')?PROT_WRITE:0)|((x=='x')?PROT_EXEC:0);
@@ -2982,12 +2989,19 @@ void* find31bitBlockNearHint(void* hint_, size_t size, uintptr_t mask)
     uintptr_t upper = 0xc0000000LL;
     if(cur>upper) upper = 0x100000000LL;
     if(!mask) mask = 0xffff;
-    if(rb_find_free_range(mapallmem, cur, upper, size, mask, &cur))
+    int found;
+    LOCK_PROT_READ();
+    found = rb_find_free_range(mapallmem, cur, upper, size, mask, &cur);
+    UNLOCK_PROT_READ();
+    if(found)
         return (void*)cur;
     if(hint_)
         return NULL;
     cur = (uintptr_t)LOWEST;
-    if(rb_find_free_range(mapallmem, cur, hint, size, mask, &cur))
+    LOCK_PROT_READ();
+    found = rb_find_free_range(mapallmem, cur, hint, size, mask, &cur);
+    UNLOCK_PROT_READ();
+    if(found)
         return (void*)cur;
     return NULL;
 }
@@ -3016,7 +3030,11 @@ void* find47bitBlockNearHint(void* hint, size_t size, uintptr_t mask)
     if(hint<LOWEST) hint = LOWEST;
     uintptr_t cur = (uintptr_t)hint;
     if(!mask) mask = 0xffff;
-    if(rb_find_free_range(mapallmem, cur, 0x800000000000LL, size, mask, &cur))
+    int found;
+    LOCK_PROT_READ();
+    found = rb_find_free_range(mapallmem, cur, 0x800000000000LL, size, mask, &cur);
+    UNLOCK_PROT_READ();
+    if(found)
         return (void*)cur;
     return NULL;
 }
@@ -3057,11 +3075,14 @@ int isBlockFree(void* hint, size_t size)
     uint32_t prot;
     uintptr_t bend = 0;
     uintptr_t cur = (uintptr_t)hint;
+    int ret = 0;
+    LOCK_PROT_READ();
     if(!rb_get_end(mapallmem, cur, &prot, &bend)) {
         if(bend-cur>=size)
-            return 1;
+            ret = 1;
     }
-    return 0;
+    UNLOCK_PROT_READ();
+    return ret;
 }
 
 void relockCustommemMutex(int locks)
@@ -3080,12 +3101,14 @@ static void init_mutexes(void)
 #ifdef USE_CUSTOM_MUTEX
     native_lock_store(&mutex_blocks, 0);
     native_lock_store(&mutex_prot, 0);
+    native_lock_store(&mutex_mmap, 0);
 #else
     pthread_mutexattr_t attr;
     pthread_mutexattr_init(&attr);
     pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK);
     pthread_mutex_init(&mutex_blocks, &attr);
     pthread_mutex_init(&mutex_prot, &attr);
+    pthread_mutex_init(&mutex_mmap, &attr);
 
     pthread_mutexattr_destroy(&attr);
 #endif
@@ -3392,6 +3415,7 @@ static int needsWine64KBAlignment(void* addr)
 #endif
 EXPORT void* box_mmap(void *addr, size_t length, int prot, int flags, int fd, ssize_t offset)
 {
+    mutex_lock(&mutex_mmap);
     if(prot&PROT_WRITE)
         prot|=PROT_READ;    // PROT_READ is implicit with PROT_WRITE on i386
     int new_flags = flags;
@@ -3461,6 +3485,12 @@ EXPORT void* box_mmap(void *addr, size_t length, int prot, int flags, int fd, ss
         }
     }
     #endif
+    if(ret!=MAP_FAILED) {
+        LOCK_PROT();
+        rb_set(mapallmem, (uintptr_t)ret, ALIGN((uintptr_t)ret + length), MEM_RESERVED);
+        UNLOCK_PROT();
+    }
+    mutex_unlock(&mutex_mmap);
     return ret;
 }
 
