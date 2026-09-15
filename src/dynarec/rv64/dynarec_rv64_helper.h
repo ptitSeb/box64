@@ -2078,7 +2078,12 @@ uintptr_t dynarec64_AVX_F3_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             TH_SRRI(dst, dst, 64 - 8 - dst##2);                                          \
         }                                                                                \
         if (dyn->insts[ninst].nat_flags_fusion) {                                        \
-            ANDI(s1, dst, 0xff);                                                         \
+            if (dst##2) {                                                                \
+                SRLI(s1, dst, dst##2);                                                   \
+                ANDI(s1, s1, 0xff);                                                      \
+            } else {                                                                     \
+                ANDI(s1, dst, 0xff);                                                     \
+            }                                                                            \
             NAT_FLAGS_OPS(s1, xZR, xZR, xZR);                                            \
         }                                                                                \
         break;                                                                           \
