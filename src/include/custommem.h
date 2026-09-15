@@ -3,11 +3,11 @@
 #define __CUSTOM_MEM__H_
 #include <unistd.h>
 #include <stdint.h>
-#include <pthread.h>
 
 typedef struct box64context_s box64context_t;
 
-extern pthread_mutex_t mutex_mmap;
+void lockMmapMutex(void);
+void unlockMmapMutex(void);
 
 void* customMalloc(size_t size);
 void* customMalloc32(size_t size);

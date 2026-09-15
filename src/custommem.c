@@ -81,6 +81,10 @@ static rbtree_t* memprot_guest_dyn = NULL;
 
 int have48bits = 0;
 static int inited = 0;
+
+void lockMmapMutex(void)   { mutex_lock(&mutex_mmap);   }
+void unlockMmapMutex(void) { mutex_unlock(&mutex_mmap); }
+
 typedef enum {
     MEM_UNUSED = 0,
     MEM_ALLOCATED = 1,

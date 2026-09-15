@@ -250,7 +250,7 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
             ++head->multiblock_n;
         }
 
-    mutex_lock(&mutex_mmap);
+    lockMmapMutex();
     if(!head->vaddr && BOX64ENV(load_addr)) {
         offs = (uintptr_t)find47bitBlockNearHint((void*)((BOX64ENV(load_addr)+max_align)&~max_align), head->memsz+head->align, max_align);
         BOX64ENV(load_addr) = offs + head->memsz;
@@ -281,7 +281,7 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
         offs = (uintptr_t)image;
         if(((uintptr_t)image)&max_align) {
             InternalMunmap(raw, sz);
-            mutex_unlock(&mutex_mmap);
+            unlockMmapMutex();
             return 1;   // that's an error, alocated memory is not aligned properly
         }
     }
@@ -293,7 +293,7 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
             printf_log_prefix(0, LOG_NONE, " got %p\n", image);
         }
         if(image==MAP_FAILED) {
-            mutex_unlock(&mutex_mmap);
+            unlockMmapMutex();
             return 1;
         }
         offs = (uintptr_t)image-head->vaddr;
@@ -306,7 +306,7 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
     head->raw = raw;
     head->raw_size = sz;
     setProtection_elf((uintptr_t)raw, sz, 0);
-    mutex_unlock(&mutex_mmap);
+    unlockMmapMutex();
 
     head->multiblocks = (multiblock_t*)box_calloc(head->multiblock_n, sizeof(multiblock_t));
     head->tlsbase = AddTLSPartition(context, head->tlssize);
