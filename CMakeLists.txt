@@ -45,7 +45,7 @@ option(BAD_PKILL "Set to ON to activate the workaround for incoherent pthread_ki
 option(SW64 "Set ON if targeting an SW64 based device" ${SW64})
 option(CI "Set to ON if running in CI" ${CI})
 option(WITH_MOLD "Set to ON to use with mold" ${WITH_MOLD})
-option(BOX32 "Set to ON to add Linux 32bits support (experimental, do not use)" ${BOX32})
+option(BOX32 "Set to ON to add Linux 32bits support" ${BOX32})
 option(BOX32_BINFMT "Also setup binfmt integration for box32" ${BOX32_BINFMT})
 option(LARCH64_ABI_1 "Set to ON if building for Loongarch64 ABI 1.0 system" ${LARCH64_ABI_1})
 option(GDBJIT "Set to ON to enable GDB JIT support" ${GDBJIT})

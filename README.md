@@ -55,7 +55,7 @@ Box64 requires 64-bit libraries on the host system, as it directly translates x8
 
 **Notes** 
 
-1. Box32 is still experimental.
+1. Box32 is still experimental, but it's pretty stable now and can be used.
 2. Some shell scripts (such as the GOG game installer) may rely on `uname -m` to determine the current architecture. Please run them as `box64 script.sh` to allow Box64 to take over.
 
 Note that DynaCache is now enabled by default (with compression). This will creates files in `~/.cache/box64` to save generated code for executed binaries and libraries, so launch time can be greatly reduced on second run. The files are compressed and will take up to 2Gb by default. You can disable DynaCache writting, by switching it to a Read-only mode by creating (or modifying) `~/.box64rc` and writting there
