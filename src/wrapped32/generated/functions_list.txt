@@ -3354,6 +3354,7 @@ wrappedlibx11:
   - XMaskEvent
 - iFXLp:
   - XGetWindowAttributes
+  - XSetNormalHints
   - XSetWMHints
   - XkbGetControls
 - iFXpp:

@@ -144,6 +144,7 @@ typedef uintptr_t (*LFXLiiuuuiupLp_t)(void*, uintptr_t, int32_t, int32_t, uint32
 	GO(XCheckMaskEvent, iFXlp_t) \
 	GO(XMaskEvent, iFXlp_t) \
 	GO(XGetWindowAttributes, iFXLp_t) \
+	GO(XSetNormalHints, iFXLp_t) \
 	GO(XSetWMHints, iFXLp_t) \
 	GO(XkbGetControls, iFXLp_t) \
 	GO(XAddConnectionWatch, iFXpp_t) \
