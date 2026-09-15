@@ -6,6 +6,7 @@
 
 typedef struct box64context_s box64context_t;
 
+// Never call these while holding mutex_prot: lock order is mutex_mmap -> mutex_prot.
 void lockMmapMutex(void);
 void unlockMmapMutex(void);
 

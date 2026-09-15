@@ -58,6 +58,8 @@ static uintptr_t           box64_jmptbldefault0[1<<JMPTABL_SHIFT0];
 // lock addresses
 KHASH_SET_INIT_INT64(lockaddress)
 static kh_lockaddress_t    *lockaddress = NULL;
+// Lock order: mutex_mmap must be taken before mutex_prot.
+// No code path holding mutex_prot may ever try to take mutex_mmap, or the two would deadlock.
 #ifdef USE_CUSTOM_MUTEX
 uint32_t            mutex_prot;
 uint32_t            mutex_blocks;
