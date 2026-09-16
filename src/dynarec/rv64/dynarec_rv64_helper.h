@@ -791,6 +791,7 @@
 #define BNE_MARK3(reg1, reg2) Bxx_gen(NE, MARK3, reg1, reg2)
 // Branch to MARK3 if reg1!>=reg2 (use j64)
 #define BGE_MARK3(reg1, reg2) Bxx_gen(GE, MARK3, reg1, reg2)
+#define BGEU_MARK3(reg1, reg2) Bxx_gen(GEU, MARK3, reg1, reg2)
 // Branch to MARK if reg1<reg2 (use j64)
 #define BLTU_MARK3(reg1, reg2) Bxx_gen(LTU, MARK3, reg1, reg2)
 // Branch to MARK3 if reg1!=0 (use j64)
