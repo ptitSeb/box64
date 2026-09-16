@@ -284,6 +284,47 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         BNEZ_MARKLOCK(x7);
                     }
                     break;
+                case 0xC0:
+                    switch (rex.rep) {
+                        case 0:
+                            nextop = F8;
+                            if (MODREG) {
+                                INST_NAME("Invalid LOCK");
+                                UDF();
+                                *need_epilog = 1;
+                                *ok = 0;
+                            } else {
+                                INST_NAME("LOCK XADD Gb, Eb");
+                                SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
+                                GETGB(x1);
+                                addr = geted(dyn, addr, ninst, nextop, &wback, x5, x6, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                                ANDI(x2, wback, 3);
+                                SLLI(x2, x2, 3);        // bit shift
+                                ANDI(x3, wback, ~3);    // aligned word
+                                MARKLOCK;
+                                LR_W(x4, x3, 1, 1);
+                                SRL(x7, x4, x2);
+                                ANDI(x7, x7, 0xFF);     // x7 = old byte
+                                ADD(x6, x7, x1);        // old + gb
+                                ANDI(x6, x6, 0xFF);     // new byte, 8 bits
+                                SLL(x5, x7, x2);
+                                SUB(x4, x4, x5);        // remove old byte
+                                SLL(x5, x6, x2);
+                                ADD(x4, x4, x5);        // insert new byte
+                                SC_W(x5, x4, x3, 1, 1);
+                                BNEZ_MARKLOCK(x5);
+                                MV(x6, x7);             // save old byte
+                                IFXORNAT (X_ALL | X_PEND) {
+                                    emit_add8(dyn, ninst, x7, x1, x4, x5, x3);
+                                }
+                                MV(x1, x6);
+                                GBBACK(x2);
+                            }
+                            break;
+                        default:
+                            DEFAULT;
+                    }
+                    break;
                 case 0xC1:
                     switch (rex.rep) {
                         case 0:
@@ -853,6 +894,26 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         SLLIW(x3, x3, 3);
                         SLLW(x4, x4, x3); // mask
                         AMOXOR_W(xZR, x4, x5, 1, 1);
+                    }
+                    break;
+                default:
+                    DEFAULT;
+            }
+            break;
+        case 0xF7:
+            nextop = F8;
+            switch ((nextop >> 3) & 7) {
+                case 2:
+                    if (MODREG) {
+                        INST_NAME("Invalid LOCK");
+                        UDF();
+                        *need_epilog = 1;
+                        *ok = 0;
+                    } else {
+                        INST_NAME("LOCK NOT Ed");
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                        ADDI(x4, xZR, -1);
+                        AMOXORxw(xZR, x4, wback, 1, 1);
                     }
                     break;
                 default:
