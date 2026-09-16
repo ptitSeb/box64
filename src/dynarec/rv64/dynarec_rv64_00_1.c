@@ -109,14 +109,15 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             if (rex.is32bits) {
                 INST_NAME("PUSHAD");
                 ZEXTW2(x1, xRSP);
-                PUSH1_32(xRAX);
-                PUSH1_32(xRCX);
-                PUSH1_32(xRDX);
-                PUSH1_32(xRBX);
-                PUSH1_32(x1);
-                PUSH1_32(xRBP);
-                PUSH1_32(xRSI);
-                PUSH1_32(xRDI);
+                SUBI(xRSP, xRSP, 32);
+                SW(xRAX, xRSP, 28);
+                SW(xRCX, xRSP, 24);
+                SW(xRDX, xRSP, 20);
+                SW(xRBX, xRSP, 16);
+                SW(x1, xRSP, 12);
+                SW(xRBP, xRSP, 8);
+                SW(xRSI, xRSP, 4);
+                SW(xRDI, xRSP, 0);
                 SMWRITE();
             } else {
                 INST_NAME("Illegal 60");
@@ -136,14 +137,15 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             if (rex.is32bits) {
                 INST_NAME("POPAD");
                 SMREAD();
-                POP1_32(xRDI);
-                POP1_32(xRSI);
-                POP1_32(xRBP);
-                POP1_32(x1);
-                POP1_32(xRBX);
-                POP1_32(xRDX);
-                POP1_32(xRCX);
-                POP1_32(xRAX);
+                LWU(xRDI, xRSP, 0);
+                LWU(xRSI, xRSP, 4);
+                LWU(xRBP, xRSP, 8);
+                LWU(x1, xRSP, 12);
+                LWU(xRBX, xRSP, 16);
+                LWU(xRDX, xRSP, 20);
+                LWU(xRCX, xRSP, 24);
+                LWU(xRAX, xRSP, 28);
+                ADDI(xRSP, xRSP, 32);
             } else {
                 INST_NAME("Illegal 61");
                 if (BOX64DRENV(dynarec_safeflags) > 1) {
