@@ -619,6 +619,13 @@
       "1": "不加载 x64 Vulkan 覆盖层。"
     }
   },
+  "BOX64_ONDEMAND_STEAMUI": {
+    "description": "在游戏运行时关闭 Steam UI，游戏结束后重新打开。",
+    "options": {
+      "0": "禁用。",
+      "1": "在游戏运行时关闭 Steam UI，游戏结束后重新打开。"
+    }
+  },
   "BOX64_PATH": {
     "description": "查找 x86_64 二进制文件的路径。",
     "options": {

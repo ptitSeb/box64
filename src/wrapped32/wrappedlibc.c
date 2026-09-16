@@ -56,6 +56,7 @@
 #include "x64emu.h"
 #include "box64cpu.h"
 #include "debug.h"
+#include "steamwebhelper.h"
 #include "wrapper32.h"
 #include "bridge.h"
 #include "callback.h"
@@ -1911,6 +1912,7 @@ EXPORT ptr_t my32___environ = 0;  //char**
 
 EXPORT int32_t my32_execv(x64emu_t* emu, const char* path, ptr_t argv[])
 {
+    if (OnDemandSteamUIBlockExec(path, 0, NULL)) return -1;
     int ret;
     int self = isProcSelf(path, "exe");
     int x86 = FileIsX86ELF(path);
@@ -1949,6 +1951,10 @@ EXPORT int32_t my32_execv(x64emu_t* emu, const char* path, ptr_t argv[])
     char** newargv = (char**)box_calloc(n+1, sizeof(char*));
     for(int i=0; i<=n; ++i)
         newargv[i] = from_ptrv(argv[i]);
+    if (OnDemandSteamUIBlockExec(path, n, newargv)) {
+        box_free(newargv);
+        return -1;
+    }
     if (BOX64ENV(steam_vulkan) && n == 3 && !strcmp(newargv[0], "sh") && !strcmp(newargv[1], "-c") && strstr(newargv[2], "steamwebhelper.sh")) {
         // For some reason, Steam UI on RISC-V/LoongArch does not have hardware accel.
         // To workaround this, we insert `--enable-features=Vulkan` to the exec of steamwebhelper to force Vulkan.
@@ -1991,6 +1997,7 @@ do_exec:
 
 EXPORT int32_t my32_execve(x64emu_t* emu, const char* path, ptr_t argv[], ptr_t envp[])
 {
+    if (OnDemandSteamUIBlockExec(path, 0, NULL)) return -1;
     int self = isProcSelf(path, "exe");
     int x86 = FileIsX86ELF(path);
     int x64 = FileIsX64ELF(path);
@@ -2031,6 +2038,10 @@ EXPORT int32_t my32_execve(x64emu_t* emu, const char* path, ptr_t argv[], ptr_t 
     const char** newargv = (const char**)box_calloc(n+1, sizeof(char*));
     for(int i=0; i<=n; ++i)
         newargv[i] = from_ptrv(argv[i]);
+    if (OnDemandSteamUIBlockExec(path, n, (char* const*)newargv)) {
+        box_free(newargv);
+        return -1;
+    }
 
     if(!strcmp(path + strlen(path) - strlen("/uname"), "/uname")
      && newargv[1] && (!strcmp(newargv[1], "-m") || !strcmp(newargv[1], "-p") || !strcmp(newargv[1], "-i"))
@@ -2048,6 +2059,7 @@ EXPORT int32_t my32_execve(x64emu_t* emu, const char* path, ptr_t argv[], ptr_t 
 // execvp should use PATH to search for the program first
 EXPORT int32_t my32_execvp(x64emu_t* emu, const char* path, ptr_t argv[])
 {
+    if (OnDemandSteamUIBlockExec(path, 0, NULL)) return -1;
     // need to use BOX32_PATH / PATH here...
     char* fullpath = ResolveFileSoft(path, &my_context->box64_path);
     // use fullpath now
@@ -2082,6 +2094,10 @@ EXPORT int32_t my32_execvp(x64emu_t* emu, const char* path, ptr_t argv[])
     char** newargv = (char**)box_calloc(n+1, sizeof(char*));
     for(int i=0; i<=n; ++i)
         newargv[i] = from_ptrv(argv[i]);
+    if (OnDemandSteamUIBlockExec(path, n, newargv)) {
+        box_free(newargv);
+        return -1;
+    }
     if(!strcmp(path + strlen(path) - strlen("/uname"), "/uname")
      && newargv[1] && (!strcmp(newargv[1], "-m") || !strcmp(newargv[1], "-p") || !strcmp(newargv[1], "-i"))
      && !newargv[2]) {
@@ -2097,6 +2113,7 @@ EXPORT int32_t my32_execvp(x64emu_t* emu, const char* path, ptr_t argv[])
 // execvp should use PATH to search for the program first
 EXPORT int32_t my32_execvpe(x64emu_t* emu, const char* path, ptr_t argv[], ptr_t envp[])
 {
+    if (OnDemandSteamUIBlockExec(path, 0, NULL)) return -1;
     // need to use BOX32_PATH / PATH here...
     char* fullpath = ResolveFileSoft(path, &my_context->box64_path);
     // use fullpath now
@@ -2142,6 +2159,10 @@ EXPORT int32_t my32_execvpe(x64emu_t* emu, const char* path, ptr_t argv[], ptr_t
     char** newargv = (char**)calloc(n+1, sizeof(char*));
     for(int i=0; i<=n; ++i)
         newargv[i] = from_ptrv(argv[i]);
+    if (OnDemandSteamUIBlockExec(path, n, newargv)) {
+        free(newargv);
+        return -1;
+    }
     if((!strcmp(fullpath + strlen(fullpath) - strlen("/uname"), "/uname") || !strcmp(path, "uname"))
      && newargv[1] && (!strcmp(newargv[1], "-m") || !strcmp(newargv[1], "-p") || !strcmp(newargv[1], "-i"))
      && !newargv[2]) {

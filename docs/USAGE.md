@@ -413,6 +413,13 @@ Do not load any rc files.
  * 0: Load rc files. [Default]
  * 1: Do not load any rc files.
 
+### BOX64_ONDEMAND_STEAMUI
+
+Close the Steam UI while a game is running, and reopen it when the game is closed.
+
+ * 0: Disabled. [Default]
+ * 1: Close the Steam UI (steamwebhelper) while a game is running, reopen it when the game is closed.
+
 ### BOX64_PATH
 
 Path to look for x86_64 binaries.

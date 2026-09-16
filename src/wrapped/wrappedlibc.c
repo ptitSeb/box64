@@ -84,6 +84,7 @@ extern const char *const sys_siglist[] __asm__("__sys_siglist");
 #include "librarian/library_private.h"
 #include "emu/x64emu_private.h"
 #include "box64context.h"
+#include "steamwebhelper.h"
 #include "syscall_user_dispatch.h"
 #include "myalign.h"
 #include "signals.h"
@@ -2852,6 +2853,7 @@ EXPORT int32_t my_execv(x64emu_t* emu, const char* path, char* const argv[])
     printf_log(LOG_DEBUG, "execv(\"%s\", %p) is x64=%d x86=%d script=%d python=%d self=%d\n", path, argv, x64, x86, script, python, self);
     while (argv[n])
         ++n;
+    if (OnDemandSteamUIBlockExec(path, n, argv)) return -1;
     if (BOX64ENV(steam_vulkan) && n == 3 && !strcmp(argv[0], "sh") && !strcmp(argv[1], "-c") && strstr(argv[2], "steamwebhelper.sh")) {
         char** newargv = (char**)box_calloc(n + 1, sizeof(char*));
         for (int i = 0; i <= n; ++i)
@@ -2945,6 +2947,12 @@ EXPORT int32_t my_execve(x64emu_t* emu, const char* path, char* const argv[], ch
 {
     if(!isPathValid(path))
         return execve(path, argv, envp);
+
+    {
+        int n = 0;
+        if (argv) while (argv[n]) ++n;
+        if (OnDemandSteamUIBlockExec(path, n, argv)) return -1;
+    }
 
     int self = isProcSelf(path, "exe");
     int x64 = FileIsX64ELF(path);
@@ -3067,6 +3075,11 @@ EXPORT int32_t my_execve(x64emu_t* emu, const char* path, char* const argv[], ch
 // execvp should use PATH to search for the program first
 EXPORT int32_t my_execvp(x64emu_t* emu, const char* path, char* const argv[])
 {
+    {
+        int n = 0;
+        if (argv) while (argv[n]) ++n;
+        if (OnDemandSteamUIBlockExec(path, n, argv)) return -1;
+    }
     // need to use BOX64_PATH / PATH here...
     char* fullpath = ResolveFileSoft(path, &my_context->box64_path);
     // use fullpath...
@@ -3126,6 +3139,11 @@ EXPORT int32_t my_execvp(x64emu_t* emu, const char* path, char* const argv[])
 // execvp should use PATH to search for the program first
 EXPORT int32_t my_execvpe(x64emu_t* emu, const char* path, char* argv[], char* const envp[])
 {
+    {
+        int n = 0;
+        if (argv) while (argv[n]) ++n;
+        if (OnDemandSteamUIBlockExec(path, n, argv)) return -1;
+    }
     // need to use BOX64_PATH / PATH here...
     char* fullpath = ResolveFileSoft(path, &my_context->box64_path);
     // use fullpath...

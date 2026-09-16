@@ -414,6 +414,13 @@ Skip N first CPU cores (Is apply before MAXCPU) 在 WowBox64 中可用。
  * 0: 加载 rc 文件。 [默认值]
  * 1: 不加载任何 rc 文件。
 
+### BOX64_ONDEMAND_STEAMUI
+
+在游戏运行时关闭 Steam UI，游戏结束后重新打开。
+
+ * 0: 禁用。 [默认值]
+ * 1: 在游戏运行时关闭 Steam UI，游戏结束后重新打开。
+
 ### BOX64_PATH
 
 查找 x86_64 二进制文件的路径。
