@@ -130,7 +130,6 @@ extern void la64_next_invalid();
 #define ADDITIONNAL_CHECKS()
 extern void* create_updateflags();
 #define ARCH_UPDATEFLAGS()      create_updateflags()
-#define ARCH_CRC(A, B)       return normal_fast_hash(A, B)
 
 #elif defined(PPC64LE)
 
@@ -162,7 +161,6 @@ extern void* create_updateflags();
 #define STOP_NATIVE_FLAGS(A, B) {}
 #define ARCH_UNALIGNED(A, B) arch_unaligned(A, B)
 #define ARCH_HOST_CALL(A, B, C) 0
-#define ARCH_CRC(A, B)       return normal_fast_hash(A, B)
 
 #define ARCH_NOP    0x60000000  /* ori 0,0,0 */
 #define ARCH_UDF    0x00000000  /* illegal instruction (all zeros) */

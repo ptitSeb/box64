@@ -74,10 +74,7 @@ uint32_t X31_hash_code(void* addr, int len)
     #ifdef ARCH_CRC
     ARCH_CRC(addr, len);
     #endif
-    uint8_t* p = (uint8_t*)addr;
-    int32_t h = *p;
-    for (--len, ++p; len; --len, ++p) h = (h << 5) - h + (int32_t)*p;
-    return (uint32_t)h;
+    return normal_fast_hash(addr, (uint32_t)len);
 }
 
 dynablock_t* InvalidDynablock(dynablock_t* db, int need_lock)
