@@ -1940,6 +1940,41 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             SD(x3, gback, gdoffset + 0);
             SD(x4, gback, gdoffset + 8);
             break;
+        case 0xD0:
+            INST_NAME("ADDSUBPD Gx, Ex");
+            nextop = F8;
+            GETGX();
+            GETEX(x2, 0, 8);
+            d0 = fpu_get_scratch(dyn);
+            d1 = fpu_get_scratch(dyn);
+            if (!BOX64ENV(dynarec_fastnan)) MOV64x(x6, 0x0008000000000000LL);
+            for (int i = 0; i < 2; ++i) {
+                FLD(d0, wback, fixedaddress + 8 * i);
+                FLD(d1, gback, gdoffset + 8 * i);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    FEQD(x3, d0, d0);
+                    FEQD(x4, d1, d1);
+                    AND(x5, x3, x4);
+                    BEQZ(x5, 6 * 4);
+                }
+                if (i & 1)
+                    FADDD(d1, d1, d0);
+                else
+                    FSUBD(d1, d1, d0);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    FEQD(x5, d1, d1);
+                    BNEZ(x5, 8 * 4);
+                    FNEGD(d1, d1);
+                    J(6 * 4);
+                    BNEZ(x4, 2 * 4);
+                    FMVD(d0, d1);
+                    FMVXD(x5, d0);
+                    OR(x5, x5, x6);
+                    FMVDX(d1, x5);
+                }
+                FSD(d1, gback, gdoffset + 8 * i);
+            }
+            break;
         case 0xC8:
         case 0xC9:
         case 0xCA:

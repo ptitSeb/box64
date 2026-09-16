@@ -32,7 +32,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
     int64_t j64;
     uint64_t tmp64u, tmp64u2;
     int v0, v1;
-    int q0, q1;
+    int q0, q1, q2;
     int d0, d1, d2;
     uint64_t tmp64u0, tmp64u1;
     int64_t fixedaddress, gdoffset;
@@ -42,6 +42,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
     MAYUSE(d1);
     MAYUSE(q0);
     MAYUSE(q1);
+    MAYUSE(q2);
     MAYUSE(eb1);
     MAYUSE(eb2);
     MAYUSE(j64);
@@ -2342,6 +2343,21 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             GETGX_vector(q0, 1, dyn->vector_eew);
             GETEX_vector(q1, 0, 0, dyn->vector_eew);
             VADD_VV(q0, q1, q0, VECTOR_UNMASKED);
+            break;
+        case 0xF7:
+            INST_NAME("MASKMOVDQU Gx, Ex");
+            nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
+            GETGX_vector(q0, 0, VECTOR_SEW8);
+            GETEX_vector(q1, 0, 0, VECTOR_SEW8);
+            q2 = fpu_get_scratch(dyn);
+            VMV_V_V(q2, q1);
+            VSRL_VI(q2, q2, 7, VECTOR_UNMASKED);
+            VMSNE_VX(VMASK, q2, xZR, VECTOR_UNMASKED);
+            VLE8_V(q2, xRDI, VECTOR_UNMASKED, VECTOR_NFIELD1);
+            VMERGE_VVM(q2, q2, q0);
+            VSE8_V(q2, xRDI, VECTOR_UNMASKED, VECTOR_NFIELD1);
+            SMWRITE2();
             break;
         default:
             DEFAULT_VECTOR;
