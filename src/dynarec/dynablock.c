@@ -27,6 +27,47 @@
 #include "khash.h"
 #include "rbtree.h"
 
+// ---- fast hash for block change detection ----
+static uint32_t normal_fast_hash(void* p, uint32_t len)
+{
+    const uint8_t* data = (const uint8_t*)p;
+    uint64_t h = len * UINT64_C(0x9E3779B97F4A7C15);
+
+    while (len >= 8) {
+        uint64_t k;
+        __builtin_memcpy(&k, data, 8);
+        k *= UINT64_C(0xBF58476D1CE4E5B9);
+        k ^= k >> 31;
+        h ^= k;
+        h *= UINT64_C(0x94D049BB133111EB);
+        data += 8;
+        len -= 8;
+    }
+
+    if (len) {
+        uint64_t k = 0;
+        switch(len) {
+            case 7: k |= (uint64_t)data[6] << 48; /* fall through */
+            case 6: k |= (uint64_t)data[5] << 40; /* fall through */
+            case 5: k |= (uint64_t)data[4] << 32; /* fall through */
+            case 4: k |= (uint64_t)data[3] << 24; /* fall through */
+            case 3: k |= (uint64_t)data[2] << 16; /* fall through */
+            case 2: k |= (uint64_t)data[1] <<  8; /* fall through */
+            case 1: k |= (uint64_t)data[0];
+        }
+        k *= UINT64_C(0xBF58476D1CE4E5B9);
+        k ^= k >> 31;
+        h ^= k;
+        h *= UINT64_C(0x94D049BB133111EB);
+    }
+
+    h ^= h >> 33;
+    h *= UINT64_C(0xFF51AFD7ED558CCD);
+    h ^= h >> 33;
+
+    return (uint32_t)h;
+}
+
 uint32_t X31_hash_code(void* addr, int len)
 {
     if(!len) return 0;
