@@ -764,6 +764,14 @@ Do not load x64 Vulkan overlay.
  * 1 : Do not load x64 Vulkan overlay. 
 
 
+=item B<BOX64_ONDEMAND_STEAMUI> =I<0|1>
+
+Close the Steam UI while a game is running, and reopen it when the game is closed.
+
+ * 0 : Disabled. [Default]
+ * 1 : Close the Steam UI (steamwebhelper) while a game is running, reopen it when the game is closed. 
+
+
 =item B<BOX64_PATH> =I<XXXX>
 
 Path to look for x86_64 binaries.

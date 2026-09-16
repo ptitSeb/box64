@@ -117,6 +117,7 @@ extern char* ftrace_name;
     BOOLEAN(BOX64_NOSIGSEGV, nosigsegv, 0, 0, 0)                                 \
     BOOLEAN(BOX64_NOSIGILL, nosigill, 0, 0, 0)                                   \
     BOOLEAN(BOX64_NOVULKAN, novulkan, 0, 0, 0)                                   \
+    BOOLEAN(BOX64_ONDEMAND_STEAMUI, ondemand_steamui, 0, 0, 0)                   \
     STRING(BOX64_PATH, path, 0, 0)                                               \
     BOOLEAN(BOX64_PCLMULQDQ, pclmulqdq, 1, 1, 1)                                 \
     BOOLEAN(BOX64_PREFER_EMULATED, prefer_emulated, 0, 0, 0)                     \

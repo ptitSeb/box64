@@ -1775,6 +1775,25 @@
     ]
   },
   {
+    "name": "BOX64_ONDEMAND_STEAMUI",
+    "description": "Close the Steam UI while a game is running, and reopen it when the game is closed.",
+    "category": "Compatibility",
+    "wine": false,
+    "configurator": true,
+    "options": [
+      {
+        "key": "0",
+        "description": "Disabled.",
+        "default": true
+      },
+      {
+        "key": "1",
+        "description": "Close the Steam UI (steamwebhelper) while a game is running, reopen it when the game is closed.",
+        "default": false
+      }
+    ]
+  },
+  {
     "name": "BOX64_PATH",
     "description": "Path to look for x86_64 binaries.",
     "category": "Compatibility",

@@ -30,6 +30,7 @@
 #include "debug.h"
 #include "fileutils.h"
 #include "box64context.h"
+#include "steamwebhelper.h"
 #include "box64cpu.h"
 #include "box64cpu_util.h"
 #include "wine_tools.h"
@@ -1185,6 +1186,8 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         printf_log(LOG_INFO, "Applied settings from rcfile\n");
         displayMiscInfo();
     }
+    if (BOX64ENV(ondemand_steamui) && (!strcmp(box64_guest_name, "steam") || !strcmp(box64_guest_name, "steamwebhelper")))
+        StartOnDemandSteamUI();
     PrintEnvVariables(&box64env, LOG_INFO);
     setupZydis(my_context);
 
