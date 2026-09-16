@@ -1372,7 +1372,15 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "%04d|Repeated SIGSEGV with Access error on %
     // no handler
     // set default and that's it, instruction will restart and default segfault handler will be called...
     if(my_context->signals[sig]!=1 || sig==X64_SIGSEGV || sig==X64_SIGILL || sig==X64_SIGFPE || sig==X64_SIGABRT) {
-        signal(signal_from_x64(sig), (void*)my_context->signals[sig]);
+        int native_sig = signal_from_x64(sig);
+        signal(native_sig, (void*)my_context->signals[sig]);
+        if(my_context->signals[sig] == (uintptr_t)SIG_DFL && info && info->si_code <= 0 && (sig==X64_SIGBUS || sig==X64_SIGSEGV || sig==X64_SIGILL || sig==X64_SIGFPE || sig==X64_SIGABRT)) {
+            sigset_t set;
+            sigemptyset(&set);
+            sigaddset(&set, native_sig);
+            sigprocmask(SIG_UNBLOCK, &set, NULL);
+            raise(native_sig);
+        }
     }
 }
 
