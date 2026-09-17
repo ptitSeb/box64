@@ -920,9 +920,9 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETVY();
             if (opcode == 0x63) {
                 ADDIW(x6, xZR, 0xF80); // -128
-                ADDIW(x7, xZR, 0x80);  // 128
+                ADDIW(x7, xZR, 0x80-1);  // 128-1
             } else {
-                ADDIW(x6, xZR, 0x100); // 256
+                ADDIW(x6, xZR, 0x100-1); // 256-1
             }
             if (gd == ed) {
                 ADDI(x5, xEmu, offsetof(x64emu_t, scratch));
@@ -1155,6 +1155,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETVY();
             LUI(x6, 0xFFFF8); // -32768
             LUI(x7, 0x8);     // 32768
+            ADDIW(x7, x7, -1);
             if (gd == ed) {
                 ADDI(x5, xEmu, offsetof(x64emu_t, scratch));
                 LD(x3, wback, fixedaddress + 0);
@@ -2522,7 +2523,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETVX();
             GETVY();
             ADDIW(x6, xZR, 0xF80); // -128
-            ADDIW(x7, xZR, 0x80);  // 128
+            ADDIW(x7, xZR, 0x80-1);  // 128-1
             for (int i = 0; i < 16; ++i) {
                 LB(x3, vback, vxoffset + i);
                 LB(x4, wback, fixedaddress + i);
@@ -2552,6 +2553,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETVY();
             LUI(x6, 0xFFFF8); // -32768
             LUI(x7, 0x8);     // 32768
+            ADDIW(x7, x7, -1);
             for (int i = 0; i < 8; ++i) {
                 LH(x3, vback, vxoffset + i * 2);
                 LH(x4, wback, fixedaddress + i * 2);
@@ -2640,7 +2642,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETVX();
             GETVY();
             ADDIW(x6, xZR, 0xF80); // -128
-            ADDIW(x7, xZR, 0x80);  // 128
+            ADDIW(x7, xZR, 0x80-1);  // 128-1
             for (int i = 0; i < 16; ++i) {
                 LB(x3, vback, vxoffset + i);
                 LB(x4, wback, fixedaddress + i);
@@ -2670,6 +2672,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETVY();
             LUI(x6, 0xFFFF8); // -32768
             LUI(x7, 0x8);     // 32768
+            ADDIW(x7, x7, -1);
             for (int i = 0; i < 8; ++i) {
                 LH(x3, vback, vxoffset + i * 2);
                 LH(x4, wback, fixedaddress + i * 2);

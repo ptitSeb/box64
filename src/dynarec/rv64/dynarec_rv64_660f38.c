@@ -146,6 +146,7 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     GETGX();
                     LUI(x6, 0xFFFF8); // -32768
                     LUI(x7, 0x8);     // 32768
+                    ADDIW(x7, x7, -1);
                     for (int i = 0; i < 4; ++i) {
                         // tmp32s = GX->sw[i*2+0]+GX->sw[i*2+1];
                         // GX->sw[i] = sat(tmp32s);
@@ -179,6 +180,7 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     GETEX(x2, 0, 15);
                     LUI(x6, 0xFFFF8); // -32768
                     LUI(x7, 0x8);     // 32768
+                    ADDIW(x7, x7, -1);
                     for (int i = 0; i < 8; ++i) {
                         LBU(x3, gback, gdoffset + i * 2);
                         LB(x4, wback, fixedaddress + i * 2);
@@ -507,6 +509,7 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     GETGX();
                     GETEX(x2, 0, 12);
                     LUI(x5, 0x10); // 65536
+                    ADDIW(x5, x5, -1);
                     for (int i = 0; i < 4; ++i) {
                         LW(x3, gback, gdoffset + i * 4);
                         SATUw(x3, x5);

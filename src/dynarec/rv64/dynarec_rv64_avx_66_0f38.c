@@ -113,6 +113,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             GETVY();
             LUI(x6, 0xFFFF8); // -32768
             LUI(x7, 0x8);     // 32768
+            ADDIW(x7, x7, -1);
             if (gd == ed) {
                 ADDI(x5, xEmu, offsetof(x64emu_t, scratch));
                 LD(x3, wback, fixedaddress + 0);
@@ -261,6 +262,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             GETVY();
             LUI(x6, 0xFFFF8); // -32768
             LUI(x7, 0x8);     // 32768
+            ADDIW(x7, x7, -1);
             for (int i = 0; i < 8; ++i) {
                 LBU(x3, vback, vxoffset + i * 2);
                 LB(x4, wback, fixedaddress + i * 2);
@@ -302,6 +304,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             GETVY();
             LUI(x6, 0xFFFF8); // -32768
             LUI(x7, 0x8);     // 32768
+            ADDIW(x7, x7, -1);
             if (gd == ed) {
                 ADDI(x5, xEmu, offsetof(x64emu_t, scratch));
                 LD(x3, wback, fixedaddress + 0);
