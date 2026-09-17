@@ -1027,9 +1027,7 @@
 
 // Adjust the xFlags bit 5 -> bit 11, src and dst can be the same (and can be xFlags, but not s1)
 #define FLAGS_ADJUST_TO11(dst, src, s1) \
-    LUI(s1, 0xFFFFF);                   \
-    ADDIW(s1, s1, 0x7DF);               \
-    AND(s1, src, s1);                   \
+    ANDI(s1, src, ~(1 << 5));           \
     ANDI(dst, src, 1 << 5);             \
     SLLI(dst, dst, 11 - 5);             \
     OR(dst, dst, s1)
