@@ -823,20 +823,6 @@ Add an environment variable.
 
 ## Fragile or Legacy
 
-### BOX64_DYNAREC_PURGE
-
-Purge DynaBlocks that haven't been executed recently, based on tick age threshold (BOX64_DYNAREC_PURGE_AGE).
-
- * 0: DynaRec will not purge old unused DynaBlocks. [Default]
- * 1: DynaRec will purge old unused DynaBlocks based on tick age.
-
-### BOX64_DYNAREC_PURGE_AGE
-
-Tick age threshold for DynaBlock purging (requires BOX64_DYNAREC_PURGE=1).
-
- * 4096: Default age threshold. [Default]
- * XXXX: Custom age threshold (range: 10-65536).
-
 ### BOX64_DYNAREC_WAIT
 
 Wait or not for the building of a DynaRec code block to be ready. Available in WowBox64.

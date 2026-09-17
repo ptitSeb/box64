@@ -22,7 +22,6 @@ typedef struct dynablock_s {
     void*           block;  // block-sizeof(void*) == self
     void*           actual_block;   // the actual start of the block (so block-sizeof(void*))
     uint32_t        in_used;// will be 0 if not in_used, >0 if used be some code
-    uint32_t        tick;    // last "tick" when dynablock was run
     void*           x64_addr;
     uintptr_t       x64_size;
     size_t          native_size;

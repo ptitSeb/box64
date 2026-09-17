@@ -338,22 +338,6 @@ Generate map file for Linux perf tool.
  * 1 : DynaRec will generate perf map. 
 
 
-=item B<BOX64_DYNAREC_PURGE> =I<0|1>
-
-Purge DynaBlocks that haven't been executed recently, based on tick age threshold (BOX64_DYNAREC_PURGE_AGE).
-
- * 0 : DynaRec will not purge old unused DynaBlocks. [Default]
- * 1 : DynaRec will purge old unused DynaBlocks based on tick age. 
-
-
-=item B<BOX64_DYNAREC_PURGE_AGE> =I<4096|XXXX>
-
-Tick age threshold for DynaBlock purging (requires BOX64_DYNAREC_PURGE=1).
-
- * 4096 : Default age threshold. [Default]
- * XXXX : Custom age threshold (range: 10-65536). 
-
-
 =item B<BOX64_DYNAREC_SAFEFLAGS> =I<0|1|2>
 
 Behaviour of flags emulation on CALL/RET opcodes and other edge cases. Available in WowBox64.

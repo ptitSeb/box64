@@ -381,6 +381,8 @@ void jump_to_epilog(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst)
     TABLE64C(x2, const_epilog);
     SMEND();
     CHECK_DFNONE(0);
+    if (BOX64DRENV(dynarec_callret) >= 2)
+        doLeaveBlock(dyn, ninst, x4, x5, x6);
     BR(x2);
 }
 
@@ -401,7 +403,33 @@ void jump_to_epilog_fast(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst)
     TABLE64C(x2, const_epilog_fast);
     SMEND();
     CHECK_DFNONE(0);
+    if (BOX64DRENV(dynarec_callret) >= 2)
+        doLeaveBlock(dyn, ninst, x4, x5, x6);
     BR(x2);
+}
+
+void doEnterBlock(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3)
+{
+    MESSAGE(LOG_DUMP, "doEnter --------\n");
+    int delta = -(dyn->native_size + sizeof(void*));
+    AUIPC(s1, SPLIT20(delta));
+    ADDI(s1, s1, SPLIT12(delta));
+    LD(s1, s1, 0); // load the dynablock pointer
+    ADDI(s1, s1, offsetof(dynablock_t, in_used));
+    MOV32w(s3, 1);
+    AMOADD_W(s2, s3, s1, 0, 0);
+}
+
+void doLeaveBlock(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3)
+{
+    MESSAGE(LOG_DUMP, "doLeave --------\n");
+    int delta = -(dyn->native_size + sizeof(void*));
+    AUIPC(s1, SPLIT20(delta));
+    ADDI(s1, s1, SPLIT12(delta));
+    LD(s1, s1, 0); // load the dynablock pointer
+    ADDI(s1, s1, offsetof(dynablock_t, in_used));
+    MOV32w(s3, -1);
+    AMOADD_W(s2, s3, s1, 0, 0);
 }
 #ifdef JMPTABLE_SHIFT4
 #error TODO!
@@ -485,6 +513,8 @@ void jump_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst, int is3
     }
     CLEARIP();
     SMEND();
+    if (BOX64DRENV(dynarec_callret) >= 2 && !dyn->insts[ninst].x64.has_callret)
+        doLeaveBlock(dyn, ninst, x4, x5, x6);
     // #ifdef HAVE_TRACE
     // The JALR(xRA, ...) form is only for gdb backtraces, but it breaks the
     // return-address-stack prediction on every block-to-block jump, which is
@@ -508,6 +538,8 @@ void ret_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int ninst, rex_t rex)
         LD(xRA, xSP, 0);      // native addr
         LD(x6, xSP, 8);       // x86 addr
         ADDI(xSP, xSP, 16);   // pop
+        if (BOX64DRENV(dynarec_callret) >= 2)
+            doLeaveBlock(dyn, ninst, x4, x5, x7);
         BNE(x6, xRIP, 2 * 4); // is it the right address?
         BR(xRA);
         // not the correct return address, regular jump, but purge the stack first, it's unsync now...

@@ -1799,6 +1799,8 @@ void emit_inline_leaf(dynarec_la64_t* dyn, int ninst);
 #define jump_to_epilog_fast STEPNAME(jump_to_epilog_fast)
 #define jump_to_next        STEPNAME(jump_to_next)
 #define ret_to_next         STEPNAME(ret_to_next)
+#define doEnterBlock        STEPNAME(doEnterBlock)
+#define doLeaveBlock        STEPNAME(doLeaveBlock)
 #define iret_to_next        STEPNAME(iret_to_next)
 #define call_c              STEPNAME(call_c)
 #define call_n              STEPNAME(call_n)
@@ -1974,6 +1976,8 @@ uintptr_t geted16(dynarec_la64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop
 // generic x64 helper
 void jump_to_epilog(dynarec_la64_t* dyn, uintptr_t ip, int reg, int ninst);
 void jump_to_epilog_fast(dynarec_la64_t* dyn, uintptr_t ip, int reg, int ninst);
+void doEnterBlock(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3);
+void doLeaveBlock(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3);
 void jump_to_next(dynarec_la64_t* dyn, uintptr_t ip, int reg, int ninst, int is32bits);
 void ret_to_next(dynarec_la64_t* dyn, uintptr_t ip, int ninst, rex_t rex);
 void iret_to_next(dynarec_la64_t* dyn, uintptr_t ip, int ninst, int is32bits, int is64bits);
