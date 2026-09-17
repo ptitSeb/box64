@@ -32,6 +32,9 @@ size_t customGetUsableSize(void* p);
 #ifndef MAP_32BIT
 #define MAP_32BIT       0x40
 #endif
+#ifndef MAP_FIXED_NOREPLACE
+#define MAP_FIXED_NOREPLACE 0x100000
+#endif
 
 #ifdef DYNAREC
 #include "dynacache.h"
