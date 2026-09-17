@@ -91,7 +91,7 @@ SETMARK(d_add64);
 
 SETMARK(d_and8);
     LBU(x1, xEmu, offsetof(x64emu_t, res));
-    ANDI(x2, xZR, 0xff);
+    ADDI(x2, xZR, 0xff);
     emit_and8(dyn, ninst, x1, x2, x3, x4);
     BR(xRA);
 
@@ -556,7 +556,7 @@ SETMARK(d_cmp64);
 
 SETMARK(d_tst8);
     LBU(x1, xEmu, offsetof(x64emu_t, res));
-    ANDI(x2, xZR, 0xff);
+    ADDI(x2, xZR, 0xff);
     emit_test8(dyn, ninst, x1, x2, x3, x4, x5);
     BR(xRA);
 
