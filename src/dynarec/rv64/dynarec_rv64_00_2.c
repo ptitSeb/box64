@@ -960,6 +960,24 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 }
                 ANDI(x1, xFlags, 1 << F_DF);
                 BNEZ_MARK2(x1);
+                ADDI(x5, xZR, 8);
+                BLTU_MARK(xRCX, x5);
+                ANDI(x2, xRDI, 7);
+                BNEZ_MARK(x2);
+                // Aligned path
+                ANDI(x1, xRAX, 0xff);
+                SLLI(x2, x1, 8);
+                OR(x1, x1, x2);
+                SLLI(x2, x1, 16);
+                OR(x1, x1, x2);
+                SLLI(x2, x1, 32);
+                OR(x1, x1, x2);
+                MARK3;
+                SD(x1, xRDI, 0);
+                ADDI(xRDI, xRDI, 8);
+                SUBI(xRCX, xRCX, 8);
+                BGEU_MARK3(xRCX, x5);
+                BEQ_NEXT(xRCX, 0);
                 MARK; // Part with DF==0
                 SB(xRAX, xRDI, 0);
                 ADDI(xRDI, xRDI, 1);
