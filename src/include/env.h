@@ -80,8 +80,6 @@ extern char* ftrace_name;
     INTEGER(BOX64_DYNAREC_WEAKBARRIER, dynarec_weakbarrier, 1, 0, 2, 1, 2)       \
     INTEGER(BOX64_DYNAREC_X87DOUBLE, dynarec_x87double, 0, 0, 2, 1, 2)           \
     BOOLEAN(BOX64_DYNAREC_INTERP_SIGNAL, dynarec_interp_signal, 0, 0, 0)         \
-    BOOLEAN(BOX64_DYNAREC_PURGE, dynarec_purge, 0, 0, 0)                         \
-    INTEGER(BOX64_DYNAREC_PURGE_AGE, dynarec_purge_age, 4096, 10, 65536, 0, 0)   \
     BOOLEAN(BOX64_NODYNAREC_DELAY, nodynarec_delay, 0, 1, 0)                     \
     STRING(BOX64_EMULATED_LIBS, emulated_libs, 0, 0)                             \
     INTEGER(BOX64_DYNAREC_NOARCH, dynarec_noarch, 0, 0, 2, 1, 2)                 \

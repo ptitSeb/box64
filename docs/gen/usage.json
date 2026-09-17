@@ -737,44 +737,6 @@
     ]
   },
   {
-    "name": "BOX64_DYNAREC_PURGE",
-    "description": "Purge DynaBlocks that haven't been executed recently, based on tick age threshold (BOX64_DYNAREC_PURGE_AGE).",
-    "category": "Fragile or Legacy",
-    "wine": false,
-    "configurator": false,
-    "options": [
-      {
-        "key": "0",
-        "description": "DynaRec will not purge old unused DynaBlocks.",
-        "default": true
-      },
-      {
-        "key": "1",
-        "description": "DynaRec will purge old unused DynaBlocks based on tick age.",
-        "default": false
-      }
-    ]
-  },
-  {
-    "name": "BOX64_DYNAREC_PURGE_AGE",
-    "description": "Tick age threshold for DynaBlock purging (requires BOX64_DYNAREC_PURGE=1).",
-    "category": "Fragile or Legacy",
-    "wine": false,
-    "configurator": false,
-    "options": [
-      {
-        "key": "4096",
-        "description": "Default age threshold.",
-        "default": true
-      },
-      {
-        "key": "XXXX",
-        "description": "Custom age threshold (range: 10-65536).",
-        "default": false
-      }
-    ]
-  },
-  {
     "name": "BOX64_DYNAREC_SAFEFLAGS",
     "description": "Behaviour of flags emulation on CALL/RET opcodes and other edge cases.",
     "category": "Performance",

@@ -197,7 +197,6 @@ typedef struct dynarec_ppc64le_s {
     uint8_t             use_mmx:1;
     uint8_t             use_xmm:1;
     uint8_t             use_ymm:1;
-    uint8_t             have_purge:1;   // set to 1 if block can be purged
     uint8_t             is_file_mapped:1;   // if the memory is a mapped file (probably binary, not a memory)
     void*               gdbjit_block;
     uint32_t            need_x87check;  // needs x87 precision control check if non-null, or 0 if not

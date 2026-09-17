@@ -246,20 +246,6 @@ Skip N first CPU cores (Is apply before MAXCPU) 在 WowBox64 中可用。
 
 ## 不稳定或遗留选项
 
-### BOX64_DYNAREC_PURGE
-
-根据年龄阈值（BOX64_DYNAREC_PURGE_AGE）清除最近未执行的代码块。
-
- * 0: DynaRec 不会清除旧的未使用代码块。 [默认值]
- * 1: DynaRec 将根据年龄阈值清除旧的未使用代码块。
-
-### BOX64_DYNAREC_PURGE_AGE
-
-代码块清除的年龄阈值（需要 BOX64_DYNAREC_PURGE=1）。
-
- * 4096: 默认年龄阈值。 [默认值]
- * XXXX: 自定义年龄阈值（范围：10-65536）。
-
 ### BOX64_DYNAREC_WAIT
 
 是否等待代码块构建完成。 在 WowBox64 中可用。

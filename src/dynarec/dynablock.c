@@ -118,13 +118,45 @@ static void DeferFreeDynablockMap(dynablock_t* db)
 {
     // enq for a deferred free so any threads still running in this block has a better chance to finish.
     if (my_context->db_zombie_count == DB_ZOMBIE_SIZE) {
-        if(my_context->db_zombie[my_context->db_zombie_head])
-            FreeDynarecMap((uintptr_t)my_context->db_zombie[my_context->db_zombie_head]->actual_block);
+        // Queue full: free the oldest queued block that no running dynarec chain holds (in_used), compact the queue.
+        int idx = -1;        // queue position of the entry to drop, 0 = oldest
+        int idx_in_used = 0; // in_used count of that entry
+        for (int i = 0; i < DB_ZOMBIE_SIZE; ++i) {
+            int slot = (my_context->db_zombie_head - DB_ZOMBIE_SIZE + i + DB_ZOMBIE_SIZE) % DB_ZOMBIE_SIZE;
+            dynablock_t* z = my_context->db_zombie[slot];
+            if (!z)
+                continue;
+            int cnt = native_lock_get_d(&z->in_used);
+            if (cnt <= 0) {
+                idx = i;
+                idx_in_used = cnt;
+                break;
+            }
+            if (idx < 0) {
+                idx = i;    // remember the oldest held block, in case all of them are held
+                idx_in_used = cnt;
+            }
+        }
+        if (idx < 0)
+            idx = 0;    // queue is full of empty slots: just drop the oldest one
+        // free the picked entry
+        int slot = (my_context->db_zombie_head - DB_ZOMBIE_SIZE + idx + DB_ZOMBIE_SIZE) % DB_ZOMBIE_SIZE;
+        if (idx_in_used > 0)
+            printf_log(LOG_INFO, "Warning, all %d queued dynablocks are still in use, freeing the oldest one anyway (in_used=%d)\n", DB_ZOMBIE_SIZE, idx_in_used);
+        if (my_context->db_zombie[slot])
+            FreeDynarecMap((uintptr_t)my_context->db_zombie[slot]->actual_block);
+        // shift all newer entries over the dropped one, then queue db at the tail
+        for (int i = idx; i < DB_ZOMBIE_SIZE - 1; ++i) {
+            int cur = (my_context->db_zombie_head - DB_ZOMBIE_SIZE + i + DB_ZOMBIE_SIZE) % DB_ZOMBIE_SIZE;
+            int nxt = (my_context->db_zombie_head - DB_ZOMBIE_SIZE + i + 1 + DB_ZOMBIE_SIZE) % DB_ZOMBIE_SIZE;
+            my_context->db_zombie[cur] = my_context->db_zombie[nxt];
+        }
+        my_context->db_zombie[(my_context->db_zombie_head - 1 + DB_ZOMBIE_SIZE) % DB_ZOMBIE_SIZE] = db;
     } else {
+        my_context->db_zombie[my_context->db_zombie_head] = db;
+        my_context->db_zombie_head = (my_context->db_zombie_head + 1) % DB_ZOMBIE_SIZE;
         my_context->db_zombie_count++;
     }
-    my_context->db_zombie[my_context->db_zombie_head] = db;
-    my_context->db_zombie_head = (my_context->db_zombie_head + 1) % DB_ZOMBIE_SIZE;
 }
 
 void DeferFreeDynablockClearRange(void* addr, size_t sz)
@@ -264,7 +296,7 @@ int FreeRangeDynablock(dynablock_t* db, uintptr_t addr, uintptr_t size)
 void dynablock_leave_runtime(dynablock_t* db)
 {
     if(!db) return;
-    if(!db->tick) return;
+    if(BOX64ENV(dynarec_callret) < 2) return;
     __atomic_fetch_sub(&db->in_used, 1, __ATOMIC_ACQ_REL);
 }
 

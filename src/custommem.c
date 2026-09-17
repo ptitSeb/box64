@@ -1697,68 +1697,6 @@ dynablock_t* FindDynablockFromNativeAddress(void* p)
     return NULL;
 }
 
-// To measure speed at wich blocks are created, to avoid purge when lots of blocks are created in burst
-static uint64_t start_time = 0;
-static uint32_t start_tick = 0;
-static uint64_t tick_freq = 0;
-static uint64_t cur_speed = 0;
-
-void UpdateBlockCreationSpeed()
-{
-    if(!tick_freq) {
-        tick_freq = ReadTSCFrequency(NULL);
-        start_tick = my_context->tick;
-        start_time = ReadTSC(NULL);
-    }
-    uint64_t cur_time = ReadTSC(NULL);
-    // compute elapsed time is micro seconds
-    uint64_t elapsed_time = (cur_time-start_time)*1000000LL/tick_freq;
-    if(my_context->tick-start_tick>100 || elapsed_time>1000) {
-        // update speed each 100 blocks created or 1ms elapsed
-        cur_speed = (my_context->tick-start_tick)*1000000LL/elapsed_time;
-        start_tick = my_context->tick;
-        start_time = cur_time;
-    }
-}
-
-int PurgeDynarecMap(mmaplist_t* list, size_t size)
-{
-    if(cur_speed>100) return 0;   // 100 blocks / sec is a burst!
-    // check all blocks where tick is old enough and in_used==0, then delete them
-    // return 1 as soon as one block has been deleted, 0 else
-    // beware that tick=0 blocks means they were never executed and should not be touched
-    int ret = 0;
-    for(int i=0; i<list->size && !ret; ++i) {
-        blocklist_t* bl = list->chunks[i];
-        blockmark_t* p = bl->block;
-        blockmark_t* end = bl->block + bl->size - sizeof(blockmark_t);
-
-        while(p<end) {
-            blockmark_t *n = NEXT_BLOCK(p);
-            if(p->next.fill) {
-                dynablock_t* dynablock = *(dynablock_t**)p->mark;
-                int tick = native_lock_get_d(&dynablock->tick);
-                if(tick && dynablock->done && (my_context->tick > tick) && ((my_context->tick-tick)>=BOX64ENV(dynarec_purge_age))) {
-                    int in_used = native_lock_get_d(&dynablock->in_used);
-                    if(!in_used) {
-                        // free the block, but unreference it first
-                        //if(setJumpTableDefaultIfRef64(dynablock->x64_addr, dynablock->block))
-                        {
-                            dynarec_log(LOG_INFO/*LOG_DEBUG*/, " PurgeDynablock %p\n", dynablock);
-                            if((n<end) && !n->next.fill )
-                                n = NEXT_BLOCK(n);  //because the block will be agglomerated
-                            FreeDynablock(dynablock, 0, 1);
-                            if((bl->maxfree>=size))
-                                ret = 1;
-                        } // fail to set default jump, so skipping
-                    }
-                }
-            }
-            p = n;
-        }
-    }
-    return ret;
-}
 #ifdef TRACE_MEMSTAT
 static uint64_t dynarec_allocated = 0;
 #endif
@@ -1769,11 +1707,6 @@ uintptr_t AllocDynarecMap(uintptr_t x64_addr, size_t size, int is_new)
 
     size = roundSize(size);
 
-    if(BOX64ENV(dynarec_purge)) {
-        __atomic_fetch_add(&my_context->tick, 1, __ATOMIC_RELAXED);
-        UpdateBlockCreationSpeed();
-    }
-
     mmaplist_t* list = GetMmaplistByAddr(x64_addr);
     if(!list)
         list = mmaplist;
@@ -1783,26 +1716,20 @@ uintptr_t AllocDynarecMap(uintptr_t x64_addr, size_t size, int is_new)
     list->dirty = 1;
     // check if there is space in current open ones
     uintptr_t sz = size + 2*sizeof(blockmark_t);
-    int recheck = 0;
-    do {
-        for(int i=0; i<list->size; ++i) {
-            if(list->chunks[i]->maxfree>=size) {
-                // looks free, try to alloc!
-                size_t rsize = 0;
-                void* sub = getFirstBlock(list->chunks[i]->block, size, &rsize, list->chunks[i]->first);
-                if(sub) {
-                    void* ret = allocBlock(list->chunks[i]->block, sub, size, &list->chunks[i]->first);
-                    if(rsize==list->chunks[i]->maxfree)
-                        list->chunks[i]->maxfree = getMaxFreeBlock(list->chunks[i]->block, list->chunks[i]->size, list->chunks[i]->first);
-                    //rb_set_64(list->chunks[i].tree, (uintptr_t)ret, (uintptr_t)ret+size, (uintptr_t)ret);
-                    return (uintptr_t)ret;
-                }
+    for(int i=0; i<list->size; ++i) {
+        if(list->chunks[i]->maxfree>=size) {
+            // looks free, try to alloc!
+            size_t rsize = 0;
+            void* sub = getFirstBlock(list->chunks[i]->block, size, &rsize, list->chunks[i]->first);
+            if(sub) {
+                void* ret = allocBlock(list->chunks[i]->block, sub, size, &list->chunks[i]->first);
+                if(rsize==list->chunks[i]->maxfree)
+                    list->chunks[i]->maxfree = getMaxFreeBlock(list->chunks[i]->block, list->chunks[i]->size, list->chunks[i]->first);
+                //rb_set_64(list->chunks[i].tree, (uintptr_t)ret, (uintptr_t)ret+size, (uintptr_t)ret);
+                return (uintptr_t)ret;
             }
         }
-        // check if we can remove blocks before allocating a new one
-        if(BOX64ENV(dynarec_purge))
-            recheck = recheck?0:PurgeDynarecMap(list, size);  // don't do purge all the time, it's too time consuming
-    } while(recheck);
+    }
     // need to add a new
     if(list->size == list->cap) {
         list->cap+=4;

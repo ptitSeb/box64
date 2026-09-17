@@ -302,8 +302,13 @@ void EmuRun(x64emu_t* emu, int use_dynarec, int no_alt)
                 if(!jblock) {
                     printf_log(LOG_NONE, "Warning, cannot find Secondary Entry Point %p in dynablock %p\n", (void*)R_RIP, block);
                     skip = 1;
-                } else
+                } else {
+                    #if defined(ARM64) || defined(LA64) || defined(RV64)
+                    if (jblock != block->block && BOX64ENV(dynarec_callret) >= 2)
+                        __atomic_fetch_add(&block->in_used, 1, __ATOMIC_ACQ_REL);
+                    #endif
                     native_prolog(emu, jblock);
+                }
             }
             if(emu->fork) {
                 int forktype = emu->fork;

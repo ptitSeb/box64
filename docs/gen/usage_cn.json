@@ -252,20 +252,6 @@
       "1": "DynaRec 将生成 perf 映射。"
     }
   },
-  "BOX64_DYNAREC_PURGE": {
-    "description": "根据年龄阈值（BOX64_DYNAREC_PURGE_AGE）清除最近未执行的代码块。",
-    "options": {
-      "0": "DynaRec 不会清除旧的未使用代码块。",
-      "1": "DynaRec 将根据年龄阈值清除旧的未使用代码块。"
-    }
-  },
-  "BOX64_DYNAREC_PURGE_AGE": {
-    "description": "代码块清除的年龄阈值（需要 BOX64_DYNAREC_PURGE=1）。",
-    "options": {
-      "4096": "默认年龄阈值。",
-      "XXXX": "自定义年龄阈值（范围：10-65536）。"
-    }
-  },
   "BOX64_DYNAREC_SAFEFLAGS": {
     "description": "在 CALL/RET 指令和其他边缘情况下 FLAGS 模拟的行为。",
     "options": {

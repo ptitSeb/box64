@@ -116,9 +116,6 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
     int dynarec_dirty = BOX64ENV(dynarec_dirty);
     #if STEP == 0
     memset(&dyn->insts[ninst], 0, sizeof(instruction_native_t));
-    #ifdef ARM64
-    dyn->have_purge = BOX64ENV(dynarec_purge);
-    #endif
     #endif
     fpu_reset(dyn);
     ARCH_INIT();
@@ -173,7 +170,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         ip = addr;
         #ifdef ARM64
         if(!ninst) {
-            if(dyn->have_purge)
+            if (BOX64DRENV(dynarec_callret) >= 2)
                 doEnterBlock(dyn, 0, x1, x2, x3);
             if(dyn->always_test)
                 checkCRC(dyn, 0);
@@ -183,12 +180,19 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         }
         #elif defined(LA64)
         if(!ninst) {
+            if (BOX64DRENV(dynarec_callret) >= 2)
+                doEnterBlock(dyn, 0, x1, x2, x3);
             if(dyn->always_test)
                 checkCRC(dyn, 0);
             if(dyn->insts[0].preload_xmmymm) {
                 doPreload(dyn, 0);
             }
             ENDPREFIX;
+        }
+        #elif defined(RV64)
+        if(!ninst) {
+            if (BOX64DRENV(dynarec_callret) >= 2)
+                doEnterBlock(dyn, 0, x1, x2, x3);
         }
         #endif
         fpu_propagate_stack(dyn, ninst);
