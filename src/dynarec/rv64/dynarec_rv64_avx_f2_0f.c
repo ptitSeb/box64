@@ -47,6 +47,30 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
     rex_t rex = vex.rex;
 
     switch (opcode) {
+        case 0x70:
+            INST_NAME("VPSHUFLW Gx, Ex, Ib");
+            nextop = F8;
+            GETEX(x2, 1, vex.l ? 28 : 12);
+            GETGX();
+            GETGY();
+            u8 = F8;
+            for (int k = 0; k < 4; ++k) {
+                LHU(x4, wback, fixedaddress + ((u8 >> (k * 2)) & 3) * 2);
+                SH(x4, gback, gdoffset + k * 2);
+            }
+            LD(x4, wback, fixedaddress + 8);
+            SD(x4, gback, gdoffset + 8);
+            if (vex.l) {
+                GETEY();
+                for (int k = 0; k < 4; ++k) {
+                    LHU(x4, wback, fixedaddress + ((u8 >> (k * 2)) & 3) * 2);
+                    SH(x4, gback, gyoffset + k * 2);
+                }
+                LD(x4, wback, fixedaddress + 8);
+                SD(x4, gback, gyoffset + 8);
+            } else
+                YMM0(gd);
+            break;
         case 0x10:
             INST_NAME("VMOVSD Gx, [Vx,] Ex");
             nextop = F8;

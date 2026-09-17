@@ -47,6 +47,71 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
     rex_t rex = vex.rex;
 
     switch (opcode) {
+        case 0x00:
+            INST_NAME("VPERMQ Gx, Ex, Imm8");
+            nextop = F8;
+            GETEX(x2, 1, vex.l ? 28 : 12);
+            GETGX();
+            GETGY();
+            u8 = F8;
+            for (int i = 0; i < 2; ++i) {
+                int sel = (u8 >> (2 * i)) & 3;
+                if (sel < 2)
+                    LD(x4, wback, fixedaddress + 8 * sel);
+                else if (MODREG)
+                    LD(x4, xEmu, offsetof(x64emu_t, ymm[ed]) + 8 * (sel - 2));
+                else
+                    LD(x4, wback, fixedaddress + 16 + 8 * (sel - 2));
+                SD(x4, gback, gdoffset + 8 * i);
+            }
+            if (vex.l) {
+                for (int i = 0; i < 2; ++i) {
+                    int sel = (u8 >> (2 * (2 + i))) & 3;
+                    if (sel < 2)
+                        LD(x4, wback, fixedaddress + 8 * sel);
+                    else if (MODREG)
+                        LD(x4, xEmu, offsetof(x64emu_t, ymm[ed]) + 8 * (sel - 2));
+                    else
+                        LD(x4, wback, fixedaddress + 16 + 8 * (sel - 2));
+                    SD(x4, gback, gyoffset + 8 * i);
+                }
+            } else
+                YMM0(gd);
+            break;
+        case 0x01:
+            if (opcode)
+                INST_NAME("VPERMPD Gx, Ex, Imm8");
+            else
+                INST_NAME("VPERMQ Gx, Ex, Imm8");
+            nextop = F8;
+            GETEX(x2, 1, vex.l ? 28 : 12);
+            GETGX();
+            GETGY();
+            u8 = F8;
+            for (int i = 0; i < 2; ++i) {
+                int sel = (u8 >> (2 * i)) & 3;
+                if (sel < 2)
+                    LD(x4, wback, fixedaddress + 8 * sel);
+                else if (MODREG)
+                    LD(x4, xEmu, offsetof(x64emu_t, ymm[ed]) + 8 * (sel - 2));
+                else
+                    LD(x4, wback, fixedaddress + 16 + 8 * (sel - 2));
+                SD(x4, gback, gdoffset + 8 * i);
+            }
+            if (vex.l) {
+                for (int i = 0; i < 2; ++i) {
+                    int sel = (u8 >> (2 * (2 + i))) & 3;
+                    if (sel < 2)
+                        LD(x4, wback, fixedaddress + 8 * sel);
+                    else if (MODREG)
+                        LD(x4, xEmu, offsetof(x64emu_t, ymm[ed]) + 8 * (sel - 2));
+                    else
+                        LD(x4, wback, fixedaddress + 16 + 8 * (sel - 2));
+                    SD(x4, gback, gyoffset + 8 * i);
+                }
+            } else
+                YMM0(gd);
+            break;
         case 0x0E:
             INST_NAME("VPBLENDW Gx, Vx, Ex, Ib");
             nextop = F8;
@@ -343,6 +408,64 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 SW(ed, gback, gdoffset + 4 * (u8 & 0x3));
             }
             YMM0(gd);
+            break;
+        case 0x42:
+            INST_NAME("VMPSADBW Gx, Vx, Ex, Ib");
+            nextop = F8;
+            GETEX(x2, 1, vex.l ? 28 : 12);
+            GETVX();
+            GETVY();
+            GETGX();
+            GETGY();
+            u8 = F8;
+            {
+                int src = (u8 & 3) * 4;
+                int dst = ((u8 >> 2) & 1) * 4;
+#define VMPSAD4_SUM(acc, AB, aoff, BB, boff)  \
+    do {                                      \
+        ADDI(acc, xZR, 0);                    \
+        for (int _k = 0; _k < 4; ++_k) {      \
+            LBU(x4, AB, (aoff) + _k);         \
+            LBU(x6, BB, (boff) + _k);         \
+            SUBW(x4, x4, x6);                 \
+            SRAIW(x7, x4, 31);                \
+            XOR(x4, x4, x7);                  \
+            SUBW(x4, x4, x7);                 \
+            ADD(acc, acc, x4);                \
+        }                                     \
+    } while (0)
+                for (int i = 0; i < 8; ++i) {
+                    VMPSAD4_SUM(x5, vback, vxoffset + dst + i, wback, fixedaddress + src);
+                    SH(x5, gback, gdoffset + 2 * i);
+                }
+#undef VMPSAD4_SUM
+            }
+            if (vex.l) {
+                GETEY();
+                {
+                    int src = ((u8 >> 3) & 3) * 4;
+                    int dst = ((u8 >> 5) & 1) * 4;
+#define VMPSAD4_SUM(acc, AB, aoff, BB, boff)  \
+    do {                                      \
+        ADDI(acc, xZR, 0);                    \
+        for (int _k = 0; _k < 4; ++_k) {      \
+            LBU(x4, AB, (aoff) + _k);         \
+            LBU(x6, BB, (boff) + _k);         \
+            SUBW(x4, x4, x6);                 \
+            SRAIW(x7, x4, 31);                \
+            XOR(x4, x4, x7);                  \
+            SUBW(x4, x4, x7);                 \
+            ADD(acc, acc, x4);                \
+        }                                     \
+    } while (0)
+                    for (int i = 0; i < 8; ++i) {
+                        VMPSAD4_SUM(x5, vback, vyoffset + dst + i, wback, fixedaddress + src);
+                        SH(x5, gback, gyoffset + 2 * i);
+                    }
+#undef VMPSAD4_SUM
+                }
+            } else
+                YMM0(gd);
             break;
         case 0x4A:
             INST_NAME("VBLENDVPS Gx, Vx, Ex, XMMImm8");
