@@ -122,6 +122,12 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
     opcode = F8;
 
     rex_t rex = vex.rex;
+    int fma_oldround = -1;
+    if ((opcode >= 0x96 && opcode <= 0x9f)
+        || (opcode >= 0xa6 && opcode <= 0xaf)
+        || (opcode >= 0xb6 && opcode <= 0xbf)) {
+        fma_oldround = mxcsr_setround(emu);
+    }
 
     switch(opcode) {
         case 0x00:  /* VPSHUFB Gx, Vx, Ex */
@@ -2289,5 +2295,7 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
         default:
             return 0;
     }
+    if (fma_oldround != -1)
+        fesetround(fma_oldround);
     return addr;
 }

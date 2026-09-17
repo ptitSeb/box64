@@ -81,6 +81,7 @@ box64_add_test(x87pc 32 ENV "BOX64_DYNAREC_X87DOUBLE=2" DISABLED_ON_ANDROID)
 box64_add_test(Boundary 33 DISABLED_ON_ANDROID)
 box64_add_test(mmx 34)
 box64_add_test(xsave_xrstor 35 DISABLED_ON_ANDROID)
+box64_add_test(mxcsr_rounding_interpreter 36 ENV "BOX64_DYNAREC=0;BOX64_AVX=2" DISABLED_ON_ANDROID)
 
 if(BOX32)
     box64_add_test(bootSyscall_32bits 01 32BIT)

@@ -778,16 +778,19 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             for(int i=0; i<4; ++i)
                 GD->dword[0] |= ((EX->ud[i]>>31)&1)<<i;
             break;
-        case 0x51:                      /* SQRTPS Gx, Ex */
+        case 0x51: {                      /* SQRTPS Gx, Ex */
             nextop = F8;
             GETEX(0);
             GETGX;
+            int oldround = mxcsr_setround(emu);
             for(int i=0; i<4; ++i)
                 if (isnan(EX->f[i]))
                     GX->ud[i] = EX->ud[i] | 0x00400000;
                 else
                     GX->f[i] = (EX->f[i] < 0) ? (-NAN) : sqrtf(EX->f[i]);
-            break;
+            fesetround(oldround);
+        }
+        break;
         case 0x52:                      /* RSQRTPS Gx, Ex */
             nextop = F8;
             GETEX(0);
@@ -841,10 +844,11 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             for(int i=0; i<4; ++i)
                 GX->ud[i] ^= EX->ud[i];
             break;
-        case 0x58:                      /* ADDPS Gx, Ex */
+        case 0x58: {                      /* ADDPS Gx, Ex */
             nextop = F8;
             GETEX(0);
             GETGX;
+            int oldround = mxcsr_setround(emu);
             for(int i=0; i<4; ++i) {
                 if(isnanf(GX->f[i])) {
                     GX->ud[i] |= 0x00400000;
@@ -855,11 +859,14 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                     if(isnanf(GX->f[i])) GX->ud[i] |= 0x80000000;
                 }
             }
-            break;
-        case 0x59:                      /* MULPS Gx, Ex */
+            fesetround(oldround);
+        }
+        break;
+        case 0x59: {                      /* MULPS Gx, Ex */
             nextop = F8;
             GETEX(0);
             GETGX;
+            int oldround = mxcsr_setround(emu);
             for(int i=0; i<4; ++i) {
                 if(isnanf(GX->f[i])) {
                     GX->ud[i] |= 0x00400000;
@@ -870,7 +877,9 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                     if(isnanf(GX->f[i])) GX->ud[i] |= 0x80000000;
                 }
             }
-            break;
+            fesetround(oldround);
+        }
+        break;
         case 0x5A:                      /* CVTPS2PD Gx, Ex */
             nextop = F8;
             GETEX(0);
@@ -889,19 +898,23 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             GX->d[0] = EX->f[0];
             #endif
             break;
-        case 0x5B:                      /* CVTDQ2PS Gx, Ex */
+        case 0x5B: {                      /* CVTDQ2PS Gx, Ex */
             nextop = F8;
             GETEX(0);
             GETGX;
+            int oldround = mxcsr_setround(emu);
             GX->f[0] = EX->sd[0];
             GX->f[1] = EX->sd[1];
             GX->f[2] = EX->sd[2];
             GX->f[3] = EX->sd[3];
-            break;
-        case 0x5C:                      /* SUBPS Gx, Ex */
+            fesetround(oldround);
+        }
+        break;
+        case 0x5C: {                      /* SUBPS Gx, Ex */
             nextop = F8;
             GETEX(0);
             GETGX;
+            int oldround = mxcsr_setround(emu);
             for(int i=0; i<4; ++i) {
                 if(isnanf(GX->f[i])) {
                     GX->ud[i] |= 0x00400000;
@@ -912,7 +925,9 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                     if(isnanf(GX->f[i])) GX->ud[i] |= 0x80000000;
                 }
             }
-            break;
+            fesetround(oldround);
+        }
+        break;
         case 0x5D:                      /* MINPS Gx, Ex */
             nextop = F8;
             GETEX(0);
@@ -922,10 +937,11 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                     GX->f[i] = EX->f[i];
             }
             break;
-        case 0x5E:                      /* DIVPS Gx, Ex */
+        case 0x5E: {                      /* DIVPS Gx, Ex */
             nextop = F8;
             GETEX(0);
             GETGX;
+            int oldround = mxcsr_setround(emu);
             for(int i=0; i<4; ++i) {
                 if(isnanf(GX->f[i])) {
                     GX->ud[i] |= 0x00400000;
@@ -936,7 +952,9 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
                     if(isnanf(GX->f[i])) GX->ud[i] |= 0x80000000;
                 }
             }
-            break;
+            fesetround(oldround);
+        }
+        break;
         case 0x5F:                      /* MAXPS Gx, Ex */
             nextop = F8;
             GETEX(0);
