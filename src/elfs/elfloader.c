@@ -270,7 +270,7 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
         image = raw = InternalMmap((void*)head->vaddr, sz, 0, MAP_ANONYMOUS|MAP_PRIVATE|MAP_NORESERVE, -1, 0);
         if(head->vaddr&(box64_pagesize-1)) {
             // load address might be lower
-            if((uintptr_t)image == (head->vaddr&~(box64_pagesize-1))) {
+            if((uintptr_t)image == ALIGN_DOWN(head->vaddr)) {
                 image = (void*)head->vaddr;
                 sz += ((uintptr_t)image)-((uintptr_t)raw);
             }
@@ -358,7 +358,7 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
                 }
             }
             if(!try_mmap) {
-                uintptr_t paddr = head->multiblocks[n].paddr&~(box64_pagesize - 1);
+                uintptr_t paddr = ALIGN_DOWN(head->multiblocks[n].paddr);
                 size_t asize = ALIGN(e->p_memsz + (head->multiblocks[n].paddr - paddr));
                 void* p = MAP_FAILED;
                 int mapped_file = 0;
@@ -366,7 +366,7 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
                 // unaligned segments can still be file-backed mapped when their address and file offsets have the same page offset
                 uintptr_t file_delta = head->multiblocks[n].paddr - paddr;
                 size_t file_size = ALIGN(e->p_filesz + file_delta);
-                off_t file_offset = e->p_offset & ~(box64_pagesize - 1);
+                off_t file_offset = ALIGN_DOWN(e->p_offset);
                 if (e->p_filesz &&                                                              // there is file data to map
                     e->p_filesz == e->p_memsz &&                                                // no BSS
                     ((head->multiblocks[n].paddr ^ e->p_offset) & (box64_pagesize - 1)) == 0 && // the virtual address and the file offset have the same page offset
@@ -394,7 +394,7 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
                 } else if (!mapped_file) {
                     // difference in pagesize, so need to mmap only what needed to be...
                     //check startint point
-                    uintptr_t new_addr = paddr&~(box64_pagesize-1); // new_addr might be smaller than paddr
+                    uintptr_t new_addr = ALIGN_DOWN(paddr); // new_addr might be smaller than paddr
                     ssize_t new_size = asize + (paddr-new_addr);    // so need new_size to compensate
                     while(getProtection(new_addr) && (new_size>0)) {// but then, there might be some overlap
                         uintptr_t diff = ALIGN(new_addr+1) - new_addr; // next page
@@ -473,7 +473,7 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
     // PROT_WRITE before a later segment that shares the same page has been read into memory
     for (int j = 0; j < n; j++) {
         if(!(head->multiblocks[j].flags & PF_W)) {
-            uintptr_t start = head->multiblocks[j].paddr & ~(box64_pagesize-1);
+            uintptr_t start = ALIGN_DOWN(head->multiblocks[j].paddr);
             uintptr_t end = ALIGN(head->multiblocks[j].paddr + head->multiblocks[j].asize);
             for(uintptr_t page = start; page < end; page += box64_pagesize) {
                 uint32_t prot = getProtection(page);
@@ -1022,7 +1022,7 @@ static uint32_t getElfPageProtection64(const elfheader_t* head, uintptr_t page)
     for (size_t i = 0; i < head->numPHEntries; ++i) {
         const Elf64_Phdr* ph = &head->PHEntries._64[i];
         if (ph->p_type != PT_LOAD || !ph->p_memsz) continue;
-        uintptr_t start = (ph->p_vaddr + head->delta) & ~(box64_pagesize - 1);
+        uintptr_t start = ALIGN_DOWN(ph->p_vaddr + head->delta);
         uintptr_t end = ALIGN(ph->p_vaddr + head->delta + ph->p_memsz);
         if (start >= page_end || end <= page) continue;
         prot |= ((ph->p_flags & PF_R) ? PROT_READ : 0) | ((ph->p_flags & PF_W) ? PROT_WRITE : 0) | ((ph->p_flags & PF_X) ? PROT_EXEC : 0);
@@ -1039,8 +1039,8 @@ static void applyElfRelro64(elfheader_t* head)
         uintptr_t relro = ph->p_vaddr + head->delta;
         uintptr_t relro_end = relro + ph->p_memsz;
         if (relro_end < relro) continue;
-        uintptr_t start = relro & ~(box64_pagesize - 1);
-        uintptr_t end = relro_end & ~(box64_pagesize - 1);
+        uintptr_t start = ALIGN_DOWN(relro);
+        uintptr_t end = ALIGN_DOWN(relro_end);
         for (uintptr_t page = start; page < end; page += box64_pagesize) {
             uint32_t old_prot = getProtection(page);
             if (old_prot & PROT_NOPROT) continue;
@@ -1477,6 +1477,7 @@ int IsAddressInElfSpace(const elfheader_t* h, uintptr_t addr)
 {
     if(!h)
         return 0;
+
     for(int i=0; i<h->multiblock_n; ++i) {
         uintptr_t base = (uintptr_t)h->multiblocks[i].p;
         uintptr_t end = (uintptr_t)h->multiblocks[i].p + h->multiblocks[i].asize - 1;
@@ -1728,8 +1729,8 @@ void PatchLoadedDynamicSection(elfheader_t* h)
     uintptr_t dyn_addr = (uintptr_t)dyninfo.addr;
     uintptr_t dyn_size = dyninfo.size;
 
-    uintptr_t page_addr = dyn_addr & ~(box64_pagesize - 1);
-    uintptr_t page_end = (dyn_addr + dyn_size + box64_pagesize - 1) & ~(box64_pagesize - 1);
+    uintptr_t page_addr = ALIGN_DOWN(dyn_addr);
+    uintptr_t page_end = ALIGN(dyn_addr + dyn_size);
 
     int need_restore = 0;
     for(uintptr_t page = page_addr; page < page_end; page += box64_pagesize) {

@@ -774,7 +774,7 @@ static int peek_flags_readable(uintptr_t addr)
     uintptr_t end = addr + size - 1;
     if (end < addr)
         return 0;
-    for (uintptr_t page = addr & ~(box64_pagesize - 1); page <= end; page += box64_pagesize) {
+    for (uintptr_t page = ALIGN_DOWN(addr); page <= end; page += box64_pagesize) {
         uint32_t prot = getProtection(page);
         if (!(prot & PROT_READ) || !(prot & PROT_EXEC) || (prot & (PROT_WRITE | PROT_DYNAREC | PROT_NOPROT | PROT_NEVERCLEAN | PROT_NEVERCLEAN_MIXED)))
             return 0;
@@ -1073,7 +1073,7 @@ dynablock_t* FillBlock64(uintptr_t addr, int is32bits, int inst_max, int is_new,
             }
             // protect the block of it goes over the 1st page
             if(!is_inhotpage)
-                if((addr&~(box64_pagesize-1))!=(end&~(box64_pagesize-1))) // need to protect some other pages too
+                if(ALIGN_DOWN(addr) != ALIGN_DOWN(end)) // need to protect some other pages too
                     protectDB(addr, end-addr);  //end is 1byte after actual end
             // compute hash signature
             uint32_t hash = X31_hash_code((void*)addr, end-addr);

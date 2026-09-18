@@ -1072,7 +1072,7 @@ else dynarec_log(LOG_INFO, "SIGILL at %p/%p for Dynablock (%p, x64addr=%p) with 
         }
         // mark stuff as unclean
         if(BOX64ENV(dynarec))
-            cleanDBFromAddressRange(((uintptr_t)addr)&~(box64_pagesize-1), box64_pagesize, 0);
+            cleanDBFromAddressRange(ALIGN_DOWN((uintptr_t)addr), box64_pagesize, 0);
         static void* glitch_pc = NULL;
         static void* glitch_addr = NULL;
         static uint32_t glitch_prot = 0;
@@ -1154,7 +1154,7 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "%04d|Repeated SIGSEGV with Access error on %
         static uintptr_t old_addr = 0;
         #ifdef DYNAREC
         if(prot==(PROT_READ|PROT_WRITE|PROT_EXEC))
-            if(cleanDBFromAddressRange(((uintptr_t)addr)&~(box64_pagesize-1), box64_pagesize, 0)) {
+            if(cleanDBFromAddressRange(ALIGN_DOWN((uintptr_t)addr), box64_pagesize, 0)) {
                 printf_log(/*LOG_DEBUG*/LOG_INFO, "%04d| Strange SIGSEGV with Access error on %p for %p with DynaBlock(s) in range, db=%p, Lock=0x%x)\n", tid, pc, addr, db, Locks);
                 refreshProtection((uintptr_t)addr);
                 relockMutex(Locks);

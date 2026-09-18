@@ -424,7 +424,7 @@ void EXPORT x86Syscall(x64emu_t *emu)
                         mystack = my_context->stack_clone;
                         my_context->stack_clone_used = 1;
                     }
-                    size = (size+(box64_pagesize-1))&~(box64_pagesize-1);
+                    size = ALIGN(size);
                     uintptr_t sp = R_ECX;
                     clone_t* args = mmap(NULL, size, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0);
                     args->emu = (x64emu_t*)(((uintptr_t)(args+1)+15)&~15ULL);

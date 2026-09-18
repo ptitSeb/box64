@@ -246,7 +246,7 @@ void ParseVolatileMetadata(char* filename, void* addr)
     long size = ftell(file);
     fseek(file, 0, SEEK_SET);
 
-    size_t msize = (size+(box64_pagesize-1))&~(box64_pagesize-1);
+    size_t msize = ALIGN(size);
 
     char* buffer = mmap(NULL, msize, PROT_READ, MAP_PRIVATE, fileno(file), 0);
     fclose(file);

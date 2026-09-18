@@ -161,7 +161,7 @@ int AllocLoadElfMemory32(box64context_t* context, elfheader_t* head, int mainbin
     } else {
         if(from_ptr(head->vaddr)&(box64_pagesize-1)) {
             // load address is not page-aligned, round down and increase size
-            uintptr_t aligned_addr = from_ptr(head->vaddr) & ~(box64_pagesize-1);
+            uintptr_t aligned_addr = ALIGN_DOWN(from_ptr(head->vaddr));
             size_t extra = from_ptr(head->vaddr) - aligned_addr;
             raw = mmap64((void*)aligned_addr, sz + extra, 0, MAP_ANONYMOUS|MAP_PRIVATE|MAP_NORESERVE, -1, 0);
             if(raw != MAP_FAILED && (uintptr_t)raw == aligned_addr) {
@@ -251,7 +251,7 @@ int AllocLoadElfMemory32(box64context_t* context, elfheader_t* head, int mainbin
                 }
             }
             if(!try_mmap) {
-                uintptr_t paddr = head->multiblocks[n].paddr&~(box64_pagesize - 1);
+                uintptr_t paddr = ALIGN_DOWN(head->multiblocks[n].paddr);
                 size_t asize = ALIGN(e->p_memsz + (head->multiblocks[n].paddr - paddr));
                 void* p = MAP_FAILED;
                 int mapped_file = 0;
@@ -259,7 +259,7 @@ int AllocLoadElfMemory32(box64context_t* context, elfheader_t* head, int mainbin
                 // unaligned segments can still be file-backed mapped when their address and file offsets have the same page offset
                 uintptr_t file_delta = head->multiblocks[n].paddr - paddr;
                 size_t file_size = ALIGN(e->p_filesz + file_delta);
-                off_t file_offset = e->p_offset & ~(box64_pagesize - 1);
+                off_t file_offset = ALIGN_DOWN(e->p_offset);
                 if (e->p_filesz &&                                                              // there is file data to map
                     e->p_filesz == e->p_memsz &&                                                // no BSS
                     ((head->multiblocks[n].paddr ^ e->p_offset) & (box64_pagesize - 1)) == 0 && // the virtual address and the file offset have the same page offset
@@ -287,7 +287,7 @@ int AllocLoadElfMemory32(box64context_t* context, elfheader_t* head, int mainbin
                 } else if (!mapped_file) {
                     // difference in pagesize, so need to mmap only what needed to be...
                     //check startint point
-                    uintptr_t new_addr = paddr&~(box64_pagesize-1); // new_addr might be smaller than paddr
+                    uintptr_t new_addr = ALIGN_DOWN(paddr); // new_addr might be smaller than paddr
                     ssize_t new_size = asize + (paddr-new_addr);    // so need new_size to compensate
                     while(getProtection(new_addr) && (new_size>0)) {// but then, there might be some overlap
                         uintptr_t diff = ALIGN(new_addr+1) - new_addr; // next page
@@ -366,7 +366,7 @@ int AllocLoadElfMemory32(box64context_t* context, elfheader_t* head, int mainbin
     // PROT_WRITE before a later segment that shares the same page has been read into memory
     for (int j = 0; j < n; j++) {
         if(!(head->multiblocks[j].flags & PF_W)) {
-            uintptr_t start = head->multiblocks[j].paddr & ~(box64_pagesize-1);
+            uintptr_t start = ALIGN_DOWN(head->multiblocks[j].paddr);
             uintptr_t end = ALIGN(head->multiblocks[j].paddr + head->multiblocks[j].asize);
             for(uintptr_t page = start; page < end; page += box64_pagesize) {
                 uint32_t prot = getProtection(page);
@@ -794,7 +794,7 @@ static uint32_t getElfPageProtection32(const elfheader_t* head, uintptr_t page)
     for (size_t i = 0; i < head->numPHEntries; ++i) {
         const Elf32_Phdr* ph = &head->PHEntries._32[i];
         if (ph->p_type != PT_LOAD || !ph->p_memsz) continue;
-        uintptr_t start = (ph->p_vaddr + head->delta) & ~(box64_pagesize - 1);
+        uintptr_t start = ALIGN_DOWN(ph->p_vaddr + head->delta);
         uintptr_t end = ALIGN(ph->p_vaddr + head->delta + ph->p_memsz);
         if (start >= page_end || end <= page) continue;
         prot |= ((ph->p_flags & PF_R) ? PROT_READ : 0) | ((ph->p_flags & PF_W) ? PROT_WRITE : 0) | ((ph->p_flags & PF_X) ? PROT_EXEC : 0);
@@ -811,8 +811,8 @@ static void applyElfRelro32(elfheader_t* head)
         uintptr_t relro = ph->p_vaddr + head->delta;
         uintptr_t relro_end = relro + ph->p_memsz;
         if (relro_end < relro) continue;
-        uintptr_t start = relro & ~(box64_pagesize - 1);
-        uintptr_t end = relro_end & ~(box64_pagesize - 1);
+        uintptr_t start = ALIGN_DOWN(relro);
+        uintptr_t end = ALIGN_DOWN(relro_end);
         for (uintptr_t page = start; page < end; page += box64_pagesize) {
             uint32_t old_prot = getProtection(page);
             if (old_prot & PROT_NOPROT) continue;
