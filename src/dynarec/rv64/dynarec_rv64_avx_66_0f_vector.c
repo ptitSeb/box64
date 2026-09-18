@@ -287,7 +287,9 @@ uintptr_t dynarec64_AVX_66_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             }
             v0 = fpu_get_scratch(dyn);
             vector_vsetvli(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL1, vex.l ? 1 : 0.5);
+            u8 = sse_setround(dyn, ninst, x6, x4);
             VFNCVT_F_F_W(v0, d0, VECTOR_UNMASKED);
+            x87_restoreround(dyn, ninst, u8);
             gd = ((nextop & 0x38) >> 3) + (rex.r << 3);
             avx_store_reg_vector(dyn, ninst, x1, v0, gd, 16, VECTOR_SEW32);
             break;

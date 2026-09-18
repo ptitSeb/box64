@@ -556,6 +556,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETEX(x2, 0, vex.l ? 24 : 8);
             GETGX();
             d0 = fpu_get_scratch(dyn);
+            u8 = sse_setround(dyn, ninst, x6, x4);
             if (!BOX64ENV(dynarec_fastnan)) LUI(x7, 0x7fc00);
             for (int i = 0; i < 2; ++i) {
                 FLD(d0, wback, fixedaddress + i * 8);
@@ -566,12 +567,12 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 FCVTSD(d0, d0);
                 if (!BOX64ENV(dynarec_fastnan)) {
                     BNEZ(x4, 4 + 9 * 4);
-                    SRLI(x6, x3, 63);
-                    SLLI(x6, x6, 31);
+                    SRLI(x4, x3, 63);
+                    SLLI(x4, x4, 31);
                     SRLI(x3, x3, 29);
                     MOV32w(x5, 0x007fffff);
                     AND(x3, x3, x5);
-                    OR(x3, x3, x6);
+                    OR(x3, x3, x4);
                     OR(x3, x3, x7);
                     FMVWX(d0, x3);
                 }
@@ -588,12 +589,12 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                     FCVTSD(d0, d0);
                     if (!BOX64ENV(dynarec_fastnan)) {
                         BNEZ(x4, 4 + 9 * 4);
-                        SRLI(x6, x3, 63);
-                        SLLI(x6, x6, 31);
+                        SRLI(x4, x3, 63);
+                        SLLI(x4, x4, 31);
                         SRLI(x3, x3, 29);
                         MOV32w(x5, 0x007fffff);
                         AND(x3, x3, x5);
-                        OR(x3, x3, x6);
+                        OR(x3, x3, x4);
                         OR(x3, x3, x7);
                         FMVWX(d0, x3);
                     }
@@ -601,6 +602,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 }
             } else
                 SD(xZR, gback, gdoffset + 8);
+            x87_restoreround(dyn, ninst, u8);
             YMM0(gd);
             break;
         case 0x5B:
