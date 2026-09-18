@@ -2363,6 +2363,25 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             IFX (X_PF) emit_pf(dyn, ninst, gd, x3, x4);
             break;
+        case 0xB0:
+            INST_NAME("CMPXCHG Eb, Gb");
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
+            nextop = F8;
+            GETEB(x1, 0);
+            ANDI(x4, xRAX, 0xff); // AL
+            UFLAG_IF {
+                emit_cmp8(dyn, ninst, x4, x1, x2, x5, x6, x7);
+            }
+            BNE_MARK(x4, x1);
+            GETGB(x5);
+            MV(x1, x5);
+            ed = x1;
+            EBBACK(x2, 0);
+            B_NEXT_nocond;
+            MARK;
+            ANDI(xRAX, xRAX, ~0xff);
+            OR(xRAX, xRAX, x1);
+            break;
         case 0xB3:
             INST_NAME("BTR Ed, Gd");
             SETFLAGS(X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION);

@@ -902,6 +902,28 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             } else
                 YMM0(gd);
             break;
+        case 0x2A:
+            INST_NAME("VMOVNTDQA Gx, Ex");
+            nextop = F8;
+            if (MODREG) {
+                break;
+            }
+            GETGX();
+            GETEX(x2, 0, vex.l ? 28 : 12);
+            GETGY();
+            LD(x4, wback, fixedaddress + 0);
+            SD(x4, gback, gdoffset + 0);
+            LD(x4, wback, fixedaddress + 8);
+            SD(x4, gback, gdoffset + 8);
+            if (vex.l) {
+                GETEY();
+                LD(x4, wback, fixedaddress + 0);
+                SD(x4, gback, gyoffset + 0);
+                LD(x4, wback, fixedaddress + 8);
+                SD(x4, gback, gyoffset + 8);
+            } else
+                YMM0(gd);
+            break;
         case 0x2B:
             INST_NAME("VPACKUSDW Gx, Vx, Ex");
             nextop = F8;

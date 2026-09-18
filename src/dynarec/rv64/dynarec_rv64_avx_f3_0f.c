@@ -143,6 +143,46 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             }
             YMM0(gd);
             break;
+        case 0x5C:
+            INST_NAME("VSUBSS Gx, Vx, Ex");
+            nextop = F8;
+            GETGX();
+            GETEX(x1, 0, 1);
+            GETVX();
+            GETGY();
+            d0 = fpu_get_scratch(dyn);
+            d1 = fpu_get_scratch(dyn);
+            q0 = fpu_get_scratch(dyn);
+            FLW(d0, vback, vxoffset);
+            FLW(d1, wback, fixedaddress);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                MOV32w(x6, 0x00400000);
+                FMVS(q0, d1);
+                FEQS(x3, d1, d1);
+                FEQS(x4, d0, d0);
+                AND(x5, x3, x4);
+                BEQZ(x5, 4 + 4 * 4);
+            }
+            FSUBS(q0, d0, d1);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                FEQS(x5, q0, q0);
+                BNEZ(x5, 4 + 6 * 4);
+                FNEGS(q0, q0);
+                BNEZ(x4, 4 + 4);
+                FMVS(q0, d0);
+                FMVXW(x5, q0);
+                OR(x5, x5, x6);
+                FMVWX(q0, x5);
+            }
+            FSW(q0, gback, gdoffset);
+            if (gd != vex.v) {
+                LWU(x2, vback, vxoffset + 4);
+                SW(x2, gback, gdoffset + 4);
+                LD(x2, vback, vxoffset + 8);
+                SD(x2, gback, gdoffset + 8);
+            }
+            YMM0(gd);
+            break;
         case 0x5D:
             INST_NAME("VMINSS Gx, Vx, Ex");
             nextop = F8;
