@@ -934,30 +934,54 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             GETGY();
             LUI(x5, 0x10); // 65536
             ADDIW(x5, x5, -1);
-            for (int i = 0; i < 4; ++i) {
-                LW(x3, vback, vxoffset + i * 4);
-                SATUw(x3, x5);
-                SH(x3, gback, gdoffset + i * 2);
-            }
-            for (int i = 0; i < 4; ++i) {
-                LW(x3, wback, fixedaddress + i * 4);
-                SATUw(x3, x5);
-                SH(x3, gback, gdoffset + 8 + i * 2);
+#define PACKUSDW_FILL_ELEMENT(SRC, SOFF, DST, DOFF, I) \
+    do {                                          \
+        LW(x3, SRC, SOFF + (I) * 4);              \
+        SATUw(x3, x5);                            \
+        SH(x3, DST, DOFF + (I) * 2);              \
+    } while (0)
+            if (MODREG && ed == vex.v) {
+                // If gd == ed == vex.v, the high 64 bits and low 64 bits of
+                // the final gd value are identical.
+                for (int i = 0; i < 4; ++i)
+                    PACKUSDW_FILL_ELEMENT(vback, vxoffset, gback, gdoffset, i);
+                LD(x3, gback, gdoffset);
+                SD(x3, gback, gdoffset + 8);
+            } else if (MODREG && gd == ed) {
+                // If gd == ed, process register ed first by writing the high
+                // 64-bit portion, to avoid corrupting ed's value when writing
+                // the low 64 bits.
+                for (int i = 3; i >= 0; --i)
+                    PACKUSDW_FILL_ELEMENT(wback, fixedaddress, gback, gdoffset + 8, i);
+                for (int i = 0; i < 4; ++i)
+                    PACKUSDW_FILL_ELEMENT(vback, vxoffset, gback, gdoffset, i);
+            } else {
+                for (int i = 0; i < 4; ++i)
+                    PACKUSDW_FILL_ELEMENT(vback, vxoffset, gback, gdoffset, i);
+                for (int i = 0; i < 4; ++i)
+                    PACKUSDW_FILL_ELEMENT(wback, fixedaddress, gback, gdoffset + 8, i);
             }
             if (vex.l) {
                 GETEY();
-                for (int i = 0; i < 4; ++i) {
-                    LW(x3, vback, vyoffset + i * 4);
-                    SATUw(x3, x5);
-                    SH(x3, gback, gyoffset + i * 2);
-                }
-                for (int i = 0; i < 4; ++i) {
-                    LW(x3, wback, fixedaddress + i * 4);
-                    SATUw(x3, x5);
-                    SH(x3, gback, gyoffset + 8 + i * 2);
+                if (MODREG && ed == vex.v) {
+                    for (int i = 0; i < 4; ++i)
+                        PACKUSDW_FILL_ELEMENT(vback, vyoffset, gback, gyoffset, i);
+                    LD(x3, gback, gyoffset);
+                    SD(x3, gback, gyoffset + 8);
+                } else if (MODREG && gd == ed) {
+                    for (int i = 3; i >= 0; --i)
+                        PACKUSDW_FILL_ELEMENT(wback, fixedaddress, gback, gyoffset + 8, i);
+                    for (int i = 0; i < 4; ++i)
+                        PACKUSDW_FILL_ELEMENT(vback, vyoffset, gback, gyoffset, i);
+                } else {
+                    for (int i = 0; i < 4; ++i)
+                        PACKUSDW_FILL_ELEMENT(vback, vyoffset, gback, gyoffset, i);
+                    for (int i = 0; i < 4; ++i)
+                        PACKUSDW_FILL_ELEMENT(wback, fixedaddress, gback, gyoffset + 8, i);
                 }
             } else
                 YMM0(gd);
+#undef PACKUSDW_FILL_ELEMENT
             break;
         case 0x30:
             INST_NAME("VPMOVZXBW Gx, Ex");
