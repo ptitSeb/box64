@@ -956,7 +956,7 @@ void* internal_customMalloc(size_t size, int is32bits)
         __sync_synchronize();
     }
     size_t allocsize = (fullsize>MMAPSIZE)?fullsize:MMAPSIZE;
-    allocsize = (allocsize+box64_pagesize-1)&~(box64_pagesize-1);
+    allocsize = ALIGN(allocsize);
     if(is32bits) allocsize = (allocsize+0xffffLL)&~(0xffffLL);
     p_blocks[i].block = NULL;   // incase there is a re-entrance
     p_blocks[i].first = NULL;
@@ -1264,7 +1264,7 @@ void* internal_customMemAligned(size_t align, size_t size, int is32bits)
     p_blocks[i].is32bits = is32bits;
     fullsize += 2*align+sizeof(blockmark_t);
     size_t allocsize = (fullsize>MMAPSIZE)?fullsize:MMAPSIZE;
-    allocsize = (allocsize+box64_pagesize-1)&~(box64_pagesize-1);
+    allocsize = ALIGN(allocsize);
     if(is32bits)
         mutex_unlock(&mutex_blocks);
     void* p = is32bits
@@ -1390,7 +1390,7 @@ void* box32_dynarec_mmap(size_t size, int fd, off_t offset)
 {
     #ifdef BOX32
     // find a block that was prereserve before and big enough
-    size = (size+box64_pagesize-1)&~(box64_pagesize-1);
+    size = ALIGN(size);
     uint32_t flag;
     static uintptr_t cur = 0x100000000LL;
     uintptr_t bend = 0;
@@ -1740,7 +1740,7 @@ uintptr_t AllocDynarecMap(uintptr_t x64_addr, size_t size, int is_new)
     // alloc a new block, aversized or not, we are at the end of the list
     size_t allocsize = (need_sz>(i?DYNMMAPSZ:DYNMMAPSZ0))?need_sz:(i?DYNMMAPSZ:DYNMMAPSZ0);
     // allign sz with pagesize
-    allocsize = (allocsize+(box64_pagesize-1))&~(box64_pagesize-1);
+    allocsize = ALIGN(allocsize);
     void* p=MAP_FAILED;
     #ifdef BOX32
     if(box64_is32bits)
@@ -2261,7 +2261,7 @@ static int applyDBHostPageProtection_locked(uintptr_t cur, uintptr_t bend, uint3
     if (!protect_requested && !dyn) return 0;
     if (!base_prot) return 0;
 
-    int external_write = box64_pagesize > X86_PAGE_SIZE && hostPageHasExternalWrite_locked(cur & ~(box64_pagesize - 1), prot_start, prot_end);
+    int external_write = box64_pagesize > X86_PAGE_SIZE && hostPageHasExternalWrite_locked(ALIGN_DOWN(cur), prot_start, prot_end);
 
     if (external_write && (base_prot & PROT_WRITE)) {
         if ((dyn & PROT_DYNAREC) && !(dyn & PROT_NEVERCLEAN))
@@ -2282,7 +2282,7 @@ static int applyDBHostPageProtection_locked(uintptr_t cur, uintptr_t bend, uint3
     int old_mixed = (old_prot & PROT_NEVERCLEAN_MIXED) != 0;
     int new_mixed = (prot & PROT_NEVERCLEAN_MIXED) != 0;
     if (old_mixed != new_mixed) {
-        dynarec_log(LOG_INFO, "Dynarec host page %p switched to %s mode\n", (void*)(cur & ~(box64_pagesize - 1)), new_mixed ? "always_test" : "write-protected");
+        dynarec_log(LOG_INFO, "Dynarec host page %p switched to %s mode\n", (void*)ALIGN_DOWN(cur), new_mixed ? "always_test" : "write-protected");
         return 1;
     }
     return 0;
@@ -2293,7 +2293,7 @@ void protectDBJumpTable(uintptr_t addr, size_t size, void* jump, void* ref)
 {
     dynarec_log(LOG_DEBUG, "protectDBJumpTable %p -> %p\n", (void*)addr, (void*)(addr+size-1));
 
-    uintptr_t cur = addr&~(box64_pagesize-1);
+    uintptr_t cur = ALIGN_DOWN(addr);
     uintptr_t end = ALIGN(addr+size);
     int rebuild = 0;
 
@@ -2321,7 +2321,7 @@ void protectDB(uintptr_t addr, uintptr_t size)
 {
     dynarec_log(LOG_DEBUG, "protectDB %p -> %p\n", (void*)addr, (void*)(addr+size-1));
 
-    uintptr_t cur = addr&~(box64_pagesize-1);
+    uintptr_t cur = ALIGN_DOWN(addr);
     uintptr_t end = ALIGN(addr+size);
 
     LOCK_PROT();
@@ -2344,7 +2344,7 @@ void unprotectDB(uintptr_t addr, size_t size, int mark)
 {
     dynarec_log(LOG_DEBUG, "unprotectDB %p -> %p (mark=%d)\n", (void*)addr, (void*)(addr+size-1), mark);
 
-    uintptr_t cur = addr&~(box64_pagesize-1);
+    uintptr_t cur = ALIGN_DOWN(addr);
     uintptr_t end = ALIGN(addr+size);
 
     LOCK_PROT();
@@ -2385,7 +2385,7 @@ void neverprotectDB(uintptr_t addr, size_t size, int mark)
 {
     dynarec_log(LOG_DEBUG, "neverprotectDB %p -> %p (mark=%d)\n", (void*)addr, (void*)(addr+size-1), mark);
 
-    uintptr_t cur = addr&~(box64_pagesize-1);
+    uintptr_t cur = ALIGN_DOWN(addr);
     uintptr_t end = ALIGN(addr+size);
 
     LOCK_PROT();
@@ -2430,7 +2430,7 @@ void neverprotectDB(uintptr_t addr, size_t size, int mark)
 int isprotectedDB(uintptr_t addr, size_t size)
 {
     dynarec_log(LOG_DEBUG, "isprotectedDB %p -> %p => ", (void*)addr, (void*)(addr+size-1));
-    addr &=~(box64_pagesize-1);
+    addr = ALIGN_DOWN(addr);
     uintptr_t end = ALIGN(addr+size);
     LOCK_PROT_READ();
     while (addr < end) {
@@ -2571,7 +2571,7 @@ static void updateDBHostProtectionForGuestRange(uintptr_t addr, size_t size)
 {
     if (box64_pagesize <= X86_PAGE_SIZE || !size)
         return;
-    uintptr_t cur = addr & ~(box64_pagesize - 1);
+    uintptr_t cur = ALIGN_DOWN(addr);
     uintptr_t end = ALIGN(addr + size);
     LOCK_PROT();
     while (cur < end) {
@@ -2594,7 +2594,7 @@ void updateProtection(uintptr_t addr, size_t size, uint32_t prot)
 {
     dynarec_log(LOG_DEBUG, "updateProtection %p:%p 0x%hhx\n", (void*)addr, (void*)(addr+size-1), prot);
     LOCK_PROT();
-    uintptr_t cur = addr & ~(box64_pagesize-1);
+    uintptr_t cur = ALIGN_DOWN(addr);
     uintptr_t end = ALIGN(cur+size);
     #ifdef DYNAREC
     int check = BOX64ENV(dynarec);
@@ -2642,7 +2642,7 @@ static void setProtection_generic(uintptr_t addr, size_t size, uint32_t prot, me
 {
     if(!size)
         return;
-    addr &= ~(box64_pagesize-1);
+    addr = ALIGN_DOWN(addr);
     size = ALIGN(size);
     if(!prot) {
         LOCK_PROT();
@@ -2653,7 +2653,7 @@ static void setProtection_generic(uintptr_t addr, size_t size, uint32_t prot, me
     else{//SetProtection
         LOCK_PROT();
         ++setting_prot;
-        uintptr_t cur = addr & ~(box64_pagesize-1);
+        uintptr_t cur = ALIGN_DOWN(addr);
         uintptr_t end = ALIGN(cur+size);
         rb_set(mapallmem, cur, end, flag);
         rb_set(memprot, cur, end, prot);
@@ -2668,7 +2668,7 @@ void setProtection(uintptr_t addr, size_t size, uint32_t prot)
     size = ALIGN(size);
     LOCK_PROT();
     ++setting_prot;
-    uintptr_t cur = addr & ~(box64_pagesize-1);
+    uintptr_t cur = ALIGN_DOWN(addr);
     uintptr_t end = ALIGN(cur+size);
     rb_set(mapallmem, cur, end, MEM_ALLOCATED);
     rb_set(memprot, cur, end, prot);
@@ -2694,7 +2694,7 @@ void setProtection_stack(uintptr_t addr, size_t size, uint32_t prot)
 void setProtection_elf(uintptr_t addr, size_t size, uint32_t prot)
 {
     size = ALIGN(size);
-    addr &= ~(box64_pagesize-1);
+    addr = ALIGN_DOWN(addr);
     if(prot)
         setProtection_generic(addr, size, prot, MEM_ELF);
     else {
@@ -2711,8 +2711,8 @@ void refreshProtection(uintptr_t addr)
     uint32_t prot;
     uintptr_t bend;
     if (rb_get_end(memprot, addr, &prot, &bend)) {
-        int ret = mprotect((void*)(addr&~(box64_pagesize-1)), box64_pagesize, prot&~PROT_CUSTOM);
-        dynarec_log(LOG_DEBUG, "refreshProtection(%p): %p/0x%x (ret=%d/%s)\n", (void*)addr, (void*)(addr&~(box64_pagesize-1)), prot, ret, ret?strerror(errno):"ok");
+        int ret = mprotect((void*)ALIGN_DOWN(addr), box64_pagesize, prot&~PROT_CUSTOM);
+        dynarec_log(LOG_DEBUG, "refreshProtection(%p): %p/0x%x (ret=%d/%s)\n", (void*)addr, (void*)ALIGN_DOWN(addr), prot, ret, ret?strerror(errno):"ok");
     }
     UNLOCK_PROT();
 }
@@ -2721,7 +2721,7 @@ void allocProtection(uintptr_t addr, size_t size, uint32_t prot)
 {
     dynarec_log(LOG_DEBUG, "allocProtection %p:%p 0x%x", (void*)addr, (void*)(addr+size-1), prot);
     size = ALIGN(size);
-    addr &= ~(box64_pagesize-1);
+    addr = ALIGN_DOWN(addr);
     LOCK_PROT();
     uint32_t val;
     uintptr_t endb;
@@ -2807,7 +2807,7 @@ void loadProtectionFromMap()
 void freeProtection(uintptr_t addr, size_t size)
 {
     size = ALIGN(size);
-    addr &= ~(box64_pagesize-1);
+    addr = ALIGN_DOWN(addr);
     dynarec_log(LOG_DEBUG, "freeProtection %p:%p\n", (void*)addr, (void*)(addr+size-1));
     LOCK_PROT();
     rb_unset(mapallmem, addr, addr+size);

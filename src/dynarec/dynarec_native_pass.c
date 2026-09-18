@@ -129,7 +129,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
     // ok, go now
     INIT;
     #if STEP == 0
-    uintptr_t cur_page = (addr)&~(box64_pagesize-1);
+    uintptr_t cur_page = ALIGN_DOWN(addr);
     #endif
     while(ok) {
         #if STEP > 0 && defined(HAVE_LEAFCALL)
@@ -138,8 +138,8 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         #endif
         #if STEP == 0
         int stop_for_guard = 0;
-        if(cur_page != ((addr)&~(box64_pagesize-1))) {
-            cur_page = (addr)&~(box64_pagesize-1);
+        if(cur_page != (ALIGN_DOWN(addr))) {
+            cur_page = ALIGN_DOWN(addr);
             uint32_t prot = getProtection(addr);
             if(!(prot&PROT_READ) || !(prot&PROT_EXEC) || checkInHotPage(addr) || (addr>dyn->end)) {
                 stop_for_guard = 1;

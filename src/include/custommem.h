@@ -27,8 +27,6 @@ size_t customGetUsableSize(void* p);
 #define krealloc    customRealloc
 #define kfree       customFree
 
-#define ALIGN(p) (((p)+box64_pagesize-1)&~(box64_pagesize-1))
-
 #ifndef MAP_32BIT
 #define MAP_32BIT       0x40
 #endif

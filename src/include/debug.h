@@ -14,6 +14,9 @@ extern box64env_t* cur_box64env;
 
 #define X86_PAGE_SIZE 4096UL
 
+#define ALIGN(p) (((p)+box64_pagesize-1)&~(box64_pagesize-1))
+#define ALIGN_DOWN(p) ((p)&~(box64_pagesize-1))
+
 extern uintptr_t box64_pagesize;
 extern int box64_rdtsc;
 extern uint8_t box64_rdtsc_shift;

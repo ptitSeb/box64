@@ -2169,7 +2169,7 @@ static int isPathValid(const char* path)
     uintptr_t p = (uintptr_t)path;
     uintptr_t cache_page = (uintptr_t)-1LL;
     for(size_t i = 0; i < MAX_PATH_LENGTH; ++i) {
-        uintptr_t page = (p + i) & (~(box64_pagesize - 1));
+        uintptr_t page = ALIGN_DOWN(p + i);
         if(page != cache_page) {
             cache_page = page;
             if(!(getProtection_fast(cache_page) & PROT_READ))
@@ -3844,8 +3844,8 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, size_t length, int prot, int f
 
     void* ret;
     int e;
-    uintptr_t host_start = start & ~(box64_pagesize - 1);
-    uintptr_t host_end = (mapped_end + box64_pagesize - 1) & ~(box64_pagesize - 1);
+    uintptr_t host_start = ALIGN_DOWN(start);
+    uintptr_t host_end = ALIGN(mapped_end);
     int emulated_first_edge = 0;
     int emulated_last_edge = 0;
     uintptr_t first_edge_page = 0;
@@ -3864,7 +3864,7 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, size_t length, int prot, int f
        (start == host_start || (memExist(host_start) && memExist(host_start + box64_pagesize - 1))) &&
        (mapped_end == host_end || (memExist(host_end - box64_pagesize) && memExist(host_end - 1)))) {
         uintptr_t full_start = start == host_start ? start : host_start + box64_pagesize;
-        uintptr_t full_end = mapped_end & ~(box64_pagesize - 1);
+        uintptr_t full_end = ALIGN_DOWN(mapped_end);
         int failed = 0;
         int saved_errno = 0;
 
@@ -4127,8 +4127,8 @@ EXPORT int my_munmap(x64emu_t* emu, void* addr, size_t length)
         // HACK: we have to leave partial edge pages mapped.
         uintptr_t guest_end = (start + length + X86_PAGE_SIZE - 1) & ~(X86_PAGE_SIZE - 1);
         if((start & (box64_pagesize - 1)) || (guest_end & (box64_pagesize - 1))) {
-            uintptr_t host_start = (start + box64_pagesize - 1) & ~(box64_pagesize - 1);
-            uintptr_t host_end = guest_end & ~(box64_pagesize - 1);
+            uintptr_t host_start = ALIGN(start);
+            uintptr_t host_end = ALIGN_DOWN(guest_end);
             unmap_start = host_start;
             unmap_length = host_start < host_end ? host_end - host_start : 0;
             partial_host_pages = 1;
@@ -4193,8 +4193,8 @@ EXPORT int my_mprotect(x64emu_t* emu, void *addr, unsigned long len, int prot)
     }
     if(!len) return 0;
     uintptr_t end = (start + len + X86_PAGE_SIZE - 1) & ~(X86_PAGE_SIZE - 1);
-    uintptr_t host_start = start & ~(box64_pagesize - 1);
-    uintptr_t host_end = (end + box64_pagesize - 1) & ~(box64_pagesize - 1);
+    uintptr_t host_start = ALIGN_DOWN(start);
+    uintptr_t host_end = ALIGN(end);
 
     if(host_end - host_start == box64_pagesize && (start != host_start || end != host_end)) {
         int host_prot = prot | (getProtection(host_start) & ~PROT_CUSTOM);
@@ -4248,8 +4248,8 @@ EXPORT int my_madvise(x64emu_t* emu, void* addr, size_t length, int advice)
     uintptr_t end = (start + length + X86_PAGE_SIZE - 1) & ~(X86_PAGE_SIZE - 1);
 
     if(advice != MADV_DONTNEED) {
-        uintptr_t host_start = start & ~(box64_pagesize - 1);
-        uintptr_t host_end = (end + box64_pagesize - 1) & ~(box64_pagesize - 1);
+        uintptr_t host_start = ALIGN_DOWN(start);
+        uintptr_t host_end = ALIGN(end);
         return madvise((void*)host_start, host_end - host_start, advice);
     }
 

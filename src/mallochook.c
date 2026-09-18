@@ -362,7 +362,7 @@ EXPORT void* pvalloc(size_t size)
     if(malloc_hack_2 && ALLOC && real_pvalloc) {
         return (void*)RunFunctionFmtNoAlt(real_pvalloc, "L", size);
     }
-    return actual_memalign(box64_pagesize, (size+box64_pagesize-1)&~(box64_pagesize-1));
+    return actual_memalign(box64_pagesize, ALIGN(size));
 }
 
 EXPORT void cfree(void* p)
@@ -689,7 +689,7 @@ EXPORT void* my_tc_newarray_nothrow(size_t s, void* n)
 
 EXPORT void* my_tc_pvalloc(size_t size)
 {
-    return actual_memalign(box64_pagesize, (size+box64_pagesize-1)&~(box64_pagesize-1));
+    return actual_memalign(box64_pagesize, ALIGN(size));
 }
 
 EXPORT void* my_tc_valloc(size_t size)

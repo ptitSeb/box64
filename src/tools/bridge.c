@@ -376,8 +376,8 @@ static int bridge_can_read_range(uintptr_t p, size_t sz)
     if (end < p)
         return 0;
 
-    uintptr_t cur = p & ~(box64_pagesize - 1);
-    uintptr_t last = end & ~(box64_pagesize - 1);
+    uintptr_t cur = ALIGN_DOWN(p);
+    uintptr_t last = ALIGN_DOWN(end);
     while (1) {
         if (!memExist(cur))
             return 0;
