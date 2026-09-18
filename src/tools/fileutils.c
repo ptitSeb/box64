@@ -16,12 +16,12 @@
 #include "debug.h"
 #include "fileutils.h"
 
-static const char x86lib[]    = "\x7f" "ELF" "\x01" "\x01" "\x01" "\x03" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x02" "\x00" "\x03" "\x00";
-static const char x64lib[]    = "\x7f" "ELF" "\x02" "\x01" "\x01" "\x03" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x02" "\x00" "\x3e" "\x00";
-static const char bashsign[]  = "#!/bin/bash";
-static const char shsign[]    = "#!/bin/sh";
-static const char bashsign2[] = "#!/usr/bin/env bash";
-static const char pythonsign[]= "#!/usr/bin/env python3";
+static const char x86lib[]     = "\x7f" "ELF" "\x01" "\x01" "\x01" "\x03" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x02" "\x00" "\x03" "\x00";
+static const char x64lib[]     = "\x7f" "ELF" "\x02" "\x01" "\x01" "\x03" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x02" "\x00" "\x3e" "\x00";
+static const char bashsign[]   = "#!/bin/bash";
+static const char shsign[]     = "#!/bin/sh";
+static const char bashsign2[]  = "#!/usr/bin/env bash";
+static const char pythonsign[] = "#!/usr/bin/env python3";
 
 #define MAX2(a, b)       ((a) > (b) ? (a) : (b))
 #define MAX3(a, b, c)    MAX2(MAX2(a, b), c)
@@ -77,10 +77,10 @@ int FileIsX64ELF(const char* filename)
     if(sz != 1) {
         return 0;
     }
-    head[7] = x64lib[7];
-    head[8] = x64lib[8];
-    head[9] = x64lib[9];
-    head[10] = x64lib[10];
+    head[7] = x64lib[7];   // this one changes
+    head[8] = x64lib[8];   // AppImage customized this
+    head[9] = x64lib[9];   // and this one too
+    head[10] = x64lib[10]; // and that last one too
     head[16] &= 0xfe;
     if(!memcmp(head, x64lib, sizeof(x64lib) - 1))
         return 1;
