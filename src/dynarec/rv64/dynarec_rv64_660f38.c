@@ -725,6 +725,24 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                         SW(x3, gback, gdoffset + i * 4);
                     }
                     break;
+                case 0x41:
+                    INST_NAME("PHMINPOSUW Gx, Ex");
+                    nextop = F8;
+                    GETGX();
+                    GETEX(x2, 0, 8);
+                    LHU(x3, wback, fixedaddress);
+                    ADDI(x4, xZR, 0);
+                    for (int i = 1; i < 8; ++i) {
+                        LHU(x5, wback, fixedaddress + 2 * i);
+                        BGEU(x5, x3, 4 + 4 + 4);
+                        MV(x3, x5);
+                        ADDI(x4, xZR, i);
+                    }
+                    SH(x3, gback, gdoffset);
+                    SH(x4, gback, gdoffset + 2);
+                    SW(xZR, gback, gdoffset + 4);
+                    SD(xZR, gback, gdoffset + 8);
+                    break;
                 case 0xDB:
                     INST_NAME("AESIMC Gx, Ex"); // AES-NI
                     nextop = F8;

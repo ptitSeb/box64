@@ -467,6 +467,42 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             } else
                 YMM0(gd);
             break;
+        case 0x46:
+            INST_NAME("VPERM2I128 Gx, Vx, Ex, Ib");
+            nextop = F8;
+            if (!vex.l) {
+                DEFAULT;
+            }
+            GETEX(x2, 1, 28);
+            GETGX();
+            GETVX();
+            GETVY();
+            GETGY();
+            u8 = F8;
+            {
+                int64_t eyoffset = MODREG ? offsetof(x64emu_t, ymm[ed]) : fixedaddress + 16;
+                for (int i = 0; i < 2; ++i) {
+                    int control = i ? (u8 >> 4) : u8;
+                    int sel = control & 3;
+                    if (control & 8) {
+                        SD(xZR, gback, (i ? gyoffset : gdoffset) + 0);
+                        SD(xZR, gback, (i ? gyoffset : gdoffset) + 8);
+                    } else {
+                        for (int j = 0; j < 2; ++j) {
+                            if (sel == 0)
+                                LD(x4, vback, vxoffset + 8 * j);
+                            else if (sel == 1)
+                                LD(x4, vback, vyoffset + 8 * j);
+                            else if (sel == 2)
+                                LD(x4, wback, fixedaddress + 8 * j);
+                            else
+                                LD(x4, wback, eyoffset + 8 * j);
+                            SD(x4, gback, (i ? gyoffset : gdoffset) + 8 * j);
+                        }
+                    }
+                }
+            }
+            break;
         case 0x4A:
             INST_NAME("VBLENDVPS Gx, Vx, Ex, XMMImm8");
             nextop = F8;
@@ -500,6 +536,55 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 }
             } else
                 YMM0(gd);
+            break;
+        case 0x60:
+            INST_NAME("VPCMPESTRM Gx, Ex, Ib");
+            nextop = F8;
+            if (vex.l) {
+                DEFAULT;
+            }
+            SETFLAGS(X_ALL, SF_SET_DF, NAT_FLAGS_NOFUSION);
+            gd = ((nextop & 0x38) >> 3) + (rex.r << 3);
+            sse_reflect_reg(dyn, ninst, x6, gd);
+            ADDI(x3, xEmu, offsetof(x64emu_t, xmm[gd]));
+            if (MODREG) {
+                ed = (nextop & 7) + (rex.b << 3);
+                sse_reflect_reg(dyn, ninst, x6, ed);
+                ADDI(x1, xEmu, offsetof(x64emu_t, xmm[ed]));
+                ed = x1;
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 1);
+            }
+            SEXT_W(x2, xRDX);
+            SEXT_W(x4, xRAX);
+            u8 = F8;
+            ADDI(x5, xZR, u8);
+            CALL6(const_sse42_compare_string_explicit_len, x1, ed, x2, x3, x4, x5, 0);
+            ZEROUP(x1);
+            sse_forget_reg(dyn, ninst, x3, 0);
+            if (u8 & 0b1000000) {
+                if (u8 & 1) {
+                    for (int i = 0; i < 8; ++i) {
+                        SRLI(x2, x1, i);
+                        ANDI(x2, x2, 1);
+                        SUB(x2, xZR, x2);
+                        SH(x2, xEmu, offsetof(x64emu_t, xmm[0]) + 2 * i);
+                    }
+                } else {
+                    for (int i = 0; i < 16; ++i) {
+                        SRLI(x2, x1, i);
+                        ANDI(x2, x2, 1);
+                        SUB(x2, xZR, x2);
+                        SB(x2, xEmu, offsetof(x64emu_t, xmm[0]) + i);
+                    }
+                }
+            } else {
+                SD(xZR, xEmu, offsetof(x64emu_t, xmm[0]));
+                SD(xZR, xEmu, offsetof(x64emu_t, xmm[0]) + 8);
+                SH(x1, xEmu, offsetof(x64emu_t, xmm[0]));
+            }
+            YMM0(0);
             break;
         case 0x61:
             INST_NAME("VPCMPESTRI Gx, Ex, Ib");
