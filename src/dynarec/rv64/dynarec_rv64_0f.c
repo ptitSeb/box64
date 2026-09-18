@@ -867,7 +867,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     if (u8 == 0xCB && cpuext.vector && cpuext.zvknha) {
                         SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
                         GETGX_vector(v0, 1, VECTOR_SEW32);
-                        GETEX_vector(v1, 0, 8, VECTOR_SEW32);
+                        GETEX_vector(v1, 0, 0, VECTOR_SEW32);
                         if (v0 == v1) {
                             int t = fpu_get_scratch(dyn);
                             VMV_V_V(t, v1);
@@ -885,7 +885,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     if (u8 != 0xCB && cpuext.vector && cpuext.zvbb) {
                         SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
                         GETGX_vector(v0, 1, VECTOR_SEW32);
-                        GETEX_vector(v1, 0, 8, VECTOR_SEW32);
+                        GETEX_vector(v1, 0, 0, VECTOR_SEW32);
                         d0 = fpu_get_scratch(dyn);
                         d1 = fpu_get_scratch(dyn);
                         q1 = fpu_get_scratch(dyn);
