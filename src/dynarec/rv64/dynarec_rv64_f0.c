@@ -1294,13 +1294,13 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     INST_NAME("LOCK NEG Ed");
                     SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                     addr = geted(dyn, addr, ninst, nextop, &wback, x5, x6, &fixedaddress, rex, LOCK_LOCK, 0, 0);
-                    ANDI(x1, wback, 3);
-                    BNEZ_MARK3(x1); // not 4 bytes aligned
-                    ANDI(x7, wback, ~3);
+                    ANDI(x1, wback, (1 << (rex.w + 2)) - 1);
+                    BNEZ_MARK3(x1); // not aligned
+                    ANDI(x7, wback, -(1 << (rex.w + 2)));
                     MARKLOCK;
-                    LR_W(x4, x7, 1, 1);
+                    LRxw(x4, x7, 1, 1);
                     NEGxw(x1, x4);
-                    SC_W(x6, x1, x7, 1, 1);
+                    SCxw(x6, x1, x7, 1, 1);
                     BNEZ_MARKLOCK(x6);
                     MV(x1, x4); // committed original value
                     emit_neg32(dyn, ninst, rex, x1, x2, x3, x4, x6);
