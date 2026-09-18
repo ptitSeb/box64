@@ -420,8 +420,10 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             VMSEQ_VI(VMASK, q1, 0, VECTOR_UNMASKED);
             VMERGE_VVM(q2, q2, q3);
             // NaN -> passthrough
+            MOV32w(x5, 0x00400000);
+            VOR_VX(q3, q0, x5, VECTOR_UNMASKED);
             VMFEQ_VV(VMASK, q0, q0, VECTOR_UNMASKED);
-            VMERGE_VVM(q2, q0, q2);
+            VMERGE_VVM(q2, q3, q2);
             // >= 2^31 -> passthrough
             d0 = fpu_get_scratch(dyn);
             MOV32w(x5, 0x4f000000);
@@ -465,8 +467,10 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             VMSEQ_VI(VMASK, q1, 0, VECTOR_UNMASKED);
             VMERGE_VVM(q2, q2, q3);
             // NaN -> passthrough
+            MOV64x(x5, 0x0008000000000000LL);
+            VOR_VX(q3, q0, x5, VECTOR_UNMASKED);
             VMFEQ_VV(VMASK, q0, q0, VECTOR_UNMASKED);
-            VMERGE_VVM(q2, q0, q2);
+            VMERGE_VVM(q2, q3, q2);
             // >= 2^63 -> passthrough
             d0 = fpu_get_scratch(dyn);
             MOV64x(x5, 0x43e0000000000000LL);

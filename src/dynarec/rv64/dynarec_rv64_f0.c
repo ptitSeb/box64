@@ -866,8 +866,8 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         SUB(x4, x4, x7);     // remove old byte
                         SLL(x7, x6, x2);
                         ADD(x4, x4, x7);     // insert new byte
-                        SC_W(x1, x4, x3, 1, 1);
-                        BNEZ_MARKLOCK(x1);
+                        SC_W(x5, x4, x3, 1, 1);
+                        BNEZ_MARKLOCK(x5);
                         IFXORNAT (X_ALL | X_PEND) {
                             emit_add8c(dyn, ninst, x1, u8, x2, x3, x4, x5);
                         }
@@ -897,8 +897,8 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         SUB(x4, x4, x7);
                         SLL(x7, x6, x2);
                         ADD(x4, x4, x7);
-                        SC_W(x1, x4, x3, 1, 1);
-                        BNEZ_MARKLOCK(x1);
+                        SC_W(x5, x4, x3, 1, 1);
+                        BNEZ_MARKLOCK(x5);
                         IFXORNAT (X_ALL | X_PEND) {
                             emit_sbb8c(dyn, ninst, x1, u8, x2, x3, x4, x5);
                         }
@@ -928,8 +928,8 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         SUB(x4, x4, x7);
                         SLL(x7, x6, x2);
                         ADD(x4, x4, x7);
-                        SC_W(x1, x4, x3, 1, 1);
-                        BNEZ_MARKLOCK(x1);
+                        SC_W(x5, x4, x3, 1, 1);
+                        BNEZ_MARKLOCK(x5);
                         IFXORNAT (X_ALL | X_PEND) {
                             emit_sub8c(dyn, ninst, x1, u8, x2, x3, x4, x5);
                         }
