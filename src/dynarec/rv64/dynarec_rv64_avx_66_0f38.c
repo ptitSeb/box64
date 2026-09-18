@@ -911,6 +911,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             GETGX();
             GETGY();
             LUI(x5, 0x10); // 65536
+            ADDIW(x5, x5, -1);
             for (int i = 0; i < 4; ++i) {
                 LW(x3, vback, vxoffset + i * 4);
                 SATUw(x3, x5);
