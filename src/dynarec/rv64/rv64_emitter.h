@@ -1250,7 +1250,7 @@
     else if (cpuext.xtheadbs) \
         TH_TST(rd, rs1, imm); \
     else {                    \
-        SRLIxw(rd, rs1, imm); \
+        SRLI(rd, rs1, imm);   \
         ANDI(rd, rd, 1);      \
     }
 

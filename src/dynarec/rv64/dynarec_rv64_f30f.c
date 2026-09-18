@@ -855,8 +855,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     SETFLAGS(X_OF, SF_SUBSET, NAT_FLAGS_NOFUSION);
                     GETGD;
                     GETED(0);
-                    SRLI(x3, xFlags, F_OF2);
-                    ANDI(x3, x3, 1);
+                    BEXTI(x3, xFlags, F_OF2);
                     IFX (X_OF) {
                         if (rex.w) {
                             ADD(x4, gd, ed);

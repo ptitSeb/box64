@@ -375,8 +375,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                             MOV64xw(x6, 1LL << u8);       // bit mask
                                             MARKLOCK;
                                             LRxw(x4, x3, 1, 1);
-                                            SRLI(x5, x4, u8);
-                                            ANDI(x7, x5, 1);              // old bit
+                                            BEXTI(x7, x4, u8);            // old bit
                                             ANDI(xFlags, xFlags, ~1);
                                             OR(xFlags, xFlags, x7);       // CF = old bit
                                             SLLI(x7, x7, u8);             // old bit at position

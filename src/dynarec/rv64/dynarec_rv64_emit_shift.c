@@ -47,8 +47,7 @@ void emit_shl8c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
 
     if (c < 8) {
         IFX (X_CF) {
-            SRLI(s3, s1, 8 - c);
-            ANDI(s5, s3, 1); // LSB == F_CF
+            BEXTI(s5, s1, 8 - c); // LSB == F_CF
             OR(xFlags, xFlags, s5);
         }
 
@@ -212,8 +211,7 @@ void emit_shl8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
     SLL(s1, s1, s2);
 
     IFX (X_CF) {
-        SRLI(s5, s1, 8);
-        ANDI(s5, s5, 1); // LSB == F_CF
+        BEXTI(s5, s1, 8); // LSB == F_CF
         OR(xFlags, xFlags, s5);
     }
 
@@ -347,8 +345,7 @@ void emit_shl16c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int
 
     if (c < 16) {
         IFX (X_CF) {
-            SRLI(s3, s1, 16 - c);
-            ANDI(s5, s3, 1); // LSB == F_CF
+            BEXTI(s5, s1, 16 - c); // LSB == F_CF
             OR(xFlags, xFlags, s5);
         }
 
@@ -512,8 +509,7 @@ void emit_shl16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
     SLL(s1, s1, s2);
 
     IFX (X_CF) {
-        SRLI(s5, s1, 16);
-        ANDI(s5, s5, 1); // LSB == F_CF
+        BEXTI(s5, s1, 16); // LSB == F_CF
         OR(xFlags, xFlags, s5);
     }
 
@@ -700,8 +696,7 @@ void emit_shl32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
         OR(xFlags, xFlags, s3);
     }
     IFX (X_CF) {
-        SRLI(s3, s1, (rex.w ? 64 : 32) - c);
-        ANDI(s5, s3, 1); // LSB == F_CF
+        BEXTI(s5, s1, (rex.w ? 64 : 32) - c); // LSB == F_CF
         OR(xFlags, xFlags, s5);
     }
 
@@ -1079,8 +1074,7 @@ void emit_ror8c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
 
     IFX (X_CF) {
         ANDI(xFlags, xFlags, ~(1UL << F_CF));
-        SRLI(s3, s1, 7);
-        ANDI(s3, s3, 1);
+        BEXTI(s3, s1, 7);
         OR(xFlags, xFlags, s3);
     }
     if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
@@ -1141,8 +1135,7 @@ void emit_ror8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 
     IFX (X_CF) {
         ANDI(xFlags, xFlags, ~(1UL << F_CF));
-        SRLI(s3, s1, 7);
-        ANDI(s3, s3, 1);
+        BEXTI(s3, s1, 7);
         OR(xFlags, xFlags, s3);
     }
     if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
@@ -1172,8 +1165,7 @@ void emit_rcl8c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
 
     IFX (X_CF) {
         ANDI(xFlags, xFlags, ~(1UL << F_CF));
-        SRLI(s3, s1, 8 - c); // CF = bit(8-c) of the original
-        ANDI(s3, s3, 1);
+        BEXTI(s3, s1, 8 - c); // CF = bit(8-c) of the original
         OR(xFlags, xFlags, s3);
     }
 
@@ -1209,8 +1201,7 @@ void emit_rcr8c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
 
     IFX (X_CF) {
         ANDI(xFlags, xFlags, ~(1UL << F_CF));
-        SRLI(s3, s1, c - 1); // CF = bit(c-1) of the original
-        ANDI(s3, s3, 1);
+        BEXTI(s3, s1, c - 1); // CF = bit(c-1) of the original
         OR(xFlags, xFlags, s3);
     }
 
@@ -1383,8 +1374,7 @@ void emit_ror16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 
     IFX (X_CF) {
         ANDI(xFlags, xFlags, ~(1UL << F_CF));
-        SRLI(s3, s1, 15);
-        ANDI(s3, s3, 1);
+        BEXTI(s3, s1, 15);
         OR(xFlags, xFlags, s3);
     }
     if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
@@ -1499,8 +1489,7 @@ void emit_rcl32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
     ANDI(s3, xFlags, 1 << F_CF);
     IFX (X_CF) {
         ANDI(xFlags, xFlags, ~(1UL << F_CF));
-        SRLIxw(s5, s1, (rex.w ? 64 : 32) - c);
-        ANDI(s5, s5, 1);
+        BEXTI(s5, s1, (rex.w ? 64 : 32) - c);
         OR(xFlags, xFlags, s5);
     }
 
@@ -1539,8 +1528,7 @@ void emit_rcr32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
     ANDI(s3, xFlags, 1 << F_CF);
     IFX (X_CF) {
         ANDI(xFlags, xFlags, ~(1UL << F_CF));
-        SRLIxw(s5, s1, c - 1);
-        ANDI(s5, s5, 1);
+        BEXTI(s5, s1, c - 1);
         OR(xFlags, xFlags, s5);
     }
 
@@ -1747,8 +1735,7 @@ void emit_ror16c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int
     }
 
     IFX (X_CF) {
-        SRLI(s3, s1, 15);
-        ANDI(s3, s3, 1);
+        BEXTI(s3, s1, 15);
         OR(xFlags, xFlags, s3);
     }
     if (dyn->insts[ninst].nat_flags_fusion) NAT_FLAGS_OPS(s1, xZR, s3, xZR);
@@ -1930,8 +1917,7 @@ void emit_shld32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uin
     }
 
     IFX (X_CF) {
-        SRLI(s3, s1, (rex.w ? 64 : 32) - c);
-        ANDI(s4, s3, 1); // F_CF
+        BEXTI(s4, s1, (rex.w ? 64 : 32) - c); // F_CF
         OR(xFlags, xFlags, s4);
     }
 
