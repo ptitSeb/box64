@@ -729,7 +729,7 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     INST_NAME("PHMINPOSUW Gx, Ex");
                     nextop = F8;
                     GETGX();
-                    GETEX(x2, 0, 8);
+                    GETEX(x2, 0, 15);
                     LHU(x3, wback, fixedaddress);
                     ADDI(x4, xZR, 0);
                     for (int i = 1; i < 8; ++i) {
