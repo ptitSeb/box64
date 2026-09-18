@@ -67,17 +67,17 @@ int FileIsX64ELF(const char* filename)
     FILE *f = fopen(filename, "rb");
     if(!f)
         return 0;
-    char head[20] = {0};
-    int sz = fread(head, 20, 1, f);
+    char head[64] = {0};
+    size_t sz = fread(head, 1, 20, f);
     fclose(f);
-    if(sz!=1) {
+    if(sz < 20) {
         return 0;
     }
     head[7] = x64lib[7];   // this one changes
     head[8] = x64lib[8];   // AppImage customized this
     head[9] = x64lib[9];   // and this one too
-    head[10] = x64lib[10];   // and that last one too
-    head[16]&=0xfe;
+    head[10] = x64lib[10]; // and that last one too
+    head[16] &= 0xfe;
     if(!memcmp(head, x64lib, 20))
         return 1;
     return 0;
@@ -88,14 +88,14 @@ int FileIsX86ELF(const char* filename)
     FILE *f = fopen(filename, "rb");
     if(!f)
         return 0;
-    char head[20] = {0};
-    int sz = fread(head, 20, 1, f);
+    char head[64] = {0};
+    size_t sz = fread(head, 1, 20, f);
     fclose(f);
-    if(sz!=1) {
+    if(sz < 20) {
         return 0;
     }
     head[7] = x64lib[7];
-    head[16]&=0xfe;
+    head[16] &= 0xfe;
     if(!memcmp(head, x86lib, 20))
         return 1;
     return 0;
@@ -106,19 +106,19 @@ int FileIsX64X86ELF(const char* filename)
     FILE *f = fopen(filename, "rb");
     if(!f)
         return 0;
-    char head[20] = {0};
-    int sz = fread(head, 20, 1, f);
+    char head[64] = {0};
+    size_t sz = fread(head, 1, 20, f);
     fclose(f);
-    if(sz!=1) {
+    if(sz < 20) {
         return 0;
     }
     head[7] = x64lib[7];   // this one changes
-    head[16]&=0xfe;
+    head[16] &= 0xfe;
     if(!memcmp(head, x86lib, 20))
         return 1;
     head[8] = x64lib[8];   // AppImage customized this
     head[9] = x64lib[9];   // and this one too
-    head[10] = x64lib[10];   // and that last one too
+    head[10] = x64lib[10]; // and that last one too
     if(!memcmp(head, x64lib, 20))
         return 1;
     return 0;
@@ -129,10 +129,10 @@ int FileIsShell(const char* filename)
     FILE *f = fopen(filename, "rb");
     if(!f)
         return 0;
-    char head[20] = {0};
-    int sz = fread(head, strlen(bashsign2), 1, f);
+    char head[64] = {0};
+    size_t sz = fread(head, 1, sizeof(head) - 1, f);
     fclose(f);
-    if(sz!=1)
+    if(sz < strlen(shsign))
         return 0;
     if(!strncmp(head, bashsign2, strlen(bashsign2)))
         return 1;
@@ -148,10 +148,10 @@ int FileIsPython(const char* filename)
     FILE *f = fopen(filename, "rb");
     if(!f)
         return 0;
-    char head[25] = {0};
-    int sz = fread(head, strlen(pythonsign), 1, f);
+    char head[64] = {0};
+    size_t sz = fread(head, 1, sizeof(head) - 1, f);
     fclose(f);
-    if(sz!=1)
+    if(sz < strlen(pythonsign))
         return 0;
     if(!strncmp(head, pythonsign, strlen(pythonsign)))
         return 1;
