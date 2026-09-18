@@ -2086,19 +2086,10 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             LD(x1, wback, fixedaddress + 8); // high part
             LD(x2, wback, fixedaddress + 0); // low part, also destroyed wback(x2)
             for (int i = 0; i < 8; i++) {
-                if (cpuext.zbs) {
-                    if (i == 0) {
-                        BEXTI(gd, x1, 63);
-                    } else {
-                        BEXTI(x6, x1, 63 - i * 8);
-                    }
+                if (i == 0) {
+                    SRLI(gd, x1, 63);
                 } else {
-                    if (i == 0) {
-                        SRLI(gd, x1, 63);
-                    } else {
-                        SRLI(x6, x1, 63 - i * 8);
-                        ANDI(x6, x6, 1);
-                    }
+                    BEXTI(x6, x1, 63 - i * 8);
                 }
                 if (i != 0) {
                     if (cpuext.zba) {
@@ -2110,12 +2101,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 }
             }
             for (int i = 0; i < 8; i++) {
-                if (cpuext.zbs) {
-                    BEXTI(x6, x2, 63 - i * 8);
-                } else {
-                    SRLI(x6, x2, 63 - i * 8);
-                    ANDI(x6, x6, 1);
-                }
+                BEXTI(x6, x2, 63 - i * 8);
                 if (cpuext.zba) {
                     SH1ADD(gd, gd, x6);
                 } else {

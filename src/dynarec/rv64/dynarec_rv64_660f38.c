@@ -1473,16 +1473,14 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                         switch (u8 & 1) {
                             case 0b00:
                                 for (int i = 0; i < 16; ++i) {
-                                    SRLI(x3, x1, i);
-                                    ANDI(x3, x3, 1);
+                                    BEXTI(x3, x1, i);
                                     NEG(x3, x3);
                                     SB(x3, xEmu, offsetof(x64emu_t, xmm[0]) + i);
                                 }
                                 break;
                             case 0b01:
                                 for (int i = 0; i < 8; ++i) {
-                                    SRLI(x3, x1, i);
-                                    ANDI(x3, x3, 1);
+                                    BEXTI(x3, x1, i);
                                     NEG(x3, x3);
                                     SH(x3, xEmu, offsetof(x64emu_t, xmm[0]) + i * 2);
                                 }
@@ -1550,16 +1548,14 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                         switch (u8 & 1) {
                             case 0b00:
                                 for (int i = 0; i < 16; ++i) {
-                                    SRLI(x3, x1, i);
-                                    ANDI(x3, x3, 1);
+                                    BEXTI(x3, x1, i);
                                     NEG(x3, x3);
                                     SB(x3, xEmu, offsetof(x64emu_t, xmm[0]) + i);
                                 }
                                 break;
                             case 0b01:
                                 for (int i = 0; i < 8; ++i) {
-                                    SRLI(x3, x1, i);
-                                    ANDI(x3, x3, 1);
+                                    BEXTI(x3, x1, i);
                                     NEG(x3, x3);
                                     SH(x3, xEmu, offsetof(x64emu_t, xmm[0]) + i * 2);
                                 }
