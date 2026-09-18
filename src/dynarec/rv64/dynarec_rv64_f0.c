@@ -527,7 +527,8 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                     ANDI(xFlags, xFlags, ~(1 << F_ZF));
                                     // there is no atomic move on 16bytes, so implement it with mutex
                                     LD(x7, xEmu, offsetof(x64emu_t, context));
-                                    ADDI(x7, x7, offsetof(box64context_t, mutex_16b));
+                                    MOV32w(x3, offsetof(box64context_t, mutex_16b));
+                                    ADD(x7, x7, x3);
                                     ADDI(x4, xZR, 1);
                                     MARK2;
                                     AMOSWAP_W(x4, x4, x7, 1, 1);

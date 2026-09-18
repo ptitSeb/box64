@@ -624,7 +624,8 @@ uintptr_t dynarec64_F0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                     } else {
                                         // if scq extension is not available, implement it with mutex
                                         LD_D(x6, xEmu, offsetof(x64emu_t, context));
-                                        ADDI_D(x6, x6, offsetof(box64context_t, mutex_16b));
+                                        MOV32w(x3, offsetof(box64context_t, mutex_16b));
+                                        ADD_D(x6, x6, x3);
                                         ADDI_D(x4, xZR, 1);
                                         MARKLOCK;
                                         AMSWAP_DB_W(x5, x4, x6);
