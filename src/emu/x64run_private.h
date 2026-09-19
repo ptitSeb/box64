@@ -60,6 +60,31 @@ static inline void mxcsr_raise_invalid(x64emu_t* emu)
     box64_feraise_invalid();
 }
 
+/* Apply guest MXCSR rounding mode and return the previous host mode. */
+static inline int mxcsr_setround(x64emu_t* emu)
+{
+    int oldround = fegetround();
+    int rounding_direction = FE_TONEAREST;
+    switch (emu->mxcsr.f.MXCSR_RC)
+    {
+    case ROUND_Nearest:
+        break;
+    case ROUND_Down:
+        rounding_direction = FE_DOWNWARD;
+        break;
+    case ROUND_Up:
+        rounding_direction = FE_UPWARD;
+        break;
+    case ROUND_Chop:
+        rounding_direction = FE_TOWARDZERO;
+        break;
+    default:
+        break;
+    }
+    fesetround(rounding_direction);
+    return oldround;
+}
+
 static inline int FillVEXFromEVEX(vex_t* vex, rex_t rex, uint8_t p0, uint8_t p1, uint8_t p2)
 {
     uint8_t m = p0 & 0x0f;
