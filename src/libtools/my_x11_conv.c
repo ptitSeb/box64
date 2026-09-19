@@ -439,23 +439,6 @@ void convert_XWMints_to_64(void* d, void* s)
 
     dst->flags = flags;
 }
-void inplace_enlarge_wmhints(void* hints)
-{
-    if(!hints) return;
-    my_XWMHints_32_t* src = hints;
-    my_XWMHints_t* dst = hints;
-    long flags = from_long(src->flags);
-    // reverse order
-    if(flags&XWMHint_WindowGroupHint)   dst->window_group = from_ulong(src->window_group);
-    if(flags&XWMHint_IconMaskHint)      dst->icon_mask = from_ulong(src->icon_mask);
-    if(flags&XWMHint_IconPositionHint)  {dst->icon_y = src->icon_y; dst->icon_x = src->icon_x;}
-    if(flags&XWMHint_IconWindowHint)    dst->icon_window = from_ulong(src->icon_window);
-    if(flags&XWMHint_IconPixmapHint)    dst->icon_pixmap = from_ulong(src->icon_pixmap);
-    if(flags&XWMHint_StateHint)         dst->initial_state = src->initial_state;
-    if(flags&XWMHint_InputHint)         dst->input = src->input;
-
-    dst->flags = flags;
-}
 void inplace_shrink_wmhints(void* hints)
 {
     if(!hints) return;
@@ -480,20 +463,6 @@ void convert_XSizeHints_to_64(void* d, void *s)
     long flags = to_long(*(long_t*)s);
     memcpy(d+8, s+4, 17*4);
     *(long*)d = flags;
-}
-void inplace_enlarge_wmsizehints(void* hints)
-{
-    //XSizeHints is a long flag and 17*int...
-    long flags = to_long(*(long_t*)hints);
-    memmove(hints+8, hints+4, 17*4);
-    *(long*)hints = flags;
-}
-void inplace_shrink_wmsizehints(void* hints)
-{
-    //XSizeHints is a long flag and 17*int...
-    long_t flags = from_long(*(long*)hints);
-    memmove(hints+4, hints+8, 17*4);
-    *(long_t*)hints = flags;
 }
 
 void convert_XWindowAttributes_to_32(void* dpy, void* d, void* s)
