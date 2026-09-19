@@ -32,6 +32,8 @@ typedef struct _WOW64_CPURESERVED {
     USHORT Machine;
 } WOW64_CPURESERVED;
 
+/* ARM64EC and x64 headers already define XMM_SAVE_AREA32. */
+#ifndef LEGACY_SAVE_AREA_LENGTH
 typedef struct _XMM_SAVE_AREA32 {
     WORD  ControlWord;
     WORD  StatusWord;
@@ -50,6 +52,7 @@ typedef struct _XMM_SAVE_AREA32 {
     M128A XmmRegisters[16];
     BYTE  Reserved4[96];
 } XMM_SAVE_AREA32;
+#endif
 
 typedef struct _SYSTEM_CPU_INFORMATION {
     USHORT ProcessorArchitecture;
