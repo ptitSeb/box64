@@ -19,6 +19,29 @@
 
 #include "bridge.h"
 
+static pthread_mutex_t  lib_loader_mutex;
+static pthread_once_t   lib_loader_mutex_once = PTHREAD_ONCE_INIT;
+
+static void init_lib_loader_mutex(void)
+{
+    pthread_mutexattr_t attr;
+    pthread_mutexattr_init(&attr);
+    pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
+    pthread_mutex_init(&lib_loader_mutex, &attr);
+    pthread_mutexattr_destroy(&attr);
+}
+
+void lockLibLoader(void)
+{
+    pthread_once(&lib_loader_mutex_once, init_lib_loader_mutex);
+    pthread_mutex_lock(&lib_loader_mutex);
+}
+
+void unlockLibLoader(void)
+{
+    pthread_mutex_unlock(&lib_loader_mutex);
+}
+
 KHASH_MAP_IMPL_INT(mapoffsets, cstr_t);
 
 lib_t *NewLibrarian(box64context_t* context)
@@ -329,8 +352,7 @@ void AddNeededLib_remove(lib_t* maplib, int local, library_t** lib, box64context
     DecRefCount(lib, emu);
 }
 
-EXPORTDYN
-int AddNeededLib(lib_t* maplib, int local, int bindnow, int deepbind, needed_libs_t* needed, elfheader_t* verneeded, box64context_t* box64, x64emu_t* emu)
+static int AddNeededLibInternal(lib_t* maplib, int local, int bindnow, int deepbind, needed_libs_t* needed, elfheader_t* verneeded, box64context_t* box64, x64emu_t* emu)
 {
     if(!needed) // no needed libs, no problems
         return 0;
@@ -359,6 +381,16 @@ int AddNeededLib(lib_t* maplib, int local, int bindnow, int deepbind, needed_lib
     if(BOX64ENV(allow_missing_libs)) return 0;
     return ret;
 }
+
+EXPORTDYN
+int AddNeededLib(lib_t* maplib, int local, int bindnow, int deepbind, needed_libs_t* needed, elfheader_t* verneeded, box64context_t* box64, x64emu_t* emu)
+{
+    lockLibLoader();
+    int ret = AddNeededLibInternal(maplib, local, bindnow, deepbind, needed, verneeded, box64, emu);
+    unlockLibLoader();
+    return ret;
+}
+
 EXPORTDYN
 void RemoveNeededLib(lib_t* maplib, int local, needed_libs_t* needed, box64context_t* box64, x64emu_t* emu)
 {
