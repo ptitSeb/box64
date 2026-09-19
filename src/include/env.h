@@ -63,6 +63,7 @@ extern char* ftrace_name;
     INTEGER(BOX64_DYNAREC_FORWARD, dynarec_forward, 128, 0, 1024, 1, 3)          \
     STRING(BOX64_DYNAREC_GDBJIT, dynarec_gdbjit_str, 0, 0)                       \
     INTEGER(BOX64_DYNAREC_LOG, dynarec_log, 0, 0, 3, 1, 0)                       \
+    INTEGER(BOX64_DYNAREC_LOOPFLAGS, dynarec_loopflags, 0, 0, 1, 1, 2)           \
     INTEGER(BOX64_DYNAREC_MISSING, dynarec_missing, 0, 0, 2, 1, 0)               \
     BOOLEAN(BOX64_DYNAREC_NATIVEFLAGS, dynarec_nativeflags, 1, 1, 1)             \
     STRING(BOX64_DYNAREC_NOHOSTEXT, dynarec_nohostext, 0, 0)                     \
