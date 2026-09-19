@@ -440,6 +440,7 @@ void FreeBox64Context(box64context_t** context)
 
 int AddElfHeader(box64context_t* ctx, elfheader_t* head) {
     int idx = 0;
+    mutex_lock(&ctx->mutex_tls);
     while(idx<ctx->elfsize && ctx->elfs[idx]) idx++;
     if(idx == ctx->elfsize) {
         if(idx==ctx->elfcap) {
@@ -452,11 +453,13 @@ int AddElfHeader(box64context_t* ctx, elfheader_t* head) {
     } else {
         ctx->elfs[idx] = head;
     }
+    mutex_unlock(&ctx->mutex_tls);
     printf_log(LOG_DEBUG, "Adding \"%s\" as #%d in elf collection\n", ElfName(head), idx);
     return idx;
 }
 
 void RemoveElfHeader(box64context_t* ctx, elfheader_t* head) {
+    mutex_lock(&ctx->mutex_tls);
     if(GetTLSBase(head)) {
         // should remove the tls info
         int tlsbase = GetTLSBase(head);
@@ -468,19 +471,24 @@ void RemoveElfHeader(box64context_t* ctx, elfheader_t* head) {
     for(int i=0; i<ctx->elfsize; ++i)
         if(ctx->elfs[i] == head) {
             ctx->elfs[i] = NULL;
+            mutex_unlock(&ctx->mutex_tls);
             return;
         }
+    mutex_unlock(&ctx->mutex_tls);
 }
 
 int AddTLSPartition(box64context_t* context, int tlssize) {
+    mutex_lock(&context->mutex_tls);
     int oldsize = context->tlssize;
     // should in fact first try to map a hole, but rewinding all elfs and checking filled space, like with the mapmem utilities
     context->tlssize += tlssize;
     context->tlsdata = box_realloc(context->tlsdata, context->tlssize);
     memmove(context->tlsdata+tlssize, context->tlsdata, oldsize);   // move to the top, using memmove as regions will probably overlap
     memset(context->tlsdata, 0, tlssize);           // fill new space with 0 (not mandatory)
+    int ret = -context->tlssize;    // negative offset
+    mutex_unlock(&context->mutex_tls);
     // clean GS segment for current emu?
 
-    return -context->tlssize;   // negative offset
+    return ret;
 }
 

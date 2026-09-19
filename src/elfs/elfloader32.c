@@ -347,11 +347,13 @@ int AllocLoadElfMemory32(box64context_t* context, elfheader_t* head, int mainbin
         }
         if(head->PHEntries._32[i].p_type == PT_TLS) {
             Elf32_Phdr * e = &head->PHEntries._32[i];
+            mutex_lock(&context->mutex_tls);
             char* dest = (char*)(context->tlsdata+context->tlssize+head->tlsbase);
             printf_log(LOG_DEBUG, "Loading TLS block #%zu @%p (0x%zx/0x%zx)\n", i, dest, e->p_filesz, e->p_memsz);
             if(e->p_filesz) {
                 fseeko64(head->file, e->p_offset, SEEK_SET);
                 if(fread(dest, e->p_filesz, 1, head->file)!=1) {
+                    mutex_unlock(&context->mutex_tls);
                     printf_log(LOG_NONE, "Fail to read PT_TLS part #%zu (size=%zd)\n", i, e->p_filesz);
                     return 1;
                 }
@@ -359,6 +361,7 @@ int AllocLoadElfMemory32(box64context_t* context, elfheader_t* head, int mainbin
             // zero'd difference between filesz and memsz
             if(e->p_filesz != e->p_memsz)
                 memset(dest+e->p_filesz, 0, e->p_memsz - e->p_filesz);
+            mutex_unlock(&context->mutex_tls);
         }
     }
     // deferred mprotect: apply final protections after all segments are loaded
