@@ -454,11 +454,13 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
         }
         if(head->PHEntries._64[i].p_type == PT_TLS) {
             Elf64_Phdr * e = &head->PHEntries._64[i];
+            mutex_lock(&context->mutex_tls);
             char* dest = (char*)(context->tlsdata+context->tlssize+head->tlsbase);
             printf_log(LOG_DEBUG, "Loading TLS block #%zu @%p (0x%zx/0x%zx)\n", i, dest, e->p_filesz, e->p_memsz);
             if(e->p_filesz) {
                 fseeko64(head->file, e->p_offset, SEEK_SET);
                 if(fread(dest, e->p_filesz, 1, head->file)!=1) {
+                    mutex_unlock(&context->mutex_tls);
                     printf_log(LOG_NONE, "Fail to read PT_TLS part #%zu (size=%zd)\n", i, e->p_filesz);
                     return 1;
                 }
@@ -466,6 +468,7 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
             // zero'd difference between filesz and memsz
             if(e->p_filesz != e->p_memsz)
                 memset(dest+e->p_filesz, 0, e->p_memsz - e->p_filesz);
+            mutex_unlock(&context->mutex_tls);
         }
     }
     // deferred mprotect: apply final protections after all segments are loaded
@@ -1299,16 +1302,18 @@ void RefreshElfTLS(elfheader_t* h, x64emu_t* emu)
 {
     refreshTLSData(emu);
     if(h->tlsfilesize) {
+        tlsdatasize_t* ptr = emu->tlsdata;
+        mutex_lock(&my_context->mutex_tls);
         char* dest = (char*)(my_context->tlsdata+my_context->tlssize+h->tlsbase);
         printf_dump(LOG_DEBUG, "Refreshing main TLS block @%p from %p:0x%lx\n", dest, (void*)h->tlsaddr, h->tlsfilesize);
         memcpy(dest, (void*)(h->tlsaddr+h->delta), h->tlsfilesize);
-        if (emu->tlsdata) {
-            tlsdatasize_t* ptr = emu->tlsdata;
-            // refresh in tlsdata too
+        if (ptr) {
+            // refresh in the current thread tlsdata too
             dest = (char*)(ptr->data+h->tlsbase);
             printf_dump(LOG_DEBUG, "Refreshing active TLS block @%p from %p:0x%lx\n", dest, (void*)h->tlsaddr, h->tlssize-h->tlsfilesize);
             memcpy(dest, (void*)(h->tlsaddr+h->delta), h->tlsfilesize);
         }
+        mutex_unlock(&my_context->mutex_tls);
     }
 }
 
