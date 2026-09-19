@@ -867,6 +867,7 @@ void RecordEnvMappings(uintptr_t addr, size_t length, int fd)
         // First time we see this file
         if (box64_wine && BOX64ENV(unityplayer)) DetectUnityPlayer(lowercase_filename+1);
         if (box64_wine && !box64_is32bits && BOX64ENV(dynarec_volatile_metadata)) ParseVolatileMetadata(fullname, (void*)addr);
+        if (BOX64ENV(dynarec_strongmem_range)) RegisterStrongMemRanges(BOX64ENV(dynarec_strongmem_range), fullname, (void*)addr);
         #if defined(DYNAREC) && !defined(WIN32)
         int dynacache = box64env.dynacache;
         if(mapping->env && mapping->env->is_dynacache_overridden)
