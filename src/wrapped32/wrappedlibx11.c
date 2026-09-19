@@ -1938,10 +1938,10 @@ EXPORT int my32_XSetWMProtocols(x64emu_t* emu, void* dpy, XID window, XID_32* pr
 
 EXPORT int my32_XSetWMHints(x64emu_t* emu, void* dpy, XID window, void* hints)
 {
-    inplace_enlarge_wmhints(hints);
-    int ret = my->XSetWMHints(dpy, window, hints);
-    inplace_shrink_wmhints(hints);
-    return ret;
+    my_XWMHints_t hints_l = {0};
+    if(hints)
+        convert_XWMints_to_64(&hints_l, hints);
+    return my->XSetWMHints(dpy, window, hints?(&hints_l):NULL);
 }
 
 EXPORT void* my32_XGetWMHints(x64emu_t* emu, void* dpy, XID window)
@@ -1953,9 +1953,10 @@ EXPORT void* my32_XGetWMHints(x64emu_t* emu, void* dpy, XID window)
 
 EXPORT void my32_XSetWMNormalHints(x64emu_t* emu, void* dpy, XID window, void* hints)
 {
-    inplace_enlarge_wmsizehints(hints);
-    my->XSetWMNormalHints(dpy, window, hints);
-    inplace_shrink_wmsizehints(hints);
+    int hints_l[17+2] = {0};
+    if(hints)
+        convert_XSizeHints_to_64(&hints_l, hints);
+    my->XSetWMNormalHints(dpy, window, hints?(&hints_l):NULL);
 }
 
 EXPORT int my32_XGetWMNormalHints(x64emu_t* emu, void* dpy, XID window, void* hints, long_t* supplied)

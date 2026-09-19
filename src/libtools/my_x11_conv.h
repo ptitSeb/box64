@@ -35,11 +35,8 @@ void* convert_Visual_to_32(void* dpy, void* a);
 void* convert_Visual_to_64(void* dpy, void* a);
 
 void convert_XWMints_to_64(void* d, void* s);
-void inplace_enlarge_wmhints(void* hints);
 void inplace_shrink_wmhints(void* hints);
 void convert_XSizeHints_to_64(void* d, void *s);
-void inplace_enlarge_wmsizehints(void* hints);
-void inplace_shrink_wmsizehints(void* hints);
 
 void convert_XWindowAttributes_to_32(void* dpy, void* d, void* s);
 
