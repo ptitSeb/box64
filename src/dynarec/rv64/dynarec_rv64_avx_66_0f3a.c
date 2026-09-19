@@ -481,26 +481,29 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             u8 = F8;
             {
                 int64_t eyoffset = MODREG ? offsetof(x64emu_t, ymm[ed]) : fixedaddress + 16;
+                const int scratch[4] = {x4, x5, x6, x7};
                 for (int i = 0; i < 2; ++i) {
                     int control = i ? (u8 >> 4) : u8;
                     int sel = control & 3;
                     if (control & 8) {
-                        SD(xZR, gback, (i ? gyoffset : gdoffset) + 0);
-                        SD(xZR, gback, (i ? gyoffset : gdoffset) + 8);
+                        MV(scratch[2 * i + 0], xZR);
+                        MV(scratch[2 * i + 1], xZR);
                     } else {
                         for (int j = 0; j < 2; ++j) {
                             if (sel == 0)
-                                LD(x4, vback, vxoffset + 8 * j);
+                                LD(scratch[2 * i + j], vback, vxoffset + 8 * j);
                             else if (sel == 1)
-                                LD(x4, vback, vyoffset + 8 * j);
+                                LD(scratch[2 * i + j], vback, vyoffset + 8 * j);
                             else if (sel == 2)
-                                LD(x4, wback, fixedaddress + 8 * j);
+                                LD(scratch[2 * i + j], wback, fixedaddress + 8 * j);
                             else
-                                LD(x4, wback, eyoffset + 8 * j);
-                            SD(x4, gback, (i ? gyoffset : gdoffset) + 8 * j);
+                                LD(scratch[2 * i + j], wback, eyoffset + 8 * j);
                         }
                     }
                 }
+                for (int i = 0; i < 2; ++i)
+                    for (int j = 0; j < 2; ++j)
+                        SD(scratch[2 * i + j], gback, (i ? gyoffset : gdoffset) + 8 * j);
             }
             break;
         case 0x4A:
