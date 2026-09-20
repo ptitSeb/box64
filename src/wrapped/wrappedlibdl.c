@@ -122,7 +122,7 @@ void RemoveDlopen(library_t** lib, size_t idx)
 extern int box64_zoom;
 void setupTraceMapLib(lib_t* maplib);
 // Implementation
-void* my_dlopen(x64emu_t* emu, void *filename, int flag)
+static void* my_dlopen_internal(x64emu_t* emu, void *filename, int flag)
 {
     //void *dlopen(const char *filename, int flag);
     // TODO, handling special values for filename, like RTLD_SELF?
@@ -283,6 +283,13 @@ void* my_dlopen(x64emu_t* emu, void *filename, int flag)
     printf_dlsym(LOG_DEBUG, "dlopen: New handle %p (%s), dlopened=%ld\n", (void*)(idx+1), (char*)filename, dlopened);
     return (void*)(idx+1);
 }
+void* my_dlopen(x64emu_t* emu, void *filename, int flag)
+{
+    lockLibLoader();
+    void* ret = my_dlopen_internal(emu, filename, flag);
+    unlockLibLoader();
+    return ret;
+}
 void* my_dlmopen(x64emu_t* emu, void* lmid, void *filename, int flag)
 {
     if(lmid) {
@@ -342,7 +349,7 @@ int my_dlsym_lib(library_t* lib, const char* rsymbol, uintptr_t *start, uintptr_
     return ret;
 }
 
-void* my_dlsym_internal(x64emu_t* emu, void *handle, void *symbol, int version, const char* vername)
+static void* my_dlsym_internal_unlocked(x64emu_t* emu, void *handle, void *symbol, int version, const char* vername)
 {
     (void)emu;
     static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -446,6 +453,13 @@ void* my_dlsym_internal(x64emu_t* emu, void *handle, void *symbol, int version, 
     pthread_mutex_unlock(&mutex);
     return (void*)start;
 }
+void* my_dlsym_internal(x64emu_t* emu, void *handle, void *symbol, int version, const char* vername)
+{
+    lockLibLoader();
+    void* ret = my_dlsym_internal_unlocked(emu, handle, symbol, version, vername);
+    unlockLibLoader();
+    return ret;
+}
 void* my_dlsym(x64emu_t* emu, void *handle, void *symbol)
 {
     printf_dlsym(LOG_DEBUG, "%04d|Call to dlsym(%p, \"%s\")%s", GetTID(), handle, symbol, BOX64ENV(dlsym_error)?"":"\n");
@@ -477,7 +491,7 @@ void* my_dlvsym(x64emu_t* emu, void *handle, void *symbol, const char *vername)
 }
 
 static int actualy_closing = 0;
-int my_dlclose(x64emu_t* emu, void *handle)
+static int my_dlclose_internal(x64emu_t* emu, void *handle)
 {
     (void)emu;
     printf_dlsym(LOG_DEBUG, "Call to dlclose(%p)\n", handle);
@@ -503,6 +517,13 @@ int my_dlclose(x64emu_t* emu, void *handle)
     refreshTLSData(emu);
     return 0;
 }
+int my_dlclose(x64emu_t* emu, void *handle)
+{
+    lockLibLoader();
+    int ret = my_dlclose_internal(emu, handle);
+    unlockLibLoader();
+    return ret;
+}
 #ifdef ANDROID
 #ifndef RTLD_DL_SYMENT
 #define RTLD_DL_SYMENT 1
@@ -512,7 +533,7 @@ int my_dlclose(x64emu_t* emu, void *handle)
 #endif
 #endif
 
-int my_dladdr1(x64emu_t* emu, void *addr, void *i, void** extra_info, int flags)
+static int my_dladdr1_internal(x64emu_t* emu, void *addr, void *i, void** extra_info, int flags)
 {
     //int dladdr(void *addr, Dl_info *info);
     dlprivate_t *dl = my_context->dlprivate;
@@ -535,12 +556,19 @@ int my_dladdr1(x64emu_t* emu, void *addr, void *i, void** extra_info, int flags)
     }
     return (info->dli_sname)?1:0;   // success is non-null here...
 }
+int my_dladdr1(x64emu_t* emu, void *addr, void *i, void** extra_info, int flags)
+{
+    lockLibLoader();
+    int ret = my_dladdr1_internal(emu, addr, i, extra_info, flags);
+    unlockLibLoader();
+    return ret;
+}
 int my_dladdr(x64emu_t* emu, void *addr, void *i)
 {
     return my_dladdr1(emu, addr, i, NULL, 0);
 }
 
-int my_dlinfo(x64emu_t* emu, void* handle, int request, void* info)
+static int my_dlinfo_internal(x64emu_t* emu, void* handle, int request, void* info)
 {
     (void)emu;
     printf_dlsym(LOG_DEBUG, "Call to dlinfo(%p, %d, %p)\n", handle, request, info);
@@ -572,6 +600,13 @@ int my_dlinfo(x64emu_t* emu, void* handle, int request, void* info)
             SET_ERROR("unsupported call to dlinfo request:%d\n", request);
     }
     return -1;
+}
+int my_dlinfo(x64emu_t* emu, void* handle, int request, void* info)
+{
+    lockLibLoader();
+    int ret = my_dlinfo_internal(emu, handle, request, info);
+    unlockLibLoader();
+    return ret;
 }
 
 typedef struct my_dl_find_object_s {

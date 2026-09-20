@@ -23,6 +23,8 @@ void FreeDLPrivate(dlprivate_t **lib);
 
 box64context_t* GetLibrarianContext(lib_t* maplib);
 kh_mapsymbols_t* GetGlobalData(lib_t* maplib);
+void lockLibLoader(void);
+void unlockLibLoader(void);
 int AddNeededLib(lib_t* maplib, int local, int bindnow, int deepbind, needed_libs_t* needed, elfheader_t* verneeded, box64context_t* box64, x64emu_t* emu); // 0=success, 1=error
 void RemoveNeededLib(lib_t* maplib, int local, needed_libs_t* needed, box64context_t* box64, x64emu_t* emu);
 library_t* GetLibMapLib(lib_t* maplib, const char* name);
