@@ -12,13 +12,8 @@
 #include "custommem.h"
 #include "debug.h"
 #include "rbtree.h"
-#if 0
-#define rbtreeMalloc box_malloc
-#define rbtreeFree box_free
-#else
 #define rbtreeMalloc customMalloc
 #define rbtreeFree customFree
-#endif
 #endif
 
 typedef struct rbnode {
