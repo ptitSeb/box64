@@ -361,6 +361,14 @@ void refreshDisplay(void* dpy)
     // update some of the values now that the screen is locked
     my_XDisplay_t* src = dpy;
     my_XDisplay_32_t* dst = FindDisplay(dpy);
+    int found = 0;
+    for(int i=0; i<N_DISPLAY && !found; ++i)
+        if(dst==&my32_Displays_32[i])
+            found = 1;
+    if(!found) {
+        printf_log(LOG_INFO, "Warning, refreshDisplay on unknown Display %p, ignoring\n", dpy);
+        return;
+    }
     // sync last request
     dst->request = src->request;
     // num lock
@@ -376,11 +384,9 @@ void refreshDisplay(void* dpy)
     }
     // functions
     bridge_t* system = my_context->libx11->w.bridge;
-    int N = -1;
-    for(int i=0; i<N_DISPLAY && (N==-1); ++i) {
-        if(my32_Displays_64[i]==dpy)
-            N = i;
-    }
+    int N = (int)(dst - my32_Displays_32);
+    if(N<0 || N>=N_DISPLAY)
+        return;
     struct my_XFreeFuncs_32 *free_funcs = &my32_free_funcs_32[N];
     dst->free_funcs = (src->free_funcs)?to_ptrv(free_funcs):0;
     struct my_XLockPtrs_32 *lock_fns = &my32_lock_fns_32[N];
