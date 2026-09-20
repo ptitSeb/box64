@@ -2154,5 +2154,11 @@ uintptr_t dynarec64_AVX_F3_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
         SD(xZR, xEmu, offsetof(x64emu_t, ymm[a]) + 8); \
     } while (0)
 
+#define PACKSDW_FILL_ELEMENT(s1, SAT_FUNC, SRC, SOFF, SI, DST, DOFF, DI) \
+    do {                                               \
+        LW(s1, SRC, SOFF + (SI) * 4);                  \
+        SAT_FUNC;                                      \
+        SH(s1, DST, DOFF + (DI) * 2);                  \
+    } while (0)
 
 #endif //__DYNAREC_RV64_HELPER_H__
