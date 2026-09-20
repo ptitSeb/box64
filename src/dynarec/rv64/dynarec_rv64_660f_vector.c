@@ -2250,11 +2250,9 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 GETGX_vector(v0, 1, VECTOR_SEW64);
                 GETEX_vector(v1, 0, 0, VECTOR_SEW64);
                 d1 = fpu_get_scratch(dyn);
-                ADDI(x2, xZR, 32);
-                VSLL_VX(v0, v0, x2, VECTOR_UNMASKED);
-                VSRL_VX(v0, v0, x2, VECTOR_UNMASKED);
-                VSLL_VX(d1, v1, x2, VECTOR_UNMASKED);
-                VSRL_VX(d1, d1, x2, VECTOR_UNMASKED);
+                MOV64x(x2, 0xffffffffULL);
+                VAND_VX(v0, v0, x2, VECTOR_UNMASKED);
+                VAND_VX(d1, v1, x2, VECTOR_UNMASKED);
                 VMUL_VV(v0, v0, d1, VECTOR_UNMASKED);
             } else {
                 SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);

@@ -1188,11 +1188,9 @@ uintptr_t dynarec64_AVX_66_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             GETVY_vector(q0, VECTOR_SEW64);
             GETEY_vector(q1, 0, VECTOR_SEW64);
             GETGY_empty_vector(v0);
-            ADDI(x2, xZR, 32);
-            VSLL_VX(q0, q0, x2, VECTOR_UNMASKED);
-            VSRL_VX(q0, q0, x2, VECTOR_UNMASKED);
-            VSLL_VX(q1, q1, x2, VECTOR_UNMASKED);
-            VSRL_VX(q1, q1, x2, VECTOR_UNMASKED);
+            MOV64x(x2, 0xffffffffULL);
+            VAND_VX(q0, q0, x2, VECTOR_UNMASKED);
+            VAND_VX(q1, q1, x2, VECTOR_UNMASKED);
             VMUL_VV(v0, q0, q1, VECTOR_UNMASKED);
             PUTGY_vector(v0, VECTOR_SEW64);
             break;
