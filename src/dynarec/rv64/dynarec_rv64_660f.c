@@ -665,15 +665,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             MOV64x(x6, -128);
             for (int i = 0; i < 8; ++i) {
                 LH(x3, gback, gdoffset + i * 2);
-                if (cpuext.zbb) {
-                    MIN(x3, x3, x5);
-                    MAX(x3, x3, x6);
-                } else {
-                    BLT(x3, x5, 4 + 4);
-                    MV(x3, x5);
-                    BGE(x3, x6, 4 + 4);
-                    MV(x3, x6);
-                }
+                SATw(x3, x6, x5);
                 SB(x3, gback, gdoffset + i);
             }
             if (MODREG && gd == ed) {
@@ -682,15 +674,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             } else
                 for (int i = 0; i < 8; ++i) {
                     LH(x3, wback, fixedaddress + i * 2);
-                    if (cpuext.zbb) {
-                        MIN(x3, x3, x5);
-                        MAX(x3, x3, x6);
-                    } else {
-                        BLT(x3, x5, 4 + 4);
-                        MV(x3, x5);
-                        BGE(x3, x6, 4 + 4);
-                        MV(x3, x6);
-                    }
+                    SATw(x3, x6, x5);
                     SB(x3, gback, gdoffset + 8 + i);
                 }
             break;
