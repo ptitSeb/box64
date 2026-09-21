@@ -934,27 +934,69 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             GETGY();
             LUI(x5, 0x10); // 65536
             ADDIW(x5, x5, -1);
-            for (int i = 0; i < 4; ++i) {
-                LW(x3, vback, vxoffset + i * 4);
-                SATUw(x3, x5);
-                SH(x3, gback, gdoffset + i * 2);
-            }
-            for (int i = 0; i < 4; ++i) {
-                LW(x3, wback, fixedaddress + i * 4);
-                SATUw(x3, x5);
-                SH(x3, gback, gdoffset + 8 + i * 2);
-            }
-            if (vex.l) {
-                GETEY();
+            if (MODREG && ed == vex.v) {
                 for (int i = 0; i < 4; ++i) {
-                    LW(x3, vback, vyoffset + i * 4);
+                    LW(x3, vback, vxoffset + i * 4);
                     SATUw(x3, x5);
-                    SH(x3, gback, gyoffset + i * 2);
+                    SH(x3, gback, gdoffset + i * 2);
+                }
+                LD(x3, gback, gdoffset);
+                SD(x3, gback, gdoffset + 8);
+            } else if (MODREG && gd == ed) {
+                for (int i = 3; i >= 0; --i) {
+                    LW(x3, wback, fixedaddress + i * 4);
+                    SATUw(x3, x5);
+                    SH(x3, gback, gdoffset + 8 + i * 2);
+                }
+                for (int i = 0; i < 4; ++i) {
+                    LW(x3, vback, vxoffset + i * 4);
+                    SATUw(x3, x5);
+                    SH(x3, gback, gdoffset + i * 2);
+                }
+            } else {
+                for (int i = 0; i < 4; ++i) {
+                    LW(x3, vback, vxoffset + i * 4);
+                    SATUw(x3, x5);
+                    SH(x3, gback, gdoffset + i * 2);
                 }
                 for (int i = 0; i < 4; ++i) {
                     LW(x3, wback, fixedaddress + i * 4);
                     SATUw(x3, x5);
-                    SH(x3, gback, gyoffset + 8 + i * 2);
+                    SH(x3, gback, gdoffset + 8 + i * 2);
+                }
+            }
+            if (vex.l) {
+                GETEY();
+                if (MODREG && ed == vex.v) {
+                    for (int i = 0; i < 4; ++i) {
+                        LW(x3, vback, vyoffset + i * 4);
+                        SATUw(x3, x5);
+                        SH(x3, gback, gyoffset + i * 2);
+                    }
+                    LD(x3, gback, gyoffset);
+                    SD(x3, gback, gyoffset + 8);
+                } else if (MODREG && gd == ed) {
+                    for (int i = 3; i >= 0; --i) {
+                        LW(x3, wback, fixedaddress + i * 4);
+                        SATUw(x3, x5);
+                        SH(x3, gback, gyoffset + 8 + i * 2);
+                    }
+                    for (int i = 0; i < 4; ++i) {
+                        LW(x3, vback, vyoffset + i * 4);
+                        SATUw(x3, x5);
+                        SH(x3, gback, gyoffset + i * 2);
+                    }
+                } else {
+                    for (int i = 0; i < 4; ++i) {
+                        LW(x3, vback, vyoffset + i * 4);
+                        SATUw(x3, x5);
+                        SH(x3, gback, gyoffset + i * 2);
+                    }
+                    for (int i = 0; i < 4; ++i) {
+                        LW(x3, wback, fixedaddress + i * 4);
+                        SATUw(x3, x5);
+                        SH(x3, gback, gyoffset + 8 + i * 2);
+                    }
                 }
             } else
                 YMM0(gd);
