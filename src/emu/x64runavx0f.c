@@ -257,10 +257,11 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                     GD->dword[0] |= ((EY->ud[i]>>31)&1)<<(i+4);
             }
             break;
-        case 0x51:                      /* VSQRTPS Gx, Ex */
+        case 0x51: {                      /* VSQRTPS Gx, Ex */
             nextop = F8;
             GETEX(0);
             GETGX; GETGY;
+            int oldround = mxcsr_setround(emu);
             for (int i = 0; i < 4; ++i)
                 if (isnan(EX->f[i]))
                     GX->ud[i] = EX->ud[i] | 0x00400000;
@@ -275,7 +276,9 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                         GY->f[i] = (EY->f[i] < 0) ? (-NAN) : sqrtf(EY->f[i]);
             } else
                 GY->u128 = 0;
-            break;
+            fesetround(oldround);
+        }
+        break;
         case 0x52:                      /* VRSQRTPS Gx, Ex */
             nextop = F8;
             GETEX(0);
@@ -388,12 +391,13 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             } else
                 GY->u128 = 0;
             break;
-        case 0x58:                      /* VADDPS Gx, Vx, Ex */
+        case 0x58: {                      /* VADDPS Gx, Vx, Ex */
             nextop = F8;
             GETEX(0);
             GETGX;
             GETVX;
             GETGY;
+            int oldround = mxcsr_setround(emu);
             for(int i=0; i<4; ++i) {
                 if(isnanf(VX->f[i])) {
                     GX->ud[i] = VX->ud[i] | 0x00400000;
@@ -419,13 +423,16 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 }
             } else
                 GY->u128 = 0;
-            break;
-        case 0x59:                      /* VMULPS Gx, Vx, Ex */
+            fesetround(oldround);
+        }
+        break;
+        case 0x59: {                      /* VMULPS Gx, Vx, Ex */
             nextop = F8;
             GETEX(0);
             GETGX;
             GETVX;
             GETGY;
+            int oldround = mxcsr_setround(emu);
             for(int i=0; i<4; ++i) {
                 if(isnanf(VX->f[i])) {
                     GX->ud[i] = VX->ud[i] | 0x00400000;
@@ -451,7 +458,9 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 }
             } else
                 GY->u128 = 0;
-            break;
+            fesetround(oldround);
+        }
+        break;
         case 0x5A:                      /* VCVTPS2PD Gx, Ex */
             nextop = F8;
             GETEX(0);
@@ -487,30 +496,35 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GX->d[0] = EX->f[0];
             #endif
             break;
-        case 0x5B:                      /* VCVTDQ2PS Gx, Ex */
+        case 0x5B: {                      /* VCVTDQ2PS Gx, Ex */
             nextop = F8;
             GETEX(0);
             GETGX;
             GETGY;
+            if(vex.l)
+                GETEY;
+            int oldround = mxcsr_setround(emu);
             GX->f[0] = EX->sd[0];
             GX->f[1] = EX->sd[1];
             GX->f[2] = EX->sd[2];
             GX->f[3] = EX->sd[3];
             if(vex.l) {
-                GETEY;
                 GY->f[0] = EY->sd[0];
                 GY->f[1] = EY->sd[1];
                 GY->f[2] = EY->sd[2];
                 GY->f[3] = EY->sd[3];
             } else
                 GY->u128 = 0;
-            break;
-        case 0x5C:                      /* VSUBPS Gx, Vx, Ex */
+            fesetround(oldround);
+        }
+        break;
+        case 0x5C: {                      /* VSUBPS Gx, Vx, Ex */
             nextop = F8;
             GETEX(0);
             GETGX;
             GETVX;
             GETGY;
+            int oldround = mxcsr_setround(emu);
             for(int i=0; i<4; ++i) {
                 if(isnanf(VX->f[i])) {
                     GX->ud[i] = VX->ud[i] | 0x00400000;
@@ -536,7 +550,9 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 }
             } else
                 GY->u128 = 0;
-            break;
+            fesetround(oldround);
+        }
+        break;
         case 0x5D:                      /* VMINPS Gx, Vx, Ex */
             nextop = F8;
             GETEX(0);
@@ -559,12 +575,13 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             } else
                 GY->u128 = 0;
             break;
-        case 0x5E:                      /* VDIVPS Gx, Ex */
+        case 0x5E: {                      /* VDIVPS Gx, Ex */
             nextop = F8;
             GETEX(0);
             GETGX;
             GETVX;
             GETGY;
+            int oldround = mxcsr_setround(emu);
             for(int i=0; i<4; ++i) {
                 if(isnanf(VX->f[i])) {
                     GX->ud[i] = VX->ud[i] | 0x00400000;
@@ -590,7 +607,9 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 }
             } else
                 GY->u128 = 0;
-            break;
+            fesetround(oldround);
+        }
+        break;
         case 0x5F:                      /* VMAXPS Gx, Vx, Ex */
             nextop = F8;
             GETEX(0);

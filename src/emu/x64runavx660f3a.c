@@ -703,13 +703,18 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             }
             break;
 
-        case 0x40:  /* VDPPS Gx, VX, Ex, Ib */
+        case 0x40: {  /* VDPPS Gx, VX, Ex, Ib */
             nextop = F8;
             GETEX(1);
             GETGX;
             GETVX;
             GETGY;
             tmp8u = F8;
+            if(vex.l) {
+                GETEY;
+                GETVY;
+            }
+            int oldround = mxcsr_setround(emu);
             tmpf = 0.0f;
             for(int i=0; i<4; ++i)
                 if(tmp8u&(1<<(i+4)))
@@ -717,8 +722,6 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             for(int i=0; i<4; ++i)
                 GX->f[i] = (tmp8u&(1<<i))?tmpf:0.0f;
             if(vex.l) {
-                GETEY;
-                GETVY;
                 tmpf = 0.0f;
                 for(int i=0; i<4; ++i)
                     if(tmp8u&(1<<(i+4)))
@@ -727,14 +730,17 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                     GY->f[i] = (tmp8u&(1<<i))?tmpf:0.0f;
             } else
                 GY->u128 = 0;
-            break;
-        case 0x41:  /* VDPPD Gx, Vx, Ex, Ib */
+            fesetround(oldround);
+        }
+        break;
+        case 0x41: {  /* VDPPD Gx, Vx, Ex, Ib */
             nextop = F8;
             GETEX(1);
             GETGX;
             GETVX;
             GETGY;
             tmp8u = F8;
+            int oldround = mxcsr_setround(emu);
             tmpd = 0.0;
             if(tmp8u&(1<<(4+0)))
                 tmpd += VX->d[0]*EX->d[0];
@@ -744,7 +750,9 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GX->d[1] = (tmp8u&(1<<(1)))?tmpd:0.0;
             // no 256bits form, for some reason
             GY->u128 = 0;
-            break;
+            fesetround(oldround);
+        }
+        break;
         case 0x42:  /* VMPSADBW Gx, Vx, Ex, Ib */
             nextop = F8;
             GETEX(1);

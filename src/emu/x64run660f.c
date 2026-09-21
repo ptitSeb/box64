@@ -1176,10 +1176,11 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                     GX->ud[tmp8u&0x3] = ED->dword[0];
                 break;
 
-            case 0x40:  /* DPPS Gx, Ex, Ib */
+            case 0x40: {  /* DPPS Gx, Ex, Ib */
                 nextop = F8;
                 GETEX(1);
                 GETGX;
+                int oldround = mxcsr_setround(emu);
                 tmp8u = F8;
                 tmpf = 0.0f;
                 for(int i=0; i<4; ++i)
@@ -1187,11 +1188,14 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                         tmpf += GX->f[i]*EX->f[i];
                 for(int i=0; i<4; ++i)
                     GX->f[i] = (tmp8u&(1<<i))?tmpf:0.0f;
-                break;
-            case 0x41:  /* DPPD Gx, Ex, Ib */
+                fesetround(oldround);
+            }
+            break;
+            case 0x41: {  /* DPPD Gx, Ex, Ib */
                 nextop = F8;
                 GETEX(1);
                 GETGX;
+                int oldround = mxcsr_setround(emu);
                 tmp8u = F8;
                 tmpd = 0.0;
                 if(tmp8u&(1<<(4+0)))
@@ -1200,7 +1204,9 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                     tmpd += GX->d[1]*EX->d[1];
                 GX->d[0] = (tmp8u&(1<<(0)))?tmpd:0.0;
                 GX->d[1] = (tmp8u&(1<<(1)))?tmpd:0.0;
-                break;
+                fesetround(oldround);
+            }
+            break;
             case 0x42:  /* MPSADBW Gx, Ex, Ib */
                 nextop = F8;
                 GETEX(1);
@@ -1347,10 +1353,11 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         for(int i=0; i<2; ++i)
             GD->dword[0] |= ((EX->q[i]>>63)&1)<<i;
         break;
-    case 0x51:                      /* SQRTPD Gx, Ex */
+    case 0x51: {                      /* SQRTPD Gx, Ex */
         nextop = F8;
         GETEX(0);
         GETGX;
+        int oldround = mxcsr_setround(emu);
         for (int i=0; i<2; ++i) {
             if(EX->d[i]<0.0)
                 GX->d[i] = -NAN;
@@ -1359,7 +1366,9 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
             else
                 GX->d[i] = sqrt(EX->d[i]);
         }
-        break;
+        fesetround(oldround);
+    }
+    break;
 
     case 0x54:                      /* ANDPD Gx, Ex */
         nextop = F8;
@@ -1389,10 +1398,11 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         GX->q[0] ^= EX->q[0];
         GX->q[1] ^= EX->q[1];
         break;
-    case 0x58:                      /* ADDPD Gx, Ex */
+    case 0x58: {                      /* ADDPD Gx, Ex */
         nextop = F8;
         GETEX(0);
         GETGX;
+        int oldround = mxcsr_setround(emu);
         for (int i=0; i<2; ++i) {
             if(isnan(GX->d[i])) {
                 GX->q[i] |= 0x0008000000000000ULL;
@@ -1403,11 +1413,14 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 if(isnan(GX->d[i])) GX->q[i] |= 0x8000000000000000ULL;
             }
         }
-        break;
-    case 0x59:                      /* MULPD Gx, Ex */
+        fesetround(oldround);
+    }
+    break;
+    case 0x59: {                      /* MULPD Gx, Ex */
         nextop = F8;
         GETEX(0);
         GETGX;
+        int oldround = mxcsr_setround(emu);
         for (int i=0; i<2; ++i) {
             if(isnan(GX->d[i])) {
                 GX->q[i] |= 0x0008000000000000ULL;
@@ -1418,11 +1431,14 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 if(isnan(GX->d[i])) GX->q[i] |= 0x8000000000000000ULL;
             }
         }
-        break;
-    case 0x5A:                      /* CVTPD2PS Gx, Ex */
+        fesetround(oldround);
+    }
+    break;
+    case 0x5A: {                      /* CVTPD2PS Gx, Ex */
         nextop = F8;
         GETEX(0);
         GETGX;
+        int oldround = mxcsr_setround(emu);
         #ifdef RV64
         for (int i = 0; i < 2; ++i) {
             if (isnan(EX->d[i]))
@@ -1437,7 +1453,9 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         GX->f[1] = EX->d[1];
         #endif
         GX->q[1] = 0;
-        break;
+        fesetround(oldround);
+    }
+    break;
     case 0x5B:                      /* CVTPS2DQ Gx, Ex */
         nextop = F8;
         GETEX(0);
@@ -1472,10 +1490,11 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
             }
         }
         break;
-    case 0x5C:                      /* SUBPD Gx, Ex */
+    case 0x5C: {                      /* SUBPD Gx, Ex */
         nextop = F8;
         GETEX(0);
         GETGX;
+        int oldround = mxcsr_setround(emu);
         for (int i=0; i<2; ++i) {
             if(isnan(GX->d[i])) {
                 GX->q[i] |= 0x0008000000000000ULL;
@@ -1486,7 +1505,9 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 if(isnan(GX->d[i])) GX->q[i] |= 0x8000000000000000ULL;
             }
         }
-        break;
+        fesetround(oldround);
+    }
+    break;
     case 0x5D:                      /* MINPD Gx, Ex */
         nextop = F8;
         GETEX(0);
@@ -1496,10 +1517,11 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         if (isnan(GX->d[1]) || isnan(EX->d[1]) || islessequal(EX->d[1], GX->d[1]))
             GX->d[1] = EX->d[1];
         break;
-    case 0x5E:                      /* DIVPD Gx, Ex */
+    case 0x5E: {                      /* DIVPD Gx, Ex */
         nextop = F8;
         GETEX(0);
         GETGX;
+        int oldround = mxcsr_setround(emu);
         for (int i=0; i<2; ++i) {
             if(isnan(GX->d[i])) {
                 GX->q[i] |= 0x0008000000000000ULL;
@@ -1510,7 +1532,9 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 if(isnan(GX->d[i])) GX->q[i] |= 0x8000000000000000ULL;
             }
         }
-        break;
+        fesetround(oldround);
+    }
+    break;
     case 0x5F:                      /* MAXPD Gx, Ex */
         nextop = F8;
         GETEX(0);
@@ -1825,10 +1849,11 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         }
         break;
 
-    case 0x7C:  /* HADDPD Gx, Ex */
+    case 0x7C: {  /* HADDPD Gx, Ex */
         nextop = F8;
         GETEX(0);
         GETGX;
+        int oldround = mxcsr_setround(emu);
         if(isnan(GX->d[0])) {
             GX->q[0] |= 0x0008000000000000ULL;
         } else if(isnan(GX->d[1])) {
@@ -1849,11 +1874,14 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 if(isnan(GX->d[1])) GX->q[1] |= 0x8000000000000000ULL;
             }
         }
-        break;
-    case 0x7D:  /* HSUBPD Gx, Ex */
+        fesetround(oldround);
+    }
+    break;
+    case 0x7D: {  /* HSUBPD Gx, Ex */
         nextop = F8;
         GETEX(0);
         GETGX;
+        int oldround = mxcsr_setround(emu);
         if(isnan(GX->d[0])) {
             GX->q[0] |= 0x0008000000000000ULL;
         } else if(isnan(GX->d[1])) {
@@ -1874,7 +1902,9 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 if(isnan(GX->d[1])) GX->q[1] |= 0x8000000000000000ULL;
             }
         }
-        break;
+        fesetround(oldround);
+    }
+    break;
     case 0x7E:                      /* MOVD Ed, Gx */
         nextop = F8;
         GETED(0);
@@ -2387,16 +2417,19 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
             emu->regs[tmp8u].word[0] = 0;
         }
         break;
-    case 0xD0:  /* ADDSUBPD Gx, Ex */
+    case 0xD0: {  /* ADDSUBPD Gx, Ex */
         nextop = F8;
         GETEX(0);
         GETGX;
+        int oldround = mxcsr_setround(emu);
         for(int i=0; i<2; ++i) {
             if(isnan(GX->d[i])) GX->q[i] |= 0x0008000000000000ULL;
             else if(isnan(EX->d[i])) GX->q[i] = EX->q[i] | 0x0008000000000000ULL;
             else { if(i==0) GX->d[0] -= EX->d[0]; else GX->d[1] += EX->d[1]; if(isnan(GX->d[i])) GX->q[i] |= 0x8000000000000000ULL; }
         }
-        break;
+        fesetround(oldround);
+    }
+    break;
     case 0xD1:  /* PSRLW Gx, Ex */
         nextop = F8;
         GETEX(0);

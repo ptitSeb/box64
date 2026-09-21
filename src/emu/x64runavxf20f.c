@@ -106,7 +106,9 @@ uintptr_t RunAVX_F20F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETVX;
             GETGY;
             if(rex.w) {
+                int oldround = mxcsr_setround(emu);
                 GX->d[0] = ED->sq[0];
+                fesetround(oldround);
             } else {
                 GX->d[0] = ED->sdword[0];
             }
@@ -187,10 +189,11 @@ uintptr_t RunAVX_F20F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             }
             break;
 
-        case 0x51:  /* VSQRTSD Gx, Vx, Ex */
+        case 0x51: {  /* VSQRTSD Gx, Vx, Ex */
             nextop = F8;
             GETEX(0);
             GETGX; GETVX; GETGY;
+            int oldround = mxcsr_setround(emu);
             if(EX->d[0]<0.0 )
                 GX->d[0] = -NAN;
             else if(isnan(EX->d[0]))
@@ -199,26 +202,32 @@ uintptr_t RunAVX_F20F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GX->d[0] = sqrt(EX->d[0]);
             GX->q[1] = VX->q[1];
             GY->u128 = 0;
-            break;
+            fesetround(oldround);
+        }
+        break;
 
-        case 0x58:  /* VADDSD Gx, Vx, Ex */
+        case 0x58: {  /* VADDSD Gx, Vx, Ex */
             nextop = F8;
             _GETEX(0);
             GETGX;
             GETVX;
             GETGY;
+            int oldround = mxcsr_setround(emu);
             if(isnan(VX->d[0])) GX->q[0] = VX->q[0] | 0x0008000000000000ULL;
             else if(isnan(EX->d[0])) GX->q[0] = EX->q[0] | 0x0008000000000000ULL;
             else { GX->d[0] = VX->d[0] + EX->d[0]; if(isnan(GX->d[0])) GX->q[0] |= 0x8000000000000000ULL; }
             GX->q[1] = VX->q[1];
             GY->u128 = 0;
-            break;
-        case 0x59:  /* VMULSD Gx, Vx, Ex */
+            fesetround(oldround);
+        }
+        break;
+        case 0x59: {  /* VMULSD Gx, Vx, Ex */
             nextop = F8;
             _GETEX(0);
             GETGX;
             GETVX;
             GETGY;
+            int oldround = mxcsr_setround(emu);
             if(isnan(VX->d[0])) GX->q[0] = VX->q[0] | 0x0008000000000000ULL;
             else if(isnan(EX->d[0])) GX->q[0] = EX->q[0] | 0x0008000000000000ULL;
             else { GX->d[0] = VX->d[0] * EX->d[0]; if(isnan(GX->d[0])) GX->q[0] |= 0x8000000000000000ULL; }
@@ -226,13 +235,16 @@ uintptr_t RunAVX_F20F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GX->q[1] = VX->q[1];
             }
             GY->u128 = 0;
-            break;
-        case 0x5A:  /* VCVTSD2SS Gx, Vx, Ex */
+            fesetround(oldround);
+        }
+        break;
+        case 0x5A: {  /* VCVTSD2SS Gx, Vx, Ex */
             nextop = F8;
             _GETEX(0);
             GETGX;
             GETVX;
             GETGY;
+            int oldround = mxcsr_setround(emu);
             #ifdef RV64
             if (isnan(EX->d[0]))
                 GX->ud[0] = ((EX->q[0] >> 32) & 0x80000000)
@@ -246,20 +258,25 @@ uintptr_t RunAVX_F20F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GX->ud[1] = VX->ud[1];
             GX->q[1] = VX->q[1];
             GY->u128 = 0;
-            break;
+            fesetround(oldround);
+        }
+        break;
 
-        case 0x5C:  /* VSUBSD Gx, Vx, Ex */
+        case 0x5C: {  /* VSUBSD Gx, Vx, Ex */
             nextop = F8;
             _GETEX(0);
             GETGX;
             GETVX;
             GETGY;
+            int oldround = mxcsr_setround(emu);
             if(isnan(VX->d[0])) GX->q[0] = VX->q[0] | 0x0008000000000000ULL;
             else if(isnan(EX->d[0])) GX->q[0] = EX->q[0] | 0x0008000000000000ULL;
             else { GX->d[0] = VX->d[0] - EX->d[0]; if(isnan(GX->d[0])) GX->q[0] |= 0x8000000000000000ULL; }
             GX->q[1] = VX->q[1];
             GY->u128 = 0;
-            break;
+            fesetround(oldround);
+        }
+        break;
         case 0x5D:  /* VMINSD Gx, Vx, Ex */
             nextop = F8;
             GETEX(0);
@@ -273,18 +290,21 @@ uintptr_t RunAVX_F20F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GX->q[1] = VX->q[1];
             GY->u128 = 0;
             break;
-        case 0x5E:  /* VDIVSD Gx, Vx, Ex */
+        case 0x5E: {  /* VDIVSD Gx, Vx, Ex */
             nextop = F8;
             GETEX(0);
             GETGX;
             GETVX;
             GETGY;
+            int oldround = mxcsr_setround(emu);
             if(isnan(VX->d[0])) GX->q[0] = VX->q[0] | 0x0008000000000000ULL;
             else if(isnan(EX->d[0])) GX->q[0] = EX->q[0] | 0x0008000000000000ULL;
             else { GX->d[0] = VX->d[0] / EX->d[0]; if(isnan(GX->d[0])) GX->q[0] |= 0x8000000000000000ULL; }
             GX->q[1] = VX->q[1];
             GY->u128 = 0;
-            break;
+            fesetround(oldround);
+        }
+        break;
         case 0x5F:  /* VMAXSD Gx, Vx, Ex */
             nextop = F8;
             GETEX(0);
@@ -328,17 +348,24 @@ uintptr_t RunAVX_F20F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GY->u128 = 0;
             break;
 
-        case 0x7C:  /* VHADDPS Gx, Vx, Ex */
+        case 0x7C: {  /* VHADDPS Gx, Vx, Ex */
             nextop = F8;
             GETEX(0);
             GETGX;
             GETVX;
             GETGY;
             GETEY;
+            if(vex.l)
+                GETVY;
             if(GX==EX) {
                 eax1 = *EX;
                 EX = &eax1;
             }
+            if(vex.l && GY==EY) {
+                eay1 = *EY;
+                EY = &eay1;
+            }
+            int oldround = mxcsr_setround(emu);
             for(int i=0; i<2; ++i) {
                 int j = i*2;
                 if(isnanf(VX->f[j])) GX->ud[i] = VX->ud[j] | 0x00400000;
@@ -357,11 +384,6 @@ uintptr_t RunAVX_F20F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 }
             }
             if(vex.l) {
-                if(GY==EY) {
-                    eay1 = *EY;
-                    EY = &eay1;
-                }
-                GETVY;
                 for(int i=0; i<2; ++i) {
                     int j = i*2;
                     if(isnanf(VY->f[j])) GY->ud[i] = VY->ud[j] | 0x00400000;
@@ -381,18 +403,27 @@ uintptr_t RunAVX_F20F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 }
             } else
                 GY->u128 = 0;
-            break;
-        case 0x7D:  /* VHSUBPS Gx, Vx, Ex */
+            fesetround(oldround);
+        }
+        break;
+        case 0x7D: {  /* VHSUBPS Gx, Vx, Ex */
             nextop = F8;
             GETEX(0);
             GETGX;
             GETVX;
             GETGY;
             GETEY;
+            if(vex.l)
+                GETVY;
             if (GX == EX) {
                 eax1 = *EX;
                 EX = &eax1;
             }
+            if (vex.l && GY == EY) {
+                eay1 = *EY;
+                EY = &eay1;
+            }
+            int oldround = mxcsr_setround(emu);
             for(int i=0; i<2; ++i) {
                 int j = i*2;
                 if(isnanf(VX->f[j])) GX->ud[i] = VX->ud[j] | 0x00400000;
@@ -411,11 +442,6 @@ uintptr_t RunAVX_F20F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 }
             }
             if (vex.l) {
-                if (GY == EY) {
-                    eay1 = *EY;
-                    EY = &eay1;
-                }
-                GETVY;
                 for(int i=0; i<2; ++i) {
                     int j = i*2;
                     if(isnanf(VY->f[j])) GY->ud[i] = VY->ud[j] | 0x00400000;
@@ -435,7 +461,9 @@ uintptr_t RunAVX_F20F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 }
             } else
                 GY->u128 = 0;
-            break;
+            fesetround(oldround);
+        }
+        break;
         case 0xC2:  /* VCMPSD Gx, Vx, Ex, Ib */
             nextop = F8;
             GETEX(1);
@@ -469,20 +497,23 @@ uintptr_t RunAVX_F20F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GY->u128 = 0;
             break;
 
-        case 0xD0:  /* VADDSUBPS Gx, Vx, Ex */
+        case 0xD0: {  /* VADDSUBPS Gx, Vx, Ex */
             nextop = F8;
             GETEX(0);
             GETGX;
             GETVX;
             GETGY;
+            if(vex.l) {
+                GETEY;
+                GETVY;
+            }
+            int oldround = mxcsr_setround(emu);
             for(int i=0; i<4; ++i) {
                 if(isnanf(VX->f[i])) { GX->ud[i] = VX->ud[i] | 0x00400000; }
                 else if(isnanf(EX->f[i])) { GX->ud[i] = EX->ud[i] | 0x00400000; }
                 else { if(i&1) GX->f[i] = VX->f[i] + EX->f[i]; else GX->f[i] = VX->f[i] - EX->f[i]; if(isnanf(GX->f[i])) GX->ud[i] |= 0x80000000; }
             }
             if(vex.l) {
-                GETEY;
-                GETVY;
                 for(int i=0; i<4; ++i) {
                     if(isnanf(VY->f[i])) { GY->ud[i] = VY->ud[i] | 0x00400000; }
                     else if(isnanf(EY->f[i])) { GY->ud[i] = EY->ud[i] | 0x00400000; }
@@ -490,7 +521,9 @@ uintptr_t RunAVX_F20F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 }
             } else
                 GY->u128 = 0;
-            break;
+            fesetround(oldround);
+        }
+        break;
 
         case 0xE6:  /* CVTPD2DQ Gx, Ex */
             nextop = F8;
