@@ -1434,16 +1434,13 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     INST_NAME("IMUL AL, Eb");
                     SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
                     GETSEB(x1, 0);
-                    SLLI(x2, xRAX, 56);
-                    SRAI(x2, x2, 56);
+                    SEXTB(x2, xRAX);
                     MULW(x1, x2, x1);
                     SET_DFNONE();
                     CLEAR_FLAGS();
                     IFX (X_CF | X_OF) {
-                        SLLI(x3, x1, 48);
-                        SRAI(x3, x3, 48); // x3 = SignExtend16(result)
-                        SLLI(x4, x1, 56);
-                        SRAI(x4, x4, 56); // x4 = SignExtend8(result)
+                        SEXTH(x3, x1); // x3 = SignExtend16(result)
+                        SEXTB(x4, x1); // x4 = SignExtend8(result)
                         XOR(x3, x3, x4);
                         SNEZ(x3, x3);
                         IFX (X_CF) OR(xFlags, xFlags, x3); // F_CF == 0

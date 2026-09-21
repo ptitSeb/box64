@@ -239,7 +239,7 @@
             wback = TO_NAT(wback & 3);                                                          \
         }                                                                                       \
         if (cpuext.zbb && (wb2 == 0)) {                                                         \
-            SEXTB(i, wback);                                                                    \
+            SEXTB_(i, wback);                                                                   \
         } else {                                                                                \
             MV(i, wback);                                                                       \
             SLLIW(i, i, 24 - wb2);                                                              \

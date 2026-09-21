@@ -79,8 +79,7 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         LR_W(x2, x3, 1, 1);
                         SRLIW(x1, x2, 16);
                         BNE_MARK(x6, x1);
-                        SLLIW(x2, x2, 16);
-                        SRLIW(x2, x2, 16);
+                        ZEXTH(x2, x2);
                         SLLIW(x5, gd, 16);
                         OR(x2, x2, x5);
                         SC_W(x5, x2, x3, 1, 1);
@@ -111,8 +110,7 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         LR_W(x2, wback, 1, 1);
                         ZEXTH(x1, x2);
                         ADD(x4, x1, x6);
-                        SLLIW(x4, x4, 16);
-                        SRLIW(x4, x4, 16);
+                        ZEXTH(x4, x4);
                         SRLIW(x2, x2, 16);
                         SLLIW(x2, x2, 16);
                         OR(x4, x4, x2);
@@ -127,8 +125,7 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         LR_W(x2, x3, 1, 1);
                         SRLIW(x1, x2, 16);
                         ADD(x4, x1, x6);
-                        SLLIW(x2, x2, 16);
-                        SRLIW(x2, x2, 16);
+                        ZEXTH(x2, x2);
                         SLLIW(x4, x4, 16);
                         OR(x4, x4, x2);
                         SC_W(x5, x4, x3, 1, 1);
@@ -165,8 +162,7 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 LR_W(x2, wback, 1, 1);
                 ZEXTH(x1, x2);
                 ADD(x4, x1, x6);
-                SLLIW(x4, x4, 16);
-                SRLIW(x4, x4, 16);
+                ZEXTH(x4, x4);
                 SRLIW(x2, x2, 16);
                 SLLIW(x2, x2, 16);
                 OR(x4, x4, x2);
@@ -300,8 +296,7 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 LR_W(x2, wback, 1, 1);
                 ZEXTH(x1, x2);
                 SUB(x4, x1, x6);
-                SLLIW(x4, x4, 16);
-                SRLIW(x4, x4, 16);
+                ZEXTH(x4, x4);
                 SRLIW(x2, x2, 16);
                 SLLIW(x2, x2, 16);
                 OR(x4, x4, x2);
@@ -316,8 +311,7 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 LR_W(x2, x3, 1, 1);
                 SRLIW(x1, x2, 16);
                 SUB(x4, x1, x6);
-                SLLIW(x2, x2, 16);
-                SRLIW(x2, x2, 16);
+                ZEXTH(x2, x2);
                 SLLIW(x4, x4, 16);
                 OR(x4, x4, x2);
                 SC_W(x5, x4, x3, 1, 1);
@@ -361,14 +355,12 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         SRLIW(x3, x1, 16);
                         SLLIW(x3, x3, 16);
                         ADD(x4, x1, x5);
-                        SLLIW(x4, x4, 16);
-                        SRLIW(x4, x4, 16);
+                        ZEXTH(x4, x4);
                         OR(x4, x4, x3);
                         SC_W(x3, x4, wback, 1, 1);
                         BNEZ_MARKLOCK(x3);
                         IFXORNAT (X_ALL | X_PEND) {
-                            SLLIW(x1, x1, 16);
-                            SRLIW(x1, x1, 16);
+                            ZEXTH(x1, x1);
                         }
                         B_MARK3_nocond;
 
@@ -377,8 +369,7 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         XORI(x2, wback, 0b10); // into scratch, wback may be a live guest reg
                         MARK2;
                         LR_W(x1, x2, 1, 1);
-                        SLLIW(x3, x1, 16);
-                        SRLIW(x3, x3, 16);
+                        ZEXTH(x3, x1);
                         SRLIW(x1, x1, 16);
                         ADD(x4, x1, x5);
                         SLLIW(x4, x4, 16);
@@ -426,8 +417,7 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         SC_W(x3, x4, wback, 1, 1);
                         BNEZ_MARKLOCK(x3);
                         IFXORNAT (X_ALL | X_PEND) {
-                            SLLIW(x1, x1, 16);
-                            SRLIW(x1, x1, 16);
+                            ZEXTH(x1, x1);
                         }
                         B_MARK3_nocond;
 
@@ -436,8 +426,7 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         XORI(x2, wback, 0b10); // into scratch, wback may be a live guest reg
                         MARK2;
                         LR_W(x1, x2, 1, 1);
-                        SLLIW(x3, x1, 16);
-                        SRLIW(x3, x3, 16);
+                        ZEXTH(x3, x1);
                         SRLIW(x1, x1, 16);
                         OR(x4, x1, x5);
                         SLLIW(x4, x4, 16);
@@ -486,14 +475,12 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         SRLIW(x3, x1, 16);
                         SLLIW(x3, x3, 16);
                         ADD(x4, x1, x6);
-                        SLLIW(x4, x4, 16);
-                        SRLIW(x4, x4, 16);
+                        ZEXTH(x4, x4);
                         OR(x4, x4, x3);
                         SC_W(x3, x4, wback, 1, 1);
                         BNEZ_MARKLOCK(x3);
                         IFXORNAT (X_ALL | X_PEND) {
-                            SLLIW(x1, x1, 16);
-                            SRLIW(x1, x1, 16);
+                            ZEXTH(x1, x1);
                         }
                         B_MARK3_nocond;
 
@@ -502,8 +489,7 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         XORI(x2, wback, 0b10);
                         MARKLOCK2;
                         LR_W(x1, x2, 1, 1);
-                        SLLIW(x3, x1, 16);
-                        SRLIW(x3, x3, 16);
+                        ZEXTH(x3, x1);
                         SRLIW(x1, x1, 16);
                         ADD(x4, x1, x6);
                         SLLIW(x4, x4, 16);
@@ -558,8 +544,7 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         SC_W(x3, x4, wback, 1, 1);
                         BNEZ_MARKLOCK(x3);
                         IFXORNAT (X_ALL | X_PEND) {
-                            SLLIW(x1, x1, 16);
-                            SRLIW(x1, x1, 16);
+                            ZEXTH(x1, x1);
                         }
                         B_MARK3_nocond;
 
@@ -568,8 +553,7 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         XORI(x2, wback, 0b10); // into scratch, wback may be a live guest reg
                         MARK2;
                         LR_W(x1, x2, 1, 1);
-                        SLLIW(x3, x1, 16);
-                        SRLIW(x3, x3, 16);
+                        ZEXTH(x3, x1);
                         SRLIW(x1, x1, 16);
                         AND(x4, x1, x5);
                         SLLIW(x4, x4, 16);
@@ -615,14 +599,12 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         SRLIW(x3, x1, 16);
                         SLLIW(x3, x3, 16);
                         SUB(x4, x1, x5);
-                        SLLIW(x4, x4, 16);
-                        SRLIW(x4, x4, 16);
+                        ZEXTH(x4, x4);
                         OR(x4, x4, x3);
                         SC_W(x3, x4, wback, 1, 1);
                         BNEZ_MARKLOCK(x3);
                         IFXORNAT (X_ALL | X_PEND) {
-                            SLLIW(x1, x1, 16);
-                            SRLIW(x1, x1, 16);
+                            ZEXTH(x1, x1);
                         }
                         B_MARK3_nocond;
 
@@ -631,8 +613,7 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         XORI(x2, wback, 0b10);
                         MARKLOCK2;
                         LR_W(x1, x2, 1, 1);
-                        SLLIW(x3, x1, 16);
-                        SRLIW(x3, x3, 16);
+                        ZEXTH(x3, x1);
                         SRLIW(x1, x1, 16);
                         SUB(x4, x1, x5);
                         SLLIW(x4, x4, 16);
@@ -685,14 +666,12 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         SRLIW(x3, x1, 16);
                         SLLIW(x3, x3, 16);
                         XOR(x4, x1, x5);
-                        SLLIW(x4, x4, 16);
-                        SRLIW(x4, x4, 16);
+                        ZEXTH(x4, x4);
                         OR(x4, x4, x3);
                         SC_W(x3, x4, wback, 1, 1);
                         BNEZ_MARKLOCK(x3);
                         IFXORNAT (X_ALL | X_PEND) {
-                            SLLIW(x1, x1, 16);
-                            SRLIW(x1, x1, 16);
+                            ZEXTH(x1, x1);
                         }
                         B_MARK3_nocond;
 
@@ -701,8 +680,7 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         XORI(x2, wback, 0b10);
                         MARKLOCK2;
                         LR_W(x1, x2, 1, 1);
-                        SLLIW(x3, x1, 16);
-                        SRLIW(x3, x3, 16);
+                        ZEXTH(x3, x1);
                         SRLIW(x1, x1, 16);
                         XOR(x4, x1, x5);
                         SLLIW(x4, x4, 16);
@@ -780,8 +758,7 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         LR_W(x2, wback, 1, 1);
                         ZEXTH(x1, x2);
                         SUB(x4, xZR, x1);
-                        SLLIW(x4, x4, 16);
-                        SRLIW(x4, x4, 16);
+                        ZEXTH(x4, x4);
                         SRLIW(x2, x2, 16);
                         SLLIW(x2, x2, 16);
                         OR(x4, x4, x2);
@@ -796,8 +773,7 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         SRLIW(x1, x2, 16);
                         SUB(x4, xZR, x1);
                         SLLIW(x4, x4, 16);
-                        SLLIW(x2, x2, 16);
-                        SRLIW(x2, x2, 16);
+                        ZEXTH(x2, x2);
                         OR(x4, x4, x2);
                         SC_W(x5, x4, x3, 1, 1);
                         BNEZ_MARKLOCK2(x5);
@@ -834,14 +810,12 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         SRLIW(x3, x1, 16);
                         SLLIW(x3, x3, 16);
                         ADDIW(x4, x1, 1);
-                        SLLIW(x4, x4, 16);
-                        SRLIW(x4, x4, 16);
+                        ZEXTH(x4, x4);
                         OR(x4, x4, x3);
                         SC_W(x3, x4, wback, 1, 1);
                         BNEZ_MARKLOCK(x3);
                         IFXORNAT (X_ALL | X_PEND) {
-                            SLLIW(x1, x1, 16);
-                            SRLIW(x1, x1, 16);
+                            ZEXTH(x1, x1);
                         }
                         B_MARK3_nocond;
 
@@ -850,8 +824,7 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         XORI(x2, wback, 0b10);
                         MARK2;
                         LR_W(x1, x2, 1, 1);
-                        SLLIW(x3, x1, 16);
-                        SRLIW(x3, x3, 16);
+                        ZEXTH(x3, x1);
                         SRLIW(x1, x1, 16);
                         ADDIW(x4, x1, 1);
                         SLLIW(x4, x4, 16);
@@ -885,14 +858,12 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         SRLIW(x3, x1, 16);
                         SLLIW(x3, x3, 16);
                         ADDIW(x4, x1, -1);
-                        SLLIW(x4, x4, 16);
-                        SRLIW(x4, x4, 16);
+                        ZEXTH(x4, x4);
                         OR(x4, x4, x3);
                         SC_W(x3, x4, wback, 1, 1);
                         BNEZ_MARKLOCK(x3);
                         IFXORNAT (X_ALL | X_PEND) {
-                            SLLIW(x1, x1, 16);
-                            SRLIW(x1, x1, 16);
+                            ZEXTH(x1, x1);
                         }
                         B_MARK3_nocond;
 
@@ -901,8 +872,7 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         XORI(x2, wback, 0b10);
                         MARK2;
                         LR_W(x1, x2, 1, 1);
-                        SLLIW(x3, x1, 16);
-                        SRLIW(x3, x3, 16);
+                        ZEXTH(x3, x1);
                         SRLIW(x1, x1, 16);
                         ADDIW(x4, x1, -1);
                         SLLIW(x4, x4, 16);

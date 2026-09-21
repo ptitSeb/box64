@@ -672,8 +672,7 @@ SETMARK(d_adc16b);
     LHU(x2, xEmu, offsetof(x64emu_t, op1));
     LHU(x3, xEmu, offsetof(x64emu_t, op2));
     ADD(x4, x2, x3);
-    SLLI(x4, x4, 48);
-    SRLI(x4, x4, 48); // zext16(op1 + op2)
+    ZEXTH(x4, x4);
     SUB(x4, x1, x4);
     SNEZ(x4, x4); // detect the carry-in
     ADD(x1, x2, x3);
@@ -738,10 +737,8 @@ SETMARK(d_adc32b);
     ADDW(x4, x2, x3);
     SUBW(x4, x1, x4);
     SNEZ(x4, x4); // detect the carry-in
-    SLLI(x5, x2, 48);
-    SRLI(x5, x5, 48); // zext16(op1)
-    SLLI(x6, x3, 48);
-    SRLI(x6, x6, 48); // zext16(op2)
+    ZEXTH(x5, x2);
+    ZEXTH(x6, x3);
     ADD(x4, x4, x5);
     ADD(x4, x4, x6); // lo
     SRLI(x4, x4, 16); // carry out of the low 16 bits

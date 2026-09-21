@@ -1075,7 +1075,15 @@
 // Unsigned minimum
 #define MINU(rd, rs1, rs2) EMIT(R_type(0b0000101, rs2, rs1, 0b101, rd, 0b0110011))
 // Sign-extend byte
-#define SEXTB(rd, rs) EMIT(R_type(0b0110000, 0b00100, rs, 0b001, rd, 0b0010011))
+#define SEXTB_(rd, rs) EMIT(R_type(0b0110000, 0b00100, rs, 0b001, rd, 0b0010011))
+// Sign-extend byte
+#define SEXTB(rd, rs)        \
+    if (cpuext.zbb)          \
+        SEXTB_(rd, rs);      \
+    else {                   \
+        SLLI(rd, rs, 56);    \
+        SRAI(rd, rd, 56);    \
+    }
 // Sign-extend half-word
 #define SEXTH_(rd, rs) EMIT(R_type(0b0110000, 0b00101, rs, 0b001, rd, 0b0010011))
 // Sign-extend half-word

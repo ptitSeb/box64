@@ -822,8 +822,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x98:
             INST_NAME("CBW");
-            SLLI(x1, xRAX, 56);
-            SRAI(x1, x1, 56);
+            SEXTB(x1, xRAX);
             INSHz(xRAX, x1, x2, x3, 1, 1);
             break;
         case 0x99:

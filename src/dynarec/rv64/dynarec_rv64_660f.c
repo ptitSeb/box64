@@ -1505,8 +1505,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             SET_DFNONE();
             CLEAR_FLAGS();
             IFX (X_CF | X_OF) {
-                SLLI(x3, x2, 48);
-                SRAI(x3, x3, 48); // x3 = SignExtend16(result)
+                SEXTH(x3, x2); // x3 = SignExtend16(result)
                 XOR(x3, x3, x2);
                 SNEZ(x3, x3);
                 IFX (X_CF) OR(xFlags, xFlags, x3); // F_CF == 0
