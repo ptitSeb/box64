@@ -1165,14 +1165,20 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 wback = x5;
                 fixedaddress = 0;
             }
-            for (int i = 0; i < 4; ++i)
-                PACKSDW_FILL_ELEMENT(x3, SATw(x3, x6, x7), vback, vxoffset, i, gback, gdoffset, i);
+            for (int i = 0; i < 4; ++i) {
+                LW(x3, vback, vxoffset + i * 4);
+                SATw(x3, x6, x7);
+                SH(x3, gback, gdoffset + i * 2);
+            }
             if (vex.v == ed) {
                 LD(x3, gback, gdoffset + 0);
                 SD(x3, gback, gdoffset + 8);
             } else {
-                for (int i = 0; i < 4; ++i)
-                    PACKSDW_FILL_ELEMENT(x3, SATw(x3, x6, x7), wback, fixedaddress, i, gback, gdoffset, i + 4);
+                for (int i = 0; i < 4; ++i) {
+                    LW(x3, wback, fixedaddress + i * 4);
+                    SATw(x3, x6, x7);
+                    SH(x3, gback, gdoffset + (4 + i) * 2);
+                }
             }
             if (vex.l) {
                 GETEY();
@@ -1185,14 +1191,20 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                     wback = x5;
                     fixedaddress = 0;
                 }
-                for (int i = 0; i < 4; ++i)
-                    PACKSDW_FILL_ELEMENT(x3, SATw(x3, x6, x7), vback, vyoffset, i, gback, gyoffset, i);
+                for (int i = 0; i < 4; ++i) {
+                    LW(x3, vback, vyoffset + i * 4);
+                    SATw(x3, x6, x7);
+                    SH(x3, gback, gyoffset + i * 2);
+                }
                 if (vex.v == ed) {
                     LD(x3, gback, gyoffset + 0);
                     SD(x3, gback, gyoffset + 8);
                 } else {
-                    for (int i = 0; i < 4; ++i)
-                        PACKSDW_FILL_ELEMENT(x3, SATw(x3, x6, x7), wback, fixedaddress, i, gback, gyoffset, i + 4);
+                    for (int i = 0; i < 4; ++i) {
+                        LW(x3, wback, fixedaddress + i * 4);
+                        SATw(x3, x6, x7);
+                        SH(x3, gback, gyoffset + (4 + i) * 2);
+                    }
                 }
             } else
                 YMM0(gd);

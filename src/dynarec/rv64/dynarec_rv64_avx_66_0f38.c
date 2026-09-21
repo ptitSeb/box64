@@ -934,42 +934,49 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             GETGY();
             LUI(x5, 0x10); // 65536
             ADDIW(x5, x5, -1);
+#define PACKUSDW_FILL_ELEMENT(SRC, SOFF, DST, DOFF, I) \
+    do {                                          \
+        LW(x3, SRC, SOFF + (I) * 4);              \
+        SATUw(x3, x5);                            \
+        SH(x3, DST, DOFF + (I) * 2);              \
+    } while (0)
             if (MODREG && ed == vex.v) {
                 for (int i = 0; i < 4; ++i)
-                    PACKSDW_FILL_ELEMENT(x3, SATUw(x3, x5), vback, vxoffset, i, gback, gdoffset, i);
+                    PACKUSDW_FILL_ELEMENT(vback, vxoffset, gback, gdoffset, i);
                 LD(x3, gback, gdoffset);
                 SD(x3, gback, gdoffset + 8);
             } else if (MODREG && gd == ed) {
                 for (int i = 3; i >= 0; --i)
-                    PACKSDW_FILL_ELEMENT(x3, SATUw(x3, x5), wback, fixedaddress, i, gback, gdoffset + 8, i);
+                    PACKUSDW_FILL_ELEMENT(wback, fixedaddress, gback, gdoffset + 8, i);
                 for (int i = 0; i < 4; ++i)
-                    PACKSDW_FILL_ELEMENT(x3, SATUw(x3, x5), vback, vxoffset, i, gback, gdoffset, i);
+                    PACKUSDW_FILL_ELEMENT(vback, vxoffset, gback, gdoffset, i);
             } else {
                 for (int i = 0; i < 4; ++i)
-                    PACKSDW_FILL_ELEMENT(x3, SATUw(x3, x5), vback, vxoffset, i, gback, gdoffset, i);
+                    PACKUSDW_FILL_ELEMENT(vback, vxoffset, gback, gdoffset, i);
                 for (int i = 0; i < 4; ++i)
-                    PACKSDW_FILL_ELEMENT(x3, SATUw(x3, x5), wback, fixedaddress, i, gback, gdoffset + 8, i);
+                    PACKUSDW_FILL_ELEMENT(wback, fixedaddress, gback, gdoffset + 8, i);
             }
             if (vex.l) {
                 GETEY();
                 if (MODREG && ed == vex.v) {
                     for (int i = 0; i < 4; ++i)
-                        PACKSDW_FILL_ELEMENT(x3, SATUw(x3, x5), vback, vyoffset, i, gback, gyoffset, i);
+                        PACKUSDW_FILL_ELEMENT(vback, vyoffset, gback, gyoffset, i);
                     LD(x3, gback, gyoffset);
                     SD(x3, gback, gyoffset + 8);
                 } else if (MODREG && gd == ed) {
                     for (int i = 3; i >= 0; --i)
-                        PACKSDW_FILL_ELEMENT(x3, SATUw(x3, x5), wback, fixedaddress, i, gback, gyoffset + 8, i);
+                        PACKUSDW_FILL_ELEMENT(wback, fixedaddress, gback, gyoffset + 8, i);
                     for (int i = 0; i < 4; ++i)
-                        PACKSDW_FILL_ELEMENT(x3, SATUw(x3, x5), vback, vyoffset, i, gback, gyoffset, i);
+                        PACKUSDW_FILL_ELEMENT(vback, vyoffset, gback, gyoffset, i);
                 } else {
                     for (int i = 0; i < 4; ++i)
-                        PACKSDW_FILL_ELEMENT(x3, SATUw(x3, x5), vback, vyoffset, i, gback, gyoffset, i);
+                        PACKUSDW_FILL_ELEMENT(vback, vyoffset, gback, gyoffset, i);
                     for (int i = 0; i < 4; ++i)
-                        PACKSDW_FILL_ELEMENT(x3, SATUw(x3, x5), wback, fixedaddress, i, gback, gyoffset + 8, i);
+                        PACKUSDW_FILL_ELEMENT(wback, fixedaddress, gback, gyoffset + 8, i);
                 }
             } else
                 YMM0(gd);
+#undef PACKUSDW_FILL_ELEMENT
             break;
         case 0x30:
             INST_NAME("VPMOVZXBW Gx, Ex");
