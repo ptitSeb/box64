@@ -111,9 +111,8 @@ uintptr_t dynarec64_AVX_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t
             v2 = fpu_get_scratch(dyn);
             VID_V(q2, VECTOR_UNMASKED);
             VAND_VI(v1, q2, 4, VECTOR_UNMASKED);
-            VSRL_VI(v1, v1, 1, VECTOR_UNMASKED);
-            VSRL_VI(q2, q2, 1, VECTOR_UNMASKED);
             VADD_VV(q2, q2, v1, VECTOR_UNMASKED);
+            VSRL_VI(q2, q2, 1, VECTOR_UNMASKED);
             VRGATHER_VV(v1, q0, q2, VECTOR_UNMASKED);
             VRGATHER_VV(v2, q1, q2, VECTOR_UNMASKED);
             VECTOR_LOAD_VMASK(0xaa, x4, vex.l ? 2 : 1);
@@ -131,9 +130,8 @@ uintptr_t dynarec64_AVX_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t
             v2 = fpu_get_scratch(dyn);
             VID_V(q2, VECTOR_UNMASKED);
             VAND_VI(v1, q2, 4, VECTOR_UNMASKED);
-            VSRL_VI(v1, v1, 1, VECTOR_UNMASKED);
-            VSRL_VI(q2, q2, 1, VECTOR_UNMASKED);
             VADD_VV(q2, q2, v1, VECTOR_UNMASKED);
+            VSRL_VI(q2, q2, 1, VECTOR_UNMASKED);
             VADD_VI(q2, q2, 2, VECTOR_UNMASKED);
             VRGATHER_VV(v1, q0, q2, VECTOR_UNMASKED);
             VRGATHER_VV(v2, q1, q2, VECTOR_UNMASKED);

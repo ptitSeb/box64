@@ -2462,23 +2462,33 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             nextop = F8;
             GETEX(x2, 0, vex.l ? 28 : 12);
             GETGD;
-            ADDI(x6, xZR, 0);
-            for (int i = 0; i < 16; ++i) {
-                LBU(x4, wback, fixedaddress + i);
-                SRLI(x4, x4, 7);
-                SLLI(x4, x4, i);
-                OR(x6, x6, x4);
-            }
+            MOV64x(x5, 0x8080808080808080);
+            MOV64x(x6, 0x0002040810204081);
+            LD(x1, wback, fixedaddress + 0);
+            AND(x1, x1, x5);
+            MUL(x1, x1, x6);
+            SRLI(gd, x1, 56);
+            LD(x1, wback, fixedaddress + 8);
+            AND(x1, x1, x5);
+            MUL(x1, x1, x6);
+            SRLI(x1, x1, 56);
+            SLLI(x1, x1, 8);
+            OR(gd, gd, x1);
             if (vex.l) {
                 GETEY();
-                for (int i = 0; i < 16; ++i) {
-                    LBU(x4, wback, fixedaddress + i);
-                    SRLI(x4, x4, 7);
-                    SLLI(x4, x4, 16 + i);
-                    OR(x6, x6, x4);
-                }
+                LD(x1, wback, fixedaddress + 0);
+                AND(x1, x1, x5);
+                MUL(x1, x1, x6);
+                SRLI(x1, x1, 56);
+                SLLI(x1, x1, 16);
+                OR(gd, gd, x1);
+                LD(x1, wback, fixedaddress + 8);
+                AND(x1, x1, x5);
+                MUL(x1, x1, x6);
+                SRLI(x1, x1, 56);
+                SLLI(x1, x1, 24);
+                OR(gd, gd, x1);
             }
-            MV(gd, x6);
             break;
         case 0xD8:
             INST_NAME("VPSUBUSB Gx, Vx, Ex");
@@ -3351,10 +3361,14 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                     LBU(x3, gback, vyoffset + i);
                     LBU(x4, wback, fixedaddress + i);
                     SUBW(x3, x3, x4);
-                    SRAIW(x5, x3, 31);
-                    XOR(x3, x5, x3);
-                    SUBW(x3, x3, x5);
-                    ANDI(x3, x3, 0xff);
+                    if (cpuext.zbb) {
+                        NEG(x5, x3);
+                        MAX(x3, x3, x5);
+                    } else {
+                        SRAIW(x5, x3, 31);
+                        XOR(x3, x5, x3);
+                        SUBW(x3, x3, x5);
+                    }
                     ADDW(x6, x6, x3);
                     if (i == 7 || i == 15)
                         SD(x6, gback, gyoffset + i + 1 - 8);

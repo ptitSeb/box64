@@ -2845,11 +2845,16 @@ void avx_load_reg_vector(dynarec_rv64_t* dyn, int ninst, int s1, int vreg, int a
     if (low != vreg)
         VMV_V_V(vreg, low);
     if (width == 32) {
-        int upper = fpu_get_scratch(dyn);
-        ADDI(s1, xEmu, offsetof(x64emu_t, ymm[a]));
-        VLE8_V(upper, s1, VECTOR_UNMASKED, VECTOR_NFIELD1);
-        avx_set_vector_width(dyn, ninst, s1, VECTOR_SEW8, 32);
-        VSLIDEUP_VI(vreg, upper, 16, VECTOR_UNMASKED);
+        if (cpuext.vlen == 16) {
+            ADDI(s1, xEmu, offsetof(x64emu_t, ymm[a]));
+            VLE8_V(vreg + 1, s1, VECTOR_UNMASKED, VECTOR_NFIELD1);
+        } else {
+            int upper = fpu_get_scratch(dyn);
+            ADDI(s1, xEmu, offsetof(x64emu_t, ymm[a]));
+            VLE8_V(upper, s1, VECTOR_UNMASKED, VECTOR_NFIELD1);
+            avx_set_vector_width(dyn, ninst, s1, VECTOR_SEW8, 32);
+            VSLIDEUP_VI(vreg, upper, 16, VECTOR_UNMASKED);
+        }
     }
     avx_set_vector_width(dyn, ninst, s1, sew, width);
 }
@@ -2861,14 +2866,19 @@ void avx_store_reg_vector(dynarec_rv64_t* dyn, int ninst, int s1, int vreg, int 
     ADDI(s1, xEmu, offsetof(x64emu_t, xmm[a]));
     VSE8_V(vreg, s1, VECTOR_UNMASKED, VECTOR_NFIELD1);
     if (width == 32) {
-        int upper = (vreg == 1) ? 2 : 1;
-        // v1/v2 are also the fixed cache slots of MMX6/MMX7, so flush any live MMX cache there before using it as scratch
-        mmx_flush_reg_preserve_vtype(dyn, ninst, s1, upper == 1 ? 6 : 7);
-        avx_set_vector_width(dyn, ninst, s1, VECTOR_SEW8, 32);
-        VSLIDEDOWN_VI(upper, vreg, 16, VECTOR_UNMASKED);
-        avx_set_vector_width(dyn, ninst, s1, VECTOR_SEW8, 16);
-        ADDI(s1, xEmu, offsetof(x64emu_t, ymm[a]));
-        VSE8_V(upper, s1, VECTOR_UNMASKED, VECTOR_NFIELD1);
+        if (cpuext.vlen == 16) {
+            ADDI(s1, xEmu, offsetof(x64emu_t, ymm[a]));
+            VSE8_V(vreg + 1, s1, VECTOR_UNMASKED, VECTOR_NFIELD1);
+        } else {
+            int upper = (vreg == 1) ? 2 : 1;
+            // v1/v2 are also the fixed cache slots of MMX6/MMX7, so flush any live MMX cache there before using it as scratch
+            mmx_flush_reg_preserve_vtype(dyn, ninst, s1, upper == 1 ? 6 : 7);
+            avx_set_vector_width(dyn, ninst, s1, VECTOR_SEW8, 32);
+            VSLIDEDOWN_VI(upper, vreg, 16, VECTOR_UNMASKED);
+            avx_set_vector_width(dyn, ninst, s1, VECTOR_SEW8, 16);
+            ADDI(s1, xEmu, offsetof(x64emu_t, ymm[a]));
+            VSE8_V(upper, s1, VECTOR_UNMASKED, VECTOR_NFIELD1);
+        }
     } else {
         YMM0(a);
     }

@@ -1578,11 +1578,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             for (int i = 0; i < 4; ++i) {
                 // GX->ub[i] = (GX->sw[i]<0)?0:((GX->sw[i]>0xff)?0xff:GX->sw[i]);
                 LH(x3, gback, gdoffset + i * 2);
-                BGE(x5, x3, 8);
-                ADDI(x3, xZR, 0xFF);
-                NOT(x4, x3);
-                SRAI(x4, x4, 63);
-                AND(x3, x3, x4);
+                SATUw(x3, x5);
                 SB(x3, gback, gdoffset + i);
             }
             if (MODREG && gd == (nextop & 7)) {
@@ -1594,11 +1590,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 for (int i = 0; i < 4; ++i) {
                     // GX->ub[4+i] = (EX->sw[i]<0)?0:((EX->sw[i]>0xff)?0xff:EX->sw[i]);
                     LH(x3, wback, fixedaddress + i * 2);
-                    BGE(x5, x3, 8);
-                    ADDI(x3, xZR, 0xFF);
-                    NOT(x4, x3);
-                    SRAI(x4, x4, 63);
-                    AND(x3, x3, x4);
+                    SATUw(x3, x5);
                     SB(x3, gback, gdoffset + 4 + i);
                 }
             }
@@ -1669,16 +1661,12 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("PACKSSDW Gm,Em");
             nextop = F8;
             GETGM();
+            MOV64x(x5, 32767);
+            MOV64x(x6, -32768);
             for (int i = 0; i < 2; ++i) {
                 // GM->sw[i] = (GM->sd[i]<-32768)?-32768:((GM->sd[i]>32767)?32767:GM->sd[i]);
                 LW(x3, gback, gdoffset + i * 4);
-                LUI(x4, 0xFFFF8); // -32768
-                BGE(x3, x4, 12);
-                SH(x4, gback, gdoffset + i * 2);
-                J(20);      // continue
-                LUI(x4, 8); // 32768
-                BLT(x3, x4, 8);
-                ADDIW(x3, x4, -1);
+                SATw(x3, x6, x5);
                 SH(x3, gback, gdoffset + i * 2);
             }
             if (MODREG && gd == (nextop & 7)) {
@@ -1689,13 +1677,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 for (int i = 0; i < 2; ++i) {
                     // GM->sw[2+i] = (EM->sd[i]<-32768)?-32768:((EM->sd[i]>32767)?32767:EM->sd[i]);
                     LW(x3, wback, fixedaddress + i * 4);
-                    LUI(x4, 0xFFFF8); // -32768
-                    BGE(x3, x4, 12);
-                    SH(x4, gback, gdoffset + 4 + i * 2);
-                    J(20);      // continue
-                    LUI(x4, 8); // 32768
-                    BLT(x3, x4, 8);
-                    ADDIW(x3, x4, -1);
+                    SATw(x3, x6, x5);
                     SH(x3, gback, gdoffset + 4 + i * 2);
                 }
             }
@@ -2492,7 +2474,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         BEXTI(x3, ed, u8); // F_CF is 1
                         ANDI(xFlags, xFlags, ~1);
                         OR(xFlags, xFlags, x3);
-                        BSETI(ed, ed, u8);
+                        BSETI_(ed, ed, u8);
                     } else {
                         ORI(xFlags, xFlags, 1 << F_CF);
                         if (u8 <= 10) {
@@ -3485,10 +3467,14 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 LBU(x3, gback, gdoffset + i);
                 LBU(x4, wback, fixedaddress + i);
                 SUBW(x3, x3, x4);
-                SRAIW(x5, x3, 31);
-                XOR(x3, x5, x3);
-                SUBW(x3, x3, x5);
-                ANDI(x3, x3, 0xff);
+                if (cpuext.zbb) {
+                    NEG(x5, x3);
+                    MAX(x3, x3, x5);
+                } else {
+                    SRAIW(x5, x3, 31);
+                    XOR(x3, x5, x3);
+                    SUBW(x3, x3, x5);
+                }
                 ADDW(x6, x6, x3);
                 if (i == 7) {
                     SD(x6, gback, gdoffset + 0);

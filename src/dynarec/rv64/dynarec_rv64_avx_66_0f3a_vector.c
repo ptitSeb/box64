@@ -318,16 +318,13 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
                     VMV_V_V(q8, q1);
 
                 VID_V(q5, VECTOR_UNMASKED);
-                VMV_V_V(q6, q5);
+                VSRL_VI(q6, q5, 3, VECTOR_UNMASKED);
                 VAND_VI(q5, q5, 7, VECTOR_UNMASKED);
-                VSRL_VI(q6, q6, 3, VECTOR_UNMASKED);
                 VADD_VV(q5, q5, q6, VECTOR_UNMASKED);
-                if (pass)
-                    VADD_VI(q5, q5, ((u8 >> 5) & 1) * 4, VECTOR_UNMASKED);
-                else
-                    VADD_VI(q5, q5, ((u8 >> 2) & 1) * 4, VECTOR_UNMASKED);
-                MOV32w(x4, pass ? (((u8 >> 3) & 3) * 4) : ((u8 & 3) * 4));
-                VADD_VX(q6, q6, x4, VECTOR_UNMASKED);
+                int off5 = (pass ? ((u8 >> 5) & 1) : ((u8 >> 2) & 1)) * 4;
+                int off6 = (pass ? ((u8 >> 3) & 3) : (u8 & 3)) * 4;
+                if (off5) VADD_VI(q5, q5, off5, VECTOR_UNMASKED);
+                if (off6) VADD_VI(q6, q6, off6, VECTOR_UNMASKED);
 
                 VRGATHER_VV(q3, q7, q5, VECTOR_UNMASKED);
                 VRGATHER_VV(q4, q8, q6, VECTOR_UNMASKED);

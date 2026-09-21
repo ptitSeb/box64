@@ -428,9 +428,14 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             LBU(x4, AB, (aoff) + _k);         \
             LBU(x6, BB, (boff) + _k);         \
             SUBW(x4, x4, x6);                 \
-            SRAIW(x7, x4, 31);                \
-            XOR(x4, x4, x7);                  \
-            SUBW(x4, x4, x7);                 \
+            if (cpuext.zbb) {                 \
+                NEG(x7, x4);                  \
+                MAX(x4, x4, x7);              \
+            } else {                          \
+                SRAIW(x7, x4, 31);            \
+                XOR(x4, x4, x7);              \
+                SUBW(x4, x4, x7);             \
+            }                                 \
             ADD(acc, acc, x4);                \
         }                                     \
     } while (0)
@@ -452,9 +457,14 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             LBU(x4, AB, (aoff) + _k);         \
             LBU(x6, BB, (boff) + _k);         \
             SUBW(x4, x4, x6);                 \
-            SRAIW(x7, x4, 31);                \
-            XOR(x4, x4, x7);                  \
-            SUBW(x4, x4, x7);                 \
+            if (cpuext.zbb) {                 \
+                NEG(x7, x4);                  \
+                MAX(x4, x4, x7);              \
+            } else {                          \
+                SRAIW(x7, x4, 31);            \
+                XOR(x4, x4, x7);              \
+                SUBW(x4, x4, x7);             \
+            }                                 \
             ADD(acc, acc, x4);                \
         }                                     \
     } while (0)

@@ -52,8 +52,8 @@
     } while (0)
 #define ZEROUP(r) ZEXTW2(r, r)
 
-#define R_type(funct7, rs2, rs1, funct3, rd, opcode) ((funct7) << 25 | (rs2) << 20 | (rs1) << 15 | (funct3) << 12 | (rd) << 7 | (opcode))
-#define I_type(imm12, rs1, funct3, rd, opcode)       ((imm12) << 20 | (rs1) << 15 | (funct3) << 12 | (rd) << 7 | (opcode))
+#define R_type(funct7, rs2, rs1, funct3, rd, opcode) ((funct7) << 25 | (rs2) << 20 | ((rs1) & 0x1f) << 15 | (funct3) << 12 | (rd) << 7 | (opcode))
+#define I_type(imm12, rs1, funct3, rd, opcode)       ((imm12) << 20 | ((rs1) & 0x1f) << 15 | (funct3) << 12 | (rd) << 7 | (opcode))
 #define S_type(imm12, rs2, rs1, funct3, opcode)      (((imm12) >> 5) << 25 | (rs2) << 20 | (rs1) << 15 | (funct3) << 12 | ((imm12) & 31) << 7 | (opcode))
 #define B_type(imm13, rs2, rs1, funct3, opcode)      ((((imm13) >> 12) & 1) << 31 | (((imm13) >> 5) & 63) << 25 | (rs2) << 20 | (rs1) << 15 | (funct3) << 12 | (((imm13) >> 1) & 15) << 8 | (((imm13) >> 11) & 1) << 7 | (opcode))
 #define U_type(imm32, rd, opcode)                    (((imm32) >> 12) << 12 | (rd) << 7 | (opcode))
@@ -1258,7 +1258,18 @@
 // Single-bit Set (Register)
 #define BSET(rd, rs1, rs2) EMIT(R_type(0b0010100, rs2, rs1, 0b001, rd, 0b0110011))
 // Single-bit Set (Immediate)
-#define BSETI(rd, rs1, imm) EMIT(R_type(0b0010100, imm, rs1, 0b001, rd, 0b0010011))
+#define BSETI_(rd, rs1, imm) EMIT(R_type(0b0010100, imm, rs1, 0b001, rd, 0b0010011))
+// Single-bit Set (Immediate), with fallback (s0 is used as a scratch register)
+#define BSETI(rd, rs1, imm, s0)   \
+    do {                          \
+        if (cpuext.zbs)           \
+            BSETI_(rd, rs1, imm); \
+        else {                    \
+            ADDI(s0, xZR, 1);     \
+            SLLI(s0, s0, (imm));  \
+            OR(rd, rs1, s0);      \
+        }                         \
+    } while (0)
 
 // Single-bit Extract (Register)
 #define BEXT(rd, rs1, rs2, s0)              \
