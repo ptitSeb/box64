@@ -1286,8 +1286,7 @@ uintptr_t dynarec64_AVX_66_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             avx_load_reg_vector(dyn, ninst, x1, q0, vex.v, 16, VECTOR_SEW16);
             if (MODREG) {
                 ed = TO_NAT((nextop & 7) + (rex.b << 3));
-                SLLIW(x5, ed, 16);
-                SRLIW(x5, x5, 16);
+                ZEXTH(x5, ed);
             } else {
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 1);
@@ -1315,8 +1314,7 @@ uintptr_t dynarec64_AVX_66_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             q1 = fpu_get_scratch(dyn);
             VSLIDEDOWN_VI(q1, q0, u8 & 7, VECTOR_UNMASKED);
             VMV_X_S(x4, q1);
-            SLLIW(gd, x4, 16);
-            SRLIW(gd, gd, 16);
+            ZEXTH(gd, x4);
             break;
         case 0xD7:
             INST_NAME("VPMOVMSKB Gd, Ex");

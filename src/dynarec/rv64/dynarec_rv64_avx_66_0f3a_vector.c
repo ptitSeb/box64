@@ -643,13 +643,7 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             VSLIDEDOWN_VI(q1, q0, u8 & 15, VECTOR_UNMASKED);
             VMV_X_S(x4, q1);
             if (MODREG) {
-                if (rex.w) {
-                    SLLI(ed, x4, 56);
-                    SRLI(ed, ed, 56);
-                } else {
-                    SLLIW(ed, x4, 24);
-                    SRLIW(ed, ed, 24);
-                }
+                ANDI(ed, x4, 0xff);
             } else {
                 SB(x4, ed, fixedaddress);
                 SMWRITE2();

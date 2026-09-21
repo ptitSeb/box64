@@ -596,8 +596,7 @@ SETMARK(d_adc8);
     PUTFLAG(x5, F_ZF);
     AND(x4, x2, x3); // op1 & op2
     OR(x5, x2, x3); // op1 | op2
-    NOT(x6, x1);
-    AND(x6, x6, x5); // ~res & (op1 | op2)
+    ANDN(x6, x5, x1, x6); // ~res & (op1 | op2)
     OR(x4, x4, x6); // cc
     SRLI(x5, x4, 3);
     PUTFLAG(x5, F_AF);
@@ -628,8 +627,7 @@ SETMARK(d_adc8b);
     PUTFLAG(x5, F_ZF);
     AND(x4, x2, x3);
     OR(x5, x2, x3);
-    NOT(x6, x1);
-    AND(x6, x6, x5);
+    ANDN(x6, x5, x1, x6);
     OR(x4, x4, x6); // cc
     SRLI(x5, x4, 3);
     PUTFLAG(x5, F_AF);
@@ -654,8 +652,7 @@ SETMARK(d_adc16);
     PUTFLAG(x5, F_ZF);
     AND(x4, x2, x3);
     OR(x5, x2, x3);
-    NOT(x6, x1);
-    AND(x6, x6, x5);
+    ANDN(x6, x5, x1, x6);
     OR(x4, x4, x6); // cc
     SRLI(x5, x4, 3);
     PUTFLAG(x5, F_AF);
@@ -686,8 +683,7 @@ SETMARK(d_adc16b);
     PUTFLAG(x5, F_ZF);
     AND(x4, x2, x3);
     OR(x5, x2, x3);
-    NOT(x6, x1);
-    AND(x6, x6, x5);
+    ANDN(x6, x5, x1, x6);
     OR(x4, x4, x6); // cc
     SRLI(x5, x4, 3);
     PUTFLAG(x5, F_AF);
@@ -705,16 +701,14 @@ SETMARK(d_adc32);
     LWU(x3, xEmu, offsetof(x64emu_t, op2));
     SRLI(x4, x1, 32);
     PUTFLAG(x4, F_CF); // CF from bit 32 of the 33 bits result
-    SLLI(x4, x1, 32);
-    SRLI(x4, x4, 32); // res32
+    ZEXTW2(x4, x1); // res32
     SRLI(x5, x4, 31);
     PUTFLAG(x5, F_SF);
     SEQZ(x5, x4);
     PUTFLAG(x5, F_ZF);
     AND(x4, x2, x3);
     OR(x5, x2, x3);
-    NOT(x6, x1);
-    AND(x6, x6, x5);
+    ANDN(x6, x5, x1, x6);
     OR(x4, x4, x6); // cc
     SRLI(x5, x4, 3);
     PUTFLAG(x5, F_AF);
@@ -750,8 +744,7 @@ SETMARK(d_adc32b);
     PUTFLAG(x4, F_CF);
     AND(x4, x2, x3);
     OR(x5, x2, x3);
-    NOT(x6, x1);
-    AND(x6, x6, x5);
+    ANDN(x6, x5, x1, x6);
     OR(x4, x4, x6); // cc
     SRLI(x5, x4, 3);
     PUTFLAG(x5, F_AF);
@@ -787,8 +780,7 @@ SETMARK(d_adc64);
     PUTFLAG(x4, F_CF);
     AND(x4, x2, x3);
     OR(x5, x2, x3);
-    NOT(x6, x1);
-    AND(x6, x6, x5);
+    ANDN(x6, x5, x1, x6);
     OR(x4, x4, x6); // cc
     SRLI(x5, x4, 3);
     PUTFLAG(x5, F_AF);
@@ -808,11 +800,9 @@ SETMARK(d_sbb8);
     PUTFLAG(x4, F_SF);
     SEQZ(x4, x1);
     PUTFLAG(x4, F_ZF);
-    NOT(x4, x2);
-    OR(x4, x4, x3); // ~op1 | op2
+    ORN(x4, x3, x2, x4); // ~op1 | op2
     AND(x4, x4, x1); // res & (~op1 | op2)
-    NOT(x5, x2);
-    AND(x5, x5, x3); // ~op1 & op2
+    ANDN(x5, x3, x2, x5); // ~op1 & op2
     OR(x4, x4, x5); // bc
     SRLI(x5, x4, 7);
     PUTFLAG(x5, F_CF);
@@ -834,11 +824,9 @@ SETMARK(d_sbb16);
     PUTFLAG(x4, F_SF);
     SEQZ(x4, x1);
     PUTFLAG(x4, F_ZF);
-    NOT(x4, x2);
-    OR(x4, x4, x3);
+    ORN(x4, x3, x2, x4);
     AND(x4, x4, x1);
-    NOT(x5, x2);
-    AND(x5, x5, x3);
+    ANDN(x5, x3, x2, x5);
     OR(x4, x4, x5); // bc
     SRLI(x5, x4, 15);
     PUTFLAG(x5, F_CF);
@@ -860,11 +848,9 @@ SETMARK(d_sbb32);
     PUTFLAG(x4, F_SF);
     SEQZ(x4, x1);
     PUTFLAG(x4, F_ZF);
-    NOT(x4, x2);
-    OR(x4, x4, x3);
+    ORN(x4, x3, x2, x4);
     AND(x4, x4, x1);
-    NOT(x5, x2);
-    AND(x5, x5, x3);
+    ANDN(x5, x3, x2, x5);
     OR(x4, x4, x5); // bc
     SRLI(x5, x4, 31);
     PUTFLAG(x5, F_CF);
@@ -886,11 +872,9 @@ SETMARK(d_sbb64);
     PUTFLAG(x4, F_SF);
     SEQZ(x4, x1);
     PUTFLAG(x4, F_ZF);
-    NOT(x4, x2);
-    OR(x4, x4, x3);
+    ORN(x4, x3, x2, x4);
     AND(x4, x4, x1);
-    NOT(x5, x2);
-    AND(x5, x5, x3);
+    ANDN(x5, x3, x2, x5);
     OR(x4, x4, x5); // bc
     SRLI(x5, x4, 63);
     PUTFLAG(x5, F_CF);

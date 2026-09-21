@@ -3135,12 +3135,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETEM(x2, 0, 1);
             LD(x1, gback, gdoffset);
             LD(x3, wback, fixedaddress);
-            if (cpuext.zbb) {
-                ANDN(x1, x3, x1);
-            } else {
-                NOT(x1, x1);
-                AND(x1, x1, x3);
-            }
+            ANDN(x1, x3, x1, x1);
             SD(x1, gback, gdoffset);
             break;
         case 0xE0:

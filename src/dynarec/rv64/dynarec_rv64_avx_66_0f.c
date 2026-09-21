@@ -341,15 +341,8 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             LD(x4, wback, fixedaddress + 8);
             LD(x5, vback, vxoffset + 0);
             LD(x6, vback, vxoffset + 8);
-            if (cpuext.zbb) {
-                ANDN(x5, x3, x5);
-                ANDN(x6, x4, x6);
-            } else {
-                NOT(x5, x5);
-                NOT(x6, x6);
-                AND(x5, x5, x3);
-                AND(x6, x6, x4);
-            }
+            ANDN(x5, x3, x5, x5);
+            ANDN(x6, x4, x6, x6);
             SD(x5, gback, gdoffset + 0);
             SD(x6, gback, gdoffset + 8);
             if (vex.l) {
@@ -358,15 +351,8 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 LD(x4, wback, fixedaddress + 8);
                 LD(x5, vback, vyoffset + 0);
                 LD(x6, vback, vyoffset + 8);
-                if (cpuext.zbb) {
-                    ANDN(x5, x3, x5);
-                    ANDN(x6, x4, x6);
-                } else {
-                    NOT(x5, x5);
-                    NOT(x6, x6);
-                    AND(x5, x5, x3);
-                    AND(x6, x6, x4);
-                }
+                ANDN(x5, x3, x5, x5);
+                ANDN(x6, x4, x6, x6);
                 SD(x5, gback, gyoffset + 0);
                 SD(x6, gback, gyoffset + 8);
             } else
@@ -2754,8 +2740,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             for (int i = 0; i < 2; ++i) {
                 LD(x3, vback, vxoffset + 8 * i);
                 LD(x4, wback, fixedaddress + 8 * i);
-                NOT(x3, x3);
-                AND(x3, x3, x4);
+                ANDN(x3, x4, x3, x3);
                 SD(x3, gback, gdoffset + 8 * i);
             }
             if (vex.l) {
@@ -2763,8 +2748,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 for (int i = 0; i < 2; ++i) {
                     LD(x3, vback, vyoffset + 8 * i);
                     LD(x4, wback, fixedaddress + 8 * i);
-                    NOT(x3, x3);
-                    AND(x3, x3, x4);
+                    ANDN(x3, x4, x3, x3);
                     SD(x3, gback, gyoffset + 8 * i);
                 }
             } else

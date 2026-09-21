@@ -1862,8 +1862,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             }
             LUI(x5, 0xffff0);
             AND(gd, gd, x5);
-            NOT(x5, x5);
-            AND(x1, x1, x5);
+            ANDN(x1, x1, x5, x5);
             OR(gd, gd, x1);
             break;
         case 0xC1:

@@ -528,25 +528,21 @@ uintptr_t dynarec64_AVX_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
             GETVY();
             LD(x3, vback, vxoffset + 0);
             LD(x4, wback, fixedaddress + 0);
-            NOT(x3, x3);
-            AND(x5, x3, x4);
+            ANDN(x5, x4, x3, x3);
             SD(x5, gback, gdoffset + 0);
             LD(x3, vback, vxoffset + 8);
             LD(x4, wback, fixedaddress + 8);
-            NOT(x3, x3);
-            AND(x5, x3, x4);
+            ANDN(x5, x4, x3, x3);
             SD(x5, gback, gdoffset + 8);
             if (vex.l) {
                 GETEY();
                 LD(x3, vback, vyoffset + 0);
                 LD(x4, wback, fixedaddress + 0);
-                NOT(x3, x3);
-                AND(x5, x3, x4);
+                ANDN(x5, x4, x3, x3);
                 SD(x5, gback, gyoffset + 0);
                 LD(x3, vback, vyoffset + 8);
                 LD(x4, wback, fixedaddress + 8);
-                NOT(x3, x3);
-                AND(x5, x3, x4);
+                ANDN(x5, x4, x3, x3);
                 SD(x5, gback, gyoffset + 8);
             } else
                 YMM0(gd);

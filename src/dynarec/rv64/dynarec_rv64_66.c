@@ -1015,8 +1015,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
             u16 = F16;
             MOV32w(x2, u16);
-            SLLIW(x1, xRAX, 16);
-            SRLIW(x1, x1, 16);
+            ZEXTH(x1, xRAX);
             emit_test16(dyn, ninst, x1, x2, x3, x4, x5);
             break;
         case 0xAB:
