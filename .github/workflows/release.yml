@@ -37,7 +37,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [X64, RISCV, RK3588, ARM64, ANDROID, TERMUX, LARCH64, PPC64LE, ANDROID_GLIBC, WOW64]
+        platform: [X64, RISCV, RK3588, ARM64, ANDROID, TERMUX, LARCH64, PPC64LE, ANDROID_GLIBC, WOW64, ARM64EC]
         type: [Release, Trace, StaticBuild, Box32]
         exclude:
           - platform: ANDROID
@@ -56,6 +56,12 @@ jobs:
             type: StaticBuild
           - platform: WOW64
             type: Box32
+          - platform: ARM64EC
+            type: Box32
+          - platform: ARM64EC
+            type: Trace
+          - platform: ARM64EC
+            type: StaticBuild
           - platform: ANDROID
             type: Trace
           - platform: TERMUX
@@ -93,6 +99,9 @@ jobs:
             os: ubuntu-22.04-arm
 
           - platform: WOW64
+            os: ubuntu-22.04-arm
+
+          - platform: ARM64EC
             os: ubuntu-22.04-arm
 
     runs-on: ${{ matrix.os }}
@@ -196,6 +205,14 @@ jobs:
             elif [[ ${{ matrix.platform }} == 'WOW64' ]]; then
               sudo apt-get -y install git gcc-aarch64-linux-gnu
               echo "BOX64_PLATFORM_MARCRO=-DWOW64=1 -DARM_DYNAREC=1 -DNOBOX64=1" >> $GITHUB_ENV
+              echo "BOX64_COMPILER=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
+              export LLVM_MINGW_VERSION=20260616
+              wget -q https://github.com/mstorsjo/llvm-mingw/releases/download/${LLVM_MINGW_VERSION}/llvm-mingw-${LLVM_MINGW_VERSION}-ucrt-ubuntu-22.04-aarch64.tar.xz
+              tar -xf llvm-mingw-${LLVM_MINGW_VERSION}-ucrt-ubuntu-22.04-aarch64.tar.xz
+              echo "MINGW_COMPILER_PATH=$PWD/llvm-mingw-${LLVM_MINGW_VERSION}-ucrt-ubuntu-22.04-aarch64/bin" >> $GITHUB_ENV
+            elif [[ ${{ matrix.platform }} == 'ARM64EC' ]]; then
+              sudo apt-get -y install git gcc-aarch64-linux-gnu
+              echo "BOX64_PLATFORM_MARCRO=-DARM64EC=1 -DARM_DYNAREC=1 -DNOBOX64=1" >> $GITHUB_ENV
               echo "BOX64_COMPILER=aarch64-linux-gnu-gcc" >> $GITHUB_ENV
               export LLVM_MINGW_VERSION=20260616
               wget -q https://github.com/mstorsjo/llvm-mingw/releases/download/${LLVM_MINGW_VERSION}/llvm-mingw-${LLVM_MINGW_VERSION}-ucrt-ubuntu-22.04-aarch64.tar.xz
