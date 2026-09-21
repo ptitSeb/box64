@@ -827,8 +827,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x99:
             INST_NAME("CWD");
-            SLLI(x1, xRAX, 48);
-            SRAI(x1, x1, 48);
+            SEXTH(x1, xRAX);
             SRLI(x1, x1, 48);
             SRLI(xRDX, xRDX, 16);
             SLLI(xRDX, xRDX, 16);
@@ -1520,14 +1519,12 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     INST_NAME("IMUL AX, Ew");
                     SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
                     GETSEW(x1, 0);
-                    SLLI(x2, xRAX, 16);
-                    SRAIW(x2, x2, 16);
+                    SEXTH(x2, xRAX);
                     MULW(x1, x2, x1);
                     SET_DFNONE();
                     CLEAR_FLAGS();
                     IFX (X_CF | X_OF) {
-                        SLLI(x3, x1, 48);
-                        SRAI(x3, x3, 48); // x3 = SignExtend16(result)
+                        SEXTH(x3, x1); // x3 = SignExtend16(result)
                         XOR(x3, x3, x1);
                         SNEZ(x3, x3);
                         IFX (X_CF) OR(xFlags, xFlags, x3); // F_CF == 0

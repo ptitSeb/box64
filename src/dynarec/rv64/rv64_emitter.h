@@ -1077,13 +1077,17 @@
 // Sign-extend byte
 #define SEXTB_(rd, rs) EMIT(R_type(0b0110000, 0b00100, rs, 0b001, rd, 0b0010011))
 // Sign-extend byte
-#define SEXTB(rd, rs)        \
-    if (cpuext.zbb)          \
-        SEXTB_(rd, rs);      \
-    else {                   \
-        SLLI(rd, rs, 56);    \
-        SRAI(rd, rd, 56);    \
-    }
+#define SEXTB(rd, rs)             \
+    do {                          \
+        if (cpuext.zbb)           \
+            SEXTB_(rd, rs);       \
+        else if (cpuext.xtheadbb) \
+            TH_EXT(rd, rs, 7, 0); \
+        else {                    \
+            SLLI(rd, rs, 56);     \
+            SRAI(rd, rd, 56);     \
+        }                         \
+    } while (0)
 // Sign-extend half-word
 #define SEXTH_(rd, rs) EMIT(R_type(0b0110000, 0b00101, rs, 0b001, rd, 0b0010011))
 // Sign-extend half-word
