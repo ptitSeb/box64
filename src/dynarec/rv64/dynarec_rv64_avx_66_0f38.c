@@ -935,16 +935,11 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             LUI(x5, 0x10); // 65536
             ADDIW(x5, x5, -1);
             if (MODREG && ed == vex.v) {
-                // If gd == ed == vex.v, the high 64 bits and low 64 bits of
-                // the final gd value are identical.
                 for (int i = 0; i < 4; ++i)
                     PACKSDW_FILL_ELEMENT(x3, SATUw(x3, x5), vback, vxoffset, i, gback, gdoffset, i);
                 LD(x3, gback, gdoffset);
                 SD(x3, gback, gdoffset + 8);
             } else if (MODREG && gd == ed) {
-                // If gd == ed, process register ed first by writing the high
-                // 64-bit portion, to avoid corrupting ed's value when writing
-                // the low 64 bits.
                 for (int i = 3; i >= 0; --i)
                     PACKSDW_FILL_ELEMENT(x3, SATUw(x3, x5), wback, fixedaddress, i, gback, gdoffset + 8, i);
                 for (int i = 0; i < 4; ++i)
