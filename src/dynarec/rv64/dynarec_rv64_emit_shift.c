@@ -109,8 +109,7 @@ void emit_shr8c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
     }
     IFX (X_CF) {
         if (c > 1) {
-            SRAI(s3, s1, c - 1);
-            ANDI(s3, s3, 1); // LSB == F_CF
+            BEXTI(s3, s1, c - 1); // LSB == F_CF
         } else {
             // no need to shift
             ANDI(s3, s1, 1); // LSB == F_CF
@@ -155,8 +154,7 @@ void emit_sar8c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
     }
     IFX (X_CF) {
         if (c > 1) {
-            SRAI(s3, s1, c - 1);
-            ANDI(s3, s3, 1); // LSB == F_CF
+            BEXTI(s3, s1, c - 1); // LSB == F_CF
         } else {
             // no need to shift
             ANDI(s3, s1, 1); // LSB == F_CF
@@ -250,8 +248,12 @@ void emit_shr8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
 
     IFX (X_CF) {
         SUBI(s3, s2, 1);
-        SRA(s3, s1, s3);
-        ANDI(s3, s3, 1); // LSB == F_CF
+        if (cpuext.zbs) {
+            BEXT_(s3, s1, s3);
+        } else {
+            SRA(s3, s1, s3);
+            ANDI(s3, s3, 1); // LSB == F_CF
+        }
         OR(xFlags, xFlags, s3);
     }
     IFX (X_OF) {
@@ -292,8 +294,12 @@ void emit_sar8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
     }
     IFX (X_CF) {
         SUBI(s3, s2, 1);
-        SRA(s3, s1, s3);
-        ANDI(s3, s3, 1); // LSB == F_CF
+        if (cpuext.zbs) {
+            BEXT_(s3, s1, s3);
+        } else {
+            SRA(s3, s1, s3);
+            ANDI(s3, s3, 1); // LSB == F_CF
+        }
         OR(xFlags, xFlags, s3);
     }
     // For the SAR instruction, the OF flag is cleared for all 1-bit shifts.
@@ -406,8 +412,7 @@ void emit_shr16c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int
     }
     IFX (X_CF) {
         if (c > 1) {
-            SRAI(s3, s1, c - 1);
-            ANDI(s3, s3, 1); // LSB == F_CF
+            BEXTI(s3, s1, c - 1); // LSB == F_CF
         } else {
             // no need to shift
             ANDI(s3, s1, 1); // LSB == F_CF
@@ -453,8 +458,7 @@ void emit_sar16c(dynarec_rv64_t* dyn, int ninst, int s1, uint32_t c, int s3, int
     }
     IFX (X_CF) {
         if (c > 1) {
-            SRAI(s3, s1, c - 1);
-            ANDI(s3, s3, 1); // LSB == F_CF
+            BEXTI(s3, s1, c - 1); // LSB == F_CF
         } else {
             // no need to shift
             ANDI(s3, s1, 1); // LSB == F_CF
@@ -548,8 +552,12 @@ void emit_shr16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
 
     IFX (X_CF) {
         SUBI(s3, s2, 1);
-        SRA(s3, s1, s3);
-        ANDI(s3, s3, 1); // LSB == F_CF
+        if (cpuext.zbs) {
+            BEXT_(s3, s1, s3);
+        } else {
+            SRA(s3, s1, s3);
+            ANDI(s3, s3, 1); // LSB == F_CF
+        }
         OR(xFlags, xFlags, s3);
     }
     IFX (X_OF) {
@@ -591,8 +599,12 @@ void emit_sar16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
     }
     IFX (X_CF) {
         SUBI(s3, s2, 1);
-        SRA(s3, s1, s3);
-        ANDI(s3, s3, 1); // LSB == F_CF
+        if (cpuext.zbs) {
+            BEXT_(s3, s1, s3);
+        } else {
+            SRA(s3, s1, s3);
+            ANDI(s3, s3, 1); // LSB == F_CF
+        }
         OR(xFlags, xFlags, s3);
     }
     // For the SAR instruction, the OF flag is cleared for all 1-bit shifts.
@@ -641,8 +653,12 @@ void emit_shl32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     IFX (X_CF) {
         SUBI(s5, s2, rex.w ? 64 : 32);
         NEG(s5, s5);
-        SRL(s3, s1, s5);
-        ANDI(s5, s3, 1); // LSB == F_CF
+        if (cpuext.zbs) {
+            BEXT_(s5, s1, s5);
+        } else {
+            SRL(s3, s1, s5);
+            ANDI(s5, s3, 1); // LSB == F_CF
+        }
         OR(xFlags, xFlags, s5);
     }
 
@@ -741,8 +757,12 @@ void emit_shr32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 
     IFX (X_CF) {
         SUBI(s3, s2, 1);
-        SRA(s3, s1, s3);
-        ANDI(s3, s3, 1); // LSB == F_CF
+        if (cpuext.zbs) {
+            BEXT_(s3, s1, s3);
+        } else {
+            SRA(s3, s1, s3);
+            ANDI(s3, s3, 1); // LSB == F_CF
+        }
         OR(xFlags, xFlags, s3);
     }
     IFX (X_OF) {
@@ -792,8 +812,7 @@ void emit_shr32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
     }
     IFX (X_CF) {
         if (c > 1) {
-            SRAI(s3, s1, c - 1);
-            ANDI(s3, s3, 1); // LSB == F_CF
+            BEXTI(s3, s1, c - 1); // LSB == F_CF
         } else {
             // no need to shift
             ANDI(s3, s1, 1); // LSB == F_CF
@@ -854,8 +873,7 @@ void emit_sar32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
     }
     IFX (X_CF) {
         if (c > 1) {
-            SRAI(s3, s1, c - 1);
-            ANDI(s3, s3, 1); // LSB == F_CF
+            BEXTI(s3, s1, c - 1); // LSB == F_CF
         } else {
             // no need to shift
             ANDI(s3, s1, 1); // LSB == F_CF
@@ -1258,8 +1276,12 @@ void emit_rcl8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
     IFX (X_CF) {
         ANDI(xFlags, xFlags, ~(1UL << F_CF));
         ADDI(s5, s4, -1);
-        SRL(s5, s1, s5); // CF = bit(8-cnt) of the original
-        ANDI(s5, s5, 1);
+        if (cpuext.zbs) {
+            BEXT_(s5, s1, s5); // CF = bit(8-cnt) of the original
+        } else {
+            SRL(s5, s1, s5); // CF = bit(8-cnt) of the original
+            ANDI(s5, s5, 1);
+        }
         OR(xFlags, xFlags, s5);
     }
     SRL(s1, s1, s4);
@@ -1310,8 +1332,12 @@ void emit_rcr8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
     IFX (X_CF) {
         ANDI(xFlags, xFlags, ~(1UL << F_CF));
         ADDI(s5, s2, -1);
-        SRL(s5, s1, s5); // CF = bit(cnt-1) of the original
-        ANDI(s5, s5, 1);
+        if (cpuext.zbs) {
+            BEXT_(s5, s1, s5); // CF = bit(cnt-1) of the original
+        } else {
+            SRL(s5, s1, s5); // CF = bit(cnt-1) of the original
+            ANDI(s5, s5, 1);
+        }
         OR(xFlags, xFlags, s5);
     }
     SRL(s1, s1, s2);
@@ -1416,8 +1442,12 @@ void emit_rcl16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
     IFX (X_CF) {
         ANDI(xFlags, xFlags, ~(1UL << F_CF));
         ADDI(s5, s4, -1);
-        SRL(s5, s1, s5); // CF = bit(16-cnt) of the original
-        ANDI(s5, s5, 1);
+        if (cpuext.zbs) {
+            BEXT_(s5, s1, s5); // CF = bit(16-cnt) of the original
+        } else {
+            SRL(s5, s1, s5); // CF = bit(16-cnt) of the original
+            ANDI(s5, s5, 1);
+        }
         OR(xFlags, xFlags, s5);
     }
     SRL(s1, s1, s4);
@@ -1458,8 +1488,12 @@ void emit_rcr16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
     IFX (X_CF) {
         ANDI(xFlags, xFlags, ~(1UL << F_CF));
         ADDI(s5, s2, -1);
-        SRL(s5, s1, s5); // CF = bit(cnt-1) of the original
-        ANDI(s5, s5, 1);
+        if (cpuext.zbs) {
+            BEXT_(s5, s1, s5); // CF = bit(cnt-1) of the original
+        } else {
+            SRL(s5, s1, s5); // CF = bit(cnt-1) of the original
+            ANDI(s5, s5, 1);
+        }
         OR(xFlags, xFlags, s5);
     }
     SRL(s1, s1, s2);
@@ -1569,8 +1603,12 @@ void emit_rcl32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         ANDI(xFlags, xFlags, ~(1UL << F_CF));
         ADDI(s4, xZR, rex.w ? 64 : 32);
         SUB(s4, s4, s2);
-        SRL(s4, s1, s4);
-        ANDI(s4, s4, 1);
+        if (cpuext.zbs) {
+            BEXT_(s4, s1, s4);
+        } else {
+            SRL(s4, s1, s4);
+            ANDI(s4, s4, 1);
+        }
         OR(xFlags, xFlags, s4);
     }
 
@@ -1611,8 +1649,12 @@ void emit_rcr32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     IFX (X_CF) {
         ANDI(xFlags, xFlags, ~(1UL << F_CF));
         ADDI(s5, s2, -1);
-        SRL(s5, s1, s5);
-        ANDI(s5, s5, 1);
+        if (cpuext.zbs) {
+            BEXT_(s5, s1, s5);
+        } else {
+            SRL(s5, s1, s5);
+            ANDI(s5, s5, 1);
+        }
         OR(xFlags, xFlags, s5);
     }
 
@@ -1796,8 +1838,7 @@ void emit_shrd32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uin
     }
     IFX (X_CF) {
         if (c > 1) {
-            SRAI(s3, s1, c - 1);
-            ANDI(s3, s3, 1); // LSB == F_CF
+            BEXTI(s3, s1, c - 1); // LSB == F_CF
         } else {
             ANDI(s3, s1, 1); // LSB == F_CF
         }
@@ -1870,8 +1911,7 @@ void emit_shrd16c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uin
 
     IFX (X_CF) {
         if (c > 1) {
-            SRAI(s3, s1, c - 1);
-            ANDI(s3, s3, 1); // LSB == F_CF
+            BEXTI(s3, s1, c - 1); // LSB == F_CF
         } else {
             // no need to shift
             ANDI(s3, s1, 1); // LSB == F_CF
@@ -1966,8 +2006,12 @@ void emit_shrd32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int 
     }
     IFX (X_CF) {
         SUBI(s3, s5, 1);
-        SRA(s3, s1, s3);
-        ANDI(s3, s3, 1); // LSB == F_CF
+        if (cpuext.zbs) {
+            BEXT_(s3, s1, s3);
+        } else {
+            SRA(s3, s1, s3);
+            ANDI(s3, s3, 1); // LSB == F_CF
+        }
         OR(xFlags, xFlags, s3);
     }
     IFX (X_OF) {
@@ -2017,8 +2061,12 @@ void emit_shld32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int 
     MOV32w(s3, (rex.w ? 64 : 32));
     SUB(s3, s3, s5);
     IFX (X_CF) {
-        SRL(s4, s1, s3);
-        ANDI(s4, s4, 1); // LSB == F_CF
+        if (cpuext.zbs) {
+            BEXT_(s4, s1, s3);
+        } else {
+            SRL(s4, s1, s3);
+            ANDI(s4, s4, 1); // LSB == F_CF
+        }
         OR(xFlags, xFlags, s4);
     }
     IFX (X_OF) {
@@ -2147,8 +2195,12 @@ void emit_shld16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4,
     IFX (X_CF) {
         SLLI(s5, s1, 16);
         OR(s4, s2, s5);
-        SRLW(s5, s4, s6);
-        ANDI(s5, s5, 1); // LSB == F_CF
+        if (cpuext.zbs) {
+            BEXT_(s5, s4, s6);
+        } else {
+            SRLW(s5, s4, s6);
+            ANDI(s5, s5, 1); // LSB == F_CF
+        }
         OR(xFlags, xFlags, s5);
     }
     // create concat first
@@ -2203,8 +2255,12 @@ void emit_shrd16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4,
 
     IFX (X_CF) {
         ADDIW(s5, s3, -1);
-        SRLW(s5, s1, s5);
-        ANDI(s5, s5, 1); // LSB == F_CF
+        if (cpuext.zbs) {
+            BEXT_(s5, s1, s5);
+        } else {
+            SRLW(s5, s1, s5);
+            ANDI(s5, s5, 1); // LSB == F_CF
+        }
         OR(xFlags, xFlags, s5);
     }
 

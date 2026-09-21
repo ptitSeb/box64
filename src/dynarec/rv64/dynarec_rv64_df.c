@@ -144,8 +144,7 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     FRFLAGS(x5); // get back FPSR to check the IOC bit
                     ANDI(x5, x5, 1 << FR_NV);
                     BNEZ_MARK(x5);
-                    SLLIW(x5, x4, 16);
-                    SRAIW(x5, x5, 16);
+                    SEXTH(x5, x4);
                     BEQ_MARK2(x5, x4);
                     MARK;
                     MOV32w(x4, 0x8000);
@@ -172,8 +171,7 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     FRFLAGS(x5); // get back FPSR to check the IOC bit
                     ANDI(x5, x5, 1 << FR_NV);
                     BNEZ_MARK(x5);
-                    SLLIW(x5, x4, 16);
-                    SRAIW(x5, x5, 16);
+                    SEXTH(x5, x4);
                     BEQ_MARK2(x5, x4);
                     MARK;
                     MOV32w(x4, 0x8000);
@@ -199,8 +197,7 @@ uintptr_t dynarec64_DF(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     FRFLAGS(x5); // get back FPSR to check the IOC bit
                     ANDI(x5, x5, 1 << FR_NV);
                     BNEZ_MARK(x5);
-                    SLLIW(x5, x4, 16);
-                    SRAIW(x5, x5, 16);
+                    SEXTH(x5, x4);
                     BEQ_MARK2(x5, x4);
                     MARK;
                     MOV32w(x4, 0x8000);

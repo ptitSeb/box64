@@ -230,8 +230,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 // AL == m8, r8 is loaded into m8
                                 ADDI(x2, xZR, 0xff);
                                 SLL(x2, x2, x5);
-                                NOT(x2, x2);
-                                AND(x2, x1, x2);
+                                ANDN(x2, x1, x2, x2);
                                 if (gb2) {
                                     SRLI(x1, gb1, 8);
                                     ANDI(x1, x1, 0xff);
@@ -334,8 +333,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         ADDI(x4, xZR, 1);
                         ANDI(x2, gd, rex.w ? 0x3f : 0x1f);
                         SLL(x4, x4, x2);
-                        NOT(x4, x4);
-                        AND(ed, ed, x4);
+                        ANDN(ed, ed, x4, x4);
                         SCxw(x7, ed, wback, 1, 1);
                         BNEZ_MARKLOCK(x7);
                     }

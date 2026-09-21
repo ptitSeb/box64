@@ -298,8 +298,7 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                     v0 = fpu_get_scratch(dyn);
                     v1 = fpu_get_scratch(dyn);
                     ADDI(x4, xZR, 0b000010000111);
-                    VMV_V_X(v0, x4); // broadcast the mask
-                    VAND_VV(v0, q1, v0, VECTOR_UNMASKED);
+                    VAND_VX(v0, q1, x4, VECTOR_UNMASKED);
                     VRGATHER_VV(v1, q0, v0, VECTOR_UNMASKED); // registers cannot be overlapped!!
                     VMV_V_V(q0, v1);
                     break;

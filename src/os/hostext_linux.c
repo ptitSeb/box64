@@ -92,7 +92,7 @@ void rv64Detect(void)
         cpuext.zba = Check(my_block);
         // Test Zbb with ANDN
         block = (uint32_t*)my_block;
-        ANDN(A0, A0, A1);
+        ANDN_(A0, A0, A1);
         ADDI(A0, xZR, 42);
         BR(xRA);
         cpuext.zbb = Check(my_block);

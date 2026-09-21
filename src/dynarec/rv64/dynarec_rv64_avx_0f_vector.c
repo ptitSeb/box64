@@ -432,8 +432,7 @@ uintptr_t dynarec64_AVX_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t
                         SRLIW(x6, x4, 3);
                         ANDI(x6, x6, 2);
                         OR(x3, x3, x6);
-                        SRLIW(x6, x4, 5);
-                        ANDI(x6, x6, 1);
+                        BEXTI(x6, x4, 5);
                         OR(x3, x3, x6);
                         CSRRW(xZR, x3, /* fflags */ 0x001);
                     }

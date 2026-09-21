@@ -574,8 +574,7 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             if (rex.w) {
                 SEXT_W(xRAX, xRAX);
             } else {
-                SLLI(xRAX, xRAX, 16);
-                SRAIW(xRAX, xRAX, 16);
+                SEXTH(xRAX, xRAX);
                 ZEROUP(xRAX);
             }
             break;

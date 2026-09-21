@@ -569,15 +569,13 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             if (u8 & 0b1000000) {
                 if (u8 & 1) {
                     for (int i = 0; i < 8; ++i) {
-                        SRLI(x2, x1, i);
-                        ANDI(x2, x2, 1);
+                        BEXTI(x2, x1, i);
                         SUB(x2, xZR, x2);
                         SH(x2, xEmu, offsetof(x64emu_t, xmm[0]) + 2 * i);
                     }
                 } else {
                     for (int i = 0; i < 16; ++i) {
-                        SRLI(x2, x1, i);
-                        ANDI(x2, x2, 1);
+                        BEXTI(x2, x1, i);
                         SUB(x2, xZR, x2);
                         SB(x2, xEmu, offsetof(x64emu_t, xmm[0]) + i);
                     }

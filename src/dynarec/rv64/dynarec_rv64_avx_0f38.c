@@ -64,12 +64,7 @@ uintptr_t dynarec64_AVX_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, 
             GETGD;
             GETED(0);
             GETVD;
-            if (cpuext.zbb) {
-                ANDN(gd, ed, vd);
-            } else {
-                NOT(x5, vd);
-                AND(gd, ed, x5);
-            }
+            ANDN(gd, ed, vd, x5);
             if (!rex.w) {
                 ZEROUP(gd);
             }
@@ -188,12 +183,7 @@ uintptr_t dynarec64_AVX_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, 
             BGE_MARK(x4, x5);
             ADDI(x6, xZR, -1);
             SLL(x6, x6, x4);
-            if (cpuext.zbb) {
-                ANDN(gd, ed, x6);
-            } else {
-                NOT(x6, x6);
-                AND(gd, ed, x6);
-            }
+            ANDN(gd, ed, x6, x6);
             B_MARK2_nocond;
             MARK;
             MV(gd, ed);

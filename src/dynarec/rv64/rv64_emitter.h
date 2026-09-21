@@ -978,11 +978,31 @@
 
 // Zbb
 //  AND with reverted operand (rs1 & ~rs2)
-#define ANDN(rd, rs1, rs2) EMIT(R_type(0b0100000, rs2, rs1, 0b111, rd, 0b0110011))
+#define ANDN_(rd, rs1, rs2) EMIT(R_type(0b0100000, rs2, rs1, 0b111, rd, 0b0110011))
 // OR with reverted operand (rs1 | ~rs2)
-#define ORN(rd, rs1, rs2) EMIT(R_type(0b0100000, rs2, rs1, 0b110, rd, 0b0110011))
+#define ORN_(rd, rs1, rs2) EMIT(R_type(0b0100000, rs2, rs1, 0b110, rd, 0b0110011))
 // Exclusive NOR (~(rs1 ^ rs2))
 #define XNOR(rd, rs1, rs2) EMIT(R_type(0b0100000, rs2, rs1, 0b100, rd, 0b0110011))
+// AND with reverted operand, with fallback (s0 is used as a scratch register)
+#define ANDN(rd, rs1, rs2, s0)   \
+    do {                         \
+        if (cpuext.zbb)          \
+            ANDN_(rd, rs1, rs2); \
+        else {                   \
+            NOT(s0, rs2);        \
+            AND(rd, rs1, s0);    \
+        }                        \
+    } while (0)
+// OR with reverted operand, with fallback (s0 is used as a scratch register)
+#define ORN(rd, rs1, rs2, s0)    \
+    do {                         \
+        if (cpuext.zbb)          \
+            ORN_(rd, rs1, rs2);  \
+        else {                   \
+            NOT(s0, rs2);        \
+            OR(rd, rs1, s0);     \
+        }                        \
+    } while (0)
 // Count leading zero bits
 #define CLZ(rd, rs) EMIT(R_type(0b0110000, 0b00000, rs, 0b001, rd, 0b0010011))
 // Count leading zero bits in word
@@ -1075,7 +1095,19 @@
 // Unsigned minimum
 #define MINU(rd, rs1, rs2) EMIT(R_type(0b0000101, rs2, rs1, 0b101, rd, 0b0110011))
 // Sign-extend byte
-#define SEXTB(rd, rs) EMIT(R_type(0b0110000, 0b00100, rs, 0b001, rd, 0b0010011))
+#define SEXTB_(rd, rs) EMIT(R_type(0b0110000, 0b00100, rs, 0b001, rd, 0b0010011))
+// Sign-extend byte
+#define SEXTB(rd, rs)             \
+    do {                          \
+        if (cpuext.zbb)           \
+            SEXTB_(rd, rs);       \
+        else if (cpuext.xtheadbb) \
+            TH_EXT(rd, rs, 7, 0); \
+        else {                    \
+            SLLI(rd, rs, 56);     \
+            SRAI(rd, rd, 56);     \
+        }                         \
+    } while (0)
 // Sign-extend half-word
 #define SEXTH_(rd, rs) EMIT(R_type(0b0110000, 0b00101, rs, 0b001, rd, 0b0010011))
 // Sign-extend half-word

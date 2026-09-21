@@ -239,7 +239,7 @@
             wback = TO_NAT(wback & 3);                                                          \
         }                                                                                       \
         if (cpuext.zbb && (wb2 == 0)) {                                                         \
-            SEXTB(i, wback);                                                                    \
+            SEXTB_(i, wback);                                                                   \
         } else {                                                                                \
             MV(i, wback);                                                                       \
             SLLIW(i, i, 24 - wb2);                                                              \
@@ -2008,12 +2008,7 @@ uintptr_t dynarec64_AVX_F3_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
     }                                                            \
     IFX (X_CF | X_PF | X_ZF | X_PEND) {                          \
         MOV32w(s2, 0b01000101);                                  \
-        if (cpuext.zbb) {                                        \
-            ANDN(xFlags, xFlags, s2);                            \
-        } else {                                                 \
-            NOT(s3, s2);                                         \
-            AND(xFlags, xFlags, s3);                             \
-        }                                                        \
+        ANDN(xFlags, xFlags, s2, s3);                            \
         FEQ##w(s5, v1, v1);                                      \
         FEQ##w(s4, v2, v2);                                      \
         AND(s5, s5, s4);                                         \
