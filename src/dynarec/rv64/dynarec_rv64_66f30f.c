@@ -106,13 +106,7 @@ uintptr_t dynarec64_66F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
                 SEQZ(x3, ed);
                 OR(xFlags, xFlags, x3); // F_CF at bit0.
             }
-            if (cpuext.zbs) {
-                BSETI(x6, ed, 16);
-            } else {
-                ADDI(x6, xZR, 1);
-                SLLI(x6, x6, 16);
-                OR(x6, ed, x6);
-            }
+            BSETI(x6, ed, 16, x6);
             if (cpuext.zbb) {
                 CTZW(gd, x6);
             } else {

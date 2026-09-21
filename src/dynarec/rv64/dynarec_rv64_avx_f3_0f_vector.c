@@ -307,9 +307,9 @@ uintptr_t dynarec64_AVX_F3_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             VMV_V_V(q2, q0);
             for (int k = 0; k < 4; ++k) {
                 VECTOR_LOAD_VMASK(vex.l ? ((1 << (4 + k)) | (1 << (12 + k))) : (1 << (4 + k)), x4, vex.l ? 2 : 1);
-                MOV32w(x4, (int8_t)((u8 >> (k * 2)) & 3) - k);
-                VADD_VX(d0, q0, x4, VECTOR_UNMASKED);
-                VMERGE_VVM(q2, q2, d0);
+                int delta = (int8_t)((u8 >> (k * 2)) & 3) - k;
+                if (delta) VADD_VI(d0, q0, delta, VECTOR_UNMASKED);
+                VMERGE_VVM(q2, q2, delta ? d0 : q0);
             }
             VRGATHER_VV(v0, q1, q2, VECTOR_UNMASKED);
             PUTGY_vector(v0, VECTOR_SEW16);

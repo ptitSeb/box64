@@ -1144,11 +1144,9 @@ void emit_ror8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     }
 
     ANDI(s4, s2, 7);
-    SRL(s3, s1, s4);
-    SUB(s4, xZR, s4);
-    ADDI(s4, s4, 8);
-    SLL(s1, s1, s4);
-    OR(s1, s1, s3);
+    SLLI(s3, s1, 8);
+    OR(s3, s3, s1);
+    SRL(s1, s3, s4);
     ANDI(s1, s1, 0xff);
 
     IFX (X_CF) {
@@ -1236,23 +1234,13 @@ void emit_rcl8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
     int64_t j64;
     SET_DFNONE();
 
-    // s2 %= 9 (s2 is 0..31)
+    // s2 %= 9 (s2 is 0..31): q = (s2 * 57) >> 9, s2 -= 9 * q
+    ADDI(s3, xZR, 57);
+    MUL(s4, s2, s3);
+    SRLI(s4, s4, 9);
     ADDI(s3, xZR, 9);
-    SLTU(s4, s2, s3);
-    XORI(s4, s4, 1);
-    SLLI(s5, s4, 3);
-    ADD(s4, s4, s5);
-    SUB(s2, s2, s4);
-    SLTU(s4, s2, s3);
-    XORI(s4, s4, 1);
-    SLLI(s5, s4, 3);
-    ADD(s4, s4, s5);
-    SUB(s2, s2, s4);
-    SLTU(s4, s2, s3);
-    XORI(s4, s4, 1);
-    SLLI(s5, s4, 3);
-    ADD(s4, s4, s5);
-    SUB(s2, s2, s4);
+    MUL(s5, s4, s3);
+    SUB(s2, s2, s5);
     BEQ_NEXT(s2, xZR);
 
     IFX (X_OF) {
@@ -1295,23 +1283,13 @@ void emit_rcr8(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
     int64_t j64;
     SET_DFNONE();
 
-    // s2 %= 9 (s2 is 0..31)
+    // s2 %= 9 (s2 is 0..31): q = (s2 * 57) >> 9, s2 -= 9 * q
+    ADDI(s3, xZR, 57);
+    MUL(s4, s2, s3);
+    SRLI(s4, s4, 9);
     ADDI(s3, xZR, 9);
-    SLTU(s4, s2, s3);
-    XORI(s4, s4, 1);
-    SLLI(s5, s4, 3);
-    ADD(s4, s4, s5);
-    SUB(s2, s2, s4);
-    SLTU(s4, s2, s3);
-    XORI(s4, s4, 1);
-    SLLI(s5, s4, 3);
-    ADD(s4, s4, s5);
-    SUB(s2, s2, s4);
-    SLTU(s4, s2, s3);
-    XORI(s4, s4, 1);
-    SLLI(s5, s4, 3);
-    ADD(s4, s4, s5);
-    SUB(s2, s2, s4);
+    MUL(s5, s4, s3);
+    SUB(s2, s2, s5);
     BEQ_NEXT(s2, xZR);
 
     IFX (X_OF) {
@@ -1391,11 +1369,9 @@ void emit_ror16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4)
     }
 
     ANDI(s4, s2, 15);
-    SRL(s3, s1, s4);
-    SUB(s4, xZR, s4);
-    ADDI(s4, s4, 16);
-    SLL(s1, s1, s4);
-    OR(s1, s1, s3);
+    SLLI(s3, s1, 16);
+    OR(s3, s3, s1);
+    SRL(s1, s3, s4);
     ZEXTH(s1, s1);
 
     IFX (X_CF) {
@@ -1413,12 +1389,10 @@ void emit_rcl16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
     SET_DFNONE();
 
     // s2 %= 17 (s2 is 0..31)
-    ADDI(s3, xZR, 17);
-    SLTU(s4, s2, s3);
-    XORI(s4, s4, 1);
-    SLLI(s5, s4, 4);
-    ADD(s4, s4, s5);
-    SUB(s2, s2, s4);
+    ADDI(s4, s2, -17);
+    SRAI(s5, s4, 63);
+    ANDI(s5, s5, 17);
+    ADD(s2, s4, s5);
     BEQ_NEXT(s2, xZR);
 
     IFX (X_OF) {
@@ -1462,12 +1436,10 @@ void emit_rcr16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
     SET_DFNONE();
 
     // s2 %= 17 (s2 is 0..31)
-    ADDI(s3, xZR, 17);
-    SLTU(s4, s2, s3);
-    XORI(s4, s4, 1);
-    SLLI(s5, s4, 4);
-    ADD(s4, s4, s5);
-    SUB(s2, s2, s4);
+    ADDI(s4, s2, -17);
+    SRAI(s5, s4, 63);
+    ANDI(s5, s5, 17);
+    ADD(s2, s4, s5);
     BEQ_NEXT(s2, xZR);
 
     IFX (X_OF) {
