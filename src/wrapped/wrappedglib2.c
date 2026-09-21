@@ -50,6 +50,7 @@ typedef void (*vFppippDpDC_t)(void*, void*, int32_t, void*, void*, double, void*
 
 #include "wrappercallback.h"
 
+// registration type only; real signature is source-specific, at most "pip"
 typedef int (*GSourceFunc) (void* user_data);
 
 typedef struct my_GSourceFuncs_s {
@@ -323,10 +324,10 @@ static void* findSpawnChildSetupFct(void* fct)
 }
 // GSourceFunc ...
 #define GO(A)   \
-static uintptr_t my_GSourceFunc_fct_##A = 0;                    \
-static int my_GSourceFunc_##A(void* a)                          \
-{                                                               \
-    return (int)RunFunctionFmt(my_GSourceFunc_fct_##A, "p", a); \
+static uintptr_t my_GSourceFunc_fct_##A = 0;                            \
+static int my_GSourceFunc_##A(void* a, int b, void* c)                  \
+{                                                                       \
+    return (int)RunFunctionFmt(my_GSourceFunc_fct_##A, "pip", a, b, c); \
 }
 SUPER()
 #undef GO

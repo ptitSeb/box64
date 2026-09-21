@@ -357,6 +357,15 @@ void* getBridgeFnc2(void* addr)
     return NULL;
 }
 
+int isBridgeAddress(uintptr_t addr)
+{
+    if(!addr || (addr & (sizeof(onebridge_t)-1))) return 0;
+    if(!memExist(addr)) return 0;
+    if(!(getProtection(addr)&PROT_READ)) return 0;
+    onebridge_t* one = (onebridge_t*)addr;
+    return (one->CC == 0xCC && IsBridgeSignature(one->S, one->C) && (one->C3 == 0xC3 || one->C3 == 0xC2));
+}
+
 void init_bridge_helper()
 {
 }

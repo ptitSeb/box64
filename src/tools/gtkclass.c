@@ -159,12 +159,16 @@ static RET my_##NAME##_##A DEF              \
     return (RET)RunFunctionFmt(my_##NAME##_fct_##A, FMT, __VA_ARGS__);\
 }
 
-#define FIND(A, NAME) \
-static void* find_##NAME##_##A(wrapper_t W, void* fct)                            \
-{                                                                                 \
-    if(!fct) return fct;                                                          \
-    void* tmp = GetNativeFnc((uintptr_t)fct);                                     \
-    if(tmp) {AddAutomaticBridge(my_bridge, W, fct, 0, #NAME "_" #A); return tmp;} \
+#define FIND(A, NAME)                                               \
+static void* find_##NAME##_##A(wrapper_t W, void* fct)              \
+{                                                                   \
+    if(!fct) return fct;                                            \
+    void* tmp = GetNativeFnc((uintptr_t)fct);                       \
+    if(tmp) {                                                       \
+        if(!isBridgeAddress((uintptr_t)tmp))                        \
+            AddAutomaticBridge(my_bridge, W, tmp, 0, #NAME "_" #A); \
+        return tmp;                                                 \
+    }                                                               \
     if(my_##NAME##_##A##_fct_0 == (uintptr_t)fct) return my_##NAME##_##A##_0;     \
     if(my_##NAME##_##A##_fct_1 == (uintptr_t)fct) return my_##NAME##_##A##_1;     \
     if(my_##NAME##_##A##_fct_2 == (uintptr_t)fct) return my_##NAME##_##A##_2;     \
