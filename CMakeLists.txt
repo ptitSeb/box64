@@ -50,6 +50,7 @@ option(BOX32_BINFMT "Also setup binfmt integration for box32" ${BOX32_BINFMT})
 option(LARCH64_ABI_1 "Set to ON if building for Loongarch64 ABI 1.0 system" ${LARCH64_ABI_1})
 option(GDBJIT "Set to ON to enable GDB JIT support" ${GDBJIT})
 option(WOW64 "Set to ON if you want a WOW64 PE build in addition")
+option(ARM64EC "Set to ON to build Box64EC PE DLL module (no emulation yet)" OFF)
 option(BOX64_KDE_PROFILE_PLUGIN "Build the Dolphin/KIO Box64 profile properties plugin when KF5 or KF6 is available" OFF)
 option(BUNDLE_X86_LIBS "Set to ON to download and install the x86 and x86_64 libraries bundle from the latest GitHub release during the install" OFF)
 
@@ -1665,6 +1666,20 @@ if(WOW64 AND ARM_DYNAREC)
         BUILD_ALWAYS ON
     )
     add_dependencies(wowbox64 generate_git_head_target)
+endif()
+
+if(ARM64EC)
+    include(ExternalProject)
+    ExternalProject_Add(
+        box64ec
+        SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/wine/box64ec"
+        CMAKE_ARGS
+            -DCMAKE_TOOLCHAIN_FILE=${CMAKE_CURRENT_SOURCE_DIR}/wine/toolchain_mingw_arm64ec.cmake
+            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+        INSTALL_COMMAND ""
+        TEST_COMMAND ""
+        BUILD_ALWAYS ON
+    )
 endif()
 
 if(NOT NOBOX64)
