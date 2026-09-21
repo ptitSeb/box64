@@ -1422,9 +1422,13 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 ANDI(xFlags, xFlags, ~1);
                 OR(xFlags, xFlags, x4);
             }
-            ADDI(x4, xZR, 1);
-            SLL(x4, x4, x2);
-            OR(ed, ed, x4);
+            if (cpuext.zbs) {
+                BSET(ed, ed, x2);
+            } else {
+                ADDI(x4, xZR, 1);
+                SLL(x4, x4, x2);
+                OR(ed, ed, x4);
+            }
             if (wback) {
                 SH(ed, wback, fixedaddress);
                 SMWRITE();
@@ -1557,10 +1561,14 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 ANDI(xFlags, xFlags, ~1);
                 OR(xFlags, xFlags, x4);
             }
-            ADDI(x4, xZR, 1);
-            SLL(x4, x4, x2);
-            NOT(x4, x4);
-            AND(ed, ed, x4);
+            if (cpuext.zbs) {
+                BCLR(ed, ed, x2);
+            } else {
+                ADDI(x4, xZR, 1);
+                SLL(x4, x4, x2);
+                NOT(x4, x4);
+                AND(ed, ed, x4);
+            }
             if (wback) {
                 SH(ed, wback, fixedaddress);
                 SMWRITE();
@@ -1626,19 +1634,28 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     GETEW(x1, 1);
                     u8 = F8;
                     u8 &= (rex.w ? 0x3f : 0x0f);
-                    IFX (X_CF) ORI(xFlags, xFlags, 1 << F_CF);
-                    if (u8 <= 10) {
-                        ANDI(x6, ed, 1 << u8);
-                        BNE_MARK(x6, xZR);
-                        IFX (X_CF) ANDI(xFlags, xFlags, ~(1 << F_CF));
-                        XORI(ed, ed, 1 << u8);
+                    if (cpuext.zbs) {
+                        IFX (X_CF) {
+                            BEXTI(x6, ed, u8); // F_CF is 1
+                            ANDI(xFlags, xFlags, ~1);
+                            OR(xFlags, xFlags, x6);
+                        }
+                        BSETI(ed, ed, u8);
                     } else {
-                        ORI(x6, xZR, 1);
-                        SLLI(x6, x6, u8);
-                        AND(x4, ed, x6);
-                        BNE_MARK(x4, xZR);
-                        IFX (X_CF) ANDI(xFlags, xFlags, ~(1 << F_CF));
-                        XOR(ed, ed, x6);
+                        IFX (X_CF) ORI(xFlags, xFlags, 1 << F_CF);
+                        if (u8 <= 10) {
+                            ANDI(x6, ed, 1 << u8);
+                            BNE_MARK(x6, xZR);
+                            IFX (X_CF) ANDI(xFlags, xFlags, ~(1 << F_CF));
+                            XORI(ed, ed, 1 << u8);
+                        } else {
+                            ORI(x6, xZR, 1);
+                            SLLI(x6, x6, u8);
+                            AND(x4, ed, x6);
+                            BNE_MARK(x4, xZR);
+                            IFX (X_CF) ANDI(xFlags, xFlags, ~(1 << F_CF));
+                            XOR(ed, ed, x6);
+                        }
                     }
                     EWBACK;
                     MARK;
@@ -1654,19 +1671,28 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     GETEW(x1, 1);
                     u8 = F8;
                     u8 &= (rex.w ? 0x3f : 0x0f);
-                    IFX (X_CF) ANDI(xFlags, xFlags, ~(1 << F_CF));
-                    if (u8 <= 10) {
-                        ANDI(x6, ed, 1 << u8);
-                        BEQ_MARK(x6, xZR);
-                        IFX (X_CF) ORI(xFlags, xFlags, 1 << F_CF);
-                        XORI(ed, ed, 1 << u8);
+                    if (cpuext.zbs) {
+                        IFX (X_CF) {
+                            BEXTI(x6, ed, u8); // F_CF is 1
+                            ANDI(xFlags, xFlags, ~1);
+                            OR(xFlags, xFlags, x6);
+                        }
+                        BCLI(ed, ed, u8);
                     } else {
-                        ORI(x6, xZR, 1);
-                        SLLI(x6, x6, u8);
-                        AND(x6, ed, x6);
-                        BEQ_MARK(x6, xZR);
-                        IFX (X_CF) ORI(xFlags, xFlags, 1 << F_CF);
-                        XOR(ed, ed, x6);
+                        IFX (X_CF) ANDI(xFlags, xFlags, ~(1 << F_CF));
+                        if (u8 <= 10) {
+                            ANDI(x6, ed, 1 << u8);
+                            BEQ_MARK(x6, xZR);
+                            IFX (X_CF) ORI(xFlags, xFlags, 1 << F_CF);
+                            XORI(ed, ed, 1 << u8);
+                        } else {
+                            ORI(x6, xZR, 1);
+                            SLLI(x6, x6, u8);
+                            AND(x6, ed, x6);
+                            BEQ_MARK(x6, xZR);
+                            IFX (X_CF) ORI(xFlags, xFlags, 1 << F_CF);
+                            XOR(ed, ed, x6);
+                        }
                     }
                     MARK;
                     EWBACK;
@@ -1687,7 +1713,9 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         ANDI(xFlags, xFlags, ~1);
                         OR(xFlags, xFlags, x6);
                     }
-                    if (u8 <= 10) {
+                    if (cpuext.zbs) {
+                        BINVI(ed, ed, u8);
+                    } else if (u8 <= 10) {
                         XORI(ed, ed, (1LL << u8));
                     } else {
                         MOV64xw(x6, (1LL << u8));
@@ -1734,9 +1762,13 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 ANDI(xFlags, xFlags, ~1);
                 OR(xFlags, xFlags, x4);
             }
-            ADDI(x4, xZR, 1);
-            SLL(x4, x4, x2);
-            XOR(ed, ed, x4);
+            if (cpuext.zbs) {
+                BINV(ed, ed, x2);
+            } else {
+                ADDI(x4, xZR, 1);
+                SLL(x4, x4, x2);
+                XOR(ed, ed, x4);
+            }
             if (wback) {
                 SH(ed, wback, fixedaddress);
                 SMWRITE();
