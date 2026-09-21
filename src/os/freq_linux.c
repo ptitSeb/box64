@@ -19,6 +19,7 @@ static size_t readBinarySizeFromFile(const char* fname)
 
     char b[sizeof(uint64_t)] = { 0 }, tmp;
     ssize_t n = fread(b, 1, sizeof(b), fp);
+    fclose(fp);
     if (n <= 0) return -1;
 
     for (ssize_t i = 0; i < n / 2; i++) {
