@@ -2351,9 +2351,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             GETGX_vector(q0, 0, VECTOR_SEW8);
             GETEX_vector(q1, 0, 0, VECTOR_SEW8);
             q2 = fpu_get_scratch(dyn);
-            VMV_V_V(q2, q1);
-            VSRL_VI(q2, q2, 7, VECTOR_UNMASKED);
-            VMSNE_VX(VMASK, q2, xZR, VECTOR_UNMASKED);
+            VMSLT_VX(VMASK, q1, xZR, VECTOR_UNMASKED);
             VLE8_V(q2, xRDI, VECTOR_UNMASKED, VECTOR_NFIELD1);
             VMERGE_VVM(q2, q2, q0);
             VSE8_V(q2, xRDI, VECTOR_UNMASKED, VECTOR_NFIELD1);
