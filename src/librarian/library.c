@@ -326,6 +326,12 @@ static int loadEmulatedLib(const char* libname, library_t *lib, box64context_t* 
             return 0;
         }
 
+        if(elf_header->e_type!=ET_DYN) {
+            printf_log(LOG_NONE, "Error: elf %s is not of type DT_DYN\n", libname);
+            FreeElfHeader(&elf_header);
+            return 0;
+        }
+
         if(CalcLoadAddr(elf_header)) {
             printf_log(LOG_NONE, "Error: reading elf header of %s\n", libname);
             FreeElfHeader(&elf_header);
