@@ -2376,28 +2376,51 @@ static int shm_unlink(const char *name) {
 #define TMP_CPUCACHE_ASSOC "box64_cpucacheassoc"
 #define TMP_CPUCACHE_COHER "box64_cpucachecoher"
 #define TMP_CPUCACHE_SIZE "box64_cpucachesize"
-EXPORT int32_t my_open(x64emu_t* emu, void* pathname, int32_t flags, uint32_t mode)
+
+enum {
+    FOPEN_TYPE = 0,
+    FOPEN64_TYPE,
+    OPEN_TYPE,
+    OPEN64_TYPE
+} OPEN_CALL_TYPE;
+
+static int32_t open_func_fallback(char *pathname, int32_t flags, uint32_t open_mode, char *fopen_mode, int type, FILE **file)
 {
-    if(!pathname) {
-        errno = EFAULT;
-        return -1;
+    if (type == FOPEN64_TYPE) {
+        *file = fopen64(pathname, fopen_mode);
+        return 0;
+    } else if (type == FOPEN_TYPE) {
+        *file = fopen(pathname, fopen_mode);
+        return 0;
+    } else if (type == OPEN_TYPE) {
+        return open(pathname, flags, open_mode);
+    } else if (type == OPEN64_TYPE) {
+        return open64(pathname, flags, open_mode);
     }
-    if(isProcSelf((const char*) pathname, "cmdline")) {
-        // special case for self command line...
-        #if 0
-        char tmpcmdline[200] = {0};
-        char tmpbuff[100] = {0};
-        sprintf(tmpbuff, "%s/cmdlineXXXXXX", getenv("TMP")?getenv("TMP"):".");
-        int tmp = mkstemp(tmpbuff);
-        int dummy;
-        if(tmp<0) return open(pathname, flags, mode);
-        dummy = write(tmp, emu->context->fullpath, strlen(emu->context->fullpath)+1);
-        for (int i=1; i<emu->context->argc; ++i)
-            dummy = write(tmp, emu->context->argv[i], strlen(emu->context->argv[i])+1);
-        lseek(tmp, 0, SEEK_SET);
-        #else
+    return -1;
+}
+
+static int32_t shm_fdopen(int fd, char *fopen_mode, int type, FILE **file)
+{
+   if (type == FOPEN_TYPE || type == FOPEN64_TYPE) {
+        *file = fdopen(fd, fopen_mode);
+        return 0;
+   }
+   return fd;
+}
+
+int32_t open_special_case(x64emu_t* emu, void* pathname, int32_t flags, uintptr_t mode, int type, FILE **file)
+{
+    int cpu, index;
+    char *fopen_mode = (char *)mode;
+    uint32_t open_mode = (uint32_t)mode;
+
+    if(isProcSelf((const char*)pathname, "exe")) {
+        return open_func_fallback(emu->context->fullpath, flags, open_mode, fopen_mode, type, file);
+    }
+    if(isProcSelf((const char*)pathname, "cmdline")) {
         int tmp = shm_open(TMP_CMDLINE, O_RDWR | O_CREAT, S_IRWXU);
-        if(tmp<0) return open(pathname, flags, mode);
+        if(tmp<0) return open_func_fallback(pathname, flags, open_mode, fopen_mode, type, file);
         shm_unlink(TMP_CMDLINE);    // remove the shm file, but it will still exist because it's currently in use
         int dummy = write(tmp, emu->context->fullpath, strlen(emu->context->fullpath)+1);
         (void)dummy;
@@ -2405,75 +2428,84 @@ EXPORT int32_t my_open(x64emu_t* emu, void* pathname, int32_t flags, uint32_t mo
             if(emu->context->argv[i])
                 dummy = write(tmp, emu->context->argv[i], strlen(emu->context->argv[i])+1);
         lseek(tmp, 0, SEEK_SET);
-        #endif
-        return tmp;
+        return shm_fdopen(tmp, fopen_mode, type, file);
     }
-    if(isProcSelf((const char*)pathname, "exe")) {
-        return open(emu->context->fullpath, flags, mode);
+    if(isProcSelf(pathname, "maps")) {
+        // special case for self memory map
+        int tmp = shm_open(TMP_MEMMAP, O_RDWR | O_CREAT, S_IRWXU);
+        if(tmp<0) return open_func_fallback(pathname, flags, open_mode, fopen_mode, type, file);
+        shm_unlink(TMP_MEMMAP);    // remove the shm file, but it will still exist because it's currently in use
+        CreateMemorymapFile(emu->context, tmp);
+        lseek(tmp, 0, SEEK_SET);
+        return shm_fdopen(tmp, fopen_mode, type, file);
     }
     #ifndef NOALIGN
     if(strcmp((const char*)pathname, "/proc/cpuinfo")==0) {
         // special case for cpuinfo
         int tmp = shm_open(TMP_CPUINFO, O_RDWR | O_CREAT, S_IRWXU);
-        if(tmp<0) return open(pathname, flags, mode); // error fallback
+        if(tmp<0) return open_func_fallback(pathname, flags, open_mode, fopen_mode, type, file);
         shm_unlink(TMP_CPUINFO);    // remove the shm file, but it will still exist because it's currently in use
         CreateCPUInfoFile(tmp);
         lseek(tmp, 0, SEEK_SET);
-        return tmp;
+        return shm_fdopen(tmp, fopen_mode, type, file);
+    }
+    if (BOX64ENV(maxcpu) && (!strcmp(pathname, "/sys/devices/system/cpu/present") || !strcmp(pathname, "/sys/devices/system/cpu/online")) && (box64_sysinfo.ncpu >= BOX64ENV(maxcpu))) {
+        // special case for cpu present (to limit to 64 cores)
+        int tmp = shm_open(TMP_CPUPRESENT, O_RDWR | O_CREAT, S_IRWXU);
+        if(tmp<0) return open_func_fallback(pathname, flags, open_mode, fopen_mode, type, file);
+        shm_unlink(TMP_CPUPRESENT);    // remove the shm file, but it will still exist because it's currently in use
+        CreateCPUPresentFile(tmp);
+        lseek(tmp, 0, SEEK_SET);
+        return shm_fdopen(tmp, fopen_mode, type, file);
     }
     if(!strcmp((const char*)pathname, "/sys/bus/clocksource/devices/clocksource0/current_clocksource")) {
         // special case to say tsc as current clocksource
         int tmp = shm_open(TMP_CLOCKSOURCE, O_RDWR | O_CREAT, S_IRWXU);
-        if(tmp<0) return open(pathname, flags, mode); // error fallback
+        if(tmp<0) return open_func_fallback(pathname, flags, open_mode, fopen_mode, type, file);
         shm_unlink(TMP_CLOCKSOURCE);    // remove the shm file, but it will still exist because it's currently in use
         CreateClocksourceFile(tmp);
         lseek(tmp, 0, SEEK_SET);
-        return tmp;
+        return shm_fdopen(tmp, fopen_mode, type, file);
     }
-    int cpu, index;
     if(isSysCpuCache(pathname, "ways_of_associativity", &cpu, &index) && !FileExist(pathname, IS_FILE)) {
         // Create a dummy one
         int tmp = shm_open(TMP_CPUCACHE_ASSOC, O_RDWR | O_CREAT, S_IRWXU);
-        if(tmp<0) return open(pathname, flags, mode); // error fallback
+        if(tmp<0) return open_func_fallback(pathname, flags, open_mode, fopen_mode, type, file);
         shm_unlink(TMP_CPUCACHE_ASSOC);    // remove the shm file, but it will still exist because it's currently in use
         CreateCpuCacheAssoc(tmp, cpu, index);
         lseek(tmp, 0, SEEK_SET);
-        return tmp;
+        return shm_fdopen(tmp, fopen_mode, type, file);
     }
     if(isSysCpuCache(pathname, "coherency_line_size", &cpu, &index) && !FileExist(pathname, IS_FILE)) {
         // Create a dummy one
         int tmp = shm_open(TMP_CPUCACHE_COHER, O_RDWR | O_CREAT, S_IRWXU);
-        if(tmp<0) return open(pathname, flags, mode); // error fallback
+        if(tmp<0) return open_func_fallback(pathname, flags, open_mode, fopen_mode, type, file);
         shm_unlink(TMP_CPUCACHE_COHER);    // remove the shm file, but it will still exist because it's currently in use
         CreateCpuCacheCoher(tmp, cpu, index);
         lseek(tmp, 0, SEEK_SET);
-        return tmp;
+        return shm_fdopen(tmp, fopen_mode, type, file);
     }
     if(isSysCpuCache(pathname, "size", &cpu, &index) && !FileExist(pathname, IS_FILE)) {
         // Create a dummy one
         int tmp = shm_open(TMP_CPUCACHE_SIZE, O_RDWR | O_CREAT, S_IRWXU);
-        if(tmp<0) return open(pathname, flags, mode); // error fallback
+        if(tmp<0) return open_func_fallback(pathname, flags, open_mode, fopen_mode, type, file);
         shm_unlink(TMP_CPUCACHE_SIZE);    // remove the shm file, but it will still exist because it's currently in use
-        CreateCpuCacheAssoc(tmp, cpu, index);
+        CreateCpuCacheSize(tmp, cpu, index);
         lseek(tmp, 0, SEEK_SET);
-        return tmp;
-    }
-    if(box64_wine && isProcMem(pathname) && (mode&O_WRONLY)) {
-        // deny using proc/XX/mem as it messes up with dynarec memory protection & tracking
-        return -1;
+        return shm_fdopen(tmp, fopen_mode, type, file);
     }
     #endif
 
     if (!strcmp((const char*)pathname, "box64-custom-bashrc-file")) {
         int tmp = shm_open("box64-custom-bashrc-file", O_RDWR | O_CREAT, S_IRWXU);
-        if (tmp < 0) return open(pathname, flags, mode); // error fallback
+        if(tmp<0) return open_func_fallback(pathname, flags, open_mode, fopen_mode, type, file);
         shm_unlink("box64-custom-bashrc-file");
         const char* content = "if [ -f ~/.bashrc ]\nthen\n. ~/.bashrc\nfi\nexport PS1=\"(box64) \"$PS1\nexport BOX64_NOBANNER=1\nexport BOX64_LOG=0\n";
         size_t dummy;
         dummy = write(tmp, content, strlen(content));
         (void)dummy;
         lseek(tmp, 0, SEEK_SET);
-        return tmp;
+        return shm_fdopen(tmp, fopen_mode, type, file);
     }
 
     if(!strcmp((const char*)pathname, "/etc/os-release")) {
@@ -2482,13 +2514,27 @@ EXPORT int32_t my_open(x64emu_t* emu, void* pathname, int32_t flags, uint32_t mo
             char tmp[MAX_PATH] = {0};
             snprintf(tmp, sizeof(tmp)-1, "%s/lib/os-release", pv);
             if(FileExist(tmp, IS_FILE)) {
-                return open(tmp, flags, mode);
+                return open_func_fallback(tmp, flags, open_mode, fopen_mode, type, file);
             }
         }
     }
 
-    int ret = open(pathname, flags, mode);
-    return ret;
+    return open_func_fallback(pathname, flags, open_mode, fopen_mode, type, file);
+}
+
+EXPORT int32_t my_open(x64emu_t* emu, void* pathname, int32_t flags, uint32_t mode)
+{
+    if(!pathname) {
+        errno = EFAULT;
+        return -1;
+    }
+    #ifndef NOALIGN
+    if(box64_wine && isProcMem(pathname) && (flags&O_WRONLY)) {
+        // deny using proc/XX/mem as it messes up with dynarec memory protection & tracking
+        return -1;
+    }
+    #endif
+    return open_special_case(emu, pathname, flags, (uintptr_t)mode, OPEN_TYPE, NULL);
 }
 EXPORT int32_t my___open(x64emu_t* emu, void* pathname, int32_t flags, uint32_t mode) __attribute__((alias("my_open")));
 
@@ -2529,182 +2575,14 @@ EXPORT int32_t my_open64(x64emu_t* emu, void* pathname, int32_t flags, uint32_t 
         errno = EFAULT;
         return -1;
     }
-    if(isProcSelf((const char*)pathname, "cmdline")) {
-        // special case for self command line...
-        #if 0
-        char tmpcmdline[200] = {0};
-        char tmpbuff[100] = {0};
-        sprintf(tmpbuff, "%s/cmdlineXXXXXX", getenv("TMP")?getenv("TMP"):".");
-        int tmp = mkstemp64(tmpbuff);
-        int dummy;
-        if(tmp<0) return open64(pathname, flags, mode);
-        dummy = write(tmp, emu->context->fullpath, strlen(emu->context->fullpath)+1);
-        for (int i=1; i<emu->context->argc; ++i)
-            dummy = write(tmp, emu->context->argv[i], strlen(emu->context->argv[i])+1);
-        lseek64(tmp, 0, SEEK_SET);
-        #else
-        int tmp = shm_open(TMP_CMDLINE, O_RDWR | O_CREAT, S_IRWXU);
-        if(tmp<0) return open64(pathname, flags, mode);
-        shm_unlink(TMP_CMDLINE);    // remove the shm file, but it will still exist because it's currently in use
-        int dummy = write(tmp, emu->context->fullpath, strlen(emu->context->fullpath)+1);
-        (void)dummy;
-        for (int i=1; i<emu->context->argc; ++i)
-            if(emu->context->argv[i])
-                dummy = write(tmp, emu->context->argv[i], strlen(emu->context->argv[i])+1);
-        lseek(tmp, 0, SEEK_SET);
-        #endif
-        return tmp;
-    }
-    if(isProcSelf((const char*)pathname, "exe")) {
-        return open64(emu->context->fullpath, flags, mode);
-    }
-    #ifndef NOALIGN
-    if(strcmp((const char*)pathname, "/proc/cpuinfo")==0) {
-        // special case for cpuinfo
-        int tmp = shm_open(TMP_CPUINFO, O_RDWR | O_CREAT, S_IRWXU);
-        if(tmp<0) return open64(pathname, flags, mode); // error fallback
-        shm_unlink(TMP_CPUINFO);    // remove the shm file, but it will still exist because it's currently in use
-        CreateCPUInfoFile(tmp);
-        lseek(tmp, 0, SEEK_SET);
-        return tmp;
-    }
-    if (BOX64ENV(maxcpu) && (!strcmp(pathname, "/sys/devices/system/cpu/present") || !strcmp(pathname, "/sys/devices/system/cpu/online")) && (box64_sysinfo.ncpu >= BOX64ENV(maxcpu))) {
-        // special case for cpu present (to limit to 64 cores)
-        int tmp = shm_open(TMP_CPUPRESENT, O_RDWR | O_CREAT, S_IRWXU);
-        if(tmp<0) return open64(pathname, flags, mode); // error fallback
-        shm_unlink(TMP_CPUPRESENT);    // remove the shm file, but it will still exist because it's currently in use
-        CreateCPUPresentFile(tmp);
-        lseek(tmp, 0, SEEK_SET);
-        return tmp;
-    }
-    if(!strcmp((const char*)pathname, "/sys/bus/clocksource/devices/clocksource0/current_clocksource")) {
-        // special case to say tsc as current clocksource
-        int tmp = shm_open(TMP_CLOCKSOURCE, O_RDWR | O_CREAT, S_IRWXU);
-        if(tmp<0) return open64(pathname, flags, mode); // error fallback
-        shm_unlink(TMP_CLOCKSOURCE);    // remove the shm file, but it will still exist because it's currently in use
-        CreateClocksourceFile(tmp);
-        lseek(tmp, 0, SEEK_SET);
-        return tmp;
-    }
-    int cpu, index;
-    if(isSysCpuCache(pathname, "ways_of_associativity", &cpu, &index) && !FileExist(pathname, IS_FILE)) {
-        // Create a dummy one
-        int tmp = shm_open(TMP_CPUCACHE_ASSOC, O_RDWR | O_CREAT, S_IRWXU);
-        if(tmp<0) return open(pathname, flags, mode); // error fallback
-        shm_unlink(TMP_CPUCACHE_ASSOC);    // remove the shm file, but it will still exist because it's currently in use
-        CreateCpuCacheAssoc(tmp, cpu, index);
-        lseek(tmp, 0, SEEK_SET);
-        return tmp;
-    }
-    if(isSysCpuCache(pathname, "coherency_line_size", &cpu, &index) && !FileExist(pathname, IS_FILE)) {
-        // Create a dummy one
-        int tmp = shm_open(TMP_CPUCACHE_COHER, O_RDWR | O_CREAT, S_IRWXU);
-        if(tmp<0) return open(pathname, flags, mode); // error fallback
-        shm_unlink(TMP_CPUCACHE_COHER);    // remove the shm file, but it will still exist because it's currently in use
-        CreateCpuCacheCoher(tmp, cpu, index);
-        lseek(tmp, 0, SEEK_SET);
-        return tmp;
-    }
-    if(isSysCpuCache(pathname, "size", &cpu, &index) && !FileExist(pathname, IS_FILE)) {
-        // Create a dummy one
-        int tmp = shm_open(TMP_CPUCACHE_SIZE, O_RDWR | O_CREAT, S_IRWXU);
-        if(tmp<0) return open(pathname, flags, mode); // error fallback
-        shm_unlink(TMP_CPUCACHE_SIZE);    // remove the shm file, but it will still exist because it's currently in use
-        CreateCpuCacheAssoc(tmp, cpu, index);
-        lseek(tmp, 0, SEEK_SET);
-        return tmp;
-    }
-    #endif
-    return open64(pathname, flags, mode);
+    return open_special_case(emu, pathname, flags, (uintptr_t)mode, OPEN64_TYPE, NULL);
 }
 
 EXPORT FILE* my_fopen64(x64emu_t* emu, const char* path, const char* mode)
 {
-    if(isProcSelf((const char*)path, "cmdline")) {
-        int tmp = shm_open(TMP_CMDLINE, O_RDWR | O_CREAT, S_IRWXU);
-        if(tmp<0) return fopen64(path, mode);
-        shm_unlink(TMP_CMDLINE);    // remove the shm file, but it will still exist because it's currently in use
-        int dummy = write(tmp, emu->context->fullpath, strlen(emu->context->fullpath)+1);
-        (void)dummy;
-        for (int i=1; i<emu->context->argc; ++i)
-            if(emu->context->argv[i])
-                dummy = write(tmp, emu->context->argv[i], strlen(emu->context->argv[i])+1);
-        lseek(tmp, 0, SEEK_SET);
-        return fdopen(tmp, mode);
-    }
-    if(isProcSelf((const char*)path, "exe")) {
-        return fopen64(emu->context->fullpath, mode);
-    }
-    if(isProcSelf(path, "maps")) {
-        // special case for self memory map
-        int tmp = shm_open(TMP_MEMMAP, O_RDWR | O_CREAT, S_IRWXU);
-        if(tmp<0) return fopen64(path, mode); // error fallback
-        shm_unlink(TMP_MEMMAP);    // remove the shm file, but it will still exist because it's currently in use
-        CreateMemorymapFile(emu->context, tmp);
-        lseek(tmp, 0, SEEK_SET);
-        return fdopen(tmp, mode);
-    }
-    #ifndef NOALIGN
-    if(strcmp(path, "/proc/cpuinfo")==0) {
-        // special case for cpuinfo
-        int tmp = shm_open(TMP_CPUINFO, O_RDWR | O_CREAT, S_IRWXU);
-        if(tmp<0) return fopen64(path, mode); // error fallback
-        shm_unlink(TMP_CPUINFO);    // remove the shm file, but it will still exist because it's currently in use
-        CreateCPUInfoFile(tmp);
-        lseek(tmp, 0, SEEK_SET);
-        return fdopen(tmp, mode);
-    }
-    if (BOX64ENV(maxcpu) && (!strcmp(path, "/sys/devices/system/cpu/present") || !strcmp(path, "/sys/devices/system/cpu/online")) && (box64_sysinfo.ncpu >= BOX64ENV(maxcpu))) {
-        // special case for cpu present (to limit to 64 cores)
-        int tmp = shm_open(TMP_CPUPRESENT, O_RDWR | O_CREAT, S_IRWXU);
-        if(tmp<0) return fopen64(path, mode); // error fallback
-        shm_unlink(TMP_CPUPRESENT);    // remove the shm file, but it will still exist because it's currently in use
-        CreateCPUPresentFile(tmp);
-        lseek(tmp, 0, SEEK_SET);
-        return fdopen(tmp, mode);
-    }
-    if(strcmp(path, "/sys/bus/clocksource/devices/clocksource0/current_clocksource")==0) {
-        // special case to say tsc as current clocksource
-        int tmp = shm_open(TMP_CLOCKSOURCE, O_RDWR | O_CREAT, S_IRWXU);
-        if(tmp<0) return fopen64(path, mode); // error fallback
-        shm_unlink(TMP_CLOCKSOURCE);    // remove the shm file, but it will still exist because it's currently in use
-        CreateClocksourceFile(tmp);
-        lseek(tmp, 0, SEEK_SET);
-        return fdopen(tmp, mode);
-    }
-    int cpu=0, index=0;
-    if(isSysCpuCache(path, "ways_of_associativity", &cpu, &index) && !FileExist(path, IS_FILE)) {
-        // Create a dummy one
-        int tmp = shm_open(TMP_CPUCACHE_ASSOC, O_RDWR | O_CREAT, S_IRWXU);
-        if(tmp<0) return fopen64(path, mode); // error fallback
-        shm_unlink(TMP_CPUCACHE_ASSOC);    // remove the shm file, but it will still exist because it's currently in use
-        CreateCpuCacheAssoc(tmp, cpu, index);
-        lseek(tmp, 0, SEEK_SET);
-        return fdopen(tmp, mode);
-    }
-    if(isSysCpuCache(path, "coherency_line_size", &cpu, &index) && !FileExist(path, IS_FILE)) {
-        // Create a dummy one
-        int tmp = shm_open(TMP_CPUCACHE_COHER, O_RDWR | O_CREAT, S_IRWXU);
-        if(tmp<0) return fopen64(path, mode); // error fallback
-        shm_unlink(TMP_CPUCACHE_COHER);    // remove the shm file, but it will still exist because it's currently in use
-        CreateCpuCacheCoher(tmp, cpu, index);
-        lseek(tmp, 0, SEEK_SET);
-        return fdopen(tmp, mode);
-    }
-    if(isSysCpuCache(path, "size", &cpu, &index) && !FileExist(path, IS_FILE)) {
-        // Create a dummy one
-        int tmp = shm_open(TMP_CPUCACHE_SIZE, O_RDWR | O_CREAT, S_IRWXU);
-        if(tmp<0) return fopen64(path, mode); // error fallback
-        shm_unlink(TMP_CPUCACHE_SIZE);    // remove the shm file, but it will still exist because it's currently in use
-        CreateCpuCacheAssoc(tmp, cpu, index);
-        lseek(tmp, 0, SEEK_SET);
-        return fdopen(tmp, mode);
-    }
-    #endif
-    if(isProcSelf(path, "exe")) {
-        return fopen64(emu->context->fullpath, mode);
-    }
-    return fopen64(path, mode);
+    FILE *ret = NULL;
+    open_special_case(emu, (void*)path, 0, (uintptr_t)mode, FOPEN64_TYPE, &ret);
+    return ret;
 }
 EXPORT FILE* my_fopen(x64emu_t* emu, const char* path, const char* mode) __attribute__((alias("my_fopen64")));
 
