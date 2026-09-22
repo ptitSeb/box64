@@ -1575,7 +1575,6 @@
 #() LFpppl
 #() LFpppL
 #() LFpppp
-#() pFEipi
 #() pFEipp
 #() pFEipV
 #() pFEuup
@@ -5670,6 +5669,7 @@ wrappedlibc:
   - __libc_dlopen_mode
   - backtrace_symbols
   - fts64_children
+  - fts_children
 - pFpp:
   - __libc_dlsym
   - __realpath_chk
@@ -5793,8 +5793,6 @@ wrappedlibc:
 - LFppL:
   - strlcat
   - strlcpy
-- pFipi:
-  - fts_children
 - pFpip:
   - fts64_open
   - fts_open
