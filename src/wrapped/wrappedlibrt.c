@@ -99,31 +99,31 @@ EXPORT int my_mq_notify(x64emu_t* emu, int mqid, void* sevp)
 
     return mq_notify(mqid, &sevent);
 }
-EXPORT int my_aio_cancel(x64emu_t emu, int fd, struct aiocb* aiocbp)
+EXPORT int my_aio_cancel(x64emu_t* emu, int fd, struct aiocb* aiocbp)
 {
     if(aiocbp && aiocbp->aio_sigevent.sigev_notify == SIGEV_THREAD)
         aiocbp->aio_sigevent.sigev_notify_function = findsigev_notifyFct(aiocbp->aio_sigevent.sigev_notify_function);
     return my->aio_cancel(fd, aiocbp);
 }
-EXPORT int my_aio_read(x64emu_t emu, struct aiocb* aiocbp)
+EXPORT int my_aio_read(x64emu_t* emu, struct aiocb* aiocbp)
 {
     if(aiocbp && aiocbp->aio_sigevent.sigev_notify == SIGEV_THREAD)
         aiocbp->aio_sigevent.sigev_notify_function = findsigev_notifyFct(aiocbp->aio_sigevent.sigev_notify_function);
     return my->aio_read(aiocbp);
 }
-EXPORT int my_aio_read64(x64emu_t emu, struct aiocb* aiocbp)
+EXPORT int my_aio_read64(x64emu_t* emu, struct aiocb* aiocbp)
 {
     if(aiocbp && aiocbp->aio_sigevent.sigev_notify == SIGEV_THREAD)
         aiocbp->aio_sigevent.sigev_notify_function = findsigev_notifyFct(aiocbp->aio_sigevent.sigev_notify_function);
     return my->aio_read64(aiocbp);
 }
-EXPORT int my_aio_write(x64emu_t emu, struct aiocb* aiocbp)
+EXPORT int my_aio_write(x64emu_t* emu, struct aiocb* aiocbp)
 {
     if(aiocbp && aiocbp->aio_sigevent.sigev_notify == SIGEV_THREAD)
         aiocbp->aio_sigevent.sigev_notify_function = findsigev_notifyFct(aiocbp->aio_sigevent.sigev_notify_function);
     return my->aio_write(aiocbp);
 }
-EXPORT int my_aio_write64(x64emu_t emu, struct aiocb* aiocbp)
+EXPORT int my_aio_write64(x64emu_t* emu, struct aiocb* aiocbp)
 {
     if(aiocbp && aiocbp->aio_sigevent.sigev_notify == SIGEV_THREAD)
         aiocbp->aio_sigevent.sigev_notify_function = findsigev_notifyFct(aiocbp->aio_sigevent.sigev_notify_function);
@@ -140,27 +140,27 @@ EXPORT int my_lio_listio(x64emu_t* emu, int mode, struct aiocb* list[], int nent
     return my->lio_listio(mode, list, nent, sig?(&sevent):sig);
 }
 #else
-EXPORT int my_aio_cancel(x64emu_t emu, int fd, void* aiocbp)
+EXPORT int my_aio_cancel(x64emu_t* emu, int fd, void* aiocbp)
 {
     errno = ENOSYS;
     return -1;
 }
-EXPORT int my_aio_read(x64emu_t emu, void* aiocbp)
+EXPORT int my_aio_read(x64emu_t* emu, void* aiocbp)
 {
     errno = ENOSYS;
     return -1;
 }
-EXPORT int my_aio_read64(x64emu_t emu, void* aiocbp)
+EXPORT int my_aio_read64(x64emu_t* emu, void* aiocbp)
 {
     errno = ENOSYS;
     return -1;
 }
-EXPORT int my_aio_write(x64emu_t emu, void* aiocbp)
+EXPORT int my_aio_write(x64emu_t* emu, void* aiocbp)
 {
     errno = ENOSYS;
     return -1;
 }
-EXPORT int my_aio_write64(x64emu_t emu, void* aiocbp)
+EXPORT int my_aio_write64(x64emu_t* emu, void* aiocbp)
 {
     errno = ENOSYS;
     return -1;
