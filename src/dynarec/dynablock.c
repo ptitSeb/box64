@@ -114,8 +114,37 @@ dynablock_t* InvalidDynablock(dynablock_t* db, int need_lock)
     return db;
 }
 
+static void RetireOrphanDynablocks(void)
+{
+    for (int i = 0; i < my_context->db_orphan_count; ) {
+        dynablock_t* db = my_context->db_orphan[i];
+        if (db && native_lock_get_d(&db->in_used) > 0) {
+            ++i;
+            continue;
+        }
+        if (db) FreeDynarecMap((uintptr_t)db->actual_block);
+        my_context->db_orphan[i] = my_context->db_orphan[--my_context->db_orphan_count];
+    }
+}
+
+static void QueueOrphanDynablock(dynablock_t* db)
+{
+    if (my_context->db_orphan_count == my_context->db_orphan_size) {
+        int nsize = my_context->db_orphan_size ? my_context->db_orphan_size * 2 : 64;
+        dynablock_t** nlist = box_malloc(nsize * sizeof(dynablock_t*));
+        if (!nlist) return;
+        if (my_context->db_orphan_count)
+            memcpy(nlist, my_context->db_orphan, my_context->db_orphan_count * sizeof(dynablock_t*));
+        if (my_context->db_orphan) box_free(my_context->db_orphan);
+        my_context->db_orphan = nlist;
+        my_context->db_orphan_size = nsize;
+    }
+    my_context->db_orphan[my_context->db_orphan_count++] = db;
+}
+
 static void DeferFreeDynablockMap(dynablock_t* db)
 {
+    if (my_context->db_orphan_count) RetireOrphanDynablocks();
     // enq for a deferred free so any threads still running in this block has a better chance to finish.
     if (my_context->db_zombie_count == DB_ZOMBIE_SIZE) {
         // Queue full: free the oldest queued block that no running dynarec chain holds (in_used), compact the queue.
@@ -141,9 +170,10 @@ static void DeferFreeDynablockMap(dynablock_t* db)
             idx = 0;    // queue is full of empty slots: just drop the oldest one
         // free the picked entry
         int slot = (my_context->db_zombie_head - DB_ZOMBIE_SIZE + idx + DB_ZOMBIE_SIZE) % DB_ZOMBIE_SIZE;
-        if (idx_in_used > 0)
-            printf_log(LOG_INFO, "Warning, all %d queued dynablocks are still in use, freeing the oldest one anyway (in_used=%d)\n", DB_ZOMBIE_SIZE, idx_in_used);
-        if (my_context->db_zombie[slot])
+        if (idx_in_used > 0) {
+            printf_log(LOG_DEBUG, "Warning, all %d queued dynablocks are still in use, deferring the oldest one (in_used=%d)\n", DB_ZOMBIE_SIZE, idx_in_used);
+            QueueOrphanDynablock(my_context->db_zombie[slot]);
+        } else if (my_context->db_zombie[slot])
             FreeDynarecMap((uintptr_t)my_context->db_zombie[slot]->actual_block);
         // shift all newer entries over the dropped one, then queue db at the tail
         for (int i = idx; i < DB_ZOMBIE_SIZE - 1; ++i) {
@@ -164,6 +194,11 @@ void DeferFreeDynablockClearRange(void* addr, size_t sz)
     for(int i=0; i<my_context->db_zombie_count; ++i)
         if(my_context->db_zombie[i] && ((void*)my_context->db_zombie[i]>=addr) && ((void*)my_context->db_zombie[i]<(addr+sz)))
             my_context->db_zombie[i] = NULL;
+    for(int i=0; i<my_context->db_orphan_count; )
+        if(my_context->db_orphan[i] && ((void*)my_context->db_orphan[i]>=addr) && ((void*)my_context->db_orphan[i]<(addr+sz)))
+            my_context->db_orphan[i] = my_context->db_orphan[--my_context->db_orphan_count];
+        else
+            ++i;
 }
 
 void FreeInvalidDynablock(dynablock_t* db, int need_lock)
@@ -445,6 +480,15 @@ dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, int create, int n
 void FlushZombieDynablocks(void)
 {
     if (!my_context) return;
+    if (my_context->db_orphan_count) {
+        for (int i = 0; i < my_context->db_orphan_count; ++i)
+            if (my_context->db_orphan[i])
+                FreeDynarecMap((uintptr_t)my_context->db_orphan[i]->actual_block);
+        box_free(my_context->db_orphan);
+        my_context->db_orphan = NULL;
+        my_context->db_orphan_size = 0;
+        my_context->db_orphan_count = 0;
+    }
     if (!my_context->db_zombie_count) return;
     int head = my_context->db_zombie_head;
     for (int i = 0; i < my_context->db_zombie_count; ++i) {
