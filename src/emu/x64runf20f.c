@@ -21,6 +21,7 @@
 #include "x87emu_private.h"
 #include "box64context.h"
 #include "bridge.h"
+#include "alternate.h"
 #include "emit_signals.h"
 
 #include "modrm.h"
@@ -459,7 +460,7 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
 
     GOCOND(0x80
         , tmp32s = F32S; CHECK_FLAGS(emu);
-        , addr += tmp32s;
+        , addr += tmp32s; addr = (uintptr_t)getAlternate((void*)addr);
         ,,STEP3
     )                               /* 0x80 -> 0x8F Jxx */
 

@@ -704,6 +704,7 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
     case 0xEB:                      /* JMP Ib */
         tmp32s = F8S; // jump is relative
         addr += tmp32s;
+        addr = (uintptr_t)getAlternate((void*)addr);
         break;
 
     case 0xEC:                      /* IN AL, DX */

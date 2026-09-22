@@ -616,7 +616,7 @@ x64emurun:
 
         GOCOND(0x70
             ,   tmp8s = F8S; CHECK_FLAGS(emu);
-            ,   addr += tmp8s;
+            ,   addr += tmp8s; addr = (uintptr_t)getAlternate((void*)addr);
             ,,STEP2
             )                           /* Jxx Ib */
         
@@ -2128,6 +2128,7 @@ x64emurun:
         case 0xEB:                      /* JMP Ib */
             tmp32s = F8S; // jump is relative
             addr += tmp32s;
+            addr = (uintptr_t)getAlternate((void*)addr);
             STEP2
             break;
         case 0xEC:                      /* IN AL, DX */

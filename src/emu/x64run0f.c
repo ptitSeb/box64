@@ -23,6 +23,7 @@
 #include "box64context.h"
 #include "my_cpuid.h"
 #include "bridge.h"
+#include "alternate.h"
 #include "emit_signals.h"
 #include "x64shaext.h"
 #include "freq.h"
@@ -1240,7 +1241,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             break;
         GOCOND(0x80
             , tmp32s = F32S; CHECK_FLAGS(emu);
-            , addr += tmp32s;
+            , addr += tmp32s; addr = (uintptr_t)getAlternate((void*)addr);
             ,,STEP3
         )                               /* 0x80 -> 0x8F Jxx */ //STEP3
         GOCOND(0x90
