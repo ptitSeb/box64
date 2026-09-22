@@ -189,6 +189,9 @@ typedef struct box64context_s {
     struct dynablock_s* db_zombie[DB_ZOMBIE_SIZE];  // ring queue of invalidated blocks pending free
     int                 db_zombie_head;   // next write slot (also the oldest slot when full)
     int                 db_zombie_count;  // number of entries currently queued
+    struct dynablock_s** db_orphan;       // queued-out blocks still held by a thread when the ring was full
+    int                 db_orphan_count;
+    int                 db_orphan_size;
     int                 trace_dynarec;
     pthread_mutex_t     mutex_lock;     // this is for the Test interpreter
 #if defined(__riscv) || defined(__loongarch64) || defined(__powerpc64__)
