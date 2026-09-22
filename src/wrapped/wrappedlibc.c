@@ -2571,7 +2571,7 @@ EXPORT int32_t my_open64(x64emu_t* emu, void* pathname, int32_t flags, uint32_t 
     if (BOX64ENV(maxcpu) && (!strcmp(pathname, "/sys/devices/system/cpu/present") || !strcmp(pathname, "/sys/devices/system/cpu/online")) && (box64_sysinfo.ncpu >= BOX64ENV(maxcpu))) {
         // special case for cpu present (to limit to 64 cores)
         int tmp = shm_open(TMP_CPUPRESENT, O_RDWR | O_CREAT, S_IRWXU);
-        if(tmp<0) return open64(pathname, mode); // error fallback
+        if(tmp<0) return open64(pathname, flags, mode); // error fallback
         shm_unlink(TMP_CPUPRESENT);    // remove the shm file, but it will still exist because it's currently in use
         CreateCPUPresentFile(tmp);
         lseek(tmp, 0, SEEK_SET);
