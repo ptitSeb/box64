@@ -122,8 +122,8 @@ GO(SEC_PKCS12DecoderGetCerts, pFp)
 GO(SEC_PKCS12DecoderImportBags, iFp)
 GO(SEC_PKCS12DecoderIterateInit, iFp)
 GO(SEC_PKCS12DecoderIterateNext, iFpp)
-//GO(SEC_PKCS12DecoderRenameCertNicknames, 
-//GO(SEC_PKCS12DecoderSetTargetTokenCAs, 
+GOM(SEC_PKCS12DecoderRenameCertNicknames, iFEppp)
+GO(SEC_PKCS12DecoderSetTargetTokenCAs, iFpi)
 GOM(SEC_PKCS12DecoderStart, pFEpppppppp)
 GO(SEC_PKCS12DecoderUpdate, iFppL)
 GOM(SEC_PKCS12DecoderValidateBags, iFEpp)

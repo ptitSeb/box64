@@ -150,6 +150,29 @@ static void* find_SEC_PKCS12NicknameCollisionCallback_Fct(void* fct)
     return NULL;
 }
 
+// SEC_PKCS12NicknameRenameCallback ...
+#define GO(A)   \
+static uintptr_t my_SEC_PKCS12NicknameRenameCallback_fct_##A = 0;                                       \
+static int my_SEC_PKCS12NicknameRenameCallback_##A(void* a, void* b, void* c, void* d)                  \
+{                                                                                                       \
+    return RunFunctionFmt(my_SEC_PKCS12NicknameRenameCallback_fct_##A, "pppp", a, b, c, d);  \
+}
+SUPER()
+#undef GO
+static void* find_SEC_PKCS12NicknameRenameCallback_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_SEC_PKCS12NicknameRenameCallback_fct_##A == (uintptr_t)fct) return my_SEC_PKCS12NicknameRenameCallback_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_SEC_PKCS12NicknameRenameCallback_fct_##A == 0) {my_SEC_PKCS12NicknameRenameCallback_fct_##A = (uintptr_t)fct; return my_SEC_PKCS12NicknameRenameCallback_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for smime3 SEC_PKCS12NicknameRenameCallback callback\n");
+    return NULL;
+}
+
 // SEC_PKCS12EncoderOutputCallback ...
 #define GO(A)   \
 static uintptr_t my_SEC_PKCS12EncoderOutputCallback_fct_##A = 0;                            \
@@ -282,6 +305,11 @@ EXPORT void* my_SEC_PKCS12DecoderStart(x64emu_t* emu, void* item, void* slot, vo
 EXPORT int my_SEC_PKCS12DecoderValidateBags(x64emu_t* emu, void* ctx, void* f)
 {
     return my->SEC_PKCS12DecoderValidateBags(ctx, find_SEC_PKCS12NicknameCollisionCallback_Fct(f));
+}
+
+EXPORT int my_SEC_PKCS12DecoderRenameCertNicknames(x64emu_t* emu, void* ctx, void* f, void* arg)
+{
+    return my->SEC_PKCS12DecoderRenameCertNicknames(ctx, find_SEC_PKCS12NicknameRenameCallback_Fct(f), arg);
 }
 
 EXPORT int my_SEC_PKCS12Encode(x64emu_t* emu, void* p12exp, void* f, void* arg)

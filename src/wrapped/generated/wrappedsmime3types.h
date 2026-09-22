@@ -21,6 +21,7 @@ typedef void* (*pFppppppppppp_t)(void*, void*, void*, void*, void*, void*, void*
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(SEC_PKCS12DecoderValidateBags, iFpp_t) \
+	GO(SEC_PKCS12DecoderRenameCertNicknames, iFppp_t) \
 	GO(SEC_PKCS12Encode, iFppp_t) \
 	GO(CERT_DecodeCertPackage, iFpipp_t) \
 	GO(SEC_PKCS12CreateExportContext, pFpppp_t) \

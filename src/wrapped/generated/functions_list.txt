@@ -7443,6 +7443,7 @@ wrappedsmime3:
 - iFpp:
   - SEC_PKCS12DecoderValidateBags
 - iFppp:
+  - SEC_PKCS12DecoderRenameCertNicknames
   - SEC_PKCS12Encode
 - iFpipp:
   - CERT_DecodeCertPackage
