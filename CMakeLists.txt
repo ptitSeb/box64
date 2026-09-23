@@ -1680,6 +1680,7 @@ if(ARM64EC)
         TEST_COMMAND ""
         BUILD_ALWAYS ON
     )
+    add_dependencies(box64ec generate_git_head_target)
 endif()
 
 if(NOT NOBOX64)

@@ -24,7 +24,7 @@ extern int box64_is32bits;
 extern int box64_isAddressSpace32;
 extern int box64_nolibs;
 extern int box64_hasinterp;
-#ifdef DYNAREC
+#if defined(DYNAREC) || defined(BOX64EC)
 extern cpu_ext_t cpuext;
 #endif
 #ifdef HAVE_TRACE
