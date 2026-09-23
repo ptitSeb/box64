@@ -191,9 +191,12 @@ static void DeferFreeDynablockMap(dynablock_t* db)
 
 void DeferFreeDynablockClearRange(void* addr, size_t sz)
 {
-    for(int i=0; i<my_context->db_zombie_count; ++i)
-        if(my_context->db_zombie[i] && ((void*)my_context->db_zombie[i]>=addr) && ((void*)my_context->db_zombie[i]<(addr+sz)))
-            my_context->db_zombie[i] = NULL;
+    int head = my_context->db_zombie_head;
+    for(int i=0; i<my_context->db_zombie_count; ++i) {
+        int idx = (head - my_context->db_zombie_count + i + DB_ZOMBIE_SIZE) % DB_ZOMBIE_SIZE;
+        if(my_context->db_zombie[idx] && ((void*)my_context->db_zombie[idx]>=addr) && ((void*)my_context->db_zombie[idx]<(addr+sz)))
+            my_context->db_zombie[idx] = NULL;
+    }
     for(int i=0; i<my_context->db_orphan_count; )
         if(my_context->db_orphan[i] && ((void*)my_context->db_orphan[i]>=addr) && ((void*)my_context->db_orphan[i]<(addr+sz)))
             my_context->db_orphan[i] = my_context->db_orphan[--my_context->db_orphan_count];
@@ -493,7 +496,8 @@ void FlushZombieDynablocks(void)
     int head = my_context->db_zombie_head;
     for (int i = 0; i < my_context->db_zombie_count; ++i) {
         int idx = (head - my_context->db_zombie_count + i + DB_ZOMBIE_SIZE) % DB_ZOMBIE_SIZE;
-        FreeDynarecMap((uintptr_t)my_context->db_zombie[idx]->actual_block);
+        if (my_context->db_zombie[idx])
+            FreeDynarecMap((uintptr_t)my_context->db_zombie[idx]->actual_block);
     }
     my_context->db_zombie_count = 0;
 }
