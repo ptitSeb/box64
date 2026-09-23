@@ -28,6 +28,7 @@
 
 #include "modrm.h"
 #include "x64compstrings.h"
+#include "random.h"
 
 static uint8_t ff_mult(uint8_t a, uint8_t b)
 {
@@ -2399,6 +2400,30 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         eax1.q[1] = EX->q[(tmp8u>>1)&1];
         GX->q[0] = eax1.q[0];
         GX->q[1] = eax1.q[1];
+        break;
+
+    case 0xC7:
+        CHECK_FLAGS(emu);
+        nextop = F8;
+        GETE8xw(0);
+        if (MODREG)
+            switch ((nextop >> 3) & 7) {
+                case 6: /* RDRAND Ew */
+                case 7: /* RDSEED Ew */
+                    RESET_FLAGS(emu);
+                    CLEAR_FLAG(F_OF);
+                    CLEAR_FLAG(F_SF);
+                    CLEAR_FLAG(F_PF);
+                    CLEAR_FLAG(F_ZF);
+                    CLEAR_FLAG(F_AF);
+                    SET_FLAG(F_CF);
+                    EW->word[0] = (uint16_t)get_random32();
+                    break;
+                default:
+                    return 0;
+            }
+        else
+            return 0;
         break;
 
     case 0xC8:
