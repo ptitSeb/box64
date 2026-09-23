@@ -3008,6 +3008,40 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             }
             break;
 
+        case 0xC7:
+            nextop = F8;
+            if (MODREG) switch ((nextop >> 3) & 7) {
+                case 6:
+                case 7:
+                    if (((nextop >> 3) & 7) == 7) {
+                        INST_NAME("RDSEED Ew");
+                    } else {
+                        INST_NAME("RDRAND Ew");
+                    }
+                    SETFLAGS(X_ALL, SF_SET_NODF);
+                    SET_DFNONE();
+                    GETEW(x2, 0);
+                    IFX(X_OF|X_SF|X_ZF|X_PF|X_AF) {
+                        MOV32w(x1, (1<<F_OF)|(1<<F_SF)|(1<<F_ZF)|(1<<F_PF)|(1<<F_AF));
+                        BICw(xFlags, xFlags, x1);
+                    }
+                    if (cpuext.rndr) {
+                        MRS_rndr(x1);
+                        IFX(X_CF) { CSETw(x3, cNE); }
+                    } else {
+                        CALL(const_random32, x1);
+                        IFX(X_CF) { MOV32w(x3, 1); }
+                    }
+                    IFX(X_CF) { BFIw(xFlags, x3, F_CF, 1); }
+                    EWBACKW(x1);
+                    break;
+                default:
+                    DEFAULT;
+            } else {
+                DEFAULT;
+            }
+            break;
+
         case 0xC8:
         case 0xC9:
         case 0xCA:
