@@ -389,7 +389,7 @@ uintptr_t dynarec64_AVX_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
                     BNEZ(x3, 6 * 4);
                     FEQS(x3, v0, s0); // s0 == 0.0f?
                     BEQZ(x3, 4 * 4);
-                    FDIVS(s0, s1, v0); // generate an inf
+                    FDIVS(s0, s1, s0); // generate an inf
                     FSW(s0, gback, gdoffset + i * 4);
                     J(7 * 4); // continue
                 }
@@ -418,7 +418,7 @@ uintptr_t dynarec64_AVX_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
                         BNEZ(x3, 6 * 4);
                         FEQS(x3, v0, s0); // s0 == 0.0f?
                         BEQZ(x3, 4 * 4);
-                        FDIVS(s0, s1, v0); // generate an inf
+                        FDIVS(s0, s1, s0); // generate an inf
                         FSW(s0, gback, gyoffset + i * 4);
                         J(7 * 4); // continue
                     }
