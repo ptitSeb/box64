@@ -20,6 +20,9 @@ typedef struct _CHPE_V2_CPU_AREA_INFO {
 
 #define TEB_CHPE_V2_CPU_AREA_OFFSET 0x1788
 
+#define EC_DATA_EMU 0
+#define EC_DATA_THR 1
+
 static inline CHPE_V2_CPU_AREA_INFO* Box64EC_GetCpuArea(void)
 {
     return *(CHPE_V2_CPU_AREA_INFO**)((char*)NtCurrentTeb() + TEB_CHPE_V2_CPU_AREA_OFFSET);
