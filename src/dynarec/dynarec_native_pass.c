@@ -497,7 +497,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         ++ninst;
         #if STEP == 0
         memset(&dyn->insts[ninst], 0, sizeof(instruction_native_t));
-        if ((ok > 0) && (((BOX64DRENV(dynarec_bigblock) < stopblock) && !isJumpTableDefault64((void*)addr)) || (addr >= BOX64ENV(nodynarec_start) && addr < BOX64ENV(nodynarec_end))))
+        if ((ok > 0) && (((BOX64DRENV(dynarec_bigblock) < stopblock) && !isJumpTableDefault64((void*)addr)) || IsNoDynarecAddress(addr)))
 #else
         if((ok>0) && (ninst==dyn->size))
         #endif
@@ -515,7 +515,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
             }
             #endif
             MESSAGE(LOG_DEBUG, "Stopping block %p (%d / %d)\n",(void*)init_addr, ninst, dyn->size);
-            if (!dyn->need_dump && addr >= BOX64ENV(nodynarec_start) && addr < BOX64ENV(nodynarec_end))
+            if (!dyn->need_dump && IsNoDynarecAddress(addr))
                 dynarec_log(LOG_INFO, "Stopping block in no-dynarec zone\n");
             --ninst;
             if(!dyn->insts[ninst].x64.barrier) {

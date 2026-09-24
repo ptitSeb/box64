@@ -657,9 +657,8 @@ EXPORT int my_pthread_create(x64emu_t *emu, void* t, void* attr, void* start_rou
 	if(BOX64ENV(nodynarec_delay)) {
 		static int num_threads = 0;
 		++num_threads;
-		if(num_threads==2 && BOX64ENV(nodynarec_start)) {
-			BOX64ENV(nodynarec_start) = 0;
-			BOX64ENV(nodynarec_end) = 0;
+		if(num_threads==2 && BOX64ENV(nodynarec_end)) {
+			ResetNoDynarecRanges();
 		}
 	}
 	#endif
