@@ -706,7 +706,11 @@ EXPORT unsigned long my_g_signal_handler_find(x64emu_t* emu, void* instance, uin
 
 EXPORT void* my_g_object_new(x64emu_t* emu, size_t type, void* first, void* b)
 {
-
+    void* klass = my->g_type_class_ref(type);
+    if(klass) {
+        unwrapGTKClass(klass, type);
+        my->g_type_class_unref(klass);
+    }
     if(first) {
         CREATE_VALIST_FROM_VAARG(b, emu->scratch, 2);
         return my->g_object_new_valist(type, first, VARARGS);
@@ -716,12 +720,40 @@ EXPORT void* my_g_object_new(x64emu_t* emu, size_t type, void* first, void* b)
 
 EXPORT void* my_g_object_new_valist(x64emu_t* emu, size_t type, void* first, x64_va_list_t b)
 {
+    void* klass = my->g_type_class_ref(type);
+    if(klass) {
+        unwrapGTKClass(klass, type);
+        my->g_type_class_unref(klass);
+    }
     #ifdef CONVERT_VALIST
     CONVERT_VALIST(b);
     #else
     CREATE_VALIST_FROM_VALIST(b, emu->scratch);
     #endif
     return my->g_object_new_valist(type, first, VARARGS);
+}
+
+EXPORT void* my_g_object_new_with_properties(x64emu_t* emu, size_t type, uint32_t n, void* names, void* values)
+{
+    (void)emu;
+    void* klass = my->g_type_class_ref(type);
+    if(klass) {
+        unwrapGTKClass(klass, type);
+        my->g_type_class_unref(klass);
+    }
+    return my->g_object_new_with_properties(type, n, names, values);
+}
+
+EXPORT size_t my_g_type_class_ref(x64emu_t* emu, size_t type)
+{
+    (void)emu;
+    return (size_t)my->g_type_class_ref(type);
+}
+
+EXPORT void my_g_type_class_unref(x64emu_t* emu, void* klass)
+{
+    (void)emu;
+    my->g_type_class_unref(klass);
 }
 
 EXPORT size_t my_g_type_register_static(x64emu_t* emu, size_t parent, void* name, my_GTypeInfo_t* info, int flags)
@@ -818,6 +850,10 @@ EXPORT void* my_g_type_class_peek_parent(x64emu_t* emu, void* object)
 EXPORT void* my_g_type_check_class_cast(x64emu_t* emu, void* object, size_t kast)
 {
     void* klass = my->g_type_check_class_cast(object, kast);
+    if(!klass) return klass;
+    size_t type = *(size_t*)klass;
+    if(!isKnownGTKClass(type) && kast==my->g_object_get_type() && isGObjectDerivedType(type))
+        return unwrapCopyGTKClass(klass, my->g_object_get_type());
     return wrapCopyGTKClass(klass, kast);
 }
 
