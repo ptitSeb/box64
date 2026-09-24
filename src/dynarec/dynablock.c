@@ -485,7 +485,7 @@ void FlushZombieDynablocks(void)
     if (!my_context) return;
     if (my_context->db_orphan_count) {
         for (int i = 0; i < my_context->db_orphan_count; ++i)
-            if (my_context->db_orphan[i])
+            if (my_context->db_orphan[i] && native_lock_get_d(&my_context->db_orphan[i]->in_used) <= 0)
                 FreeDynarecMap((uintptr_t)my_context->db_orphan[i]->actual_block);
         box_free(my_context->db_orphan);
         my_context->db_orphan = NULL;
@@ -496,7 +496,7 @@ void FlushZombieDynablocks(void)
     int head = my_context->db_zombie_head;
     for (int i = 0; i < my_context->db_zombie_count; ++i) {
         int idx = (head - my_context->db_zombie_count + i + DB_ZOMBIE_SIZE) % DB_ZOMBIE_SIZE;
-        if (my_context->db_zombie[idx])
+        if (my_context->db_zombie[idx] && native_lock_get_d(&my_context->db_zombie[idx]->in_used) <= 0)
             FreeDynarecMap((uintptr_t)my_context->db_zombie[idx]->actual_block);
     }
     my_context->db_zombie_count = 0;
