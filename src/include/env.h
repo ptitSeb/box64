@@ -187,21 +187,13 @@ extern char* ftrace_name;
     INTEGER(BOX64_DYNAREC_CALLRET, dynarec_callret, 0, 0, 3, 1, 2)
 #endif
 
-#ifdef SAVE_MEM
-#define ENVSUPER6() \
-    INTEGER(BOX64_DYNAREC_SEP, dynarec_sep, 1, 0, 2, 1, 2)
-#else
-#define ENVSUPER6() \
-    INTEGER(BOX64_DYNAREC_SEP, dynarec_sep, 0, 0, 2, 1, 2)
-#endif
 
 #define ENVSUPER() \
     ENVSUPER1()    \
     ENVSUPER2()    \
     ENVSUPER3()    \
     ENVSUPER4()    \
-    ENVSUPER5()    \
-    ENVSUPER6()
+    ENVSUPER5()
 
 typedef struct box64env_s {
 #define INTEGER(NAME, name, default, min, max, wine, dynacache) int name;

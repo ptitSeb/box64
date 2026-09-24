@@ -92,7 +92,6 @@ typedef enum flagcache_s {
 } flagcache_t;
 
 typedef struct callret_s callret_t;
-typedef struct sep_s sep_t;
 
 #define RSP_CLASS_BARRIER 0
 #define RSP_CLASS_PUSH    1
@@ -146,7 +145,6 @@ typedef struct instruction_la64_s {
     uint8_t             lock:1;          // [strongmem] lock semantic
     uint8_t             df_needed:1;
     uint8_t             df_notneeded:1;
-    uint8_t             sep:1;           // opcode is a secondary entry point
     uint8_t             nat_flags_fusion:1;
     uint8_t             nat_flags_nofusion:1;
     uint8_t             nat_flags_carry:1;
@@ -215,9 +213,7 @@ typedef struct dynarec_la64_s {
     instsize_t*          instsize;
     size_t               insts_size; // size of the instruction size array (calculated)
     int                  callret_size;   // size of the array
-    int                  sep_size;   // size of the array
     callret_t*           callrets;   // array of callret return, with NOP / UDF depending if the block is clean or dirty
-    sep_t*               sep;        // array of secondary entry point
     void*                leaf_embeddeds;
     uintptr_t            inline_native_end;
     int16_t              inline_rsp;

@@ -33,9 +33,6 @@
         } while(0)
 #define FTABLE64(A, V)  do { mmx87_regs_t v = {.d = V}; Table64(dyn, v.q, 2); EMIT(0); } while(0)
 #define CALLRET_RET(A)   do {                                                                                                                                                            \
-                if((A) && ISSEP() && BOX64DRENV(dynarec_callret)) {                                                                             \
-                        dyn->insts[ninst].size+=sizeof(void*); dyn->native_size+=sizeof(void*); dyn->insts[ninst+1].sep=1; ++dyn->sep_size;     \
-                }                                                                                                                               \
                 if((A) && (BOX64DRENV(dynarec_callret)>1) && !dyn->always_test) {                                                               \
                         dyn->callrets[dyn->callret_size].type = 0; dyn->callrets[dyn->callret_size++].offs = dyn->native_size; EMIT(ARCH_NOP);  \
                 }                                                                                                                               \
