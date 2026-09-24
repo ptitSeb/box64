@@ -5301,6 +5301,28 @@ int checkRegisteredClass(size_t klass)
     return (k==kh_end(my_customclass))?0:1;
 }
 
+int isKnownGTKClass(size_t type)
+{
+    #define GTKCLASS(A) if(type==my_##A) return 1;
+    #define GTKIFACE(A) GTKCLASS(A)
+    GTKCLASSES()
+    #undef GTKCLASS
+    #undef GTKIFACE
+    return 0;
+}
+
+int isGObjectDerivedType(size_t type)
+{
+    if(my_GObject == (size_t)-1)
+        return 0;
+    while(type) {
+        if(type == my_GObject)
+            return 1;
+        type = g_type_parent(type);
+    }
+    return 0;
+}
+
 // g_type_class_peek_parent
 void wrapGTKClass(void* cl, size_t type)
 {
@@ -5335,8 +5357,10 @@ void unwrapGTKClass(void* cl, size_t type)
     printf_log(LOG_DEBUG, "...unwrapGTKClass(%p, %zd (%s))\n", cl, type, g_type_name(type));
     GTKCLASSES()
     if(type<0x35) {}  // GInterface (8) and other simple opbjects have no structure
-    else
-        printf_log(LOG_NONE, "Warning: fail to unwrapGTKClass for type %zx (%s)\n", type, g_type_name(type));
+    else {
+        unwrapGObjectClass((my_GObjectClass_t*)cl);
+        printf_log(LOG_DEBUG, "Warning: fail to unwrapGTKClass for type %zx (%s)\n", type, g_type_name(type));
+    }
     #undef GTKCLASS
     #undef GTKIFACE
 }
