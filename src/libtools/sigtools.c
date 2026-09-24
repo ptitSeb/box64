@@ -568,7 +568,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd, 
         if(is32bits) addr = (uint8_t*)(((uintptr_t)addr)&0xffffffff);
         int size = (funct3 == 0b010 ? 4 : funct3 == 0b011 ? 8 : 2);
         if((((uintptr_t)addr) & (size - 1)) == 0) return 0;
-        uint64_t value = opcode == 0b0100011 ? p->uc_mcontext.__gregs[val] : p->uc_mcontext.__fpregs.__d.__f[val<<1];
+        uint64_t value = opcode == 0b0100011 ? p->uc_mcontext.__gregs[val] : p->uc_mcontext.__fpregs.__d.__f[val];
         for(int i = 0; i < size; ++i) {
             addr[i] = (value >> (i * 8)) & 0xff;
         }
