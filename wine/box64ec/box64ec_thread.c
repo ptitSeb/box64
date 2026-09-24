@@ -102,14 +102,13 @@ static void free_thread_state(CHPE_V2_CPU_AREA_INFO* area)
 
     if (!area)
         return;
-    emu = (x64emu_t*)area->EmulatorData[EC_DATA_EMU];
-    thr = area->EmulatorData[EC_DATA_THR];
-    area->SuspendDoorbell = NULL;
-    area->EmulatorData[EC_DATA_EMU] = NULL;
+    InterlockedExchangePointer((void* volatile*)&area->SuspendDoorbell, NULL);
+    /* Concurrent termination callbacks must claim each allocation only once. */
+    emu = InterlockedExchangePointer(&area->EmulatorData[EC_DATA_EMU], NULL);
+    thr = InterlockedExchangePointer(&area->EmulatorData[EC_DATA_THR], NULL);
     if (emu) {
         FreeX64Emu(&emu);
     }
-    area->EmulatorData[EC_DATA_THR] = NULL;
     if (thr)
         WinFree(thr);
 }
@@ -126,7 +125,6 @@ void WINAPI ThreadTerm(HANDLE handle, LONG exit_code)
     } thread_basic_information_t;
 
     CHPE_V2_CPU_AREA_INFO* area;
-    x64emu_t* emu;
     thread_basic_information_t info;
     OBJECT_BASIC_INFORMATION access;
     HANDLE thread = NULL;
@@ -139,11 +137,8 @@ void WINAPI ThreadTerm(HANDLE handle, LONG exit_code)
 
     if (RtlIsCurrentThread(handle)) {
         area = Box64EC_GetCpuArea();
-        emu = area ? (x64emu_t*)area->EmulatorData[EC_DATA_EMU] : NULL;
-        printf_log(LOG_DEBUG, "box64ec ThreadTerm handle=%p status=%08x area=%p rip=%p rsp=%p\n",
-                         handle, (unsigned)exit_code, area,
-                         emu ? (void*)(uintptr_t)R_RIP : NULL,
-                         emu ? (void*)(uintptr_t)R_RSP : NULL);
+        printf_log(LOG_DEBUG, "box64ec ThreadTerm handle=%p status=%08x area=%p\n",
+                         handle, (unsigned)exit_code, area);
         free_thread_state(area);
         return;
     }
@@ -182,11 +177,8 @@ void WINAPI ThreadTerm(HANDLE handle, LONG exit_code)
 
     area = *(CHPE_V2_CPU_AREA_INFO**)(
         (char*)info.TebBaseAddress + TEB_CHPE_V2_CPU_AREA_OFFSET);
-    emu = area ? (x64emu_t*)area->EmulatorData[EC_DATA_EMU] : NULL;
-    printf_log(LOG_DEBUG, "box64ec ThreadTerm handle=%p status=%08x area=%p rip=%p rsp=%p\n",
-                     handle, (unsigned)exit_code, area,
-                     emu ? (void*)(uintptr_t)R_RIP : NULL,
-                     emu ? (void*)(uintptr_t)R_RSP : NULL);
+    printf_log(LOG_DEBUG, "box64ec ThreadTerm handle=%p status=%08x area=%p\n",
+                     handle, (unsigned)exit_code, area);
 
     if (!area) {
         NtClose(thread);
