@@ -29,7 +29,9 @@ void PrintBox64Version(int prefix);
 #define BOX64_BUILD_INFO_STR_HELPER(x) #x
 #define BOX64_BUILD_INFO_STR(x) BOX64_BUILD_INFO_STR_HELPER(x)
 
-#ifdef _WIN32
+#ifdef BOX64EC
+#define BOX64_STR "Box64EC"
+#elif defined(_WIN32)
 #define BOX64_STR "WowBox64"
 #else
 #define BOX64_STR "Box64"
