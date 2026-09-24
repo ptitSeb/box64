@@ -6,10 +6,12 @@ find_package(Python3 REQUIRED COMPONENTS Interpreter)
 set(BOX64_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../..")
 
 add_library(box64ec SHARED
-    box64ec.c box64ec_init.c box64ec_cpu.c box64ec.def
+    box64ec.c box64ec_init.c box64ec_cpu.c box64ec_thread.c box64ec.def
     "${BOX64_ROOT}/wine/common/crt.c"
     "${BOX64_ROOT}/wine/common/wrt.c"
     "${BOX64_ROOT}/src/custommem.c"
+    "${BOX64_ROOT}/src/emu/x64emu.c"
+    "${BOX64_ROOT}/src/emu/x87emu_private.c"
     "${BOX64_ROOT}/src/os/backtrace.c"
     "${BOX64_ROOT}/src/os/os_wine.c"
     "${BOX64_ROOT}/src/os/sysinfo.c"
@@ -17,6 +19,7 @@ add_library(box64ec SHARED
     "${BOX64_ROOT}/src/os/hostext_wine.c"
     "${BOX64_ROOT}/src/tools/env.c"
     "${BOX64_ROOT}/src/tools/cpumask.c"
+    "${BOX64_ROOT}/src/tools/bitutils.c"
     "${BOX64_ROOT}/src/tools/rbtree.c"
 )
 target_include_directories(box64ec PRIVATE
