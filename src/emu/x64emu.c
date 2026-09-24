@@ -590,6 +590,8 @@ void UnimpOpcode(x64emu_t* emu, int is32bits)
         tid, (void*)emu->old_ip, is32bits?"32bits ":"", prev, opcode);
 }
 
+// Box64EC enters through Wine transitions, not Linux callback helpers.
+#ifndef BOX64EC
 void EmuCall(x64emu_t* emu, uintptr_t addr)
 {
     uint64_t old_rsp = R_RSP;
@@ -640,6 +642,8 @@ void EmuCall(x64emu_t* emu, uintptr_t addr)
         R_RIP = old_rip;  // and set back instruction pointer
     }
 }
+
+#endif
 
 void applyFlushTo0(x64emu_t* emu)
 {
