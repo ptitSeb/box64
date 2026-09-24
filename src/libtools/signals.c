@@ -409,23 +409,20 @@ int my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigin
         new_ss->ss_flags = SS_ONSTACK;
     } else {
         frame = frame&~15ULL;
-        frame -= 0x200ULL; // redzone
+        frame -= 0x80ULL; // redzone, same as Linux on x86_64
     }
 
-    // TODO: do I need to really setup 2 stack frame? That doesn't seems right!
-    // setup stack frame
-    frame -= 512+64+16*16;
-    void* xstate = (void*)frame;
+    const size_t xsave_extra = (512+64+16*16) - sizeof(struct x64_libc_fpstate);
+    frame -= sizeof(x64_ucontext_t) + xsave_extra;
+    x64_ucontext_t   *sigcontext = (x64_ucontext_t*)frame;
+    void* xstate = (void*)&sigcontext->xstate;
     frame -= sizeof(siginfo_t);
     siginfo_t* info2 = (siginfo_t*)frame;
     memcpy(info2, info, sizeof(siginfo_t));
-    // try to fill some sigcontext....
-    frame -= sizeof(x64_ucontext_t);
-    x64_ucontext_t   *sigcontext = (x64_ucontext_t*)frame;
     // get general register
     emu2mctx(&sigcontext->uc_mcontext, emu);
     // get FloatPoint status
-    sigcontext->uc_mcontext.fpregs = xstate;//(struct x64_libc_fpstate*)&sigcontext->xstate;
+    sigcontext->uc_mcontext.fpregs = xstate;
     fpu_xsave_mask(emu, xstate, 0, 0b111);
     // x86_64 kernel resets the fpu state to its init value before running the signal handler (fpu__clear_user_states),
     // the interrupted state is kept in the frame and will be restored by the sigreturn.
@@ -436,7 +433,6 @@ int my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigin
         emu->ymm[i].u128 = 0;
     }
     emu->mxcsr.x32 = 0x1f80; // x86 default MXCSR
-    memcpy(&sigcontext->xstate, xstate, sizeof(sigcontext->xstate));
     ((struct x64_fpstate*)xstate)->res[12] = 0x46505853;   // magic number to signal an XSTATE type of fpregs
     ((struct x64_fpstate*)xstate)->res[13] = 0; // offset to xstate after this?
     // get signal mask
