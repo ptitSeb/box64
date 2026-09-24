@@ -143,14 +143,19 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 SET_ELEMENT_WIDTH(x3, VECTOR_SEW64, 1);
                 GETGX_vector(v0, 1, VECTOR_SEW64);
                 GETED(0);
-                FCVTSL(v0, ed, RD_RNE);
-                SET_ELEMENT_WIDTH(x3, VECTOR_SEW32, 1);
             } else {
                 SET_ELEMENT_WIDTH(x3, VECTOR_SEW32, 1);
                 GETGX_vector(v0, 1, VECTOR_SEW32);
                 GETED(0);
-                FCVTSW(v0, ed, RD_RNE);
             }
+            if (!BOX64ENV(dynarec_fastround)) u8 = sse_setround(dyn, ninst, x5, x6);
+            if (rex.w) {
+                FCVTSL(v0, ed, !BOX64ENV(dynarec_fastround) ? RD_DYN : RD_RNE);
+                SET_ELEMENT_WIDTH(x3, VECTOR_SEW32, 1);
+            } else {
+                FCVTSW(v0, ed, !BOX64ENV(dynarec_fastround) ? RD_DYN : RD_RNE);
+            }
+            if (!BOX64ENV(dynarec_fastround)) x87_restoreround(dyn, ninst, u8);
             if (cpuext.xtheadvector) {
                 v1 = fpu_get_scratch(dyn);
                 VFMV_S_F(v1, v0);
