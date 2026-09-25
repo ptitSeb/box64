@@ -23,9 +23,9 @@
 #endif
 #include "custommem.h"
 // for the applyFlushTo0
-#ifdef __x86_64__
+#if defined(__x86_64__) && !defined(__arm64ec__) && !defined(_M_ARM64EC)
 #include <immintrin.h>
-#elif defined(__aarch64__)
+#elif defined(__aarch64__) || defined(__arm64ec__) || defined(_M_ARM64EC)
 #else
 #warning Architecture cannot follow SSE Flush to 0 flag
 #endif
@@ -590,6 +590,8 @@ void UnimpOpcode(x64emu_t* emu, int is32bits)
         tid, (void*)emu->old_ip, is32bits?"32bits ":"", prev, opcode);
 }
 
+// Box64EC enters through Wine transitions, not Linux callback helpers.
+#ifndef BOX64EC
 void EmuCall(x64emu_t* emu, uintptr_t addr)
 {
     uint64_t old_rsp = R_RSP;
@@ -641,11 +643,13 @@ void EmuCall(x64emu_t* emu, uintptr_t addr)
     }
 }
 
+#endif
+
 void applyFlushTo0(x64emu_t* emu)
 {
-    #ifdef __x86_64__
+    #if defined(__x86_64__) && !defined(__arm64ec__) && !defined(_M_ARM64EC)
     _mm_setcsr(_mm_getcsr() | (emu->mxcsr.x32&0x8040));
-    #elif defined(__aarch64__)
+    #elif defined(__aarch64__) || defined(__arm64ec__) || defined(_M_ARM64EC)
     #if defined(__ANDROID__) || defined(__clang__)
     uint64_t fpcr;
     __asm__ __volatile__ ("mrs    %0, fpcr":"=r"(fpcr));

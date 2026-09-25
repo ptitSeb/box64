@@ -12,6 +12,7 @@
 #include "hostext.h"
 
 uintptr_t box64_pagesize = 4096;
+uint32_t default_fs = 0;
 int box64_is32bits = 0;
 int box64_wine = 1;
 sysinfo_t box64_sysinfo = {0};

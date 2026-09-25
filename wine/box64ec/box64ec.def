@@ -3,4 +3,6 @@ LIBRARY box64ec.dll
 EXPORTS
   BTCpu64IsProcessorFeaturePresent
   ProcessInit
+  ThreadInit
+  ThreadTerm
   UpdateProcessorInformation
