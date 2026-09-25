@@ -12,6 +12,7 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef void (*vFp_t)(void*);
 typedef int32_t (*iFp_t)(void*);
 typedef void* (*pFL_t)(uintptr_t);
 typedef void* (*pFp_t)(void*);
@@ -36,6 +37,7 @@ typedef void (*vFpupp_t)(void*, uint32_t, void*, void*);
 typedef void (*vFpLLp_t)(void*, uintptr_t, uintptr_t, void*);
 typedef void (*vFpppp_t)(void*, void*, void*, void*);
 typedef uintptr_t (*LFLppu_t)(uintptr_t, void*, void*, uint32_t);
+typedef void* (*pFLupp_t)(uintptr_t, uint32_t, void*, void*);
 typedef uintptr_t (*LFuuppp_t)(uint32_t, uint32_t, void*, void*, void*);
 typedef uintptr_t (*LFLpppu_t)(uintptr_t, void*, void*, void*, uint32_t);
 typedef uintptr_t (*LFpLppu_t)(void*, uintptr_t, void*, void*, uint32_t);
@@ -50,7 +52,9 @@ typedef uint32_t (*uFpLuppppLup_t)(void*, uintptr_t, uint32_t, void*, void*, voi
 typedef uint32_t (*uFpLuppppLuA_t)(void*, uintptr_t, uint32_t, void*, void*, void*, void*, uintptr_t, uint32_t, va_list);
 
 #define SUPER() ADDED_FUNCTIONS() \
+	GO(g_type_class_unref, vFp_t) \
 	GO(g_type_module_use, iFp_t) \
+	GO(g_type_class_ref, pFL_t) \
 	GO(g_type_value_table_peek, pFL_t) \
 	GO(g_type_class_peek_parent, pFp_t) \
 	GO(g_closure_set_marshal, vFpp_t) \
@@ -85,6 +89,7 @@ typedef uint32_t (*uFpLuppppLuA_t)(void*, uintptr_t, uint32_t, void*, void*, voi
 	GO(g_type_module_add_interface, vFpLLp_t) \
 	GO(g_object_set_data_full, vFpppp_t) \
 	GO(g_type_register_static, LFLppu_t) \
+	GO(g_object_new_with_properties, pFLupp_t) \
 	GO(g_signal_add_emission_hook, LFuuppp_t) \
 	GO(g_type_register_fundamental, LFLpppu_t) \
 	GO(g_type_module_register_type, LFpLppu_t) \

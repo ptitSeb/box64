@@ -2591,6 +2591,8 @@ void AutoBridgeGtk(void*(*ref)(size_t), void(*unref)(void*));
 
 void* wrapCopyGTKClass(void* cl, size_t type);
 void* unwrapCopyGTKClass(void* klass, size_t type);
+int isKnownGTKClass(size_t type);
+int isGObjectDerivedType(size_t type);
 void wrapGTKClass(void* cl, size_t type);
 void unwrapGTKClass(void* klass, size_t type);
 
@@ -2602,6 +2604,7 @@ void unwrapGTKInstance(void* cl, size_t type);
 void bridgeGTKInstance(void* cl, size_t type);
 
 void addRegisteredClass(size_t klass, char* name);
+int checkRegisteredClass(size_t klass);
 
 void my_add_signal_offset(size_t klass, uint32_t offset, int n);
 
