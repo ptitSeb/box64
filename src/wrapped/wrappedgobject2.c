@@ -852,7 +852,7 @@ EXPORT void* my_g_type_check_class_cast(x64emu_t* emu, void* object, size_t kast
     void* klass = my->g_type_check_class_cast(object, kast);
     if(!klass) return klass;
     size_t type = *(size_t*)klass;
-    if(!isKnownGTKClass(type) && kast==my->g_object_get_type() && isGObjectDerivedType(type))
+    if(!isKnownGTKClass(type) && !checkRegisteredClass(type) && kast==my->g_object_get_type() && isGObjectDerivedType(type))
         return unwrapCopyGTKClass(klass, my->g_object_get_type());
     return wrapCopyGTKClass(klass, kast);
 }
@@ -999,7 +999,9 @@ EXPORT void my_g_type_module_add_interface(x64emu_t* emu, my_GTypeModule_t* modu
 
 EXPORT size_t my_g_type_module_register_type(x64emu_t* emu, my_GTypeModule_t* module, size_t parent_type, char* type_name, my_GTypeInfo_t* type_info, uint32_t flags)
 {
-    return my->g_type_module_register_type(module, parent_type, type_name, findFreeGTypeInfo(type_info, parent_type), flags);
+    size_t ret = my->g_type_module_register_type(module, parent_type, type_name, findFreeGTypeInfo(type_info, parent_type), flags);
+    addRegisteredClass(ret, type_name);
+    return ret;
 }
 
 #define PRE_INIT \

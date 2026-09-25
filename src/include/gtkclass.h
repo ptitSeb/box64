@@ -2604,6 +2604,7 @@ void unwrapGTKInstance(void* cl, size_t type);
 void bridgeGTKInstance(void* cl, size_t type);
 
 void addRegisteredClass(size_t klass, char* name);
+int checkRegisteredClass(size_t klass);
 
 void my_add_signal_offset(size_t klass, uint32_t offset, int n);
 
