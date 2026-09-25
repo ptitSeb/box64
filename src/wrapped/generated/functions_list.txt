@@ -1623,6 +1623,7 @@
 #() pFdddd
 #() pFDipp
 #() pFLiip
+#() pFLupp
 #() pFLLup
 #() pFLLLL
 #() pFLLpp
@@ -2272,7 +2273,6 @@
 #() pFEiLpp
 #() pFEuipV
 #() pFEuipA
-#() pFELupp
 #() pFEpiii
 #() pFEpipL
 #() pFEpipp
@@ -5015,12 +5015,9 @@ wrappedgnutls:
   - gnutls_transport_set_pull_timeout_function
   - gnutls_transport_set_push_function
 wrappedgobject2:
-- vFp:
-  - g_type_class_unref
 - iFp:
   - g_type_module_use
 - pFL:
-  - g_type_class_ref
   - g_type_value_table_peek
 - pFp:
   - g_type_class_peek_parent
@@ -5077,8 +5074,6 @@ wrappedgobject2:
   - g_object_set_data_full
 - LFLppu:
   - g_type_register_static
-- pFLupp:
-  - g_object_new_with_properties
 - LFuuppp:
   - g_signal_add_emission_hook
 - LFLpppu:
