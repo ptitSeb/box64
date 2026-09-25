@@ -964,7 +964,6 @@ dynablock_t* FillBlock64(uintptr_t addr, int is32bits, int inst_max, int is_new,
     size_t insts_rsize = 0;
     size_t arch_size = 0;
     size_t callret_size = 0;
-    size_t sep_size = 0;
     size_t reloc_size = 0;
     size_t sz = 0;
     size_t dynablock_align = 0;
@@ -978,7 +977,6 @@ dynablock_t* FillBlock64(uintptr_t addr, int is32bits, int inst_max, int is_new,
     void* tablestart = NULL;
     void* arch = NULL;
     void* callrets = NULL;
-    void* seps = NULL;
     dynablock_t* block = NULL;
     #define BUILD_INIT 0
     #define BUILD_PASS0 1
@@ -1248,13 +1246,12 @@ dynablock_t* FillBlock64(uintptr_t addr, int is32bits, int inst_max, int is_new,
             insts_rsize = (insts_rsize+7)&~7;   // round the size...
             arch_size = ARCH_SIZE(&helper);
             callret_size = helper.callret_size*sizeof(callret_t);
-            sep_size = helper.sep_size*sizeof(sep_t);
             reloc_size = helper.reloc_size*sizeof(uint32_t);
             // ok, now allocate mapped memory, with executable flag on
-            sz = sizeof(void*) + native_size + helper.table64size*sizeof(uint64_t) + JMPNEXT_SIZE + insts_rsize + arch_size + callret_size + sep_size;
+            sz = sizeof(void*) + native_size + helper.table64size*sizeof(uint64_t) + JMPNEXT_SIZE + insts_rsize + arch_size + callret_size;
             dynablock_align = (sz&7)?(8 -(sz&7)):0;    // align dynablock
             sz += dynablock_align + sizeof(dynablock_t) + reloc_size;
-            //           dynablock_t*     block (arm insts)            table64               jmpnext code       instsize     arch         callrets         sep  dynablock           relocs
+            //           dynablock_t*     block (arm insts)            table64               jmpnext code       instsize     arch         callrets         dynablock           relocs
             actual_p = (void*)AllocDynarecMap(old_addr, sz, is_new);
             if(actual_p==NULL) {
                 dynarec_log(LOG_INFO, "AllocDynarecMap(%p, %zu) failed, canceling block\n", (void*)addr, sz);
@@ -1267,9 +1264,8 @@ dynablock_t* FillBlock64(uintptr_t addr, int is32bits, int inst_max, int is_new,
             instsize = next + JMPNEXT_SIZE;
             arch = instsize + insts_rsize;
             callrets = arch + arch_size;
-            seps = callrets + callret_size;
             helper.block = p;
-            block = (dynablock_t*)(seps+sep_size+dynablock_align);
+            block = (dynablock_t*)(callrets+callret_size+dynablock_align);
             memset(block, 0, sizeof(dynablock_t));
             void* relocs = helper.need_reloc?(block+1):NULL;
             // fill the block
@@ -1288,14 +1284,12 @@ dynablock_t* FillBlock64(uintptr_t addr, int is32bits, int inst_max, int is_new,
             helper.table64cap = helper.table64size;
             helper.table64 = (uint64_t*)helper.tablestart;
             helper.callrets = (callret_t*)callrets;
-            helper.sep = (sep_t*)seps;
             block->prefixsize = helper.prefixsize;
             block->table64 = helper.table64;
             helper.dynablock = block;
             if(callret_size)
                 memcpy(helper.callrets, static_callrets, helper.callret_size*sizeof(callret_t));
             helper.callret_size = 0;
-            helper.sep_size = 0;
             // pass 3, emit (log emit native opcode)
             if(dyn->need_dump && dyn->need_dump != 3) {
                 dynarec_log(LOG_NONE, "%s%04d|Emitting %zu bytes for %u %s bytes (native=%zu, table64=%zu, instsize=%zu, arch=%zu, callrets=%zu, entry=%p)", (dyn->need_dump>1)?"\e[01;36m":"", GetTID(), helper.native_size, helper.isize, is32bits?"x86":"x64", native_size, helper.table64size*sizeof(uint64_t), insts_rsize, arch_size, callret_size, helper.block);
@@ -1354,15 +1348,8 @@ dynablock_t* FillBlock64(uintptr_t addr, int is32bits, int inst_max, int is_new,
             }
             block->callret_size = helper.callret_size;
             block->callrets = helper.callrets;
-            block->sep_size = helper.sep_size;
-            block->sep = helper.sep;
             block->native_size = native_size;
             *(dynablock_t**)next = block;
-            for(int i=0; i<helper.sep_size; ++i) {
-                // setup the dynablock reference for secondary entry points
-                void* p = (block->block + helper.sep[i].nat_offs - sizeof(void*));
-                *(dynablock_t**)p = block;
-            }
             *(void**)(next+JMPNEXT_SIZE-sizeof(void*)) = native_next;
             CreateJmpNext(block->jmpnext, next+JMPNEXT_SIZE-sizeof(void*));
             ClearCache(block->jmpnext, JMPNEXT_SIZE-sizeof(void*));

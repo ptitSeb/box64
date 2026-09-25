@@ -91,16 +91,8 @@ void* LinkNext(x64emu_t* emu, uintptr_t addr, void* x2, uintptr_t* x3)
         // null block, but done: go to epilog, no linker here
         return native_epilog;
     }
-    if(block->sep_size && (uintptr_t)block->x64_addr!=addr) {
-        jblock = NULL;
-        for(int i=0; i<block->sep_size && !jblock; ++i) {
-            if(addr==(uintptr_t)block->x64_addr + block->sep[i].x64_offs)
-                jblock = block->block + block->sep[i].nat_offs;
-        }
-        if(!jblock) {
-            printf_log(LOG_NONE, "Warning, cannot find Secondary Entry Point %p in dynablock %p\n", addr, block);
-            return native_epilog;
-        }
+    if((uintptr_t)block->x64_addr != addr) {
+        return native_epilog;
     }
     //dynablock_t *father = block->father?block->father:block;
     return jblock;
@@ -118,18 +110,8 @@ void* LinkNextInvalid(x64emu_t* emu, uintptr_t addr, void* x2, uintptr_t* x3)
         FreeInvalidDynablock(old, 0);
         db = internalDBGetBlock(emu, addr, 1, 0, is32bits, 0);
         mutex_unlock(&my_context->mutex_dyndump);
-        if(db && db->done && db->block) {
-            void* jblock = db->block;
-            if(db->sep_size && (uintptr_t)db->x64_addr!=addr) {
-                jblock = NULL; // not sure how this would happens here, but lets put the case it starts on SEP anyway
-                for(int i=0; i<db->sep_size && !jblock; ++i) {
-                    if(addr==(uintptr_t)db->x64_addr + db->sep[i].x64_offs)
-                        jblock = db->block + db->sep[i].nat_offs;
-                }
-            }
-            if(jblock)
-                return jblock;
-        }
+        if(db && db->done && db->block && (uintptr_t)db->x64_addr == addr)
+            return db->block;
     }
     return LinkNext(emu, addr, x2, x3);
 }
@@ -291,22 +273,10 @@ void EmuRun(x64emu_t* emu, int use_dynarec, int no_alt)
                     CHECK_FLAGS(emu);
                 }
                 // block is here, let's run it!
-                void* jblock = block->block;
-                if(block->sep_size && R_RIP!=(uintptr_t)block->x64_addr) {
-                    jblock = NULL;
-                    for(int i=0; i<block->sep_size && !jblock; ++i) {
-                        if(R_RIP==(uintptr_t)block->x64_addr + block->sep[i].x64_offs)
-                            jblock = block->block + block->sep[i].nat_offs;
-                    }
-                }
+                void* jblock = ((uintptr_t)R_RIP==(uintptr_t)block->x64_addr)?block->block:NULL;
                 if(!jblock) {
-                    printf_log(LOG_NONE, "Warning, cannot find Secondary Entry Point %p in dynablock %p\n", (void*)R_RIP, block);
                     skip = 1;
                 } else {
-                    #if defined(ARM64) || defined(LA64) || defined(RV64)
-                    if (jblock != block->block && BOX64ENV(dynarec_callret) >= 2)
-                        __atomic_fetch_add(&block->in_used, 1, __ATOMIC_ACQ_REL);
-                    #endif
                     native_prolog(emu, jblock);
                 }
             }

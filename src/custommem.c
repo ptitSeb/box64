@@ -1538,7 +1538,6 @@ int MmaplistAddBlock_internal(mmaplist_t* list, void* map, void* orig, size_t si
             GO(instsize);
             GO(arch);
             GO(callrets);
-            GO(sep);
             GO(jmpnext);
             GO(table64);
             GO(relocs);
@@ -1561,10 +1560,6 @@ int MmaplistAddBlock_internal(mmaplist_t* list, void* map, void* orig, size_t si
             // adjust guest source addresses with delta_map
             bl->x64_addr += delta_map;
             bl->x64_readaddr += delta_map;
-            for (int j = 0; j < bl->sep_size; ++j) {
-                // SEP native entries also carry a hidden dynablock reference.
-                *(dynablock_t**)(bl->block + bl->sep[j].nat_offs - sizeof(void*)) = bl;
-            }
             *(uintptr_t*)(bl->jmpnext+2*sizeof(void*)) = RelocGetNext();
             if(bl->relocs && bl->relocsize)
                 ApplyRelocs(bl, delta, delta_map, mapping_start);
@@ -1575,13 +1570,6 @@ int MmaplistAddBlock_internal(mmaplist_t* list, void* map, void* orig, size_t si
                 // cannot add blocks?
                 printf_log(LOG_INFO, "Warning, cannot add DynaCache Block %d to JmpTable\n", i);
             } else {
-                for(int i=0; i<bl->sep_size; ++i) {
-                    uint32_t x64_offs = bl->sep[i].x64_offs;
-                    if (addJumpTableIfDefault64(bl->x64_addr + x64_offs, bl->jmpnext))
-                        bl->sep[i].active = 1;
-                    else
-                        bl->sep[i].active = 0;
-                }
                 if(bl->x64_size) {
                     dynarec_log(LOG_DEBUG, "Added DynCache bl %p for %p - %p\n", bl, bl->x64_addr, bl->x64_addr+bl->x64_size);
                     if(bl->x64_size>my_context->max_db_size) {

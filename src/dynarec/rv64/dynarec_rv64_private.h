@@ -100,7 +100,6 @@ typedef enum flagcache_s {
 } flagcache_t;
 
 typedef struct callret_s callret_t;
-typedef struct sep_s sep_t;
 
 typedef struct instruction_rv64_s {
     instruction_x64_t   x64;
@@ -126,7 +125,6 @@ typedef struct instruction_rv64_s {
     uint8_t             lock:1;          // [strongmem] lock semantic
     uint8_t             df_needed:1;
     uint8_t             df_notneeded:1;
-    uint8_t             sep:1;           // opcode is a secondary entry point
     uint8_t             nat_flags_fusion:1;
     uint8_t             nat_flags_nofusion:1;
     uint8_t             nat_flags_carry:1;
@@ -176,9 +174,7 @@ typedef struct dynarec_rv64_s {
     instsize_t*         instsize;
     size_t              insts_size; // size of the instruction size array (calculated)
     int                 callret_size;   // size of the array
-    int                 sep_size;   // size of the array
     callret_t*          callrets;   // array of callret return, with NOP / UDF depending if the block is clean or dirty
-    sep_t*              sep;        // array of secondary entry point
     uint8_t             smwrite;    // for strongmem model emulation
     uintptr_t           forward;    // address of the last end of code while testing forward
     uintptr_t           forward_to; // address of the next jump to (to check if everything is ok)
