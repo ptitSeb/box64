@@ -564,6 +564,9 @@ int my_sigactionhandler_oldcode_32(x64emu_t* emu, int32_t sig, int simple, sigin
     fpu_xsave_mask(emu, xstate, 1, 0b111);
     memcpy(&sigcontext->xstate, xstate, sizeof(sigcontext->xstate));
     ((struct i386_fpstate*)xstate)->status_magic = 0x46505853;   // magic number to signal an XSTATE type of fpregs
+    // remember the FP state to detect handler edits to *fpregs
+    unsigned char fpstate_copy[512+64+16*16];
+    memcpy(fpstate_copy, xstate, sizeof(fpstate_copy));
     // get signal mask
 
     if(new_ss) {
@@ -732,7 +735,19 @@ int my_sigactionhandler_oldcode_32(x64emu_t* emu, int32_t sig, int simple, sigin
     GO(EBP);
     #undef GO
 
-    if(memcmp(sigcontext, &sigcontext_copy, sizeof(i386_ucontext_t))) {
+    int fp_changed = (sigcontext->uc_mcontext.fpregs != to_ptrv(xstate)) || memcmp(fpstate_copy, xstate, sizeof(fpstate_copy));
+    if(sigcontext->uc_mcontext.fpregs)
+        fpu_xrstor_mask(emu, from_ptrv(sigcontext->uc_mcontext.fpregs), 1, 0b111);
+
+    int regs_changed = memcmp(sigcontext, &sigcontext_copy, sizeof(i386_ucontext_t));
+    #if defined(DYNAREC)
+    int in_dynablock = db && db->block && p && pc
+        && (uintptr_t)pc >= (uintptr_t)db->block
+        && (uintptr_t)pc <= (uintptr_t)db->actual_block + db->size;
+    #else
+    int in_dynablock = 0;
+    #endif
+    if(regs_changed || (fp_changed && in_dynablock)) {
         if(emu->jmpbuf) {
             #define GO(R)   emu->regs[_##R].q[0]=sigcontext->uc_mcontext.gregs[I386_E##R]
             GO(AX);
@@ -746,8 +761,8 @@ int my_sigactionhandler_oldcode_32(x64emu_t* emu, int32_t sig, int simple, sigin
             #undef GO
             // flags
             emu->eflags.x64=sigcontext->uc_mcontext.gregs[I386_EFL];
-            if(ACCESS_FLAG(F_TF))
-                skip = 1;   // no_tf may not be consumed in dynarec, force to use interpreter
+            if(ACCESS_FLAG(F_TF) || (fp_changed && !regs_changed))
+                skip = 1;   // no_tf may not be consumed in dynarec, or fp-only edits need a reload, so use interpreter
             else if((skip==1) && (emu->ip.q[0]!=sigcontext->uc_mcontext.gregs[I386_EIP]))
                 skip = 3;   // if it jumps elsewhere, it can resume with dynarec...
             emu->ip.q[0]=sigcontext->uc_mcontext.gregs[I386_EIP];

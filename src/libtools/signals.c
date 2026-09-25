@@ -409,23 +409,20 @@ int my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigin
         new_ss->ss_flags = SS_ONSTACK;
     } else {
         frame = frame&~15ULL;
-        frame -= 0x200ULL; // redzone
+        frame -= 0x80ULL; // redzone, same as Linux on x86_64
     }
 
-    // TODO: do I need to really setup 2 stack frame? That doesn't seems right!
-    // setup stack frame
-    frame -= 512+64+16*16;
-    void* xstate = (void*)frame;
+    const size_t xsave_extra = (512+64+16*16) - sizeof(struct x64_libc_fpstate);
+    frame -= sizeof(x64_ucontext_t) + xsave_extra;
+    x64_ucontext_t   *sigcontext = (x64_ucontext_t*)frame;
+    void* xstate = (void*)&sigcontext->xstate;
     frame -= sizeof(siginfo_t);
     siginfo_t* info2 = (siginfo_t*)frame;
     memcpy(info2, info, sizeof(siginfo_t));
-    // try to fill some sigcontext....
-    frame -= sizeof(x64_ucontext_t);
-    x64_ucontext_t   *sigcontext = (x64_ucontext_t*)frame;
     // get general register
     emu2mctx(&sigcontext->uc_mcontext, emu);
     // get FloatPoint status
-    sigcontext->uc_mcontext.fpregs = xstate;//(struct x64_libc_fpstate*)&sigcontext->xstate;
+    sigcontext->uc_mcontext.fpregs = xstate;
     fpu_xsave_mask(emu, xstate, 0, 0b111);
     // x86_64 kernel resets the fpu state to its init value before running the signal handler (fpu__clear_user_states),
     // the interrupted state is kept in the frame and will be restored by the sigreturn.
@@ -436,9 +433,10 @@ int my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigin
         emu->ymm[i].u128 = 0;
     }
     emu->mxcsr.x32 = 0x1f80; // x86 default MXCSR
-    memcpy(&sigcontext->xstate, xstate, sizeof(sigcontext->xstate));
     ((struct x64_fpstate*)xstate)->res[12] = 0x46505853;   // magic number to signal an XSTATE type of fpregs
     ((struct x64_fpstate*)xstate)->res[13] = 0; // offset to xstate after this?
+    unsigned char fpstate_copy[512+64+16*16];
+    memcpy(fpstate_copy, xstate, sizeof(fpstate_copy));
     // get signal mask
 
     if(new_ss) {
@@ -616,11 +614,22 @@ int my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigin
     #undef GO
     emu->eflags.x64 = old_eflags;
 
-    if(memcmp(sigcontext, &sigcontext_copy, sizeof(x64_ucontext_t))) {
+    int fp_changed = (sigcontext->uc_mcontext.fpregs != (struct x64_libc_fpstate*)xstate) || memcmp(fpstate_copy, xstate, sizeof(fpstate_copy));
+    if(sigcontext->uc_mcontext.fpregs)
+        fpu_xrstor_mask(emu, (void*)sigcontext->uc_mcontext.fpregs, 0, 0b111);
+
+    int regs_changed = memcmp(sigcontext->uc_mcontext.gregs, sigcontext_copy.uc_mcontext.gregs, sizeof(x64_gregset_t));
+    #if defined(DYNAREC)
+    int in_dynablock = db && db->block && p && pc && 
+        (uintptr_t)pc >= (uintptr_t)db->block && (uintptr_t)pc <= (uintptr_t)db->actual_block + db->size;
+    #else
+    int in_dynablock = 0;
+    #endif
+    if(regs_changed || (fp_changed && in_dynablock)) {
         #if defined(DYNAREC)
         if(db || emu->jmpbuf)
             mctx2emu(emu, &sigcontext->uc_mcontext);
-        if(db && !ACCESS_FLAG(F_TF)) {
+        if(regs_changed && db && !ACCESS_FLAG(F_TF)) {
             // if signal was inside a dynablock, just mirror all the new regs in the right place to simple run native_next
             mctx2emu(emu, &sigcontext->uc_mcontext);
             copyEmu2USignalCTXreg(p, emu, native_next);
@@ -632,8 +641,8 @@ int my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigin
             #ifndef DYNAREC
             mctx2emu(emu, &sigcontext->uc_mcontext);
             #endif
-            if(ACCESS_FLAG(F_TF))
-                skip = 1;   // no_tf may not be consumed in dynarec, force to use interpreter
+            if(ACCESS_FLAG(F_TF) || (fp_changed && !regs_changed))
+                skip = 1;   // no_tf may not be consumed in dynarec, or fp-only edits need a reload, so use interpreter
             else if((skip==1) && (emu->ip.q[0]!=sigcontext->uc_mcontext.gregs[X64_RIP]))
                 skip = 3;   // if it jumps elsewhere, it can resume with dynarec...
             if (ACCESS_FLAG(F_TF) && skip == 1) emu->flags.no_tf = 1;
@@ -660,8 +669,6 @@ int my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigin
         }
         printf_log(LOG_INFO, "Warning, context has been changed in Sigactionhanlder%s\n", (sigcontext->uc_mcontext.gregs[X64_RIP]!=sigcontext_copy.uc_mcontext.gregs[X64_RIP])?" (EIP changed)":"");
     }
-    // restore fpu state from the frame, mimicking the sigreturn behavior
-    fpu_xrstor_mask(emu, xstate, 0, 0b111);
     // restore regs...
     #define GO(R)   R_##R=sigcontext->uc_mcontext.gregs[X64_##R]
     GO(RAX);
@@ -737,17 +744,8 @@ void my_sigactionhandler_oldcode(x64emu_t* emu, int32_t sig, int simple, siginfo
     multiuint_t old_op1;
     multiuint_t old_op2;
     multiuint_t old_res;
-    sse_regs_t old_xmm[16];
-    sse_regs_t old_ymm[16];
-    mmx87_regs_t old_mmx[8];
-    mmx87_regs_t old_x87[8];
-    uint32_t old_top = emu->top;
     uint16_t old_segs[6];
     uintptr_t old_segs_offs[6];
-    memcpy(old_xmm, emu->xmm, sizeof(old_xmm));
-    memcpy(old_ymm, emu->ymm, sizeof(old_ymm));
-    memcpy(old_mmx, emu->mmx, sizeof(old_mmx));
-    memcpy(old_x87, emu->x87, sizeof(old_x87));
     memcpy(old_segs, emu->segs, sizeof(old_segs));
     memcpy(old_segs_offs, emu->segs_offs, sizeof(old_segs_offs));
     #define GO(A) old_##A = emu->A
@@ -803,13 +801,8 @@ void my_sigactionhandler_oldcode(x64emu_t* emu, int32_t sig, int simple, siginfo
     GO(op2);
     GO(res);
     #undef GO
-    memcpy(emu->xmm, old_xmm, sizeof(old_xmm));
-    memcpy(emu->ymm, old_ymm, sizeof(old_ymm));
-    memcpy(emu->mmx, old_mmx, sizeof(old_mmx));
-    memcpy(emu->x87, old_x87, sizeof(old_x87));
     memcpy(emu->segs, old_segs, sizeof(old_segs));
     memcpy(emu->segs_offs, old_segs_offs, sizeof(old_segs_offs));
-    emu->top = old_top;
 }
 
 extern void* current_helper;

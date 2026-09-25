@@ -1,0 +1,4 @@
+xmm0 edit: ok
+ymm0 edit: ok
+async xmm2 edit: ok
+failures=0
