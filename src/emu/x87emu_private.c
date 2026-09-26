@@ -214,8 +214,8 @@ void D2LD(void* d, void* ld)
             exp80final += (BIAS80 - BIAS64);
         } else {
             // denormals -> normal (the case of 0 has been dealt with already)
-            exp80final = BIAS80-BIAS64;
-            int one = __builtin_clz(mant80final) + 1;
+            exp80final = BIAS80-BIAS64+1;
+            int one = __builtin_clzll(mant80final);
             exp80final -= one;
             mant80final<<=one;
         }
