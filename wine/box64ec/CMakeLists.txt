@@ -6,7 +6,8 @@ find_package(Python3 REQUIRED COMPONENTS Interpreter)
 set(BOX64_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../..")
 
 add_library(box64ec SHARED
-    box64ec.c box64ec_init.c box64ec_cpu.c box64ec_thread.c box64ec.def
+    box64ec.c box64ec_init.c box64ec_cpu.c box64ec_thread.c
+    box64ec_context.c box64ec.def
     "${BOX64_ROOT}/wine/common/crt.c"
     "${BOX64_ROOT}/wine/common/wrt.c"
     "${BOX64_ROOT}/src/custommem.c"
