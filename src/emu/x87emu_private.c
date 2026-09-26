@@ -121,7 +121,7 @@ void LD2D(void* ld, void* d)
     }
     int32_t exp64 = (((uint32_t)(val.b&0x7fff) - BIAS80) + BIAS64);
     int32_t exp64final = exp64&0x7ff;
-    if(((uint32_t)(val.b&0x7fff)==0) || (exp64<-1074)) {
+    if(((uint32_t)(val.b&0x7fff)==0) || (exp64<-(BIAS64+52))) {
         //if(val.f.q==0)
         // zero
         //if(val.f.q!=0)
@@ -135,7 +135,7 @@ void LD2D(void* ld, void* d)
 
     if(exp64<=0 && val.f.q) {
         // try to see if it can be a denormal
-        int shift_amount = -exp64-1022;
+        int shift_amount = (64-52)-exp64;   // mantissa size difference, and exp64 is negative
         uint64_t r = 0;
         if(val.b&0x8000)
             r |= 0x8000000000000000L;
@@ -145,7 +145,7 @@ void LD2D(void* ld, void* d)
             return;
         }
         // track discarded bits to decide inexact/underflow
-        uint64_t lost = val.f.q & ((shift_amount == 64) ? ~0ULL : ((1ULL << shift_amount) - 1ULL));
+        uint64_t lost = val.f.q & ((1ULL << shift_amount) - 1ULL);
         r |= val.f.q >> shift_amount;
         *(uint64_t*)d = r;
         if(lost)
