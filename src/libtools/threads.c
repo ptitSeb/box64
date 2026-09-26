@@ -266,6 +266,7 @@ x64emu_t* thread_get_emu_no_create(void)
 	return et ? et->emu : NULL;
 }
 
+extern int box64_quit;
 x64emu_t* thread_get_emu(void)
 {
 	if(!thread_key_ready) return NULL;
@@ -278,7 +279,7 @@ x64emu_t* thread_get_emu(void)
 			stack = mmap64(NULL, stacksize, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_32BIT, -1, 0);
 		else
             stack = InternalMmap(NULL, stacksize, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_GROWSDOWN, -1, 0);
-		if(stack!=MAP_FAILED)
+		if(stack!=MAP_FAILED && !box64_quit)	// to avoid marking memory when box64 is quitting
 			setProtection_stack((uintptr_t)stack, stacksize, PROT_READ|PROT_WRITE);
 		x64emu_t *emu = NewX64Emu(my_context, my_context->exit_bridge, (uintptr_t)stack, stacksize, 1);
 		SetupX64Emu(emu, NULL);
