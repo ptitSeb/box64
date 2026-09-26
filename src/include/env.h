@@ -261,6 +261,8 @@ void RecordEnvMappings(uintptr_t addr, size_t length, int fd);
 void WillRemoveMapping(uintptr_t addr, size_t length);
 void RemoveMapping(uintptr_t addr, size_t length);
 box64env_t* GetCurEnvByAddr(uintptr_t addr);
+int IsNoDynarecAddress(uintptr_t addr);
+void ResetNoDynarecRanges(void);
 int IsAddrFileMapped(uintptr_t addr, const char** filename, uintptr_t* start);
 int IsAddrFileMappedNoMemFD(uintptr_t addr);
 size_t SizeFileMapped(uintptr_t addr);

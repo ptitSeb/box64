@@ -702,9 +702,9 @@ Disable the Box64 banner. Available in WowBox64.
 
 ### BOX64_NODYNAREC
 
-Forbid DynaBlock creation in the address range specified, helpful for debugging behaviour difference between DynaRec and Interpreter. Available in WowBox64.
+Forbid DynaBlock creation in the address range(s) specified, helpful for debugging behaviour difference between DynaRec and Interpreter. Available in WowBox64.
 
- * 0xXXXXXXXX-0xYYYYYYYY: Define the range where DynaBlock creation is forbidden (inclusive-exclusive).
+ * 0xXXXXXXXX-0xYYYYYYYY: Define a range where DynaBlock creation is forbidden (inclusive-exclusive). Multiple ranges can be separated with commas (e.g. 0x1000-0x2000,0x5000-0x6000); overlapping or adjacent ranges are merged.
 
 ### BOX64_NODYNAREC_DELAY
 
