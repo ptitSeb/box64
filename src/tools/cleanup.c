@@ -6,6 +6,7 @@
 #include "box64context.h"
 #include "debug.h"
 #include "callback.h"
+#include "emu/x64emu_private.h"
 
 typedef struct cleanup_s {
     void*       f;
@@ -52,6 +53,34 @@ void AddQuickCleanup(x64emu_t *emu, void *p)
     my_context->quick_cleanups[my_context->quick_clean_sz].arg = 0;
     my_context->quick_cleanups[my_context->quick_clean_sz].a = NULL;
     my_context->quick_cleanups[my_context->quick_clean_sz++].f = p;
+}
+
+void AddThreadCleanup(x64emu_t *emu, void *p, void* a)
+{
+    if(!emu)
+        return;
+    if(emu->clean_sz == emu->clean_cap) {
+        emu->clean_cap += 8;
+        emu->cleanups = (cleanup_t*)box_realloc(emu->cleanups, sizeof(cleanup_t)*emu->clean_cap);
+    }
+    emu->cleanups[emu->clean_sz].arg = 1;
+    emu->cleanups[emu->clean_sz].a = a;
+    emu->cleanups[emu->clean_sz++].f = p;
+}
+
+void CallThreadCleanup(x64emu_t *emu)
+{
+    if(!emu || !emu->cleanups)
+        return;
+    printf_log(LOG_DEBUG, "Calling thread_local destructors registered functions\n");
+    while(emu->clean_sz) {
+        cleanup_t cleanup = emu->cleanups[--emu->clean_sz];
+        printf_log(LOG_DEBUG, "Call thread cleanup #%d (args:%d, arg:%p)\n", emu->clean_sz, cleanup.arg, cleanup.a);
+        RunFunctionWithEmu(emu, 0, (uintptr_t)cleanup.f, cleanup.arg, cleanup.a);
+    }
+    box_free(emu->cleanups);
+    emu->cleanups = NULL;
+    emu->clean_cap = 0;
 }
 
 void CallCleanup(x64emu_t *emu, elfheader_t* h)

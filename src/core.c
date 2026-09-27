@@ -729,6 +729,8 @@ void endBox64()
     x64emu_t* emu = thread_get_emu();
     void startTimedExit();
     startTimedExit();
+    printf_log(LOG_DEBUG, "Calling thread_local destructors (exiting box64)\n");
+    CallThreadCleanup(emu);
     // atexit first
     printf_log(LOG_DEBUG, "Calling atexit registered functions (exiting box64)\n");
     CallAllCleanup(emu);

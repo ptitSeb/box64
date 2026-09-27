@@ -135,6 +135,10 @@ typedef struct x64emu_s {
     base_segment_t  segldt[16];
     base_segment_t  seggdt[16];  // hacky
     tlsdatasize_t  *tlsdata;
+    // thread_local destructors, registered by __cxa_thread_atexit_impl
+    cleanup_t      *cleanups;
+    int             clean_sz;
+    int             clean_cap;
     // other informations
     int         type;       // EMUTYPE_xxx define
     uint8_t     sud_enabled;  // syscall_user_dispatch enabled for this thread?
