@@ -247,6 +247,26 @@ uintptr_t dynarec64_AVX_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
                 YMM0(ed);
             if (!MODREG) SMWRITE2();
             break;
+        case 0x2B:
+            if (MODREG) return 0;
+            INST_NAME("VMOVNTPS Ex, Gx");
+            nextop = F8;
+            GETEX(x2, 0, vex.l ? 24 : 8);
+            GETGX();
+            LD(x3, gback, gdoffset);
+            SD(x3, wback, fixedaddress);
+            LD(x3, gback, gdoffset + 8);
+            SD(x3, wback, fixedaddress + 8);
+            if (vex.l) {
+                GETEY();
+                GETGY();
+                LD(x3, gback, gyoffset);
+                SD(x3, wback, fixedaddress);
+                LD(x3, gback, gyoffset + 8);
+                SD(x3, wback, fixedaddress + 8);
+            }
+            SMWRITE2();
+            break;
         case 0x2E:
             // no special check...
         case 0x2F:

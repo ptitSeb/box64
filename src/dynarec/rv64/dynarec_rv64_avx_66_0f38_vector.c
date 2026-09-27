@@ -177,6 +177,17 @@ uintptr_t dynarec64_AVX_66_0F38_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
                 SET_FLAGS_EQZ(x4, F_CF, x5);
             }
             break;
+        case 0x16:
+            if (!vex.l) return 0;
+            INST_NAME("VPERMPS Gx, Vx, Ex");
+            nextop = F8;
+            GETVY_vector(q0, VECTOR_SEW32);
+            GETEY_vector(q1, 0, VECTOR_SEW32);
+            GETGY_empty_vector(v0);
+            VAND_VI(q0, q0, 7, VECTOR_UNMASKED);
+            VRGATHER_VV(v0, q1, q0, VECTOR_UNMASKED);
+            PUTGY_vector(v0, VECTOR_SEW32);
+            break;
         case 0x18:
             INST_NAME("VBROADCASTSS Gx, Ex");
             nextop = F8;

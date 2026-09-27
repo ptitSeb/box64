@@ -2368,6 +2368,34 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             ANDI(xRAX, xRAX, ~0xff);
             OR(xRAX, xRAX, x1);
             break;
+        case 0xB1:
+            INST_NAME("CMPXCHG Ed, Gd");
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
+            nextop = F8;
+            GETGD;
+            MVxw(x7, xRAX);
+            if (MODREG) {
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                MVxw(x1, ed);
+                wback = 0;
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                LDxw(x1, wback, fixedaddress);
+            }
+            UFLAG_IF {
+                emit_cmp32(dyn, ninst, rex, x7, x1, x3, x4, x5, x6);
+            }
+            BNE_MARK(x7, x1);
+            if (wback) {
+                SDxw(gd, wback, fixedaddress);
+                SMWRITE();
+            } else {
+                MVxw(ed, gd);
+            }
+            B_NEXT_nocond;
+            MARK;
+            MVxw(xRAX, x1);
+            break;
         case 0xB3:
             INST_NAME("BTR Ed, Gd");
             SETFLAGS(X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION);
@@ -2854,7 +2882,25 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 switch ((nextop >> 3) & 7) {
                     case 1:
                         if (rex.w) {
-                            DEFAULT;
+                            INST_NAME("CMPXCHG16B Gq, Eq");
+                            SETFLAGS(X_ZF, SF_SUBSET, NAT_FLAGS_NOFUSION);
+                            SET_DFNONE();
+                            SMREAD();
+                            addr = geted(dyn, addr, ninst, nextop, &wback, x1, x2, &fixedaddress, rex, NULL, 0, 0);
+                            ANDI(xFlags, xFlags, ~(1 << F_ZF));
+                            LD(x3, wback, fixedaddress + 0);
+                            LD(x4, wback, fixedaddress + 8);
+                            BNE_MARK(x3, xRAX);
+                            BNE_MARK2(x4, xRDX);
+                            SD(xRBX, wback, fixedaddress + 0);
+                            SD(xRCX, wback, fixedaddress + 8);
+                            SMWRITE();
+                            ORI(xFlags, xFlags, 1 << F_ZF);
+                            B_NEXT_nocond;
+                            MARK;
+                            MV(xRAX, x3);
+                            MARK2;
+                            MV(xRDX, x4);
                         } else {
                             INST_NAME("CMPXCHG8B Gq, Eq");
                             SETFLAGS(X_ZF, SF_SUBSET, NAT_FLAGS_NOFUSION);
