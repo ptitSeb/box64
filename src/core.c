@@ -1336,6 +1336,10 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         int script = my_context->bashpath?FileIsShell(my_context->fullpath):0;
         int python3 = my_context->pythonpath?FileIsPython(my_context->fullpath):0;
         printf_log(LOG_NONE, "Error: Reading elf header of %s, Try to launch %s instead\n", my_context->fullpath, x86?"using box86":(script?"using bash":"natively"));
+        #ifndef BOX32
+        if(!x86 && !my_context->box86path && FileIsX86ELF(my_context->fullpath))
+            printf_log(LOG_NONE, "Maybe you should enable BOX32 when building Box64 to enable 32bits program to be run\n");
+        #endif
         fclose(f);
         FreeCollection(&ld_preload);
         int ret;
