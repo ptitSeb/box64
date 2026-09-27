@@ -20,7 +20,6 @@
     .extern Box64EC_ApplyContextMxcsr
     .extern Box64EC_NoteEntryFrame
     .extern Box64EC_NoteEnterBoundary
-    .extern Box64EC_PrepareNestedEnter
     .extern Box64EC_ClearInSimulationIfOutermost
     .extern Box64EC_EcCodeBitmapLimit
 
@@ -216,23 +215,8 @@ enter_jit_frame:
     stp     x5,  xzr, [sp, #0x50]        /* entry was already on emu stack */
     stp     x9,  x30, [sp, #0x60]        /* RIP, entry LR */
     mov     x19, x16                     /* keep ContextAmd64* */
-    cmp     w7, #0
-    cset    w20, eq                      /* cold enter: NoteEntryFrame */
-    mov     w21, w5
-    /* Nested path: log only (SP/FP already decided). Still on emu stack. */
-    cbnz    w20, 4f
-    ldr     x0,  [x19, #CTX_SP]          /* guest Sp (or prior if on_emu) */
-    /* If on_emu, CTX_SP was left alone - pass EmulatorStackBase for log. */
-    cbz     w21, 5f
-    ldr     x17, [x18, #0x1788]
-    ldr     x0,  [x17, #0x8]
-5:
-    ldr     x1,  [sp, #0x60]             /* RIP */
-    bl      Box64EC_PrepareNestedEnter
-    ldr     x17, [x18, #0x1788]
-4:
     /* Entry frame = guest Sp + LR (for SEH trampoline); skip if nested. */
-    cbz     w20, 6f
+    cbnz    w7, 6f
     ldr     x0, [x19, #CTX_SP]
     ldr     x1, [sp, #0x68]              /* entry LR */
     bl      Box64EC_NoteEntryFrame
@@ -242,13 +226,10 @@ enter_jit_frame:
 
     /* Record the boundary only after volatile NEON state is safe in Context. */
     ldr     x0, [sp, #0x40]              /* route */
-    ldr     x1, [sp, #0x60]              /* x64 RIP */
-    ldr     x2, [x19, #CTX_SP]           /* guest SP */
-    ldr     x3, [sp, #0x68]              /* incoming LR */
-    ldr     x4, [x2]                     /* return slot at x64 entry */
-    ldr     x5, [sp, #0x48]              /* prior InSimulation */
-    ldr     x6, [sp, #0x38]              /* physical SP at thunk entry */
-    ldr     x7, [sp, #0x30]              /* slot immediately after push */
+    ldr     x1, [x19, #CTX_SP]           /* guest SP */
+    ldr     x2, [sp, #0x68]              /* incoming LR */
+    ldr     x3, [sp, #0x38]              /* physical SP at thunk entry */
+    ldr     x4, [sp, #0x30]              /* slot immediately after push */
     bl      Box64EC_NoteEnterBoundary
 
     ldr     x0,  [sp, #0x60]             /* RIP */
@@ -309,7 +290,6 @@ enter_jit_frame:
     ldr     x20, [x16, #CTX_X20]
     ldr     x21, [x16, #CTX_X21]
     ldr     x22, [x16, #CTX_X22]
-    ldr     x9,  [x16, #CTX_PC]
     ldr     x17, [x16, #CTX_SP]
     mov     x29, x6
     cbz     x12, 8f
@@ -388,12 +368,11 @@ DispatchJump:
      * Check the target before entering the JIT. */
     .globl RetToEntryThunk
 RetToEntryThunk:
-    mov     w6, #3                       /* trace route: RetToEntryThunk */
+    mov     w6, #3                       /* RetToEntryThunk route */
     mov     x9, x30
     mov     x11, sp                      /* physical SP, no push on this route */
     mov     x10, sp
     ldr     x10, [x10]
-    mov     w6, #3
 
      /* Shared: x9 = target; SP unchanged. */
 .Lcheck_target_ec:
@@ -480,7 +459,6 @@ BeginSimulation:
     ldr     x20, [x16, #CTX_X20]
     ldr     x21, [x16, #CTX_X21]
     ldr     x22, [x16, #CTX_X22]
-    ldr     x9,  [x16, #CTX_PC]
     ldr     x17, [x16, #CTX_SP]
     cbz     x12, 4f
     mov     sp, x12

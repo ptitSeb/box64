@@ -151,19 +151,14 @@ void Box64EC_NoteEntryFrame(uint64_t sp, uint64_t pc)
     t->entry.pc = pc;
 }
 
-void Box64EC_NoteEnterBoundary(uint64_t route, uint64_t rip,
+void Box64EC_NoteEnterBoundary(uint64_t route,
                                uint64_t guest_sp, uint64_t lr,
-                               uint64_t slot, uint64_t was_in_sim,
                                uint64_t emulator_sp, uint64_t pushed_slot)
 {
     CHPE_V2_CPU_AREA_INFO* area = Box64EC_GetCpuArea();
     x64emu_t* emu = area ? (x64emu_t*)area->EmulatorData[EC_DATA_EMU] : NULL;
     box64ec_thr_t* t = Box64EC_GetThreadState();
     uintptr_t native_resume_sp = 0;
-
-    (void)rip;
-    (void)slot;
-    (void)was_in_sim;
 
     if (!emu || !t)
         return;
@@ -208,14 +203,6 @@ static box64ec_callback_activation_t* find_callback_activation(
         }
     }
     return NULL;
-}
-
-/* Nested enter_jit is valid. Returns 1 if sp is on the emulator stack
- * - caller must NOT write Sp/Fp from host SP (would poison guest RSP/RBP). */
-int Box64EC_PrepareNestedEnter(uint64_t sp, uint64_t rip)
-{
-    (void)rip;
-    return Box64EC_IsEmulatorStackAddress(sp);
 }
 
 void Box64EC_ClearInSimulationIfOutermost(void)
