@@ -146,6 +146,18 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             } else
                 YMM0(gd);
             break;
+        case 0x16:
+            INST_NAME("VMOVHPD Gx, Vx, Ex");
+            nextop = F8;
+            GETEX(x2, 0, 1);
+            GETGX();
+            GETVX();
+            LD(x3, vback, vxoffset + 0);
+            SD(x3, gback, gdoffset + 0);
+            LD(x3, wback, fixedaddress);
+            SD(x3, gback, gdoffset + 8);
+            YMM0(gd);
+            break;
         case 0x28:
             INST_NAME("VMOVAPD Gx, Ex");
             nextop = F8;
@@ -2195,6 +2207,31 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             }
             if (!vex.l) YMM0(gd);
             break;
+        case 0xC4:
+            if (vex.l) return 0;
+            INST_NAME("VPINSRW Gx, Vx, Ed, Ib");
+            nextop = F8;
+            GETED(1);
+            GETGX();
+            GETVX();
+            u8 = (F8) & 7;
+            if (gd != vex.v) {
+                LD(x3, vback, vxoffset + 0);
+                LD(x4, vback, vxoffset + 8);
+                SD(x3, gback, gdoffset + 0);
+                SD(x4, gback, gdoffset + 8);
+            }
+            SH(ed, gback, gdoffset + u8 * 2);
+            YMM0(gd);
+            break;
+        case 0xC5:
+            INST_NAME("VPEXTRW Gd, Ex, Ib");
+            nextop = F8;
+            GETGD;
+            GETEX(x2, 1, 14);
+            u8 = (F8) & 7;
+            LHU(gd, wback, fixedaddress + 2 * u8);
+            break;
         case 0xC6:
             INST_NAME("VSHUFPD Gx, Vx, Ex, Ib");
             nextop = F8;
@@ -3550,6 +3587,49 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 }
             } else
                 YMM0(gd);
+            break;
+        case 0xE6:
+            INST_NAME("VCVTTPD2DQ Gx, Ex");
+            nextop = F8;
+            GETEX(x2, 0, vex.l ? 24 : 8);
+            GETGX();
+            d0 = fpu_get_scratch(dyn);
+            for (int i = 0; i < 2; ++i) {
+                FLD(d0, wback, fixedaddress + 8 * i);
+                FCVTLD(x3, d0, RD_RTZ);
+                SEXT_W(x5, x3);
+                BEQ(x5, x3, 8);
+                LUI(x3, 0x80000);
+                SW(x3, gback, gdoffset + 4 * i);
+            }
+            if (vex.l) {
+                GETEY();
+                for (int i = 0; i < 2; ++i) {
+                    FLD(d0, wback, fixedaddress + 8 * i);
+                    FCVTLD(x3, d0, RD_RTZ);
+                    SEXT_W(x5, x3);
+                    BEQ(x5, x3, 8);
+                    LUI(x3, 0x80000);
+                    SW(x3, gback, gdoffset + 8 + 4 * i);
+                }
+            } else {
+                SW(xZR, gback, gdoffset + 8);
+                SW(xZR, gback, gdoffset + 12);
+            }
+            YMM0(gd);
+            break;
+        case 0xF7:
+            INST_NAME("VMASKMOVDQU Gx, Ex");
+            nextop = F8;
+            GETEX(x1, 0, 15);
+            GETGX();
+            for (int i = 0; i < 16; ++i) {
+                LB(x3, wback, fixedaddress + i);
+                BGE(x3, xZR, 4 + 4 * 2);
+                LBU(x4, gback, gdoffset + i);
+                SB(x4, xRDI, i);
+            }
+            SMWRITE2();
             break;
         default:
             DEFAULT;

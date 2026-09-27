@@ -504,6 +504,375 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             } else
                 YMM0(gd);
             break;
+        case 0x7D:
+            INST_NAME("VHSUBPS Gx, Vx, Ex");
+            nextop = F8;
+            GETEX(x2, 0, vex.l ? 24 : 8);
+            GETGX();
+            GETGY();
+            GETVX();
+            GETVY();
+            s0 = fpu_get_scratch(dyn);
+            s1 = fpu_get_scratch(dyn);
+            if (!BOX64ENV(dynarec_fastnan)) MOV32w(x6, 0x00400000);
+            if (gd == ed) {
+                LD(x3, wback, fixedaddress + 0);
+                LD(x4, wback, fixedaddress + 8);
+                SD(x3, xEmu, offsetof(x64emu_t, scratch) + 0);
+                SD(x4, xEmu, offsetof(x64emu_t, scratch) + 8);
+            }
+            for (int i = 0; i < 2; ++i) {
+                FLW(s0, vback, vxoffset + 8 * i);
+                FLW(s1, vback, vxoffset + 8 * i + 4);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    FEQS(x3, s0, s0);
+                    FEQS(x4, s1, s1);
+                    AND(x5, x3, x4);
+                    BEQZ(x5, 4 * 6);
+                }
+                FSUBS(s0, s0, s1);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    FEQS(x5, s0, s0);
+                    BNEZ(x5, 4 * 11);
+                    FNEGS(s0, s0);
+                    B(4 * 9);
+                    BNEZ(x3, 4 * 5);
+                    FMVXW(x5, s0);
+                    OR(x5, x5, x6);
+                    FMVWX(s0, x5);
+                    B(4 * 4);
+                    FMVXW(x5, s1);
+                    OR(x5, x5, x6);
+                    FMVWX(s0, x5);
+                }
+                FSW(s0, gback, gdoffset + 4 * i);
+            }
+            {
+                if (gd == ed) {
+                    wback = xEmu;
+                    fixedaddress = offsetof(x64emu_t, scratch);
+                }
+                for (int i = 0; i < 2; ++i) {
+                    FLW(s0, wback, fixedaddress + 8 * i);
+                    FLW(s1, wback, fixedaddress + 8 * i + 4);
+                    if (!BOX64ENV(dynarec_fastnan)) {
+                        FEQS(x3, s0, s0);
+                        FEQS(x4, s1, s1);
+                        AND(x5, x3, x4);
+                        BEQZ(x5, 4 * 6);
+                    }
+                    FSUBS(s0, s0, s1);
+                    if (!BOX64ENV(dynarec_fastnan)) {
+                        FEQS(x5, s0, s0);
+                        BNEZ(x5, 4 * 11);
+                        FNEGS(s0, s0);
+                        B(4 * 9);
+                        BNEZ(x3, 4 * 5);
+                        FMVXW(x5, s0);
+                        OR(x5, x5, x6);
+                        FMVWX(s0, x5);
+                        B(4 * 4);
+                        FMVXW(x5, s1);
+                        OR(x5, x5, x6);
+                        FMVWX(s0, x5);
+                    }
+                    FSW(s0, gback, gdoffset + 8 + 4 * i);
+                }
+            }
+            if (vex.l) {
+                GETEY();
+                if (gd == ed) {
+                    LD(x3, wback, fixedaddress + 0);
+                    LD(x4, wback, fixedaddress + 8);
+                    SD(x3, xEmu, offsetof(x64emu_t, scratch) + 16);
+                    SD(x4, xEmu, offsetof(x64emu_t, scratch) + 24);
+                }
+                for (int i = 0; i < 2; ++i) {
+                    FLW(s0, vback, vyoffset + 8 * i);
+                    FLW(s1, vback, vyoffset + 8 * i + 4);
+                    if (!BOX64ENV(dynarec_fastnan)) {
+                        FEQS(x3, s0, s0);
+                        FEQS(x4, s1, s1);
+                        AND(x5, x3, x4);
+                        BEQZ(x5, 4 * 6);
+                    }
+                    FSUBS(s0, s0, s1);
+                    if (!BOX64ENV(dynarec_fastnan)) {
+                        FEQS(x5, s0, s0);
+                        BNEZ(x5, 4 * 11);
+                        FNEGS(s0, s0);
+                        B(4 * 9);
+                        BNEZ(x3, 4 * 5);
+                        FMVXW(x5, s0);
+                        OR(x5, x5, x6);
+                        FMVWX(s0, x5);
+                        B(4 * 4);
+                        FMVXW(x5, s1);
+                        OR(x5, x5, x6);
+                        FMVWX(s0, x5);
+                    }
+                    FSW(s0, gback, gyoffset + 4 * i);
+                }
+                {
+                    if (gd == ed) {
+                        wback = xEmu;
+                        fixedaddress = offsetof(x64emu_t, scratch) + 16;
+                    }
+                    for (int i = 0; i < 2; ++i) {
+                        FLW(s0, wback, fixedaddress + 8 * i);
+                        FLW(s1, wback, fixedaddress + 8 * i + 4);
+                        if (!BOX64ENV(dynarec_fastnan)) {
+                            FEQS(x3, s0, s0);
+                            FEQS(x4, s1, s1);
+                            AND(x5, x3, x4);
+                            BEQZ(x5, 4 * 6);
+                        }
+                        FSUBS(s0, s0, s1);
+                        if (!BOX64ENV(dynarec_fastnan)) {
+                            FEQS(x5, s0, s0);
+                            BNEZ(x5, 4 * 11);
+                            FNEGS(s0, s0);
+                            B(4 * 9);
+                            BNEZ(x3, 4 * 5);
+                            FMVXW(x5, s0);
+                            OR(x5, x5, x6);
+                            FMVWX(s0, x5);
+                            B(4 * 4);
+                            FMVXW(x5, s1);
+                            OR(x5, x5, x6);
+                            FMVWX(s0, x5);
+                        }
+                        FSW(s0, gback, gyoffset + 8 + 4 * i);
+                    }
+                }
+            } else
+                YMM0(gd);
+            break;
+        case 0x51:
+            INST_NAME("VSQRTSD Gx, Vx, Ex");
+            nextop = F8;
+            GETGX();
+            GETVX();
+            d0 = fpu_get_scratch(dyn);
+            d1 = fpu_get_scratch(dyn);
+            if (MODREG) {
+                ed = (nextop & 7) + (rex.b << 3);
+                sse_forget_reg(dyn, ninst, x3, ed);
+                FLD(d0, xEmu, offsetof(x64emu_t, xmm[ed]));
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x3, &fixedaddress, rex, NULL, 1, 0);
+                FLD(d0, wback, fixedaddress);
+            }
+            if (!BOX64ENV(dynarec_fastnan)) {
+                v0 = fpu_get_scratch(dyn);
+                FMVDX(v0, xZR);
+                FLTD(x3, d0, v0);
+                FEQD(x4, d0, d0);
+                FMVXD(x5, d0);
+            }
+            FSQRTD(d1, d0);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                BNEZ_MARK(x4);
+                MOV64x(x6, 0x0008000000000000ULL);
+                OR(x5, x5, x6);
+                FMVDX(d1, x5);
+                B_MARK2_nocond;
+                MARK;
+                BEQ(x3, xZR, 8);
+                FNEGD(d1, d1);
+                MARK2;
+            }
+            FSD(d1, gback, gdoffset + 0);
+            LD(x3, vback, vxoffset + 8);
+            SD(x3, gback, gdoffset + 8);
+            YMM0(gd);
+            break;
+        case 0x7C:
+            INST_NAME("VHADDPS Gx, Vx, Ex");
+            nextop = F8;
+            GETEX(x2, 0, vex.l ? 24 : 8);
+            GETGX();
+            GETGY();
+            GETVX();
+            GETVY();
+            s0 = fpu_get_scratch(dyn);
+            s1 = fpu_get_scratch(dyn);
+            if (!BOX64ENV(dynarec_fastnan)) MOV32w(x6, 0x00400000);
+            if (gd == ed) {
+                LD(x3, wback, fixedaddress + 0);
+                LD(x4, wback, fixedaddress + 8);
+                SD(x3, xEmu, offsetof(x64emu_t, scratch) + 0);
+                SD(x4, xEmu, offsetof(x64emu_t, scratch) + 8);
+            }
+            for (int i = 0; i < 2; ++i) {
+                FLW(s0, vback, vxoffset + 8 * i);
+                FLW(s1, vback, vxoffset + 8 * i + 4);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    FEQS(x3, s0, s0);
+                    FEQS(x4, s1, s1);
+                    AND(x5, x3, x4);
+                    BEQZ(x5, 4 * 6);
+                }
+                FADDS(s0, s0, s1);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    FEQS(x5, s0, s0);
+                    BNEZ(x5, 4 * 11);
+                    FNEGS(s0, s0);
+                    B(4 * 9);
+                    BNEZ(x3, 4 * 5);
+                    FMVXW(x5, s0);
+                    OR(x5, x5, x6);
+                    FMVWX(s0, x5);
+                    B(4 * 4);
+                    FMVXW(x5, s1);
+                    OR(x5, x5, x6);
+                    FMVWX(s0, x5);
+                }
+                FSW(s0, gback, gdoffset + 4 * i);
+            }
+            if (vex.v == ed) {
+                LW(x3, gback, gdoffset + 0);
+                LW(x4, gback, gdoffset + 4);
+                SW(x3, gback, gdoffset + 8);
+                SW(x4, gback, gdoffset + 12);
+            } else {
+                if (gd == ed) {
+                    wback = xEmu;
+                    fixedaddress = offsetof(x64emu_t, scratch);
+                }
+                for (int i = 0; i < 2; ++i) {
+                    FLW(s0, wback, fixedaddress + 8 * i);
+                    FLW(s1, wback, fixedaddress + 8 * i + 4);
+                    if (!BOX64ENV(dynarec_fastnan)) {
+                        FEQS(x3, s0, s0);
+                        FEQS(x4, s1, s1);
+                        AND(x5, x3, x4);
+                        BEQZ(x5, 4 * 6);
+                    }
+                    FADDS(s0, s0, s1);
+                    if (!BOX64ENV(dynarec_fastnan)) {
+                        FEQS(x5, s0, s0);
+                        BNEZ(x5, 4 * 11);
+                        FNEGS(s0, s0);
+                        B(4 * 9);
+                        BNEZ(x3, 4 * 5);
+                        FMVXW(x5, s0);
+                        OR(x5, x5, x6);
+                        FMVWX(s0, x5);
+                        B(4 * 4);
+                        FMVXW(x5, s1);
+                        OR(x5, x5, x6);
+                        FMVWX(s0, x5);
+                    }
+                    FSW(s0, gback, gdoffset + 8 + 4 * i);
+                }
+            }
+            if (vex.l) {
+                GETEY();
+                if (gd == ed) {
+                    LD(x3, wback, fixedaddress + 0);
+                    LD(x4, wback, fixedaddress + 8);
+                    SD(x3, xEmu, offsetof(x64emu_t, scratch) + 16);
+                    SD(x4, xEmu, offsetof(x64emu_t, scratch) + 24);
+                }
+                for (int i = 0; i < 2; ++i) {
+                    FLW(s0, vback, vyoffset + 8 * i);
+                    FLW(s1, vback, vyoffset + 8 * i + 4);
+                    if (!BOX64ENV(dynarec_fastnan)) {
+                        FEQS(x3, s0, s0);
+                        FEQS(x4, s1, s1);
+                        AND(x5, x3, x4);
+                        BEQZ(x5, 4 * 6);
+                    }
+                    FADDS(s0, s0, s1);
+                    if (!BOX64ENV(dynarec_fastnan)) {
+                        FEQS(x5, s0, s0);
+                        BNEZ(x5, 4 * 11);
+                        FNEGS(s0, s0);
+                        B(4 * 9);
+                        BNEZ(x3, 4 * 5);
+                        FMVXW(x5, s0);
+                        OR(x5, x5, x6);
+                        FMVWX(s0, x5);
+                        B(4 * 4);
+                        FMVXW(x5, s1);
+                        OR(x5, x5, x6);
+                        FMVWX(s0, x5);
+                    }
+                    FSW(s0, gback, gyoffset + 4 * i);
+                }
+                if (vex.v == ed) {
+                    LW(x3, gback, gyoffset + 0);
+                    LW(x4, gback, gyoffset + 4);
+                    SW(x3, gback, gyoffset + 8);
+                    SW(x4, gback, gyoffset + 12);
+                } else {
+                    if (gd == ed) {
+                        wback = xEmu;
+                        fixedaddress = offsetof(x64emu_t, scratch) + 16;
+                    }
+                    for (int i = 0; i < 2; ++i) {
+                        FLW(s0, wback, fixedaddress + 8 * i);
+                        FLW(s1, wback, fixedaddress + 8 * i + 4);
+                        if (!BOX64ENV(dynarec_fastnan)) {
+                            FEQS(x3, s0, s0);
+                            FEQS(x4, s1, s1);
+                            AND(x5, x3, x4);
+                            BEQZ(x5, 4 * 6);
+                        }
+                        FADDS(s0, s0, s1);
+                        if (!BOX64ENV(dynarec_fastnan)) {
+                            FEQS(x5, s0, s0);
+                            BNEZ(x5, 4 * 11);
+                            FNEGS(s0, s0);
+                            B(4 * 9);
+                            BNEZ(x3, 4 * 5);
+                            FMVXW(x5, s0);
+                            OR(x5, x5, x6);
+                            FMVWX(s0, x5);
+                            B(4 * 4);
+                            FMVXW(x5, s1);
+                            OR(x5, x5, x6);
+                            FMVWX(s0, x5);
+                        }
+                        FSW(s0, gback, gyoffset + 8 + 4 * i);
+                    }
+                }
+            } else
+                YMM0(gd);
+            break;
+        case 0xE6:
+            INST_NAME("VCVTPD2DQ Gx, Ex");
+            nextop = F8;
+            GETEX(x2, 0, vex.l ? 24 : 8);
+            GETGX();
+            d0 = fpu_get_scratch(dyn);
+            u8 = sse_setround(dyn, ninst, x6, x4);
+            for (int i = 0; i < 2; ++i) {
+                FLD(d0, wback, fixedaddress + 8 * i);
+                FCVTLD(x3, d0, RD_DYN);
+                SEXT_W(x5, x3);
+                BEQ(x5, x3, 8);
+                LUI(x3, 0x80000);
+                SW(x3, gback, gdoffset + 4 * i);
+            }
+            if (vex.l) {
+                GETEY();
+                for (int i = 0; i < 2; ++i) {
+                    FLD(d0, wback, fixedaddress + 8 * i);
+                    FCVTLD(x3, d0, RD_DYN);
+                    SEXT_W(x5, x3);
+                    BEQ(x5, x3, 8);
+                    LUI(x3, 0x80000);
+                    SW(x3, gback, gdoffset + 8 + 4 * i);
+                }
+            } else {
+                SW(xZR, gback, gdoffset + 8);
+                SW(xZR, gback, gdoffset + 12);
+            }
+            x87_restoreround(dyn, ninst, u8);
+            YMM0(gd);
+            break;
         default:
             DEFAULT;
     }

@@ -177,8 +177,25 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             break;
         case 0x63:
             if (rex.is32bits) {
-                // this is ARPL opcode
-                DEFAULT;
+                INST_NAME("ARPL Ew, Gw");
+                SETFLAGS(X_ZF, SF_SUBSET, NAT_FLAGS_NOFUSION);
+                SET_DFNONE();
+                nextop = F8;
+                GETEW(x1, 0);
+                GETGW(x2);
+                ANDI(x4, ed, 3);
+                ANDI(x5, gd, 3);
+                SLTU(x6, x4, x5);
+                IFX (X_ZF) {
+                    ANDI(xFlags, xFlags, ~(1 << F_ZF));
+                    SLLI(x7, x6, F_ZF);
+                    OR(xFlags, xFlags, x7);
+                }
+                BEQZ_MARK(x6);
+                ANDI(x7, ed, ~3);
+                OR(ed, x7, x5);
+                EWBACK;
+                MARK;
             } else {
                 INST_NAME("MOVSXD Gd, Ed");
                 nextop = F8;

@@ -756,6 +756,15 @@ void native_pclmul(x64emu_t* emu, int gx, int ex, void* p, uint32_t u8)
     GX->u128 = pclmul_4bit(GX->q[g], EX->q[e]);
 }
 
+void native_cvtps2ph(x64emu_t* emu, void* dst, void* src, int count, uint8_t rounding)
+{
+    (void)emu;
+    uint16_t* d = (uint16_t*)dst;
+    uint32_t* s = (uint32_t*)src;
+    for (int i = 0; i < count; ++i)
+        d[i] = cvtf32_16(s[i], rounding);
+}
+
 void native_pclmul_x(x64emu_t* emu, int gx, int vx, void* p, uint32_t u8)
 {
     sse_regs_t* EX = ((uintptr_t)p > 15) ? (sse_regs_t*)p : &emu->xmm[(uintptr_t)p];

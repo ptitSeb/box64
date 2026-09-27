@@ -472,6 +472,29 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             }
             break;
 
+        case 0xC8:
+            INST_NAME("ENTER Iw, Ib");
+            u16 = F16;
+            u8 = (F8) & 0x1f;
+            if (u8) {
+                MV(x1, xRBP);
+            }
+            PUSH1z(xRBP);
+            MV(xRBP, xRSP);
+            if (u8) {
+                for (u32 = 1; u32 < u8; u32++) {
+                    LDz(x2, x1, rex.is32bits ? -4 : -8);
+                    PUSH1z(x2);
+                }
+                PUSH1z(xRBP);
+            }
+            if (u16 < 2048) {
+                ADDI(xRSP, xRSP, -u16);
+            } else {
+                MOV32w(x2, u16);
+                SUB(xRSP, xRSP, x2);
+            }
+            break;
         case 0xC9:
             INST_NAME("LEAVE");
             MVz(xRSP, xRBP);
@@ -1007,6 +1030,79 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             }
             break;
 
+        case 0xD4:
+            if (rex.is32bits) {
+                INST_NAME("AAM Ib");
+                SETFLAGS(X_ALL, SF_SET_DF, NAT_FLAGS_NOFUSION);
+                ANDI(x1, xRAX, 0xff);
+                u8 = F8;
+                MOV32w(x2, u8);
+                CALL(const_aam16, x1, x1, x2);
+                ANDI(x1, x1, 0xffff);
+                SRLI(x3, xRAX, 16);
+                SLLI(x3, x3, 16);
+                OR(xRAX, x3, x1);
+            } else {
+                INST_NAME("Illegal D4");
+                if (BOX64DRENV(dynarec_safeflags) > 1) {
+                    READFLAGS(X_PEND);
+                } else {
+                    SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
+                }
+                GETIP(ip, x7);
+                UDF();
+                *need_epilog = 1;
+                *ok = 0;
+            }
+            break;
+        case 0xD5:
+            if (rex.is32bits) {
+                INST_NAME("AAD Ib");
+                SETFLAGS(X_ALL, SF_SET_DF, NAT_FLAGS_NOFUSION);
+                ANDI(x1, xRAX, 0xffff);
+                u8 = F8;
+                MOV32w(x2, u8);
+                CALL(const_aad16, x1, x1, x2);
+                ANDI(x1, x1, 0xffff);
+                SRLI(x3, xRAX, 16);
+                SLLI(x3, x3, 16);
+                OR(xRAX, x3, x1);
+            } else {
+                INST_NAME("Illegal D5");
+                if (BOX64DRENV(dynarec_safeflags) > 1) {
+                    READFLAGS(X_PEND);
+                } else {
+                    SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
+                }
+                GETIP(ip, x7);
+                UDF();
+                *need_epilog = 1;
+                *ok = 0;
+            }
+            break;
+        case 0xD6:
+            if (rex.is32bits) {
+                INST_NAME("SALC");
+                READFLAGS(X_CF);
+                ANDI(x1, xFlags, 1 << F_CF);
+                ANDI(x1, x1, 1);
+                SUB(x1, xZR, x1);
+                ANDI(x1, x1, 0xff);
+                ANDI(xRAX, xRAX, ~0xff);
+                OR(xRAX, xRAX, x1);
+            } else {
+                INST_NAME("Illegal D6");
+                if (BOX64DRENV(dynarec_safeflags) > 1) {
+                    READFLAGS(X_PEND);
+                } else {
+                    SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
+                }
+                GETIP(ip, x7);
+                UDF();
+                *need_epilog = 1;
+                *ok = 0;
+            }
+            break;
         case 0xD7:
             INST_NAME("XLAT");
             ANDI(x1, xRAX, 0xff);

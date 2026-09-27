@@ -2525,6 +2525,35 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 SH(x4, gback, gdoffset + 2 * i);
             }
             break;
+        case 0xB1:
+            INST_NAME("CMPXCHG Ew, Gw");
+            SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
+            nextop = F8;
+            GETGD;
+            ZEXTH(x7, xRAX);
+            if (MODREG) {
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                ZEXTH(x1, ed);
+                wback = 0;
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                LHU(x1, wback, fixedaddress);
+            }
+            UFLAG_IF {
+                emit_cmp16(dyn, ninst, x7, x1, x3, x4, x5, x6);
+            }
+            BNE_MARK(x7, x1);
+            ZEXTH(x4, gd);
+            if (wback) {
+                SH(x4, wback, fixedaddress);
+                SMWRITE();
+            } else {
+                INSH(ed, x4, x5, x2, 1, 0);
+            }
+            B_NEXT_nocond;
+            MARK;
+            INSH(xRAX, x1, x5, x2, 1, 0);
+            break;
         case 0xF2:
             INST_NAME("PSLLD Gx,Ex");
             nextop = F8;
@@ -2621,6 +2650,19 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     if (i == 7) MV(x6, xZR);
                 }
             }
+            break;
+        case 0xF7:
+            INST_NAME("MASKMOVDQU Gx, Ex");
+            nextop = F8;
+            GETEX(x1, 0, 15);
+            GETGX();
+            for (int i = 0; i < 16; ++i) {
+                LB(x3, wback, fixedaddress + i);
+                BGE(x3, xZR, 4 + 4 * 2);
+                LBU(x4, gback, gdoffset + i);
+                SB(x4, xRDI, i);
+            }
+            SMWRITE2();
             break;
         case 0xF8:
             INST_NAME("PSUBB Gx,Ex");
