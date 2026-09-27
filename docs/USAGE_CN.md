@@ -82,14 +82,6 @@ BOX64_DYNAREC_CALLRET=1
  * 2: 尝试优化 CALL/RET，在可能的情况下跳过跳转表，同时增加对返回到脏/已修改代码块的代码的处理。在 WowBox64 上不可用。 [默认值]
  * 3: 在 2 的基础上，对叶子函数进行分析，并将符合条件的叶子函数体复制到调用方。目前仅支持龙架构。
 
-### BOX64_DYNAREC_SEP
-
-使用二级入口点（SEP）进一步优化 CALL/RET。如果 CALLRET 未启用则无效。 在 WowBox64 中可用。
-
- * 0: 不在 CALLRET 返回时添加 SEP。 [默认值]
- * 1: 在 CALLRET 返回时添加 SEP，仅针对来自已知二进制文件的内存。
- * 2: 在 CALLRET 返回时添加 SEP，适用于所有类型的内存。
-
 ### BOX64_DYNAREC_DF
 
 启用或禁用延迟 FLAGS 的使用。 在 WowBox64 中可用。

@@ -570,8 +570,6 @@ void emit_inline_leaf(dynarec_native_t* parent, int parent_ninst)
     leaf->dynablock = parent->dynablock;
     leaf->callrets = parent->callrets;
     leaf->callret_size = parent->callret_size;
-    leaf->sep = parent->sep;
-    leaf->sep_size = parent->sep_size;
     leaf->need_dump = parent->need_dump;
     leaf->need_reloc = parent->need_reloc;
     leaf->relocs = parent->relocs;
@@ -588,7 +586,6 @@ void emit_inline_leaf(dynarec_native_t* parent, int parent_ninst)
     parent->native_size = leaf->native_size;
     parent->table64size = leaf->table64size;
     parent->callret_size = leaf->callret_size;
-    parent->sep_size = leaf->sep_size;
     parent->reloc_size = leaf->reloc_size;
     parent->abort |= leaf->abort;
 

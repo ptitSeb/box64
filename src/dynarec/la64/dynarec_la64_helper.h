@@ -1692,7 +1692,7 @@ static inline int comis_fuse_inverted(int condition)
 
 #undef PREFLAGSNEEDED
 #define PREFLAGSNEEDED()                                                                                        \
-    if(dyn->always_test && ninst && (dyn->insts[ninst].sep || (ninst && dyn->insts[ninst-1].x64.has_callret)))  \
+    if(dyn->always_test && ninst && (ninst && dyn->insts[ninst-1].x64.has_callret))  \
         checkCRC(dyn, ninst);
 
 #if STEP < 2

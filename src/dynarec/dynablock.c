@@ -85,9 +85,6 @@ dynablock_t* InvalidDynablock(dynablock_t* db, int need_lock)
         dynarec_log(LOG_DEBUG, "InvalidDynablock(%p), db->block=%p x64=%p:%p already gone=%d\n", db, db->block, db->x64_addr, db->x64_addr+db->x64_size-1, db->gone);
         // remove jumptable without waiting
         setJumpTableDefault64(db->x64_addr);
-        for(int i=0; i<db->sep_size; ++i)
-            if(db->sep[i].active)
-                setJumpTableDefault64(db->x64_addr+db->sep[i].x64_offs);
         if(need_lock)
             mutex_lock(&my_context->mutex_dyndump);
         db->done = 0;
@@ -236,9 +233,6 @@ void FreeDynablock(dynablock_t* db, int need_lock, int need_remove)
         // remove jumptable without waiting
         if(need_remove) {
             setJumpTableDefault64(db->x64_addr);
-            for(int i=0; i<db->sep_size; ++i)
-                if(db->sep[i].active)
-                    setJumpTableDefault64(db->x64_addr+db->sep[i].x64_offs);
         }
         if(need_lock)
             mutex_lock(&my_context->mutex_dyndump);
@@ -263,9 +257,6 @@ void MarkDynablock(dynablock_t* db)
 {
     if(db) {
         dynarec_log(LOG_DEBUG, "MarkDynablock %p %p-%p\n", db, db->x64_addr, db->x64_addr+db->x64_size-1);
-        for(int i=0; i<db->sep_size; ++i)
-            if(db->sep[i].active)
-                setJumpTableIfRef64(db->x64_addr+db->sep[i].x64_offs, db->jmpnext, db->block+db->sep[i].nat_offs);
         if(!setJumpTableIfRef64(db->x64_addr, db->jmpnext, db->block)) {
             dynablock_t* old = db;
             db = getDB((uintptr_t)old->x64_addr);
@@ -461,14 +452,6 @@ dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, int create, int n
                 block->done = 1;    // don't validate the block if the size is null, but keep the block
                 rb_inc(my_context->db_sizes, block->x64_size, block->x64_size+1);
             }
-            for(int i=0; i<block->sep_size; ++i) {
-                uintptr_t x64_offs = block->sep[i].x64_offs;
-                uintptr_t nat_offs = block->sep[i].nat_offs;
-                if(addJumpTableIfDefault64(block->x64_addr+x64_offs, (block->dirty || block->always_test)?block->jmpnext:(block->block+nat_offs)))
-                    block->sep[i].active = 1;
-                else
-                    block->sep[i].active = 0;
-            }
         }
     }
     if(need_lock)
@@ -546,15 +529,6 @@ dynablock_t* DBGetBlock(x64emu_t* emu, uintptr_t addr, int create, int is32bits)
                     }
                     #endif
                     protectDBJumpTable((uintptr_t)db->x64_addr, db->x64_size, db->block, db->jmpnext);
-                    if(!db->always_test)
-                        for(int i=0; i<db->sep_size; ++i) {
-                            uint32_t x64_offs = db->sep[i].x64_offs;
-                            uint32_t nat_offs = db->sep[i].nat_offs;
-                            if(setJumpTableIfRef64(db->x64_addr+x64_offs, (db->always_test)?db->jmpnext:(db->block+nat_offs), db->jmpnext))
-                                db->sep[i].active = 1;
-                            else
-                                db->sep[i].active = 0;
-                        }
                 }
             }
         }

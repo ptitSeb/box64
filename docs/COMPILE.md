@@ -295,7 +295,7 @@ Add `-D LARCH64_DYNAREC=ON` option to enable DynaRec on LARCH64 machines.
 
 #### Save memory at run time
 
-You can use `-DSAVE_MEM=ON` to build Box64 with memory-saving optimizations. This uses a five-level jump table to reduce unused address-space allocations and enables secondary entry points (BOX64_DYNAREC_SEP=1) by default to reduce duplicate DynaRec blocks. These optimizations may reduce memory usage at the cost of additional memory accesses and lower performance on some workloads.
+You can use `-DSAVE_MEM=ON` to build Box64 with memory-saving optimizations. This uses a five-level jump table to reduce unused address-space allocations, which may reduce memory usage at the cost of additional memory accesses and lower performance on some workloads.
 
 #### Build outside of a git repo
 

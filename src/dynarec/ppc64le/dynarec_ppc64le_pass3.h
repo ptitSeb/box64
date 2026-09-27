@@ -81,15 +81,6 @@
             } while(0)
 #define CALLRET_RET(A)                                                          \
     do {                                                                        \
-        if((A) && ISSEP() && BOX64DRENV(dynarec_callret)) {                     \
-            MESSAGE(LOG_DUMP, "   Dynablock*\n");                               \
-            dyn->block += sizeof(void*);                                        \
-            dyn->native_size+=sizeof(void*);                                    \
-            dyn->insts[ninst].size2 += sizeof(void*);                           \
-            dyn->sep[dyn->sep_size].x64_offs = addr - dyn->start;               \
-            dyn->sep[dyn->sep_size].nat_offs =  dyn->native_size;               \
-            ++dyn->sep_size;                                                    \
-        }                                                                       \
         if(BOX64DRENV(dynarec_callret)>1) {                                     \
             dyn->callrets[dyn->callret_size].type = 0;                          \
             dyn->callrets[dyn->callret_size++].offs = dyn->native_size;         \
