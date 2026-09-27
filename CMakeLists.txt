@@ -1675,6 +1675,7 @@ if(ARM64EC)
         SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/wine/box64ec"
         CMAKE_ARGS
             -DCMAKE_TOOLCHAIN_FILE=${CMAKE_CURRENT_SOURCE_DIR}/wine/toolchain_mingw_arm64ec.cmake
+            -DINTERPRETER_STR=${INTERPRETER_STR}
             -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
         INSTALL_COMMAND ""
         TEST_COMMAND ""
