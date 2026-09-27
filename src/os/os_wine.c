@@ -141,7 +141,12 @@ void* EmuFork(void* emu, int forktype) { return NULL; }
 
 void EmuX64Syscall(void* emu)
 {
+#ifdef BOX64EC
+    extern void Box64EC_EmulateSyscall(void* emu);
+    Box64EC_EmulateSyscall(emu);
+#else
     printf_log(LOG_NONE, "EmuX64Syscall NYI\n");
+#endif
 }
 
 void EmuX64Syscall_linux(void* emu)
