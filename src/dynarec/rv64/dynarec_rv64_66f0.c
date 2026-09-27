@@ -464,8 +464,8 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         ANDI(x6, xFlags, 1 << F_CF); // carry-in, read once
                         ADD(x6, x6, x5);             // imm + carry
 
-                        ANDI(x1, wback, 3);
-                        BNEZ_MARK3(x1); // not 4 bytes aligned
+                        ANDI(x1, wback, 1);
+                        BNEZ_MARK2(x1);
                         ANDI(x3, wback, 0b10);
                         BNEZ_MARK(x3);
 
@@ -588,8 +588,8 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             u64 = (uint16_t)(int16_t)F8S;
                         MOV64x(x5, u64);
 
-                        ANDI(x1, wback, 3);
-                        BNEZ_MARK3(x1); // not 4 bytes aligned
+                        ANDI(x1, wback, 1);
+                        BNEZ_MARK2(x1);
                         ANDI(x3, wback, 0b10);
                         BNEZ_MARK(x3);
 
@@ -655,8 +655,8 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             u64 = (uint16_t)(int16_t)F8S;
                         MOV64x(x5, u64);
 
-                        ANDI(x1, wback, 3);
-                        BNEZ_MARK3(x1); // not 4 bytes aligned
+                        ANDI(x1, wback, 1);
+                        BNEZ_MARK2(x1);
                         ANDI(x3, wback, 0b10);
                         BNEZ_MARK(x3);
 

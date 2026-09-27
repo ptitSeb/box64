@@ -1278,8 +1278,9 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETGM_vector(v0);
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
             GETEM_vector(v1, 0);
-            VXOR_VI(v0, v0, 0x1F, VECTOR_UNMASKED);
-            VAND_VV(v0, v0, v1, VECTOR_UNMASKED);
+            v2 = fpu_get_scratch(dyn);
+            VXOR_VI(v2, v0, 0x1F, VECTOR_UNMASKED);
+            VAND_VV(v0, v2, v1, VECTOR_UNMASKED);
             break;
         case 0xE1:
         case 0xE2:

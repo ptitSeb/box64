@@ -879,26 +879,29 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         *ok = 0;
                     } else {
                         INST_NAME("LOCK SBB Eb, Ib");
+                        READFLAGS(X_CF);
                         SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_FUSION);
                         addr = geted(dyn, addr, ninst, nextop, &wback, x5, x1, &fixedaddress, rex, LOCK_LOCK, 0, 1);
                         u8 = F8;
+                        ANDI(x6, xFlags, 1 << F_CF); // borrow-in, read once
+                        ADDI(x7, x6, u8);            // imm + borrow
                         ANDI(x2, wback, 3);
                         SLLI(x2, x2, 3);     // offset in bits
                         ANDI(x3, wback, ~3); // aligned addr
                         MARKLOCK;
                         LR_W(x4, x3, 1, 1);
-                        SRL(x1, x4, x2);
-                        ANDI(x1, x1, 0xFF);  // old byte
-                        ADDI(x6, x1, -u8);   // old - imm
-                        ANDI(x6, x6, 0xFF);  // new byte (CF applied by the flags emit below)
-                        SLL(x7, x1, x2);
-                        SUB(x4, x4, x7);
+                        SRL(x6, x4, x2);
+                        ANDI(x6, x6, 0xFF);          // x6 = old byte
+                        SUB(x1, x6, x7);             // old - imm - borrow
+                        ANDI(x1, x1, 0xFF);          // new byte
                         SLL(x7, x6, x2);
-                        ADD(x4, x4, x7);
+                        SUB(x4, x4, x7);             // remove old byte
+                        SLL(x7, x1, x2);
+                        ADD(x4, x4, x7);             // insert new byte
                         SC_W(x5, x4, x3, 1, 1);
                         BNEZ_MARKLOCK(x5);
                         IFXORNAT (X_ALL | X_PEND) {
-                            emit_sbb8c(dyn, ninst, x1, u8, x2, x3, x4, x5);
+                            emit_sbb8c(dyn, ninst, x6, u8, x2, x3, x4, x5);
                         }
                     }
                     break;
