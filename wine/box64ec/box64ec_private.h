@@ -11,4 +11,8 @@ typedef struct {
 
 extern box64context_t Box64EC_Context;
 
+void context_to_emu(ARM64EC_NT_CONTEXT* context, x64emu_t* emu);
+uint32_t Box64EC_GetEflags(x64emu_t* emu);
+void emu_to_context(x64emu_t* emu, ARM64EC_NT_CONTEXT* context);
+
 #endif
