@@ -1085,7 +1085,6 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 INST_NAME("SALC");
                 READFLAGS(X_CF);
                 ANDI(x1, xFlags, 1 << F_CF);
-                ANDI(x1, x1, 1);
                 SUB(x1, xZR, x1);
                 ANDI(x1, x1, 0xff);
                 ANDI(xRAX, xRAX, ~0xff);
