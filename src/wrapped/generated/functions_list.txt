@@ -2978,6 +2978,7 @@
 #() iWpppppi
 #() iWpppppu
 #() vFEiipupV
+#() vFEpiippp
 #() vFEpuipuV
 #() vFEpuuipp
 #() vFEpuLppp
@@ -3066,6 +3067,7 @@
 #() vFpupuupp
 #() vFpuppipp
 #() vFpupppui
+#() vFpuppppi
 #() vFpUuupup
 #() vFpfffppp
 #() vFpddiidd
@@ -3382,6 +3384,7 @@
 #() vFELupippp
 #() vFELpAippp
 #() vFEpuppppV
+#() vFEppuippp
 #() vFEppupppp
 #() vFEppLippp
 #() vFEppLpLpp
@@ -3991,6 +3994,7 @@
 #() iFpppppiiuupp
 #() uFEpLuupppLuV
 #() uFEpLuppppLup
+#() uFEpLuppppLuV
 #() uFEpLuppppLuA
 #() uFEppppppuppp
 #() uFpuuuuuuuppp
@@ -4724,6 +4728,7 @@ wrappedgio2:
 - vFpppp:
   - g_dbus_connection_close
   - g_dbus_connection_flush
+  - g_drive_poll_for_media
   - g_simple_async_report_gerror_in_idle
   - g_simple_async_report_take_gerror_in_idle
 - uFpppp:
@@ -4737,6 +4742,7 @@ wrappedgio2:
   - g_task_new
 - vFpippp:
   - g_async_initable_init_async
+  - g_file_enumerator_close_async
   - g_file_trash_async
 - vFpuipV:
   - g_dbus_method_invocation_return_error
@@ -4749,14 +4755,21 @@ wrappedgio2:
   - g_initable_new
 - pFLpApp:
   - g_initable_new_valist
+- vFpiippp:
+  - g_file_enumerator_next_files_async
 - vFpupppp:
   - g_dbus_connection_new_for_address
+  - g_file_mount_enclosing_volume
+  - g_volume_mount
 - vFLippppV:
   - g_async_initable_new_async
 - vFLupippp:
   - g_async_initable_newv_async
 - vFLpAippp:
   - g_async_initable_new_valist_async
+- vFppuippp:
+  - g_file_enumerate_children_async
+  - g_file_query_info_async
 - vFppupppp:
   - g_dbus_connection_new
 - vFppLippp:
@@ -4819,6 +4832,7 @@ wrappedglib2:
   - g_queue_free_full
   - g_slist_free_full
   - g_source_set_funcs
+  - g_test_queue_destroy
   - g_thread_foreach
 - vFpV:
   - g_print
@@ -4866,14 +4880,19 @@ wrappedglib2:
   - g_ptr_array_foreach
   - g_ptr_array_sort_with_data
   - g_queue_foreach
+  - g_sequence_foreach
+  - g_sequence_sort_changed_iter
+  - g_sequence_sort_iter
   - g_slist_foreach
   - g_static_private_set
   - g_thread_pool_set_sort_function
   - g_tree_foreach
 - vFppV:
   - g_prefix_error
+  - g_scanner_warn
   - g_string_append_printf
   - g_string_printf
+  - g_test_init
   - g_variant_builder_add
   - g_variant_get
 - vFppA:
@@ -4917,6 +4936,8 @@ wrappedglib2:
   - g_logv
 - vFpupp:
   - g_datalist_id_set_data_full
+  - g_dataset_id_set_data_full
+  - g_node_children_foreach
 - vFpppp:
   - g_async_queue_push_sorted
   - g_queue_insert_sorted
@@ -4985,6 +5006,8 @@ wrappedglib2:
   - g_markup_collect_attributes
 - pFppLiiup:
   - g_thread_create_full
+- pFppppppp:
+  - g_cache_new
 - iFpppupppp:
   - g_spawn_async
 - iFpppupppppp:
@@ -5026,11 +5049,15 @@ wrappedgobject2:
   - g_type_class_peek_parent
 - vFpp:
   - g_closure_set_marshal
+- vFpV:
+  - g_signal_chain_from_overridden_handler
 - LFpp:
   - g_param_type_register_static
 - pFpL:
   - g_type_check_class_cast
 - pFpp:
+  - g_cclosure_new_object
+  - g_cclosure_new_object_swap
   - g_value_array_sort
 - vFLLp:
   - g_type_add_interface_static
@@ -5041,7 +5068,9 @@ wrappedgobject2:
   - g_signal_override_class_handler
 - vFppp:
   - g_closure_add_finalize_notifier
+  - g_closure_add_invalidate_notifier
   - g_closure_remove_finalize_notifier
+  - g_closure_remove_invalidate_notifier
   - g_object_add_toggle_ref
   - g_object_remove_toggle_ref
   - g_object_weak_ref
@@ -5103,6 +5132,8 @@ wrappedgobject2:
   - g_signal_new
 - uFpLuppppLup:
   - g_signal_newv
+- uFpLuppppLuV:
+  - g_signal_new_class_handler
 - uFpLuppppLuA:
   - g_signal_new_valist
 wrappedgomp:
@@ -6974,6 +7005,10 @@ wrappedpam:
 wrappedpango:
 - vFpp:
   - pango_attribute_init
+- pFppp:
+  - pango_attr_list_filter
+- pFppppp:
+  - pango_attr_shape_new_with_data
 wrappedpangocairo:
 wrappedpangoft2:
 wrappedpcap:

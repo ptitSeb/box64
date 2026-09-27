@@ -68,6 +68,7 @@ typedef void* (*pFppLipp_t)(void*, void*, uintptr_t, int32_t, void*, void*);
 typedef void (*vFpuppppV_t)(void*, uint32_t, void*, void*, void*, void*, ...);
 typedef int32_t (*iFppppipV_t)(void*, void*, void*, void*, int32_t, void*, ...);
 typedef void* (*pFppLiiup_t)(void*, void*, uintptr_t, int32_t, int32_t, uint32_t, void*);
+typedef void* (*pFppppppp_t)(void*, void*, void*, void*, void*, void*, void*);
 typedef int32_t (*iFpppupppp_t)(void*, void*, void*, uint32_t, void*, void*, void*, void*);
 typedef int32_t (*iFpppupppppp_t)(void*, void*, void*, uint32_t, void*, void*, void*, void*, void*, void*);
 typedef int32_t (*iFpppuppppppp_t)(void*, void*, void*, uint32_t, void*, void*, void*, void*, void*, void*, void*);
@@ -95,6 +96,7 @@ typedef int32_t (*iFpppuppppppp_t)(void*, void*, void*, uint32_t, void*, void*, 
 	GO(g_queue_free_full, vFpp_t) \
 	GO(g_slist_free_full, vFpp_t) \
 	GO(g_source_set_funcs, vFpp_t) \
+	GO(g_test_queue_destroy, vFpp_t) \
 	GO(g_thread_foreach, vFpp_t) \
 	GO(g_print, vFpV_t) \
 	GO(g_printerr, vFpV_t) \
@@ -130,13 +132,18 @@ typedef int32_t (*iFpppuppppppp_t)(void*, void*, void*, uint32_t, void*, void*, 
 	GO(g_ptr_array_foreach, vFppp_t) \
 	GO(g_ptr_array_sort_with_data, vFppp_t) \
 	GO(g_queue_foreach, vFppp_t) \
+	GO(g_sequence_foreach, vFppp_t) \
+	GO(g_sequence_sort_changed_iter, vFppp_t) \
+	GO(g_sequence_sort_iter, vFppp_t) \
 	GO(g_slist_foreach, vFppp_t) \
 	GO(g_static_private_set, vFppp_t) \
 	GO(g_thread_pool_set_sort_function, vFppp_t) \
 	GO(g_tree_foreach, vFppp_t) \
 	GO(g_prefix_error, vFppV_t) \
+	GO(g_scanner_warn, vFppV_t) \
 	GO(g_string_append_printf, vFppV_t) \
 	GO(g_string_printf, vFppV_t) \
+	GO(g_test_init, vFppV_t) \
 	GO(g_variant_builder_add, vFppV_t) \
 	GO(g_variant_get, vFppV_t) \
 	GO(g_string_append_vprintf, vFppA_t) \
@@ -169,6 +176,8 @@ typedef int32_t (*iFpppuppppppp_t)(void*, void*, void*, uint32_t, void*, void*, 
 	GO(g_log, vFpipV_t) \
 	GO(g_logv, vFpipA_t) \
 	GO(g_datalist_id_set_data_full, vFpupp_t) \
+	GO(g_dataset_id_set_data_full, vFpupp_t) \
+	GO(g_node_children_foreach, vFpupp_t) \
 	GO(g_async_queue_push_sorted, vFpppp_t) \
 	GO(g_queue_insert_sorted, vFpppp_t) \
 	GO(g_source_set_callback, vFpppp_t) \
@@ -208,6 +217,7 @@ typedef int32_t (*iFpppuppppppp_t)(void*, void*, void*, uint32_t, void*, void*, 
 	GO(g_log_structured_standard, vFpuppppV_t) \
 	GO(g_markup_collect_attributes, iFppppipV_t) \
 	GO(g_thread_create_full, pFppLiiup_t) \
+	GO(g_cache_new, pFppppppp_t) \
 	GO(g_spawn_async, iFpppupppp_t) \
 	GO(g_spawn_sync, iFpppupppppp_t) \
 	GO(g_spawn_async_with_pipes, iFpppuppppppp_t)
