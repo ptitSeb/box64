@@ -248,19 +248,12 @@ x64emu_t* Box64EC_CaptureLiveMxcsr(x64emu_t* emu)
     return emu;
 }
 
-void Box64EC_CaptureNeonToContext(ARM64EC_NT_CONTEXT* context)
+void Box64EC_CaptureContextMxcsr(ARM64EC_NT_CONTEXT* context)
 {
     uint32_t mxcsr;
 
     if (!context)
         return;
-    __asm__ __volatile__(
-        "stp q0,  q1,  [%0, #0x1a0]\n\t"
-        "stp q2,  q3,  [%0, #0x1c0]\n\t"
-        "stp q4,  q5,  [%0, #0x1e0]\n\t"
-        :
-        : "r"(context)
-        : "memory");
     if (read_live_mxcsr(&mxcsr))
         context->AMD64_MxCsr = context->AMD64_MxCsr_copy = mxcsr;
 }

@@ -16,7 +16,7 @@
     .extern Box64EC_X64ReturnInstr
     .extern Box64EC_WineSyscallDispatcher
     .extern Box64EC_WineNtContinueSyscallId
-    .extern Box64EC_CaptureNeonToContext
+    .extern Box64EC_CaptureContextMxcsr
     .extern Box64EC_ApplyContextMxcsr
     .extern Box64EC_NoteEntryFrame
     .extern Box64EC_NoteEnterBoundary
@@ -197,6 +197,19 @@ enter_jit_frame:
     .seh_set_fp
     .seh_endprologue
 
+    /* Capture live SIMD before any C helper; keep unmapped halves cached. */
+    stp     q0, q1, [x16, #0x1a0]
+    stp     q2, q3, [x16, #0x1c0]
+    stp     q4, q5, [x16, #0x1e0]
+    str     d8,  [x16, #0x220]
+    str     d9,  [x16, #0x230]
+    str     d10, [x16, #0x240]
+    str     d11, [x16, #0x250]
+    str     d12, [x16, #0x260]
+    str     d13, [x16, #0x270]
+    str     d14, [x16, #0x280]
+    str     d15, [x16, #0x290]
+
     /* Save entry-only values after the guest nonvolatiles are protected. */
     stp     x10, x11, [sp, #0x30]        /* pushed slot, physical entry SP */
     stp     x6,  x7,  [sp, #0x40]        /* entry route, prior InSimulation */
@@ -224,10 +237,8 @@ enter_jit_frame:
     ldr     x1, [sp, #0x68]              /* entry LR */
     bl      Box64EC_NoteEntryFrame
 6:
-    /* Capture live NEON volatiles (XMM0-5) into Context. x0 must be
-     * ContextAmd64* - NoteEntryFrame/PrepareNestedEnter leave SP or 0/1. */
     mov     x0, x19                      /* ContextAmd64* */
-    bl      Box64EC_CaptureNeonToContext
+    bl      Box64EC_CaptureContextMxcsr
 
     /* Record the boundary only after volatile NEON state is safe in Context. */
     ldr     x0, [sp, #0x40]              /* route */

@@ -51,7 +51,7 @@ int Box64EC_IsEmulatorStackAddress(uint64_t address);
 int Box64EC_PollSuspend(void);
 void Box64EC_HandleSuspend(struct x64emu_s* emu);
 void Box64EC_RaiseGuestException(EXCEPTION_RECORD* record);
-void Box64EC_CaptureNeonToContext(ARM64EC_NT_CONTEXT* context);
+void Box64EC_CaptureContextMxcsr(ARM64EC_NT_CONTEXT* context);
 void Box64EC_ApplyContextMxcsr(ARM64EC_NT_CONTEXT* context);
 struct x64emu_s* Box64EC_ApplyLiveMxcsr(struct x64emu_s* emu);
 struct x64emu_s* Box64EC_CaptureLiveMxcsr(struct x64emu_s* emu);
