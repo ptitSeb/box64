@@ -29,10 +29,12 @@ typedef void (*vFpuipV_t)(void*, uint32_t, int32_t, void*, ...);
 typedef void (*vFpuipA_t)(void*, uint32_t, int32_t, void*, va_list);
 typedef void* (*pFLpppV_t)(uintptr_t, void*, void*, void*, ...);
 typedef void* (*pFLpApp_t)(uintptr_t, void*, va_list, void*, void*);
+typedef void (*vFpiippp_t)(void*, int32_t, int32_t, void*, void*, void*);
 typedef void (*vFpupppp_t)(void*, uint32_t, void*, void*, void*, void*);
 typedef void (*vFLippppV_t)(uintptr_t, int32_t, void*, void*, void*, void*, ...);
 typedef void (*vFLupippp_t)(uintptr_t, uint32_t, void*, int32_t, void*, void*, void*);
 typedef void (*vFLpAippp_t)(uintptr_t, void*, va_list, int32_t, void*, void*, void*);
+typedef void (*vFppuippp_t)(void*, void*, uint32_t, int32_t, void*, void*, void*);
 typedef void (*vFppupppp_t)(void*, void*, uint32_t, void*, void*, void*, void*);
 typedef void (*vFppLippp_t)(void*, void*, uintptr_t, int32_t, void*, void*, void*);
 typedef void (*vFpppuipV_t)(void*, void*, void*, uint32_t, int32_t, void*, ...);
@@ -66,6 +68,7 @@ typedef void (*vFpppppppuipppp_t)(void*, void*, void*, void*, void*, void*, void
 	GO(g_memory_input_stream_add_data, vFpplp_t) \
 	GO(g_dbus_connection_close, vFpppp_t) \
 	GO(g_dbus_connection_flush, vFpppp_t) \
+	GO(g_drive_poll_for_media, vFpppp_t) \
 	GO(g_simple_async_report_gerror_in_idle, vFpppp_t) \
 	GO(g_simple_async_report_take_gerror_in_idle, vFpppp_t) \
 	GO(g_dbus_connection_add_filter, uFpppp_t) \
@@ -75,6 +78,7 @@ typedef void (*vFpppppppuipppp_t)(void*, void*, void*, void*, void*, void*, void
 	GO(g_simple_async_result_new_take_error, pFpppp_t) \
 	GO(g_task_new, pFpppp_t) \
 	GO(g_async_initable_init_async, vFpippp_t) \
+	GO(g_file_enumerator_close_async, vFpippp_t) \
 	GO(g_file_trash_async, vFpippp_t) \
 	GO(g_dbus_method_invocation_return_error, vFpuipV_t) \
 	GO(g_simple_async_result_set_error, vFpuipV_t) \
@@ -83,10 +87,15 @@ typedef void (*vFpppppppuipppp_t)(void*, void*, void*, void*, void*, void*, void
 	GO(g_simple_async_result_set_error_va, vFpuipA_t) \
 	GO(g_initable_new, pFLpppV_t) \
 	GO(g_initable_new_valist, pFLpApp_t) \
+	GO(g_file_enumerator_next_files_async, vFpiippp_t) \
 	GO(g_dbus_connection_new_for_address, vFpupppp_t) \
+	GO(g_file_mount_enclosing_volume, vFpupppp_t) \
+	GO(g_volume_mount, vFpupppp_t) \
 	GO(g_async_initable_new_async, vFLippppV_t) \
 	GO(g_async_initable_newv_async, vFLupippp_t) \
 	GO(g_async_initable_new_valist_async, vFLpAippp_t) \
+	GO(g_file_enumerate_children_async, vFppuippp_t) \
+	GO(g_file_query_info_async, vFppuippp_t) \
 	GO(g_dbus_connection_new, vFppupppp_t) \
 	GO(g_input_stream_read_async, vFppLippp_t) \
 	GO(g_simple_async_report_error_in_idle, vFpppuipV_t) \

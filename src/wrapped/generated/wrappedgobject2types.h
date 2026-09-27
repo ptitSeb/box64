@@ -17,6 +17,7 @@ typedef int32_t (*iFp_t)(void*);
 typedef void* (*pFL_t)(uintptr_t);
 typedef void* (*pFp_t)(void*);
 typedef void (*vFpp_t)(void*, void*);
+typedef void (*vFpV_t)(void*, ...);
 typedef uintptr_t (*LFpp_t)(void*, void*);
 typedef void* (*pFpL_t)(void*, uintptr_t);
 typedef void* (*pFpp_t)(void*, void*);
@@ -49,6 +50,7 @@ typedef uintptr_t (*LFLpupupu_t)(uintptr_t, void*, uint32_t, void*, uint32_t, vo
 typedef uintptr_t (*LFpuuuppp_t)(void*, uint32_t, uint32_t, uint32_t, void*, void*, void*);
 typedef uint32_t (*uFpLuupppLuV_t)(void*, uintptr_t, uint32_t, uint32_t, void*, void*, void*, uintptr_t, uint32_t, ...);
 typedef uint32_t (*uFpLuppppLup_t)(void*, uintptr_t, uint32_t, void*, void*, void*, void*, uintptr_t, uint32_t, void*);
+typedef uint32_t (*uFpLuppppLuV_t)(void*, uintptr_t, uint32_t, void*, void*, void*, void*, uintptr_t, uint32_t, ...);
 typedef uint32_t (*uFpLuppppLuA_t)(void*, uintptr_t, uint32_t, void*, void*, void*, void*, uintptr_t, uint32_t, va_list);
 
 #define SUPER() ADDED_FUNCTIONS() \
@@ -58,15 +60,20 @@ typedef uint32_t (*uFpLuppppLuA_t)(void*, uintptr_t, uint32_t, void*, void*, voi
 	GO(g_type_value_table_peek, pFL_t) \
 	GO(g_type_class_peek_parent, pFp_t) \
 	GO(g_closure_set_marshal, vFpp_t) \
+	GO(g_signal_chain_from_overridden_handler, vFpV_t) \
 	GO(g_param_type_register_static, LFpp_t) \
 	GO(g_type_check_class_cast, pFpL_t) \
+	GO(g_cclosure_new_object, pFpp_t) \
+	GO(g_cclosure_new_object_swap, pFpp_t) \
 	GO(g_value_array_sort, pFpp_t) \
 	GO(g_type_add_interface_static, vFLLp_t) \
 	GO(g_value_register_transform_func, vFLLp_t) \
 	GO(g_object_class_install_properties, vFpup_t) \
 	GO(g_signal_override_class_handler, vFpLp_t) \
 	GO(g_closure_add_finalize_notifier, vFppp_t) \
+	GO(g_closure_add_invalidate_notifier, vFppp_t) \
 	GO(g_closure_remove_finalize_notifier, vFppp_t) \
+	GO(g_closure_remove_invalidate_notifier, vFppp_t) \
 	GO(g_object_add_toggle_ref, vFppp_t) \
 	GO(g_object_remove_toggle_ref, vFppp_t) \
 	GO(g_object_weak_ref, vFppp_t) \
@@ -103,6 +110,7 @@ typedef uint32_t (*uFpLuppppLuA_t)(void*, uintptr_t, uint32_t, void*, void*, voi
 	GO(g_signal_handler_find, LFpuuuppp_t) \
 	GO(g_signal_new, uFpLuupppLuV_t) \
 	GO(g_signal_newv, uFpLuppppLup_t) \
+	GO(g_signal_new_class_handler, uFpLuppppLuV_t) \
 	GO(g_signal_new_valist, uFpLuppppLuA_t)
 
 #endif // __wrappedgobject2TYPES_H_

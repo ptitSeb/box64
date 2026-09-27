@@ -1828,4 +1828,50 @@ EXPORT uint32_t my_g_unix_fd_add_full(x64emu_t* emu, int priority, int fd, uint3
 #define PRE_INIT \
     if (BOX64ENV(nogtk)) return -2;
 
+EXPORT void* my_g_cache_new(x64emu_t* emu, void* value_new_func, void* value_destroy_func, void* key_dup_func, void* key_destroy_func, void* hash_key_func, void* hash_value_func, void* key_equal_func)
+{
+    return my->g_cache_new(findCopyFct(value_new_func), findFreeFct(value_destroy_func), findDuplicateFct(key_dup_func), findFreeFct(key_destroy_func), findHashFct(hash_key_func), findHashFct(hash_value_func), findEqualFct(key_equal_func));
+}
+
+EXPORT void my_g_dataset_id_set_data_full(x64emu_t* emu, void* dataset_location, uint32_t key_id, void* data, void* destroy_func)
+{
+    my->g_dataset_id_set_data_full(dataset_location, key_id, data, findDestroyFct(destroy_func));
+}
+
+EXPORT void my_g_node_children_foreach(x64emu_t* emu, void* node, uint32_t flags, void* func, void* data)
+{
+    my->g_node_children_foreach(node, flags, findGFuncFct(func), data);
+}
+
+EXPORT void my_g_sequence_foreach(x64emu_t* emu, void* seq, void* func, void* data)
+{
+    my->g_sequence_foreach(seq, findGFuncFct(func), data);
+}
+
+EXPORT void my_g_sequence_sort_iter(x64emu_t* emu, void* seq, void* cmp_func, void* cmp_data)
+{
+    my->g_sequence_sort_iter(seq, findGCompareDataFuncFct(cmp_func), cmp_data);
+}
+
+EXPORT void my_g_sequence_sort_changed_iter(x64emu_t* emu, void* iter, void* cmp_func, void* cmp_data)
+{
+    my->g_sequence_sort_changed_iter(iter, findGCompareDataFuncFct(cmp_func), cmp_data);
+}
+
+EXPORT void my_g_test_init(x64emu_t* emu, int* argc, char*** argv, void* b)
+{
+    (void)emu; (void)b;
+    my->g_test_init(argc, argv, NULL);
+}
+
+EXPORT void my_g_test_queue_destroy(x64emu_t* emu, void* destroy_func, void* data)
+{
+    my->g_test_queue_destroy(findDestroyFct(destroy_func), data);
+}
+
+EXPORT void my_g_scanner_warn(x64emu_t* emu, void* scanner, void* format, void* b)
+{
+    (void)emu; (void)scanner; (void)format; (void)b;
+}
+
 #include "wrappedlib_init.h"

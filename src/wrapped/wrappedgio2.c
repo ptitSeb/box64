@@ -801,4 +801,39 @@ EXPORT void* my_g_subprocess_newv(x64emu_t* emu, const char* const* argv, uint32
 
 #define NEEDED_LIBS "libgmodule-2.0.so.0", "libz.so.1"
 
+EXPORT void my_g_drive_poll_for_media(x64emu_t* emu, void* drive, void* cancellable, void* callback, void* data)
+{
+    my->g_drive_poll_for_media(drive, cancellable, findGAsyncReadyCallbackFct(callback), data);
+}
+
+EXPORT void my_g_volume_mount(x64emu_t* emu, void* volume, uint32_t flags, void* mount_operation, void* cancellable, void* callback, void* data)
+{
+    my->g_volume_mount(volume, flags, mount_operation, cancellable, findGAsyncReadyCallbackFct(callback), data);
+}
+
+EXPORT void my_g_file_mount_enclosing_volume(x64emu_t* emu, void* file, uint32_t flags, void* mount_operation, void* cancellable, void* callback, void* data)
+{
+    my->g_file_mount_enclosing_volume(file, flags, mount_operation, cancellable, findGAsyncReadyCallbackFct(callback), data);
+}
+
+EXPORT void my_g_file_query_info_async(x64emu_t* emu, void* file, void* attributes, uint32_t flags, int32_t io_priority, void* cancellable, void* callback, void* data)
+{
+    my->g_file_query_info_async(file, attributes, flags, io_priority, cancellable, findGAsyncReadyCallbackFct(callback), data);
+}
+
+EXPORT void my_g_file_enumerate_children_async(x64emu_t* emu, void* file, void* attributes, uint32_t flags, int32_t io_priority, void* cancellable, void* callback, void* data)
+{
+    my->g_file_enumerate_children_async(file, attributes, flags, io_priority, cancellable, findGAsyncReadyCallbackFct(callback), data);
+}
+
+EXPORT void my_g_file_enumerator_next_files_async(x64emu_t* emu, void* enumerator, int32_t num_files, int32_t io_priority, void* cancellable, void* callback, void* data)
+{
+    my->g_file_enumerator_next_files_async(enumerator, num_files, io_priority, cancellable, findGAsyncReadyCallbackFct(callback), data);
+}
+
+EXPORT void my_g_file_enumerator_close_async(x64emu_t* emu, void* enumerator, int32_t io_priority, void* cancellable, void* callback, void* data)
+{
+    my->g_file_enumerator_close_async(enumerator, io_priority, cancellable, findGAsyncReadyCallbackFct(callback), data);
+}
+
 #include "wrappedlib_init.h"

@@ -99,4 +99,91 @@ EXPORT void my_pango_attribute_init(x64emu_t* emu, void* attr, my_PangoAttrClass
 
 #define NEEDED_LIBS "libgobject-2.0.so.0", "libglib-2.0.so.0"
 
+#undef SUPER
+
+// PangoAttrFilterFunc
+#define SUPER() GO(0) GO(1) GO(2) GO(3) GO(4)
+#define GO(A)   \
+static uintptr_t my_filter_fct_##A = 0;                                 \
+static int my_filter_##A(void* attr, void* data)                        \
+{                                                                       \
+    return (int)RunFunctionFmt(my_filter_fct_##A, "pp", attr, data);    \
+}
+SUPER()
+#undef GO
+static void* find_pango_filter_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_filter_fct_##A == (uintptr_t)fct) return my_filter_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_filter_fct_##A == 0) {my_filter_fct_##A = (uintptr_t)fct; return my_filter_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for pango filter callback\n");
+    return NULL;
+}
+#undef SUPER
+
+// PangoAttrDataCopyFunc
+#define SUPER() GO(0) GO(1) GO(2) GO(3) GO(4)
+#define GO(A)   \
+static uintptr_t my_datacopy_fct_##A = 0;                               \
+static void* my_datacopy_##A(void* data)                                \
+{                                                                       \
+    return (void*)RunFunctionFmt(my_datacopy_fct_##A, "p", data);       \
+}
+SUPER()
+#undef GO
+static void* find_pango_datacopy_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_datacopy_fct_##A == (uintptr_t)fct) return my_datacopy_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_datacopy_fct_##A == 0) {my_datacopy_fct_##A = (uintptr_t)fct; return my_datacopy_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for pango datacopy callback\n");
+    return NULL;
+}
+#undef SUPER
+
+// GDestroyNotify for pango attribute data
+#define SUPER() GO(0) GO(1) GO(2) GO(3) GO(4)
+#define GO(A)   \
+static uintptr_t my_datadestroy_fct_##A = 0;                            \
+static void my_datadestroy_##A(void* data)                              \
+{                                                                       \
+    RunFunctionFmt(my_datadestroy_fct_##A, "p", data);                  \
+}
+SUPER()
+#undef GO
+static void* find_pango_datadestroy_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_datadestroy_fct_##A == (uintptr_t)fct) return my_datadestroy_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_datadestroy_fct_##A == 0) {my_datadestroy_fct_##A = (uintptr_t)fct; return my_datadestroy_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for pango datadestroy callback\n");
+    return NULL;
+}
+#undef SUPER
+
+EXPORT void* my_pango_attr_list_filter(x64emu_t* emu, void* list, void* func, void* data)
+{
+    return my->pango_attr_list_filter(list, find_pango_filter_Fct(func), data);
+}
+
+EXPORT void* my_pango_attr_shape_new_with_data(x64emu_t* emu, void* ink_rect, void* logical_rect, void* data, void* copy_func, void* destroy_func)
+{
+    return my->pango_attr_shape_new_with_data(ink_rect, logical_rect, data, find_pango_datacopy_Fct(copy_func), find_pango_datadestroy_Fct(destroy_func));
+}
+
 #include "wrappedlib_init.h"

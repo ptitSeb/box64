@@ -13,8 +13,12 @@
 #endif
 
 typedef void (*vFpp_t)(void*, void*);
+typedef void* (*pFppp_t)(void*, void*, void*);
+typedef void* (*pFppppp_t)(void*, void*, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
-	GO(pango_attribute_init, vFpp_t)
+	GO(pango_attribute_init, vFpp_t) \
+	GO(pango_attr_list_filter, pFppp_t) \
+	GO(pango_attr_shape_new_with_data, pFppppp_t)
 
 #endif // __wrappedpangoTYPES_H_
