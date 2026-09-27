@@ -706,30 +706,37 @@ EXPORT unsigned long my_g_signal_handler_find(x64emu_t* emu, void* instance, uin
 
 EXPORT void* my_g_object_new(x64emu_t* emu, size_t type, void* first, void* b)
 {
+    if(first) {
+        uintptr_t scratch[6 + 20];
+        CREATE_VALIST_FROM_VAARG(b, scratch, 2);
+        void* klass = my->g_type_class_ref(type);
+        if(klass) {
+            unwrapGTKClass(klass, type);
+            my->g_type_class_unref(klass);
+        }
+        return my->g_object_new_valist(type, first, VARARGS);
+    }
     void* klass = my->g_type_class_ref(type);
     if(klass) {
         unwrapGTKClass(klass, type);
         my->g_type_class_unref(klass);
-    }
-    if(first) {
-        CREATE_VALIST_FROM_VAARG(b, emu->scratch, 2);
-        return my->g_object_new_valist(type, first, VARARGS);
     }
     return my->g_object_new(type, first);
 }
 
 EXPORT void* my_g_object_new_valist(x64emu_t* emu, size_t type, void* first, x64_va_list_t b)
 {
+    #ifdef CONVERT_VALIST
+    CONVERT_VALIST(b);
+    #else
+    uintptr_t scratch[6 + 20];
+    CREATE_VALIST_FROM_VALIST(b, scratch);
+    #endif
     void* klass = my->g_type_class_ref(type);
     if(klass) {
         unwrapGTKClass(klass, type);
         my->g_type_class_unref(klass);
     }
-    #ifdef CONVERT_VALIST
-    CONVERT_VALIST(b);
-    #else
-    CREATE_VALIST_FROM_VALIST(b, emu->scratch);
-    #endif
     return my->g_object_new_valist(type, first, VARARGS);
 }
 
