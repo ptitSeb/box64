@@ -193,7 +193,7 @@ enter_jit_frame:
     stp     x29, x30, [sp, #0x20]
     .seh_save_fplr 0x20
     mov     x29, sp
-    .seh_set_fp
+    .seh_nop                            /* fixed SP remains the unwind base */
     .seh_endprologue
 
     /* Capture live SIMD before any C helper; keep unmapped halves cached. */
@@ -234,13 +234,9 @@ enter_jit_frame:
 
     ldr     x0,  [sp, #0x60]             /* RIP */
     bl      Box64EC_EnterX64
-    sub     sp, sp, #16
-    mov     x0, sp
+    add     x0, sp, #0x70
     bl      Box64EC_TakePendingNativeExit
-    ldr     x12, [sp]
-    add     sp, sp, #16
     mov     x15, x0                      /* pending native target (or 0) */
-    str     x12, [sp, #0x70]
 
     /* Resolve the target while the unwindable emulator frame is active. */
     cbnz    x15, 7f
@@ -291,14 +287,19 @@ enter_jit_frame:
     ldr     x21, [x16, #CTX_X21]
     ldr     x22, [x16, #CTX_X22]
     ldr     x17, [x16, #CTX_SP]
+    cmp     x12, #0
+    csel    x17, x12, x17, ne            /* native callback SP or guest SP */
     mov     x29, x6
-    cbz     x12, 8f
-    mov     sp, x12                      /* resume Wine callback stack */
-    b       9f
-8:
-    mov     sp, x17                      /* back to guest stack */
-9:
     mov     x9,  x15
+    mov     x30, x15                     /* unwind destination after stack switch */
+    mov     sp, x17
+    .seh_endproc
+
+    /* SP now belongs to the destination; LR is a PC, not a call return. */
+    .seh_proc enter_native_resume
+enter_native_resume:
+    .seh_clear_unwound_to_call
+    .seh_endprologue
     b       ExitFunctionEC
     .seh_endproc
 
