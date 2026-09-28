@@ -700,64 +700,62 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             GETGX();
             GETGY();
             u8 = F8;
-            {
-                int src = (u8 & 3) * 4;
-                int dst = ((u8 >> 2) & 1) * 4;
 #define VMPSAD4_SUM(acc, AB, aoff, BB, boff)  \
     do {                                      \
         ADDI(acc, xZR, 0);                    \
         for (int _k = 0; _k < 4; ++_k) {      \
-            LBU(x4, AB, (aoff) + _k);         \
-            LBU(x6, BB, (boff) + _k);         \
-            SUBW(x4, x4, x6);                 \
+            LBU(x3, AB, (aoff) + _k);         \
+            LBU(x4, BB, (boff) + _k);         \
+            SUBW(x6, x3, x4);                 \
             if (cpuext.zbb) {                 \
-                NEG(x7, x4);                  \
-                MAX(x4, x4, x7);              \
+                NEG(x3, x6);                  \
+                MAX(x6, x6, x3);              \
             } else {                          \
-                SRAIW(x7, x4, 31);            \
-                XOR(x4, x4, x7);              \
-                SUBW(x4, x4, x7);             \
+                SRAIW(x3, x6, 31);            \
+                XOR(x6, x6, x3);              \
+                SUBW(x6, x6, x3);             \
             }                                 \
-            ADD(acc, acc, x4);                \
+            ADD(acc, acc, x6);                \
         }                                     \
     } while (0)
-                for (int i = 0; i < 8; ++i) {
-                    VMPSAD4_SUM(x5, vback, vxoffset + dst + i, wback, fixedaddress + src);
-                    SH(x5, gback, gdoffset + 2 * i);
+            {
+                int src = (u8 & 3) * 4;
+                int dst = ((u8 >> 2) & 1) * 4;
+                ADDI(x7, xEmu, offsetof(x64emu_t, scratch));
+                for (int i = 0; i < 11; ++i) {
+                    LBU(x3, vback, vxoffset + dst + i);
+                    SB(x3, x7, i);
                 }
-#undef VMPSAD4_SUM
+                for (int i = 0; i < 8; ++i) {
+                    VMPSAD4_SUM(x5, x7, i, wback, fixedaddress + src);
+                    SH(x5, x7, 16 + 2 * i);
+                }
+                LD(x3, x7, 16);
+                LD(x4, x7, 24);
+                SD(x3, gback, gdoffset + 0);
+                SD(x4, gback, gdoffset + 8);
             }
             if (vex.l) {
                 GETEY();
                 {
                     int src = ((u8 >> 3) & 3) * 4;
                     int dst = ((u8 >> 5) & 1) * 4;
-#define VMPSAD4_SUM(acc, AB, aoff, BB, boff)  \
-    do {                                      \
-        ADDI(acc, xZR, 0);                    \
-        for (int _k = 0; _k < 4; ++_k) {      \
-            LBU(x4, AB, (aoff) + _k);         \
-            LBU(x6, BB, (boff) + _k);         \
-            SUBW(x4, x4, x6);                 \
-            if (cpuext.zbb) {                 \
-                NEG(x7, x4);                  \
-                MAX(x4, x4, x7);              \
-            } else {                          \
-                SRAIW(x7, x4, 31);            \
-                XOR(x4, x4, x7);              \
-                SUBW(x4, x4, x7);             \
-            }                                 \
-            ADD(acc, acc, x4);                \
-        }                                     \
-    } while (0)
-                    for (int i = 0; i < 8; ++i) {
-                        VMPSAD4_SUM(x5, vback, vyoffset + dst + i, wback, fixedaddress + src);
-                        SH(x5, gback, gyoffset + 2 * i);
+                    for (int i = 0; i < 11; ++i) {
+                        LBU(x3, vback, vyoffset + dst + i);
+                        SB(x3, x7, i);
                     }
-#undef VMPSAD4_SUM
+                    for (int i = 0; i < 8; ++i) {
+                        VMPSAD4_SUM(x5, x7, i, wback, fixedaddress + src);
+                        SH(x5, x7, 16 + 2 * i);
+                    }
+                    LD(x3, x7, 16);
+                    LD(x4, x7, 24);
+                    SD(x3, gback, gyoffset + 0);
+                    SD(x4, gback, gyoffset + 8);
                 }
             } else
                 YMM0(gd);
+#undef VMPSAD4_SUM
             break;
         case 0x44:
             INST_NAME("VPCLMULQDQ Gx, Vx, Ex, Ib");
@@ -771,50 +769,18 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             if (MODREG) {
                 ed = (nextop & 7) + (rex.b << 3);
                 sse_forget_reg(dyn, ninst, x6, ed);
-                ADDI(x3, xEmu, offsetof(x64emu_t, xmm[ed]));
+                MOV32w(x3, ed);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x3, x2, &fixedaddress, rex, NULL, 0, 1);
                 if (ed != x3) MV(x3, ed);
                 if (fixedaddress) ADDI(x3, x3, fixedaddress);
             }
             u8 = F8;
-            SD(x3, xEmu, offsetof(x64emu_t, scratch) + 16);
-            LD(x4, vback, vxoffset + 0);
-            LD(x5, vback, vxoffset + 8);
-            SD(x4, gback, gdoffset + 0);
-            SD(x5, gback, gdoffset + 8);
             MOV32w(x1, gd);
-            ADDI(x4, xZR, 0);
-            MOV32w(x5, u8);
-            CALL4(const_native_pclmul, -1, x1, x4, x3, x5);
-            if (vex.l) {
-                LD(x4, gback, gdoffset + 0);
-                LD(x5, gback, gdoffset + 8);
-                SD(x4, xEmu, offsetof(x64emu_t, scratch) + 0);
-                SD(x5, xEmu, offsetof(x64emu_t, scratch) + 8);
-                if (MODREG) {
-                    ADDI(x3, xEmu, offsetof(x64emu_t, ymm[ed]));
-                } else {
-                    LD(x3, xEmu, offsetof(x64emu_t, scratch) + 16);
-                    ADDI(x3, x3, 16);
-                }
-                LD(x4, vback, vyoffset + 0);
-                LD(x5, vback, vyoffset + 8);
-                SD(x4, gback, gdoffset + 0);
-                SD(x5, gback, gdoffset + 8);
-                MOV32w(x1, gd);
-                ADDI(x4, xZR, 0);
-                MOV32w(x5, u8);
-                CALL4(const_native_pclmul, -1, x1, x4, x3, x5);
-                LD(x4, gback, gdoffset + 0);
-                LD(x5, gback, gdoffset + 8);
-                SD(x4, gback, gyoffset + 0);
-                SD(x5, gback, gyoffset + 8);
-                LD(x4, xEmu, offsetof(x64emu_t, scratch) + 0);
-                LD(x5, xEmu, offsetof(x64emu_t, scratch) + 8);
-                SD(x4, gback, gdoffset + 0);
-                SD(x5, gback, gdoffset + 8);
-            } else
+            MOV32w(x2, vex.v);
+            MOV32w(x4, u8);
+            CALL4(vex.l ? const_native_pclmul_y : const_native_pclmul_x, -1, x1, x2, x3, x4);
+            if (!vex.l)
                 YMM0(gd);
             break;
         case 0x06:
