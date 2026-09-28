@@ -1277,12 +1277,14 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                                 PMULL2_128(q0, q0, q1);
                                 break;
                             case 0b00000001:
-                                VEXTQ_8(q0, q0, q0, 8); // Swap Up/Lower 64bits parts
-                                PMULL_128(q0, q0, q1);
+                                d0 = fpu_get_scratch(dyn, ninst);
+                                VEXTQ_8(d0, q0, q0, 8); // Swap Up/Lower 64bits parts
+                                PMULL_128(q0, d0, q1);
                                 break;
                             case 0b00010000:
-                                VEXTQ_8(q0, q0, q0, 8); // Swap Up/Lower 64bits parts
-                                PMULL2_128(q0, q0, q1);
+                                d0 = fpu_get_scratch(dyn, ninst);
+                                VEXTQ_8(d0, q0, q0, 8); // Swap Up/Lower 64bits parts
+                                PMULL2_128(q0, d0, q1);
                                 break;
                         }
                     } else {
