@@ -51,6 +51,7 @@ typedef struct x64_stack_s x64_stack_t;
 extern int mkdir(const char *path, mode_t mode);
 extern int mknod(const char *path, mode_t mode, dev_t dev);
 extern int chmod(const char *path, mode_t mode);
+void my__exit(x64emu_t* emu, int code);
 
 //int32_t my_getrandom(x64emu_t* emu, void* buf, uint32_t buflen, uint32_t flags);
 int of_convert(int flag);
@@ -296,7 +297,6 @@ static const scwrap_t syscallwrap[] = {
     [228] = {__NR_clock_gettime, 2},
     [229] = {__NR_clock_getres, 2},
     [230] = {__NR_clock_nanosleep, 4},
-    [231] = {__NR_exit_group, 1},
     #if defined(__NR_epoll_wait) && defined(NOALIGN)
     [232] = {__NR_epoll_wait, 4},
     #endif
@@ -966,6 +966,9 @@ void EXPORT x64Syscall_linux(x64emu_t *emu)
                 }
             }
             break;
+        case 231:   // sys_exit_group
+            my__exit(emu, S_EDI);
+            break;
         #if !defined(__NR_epoll_wait) || !defined(NOALIGN)
         case 232:
             R_RAX = my_epoll_wait(emu, S_EDI, (void*)R_RSI, S_EDX, S_R10d);
@@ -1383,6 +1386,9 @@ long EXPORT my_syscall(x64emu_t *emu)
         case 213:
             return epoll_create(S_ESI);
         #endif
+        case 231:   // sys_exit_group
+            my__exit(emu, S_ESI);
+            return 0;
         #if !defined(__NR_epoll_wait) || !defined(NOALIGN)
         case 232:
             return my_epoll_wait(emu, S_ESI, (void*)R_RDX, S_ECX, S_R8d);

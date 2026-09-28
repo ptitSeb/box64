@@ -698,6 +698,10 @@ int my_sigactionhandler_oldcode_32(x64emu_t* emu, int32_t sig, int simple, sigin
     }
     //TODO: SIGABRT generate what?
     printf_log((sig==10)?LOG_DEBUG:log_minimum, "Signal32 %d: si_addr=%p, TRAPNO=%d, ERR=%d, RIP=%p, prot:%x, mmaped:%d\n", sig, from_ptrv(info2->_sifields._sigfault.__si_addr), sigcontext->uc_mcontext.gregs[I386_TRAPNO], sigcontext->uc_mcontext.gregs[I386_ERR],from_ptrv(sigcontext->uc_mcontext.gregs[I386_EIP]), prot, mmapped);
+    #ifdef DYNAREC
+    if(sig==3)
+        SerializeAllMapping();  // Signal Interupt: it's a good time to serialize the mappings if needed
+    #endif
     // call the signal handler
     i386_ucontext_t sigcontext_copy = *sigcontext;
     // save old value from emu
