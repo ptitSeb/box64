@@ -1531,6 +1531,7 @@ int MmaplistAddBlock_internal(mmaplist_t* list, void* map, void* orig, size_t si
             // first is the address of the dynablock itself, that needs to be adjusted
             b[0] += delta;
             dynablock_t* bl = b[0];
+            bl->in_used = 0;
             // now reloacte the dynablocks, all that need to be adjusted!
             #define GO(A) if(bl->A) bl->A = ((void*)bl->A)+delta
             GO(block);
@@ -1552,8 +1553,8 @@ int MmaplistAddBlock_internal(mmaplist_t* list, void* map, void* orig, size_t si
                 db_ref = (bl->jmpnext-sizeof(void*)+3*sizeof(void*));
                 *db_ref = native_next;
             }
-            if(bl->gone || !bl->done) {
-                dynarec_log(LOG_DEBUG, "Skipping stale DynCache block %p for %p (done=%d, gone=%d)\n", bl, bl->x64_addr, bl->done, bl->gone);
+            if(bl->gone || !bl->done || bl->to_delete) {
+                dynarec_log(LOG_DEBUG, "Skipping stale DynCache block %p for %p (done=%d, gone=%d, to_delete=%d)\n", bl, bl->x64_addr, bl->done, bl->gone, bl->to_delete);
                 p = NEXT_BLOCK((blockmark_t*)p);
                 continue;
             }
