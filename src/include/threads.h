@@ -16,7 +16,7 @@ typedef struct emuthread_s {
 	int			cancel_cap, cancel_size;
 	void**		cancels;
 } emuthread_t;
-int get_active_emu_workers(void);
+extern _Atomic int g_active_emu_workers;
 void CleanStackSize(box64context_t* context);
 
 void init_pthread_helper(void);

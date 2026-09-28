@@ -12,6 +12,7 @@
 #include <sys/syscall.h>
 #include <sys/mman.h>
 #include <pthread.h>
+#include <stdatomic.h>
 #include <sys/prctl.h>
 #include <sys/stat.h>
 #include <stdarg.h>
@@ -744,14 +745,14 @@ void endBox64()
     // unload needed libs
     needed_libs_t* needed = my_context->elfs[0]->needed;
     printf_log(LOG_DEBUG, "Unloaded main elf: Will Dec RefCount of %d libs\n", needed?needed->size:0);
-    int workers = get_active_emu_workers();
+    int workers = atomic_load_explicit(&g_active_emu_workers, memory_order_relaxed);
     if (workers > 0) {
         const int sleep_us = 10000;   // 10ms
         const int max_wait_ms = 2000; // 2s
         int waited_ms = 0;
 
         printf_log(LOG_DEBUG, "endBox64: waiting emu workers to exit (n=%d)\n", workers);
-        while ((workers = get_active_emu_workers()) > 0 && waited_ms < max_wait_ms) {
+        while ((workers = atomic_load_explicit(&g_active_emu_workers, memory_order_relaxed)) > 0 && waited_ms < max_wait_ms) {
             usleep(sleep_us);
             waited_ms += sleep_us / 1000;
         }
