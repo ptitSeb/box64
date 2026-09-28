@@ -1618,7 +1618,6 @@
 #() tEpppLi -> tEpppLi
 #() vFiuibp_i -> vFiuiBi
 #() vFXibL_ii -> vFXiBii
-#() iEEBh_ppp -> iEEBppp
 #() iFpupbL_p -> iFpupBp
 #() iFppibp_I -> iFppiBI
 #() iFppWpbp_ -> iFppWpB
@@ -3190,7 +3189,7 @@ wrappedlibpthread:
 - iEpprLL_:
   - pthread_cond_timedwait
   - pthread_cond_timedwait@GLIBC_2.0
-- iEBh_ppp:
+- iEpppp:
   - pthread_create
 wrappedlibresolv:
 - iFpip:
