@@ -56,18 +56,26 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             u8 = F8;
             LD(x4, wback, fixedaddress + 0);
             SD(x4, gback, gdoffset + 0);
-            for (int k = 0; k < 4; ++k) {
-                LHU(x4, wback, fixedaddress + 8 + ((u8 >> (k * 2)) & 3) * 2);
-                SH(x4, gback, gdoffset + 8 + k * 2);
-            }
+            LHU(x3, wback, fixedaddress + 8 + ((u8 >> 0) & 3) * 2);
+            LHU(x4, wback, fixedaddress + 8 + ((u8 >> 2) & 3) * 2);
+            LHU(x5, wback, fixedaddress + 8 + ((u8 >> 4) & 3) * 2);
+            LHU(x6, wback, fixedaddress + 8 + ((u8 >> 6) & 3) * 2);
+            SH(x3, gback, gdoffset + 8);
+            SH(x4, gback, gdoffset + 10);
+            SH(x5, gback, gdoffset + 12);
+            SH(x6, gback, gdoffset + 14);
             if (vex.l) {
                 GETEY();
                 LD(x4, wback, fixedaddress + 0);
                 SD(x4, gback, gyoffset + 0);
-                for (int k = 0; k < 4; ++k) {
-                    LHU(x4, wback, fixedaddress + 8 + ((u8 >> (k * 2)) & 3) * 2);
-                    SH(x4, gback, gyoffset + 8 + k * 2);
-                }
+                LHU(x3, wback, fixedaddress + 8 + ((u8 >> 0) & 3) * 2);
+                LHU(x4, wback, fixedaddress + 8 + ((u8 >> 2) & 3) * 2);
+                LHU(x5, wback, fixedaddress + 8 + ((u8 >> 4) & 3) * 2);
+                LHU(x6, wback, fixedaddress + 8 + ((u8 >> 6) & 3) * 2);
+                SH(x3, gback, gyoffset + 8);
+                SH(x4, gback, gyoffset + 10);
+                SH(x5, gback, gyoffset + 12);
+                SH(x6, gback, gyoffset + 14);
             } else
                 YMM0(gd);
             break;
