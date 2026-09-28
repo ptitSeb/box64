@@ -1737,17 +1737,8 @@ int sse_get_reg_size_changed(dynarec_rv64_t* dyn, int ninst, int s1, int a, int 
         }
 
         // forget / reload if change of size
-        if (dyn->e.ssecache[a].single == single) {
-            sse_forget_reg(dyn, ninst, s1, a);
-            return sse_get_reg_size_changed(dyn, ninst, s1, a, single);
-        }
-        dyn->e.olds[a].changed = 1;
-        dyn->e.olds[a].purged = 0;
-        dyn->e.olds[a].type = !single;
-        dyn->e.ssecache[a].single = single;
-        dyn->e.ssecache[a].vector = 0;
-        dyn->e.extcache[EXTIDX(dyn->e.ssecache[a].reg)].t = single ? EXT_CACHE_SS : EXT_CACHE_SD;
-        return dyn->e.ssecache[a].reg;
+        sse_forget_reg(dyn, ninst, s1, a);
+        return sse_get_reg_size_changed(dyn, ninst, s1, a, single);
     }
     dyn->e.ssecache[a].reg = fpu_get_reg_xmm(dyn, single ? EXT_CACHE_SS : EXT_CACHE_SD, a);
     int ret = dyn->e.ssecache[a].reg;
