@@ -59,6 +59,7 @@ extern box64env_t box64env;
 
 int box64_quit = 0;
 int box64_exit_code = 0;
+int box64_in_fatal_handler = 0;
 int box64_stdout_no_w = 0;
 uintptr_t box64_pagesize;
 path_collection_t box64_addlibs = {0};

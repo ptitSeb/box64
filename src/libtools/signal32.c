@@ -59,6 +59,8 @@
 #endif
 
 
+extern int box64_in_fatal_handler;
+
 /* Definitions taken from the kernel headers.  */
 enum
 {
@@ -719,7 +721,10 @@ int my_sigactionhandler_oldcode_32(x64emu_t* emu, int32_t sig, int simple, sigin
     if(sig!=X64_SIGSEGV && !(Locks&is_dyndump_locked) && !(Locks&is_memprot_locked))
         dynarec = BOX64ENV(dynarec_interp_signal)?0:1;
     #endif
+    int in_fatal = (sig==X64_SIGSEGV) || (sig==X64_SIGBUS) || (sig==X64_SIGILL) || (sig==X64_SIGFPE);
+    if(in_fatal) ++box64_in_fatal_handler;
     ret = RunFunctionHandler32(&exits, dynarec, sigcontext, my_context->signals[info2->si_signo], 3, info2->si_signo, info2, sigcontext);
+    if(in_fatal && !exits && !emu->quit) --box64_in_fatal_handler;
     // restore old value from emu
     if(used_stack)  // release stack
         new_ss->ss_flags = 0;
