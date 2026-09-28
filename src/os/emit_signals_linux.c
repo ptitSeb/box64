@@ -26,6 +26,7 @@
 #include "box64cpu_util.h"
 
 void my_sigactionhandler_oldcode(x64emu_t* emu, int32_t sig, int simple, siginfo_t* info, void * ucntx, int* old_code, void* cur_db, uintptr_t x64pc);
+extern int box64_in_fatal_handler;
 void EmitSignal(x64emu_t* emu, int sig, void* addr, int code)
 {
     siginfo_t info = { 0 };
@@ -263,7 +264,10 @@ void EmitWineInt(x64emu_t* emu, int num, void* addr)
         sigcontext->uc_mcontext.gregs[X64_ERR] = 0x02|(num<<3);
         int exits = 0;
         int ret;
+        int in_fatal = (sig==X64_SIGSEGV) || (sig==X64_SIGBUS) || (sig==X64_SIGILL) || (sig==X64_SIGFPE) || (sig==X64_SIGABRT);
+        if(in_fatal) ++box64_in_fatal_handler;
         ret = RunFunctionHandler(emu, &exits, 2, sigcontext, my_context->signals[info2->si_signo], 3, info2->si_signo, info2, sigcontext);
+        if(in_fatal && !exits && !emu->quit) --box64_in_fatal_handler;
         if(used_stack)  // release stack
             new_ss->ss_flags = 0;
         // restore values
