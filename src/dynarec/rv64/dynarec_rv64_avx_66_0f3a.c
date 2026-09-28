@@ -50,36 +50,6 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
 
     switch (opcode) {
         case 0x00:
-            INST_NAME("VPERMQ Gx, Ex, Imm8");
-            nextop = F8;
-            GETEX(x2, 1, vex.l ? 28 : 12);
-            GETGX();
-            GETGY();
-            u8 = F8;
-            for (int i = 0; i < 2; ++i) {
-                int sel = (u8 >> (2 * i)) & 3;
-                if (sel < 2)
-                    LD(x4, wback, fixedaddress + 8 * sel);
-                else if (MODREG)
-                    LD(x4, xEmu, offsetof(x64emu_t, ymm[ed]) + 8 * (sel - 2));
-                else
-                    LD(x4, wback, fixedaddress + 16 + 8 * (sel - 2));
-                SD(x4, gback, gdoffset + 8 * i);
-            }
-            if (vex.l) {
-                for (int i = 0; i < 2; ++i) {
-                    int sel = (u8 >> (2 * (2 + i))) & 3;
-                    if (sel < 2)
-                        LD(x4, wback, fixedaddress + 8 * sel);
-                    else if (MODREG)
-                        LD(x4, xEmu, offsetof(x64emu_t, ymm[ed]) + 8 * (sel - 2));
-                    else
-                        LD(x4, wback, fixedaddress + 16 + 8 * (sel - 2));
-                    SD(x4, gback, gyoffset + 8 * i);
-                }
-            } else
-                YMM0(gd);
-            break;
         case 0x01:
             if (opcode)
                 INST_NAME("VPERMPD Gx, Ex, Imm8");
@@ -90,9 +60,21 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             GETGX();
             GETGY();
             u8 = F8;
+            if (!vex.l) {
+                UDF();
+            }
+            if (MODREG && gd == ed) {
+                for (int i = 0; i < 2; ++i) {
+                    LD(x4, wback, fixedaddress + 8 * i);
+                    SD(x4, xEmu, offsetof(x64emu_t, scratch) + 8 * i);
+                    LD(x4, xEmu, offsetof(x64emu_t, ymm[ed]) + 8 * i);
+                    SD(x4, xEmu, offsetof(x64emu_t, scratch) + 16 + 8 * i);
+                }
+                fixedaddress = offsetof(x64emu_t, scratch);
+            }
             for (int i = 0; i < 2; ++i) {
                 int sel = (u8 >> (2 * i)) & 3;
-                if (sel < 2)
+                if (sel < 2 || (MODREG && gd == ed))
                     LD(x4, wback, fixedaddress + 8 * sel);
                 else if (MODREG)
                     LD(x4, xEmu, offsetof(x64emu_t, ymm[ed]) + 8 * (sel - 2));
@@ -100,19 +82,16 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     LD(x4, wback, fixedaddress + 16 + 8 * (sel - 2));
                 SD(x4, gback, gdoffset + 8 * i);
             }
-            if (vex.l) {
-                for (int i = 0; i < 2; ++i) {
-                    int sel = (u8 >> (2 * (2 + i))) & 3;
-                    if (sel < 2)
-                        LD(x4, wback, fixedaddress + 8 * sel);
-                    else if (MODREG)
-                        LD(x4, xEmu, offsetof(x64emu_t, ymm[ed]) + 8 * (sel - 2));
-                    else
-                        LD(x4, wback, fixedaddress + 16 + 8 * (sel - 2));
-                    SD(x4, gback, gyoffset + 8 * i);
-                }
-            } else
-                YMM0(gd);
+            for (int i = 0; i < 2; ++i) {
+                int sel = (u8 >> (2 * (2 + i))) & 3;
+                if (sel < 2 || (MODREG && gd == ed))
+                    LD(x4, wback, fixedaddress + 8 * sel);
+                else if (MODREG)
+                    LD(x4, xEmu, offsetof(x64emu_t, ymm[ed]) + 8 * (sel - 2));
+                else
+                    LD(x4, wback, fixedaddress + 16 + 8 * (sel - 2));
+                SD(x4, gback, gyoffset + 8 * i);
+            }
             break;
         case 0x1D:
             INST_NAME("VCVTPS2PH Ex, Gx, Ib");
