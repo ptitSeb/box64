@@ -59,13 +59,20 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             GETEY_vector(q0, 1, VECTOR_SEW64);
             GETGY_empty_vector(v0);
             u8 = F8;
-            VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
-            for (int i = 0; i < (2 << vex.l); ++i) {
-                MOV32w(x4, (u8 >> (2 * i)) & 3);
+            q2 = fpu_get_scratch(dyn);
+            {
+                uint64_t iota = (u8 & 3) | (((u8 >> 2) & 3) << 16);
+                iota |= ((uint64_t)((u8 >> 4) & 3)) << 32;
+                iota |= ((uint64_t)((u8 >> 6) & 3)) << 48;
+                vector_vsetvli(dyn, ninst, x1, VECTOR_SEW64, VECTOR_LMUL1, vex.l ? 2 : 1);
+                VECTOR_SPLAT_IMM(q2, iota, x4);
+            }
+            if (v0 == q0 || v0 == q2) {
                 q1 = fpu_get_scratch(dyn);
-                VRGATHER_VX(q1, q0, x4, VECTOR_UNMASKED);
-                VECTOR_LOAD_VMASK(1 << i, x4, vex.l ? 2 : 1);
-                VMERGE_VVM(v0, v0, q1);
+                VRGATHEREI16_VV(q1, q0, q2, VECTOR_UNMASKED);
+                VMV_V_V(v0, q1);
+            } else {
+                VRGATHEREI16_VV(v0, q0, q2, VECTOR_UNMASKED);
             }
             PUTGY_vector(v0, VECTOR_SEW64);
             break;
