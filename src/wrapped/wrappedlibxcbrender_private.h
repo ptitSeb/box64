@@ -121,7 +121,7 @@ GO(xcb_render_create_picture_checked, uFbuuiup)
 //GO(xcb_render_free_glyphs_glyphs_length, 
 //GO(xcb_render_free_glyphs_sizeof, 
 GO(xcb_render_free_picture, uFbu)
-GO(xcb_render_free_picture_checked, fFbu)
+GO(xcb_render_free_picture_checked, uFbu)
 //GO(xcb_render_glyph_end, 
 //GO(xcb_render_glyphinfo_end, 
 //GO(xcb_render_glyphinfo_next, 
