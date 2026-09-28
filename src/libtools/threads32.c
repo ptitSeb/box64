@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <stdatomic.h>
 #include <signal.h>
 #include <errno.h>
 #include <setjmp.h>
@@ -96,10 +97,12 @@ static void emuthread_cancel(void* p)
     box_free(et->cancels);
     et->cancels=NULL;
     et->cancel_size = et->cancel_cap = 0;
+    atomic_fetch_sub_explicit(&g_active_emu_workers, 1, memory_order_relaxed);
 }
 
 static void* pthread_routine(void* p)
 {
+    atomic_fetch_add_explicit(&g_active_emu_workers, 1, memory_order_relaxed);
     // free current emuthread if it exist
     {
         void* t = thread_get_et();
@@ -134,6 +137,7 @@ static void* pthread_routine(void* p)
     DynaRun(et->emu);
     pthread_cleanup_pop(0);
     void* ret = from_ptrv(R_EAX);
+    atomic_fetch_sub_explicit(&g_active_emu_workers, 1, memory_order_relaxed);
     return ret;
 }
 
