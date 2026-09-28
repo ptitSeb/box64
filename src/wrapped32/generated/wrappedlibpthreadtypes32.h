@@ -32,7 +32,7 @@ typedef int32_t (*iEppp_t)(void*, void*, void*);
 typedef int32_t (*iEhup_t)(uintptr_t, uint32_t, void*);
 typedef void* (*pEpOM_t)(void*, int32_t, ...);
 typedef int32_t (*iEpprLL__t)(void*, void*, struct_LL_t*);
-typedef int32_t (*iEBh_ppp_t)(struct_h_t*, void*, void*, void*);
+typedef int32_t (*iEpppp_t)(void*, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(__pthread_initialize, vEv_t) \
@@ -118,6 +118,6 @@ typedef int32_t (*iEBh_ppp_t)(struct_h_t*, void*, void*, void*);
 	GO(sem_open, pEpOM_t) \
 	GO(pthread_cond_timedwait, iEpprLL__t) \
 	GO(pthread_cond_timedwait@GLIBC_2.0, iEpprLL__t) \
-	GO(pthread_create, iEBh_ppp_t)
+	GO(pthread_create, iEpppp_t)
 
 #endif // __wrappedlibpthreadTYPES32_H_

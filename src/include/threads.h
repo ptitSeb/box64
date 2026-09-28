@@ -13,6 +13,8 @@ typedef struct emuthread_s {
 	int			is32bits;
 	uintptr_t	self;
 	ulong_t 	hself;
+	void*		pthread_t_addr;
+	int			pthread_t_ready;
 	int			cancel_cap, cancel_size;
 	void**		cancels;
 } emuthread_t;
