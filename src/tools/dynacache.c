@@ -1000,7 +1000,14 @@ void MmapDynaCache(mapping_t* mapping)
     const char* name = GetMmaplistName(mapping);
     if(!name) return;
     dynarec_log(LOG_DEBUG, "Looking for DynaCache %s in %s\n", name, folder);
-    ReadDynaCache(folder, name, mapping, 0);
+    int ret = ReadDynaCache(folder, name, mapping, 0);
+    if(ret && ret!=DCERR_NEXIST) {
+        char filename[strlen(folder)+strlen(name)+1];
+        strcpy(filename, folder);
+        strcat(filename, name);
+        if(!unlink(filename))
+            dynarec_log(LOG_INFO, "Removed invalid DynaCache %s\n", name);
+    }
 }
 #endif
 #else
