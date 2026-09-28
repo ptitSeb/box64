@@ -3328,9 +3328,8 @@ EXPORT void my__Jv_RegisterClasses() {}
 
 EXPORT int32_t my___cxa_thread_atexit_impl(x64emu_t* emu, void* dtor, void* obj, void* dso)
 {
-    (void)emu;
-    //printf_log(LOG_INFO, "Warning, call to __cxa_thread_atexit_impl(%p, %p, %p) ignored\n", dtor, obj, dso);
-    AddCleanup1Arg(emu, dtor, obj, FindElfAddress(my_context, (uintptr_t)dso));
+    (void)dso;
+    AddThreadCleanup(emu, dtor, obj);
     return 0;
 }
 

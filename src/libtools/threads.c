@@ -19,6 +19,7 @@
 #include "box64cpu.h"
 #include "box64cpu_util.h"
 #include "callback.h"
+#include "cleanup.h"
 #include "custommem.h"
 #include "khash.h"
 #include "emu/x64run_private.h"
@@ -191,6 +192,7 @@ void emuthread_destroy(void* p)
 	if(et->is32bits && !et->join && et->fnc)
 		to_hash_d(et->self);
 	#endif
+	CallThreadCleanup(et->emu);
 	FreeX64Emu(&et->emu);
 	#ifdef BAD_PKILL
 	del_thread((void*)et->self);
