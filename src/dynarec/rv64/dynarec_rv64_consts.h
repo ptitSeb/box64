@@ -36,6 +36,7 @@ typedef enum rv64_consts_s {
     const_native_pclmul_x,
     const_native_pclmul_y,
     const_native_cvtps2ph,
+    const_native_cvtph2ps,
     const_native_f2xm1,
     const_native_fyl2x,
     const_native_fyl2xp1,

@@ -765,6 +765,15 @@ void native_cvtps2ph(x64emu_t* emu, void* dst, void* src, int count, uint8_t rou
         d[i] = cvtf32_16(s[i], rounding);
 }
 
+void native_cvtph2ps(x64emu_t* emu, void* dst, void* src, int count)
+{
+    (void)emu;
+    uint32_t* d = (uint32_t*)dst;
+    uint16_t* s = (uint16_t*)src;
+    for (int i = 0; i < count; ++i)
+        d[i] = cvtf16_32(s[i]);
+}
+
 void native_pclmul_x(x64emu_t* emu, int gx, int vx, void* p, uint32_t u8)
 {
     sse_regs_t* EX = ((uintptr_t)p > 15) ? (sse_regs_t*)p : &emu->xmm[(uintptr_t)p];

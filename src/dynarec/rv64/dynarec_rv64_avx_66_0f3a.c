@@ -93,6 +93,103 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 SD(x4, gback, gyoffset + 8 * i);
             }
             break;
+        case 0x02:
+        case 0x0C:
+            if (opcode == 0x02) {
+                INST_NAME("VPBLENDD Gx, Vx, Ex, Ib");
+            } else {
+                INST_NAME("VBLENDPS Gx, Vx, Ex, Ib");
+            }
+            nextop = F8;
+            GETGX();
+            GETEX(x2, 1, vex.l ? 28 : 12);
+            GETVX();
+            GETVY();
+            GETGY();
+            u8 = F8;
+            for (int i = 0; i < 4; ++i) {
+                if (u8 & (1 << i)) {
+                    if (gd != ed) {
+                        LWU(x3, wback, fixedaddress + 4 * i);
+                        SW(x3, gback, gdoffset + 4 * i);
+                    }
+                } else if (gd != vex.v) {
+                    LWU(x3, vback, vxoffset + 4 * i);
+                    SW(x3, gback, gdoffset + 4 * i);
+                }
+            }
+            if (vex.l) {
+                GETEY();
+                for (int i = 0; i < 4; ++i) {
+                    if (u8 & (1 << (4 + i))) {
+                        if (gd != ed) {
+                            LWU(x3, wback, fixedaddress + 4 * i);
+                            SW(x3, gback, gyoffset + 4 * i);
+                        }
+                    } else if (gd != vex.v) {
+                        LWU(x3, vback, vyoffset + 4 * i);
+                        SW(x3, gback, gyoffset + 4 * i);
+                    }
+                }
+            } else
+                YMM0(gd);
+            break;
+        case 0x04:
+            INST_NAME("VPERMILPS Gx, Ex, Ib");
+            nextop = F8;
+            GETGX();
+            GETEX(x2, 1, vex.l ? 28 : 12);
+            GETGY();
+            u8 = F8;
+            {
+                const int src[4] = {x3, x4, x5, x6};
+                LWU(x3, wback, fixedaddress + 0);
+                LWU(x4, wback, fixedaddress + 4);
+                LWU(x5, wback, fixedaddress + 8);
+                LWU(x6, wback, fixedaddress + 12);
+                for (int i = 0; i < 4; ++i)
+                    SW(src[(u8 >> (i * 2)) & 3], gback, gdoffset + 4 * i);
+            }
+            if (vex.l) {
+                GETEY();
+                {
+                    const int src[4] = {x3, x4, x5, x6};
+                    LWU(x3, wback, fixedaddress + 0);
+                    LWU(x4, wback, fixedaddress + 4);
+                    LWU(x5, wback, fixedaddress + 8);
+                    LWU(x6, wback, fixedaddress + 12);
+                    for (int i = 0; i < 4; ++i)
+                        SW(src[(u8 >> (i * 2)) & 3], gback, gyoffset + 4 * i);
+                }
+            } else
+                YMM0(gd);
+            break;
+        case 0x05:
+            INST_NAME("VPERMILPD Gx, Ex, Ib");
+            nextop = F8;
+            GETGX();
+            GETEX(x2, 1, vex.l ? 24 : 8);
+            GETGY();
+            u8 = F8;
+            {
+                const int src[2] = {x3, x4};
+                LD(x3, wback, fixedaddress + 0);
+                LD(x4, wback, fixedaddress + 8);
+                SD(src[(u8 >> 0) & 1], gback, gdoffset + 0);
+                SD(src[(u8 >> 1) & 1], gback, gdoffset + 8);
+            }
+            if (vex.l) {
+                GETEY();
+                {
+                    const int src[2] = {x3, x4};
+                    LD(x3, wback, fixedaddress + 0);
+                    LD(x4, wback, fixedaddress + 8);
+                    SD(src[(u8 >> 2) & 1], gback, gyoffset + 0);
+                    SD(src[(u8 >> 3) & 1], gback, gyoffset + 8);
+                }
+            } else
+                YMM0(gd);
+            break;
         case 0x1D:
             INST_NAME("VCVTPS2PH Ex, Gx, Ib");
             nextop = F8;
@@ -303,6 +400,114 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 SD(x5, gback, gyoffset + 8);
             } else
                 YMM0(gd);
+            break;
+        case 0x0A:
+            INST_NAME("VROUNDSS Gx, Vx, Ex, Ib");
+            nextop = F8;
+            GETGX();
+            GETEX(x2, 1, 4);
+            GETVX();
+            u8 = F8;
+            d0 = fpu_get_scratch(dyn);
+            d1 = fpu_get_scratch(dyn);
+            d2 = fpu_get_scratch(dyn);
+            v1 = fpu_get_scratch(dyn);
+            MOV64x(x3, 1ULL << __FLT_MANT_DIG__);
+            FCVTSW(d1, x3, RD_RTZ);
+            MARK;
+            FLW(d0, wback, fixedaddress); // low float of Ex
+            FABSS(v1, d0);
+            FLTS(x3, v1, d1);
+            FEQS(x4, d0, d0);
+            AND(x3, x3, x4);
+            BNEZ_MARK2(x3); // roundable, non-NaN value
+            FEQS(x3, d0, d0);
+            XORI(x3, x3, 1);
+            SLLI(x3, x3, 22); // quiet the NaN if it is one
+            FMVXW(x4, d0);
+            OR(x4, x4, x3);
+            FMVWX(d2, x4);
+            B_MARK3_nocond;
+            MARK2;
+            FMVXW(x3, d0);
+            if (u8 & 4) {
+                tmp8u = sse_setround(dyn, ninst, x4, x5);
+                FCVTWS(x5, d0, RD_DYN);
+                FCVTSW(d2, x5, RD_RTZ);
+                x87_restoreround(dyn, ninst, tmp8u);
+            } else {
+                FCVTWS(x5, d0, round_round[u8 & 3]);
+                FCVTSW(d2, x5, RD_RTZ);
+            }
+            SEQZ(x4, x5);
+            SLLI(x4, x4, 31);
+            AND(x3, x3, x4); // keep the sign of a rounded to zero value
+            FMVXW(x4, d2);
+            OR(x4, x4, x3);
+            FMVWX(d2, x4);
+            MARK3;
+            if (gd != vex.v) {
+                LD(x4, vback, vxoffset + 0);
+                LD(x5, vback, vxoffset + 8);
+                SD(x4, gback, gdoffset + 0);
+                SD(x5, gback, gdoffset + 8);
+            }
+            FSW(d2, gback, gdoffset + 0);
+            YMM0(gd);
+            break;
+        case 0x0B:
+            INST_NAME("VROUNDSD Gx, Vx, Ex, Ib");
+            nextop = F8;
+            GETGX();
+            GETEX(x2, 1, 8);
+            GETVX();
+            u8 = F8;
+            d0 = fpu_get_scratch(dyn);
+            d1 = fpu_get_scratch(dyn);
+            d2 = fpu_get_scratch(dyn);
+            v1 = fpu_get_scratch(dyn);
+            MOV64x(x3, 1ULL << __DBL_MANT_DIG__);
+            FCVTDL(d1, x3, RD_RTZ);
+            MARK;
+            FLD(d0, wback, fixedaddress); // low double of Ex
+            FABSD(v1, d0);
+            FLTD(x3, v1, d1);
+            FEQD(x4, d0, d0);
+            AND(x3, x3, x4);
+            BNEZ_MARK2(x3); // roundable, non-NaN value
+            FEQD(x3, d0, d0);
+            XORI(x3, x3, 1);
+            SLLI(x3, x3, 51); // quiet the NaN if it is one
+            FMVXD(x4, d0);
+            OR(x4, x4, x3);
+            FMVDX(d2, x4);
+            B_MARK3_nocond;
+            MARK2;
+            FMVXD(x3, d0);
+            if (u8 & 4) {
+                tmp8u = sse_setround(dyn, ninst, x4, x5);
+                FCVTLD(x5, d0, RD_DYN);
+                FCVTDL(d2, x5, RD_RTZ);
+                x87_restoreround(dyn, ninst, tmp8u);
+            } else {
+                FCVTLD(x5, d0, round_round[u8 & 3]);
+                FCVTDL(d2, x5, RD_RTZ);
+            }
+            SEQZ(x4, x5);
+            SLLI(x4, x4, 63);
+            AND(x3, x3, x4); // keep the sign of a rounded to zero value
+            FMVXD(x4, d2);
+            OR(x4, x4, x3);
+            FMVDX(d2, x4);
+            MARK3;
+            if (gd != vex.v) {
+                LD(x4, vback, vxoffset + 0);
+                LD(x5, vback, vxoffset + 8);
+                SD(x4, gback, gdoffset + 0);
+                SD(x5, gback, gdoffset + 8);
+            }
+            FSD(d2, gback, gdoffset + 0);
+            YMM0(gd);
             break;
         case 0x0D:
             INST_NAME("VBLENDPD Gx, Vx, Ex, Ib");
@@ -665,6 +870,46 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             } else {
                 SMWRITE2();
             }
+            break;
+        case 0x20:
+            INST_NAME("VPINSRB Gx, Vx, Ed, Ib");
+            nextop = F8;
+            GETGX();
+            GETVX();
+            GETED(1);
+            u8 = F8 & 0xf;
+            if (gd != vex.v) {
+                LD(x4, vback, vxoffset + 0);
+                LD(x5, vback, vxoffset + 8);
+                SD(x4, gback, gdoffset + 0);
+                SD(x5, gback, gdoffset + 8);
+            }
+            SB(ed, gback, gdoffset + u8);
+            YMM0(gd);
+            break;
+        case 0x21:
+            INST_NAME("VINSERTPS Gx, Vx, Ex, Ib");
+            nextop = F8;
+            GETGX();
+            GETEX(x2, 1, 4);
+            GETVX();
+            u8 = F8;
+            if (MODREG) {
+                LWU(x4, wback, fixedaddress + 4 * ((u8 >> 6) & 3));
+            } else {
+                LWU(x4, wback, fixedaddress);
+            }
+            if (gd != vex.v) {
+                LD(x5, vback, vxoffset + 0);
+                LD(x6, vback, vxoffset + 8);
+                SD(x5, gback, gdoffset + 0);
+                SD(x6, gback, gdoffset + 8);
+            }
+            SW(x4, gback, gdoffset + 4 * ((u8 >> 4) & 3));
+            for (int i = 0; i < 4; ++i)
+                if (u8 & (1 << i))
+                    SW(xZR, gback, gdoffset + 4 * i);
+            YMM0(gd);
             break;
         case 0x22:
             if (rex.w) {
@@ -1041,6 +1286,54 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 CTZxw(xRCX, x1, 0, x2, x3);
             }
             break;
+        case 0x62:
+            INST_NAME("VPCMPISTRM Gx, Ex, Ib");
+            nextop = F8;
+            if (vex.l) {
+                DEFAULT;
+            }
+            SETFLAGS(X_ALL, SF_SET_DF, NAT_FLAGS_NOFUSION);
+            gd = ((nextop & 0x38) >> 3) + (rex.r << 3);
+            sse_reflect_reg(dyn, ninst, x6, gd);
+            ADDI(x2, xEmu, offsetof(x64emu_t, xmm[gd]));
+            if (MODREG) {
+                ed = (nextop & 7) + (rex.b << 3);
+                sse_reflect_reg(dyn, ninst, x6, ed);
+                ADDI(x1, xEmu, offsetof(x64emu_t, xmm[ed]));
+                ed = x1;
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, x5, &fixedaddress, rex, NULL, 0, 1);
+            }
+            u8 = F8;
+            MOV32w(x3, u8);
+            CALL4(const_sse42_compare_string_implicit_len, x1, ed, x2, x3, 0);
+            ZEROUP(x1);
+            sse_forget_reg(dyn, ninst, x6, 0);
+            if (u8 & 0b1000000) {
+                switch (u8 & 1) {
+                    case 0b00:
+                        for (int i = 0; i < 16; ++i) {
+                            BEXTI(x3, x1, i);
+                            NEG(x3, x3);
+                            SB(x3, xEmu, offsetof(x64emu_t, xmm[0]) + i);
+                        }
+                        break;
+                    case 0b01:
+                        for (int i = 0; i < 8; ++i) {
+                            BEXTI(x3, x1, i);
+                            NEG(x3, x3);
+                            SH(x3, xEmu, offsetof(x64emu_t, xmm[0]) + i * 2);
+                        }
+                        break;
+                }
+            } else {
+                SW(x1, xEmu, offsetof(x64emu_t, xmm[0]));
+                SW(xZR, xEmu, offsetof(x64emu_t, xmm[0]) + 4);
+                SD(xZR, xEmu, offsetof(x64emu_t, xmm[0]) + 8);
+            }
+            YMM0(0);
+            break;
         case 0x63:
             INST_NAME("VPCMPISTRI Gx, Ex, Ib");
             nextop = F8;
@@ -1075,6 +1368,29 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             } else {
                 CTZxw(xRCX, x1, 0, x2, x3);
             }
+            break;
+        case 0xDF:
+            INST_NAME("VAESKEYGENASSIST Gx, Ex, Ib"); // AES-NI
+            nextop = F8;
+            GETG;
+            sse_forget_reg(dyn, ninst, x6, gd);
+            MOV32w(x1, gd); // gx
+            if (MODREG) {
+                ed = (nextop & 7) + (rex.b << 3);
+                sse_forget_reg(dyn, ninst, x6, ed);
+                MOV32w(x2, ed);
+                MOV32w(x3, 0); // p = NULL
+            } else {
+                MOV32w(x2, 0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x3, x5, &fixedaddress, rex, NULL, 0, 1);
+                if (ed != x3) {
+                    MV(x3, ed);
+                }
+            }
+            u8 = F8;
+            MOV32w(x4, u8);
+            CALL4(const_native_aeskeygenassist, -1, x1, x2, x3, x4);
+            YMM0(gd);
             break;
         default:
             DEFAULT;
