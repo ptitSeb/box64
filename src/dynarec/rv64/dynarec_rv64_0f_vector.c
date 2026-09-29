@@ -213,10 +213,10 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             INST_NAME("MOVHPS Ex, Gx");
             nextop = F8;
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
-            GETGX_vector(v0, 1, VECTOR_SEW64);
+            GETGX_vector(v0, 0, VECTOR_SEW64);
             // EX->q[0] = GX->q[1];
             if (MODREG) {
-                v1 = sse_get_reg_vector(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0, VECTOR_SEW64);
+                v1 = sse_get_reg_vector(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 1, VECTOR_SEW64);
                 q0 = fpu_get_scratch(dyn);
                 VSLIDE1DOWN_VX(q0, v0, xZR, VECTOR_UNMASKED);
                 if (cpuext.xtheadvector) {
