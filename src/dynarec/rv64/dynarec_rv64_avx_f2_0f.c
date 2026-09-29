@@ -129,6 +129,89 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             } else
                 YMM0(gd);
             break;
+        case 0x2A:
+            INST_NAME("VCVTSI2SD Gx, Vx, Ed");
+            nextop = F8;
+            GETGX();
+            GETVX();
+            GETED(0);
+            u8 = sse_setround(dyn, ninst, x6, x4);
+            d0 = fpu_get_scratch(dyn);
+            if (rex.w) {
+                FCVTDL(d0, ed, RD_DYN);
+            } else {
+                FCVTDW(d0, ed, RD_DYN);
+            }
+            x87_restoreround(dyn, ninst, u8);
+            if (gd != vex.v) {
+                LD(x2, vback, vxoffset + 0);
+                LD(x3, vback, vxoffset + 8);
+                SD(x2, gback, gdoffset + 0);
+                SD(x3, gback, gdoffset + 8);
+            }
+            FSD(d0, gback, gdoffset + 0);
+            YMM0(gd);
+            break;
+        case 0x2C:
+            INST_NAME("VCVTTSD2SI Gd, Ex");
+            nextop = F8;
+            GETGD;
+            d0 = fpu_get_scratch(dyn);
+            if (MODREG) {
+                ed = (nextop & 7) + (rex.b << 3);
+                sse_forget_reg(dyn, ninst, x1, ed);
+                FLD(d0, xEmu, offsetof(x64emu_t, xmm[ed]));
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 0, 0);
+                FLD(d0, wback, fixedaddress);
+            }
+            if (!BOX64ENV(dynarec_fastround)) {
+                FSFLAGSI(0); // reset all bits
+            }
+            FCVTLDxw(gd, d0, RD_RTZ);
+            if (!rex.w) ZEROUP(gd);
+            if (!BOX64ENV(dynarec_fastround)) {
+                FRFLAGS(x5); // get back FPSR to check the IOC bit
+                ANDI(x5, x5, (1 << FR_NV) | (1 << FR_OF));
+                CBZ_NEXT(x5);
+                if (rex.w) {
+                    MOV64x(gd, 0x8000000000000000LL);
+                } else {
+                    MOV32w(gd, 0x80000000);
+                }
+            }
+            break;
+        case 0x2D:
+            INST_NAME("VCVTSD2SI Gd, Ex");
+            nextop = F8;
+            GETGD;
+            d0 = fpu_get_scratch(dyn);
+            if (MODREG) {
+                ed = (nextop & 7) + (rex.b << 3);
+                sse_forget_reg(dyn, ninst, x1, ed);
+                FLD(d0, xEmu, offsetof(x64emu_t, xmm[ed]));
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 0, 0);
+                FLD(d0, wback, fixedaddress);
+            }
+            if (!BOX64ENV(dynarec_fastround)) {
+                FSFLAGSI(0); // reset all bits
+            }
+            u8 = sse_setround(dyn, ninst, x2, x3);
+            FCVTLDxw(gd, d0, RD_DYN);
+            if (!rex.w) ZEROUP(gd);
+            x87_restoreround(dyn, ninst, u8);
+            if (!BOX64ENV(dynarec_fastround)) {
+                FRFLAGS(x5); // get back FPSR to check the IOC bit
+                ANDI(x5, x5, (1 << FR_NV) | (1 << FR_OF));
+                CBZ_NEXT(x5);
+                if (rex.w) {
+                    MOV64x(gd, 0x8000000000000000LL);
+                } else {
+                    MOV32w(gd, 0x80000000);
+                }
+            }
+            break;
         case 0x58:
             INST_NAME("VADDSD Gx, Vx, Ex");
             nextop = F8;
@@ -880,6 +963,26 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             }
             x87_restoreround(dyn, ninst, u8);
             YMM0(gd);
+            break;
+        case 0xF0:
+            INST_NAME("VLDDQU Gx, Ex");
+            nextop = F8;
+            GETEX(x2, 0, vex.l ? 24 : 8);
+            GETGX();
+            GETGY();
+            LD(x7, wback, fixedaddress + 0);
+            LD(x4, wback, fixedaddress + 8);
+            SD(x7, gback, gdoffset + 0);
+            SD(x4, gback, gdoffset + 8);
+            if (vex.l) {
+                GETEY();
+                LD(x7, wback, fixedaddress + 0);
+                LD(x4, wback, fixedaddress + 8);
+                SD(x7, gback, gyoffset + 0);
+                SD(x4, gback, gyoffset + 8);
+            } else {
+                YMM0(gd);
+            }
             break;
         default:
             DEFAULT;

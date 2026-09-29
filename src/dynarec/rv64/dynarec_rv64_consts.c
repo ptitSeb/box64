@@ -68,6 +68,7 @@ uintptr_t getConst(rv64_consts_t which)
         case const_native_pclmul_x: return (uintptr_t)native_pclmul_x;
         case const_native_pclmul_y: return (uintptr_t)native_pclmul_y;
         case const_native_cvtps2ph: return (uintptr_t)native_cvtps2ph;
+        case const_native_cvtph2ps: return (uintptr_t)native_cvtph2ps;
         case const_native_f2xm1: return (uintptr_t)native_f2xm1;
         case const_native_fyl2x: return (uintptr_t)native_fyl2x;
         case const_native_fyl2xp1: return (uintptr_t)native_fyl2xp1;

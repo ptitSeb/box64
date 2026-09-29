@@ -104,6 +104,19 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             SD(x3, gback, gdoffset + 8);
             YMM0(gd);
             break;
+        case 0x13:
+            INST_NAME("VMOVLPD Ex, Gx");
+            nextop = F8;
+            if (MODREG) {
+                DEFAULT;
+                return addr;
+            }
+            GETGX();
+            addr = geted(dyn, addr, ninst, nextop, &wback, x2, x3, &fixedaddress, rex, NULL, 1, 0);
+            LD(x3, gback, gdoffset + 0);
+            SD(x3, wback, fixedaddress);
+            SMWRITE2();
+            break;
         case 0x14:
             INST_NAME("VUNPCKLPD Gx, Vx, Ex");
             nextop = F8;
@@ -196,6 +209,27 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             } else if (MODREG)
                 YMM0(ed);
             if (!MODREG) SMWRITE2();
+            break;
+        case 0x2B:
+            INST_NAME("VMOVNTPD Ex, Gx");
+            nextop = F8;
+            if (!MODREG) {
+                GETEX(x2, 0, vex.l ? 24 : 8);
+                GETGX();
+                GETGY();
+                LD(x3, gback, gdoffset + 0);
+                LD(x4, gback, gdoffset + 8);
+                SD(x3, wback, fixedaddress + 0);
+                SD(x4, wback, fixedaddress + 8);
+                if (vex.l) {
+                    GETEY();
+                    LD(x3, gback, gyoffset + 0);
+                    LD(x4, gback, gyoffset + 8);
+                    SD(x3, wback, fixedaddress + 0);
+                    SD(x4, wback, fixedaddress + 8);
+                }
+                SMWRITE2();
+            }
             break;
         case 0x2E:
             // no special check...
@@ -2964,6 +2998,27 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 }
             } else
                 YMM0(gd);
+            break;
+        case 0xE7:
+            INST_NAME("VMOVNTDQ Ex, Gx");
+            nextop = F8;
+            if (!MODREG) {
+                GETEX(x2, 0, vex.l ? 24 : 8);
+                GETGX();
+                GETGY();
+                LD(x3, gback, gdoffset + 0);
+                LD(x4, gback, gdoffset + 8);
+                SD(x3, wback, fixedaddress + 0);
+                SD(x4, wback, fixedaddress + 8);
+                if (vex.l) {
+                    GETEY();
+                    LD(x3, gback, gyoffset + 0);
+                    LD(x4, gback, gyoffset + 8);
+                    SD(x3, wback, fixedaddress + 0);
+                    SD(x4, wback, fixedaddress + 8);
+                }
+                SMWRITE2();
+            }
             break;
         case 0xE8:
             INST_NAME("VPSUBSB Gx, Vx, Ex");

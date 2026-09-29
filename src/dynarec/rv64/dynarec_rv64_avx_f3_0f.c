@@ -118,6 +118,52 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             } else
                 SMWRITE2();
             break;
+        case 0x12:
+            INST_NAME("VMOVSLDUP Gx, Ex");
+            nextop = F8;
+            GETGX();
+            GETEX(x2, 0, vex.l ? 28 : 12);
+            GETGY();
+            LW(x3, wback, fixedaddress + 0);
+            SW(x3, gback, gdoffset + 0);
+            SW(x3, gback, gdoffset + 4);
+            LW(x3, wback, fixedaddress + 8);
+            SW(x3, gback, gdoffset + 8);
+            SW(x3, gback, gdoffset + 12);
+            if (vex.l) {
+                GETEY();
+                LW(x3, wback, fixedaddress + 0);
+                SW(x3, gback, gyoffset + 0);
+                SW(x3, gback, gyoffset + 4);
+                LW(x3, wback, fixedaddress + 8);
+                SW(x3, gback, gyoffset + 8);
+                SW(x3, gback, gyoffset + 12);
+            } else
+                YMM0(gd);
+            break;
+        case 0x16:
+            INST_NAME("VMOVSHDUP Gx, Ex");
+            nextop = F8;
+            GETGX();
+            GETEX(x2, 0, vex.l ? 28 : 12);
+            GETGY();
+            LW(x3, wback, fixedaddress + 4);
+            SW(x3, gback, gdoffset + 0);
+            SW(x3, gback, gdoffset + 4);
+            LW(x3, wback, fixedaddress + 12);
+            SW(x3, gback, gdoffset + 8);
+            SW(x3, gback, gdoffset + 12);
+            if (vex.l) {
+                GETEY();
+                LW(x3, wback, fixedaddress + 4);
+                SW(x3, gback, gyoffset + 0);
+                SW(x3, gback, gyoffset + 4);
+                LW(x3, wback, fixedaddress + 12);
+                SW(x3, gback, gyoffset + 8);
+                SW(x3, gback, gyoffset + 12);
+            } else
+                YMM0(gd);
+            break;
         case 0x5A:
             INST_NAME("VCVTSS2SD Gx, Vx, Ex");
             nextop = F8;
@@ -149,6 +195,29 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 LD(x2, vback, vxoffset + 8);
                 SD(x2, gback, gdoffset + 8);
             }
+            YMM0(gd);
+            break;
+        case 0x2A:
+            INST_NAME("VCVTSI2SS Gx, Vx, Ed");
+            nextop = F8;
+            GETGX();
+            GETVX();
+            GETED(0);
+            u8 = sse_setround(dyn, ninst, x6, x4);
+            d0 = fpu_get_scratch(dyn);
+            if (rex.w) {
+                FCVTSL(d0, ed, RD_DYN);
+            } else {
+                FCVTSW(d0, ed, RD_DYN);
+            }
+            x87_restoreround(dyn, ninst, u8);
+            if (gd != vex.v) {
+                LD(x2, vback, vxoffset + 0);
+                LD(x3, vback, vxoffset + 8);
+                SD(x2, gback, gdoffset + 0);
+                SD(x3, gback, gdoffset + 8);
+            }
+            FSW(d0, gback, gdoffset + 0);
             YMM0(gd);
             break;
         case 0x2C:
@@ -201,6 +270,46 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 BEQZ(x5, 4 + 4 * 4);
             }
             FADDS(q0, d0, d1);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                FEQS(x5, q0, q0);
+                BNEZ(x5, 4 + 6 * 4);
+                FNEGS(q0, q0);
+                BNEZ(x4, 4 + 4);
+                FMVS(q0, d0);
+                FMVXW(x5, q0);
+                OR(x5, x5, x6);
+                FMVWX(q0, x5);
+            }
+            FSW(q0, gback, gdoffset);
+            if (gd != vex.v) {
+                LWU(x2, vback, vxoffset + 4);
+                SW(x2, gback, gdoffset + 4);
+                LD(x2, vback, vxoffset + 8);
+                SD(x2, gback, gdoffset + 8);
+            }
+            YMM0(gd);
+            break;
+        case 0x59:
+            INST_NAME("VMULSS Gx, Vx, Ex");
+            nextop = F8;
+            GETGX();
+            GETEX(x1, 0, 1);
+            GETVX();
+            GETGY();
+            d0 = fpu_get_scratch(dyn);
+            d1 = fpu_get_scratch(dyn);
+            q0 = fpu_get_scratch(dyn);
+            FLW(d0, vback, vxoffset);
+            FLW(d1, wback, fixedaddress);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                MOV32w(x6, 0x00400000);
+                FMVS(q0, d1);
+                FEQS(x3, d1, d1);
+                FEQS(x4, d0, d0);
+                AND(x5, x3, x4);
+                BEQZ(x5, 4 + 4 * 4);
+            }
+            FMULS(q0, d0, d1);
             if (!BOX64ENV(dynarec_fastnan)) {
                 FEQS(x5, q0, q0);
                 BNEZ(x5, 4 + 6 * 4);

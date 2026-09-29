@@ -159,6 +159,14 @@ uintptr_t dynarec64_AVX_F2_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             VFMV_S_F(v0, d0);
             avx_store_reg_vector(dyn, ninst, x1, v0, gd, 16, VECTOR_SEW64);
             break;
+        case 0xF0:
+            INST_NAME("VLDDQU Gx, Ex");
+            nextop = F8;
+            GETEY_vector(v1, 0, VECTOR_SEW8);
+            GETGY_empty_vector(v0);
+            VMV_V_V(v0, v1);
+            PUTGY_vector(v0, VECTOR_SEW8);
+            break;
         default:
             DEFAULT_VECTOR;
     }
