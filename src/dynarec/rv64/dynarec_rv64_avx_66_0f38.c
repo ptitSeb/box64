@@ -746,19 +746,22 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             nextop = F8;
             SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
             GETEX(x1, 0, vex.l ? 24 : 8);
-            GETVX();
-            GETVY();
+            GETGX();
+            GETGY();
             CLEAR_FLAGS();
             SET_DFNONE();
             IFX (X_ZF | X_CF) {
                 LD(x2, wback, fixedaddress + 0);
                 LD(x3, wback, fixedaddress + 8);
-                LD(x4, vback, vxoffset + 0);
-                LD(x5, vback, vxoffset + 8);
+                LD(x4, gback, gdoffset + 0);
+                LD(x5, gback, gdoffset + 8);
                 IFX (X_ZF) {
                     AND(x6, x4, x2);
                     AND(x7, x5, x3);
                     OR(x6, x6, x7);
+                    SLLI(x7, x6, 32);
+                    OR(x6, x6, x7);
+                    SRLI(x6, x6, 63);
                     SET_FLAGS_EQZ(x6, F_ZF, x7);
                 }
                 IFX (X_CF) {
@@ -767,20 +770,25 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     AND(x6, x4, x2);
                     AND(x7, x5, x3);
                     OR(x6, x6, x7);
+                    SLLI(x7, x6, 32);
+                    OR(x6, x6, x7);
+                    SRLI(x6, x6, 63);
                     SET_FLAGS_EQZ(x6, F_CF, x7);
                 }
             }
             if (vex.l) {
                 GETEY();
-                GETVY();
                 LD(x2, wback, fixedaddress + 0);
                 LD(x3, wback, fixedaddress + 8);
-                LD(x4, vback, vyoffset + 0);
-                LD(x5, vback, vyoffset + 8);
+                LD(x4, gback, gyoffset + 0);
+                LD(x5, gback, gyoffset + 8);
                 IFX (X_ZF) {
                     AND(x6, x4, x2);
                     AND(x7, x5, x3);
                     OR(x6, x6, x7);
+                    SLLI(x7, x6, 32);
+                    OR(x6, x6, x7);
+                    SRLI(x6, x6, 63);
                     BEQZ_MARK(x6);
                     ANDI(xFlags, xFlags, ~(1 << F_ZF));
                     MARK;
@@ -791,6 +799,9 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     AND(x6, x4, x2);
                     AND(x7, x5, x3);
                     OR(x6, x6, x7);
+                    SLLI(x7, x6, 32);
+                    OR(x6, x6, x7);
+                    SRLI(x6, x6, 63);
                     BEQZ_MARK2(x6);
                     ANDI(xFlags, xFlags, ~(1 << F_CF));
                     MARK2;
@@ -802,19 +813,20 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             nextop = F8;
             SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
             GETEX(x1, 0, vex.l ? 24 : 8);
-            GETVX();
-            GETVY();
+            GETGX();
+            GETGY();
             CLEAR_FLAGS();
             SET_DFNONE();
             IFX (X_ZF | X_CF) {
                 LD(x2, wback, fixedaddress + 0);
                 LD(x3, wback, fixedaddress + 8);
-                LD(x4, vback, vxoffset + 0);
-                LD(x5, vback, vxoffset + 8);
+                LD(x4, gback, gdoffset + 0);
+                LD(x5, gback, gdoffset + 8);
                 IFX (X_ZF) {
                     AND(x6, x4, x2);
                     AND(x7, x5, x3);
                     OR(x6, x6, x7);
+                    SRLI(x6, x6, 63);
                     SET_FLAGS_EQZ(x6, F_ZF, x7);
                 }
                 IFX (X_CF) {
@@ -823,20 +835,21 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     AND(x6, x4, x2);
                     AND(x7, x5, x3);
                     OR(x6, x6, x7);
+                    SRLI(x6, x6, 63);
                     SET_FLAGS_EQZ(x6, F_CF, x7);
                 }
             }
             if (vex.l) {
                 GETEY();
-                GETVY();
                 LD(x2, wback, fixedaddress + 0);
                 LD(x3, wback, fixedaddress + 8);
-                LD(x4, vback, vyoffset + 0);
-                LD(x5, vback, vyoffset + 8);
+                LD(x4, gback, gyoffset + 0);
+                LD(x5, gback, gyoffset + 8);
                 IFX (X_ZF) {
                     AND(x6, x4, x2);
                     AND(x7, x5, x3);
                     OR(x6, x6, x7);
+                    SRLI(x6, x6, 63);
                     BEQZ_MARK(x6);
                     ANDI(xFlags, xFlags, ~(1 << F_ZF));
                     MARK;
@@ -847,6 +860,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     AND(x6, x4, x2);
                     AND(x7, x5, x3);
                     OR(x6, x6, x7);
+                    SRLI(x6, x6, 63);
                     BEQZ_MARK2(x6);
                     ANDI(xFlags, xFlags, ~(1 << F_CF));
                     MARK2;
