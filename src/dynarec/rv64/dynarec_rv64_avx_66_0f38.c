@@ -670,7 +670,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 ADDI(x3, xEmu, offsetof(x64emu_t, xmm[ed]));
             } else {
                 SMREAD();
-                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 0, 1);
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 0, 0);
                 ADDI(x3, wback, fixedaddress);
             }
             ADDI(x2, xEmu, offsetof(x64emu_t, scratch) + 0);
@@ -1176,7 +1176,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
         case 0x29:
             INST_NAME("VPCMPEQQ Gx, Vx, Ex");
             nextop = F8;
-            GETEX(x2, 1, vex.l ? 28 : 12);
+            GETEX(x2, 0, vex.l ? 28 : 12);
             GETVX();
             GETVY();
             GETGX();
@@ -1305,7 +1305,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             INST_NAME("VMASKMOVPS Ex, Vx, Gx");
             nextop = F8;
             if (MODREG) return 0;
-            addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, vex.l ? 24 : 8, 1);
+            addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, vex.l ? 24 : 8, 0);
             GETVX();
             GETVY();
             GETGX();
@@ -1771,7 +1771,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
         case 0x37:
             INST_NAME("VPCMPGTQ Gx, Vx, Ex");
             nextop = F8;
-            GETEX(x2, 1, vex.l ? 28 : 12);
+            GETEX(x2, 0, vex.l ? 28 : 12);
             GETVX();
             GETVY();
             GETGX();
@@ -1855,7 +1855,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 INST_NAME("VPSRLVD Gx, Vx, Ex");
             }
             nextop = F8;
-            GETEX(x2, 1, vex.l ? 28 : 12);
+            GETEX(x2, 0, vex.l ? 28 : 12);
             GETVX();
             GETVY();
             GETGX();
@@ -1911,7 +1911,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
         case 0x46:
             INST_NAME("VPSRAVD Gx, Vx, Ex");
             nextop = F8;
-            GETEX(x2, 1, vex.l ? 28 : 12);
+            GETEX(x2, 0, vex.l ? 28 : 12);
             GETVX();
             GETVY();
             GETGX();
@@ -1954,7 +1954,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 INST_NAME("VPSLLVD Gx, Vx, Ex");
             }
             nextop = F8;
-            GETEX(x2, 1, vex.l ? 28 : 12);
+            GETEX(x2, 0, vex.l ? 28 : 12);
             GETVX();
             GETVY();
             GETGX();

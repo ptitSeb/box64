@@ -2245,9 +2245,16 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             if (vex.l) return 0;
             INST_NAME("VPINSRW Gx, Vx, Ed, Ib");
             nextop = F8;
-            GETED(1);
             GETGX();
             GETVX();
+            if (MODREG) {
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, 1);
+                LHU(x1, wback, fixedaddress);
+                ed = x1;
+            }
             u8 = (F8) & 7;
             if (gd != vex.v) {
                 LD(x3, vback, vxoffset + 0);
