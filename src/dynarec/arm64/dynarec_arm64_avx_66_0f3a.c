@@ -163,7 +163,7 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             } else {
                 s0 = -1;
                 v1 = fpu_get_scratch(dyn, ninst);
-                addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, NULL, 0xffe<<4, 15, rex, NULL, 0, 0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, NULL, 0xffe<<4, 15, rex, NULL, 0, 1);
             }
             u8 = F8;
             GETVX(v2, 0);
