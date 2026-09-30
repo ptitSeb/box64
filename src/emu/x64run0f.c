@@ -301,9 +301,13 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             break;
         case 0x17:                      /* MOVHPS Ex,Gx */
             nextop = F8;
-            GETEX(0);
-            GETGX;
-            EX->q[0] = GX->q[1];
+            if(MODREG) {
+                EmitSignal(emu, X64_SIGILL, (void*)R_RIP, 0);
+            } else {
+                GETEX(0);
+                GETGX;
+                EX->q[0] = GX->q[1];
+            }
             break;
         case 0x18:                       /* PREFETCHh Ed */
             nextop = F8;
