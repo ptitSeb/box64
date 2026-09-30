@@ -531,7 +531,8 @@ uintptr_t dynarec64_00_3(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             MV(xRBP, xRSP);
             if (u8) {
                 for (u32 = 1; u32 < u8; u32++) {
-                    LDz(x2, x1, rex.is32bits ? -4 : -8);
+                    ADDI_D(x1, x1, rex.is32bits ? -4 : -8);
+                    LDz(x2, x1, 0);
                     PUSH1z(x2);
                 }
                 PUSH1z(xRBP);
