@@ -3719,6 +3719,7 @@
 #() iFEppppLppp
 #() iFEpppppupp
 #() iFEppppppuu
+#() iFEpppppppp
 #() iFEppPPPPPP
 #() iFiiupiupii
 #() iFiuuuppppu
@@ -3877,6 +3878,8 @@
 #() iFEppppLpppp
 #() iFEppppppipp
 #() iFEpppppppip
+#() iFEppppppppV
+#() iFEppppppppA
 #() iFiuuupppppu
 #() iFuiiiuuiiip
 #() iFpiiupWWupL
@@ -7502,6 +7505,16 @@ wrappedsoftokn3:
 wrappedssh4:
 wrappedssl3:
 wrappedsystemd:
+- iFppV:
+  - sd_bus_message_read
+- iFppA:
+  - sd_bus_message_readv
+- iFpppppppp:
+  - sd_bus_match_signal
+- iFppppppppV:
+  - sd_bus_call_method
+- iFppppppppA:
+  - sd_bus_call_methodv
 wrappedtbbbind:
 - vFv:
   - __TBB_internal_destroy_system_topology

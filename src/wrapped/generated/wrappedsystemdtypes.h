@@ -12,7 +12,17 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef int32_t (*iFppV_t)(void*, void*, ...);
+typedef int32_t (*iFppA_t)(void*, void*, va_list);
+typedef int32_t (*iFpppppppp_t)(void*, void*, void*, void*, void*, void*, void*, void*);
+typedef int32_t (*iFppppppppV_t)(void*, void*, void*, void*, void*, void*, void*, void*, ...);
+typedef int32_t (*iFppppppppA_t)(void*, void*, void*, void*, void*, void*, void*, void*, va_list);
 
-#define SUPER() ADDED_FUNCTIONS()
+#define SUPER() ADDED_FUNCTIONS() \
+	GO(sd_bus_message_read, iFppV_t) \
+	GO(sd_bus_message_readv, iFppA_t) \
+	GO(sd_bus_match_signal, iFpppppppp_t) \
+	GO(sd_bus_call_method, iFppppppppV_t) \
+	GO(sd_bus_call_methodv, iFppppppppA_t)
 
 #endif // __wrappedsystemdTYPES_H_
