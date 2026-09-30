@@ -954,6 +954,11 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     } else {
                         SMREAD();
                         addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 0, 0);
+                        // the address is passed as an argument to the helper, so it must not stay in a guest register
+                        if (ed != x2 || fixedaddress) {
+                            ADDI(x2, ed, fixedaddress);
+                            ed = x2;
+                        }
                     }
                     GETG;
                     sse_forget_reg(dyn, ninst, x6, gd);
@@ -1044,6 +1049,11 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     } else {
                         SMREAD();
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 0, 1);
+                        // the address is passed as an argument to the helper, so it must not stay in a guest register
+                        if (wback != x2 || fixedaddress) {
+                            ADDI(x2, wback, fixedaddress);
+                            wback = x2;
+                        }
                     }
                     u8 = F8;
                     GETG;

@@ -1603,6 +1603,11 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                         ed = x1;
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 1);
+                        // the address is passed as an argument to the helper, so it must not stay in a guest register
+                        if (ed != x1 || fixedaddress) {
+                            ADDI(x1, ed, fixedaddress);
+                            ed = x1;
+                        }
                     }
                     SEXT_W(x2, xRDX);
                     SEXT_W(x4, xRAX);
@@ -1646,6 +1651,11 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                         ed = x1;
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 1);
+                        // the address is passed as an argument to the helper, so it must not stay in a guest register
+                        if (ed != x1 || fixedaddress) {
+                            ADDI(x1, ed, fixedaddress);
+                            ed = x1;
+                        }
                     }
                     SEXT_W(x2, xRDX);
                     SEXT_W(x4, xRAX);
@@ -1679,6 +1689,11 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                         ed = x1;
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 1);
+                        // the address is passed as an argument to the helper, so it must not stay in a guest register
+                        if (ed != x1 || fixedaddress) {
+                            ADDI(x1, ed, fixedaddress);
+                            ed = x1;
+                        }
                     }
                     ADDI(x2, xEmu, offsetof(x64emu_t, xmm[gd]));
                     u8 = F8;
