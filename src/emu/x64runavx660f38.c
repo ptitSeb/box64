@@ -1549,19 +1549,19 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGY;
             if(rex.w) {
                 for(int i=0; i<2; ++i)
-                    GX->d[i] = GX->d[i]*EX->d[i] + ((i&1)?VX->d[i]:(-VX->d[i]));
+                    GX->d[i] = fma(GX->d[i], EX->d[i], ((i&1)?VX->d[i]:(-VX->d[i])));
             } else {
                 for(int i=0; i<4; ++i)
-                    GX->f[i] = GX->f[i]*EX->f[i] + ((i&1)?VX->f[i]:(-VX->f[i]));
+                    GX->f[i] = fmaf(GX->f[i], EX->f[i], ((i&1)?VX->f[i]:(-VX->f[i])));
             }
             if(vex.l) {
                 GETEY; GETVY;
                 if(rex.w) {
                     for(int i=0; i<2; ++i)
-                        GY->d[i] = GY->d[i]*EY->d[i] + ((i&1)?VY->d[i]:(-VY->d[i]));
+                        GY->d[i] = fma(GY->d[i], EY->d[i], ((i&1)?VY->d[i]:(-VY->d[i])));
                 } else {
                     for(int i=0; i<4; ++i)
-                        GY->f[i] = GY->f[i]*EY->f[i] + ((i&1)?VY->f[i]:(-VY->f[i]));
+                        GY->f[i] = fmaf(GY->f[i], EY->f[i], ((i&1)?VY->f[i]:(-VY->f[i])));
                 }
             } else GY->u128 = 0;
             break;
@@ -1573,19 +1573,19 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGY;
             if(rex.w) {
                 for(int i=0; i<2; ++i)
-                    GX->d[i] = GX->d[i]*EX->d[i] + ((i&1)?(-VX->d[i]):VX->d[i]);
+                    GX->d[i] = fma(GX->d[i], EX->d[i], ((i&1)?(-VX->d[i]):VX->d[i]));
             } else {
                 for(int i=0; i<4; ++i)
-                    GX->f[i] = GX->f[i]*EX->f[i] + ((i&1)?(-VX->f[i]):VX->f[i]);
+                    GX->f[i] = fmaf(GX->f[i], EX->f[i], ((i&1)?(-VX->f[i]):VX->f[i]));
             }
             if(vex.l) {
                 GETEY; GETVY;
                 if(rex.w) {
                     for(int i=0; i<2; ++i)
-                        GY->d[i] = GY->d[i]*EY->d[i] + ((i&1)?(-VY->d[i]):VY->d[i]);
+                        GY->d[i] = fma(GY->d[i], EY->d[i], ((i&1)?(-VY->d[i]):VY->d[i]));
                 } else {
                     for(int i=0; i<4; ++i)
-                        GY->f[i] = GY->f[i]*EY->f[i] + ((i&1)?(-VY->f[i]):VY->f[i]);
+                        GY->f[i] = fmaf(GY->f[i], EY->f[i], ((i&1)?(-VY->f[i]):VY->f[i]));
                 }
             } else GY->u128 = 0;
             break;
@@ -1597,19 +1597,19 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGY;
             if(rex.w) {
                 for(int i=0; i<2; ++i)
-                    GX->d[i] = GX->d[i]*EX->d[i] + VX->d[i];
+                    GX->d[i] = fma(GX->d[i], EX->d[i], VX->d[i]);
             } else {
                 for(int i=0; i<4; ++i)
-                    GX->f[i] = GX->f[i]*EX->f[i] + VX->f[i];
+                    GX->f[i] = fmaf(GX->f[i], EX->f[i], VX->f[i]);
             }
             if(vex.l) {
                 GETEY; GETVY;
                 if(rex.w) {
                     for(int i=0; i<2; ++i)
-                        GY->d[i] = GY->d[i]*EY->d[i] + VY->d[i];
+                        GY->d[i] = fma(GY->d[i], EY->d[i], VY->d[i]);
                 } else {
                     for(int i=0; i<4; ++i)
-                        GY->f[i] = GY->f[i]*EY->f[i] + VY->f[i];
+                        GY->f[i] = fmaf(GY->f[i], EY->f[i], VY->f[i]);
                 }
             } else GY->u128 = 0;
             break;
@@ -1620,9 +1620,9 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETVX;
             GETGY;
             if(rex.w) {
-                GX->d[0] = GX->d[0]*EX->d[0] + VX->d[0];
+                GX->d[0] = fma(GX->d[0], EX->d[0], VX->d[0]);
             } else {
-                GX->f[0] = GX->f[0]*EX->f[0] + VX->f[0];
+                GX->f[0] = fmaf(GX->f[0], EX->f[0], VX->f[0]);
             }
             GY->u128 = 0;
             break;
@@ -1634,19 +1634,19 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGY;
             if(rex.w) {
                 for(int i=0; i<2; ++i)
-                    GX->d[i] = GX->d[i]*EX->d[i] - VX->d[i];
+                    GX->d[i] = fma(GX->d[i], EX->d[i], -VX->d[i]);
             } else {
                 for(int i=0; i<4; ++i)
-                    GX->f[i] = GX->f[i]*EX->f[i] - VX->f[i];
+                    GX->f[i] = fmaf(GX->f[i], EX->f[i], -VX->f[i]);
             }
             if(vex.l) {
                 GETEY; GETVY;
                 if(rex.w) {
                     for(int i=0; i<2; ++i)
-                        GY->d[i] = GY->d[i]*EY->d[i] - VY->d[i];
+                        GY->d[i] = fma(GY->d[i], EY->d[i], -VY->d[i]);
                 } else {
                     for(int i=0; i<4; ++i)
-                        GY->f[i] = GY->f[i]*EY->f[i] - VY->f[i];
+                        GY->f[i] = fmaf(GY->f[i], EY->f[i], -VY->f[i]);
                 }
             } else GY->u128 = 0;
             break;
@@ -1657,9 +1657,9 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETVX;
             GETGY;
             if(rex.w) {
-                GX->d[0] = GX->d[0]*EX->d[0] - VX->d[0];
+                GX->d[0] = fma(GX->d[0], EX->d[0], -VX->d[0]);
             } else {
-                GX->f[0] = GX->f[0]*EX->f[0] - VX->f[0];
+                GX->f[0] = fmaf(GX->f[0], EX->f[0], -VX->f[0]);
             }
             GY->u128 = 0;
             break;
@@ -1671,19 +1671,19 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGY;
             if(rex.w) {
                 for(int i=0; i<2; ++i)
-                    GX->d[i] = -GX->d[i]*EX->d[i] + VX->d[i];
+                    GX->d[i] = fma(-GX->d[i], EX->d[i], VX->d[i]);
             } else {
                 for(int i=0; i<4; ++i)
-                    GX->f[i] = -GX->f[i]*EX->f[i] + VX->f[i];
+                    GX->f[i] = fmaf(-GX->f[i], EX->f[i], VX->f[i]);
             }
             if(vex.l) {
                 GETEY; GETVY;
                 if(rex.w) {
                     for(int i=0; i<2; ++i)
-                        GY->d[i] = -GY->d[i]*EY->d[i] + VY->d[i];
+                        GY->d[i] = fma(-GY->d[i], EY->d[i], VY->d[i]);
                 } else {
                     for(int i=0; i<4; ++i)
-                        GY->f[i] = -GY->f[i]*EY->f[i] + VY->f[i];
+                        GY->f[i] = fmaf(-GY->f[i], EY->f[i], VY->f[i]);
                 }
             } else GY->u128 = 0;
             break;
@@ -1694,9 +1694,9 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETVX;
             GETGY;
             if(rex.w) {
-                GX->d[0] = -GX->d[0]*EX->d[0] + VX->d[0];
+                GX->d[0] = fma(-GX->d[0], EX->d[0], VX->d[0]);
             } else {
-                GX->f[0] = -GX->f[0]*EX->f[0] + VX->f[0];
+                GX->f[0] = fmaf(-GX->f[0], EX->f[0], VX->f[0]);
             }
             GY->u128 = 0;
             break;
@@ -1708,19 +1708,19 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGY;
             if(rex.w) {
                 for(int i=0; i<2; ++i)
-                    GX->d[i] = -GX->d[i]*EX->d[i] - VX->d[i];
+                    GX->d[i] = fma(-GX->d[i], EX->d[i], -VX->d[i]);
             } else {
                 for(int i=0; i<4; ++i)
-                    GX->f[i] = -GX->f[i]*EX->f[i] - VX->f[i];
+                    GX->f[i] = fmaf(-GX->f[i], EX->f[i], -VX->f[i]);
             }
             if(vex.l) {
                 GETEY; GETVY;
                 if(rex.w) {
                     for(int i=0; i<2; ++i)
-                        GY->d[i] = -GY->d[i]*EY->d[i] - VY->d[i];
+                        GY->d[i] = fma(-GY->d[i], EY->d[i], -VY->d[i]);
                 } else {
                     for(int i=0; i<4; ++i)
-                        GY->f[i] = -GY->f[i]*EY->f[i] - VY->f[i];
+                        GY->f[i] = fmaf(-GY->f[i], EY->f[i], -VY->f[i]);
                 }
             } else GY->u128 = 0;
             break;
@@ -1731,9 +1731,9 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETVX;
             GETGY;
             if(rex.w) {
-                GX->d[0] = -GX->d[0]*EX->d[0] - VX->d[0];
+                GX->d[0] = fma(-GX->d[0], EX->d[0], -VX->d[0]);
             } else {
-                GX->f[0] = -GX->f[0]*EX->f[0] - VX->f[0];
+                GX->f[0] = fmaf(-GX->f[0], EX->f[0], -VX->f[0]);
             }
             GY->u128 = 0;
             break;
@@ -1746,19 +1746,19 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGY;
             if(rex.w) {
                 for(int i=0; i<2; ++i)
-                    GX->d[i] = VX->d[i]*GX->d[i] + ((i&1)?EX->d[i]:(-EX->d[i]));
+                    GX->d[i] = fma(VX->d[i], GX->d[i], ((i&1)?EX->d[i]:(-EX->d[i])));
             } else {
                 for(int i=0; i<4; ++i)
-                    GX->f[i] = VX->f[i]*GX->f[i] + ((i&1)?EX->f[i]:(-EX->f[i]));
+                    GX->f[i] = fmaf(VX->f[i], GX->f[i], ((i&1)?EX->f[i]:(-EX->f[i])));
             }
             if(vex.l) {
                 GETEY; GETVY;
                 if(rex.w) {
                     for(int i=0; i<2; ++i)
-                        GY->d[i] = VY->d[i]*GY->d[i] + ((i&1)?EY->d[i]:(-EY->d[i]));
+                        GY->d[i] = fma(VY->d[i], GY->d[i], ((i&1)?EY->d[i]:(-EY->d[i])));
                 } else {
                     for(int i=0; i<4; ++i)
-                        GY->f[i] = VY->f[i]*GY->f[i] + ((i&1)?EY->f[i]:(-EY->f[i]));
+                        GY->f[i] = fmaf(VY->f[i], GY->f[i], ((i&1)?EY->f[i]:(-EY->f[i])));
                 }
             } else GY->u128 = 0;
             break;
@@ -1770,19 +1770,19 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGY;
             if(rex.w) {
                 for(int i=0; i<2; ++i)
-                    GX->d[i] = VX->d[i]*GX->d[i] + ((i&1)?(-EX->d[i]):EX->d[i]);
+                    GX->d[i] = fma(VX->d[i], GX->d[i], ((i&1)?(-EX->d[i]):EX->d[i]));
             } else {
                 for(int i=0; i<4; ++i)
-                    GX->f[i] = VX->f[i]*GX->f[i] + ((i&1)?(-EX->f[i]):EX->f[i]);
+                    GX->f[i] = fmaf(VX->f[i], GX->f[i], ((i&1)?(-EX->f[i]):EX->f[i]));
             }
             if(vex.l) {
                 GETEY; GETVY;
                 if(rex.w) {
                     for(int i=0; i<2; ++i)
-                        GY->d[i] = VY->d[i]*GY->d[i] + ((i&1)?(-EY->d[i]):EY->d[i]);
+                        GY->d[i] = fma(VY->d[i], GY->d[i], ((i&1)?(-EY->d[i]):EY->d[i]));
                 } else {
                     for(int i=0; i<4; ++i)
-                        GY->f[i] = VY->f[i]*GY->f[i] + ((i&1)?(-EY->f[i]):EY->f[i]);
+                        GY->f[i] = fmaf(VY->f[i], GY->f[i], ((i&1)?(-EY->f[i]):EY->f[i]));
                 }
             } else GY->u128 = 0;
             break;
@@ -1794,19 +1794,19 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGY;
             if(rex.w) {
                 for(int i=0; i<2; ++i)
-                    GX->d[i] = VX->d[i]*GX->d[i] + EX->d[i];
+                    GX->d[i] = fma(VX->d[i], GX->d[i], EX->d[i]);
             } else {
                 for(int i=0; i<4; ++i)
-                    GX->f[i] = VX->f[i]*GX->f[i] + EX->f[i];
+                    GX->f[i] = fmaf(VX->f[i], GX->f[i], EX->f[i]);
             }
             if(vex.l) {
                 GETEY; GETVY;
                 if(rex.w) {
                     for(int i=0; i<2; ++i)
-                        GY->d[i] = VY->d[i]*GY->d[i] + EY->d[i];
+                        GY->d[i] = fma(VY->d[i], GY->d[i], EY->d[i]);
                 } else {
                     for(int i=0; i<4; ++i)
-                        GY->f[i] = VY->f[i]*GY->f[i] + EY->f[i];
+                        GY->f[i] = fmaf(VY->f[i], GY->f[i], EY->f[i]);
                 }
             } else GY->u128 = 0;
             break;
@@ -1817,9 +1817,9 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETVX;
             GETGY;
             if(rex.w) {
-                GX->d[0] = VX->d[0]*GX->d[0] + EX->d[0];
+                GX->d[0] = fma(VX->d[0], GX->d[0], EX->d[0]);
             } else {
-                GX->f[0] = VX->f[0]*GX->f[0] + EX->f[0];
+                GX->f[0] = fmaf(VX->f[0], GX->f[0], EX->f[0]);
             }
             GY->u128 = 0;
             break;
@@ -1831,19 +1831,19 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGY;
             if(rex.w) {
                 for(int i=0; i<2; ++i)
-                    GX->d[i] = VX->d[i]*GX->d[i] - EX->d[i];
+                    GX->d[i] = fma(VX->d[i], GX->d[i], -EX->d[i]);
             } else {
                 for(int i=0; i<4; ++i)
-                    GX->f[i] = VX->f[i]*GX->f[i] - EX->f[i];
+                    GX->f[i] = fmaf(VX->f[i], GX->f[i], -EX->f[i]);
             }
             if(vex.l) {
                 GETEY; GETVY;
                 if(rex.w) {
                     for(int i=0; i<2; ++i)
-                        GY->d[i] = VY->d[i]*GY->d[i] - EY->d[i];
+                        GY->d[i] = fma(VY->d[i], GY->d[i], -EY->d[i]);
                 } else {
                     for(int i=0; i<4; ++i)
-                        GY->f[i] = VY->f[i]*GY->f[i] - EY->f[i];
+                        GY->f[i] = fmaf(VY->f[i], GY->f[i], -EY->f[i]);
                 }
             } else GY->u128 = 0;
             break;
@@ -1854,9 +1854,9 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETVX;
             GETGY;
             if(rex.w) {
-                GX->d[0] = VX->d[0]*GX->d[0] - EX->d[0];
+                GX->d[0] = fma(VX->d[0], GX->d[0], -EX->d[0]);
             } else {
-                GX->f[0] = VX->f[0]*GX->f[0] - EX->f[0];
+                GX->f[0] = fmaf(VX->f[0], GX->f[0], -EX->f[0]);
             }
             GY->u128 = 0;
             break;
@@ -1868,19 +1868,19 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGY;
             if(rex.w) {
                 for(int i=0; i<2; ++i)
-                    GX->d[i] = -VX->d[i]*GX->d[i] + EX->d[i];
+                    GX->d[i] = fma(-VX->d[i], GX->d[i], EX->d[i]);
             } else {
                 for(int i=0; i<4; ++i)
-                    GX->f[i] = -VX->f[i]*GX->f[i] + EX->f[i];
+                    GX->f[i] = fmaf(-VX->f[i], GX->f[i], EX->f[i]);
             }
             if(vex.l) {
                 GETEY; GETVY;
                 if(rex.w) {
                     for(int i=0; i<2; ++i)
-                        GY->d[i] = -VY->d[i]*GY->d[i] + EY->d[i];
+                        GY->d[i] = fma(-VY->d[i], GY->d[i], EY->d[i]);
                 } else {
                     for(int i=0; i<4; ++i)
-                        GY->f[i] = -VY->f[i]*GY->f[i] + EY->f[i];
+                        GY->f[i] = fmaf(-VY->f[i], GY->f[i], EY->f[i]);
                 }
             } else GY->u128 = 0;
             break;
@@ -1891,9 +1891,9 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETVX;
             GETGY;
             if(rex.w) {
-                GX->d[0] = -VX->d[0]*GX->d[0] + EX->d[0];
+                GX->d[0] = fma(-VX->d[0], GX->d[0], EX->d[0]);
             } else {
-                GX->f[0] = -VX->f[0]*GX->f[0] + EX->f[0];
+                GX->f[0] = fmaf(-VX->f[0], GX->f[0], EX->f[0]);
             }
             GY->u128 = 0;
             break;
@@ -1905,19 +1905,19 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGY;
             if(rex.w) {
                 for(int i=0; i<2; ++i)
-                    GX->d[i] = -VX->d[i]*GX->d[i] - EX->d[i];
+                    GX->d[i] = fma(-VX->d[i], GX->d[i], -EX->d[i]);
             } else {
                 for(int i=0; i<4; ++i)
-                    GX->f[i] = -VX->f[i]*GX->f[i] - EX->f[i];
+                    GX->f[i] = fmaf(-VX->f[i], GX->f[i], -EX->f[i]);
             }
             if(vex.l) {
                 GETEY; GETVY;
                 if(rex.w) {
                     for(int i=0; i<2; ++i)
-                        GY->d[i] = -VY->d[i]*GY->d[i] - EY->d[i];
+                        GY->d[i] = fma(-VY->d[i], GY->d[i], -EY->d[i]);
                 } else {
                     for(int i=0; i<4; ++i)
-                        GY->f[i] = -VY->f[i]*GY->f[i] - EY->f[i];
+                        GY->f[i] = fmaf(-VY->f[i], GY->f[i], -EY->f[i]);
                 }
             } else GY->u128 = 0;
             break;        
@@ -1928,9 +1928,9 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETVX;
             GETGY;
             if(rex.w) {
-                GX->d[0] = -VX->d[0]*GX->d[0] - EX->d[0];
+                GX->d[0] = fma(-VX->d[0], GX->d[0], -EX->d[0]);
             } else {
-                GX->f[0] = -VX->f[0]*GX->f[0] - EX->f[0];
+                GX->f[0] = fmaf(-VX->f[0], GX->f[0], -EX->f[0]);
             }
             GY->u128 = 0;
             break;
@@ -1943,19 +1943,19 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGY;
             if(rex.w) {
                 for(int i=0; i<2; ++i)
-                    GX->d[i] = VX->d[i]*EX->d[i] + ((i&1)?GX->d[i]:(-GX->d[i]));
+                    GX->d[i] = fma(VX->d[i], EX->d[i], ((i&1)?GX->d[i]:(-GX->d[i])));
             } else {
                 for(int i=0; i<4; ++i)
-                    GX->f[i] = VX->f[i]*EX->f[i] + ((i&1)?GX->f[i]:(-GX->f[i]));
+                    GX->f[i] = fmaf(VX->f[i], EX->f[i], ((i&1)?GX->f[i]:(-GX->f[i])));
             }
             if(vex.l) {
                 GETEY; GETVY;
                 if(rex.w) {
                     for(int i=0; i<2; ++i)
-                        GY->d[i] = VY->d[i]*EY->d[i] + ((i&1)?GY->d[i]:(-GY->d[i]));
+                        GY->d[i] = fma(VY->d[i], EY->d[i], ((i&1)?GY->d[i]:(-GY->d[i])));
                 } else {
                     for(int i=0; i<4; ++i)
-                        GY->f[i] = VY->f[i]*EY->f[i] + ((i&1)?GY->f[i]:(-GY->f[i]));
+                        GY->f[i] = fmaf(VY->f[i], EY->f[i], ((i&1)?GY->f[i]:(-GY->f[i])));
                 }
             } else GY->u128 = 0;
             break;
@@ -1967,19 +1967,19 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGY;
             if(rex.w) {
                 for(int i=0; i<2; ++i)
-                    GX->d[i] = VX->d[i]*EX->d[i] + ((i&1)?(-GX->d[i]):GX->d[i]);
+                    GX->d[i] = fma(VX->d[i], EX->d[i], ((i&1)?(-GX->d[i]):GX->d[i]));
             } else {
                 for(int i=0; i<4; ++i)
-                    GX->f[i] = VX->f[i]*EX->f[i] + ((i&1)?(-GX->f[i]):GX->f[i]);
+                    GX->f[i] = fmaf(VX->f[i], EX->f[i], ((i&1)?(-GX->f[i]):GX->f[i]));
             }
             if(vex.l) {
                 GETEY; GETVY;
                 if(rex.w) {
                     for(int i=0; i<2; ++i)
-                        GY->d[i] = VY->d[i]*EY->d[i] + ((i&1)?(-GY->d[i]):GY->d[i]);
+                        GY->d[i] = fma(VY->d[i], EY->d[i], ((i&1)?(-GY->d[i]):GY->d[i]));
                 } else {
                     for(int i=0; i<4; ++i)
-                        GY->f[i] = VY->f[i]*EY->f[i] + ((i&1)?(-GY->f[i]):GY->f[i]);
+                        GY->f[i] = fmaf(VY->f[i], EY->f[i], ((i&1)?(-GY->f[i]):GY->f[i]));
                 }
             } else GY->u128 = 0;
             break;
@@ -1991,19 +1991,19 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGY;
             if(rex.w) {
                 for(int i=0; i<2; ++i)
-                    GX->d[i] = VX->d[i]*EX->d[i] + GX->d[i];
+                    GX->d[i] = fma(VX->d[i], EX->d[i], GX->d[i]);
             } else {
                 for(int i=0; i<4; ++i)
-                    GX->f[i] = VX->f[i]*EX->f[i] + GX->f[i];
+                    GX->f[i] = fmaf(VX->f[i], EX->f[i], GX->f[i]);
             }
             if(vex.l) {
                 GETEY; GETVY;
                 if(rex.w) {
                     for(int i=0; i<2; ++i)
-                        GY->d[i] = VY->d[i]*EY->d[i] + GY->d[i];
+                        GY->d[i] = fma(VY->d[i], EY->d[i], GY->d[i]);
                 } else {
                     for(int i=0; i<4; ++i)
-                        GY->f[i] = VY->f[i]*EY->f[i] + GY->f[i];
+                        GY->f[i] = fmaf(VY->f[i], EY->f[i], GY->f[i]);
                 }
             } else GY->u128 = 0;
             break;
@@ -2014,9 +2014,9 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETVX;
             GETGY;
             if(rex.w) {
-                GX->d[0] = VX->d[0]*EX->d[0] + GX->d[0];
+                GX->d[0] = fma(VX->d[0], EX->d[0], GX->d[0]);
             } else {
-                GX->f[0] = VX->f[0]*EX->f[0] + GX->f[0];
+                GX->f[0] = fmaf(VX->f[0], EX->f[0], GX->f[0]);
             }
             GY->u128 = 0;
             break;
@@ -2028,19 +2028,19 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGY;
             if(rex.w) {
                 for(int i=0; i<2; ++i)
-                    GX->d[i] = VX->d[i]*EX->d[i] - GX->d[i];
+                    GX->d[i] = fma(VX->d[i], EX->d[i], -GX->d[i]);
             } else {
                 for(int i=0; i<4; ++i)
-                    GX->f[i] = VX->f[i]*EX->f[i] - GX->f[i];
+                    GX->f[i] = fmaf(VX->f[i], EX->f[i], -GX->f[i]);
             }
             if(vex.l) {
                 GETEY; GETVY;
                 if(rex.w) {
                     for(int i=0; i<2; ++i)
-                        GY->d[i] = VY->d[i]*EY->d[i] - GY->d[i];
+                        GY->d[i] = fma(VY->d[i], EY->d[i], -GY->d[i]);
                 } else {
                     for(int i=0; i<4; ++i)
-                        GY->f[i] = VY->f[i]*EY->f[i] - GY->f[i];
+                        GY->f[i] = fmaf(VY->f[i], EY->f[i], -GY->f[i]);
                 }
             } else GY->u128 = 0;
             break;
@@ -2051,9 +2051,9 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETVX;
             GETGY;
             if(rex.w) {
-                GX->d[0] = VX->d[0]*EX->d[0] - GX->d[0];
+                GX->d[0] = fma(VX->d[0], EX->d[0], -GX->d[0]);
             } else {
-                GX->f[0] = VX->f[0]*EX->f[0] - GX->f[0];
+                GX->f[0] = fmaf(VX->f[0], EX->f[0], -GX->f[0]);
             }
             GY->u128 = 0;
             break;
@@ -2065,19 +2065,19 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGY;
             if(rex.w) {
                 for(int i=0; i<2; ++i)
-                    GX->d[i] = -VX->d[i]*EX->d[i] + GX->d[i];
+                    GX->d[i] = fma(-VX->d[i], EX->d[i], GX->d[i]);
             } else {
                 for(int i=0; i<4; ++i)
-                    GX->f[i] = -VX->f[i]*EX->f[i] + GX->f[i];
+                    GX->f[i] = fmaf(-VX->f[i], EX->f[i], GX->f[i]);
             }
             if(vex.l) {
                 GETEY; GETVY;
                 if(rex.w) {
                     for(int i=0; i<2; ++i)
-                        GY->d[i] = -VY->d[i]*EY->d[i] + GY->d[i];
+                        GY->d[i] = fma(-VY->d[i], EY->d[i], GY->d[i]);
                 } else {
                     for(int i=0; i<4; ++i)
-                        GY->f[i] = -VY->f[i]*EY->f[i] + GY->f[i];
+                        GY->f[i] = fmaf(-VY->f[i], EY->f[i], GY->f[i]);
                 }
             } else GY->u128 = 0;
             break;
@@ -2088,9 +2088,9 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETVX;
             GETGY;
             if(rex.w) {
-                GX->d[0] = -VX->d[0]*EX->d[0] + GX->d[0];
+                GX->d[0] = fma(-VX->d[0], EX->d[0], GX->d[0]);
             } else {
-                GX->f[0] = -VX->f[0]*EX->f[0] + GX->f[0];
+                GX->f[0] = fmaf(-VX->f[0], EX->f[0], GX->f[0]);
             }
             GY->u128 = 0;
             break;
@@ -2102,19 +2102,19 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGY;
             if(rex.w) {
                 for(int i=0; i<2; ++i)
-                    GX->d[i] = -VX->d[i]*EX->d[i] - GX->d[i];
+                    GX->d[i] = fma(-VX->d[i], EX->d[i], -GX->d[i]);
             } else {
                 for(int i=0; i<4; ++i)
-                    GX->f[i] = -VX->f[i]*EX->f[i] - GX->f[i];
+                    GX->f[i] = fmaf(-VX->f[i], EX->f[i], -GX->f[i]);
             }
             if(vex.l) {
                 GETEY; GETVY;
                 if(rex.w) {
                     for(int i=0; i<2; ++i)
-                        GY->d[i] = -VY->d[i]*EY->d[i] - GY->d[i];
+                        GY->d[i] = fma(-VY->d[i], EY->d[i], -GY->d[i]);
                 } else {
                     for(int i=0; i<4; ++i)
-                        GY->f[i] = -VY->f[i]*EY->f[i] - GY->f[i];
+                        GY->f[i] = fmaf(-VY->f[i], EY->f[i], -GY->f[i]);
                 }
             } else GY->u128 = 0;
             break;
@@ -2125,9 +2125,9 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETVX;
             GETGY;
             if(rex.w) {
-                GX->d[0] = -VX->d[0]*EX->d[0] - GX->d[0];
+                GX->d[0] = fma(-VX->d[0], EX->d[0], -GX->d[0]);
             } else {
-                GX->f[0] = -VX->f[0]*EX->f[0] - GX->f[0];
+                GX->f[0] = fmaf(-VX->f[0], EX->f[0], -GX->f[0]);
             }
             GY->u128 = 0;
             break;
