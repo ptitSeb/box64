@@ -2108,18 +2108,18 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 GETEX(x2, 0, vex.l ? 28 : 12);
                 for (int i = 0; i < 2; ++i) {
                     LD(x3, vback, vxoffset + 8 * i);
+                    MV(x4, xZR);
+                    BGE(x3, xZR, 4 + 4);
                     LD(x4, wback, fixedaddress + 8 * i);
-                    SRAI(x5, x3, 63);
-                    AND(x4, x4, x5);
                     SD(x4, gback, gdoffset + 8 * i);
                 }
                 if (vex.l) {
                     GETEY();
                     for (int i = 0; i < 2; ++i) {
                         LD(x3, vback, vyoffset + 8 * i);
+                        MV(x4, xZR);
+                        BGE(x3, xZR, 4 + 4);
                         LD(x4, wback, fixedaddress + 8 * i);
-                        SRAI(x5, x3, 63);
-                        AND(x4, x4, x5);
                         SD(x4, gback, gyoffset + 8 * i);
                     }
                 } else
@@ -2128,18 +2128,18 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 GETEX(x2, 0, vex.l ? 28 : 12);
                 for (int i = 0; i < 4; ++i) {
                     LW(x3, vback, vxoffset + 4 * i);
+                    MV(x4, xZR);
+                    BGE(x3, xZR, 4 + 4);
                     LWU(x4, wback, fixedaddress + 4 * i);
-                    SRAI(x5, x3, 31);
-                    AND(x4, x4, x5);
                     SW(x4, gback, gdoffset + 4 * i);
                 }
                 if (vex.l) {
                     GETEY();
                     for (int i = 0; i < 4; ++i) {
                         LW(x3, vback, vyoffset + 4 * i);
+                        MV(x4, xZR);
+                        BGE(x3, xZR, 4 + 4);
                         LWU(x4, wback, fixedaddress + 4 * i);
-                        SRAI(x5, x3, 31);
-                        AND(x4, x4, x5);
                         SW(x4, gback, gyoffset + 4 * i);
                     }
                 } else
@@ -2157,26 +2157,16 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 GETEX(x2, 0, vex.l ? 28 : 12);
                 for (int i = 0; i < 2; ++i) {
                     LD(x3, vback, vxoffset + 8 * i);
+                    BGE(x3, xZR, 4 + 8);
                     LD(x4, gback, gdoffset + 8 * i);
-                    LD(x5, wback, fixedaddress + 8 * i);
-                    SRAI(x6, x3, 63);
-                    NOT(x7, x6);
-                    AND(x4, x4, x6);
-                    AND(x5, x5, x7);
-                    OR(x4, x4, x5);
                     SD(x4, wback, fixedaddress + 8 * i);
                 }
                 if (vex.l) {
                     GETEY();
                     for (int i = 0; i < 2; ++i) {
                         LD(x3, vback, vyoffset + 8 * i);
+                        BGE(x3, xZR, 4 + 8);
                         LD(x4, gback, gyoffset + 8 * i);
-                        LD(x5, wback, fixedaddress + 8 * i);
-                        SRAI(x6, x3, 63);
-                        NOT(x7, x6);
-                        AND(x4, x4, x6);
-                        AND(x5, x5, x7);
-                        OR(x4, x4, x5);
                         SD(x4, wback, fixedaddress + 8 * i);
                     }
                 }
@@ -2185,26 +2175,16 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 GETEX(x2, 0, vex.l ? 28 : 12);
                 for (int i = 0; i < 4; ++i) {
                     LW(x3, vback, vxoffset + 4 * i);
+                    BGE(x3, xZR, 4 + 8);
                     LW(x4, gback, gdoffset + 4 * i);
-                    LWU(x5, wback, fixedaddress + 4 * i);
-                    SRAI(x6, x3, 31);
-                    NOT(x7, x6);
-                    AND(x4, x4, x6);
-                    AND(x5, x5, x7);
-                    OR(x4, x4, x5);
                     SW(x4, wback, fixedaddress + 4 * i);
                 }
                 if (vex.l) {
                     GETEY();
                     for (int i = 0; i < 4; ++i) {
                         LW(x3, vback, vyoffset + 4 * i);
+                        BGE(x3, xZR, 4 + 8);
                         LW(x4, gback, gyoffset + 4 * i);
-                        LWU(x5, wback, fixedaddress + 4 * i);
-                        SRAI(x6, x3, 31);
-                        NOT(x7, x6);
-                        AND(x4, x4, x6);
-                        AND(x5, x5, x7);
-                        OR(x4, x4, x5);
                         SW(x4, wback, fixedaddress + 4 * i);
                     }
                 }
