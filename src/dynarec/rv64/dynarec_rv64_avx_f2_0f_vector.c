@@ -127,7 +127,7 @@ uintptr_t dynarec64_AVX_F2_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
         case 0x12:
             INST_NAME("VMOVDDUP Gx, Ex");
             nextop = F8;
-            GETEY_vector(v1, 0, VECTOR_SEW64);
+            GETEY_vector_w(v1, 0, VECTOR_SEW64, vex.l ? 32 : 8);
             GETGY_empty_vector(v0);
             v2 = fpu_get_scratch(dyn);
             SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW64);

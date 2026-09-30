@@ -517,6 +517,20 @@
         SET_AVX_VECTOR_WIDTH(x1, sew);                                                           \
     } while (0)
 
+// Get EY as a vector of w bytes (for instructions whose source operand is narrower than the destination)
+#define GETEY_vector_w(a, D, sew, w)                                                             \
+    do {                                                                                         \
+        a = fpu_get_scratch(dyn);                                                                \
+        if (MODREG) {                                                                            \
+            avx_load_reg_vector(dyn, ninst, x1, a, (nextop & 7) + (rex.b << 3), w, sew);         \
+        } else {                                                                                 \
+            SMREAD();                                                                            \
+            addr = geted(dyn, addr, ninst, nextop, &ed, x3, x2, &fixedaddress, rex, NULL, 0, D); \
+            avx_set_vector_width(dyn, ninst, x1, sew, w);                                        \
+            VLE_V(a, ed, sew, VECTOR_UNMASKED, VECTOR_NFIELD1);                                  \
+        }                                                                                        \
+    } while (0)
+
 #define PUTGY_vector(a, sew) \
     avx_store_reg_vector(dyn, ninst, x1, a, gd, 16 << vex.l, sew)
 
