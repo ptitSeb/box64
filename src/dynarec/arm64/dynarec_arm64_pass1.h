@@ -6,10 +6,12 @@
 
 // do not update dyn->f for SETFLAGS(..., SF_SET_PENDING) because it will use either DF_NONE or DF_SET anyway (similar to SF_SET_NODF)
 #define SETFLAGS(A,B)                                                   \
+    do {                                                                \
         dyn->insts[ninst].x64.set_flags = A;                            \
         dyn->insts[ninst].x64.state_flags = (B)&~SF_DF;                 \
         if(((B)&SF_SET_PENDING)!=SF_SET_PENDING) dyn->f=((B)&SF_SET)?(((B)==SF_SET_NODF)?dyn->f:status_none_pending):((dyn->f==status_none)?status_none:status_none_pending);  \
-        if(!BOX64ENV(dynarec_df)) {dyn->f = status_none; }
+        if(!BOX64ENV(dynarec_df)) {dyn->f = status_none; }              \
+    } while(0)
 #define NEW_INST                                \
         dyn->insts[ninst].f_entry = dyn->f;     \
         dyn->n.combined1 = dyn->n.combined2 = 0;\
