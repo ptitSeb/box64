@@ -777,7 +777,7 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     if (cpuext.zvkned) {
                         SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
                         GETGX_vector(v0, 1, VECTOR_SEW32);
-                        GETEX_vector(v1, 0, 8, VECTOR_SEW32);
+                        GETEX_vector(v1, 0, 0, VECTOR_SEW32);
                         v2 = fpu_get_scratch(dyn);
                         MOV32w(x4, 0x63636363);
                         VMV_V_X(v2, x4);
@@ -798,7 +798,7 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     if (cpuext.zvkned) {
                         SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
                         GETGX_vector(v0, 1, VECTOR_SEW32);
-                        GETEX_vector(v1, 0, 8, VECTOR_SEW32);
+                        GETEX_vector(v1, 0, 0, VECTOR_SEW32);
                         VAESEM_VV(v0, v1);
                         break;
                     }
@@ -826,7 +826,7 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     if (cpuext.zvkned) {
                         SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
                         GETGX_vector(v0, 1, VECTOR_SEW32);
-                        GETEX_vector(v1, 0, 8, VECTOR_SEW32);
+                        GETEX_vector(v1, 0, 0, VECTOR_SEW32);
                         VAESEF_VV(v0, v1);
                         break;
                     }
@@ -854,7 +854,7 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     if (cpuext.zvkned) {
                         SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
                         GETGX_vector(v0, 1, VECTOR_SEW32);
-                        GETEX_vector(v1, 0, 8, VECTOR_SEW32);
+                        GETEX_vector(v1, 0, 0, VECTOR_SEW32);
                         if (v0 == v1) {
                             v2 = fpu_get_scratch(dyn);
                             VMV_V_V(v2, v1);
@@ -895,7 +895,7 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     if (cpuext.zvkned) {
                         SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
                         GETGX_vector(v0, 1, VECTOR_SEW32);
-                        GETEX_vector(v1, 0, 8, VECTOR_SEW32);
+                        GETEX_vector(v1, 0, 0, VECTOR_SEW32);
                         VAESDF_VV(v0, v1);
                         break;
                     }
