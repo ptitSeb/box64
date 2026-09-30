@@ -491,8 +491,10 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
                 dyn->insts[ninst - 1].x64.need_after |= X_PEND;
             #endif
         }
-        if((ok>0) && dyn->insts[ninst].x64.has_callret)
+        if((ok>0) && dyn->insts[ninst].x64.has_callret) {
             reset_n = -2;
+            if((ninst+1) < dyn->size) dyn->insts[ninst+1].x64.barrier |= BARRIER_FLOAT; // the next instruction starts with no cache
+        }
         PURGE_YMM();
         ++ninst;
         #if STEP == 0
