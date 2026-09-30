@@ -1707,18 +1707,18 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                     } else {
                         LD(x4, wback, fixedaddress + 0);
                         SLLI(x4, x4, (u8 - 8) * 8);
-                        SD(x4, vback, vxoffset + 0);
-                        SD(xZR, vback, vxoffset + 8);
+                        SD(xZR, vback, vxoffset + 0);
+                        SD(x4, vback, vxoffset + 8);
                     }
                     if (vex.l) {
                         GETEY();
                         if (u8 > 15) {
-                            SD(xZR, vback, fixedaddress + 0);
-                            SD(xZR, vback, fixedaddress + 8);
+                            SD(xZR, vback, vyoffset + 0);
+                            SD(xZR, vback, vyoffset + 8);
                         } else if (u8 == 0) {
                             for (int i = 0; i < 2; ++i) {
                                 LD(x4, wback, fixedaddress + 8 * i);
-                                SD(x4, vback, fixedaddress + 8 * i);
+                                SD(x4, vback, vyoffset + 8 * i);
                             }
                         } else if (u8 < 8) {
                             LD(x4, wback, fixedaddress + 0);
@@ -1727,13 +1727,13 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                             SRLI(x6, x4, 64 - u8 * 8);
                             OR(x5, x5, x6);
                             SLLI(x4, x4, u8 * 8);
-                            SD(x4, vback, fixedaddress + 0);
-                            SD(x5, vback, fixedaddress + 8);
+                            SD(x4, vback, vyoffset + 0);
+                            SD(x5, vback, vyoffset + 8);
                         } else {
                             LD(x4, wback, fixedaddress + 0);
                             SLLI(x4, x4, (u8 - 8) * 8);
-                            SD(x4, vback, fixedaddress + 0);
-                            SD(xZR, vback, fixedaddress + 8);
+                            SD(xZR, vback, vyoffset + 0);
+                            SD(x4, vback, vyoffset + 8);
                         }
                     } else
                         YMM0(vex.v);
