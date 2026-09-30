@@ -1927,8 +1927,15 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0xC4:
             INST_NAME("PINSRW Gx,Ed,Ib");
             nextop = F8;
-            GETED(1);
             GETGX();
+            if (MODREG) {
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, 1);
+                LHU(x1, wback, fixedaddress);
+                ed = x1;
+            }
             u8 = (F8) & 7;
             SH(ed, gback, gdoffset + u8 * 2);
             break;

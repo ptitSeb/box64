@@ -2835,8 +2835,15 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xC4:
             INST_NAME("PINSRW Gm,Ed,Ib");
             nextop = F8;
-            GETED(1);
             GETGM();
+            if (MODREG) {
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x3, &fixedaddress, rex, NULL, 1, 1);
+                LHU(x3, wback, fixedaddress);
+                ed = x3;
+            }
             u8 = (F8) & 3;
             SH(ed, gback, gdoffset + u8 * 2);
             break;
