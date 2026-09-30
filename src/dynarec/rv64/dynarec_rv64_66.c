@@ -779,7 +779,13 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             } else { // mem <= reg
                 rex.seg = 0;
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 0, 0);
-                INSH(gd, ed, x5, x6, 1, 1);
+                if (ed == gd) {
+                    // the destination is also the base register: extract the low 16bits before clearing them
+                    ZEXTH(x1, ed);
+                    INSH(gd, x1, x5, x6, 1, 0);
+                } else {
+                    INSH(gd, ed, x5, x6, 1, 1);
+                }
             }
             break;
         case 0x8E:
