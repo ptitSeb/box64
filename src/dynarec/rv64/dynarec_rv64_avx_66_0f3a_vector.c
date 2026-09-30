@@ -129,7 +129,7 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             INST_NAME("VPERM2F128 Gx, Vx, Ex, Ib");
             nextop = F8;
             GETVY_vector(q0, VECTOR_SEW8);
-            GETEY_vector(q1, 0, VECTOR_SEW8);
+            GETEY_vector(q1, 1, VECTOR_SEW8);
             GETGY_empty_vector(v0);
             u8 = F8;
             q2 = fpu_get_scratch(dyn);
@@ -301,7 +301,7 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             nextop = F8;
             mmx_purgecache(dyn, ninst, 0, x1);
             GETVY_vector(q0, VECTOR_SEW8);
-            GETEY_vector(q1, 0, VECTOR_SEW8);
+            GETEY_vector(q1, 1, VECTOR_SEW8);
             GETGY_empty_vector(v0);
             u8 = F8;
             q2 = fpu_get_scratch(dyn);
@@ -367,7 +367,7 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             INST_NAME("VPERM2I128 Gx, Vx, Ex, Ib");
             nextop = F8;
             GETVY_vector(q0, VECTOR_SEW8);
-            GETEY_vector(q1, 0, VECTOR_SEW8);
+            GETEY_vector(q1, 1, VECTOR_SEW8);
             GETGY_empty_vector(v0);
             u8 = F8;
             q2 = fpu_get_scratch(dyn);
