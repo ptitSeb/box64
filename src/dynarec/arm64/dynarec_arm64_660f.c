@@ -1417,9 +1417,9 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         NEGxw_REG(x3, x3);
                         MOV32w(x4, (u8&1)?8:16);
                         CMPSw_REG(x3, x4);
-                        CSELw(x3, x3, x4, cLT); // x3 is lmem
+                        CSELw(x3, x3, x4, cLO); // x3 is lmem
                         CMPSw_REG(x2, x4);
-                        CSELw(x6, x2, x4, cLT); // x6 is lreg
+                        CSELw(x6, x2, x4, cLO); // x6 is lreg
                         CMPSw_REG(x6, x3);
                         CSELw(x5, x3, x6, cLT); // x5 is max(lmem, lreg)
                         CSELw(x2, x6, x3, cLT); // x2 is min(lmem, lreg)
