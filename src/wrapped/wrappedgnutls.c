@@ -30,7 +30,8 @@ static void (*native_gnutls_free)(void *p) = NULL;
 void my_wrap_gnutls_free(void* p)
 {
     if(my_gnutls_free){
-        RunFunctionFmt(my_gnutls_free, "p", p);
+        if(my_context)  // lets ignore free if the context is gone...
+            RunFunctionFmt(my_gnutls_free, "p", p);
         return;
     }
     if (native_gnutls_free)
