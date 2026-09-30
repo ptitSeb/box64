@@ -359,7 +359,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
         case 0x13:
             INST_NAME("VCVTPH2PS Gx, Ex");
             nextop = F8;
-            GETEX_Y(v1, 0, 0);
+            if(vex.l) {GETEX_Y(v1, 0, 0);} else {GETEX64(v1, 0, 0);}
             GETGX_empty(v0);
             if(vex.l && v0==v1) {
                 q1 = fpu_get_scratch(dyn, ninst);
