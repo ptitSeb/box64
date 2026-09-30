@@ -72,6 +72,7 @@ uintptr_t dynarec64_AVX_F3_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             }
             MOV64x(gd, 0);
             MV(x4, ed);
+            if (!rex.w) ZEROUP(x4);
             MOV64x(x7, 0);
             BEQZ_MARK2(x4);
             MARK;
