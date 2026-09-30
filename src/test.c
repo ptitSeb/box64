@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <assert.h>
+#include <ctype.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/types.h>
@@ -47,6 +48,8 @@ const char* regname[] = { "RAX", "RCX", "RDX", "RBX", "RSP", "RBP", "RSI", "RDI"
 #define MAX_MEMORY_REGIONS   32
 #define MAX_MEMORY_DATA      32
 #define MAX_MEMORY_DATA_SIZE 4096
+#define MAX_MEMORY_CHECK     64
+#define MAX_MEMORY_CHECK_SIZE 256
 
 struct {
     uint64_t start;
@@ -58,6 +61,12 @@ struct {
     uint64_t size;
     uint8_t data[MAX_MEMORY_DATA_SIZE];
 } memory_data[MAX_MEMORY_DATA] = { { 0 } };
+
+struct {
+    uint64_t start;
+    uint64_t size;
+    uint8_t data[MAX_MEMORY_CHECK_SIZE];
+} memory_check[MAX_MEMORY_CHECK] = { { 0 } };
 
 static inline uint64_t fromstr(const char* str)
 {
@@ -452,6 +461,33 @@ static void loadTest(const char** filepath, const char* include_path)
         }
     }
 
+    struct json_value_s* json_memory_check = json_find(config->payload, "MemoryCheck");
+    if (json_memory_check && json_memory_check->type == json_type_object) {
+        struct json_object_s* object = (struct json_object_s*)json_memory_check->payload;
+        struct json_object_element_s* element = object->start;
+        int c = 0;
+        while (element && c < MAX_MEMORY_CHECK) {
+            struct json_value_s* value = element->value;
+            if (value->type == json_type_string) {
+                struct json_string_s* element_value = (struct json_string_s*)value->payload;
+                const char* p = element_value->string;
+                memory_check[c].start = fromstr(element->name->string);
+                memory_check[c].size = 0;
+                while (*p && memory_check[c].size < MAX_MEMORY_CHECK_SIZE) {
+                    while (*p == ' ') ++p;
+                    if (!*p) break;
+                    if (p[0] == '0' && (p[1] == 'x' || p[1] == 'X')) p += 2;
+                    if (!isxdigit((unsigned char)p[0]) || !isxdigit((unsigned char)p[1])) break;
+                    char byte_str[3] = { p[0], p[1], 0 };
+                    memory_check[c].data[memory_check[c].size++] = (uint8_t)strtol(byte_str, NULL, 16);
+                    p += 2;
+                }
+                if (memory_check[c].size) c++;
+            }
+            element = element->next;
+        }
+    }
+
 #define BINNAME "/tmp/binfileXXXXXX"
     char* binname = box_malloc(strlen(BINNAME) + 1);
     memcpy(binname, BINNAME, strlen(BINNAME) + 1);
@@ -625,6 +661,30 @@ static int runSingleTest(const char* filepath, const char* include_path)
         if (flags != emu->eflags.x64) {
             printf_log(LOG_NONE, "FLAGS: expected %016zx, got %016zx\n", flags, emu->eflags.x64);
             retcode += 1;
+        }
+    }
+
+    for (int c = 0; c < MAX_MEMORY_CHECK; ++c) {
+        if (!memory_check[c].size) continue;
+        uint8_t* cur = (uint8_t*)memory_check[c].start;
+        for (uint64_t b = 0; b < memory_check[c].size; ++b) {
+            if (cur[b] != memory_check[c].data[b]) {
+                char exp_line[3 * 17] = { 0 };
+                char got_line[3 * 17] = { 0 };
+                uint64_t base = b & ~(uint64_t)15;
+                uint64_t n = memory_check[c].size - base;
+
+                if (n > 16) n = 16;
+                for (uint64_t k = 0; k < n; ++k) {
+                    snprintf(exp_line + k * 3, 4, "%02x ", memory_check[c].data[base + k]);
+                    snprintf(got_line + k * 3, 4, "%02x ", cur[base + k]);
+                }
+                printf_log(LOG_NONE, "MEM  0x%016zx: expected %s\n",
+                           (size_t)(memory_check[c].start + base), exp_line);
+                printf_log(LOG_NONE, "                       got      %s\n", got_line);
+                retcode += 1;
+                break;
+            }
         }
     }
 
