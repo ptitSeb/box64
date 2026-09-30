@@ -281,7 +281,7 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 SRLIW(x1, x2, 16);
                 ADD(x4, x1, x6);
                 SLLIW(x4, x4, 16);
-                SRLIW(x2, x2, 16);
+                ZEXTH(x2, x2);
                 OR(x4, x4, x2);
                 SC_W(x5, x4, x3, 1, 1);
                 BNEZ_MARKLOCK2(x5);
@@ -325,7 +325,7 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 SRLIW(x1, x2, 16);
                 OR(x4, x1, x6);
                 SLLIW(x4, x4, 16);
-                SRLIW(x2, x2, 16);
+                ZEXTH(x2, x2);
                 OR(x4, x4, x2);
                 SC_W(x5, x4, x3, 1, 1);
                 BNEZ_MARKLOCK2(x5);
@@ -473,7 +473,7 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 SRLIW(x1, x2, 16);
                 XOR(x4, x1, x6);
                 SLLIW(x4, x4, 16);
-                SRLIW(x2, x2, 16);
+                ZEXTH(x2, x2);
                 OR(x4, x4, x2);
                 SC_W(x5, x4, x3, 1, 1);
                 BNEZ_MARKLOCK2(x5);

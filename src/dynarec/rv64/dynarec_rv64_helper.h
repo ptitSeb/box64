@@ -502,6 +502,21 @@
         }                                                                                        \
     } while (0)
 
+// Get EY as a 128bits vector, even if vex.l is set
+#define GETEY128_vector(a, D, sew)                                                               \
+    do {                                                                                         \
+        a = fpu_get_scratch(dyn);                                                                \
+        if (MODREG) {                                                                            \
+            avx_load_reg_vector(dyn, ninst, x1, a, (nextop & 7) + (rex.b << 3), 16, sew);         \
+        } else {                                                                                 \
+            SMREAD();                                                                            \
+            addr = geted(dyn, addr, ninst, nextop, &ed, x3, x2, &fixedaddress, rex, NULL, 0, D); \
+            avx_set_vector_width(dyn, ninst, x1, sew, 16);                                       \
+            VLE_V(a, ed, sew, VECTOR_UNMASKED, VECTOR_NFIELD1);                                  \
+        }                                                                                        \
+        SET_AVX_VECTOR_WIDTH(x1, sew);                                                           \
+    } while (0)
+
 #define PUTGY_vector(a, sew) \
     avx_store_reg_vector(dyn, ninst, x1, a, gd, 16 << vex.l, sew)
 
