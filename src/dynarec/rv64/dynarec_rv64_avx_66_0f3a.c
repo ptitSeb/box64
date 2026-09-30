@@ -876,7 +876,14 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             nextop = F8;
             GETGX();
             GETVX();
-            GETED(1);
+            if (MODREG) {
+                ed = TO_NAT((nextop & 7) + (rex.b << 3));
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 1, 1);
+                LBU(x1, wback, fixedaddress);
+                ed = x1;
+            }
             u8 = F8 & 0xf;
             if (gd != vex.v) {
                 LD(x4, vback, vxoffset + 0);
