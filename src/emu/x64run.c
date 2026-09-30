@@ -71,11 +71,19 @@ int Run(x64emu_t *emu, int step)
 #ifdef TEST_INTERPRETER
     test->memsize = 0;
 #else
-    CheckExec(emu, R_RIP);
+    uintptr_t oldpage_exec = (uintptr_t)-1LL;
 x64emurun:
     while(1) 
 #endif
     {
+        #ifndef TEST_INTERPRETER
+        if(oldpage_exec!=(addr&~0xfffULL)) {
+            oldpage_exec = (addr&~0xfffULL);
+            CheckExec(emu, addr);
+            if(emu->quit)   // can be set by CheckExec after a signal
+                return 0;
+        }
+        #endif
 #if defined(HAVE_TRACE)
         __builtin_prefetch((void*)addr, 0, 0); 
         emu->prev2_ip = emu->old_ip;
