@@ -867,7 +867,7 @@ uintptr_t dynarec64_AVX_66_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             INST_NAME("VPSRLW Gx, Vx, Ex");
             nextop = F8;
             GETVY_vector(q0, VECTOR_SEW16);
-            GETEY_vector(q1, 0, VECTOR_SEW64);
+            GETEY128_vector(q1, 0, VECTOR_SEW64);
             GETGY_empty_vector(v0);
             VMV_X_S(x4, q1);
             SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW16);
@@ -881,7 +881,7 @@ uintptr_t dynarec64_AVX_66_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             INST_NAME("VPSRLD Gx, Vx, Ex");
             nextop = F8;
             GETVY_vector(q0, VECTOR_SEW32);
-            GETEY_vector(q1, 0, VECTOR_SEW64);
+            GETEY128_vector(q1, 0, VECTOR_SEW64);
             GETGY_empty_vector(v0);
             VMV_X_S(x4, q1);
             SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW32);
@@ -895,7 +895,7 @@ uintptr_t dynarec64_AVX_66_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             INST_NAME("VPSRLQ Gx, Vx, Ex");
             nextop = F8;
             GETVY_vector(q0, VECTOR_SEW64);
-            GETEY_vector(q1, 0, VECTOR_SEW64);
+            GETEY128_vector(q1, 0, VECTOR_SEW64);
             GETGY_empty_vector(v0);
             VMV_X_S(x4, q1);
             SLTIU(x5, x4, 64);
@@ -1147,7 +1147,7 @@ uintptr_t dynarec64_AVX_66_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             INST_NAME("VPSLLW Gx, Vx, Ex");
             nextop = F8;
             GETVY_vector(q0, VECTOR_SEW16);
-            GETEY_vector(q1, 0, VECTOR_SEW64);
+            GETEY128_vector(q1, 0, VECTOR_SEW64);
             GETGY_empty_vector(v0);
             VMV_X_S(x4, q1);
             SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW16);
@@ -1161,7 +1161,7 @@ uintptr_t dynarec64_AVX_66_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             INST_NAME("VPSLLD Gx, Vx, Ex");
             nextop = F8;
             GETVY_vector(q0, VECTOR_SEW32);
-            GETEY_vector(q1, 0, VECTOR_SEW64);
+            GETEY128_vector(q1, 0, VECTOR_SEW64);
             GETGY_empty_vector(v0);
             VMV_X_S(x4, q1);
             SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW32);
@@ -1175,7 +1175,7 @@ uintptr_t dynarec64_AVX_66_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             INST_NAME("VPSLLQ Gx, Vx, Ex");
             nextop = F8;
             GETVY_vector(q0, VECTOR_SEW64);
-            GETEY_vector(q1, 0, VECTOR_SEW64);
+            GETEY128_vector(q1, 0, VECTOR_SEW64);
             GETGY_empty_vector(v0);
             VMV_X_S(x4, q1);
             SLTIU(x5, x4, 64);
