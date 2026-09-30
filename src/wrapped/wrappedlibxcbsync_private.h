@@ -45,8 +45,8 @@ GO(xcb_sync_create_counter_checked, uFbuU)
 //GO(xcb_sync_create_fence_checked, 
 //GO(xcb_sync_destroy_alarm, 
 //GO(xcb_sync_destroy_alarm_checked, 
-GO(xcb_sync_destroy_counter, pFbpp)
-GO(xcb_sync_destroy_counter_checked, pFbpp)
+GO(xcb_sync_destroy_counter, uFbu)
+GO(xcb_sync_destroy_counter_checked, uFbu)
 //GO(xcb_sync_destroy_fence, 
 //GO(xcb_sync_destroy_fence_checked, 
 //GO(xcb_sync_fence_end, 
@@ -77,8 +77,8 @@ DATA(xcb_sync_id, 2*sizeof(void*))
 //GO(xcb_sync_query_fence_unchecked, 
 //GO(xcb_sync_reset_fence, 
 //GO(xcb_sync_reset_fence_checked, 
-GO(xcb_sync_set_counter, pFbppU)
-GO(xcb_sync_set_counter_checked, pFbppU)
+GO(xcb_sync_set_counter, uFbuU)
+GO(xcb_sync_set_counter_checked, uFbuU)
 //GO(xcb_sync_set_priority, 
 //GO(xcb_sync_set_priority_checked, 
 //GO(xcb_sync_systemcounter_end, 
