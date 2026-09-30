@@ -157,7 +157,8 @@ typdef struct {
     uintptr_t *p = (uintptr_t*)(SCRATCH);                               \
     p[0]=R_RDI; p[1]=R_RSI; p[2]=R_RDX;                                 \
     p[3]=R_RCX; p[4]=R_R8; p[5]=R_R9;                                   \
-    memcpy(&p[6], STACK, 20*8);                                         \
+    int o_ = ((N) > 6) ? (N) : 6;                                       \
+    memcpy(&p[o_], STACK, 20*8);                                        \
     sysv_varargs = (va_list)&p[N];                                      \
   }
 #else
