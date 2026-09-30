@@ -277,7 +277,7 @@ uintptr_t dynarec64_AVX_66_0F38_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
         case 0x20:
             INST_NAME("VPMOVSXBW Gx, Ex");
             nextop = F8;
-            GETEY_vector(q0, 0, VECTOR_SEW8);
+            GETEY_vector_w(q0, 0, VECTOR_SEW8, 8 << vex.l);
             GETGY_empty_vector(v0);
             avx_set_vector_width(dyn, ninst, x1, VECTOR_SEW16, 16 << vex.l);
             VSEXT_VF2(v0, q0, VECTOR_UNMASKED);
@@ -286,7 +286,7 @@ uintptr_t dynarec64_AVX_66_0F38_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
         case 0x21:
             INST_NAME("VPMOVSXBD Gx, Ex");
             nextop = F8;
-            GETEY_vector(q0, 0, VECTOR_SEW8);
+            GETEY_vector_w(q0, 0, VECTOR_SEW8, 4 << vex.l);
             GETGY_empty_vector(v0);
             avx_set_vector_width(dyn, ninst, x1, VECTOR_SEW32, 16 << vex.l);
             VSEXT_VF4(v0, q0, VECTOR_UNMASKED);
@@ -295,7 +295,7 @@ uintptr_t dynarec64_AVX_66_0F38_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
         case 0x22:
             INST_NAME("VPMOVSXBQ Gx, Ex");
             nextop = F8;
-            GETEY_vector(q0, 0, VECTOR_SEW8);
+            GETEY_vector_w(q0, 0, VECTOR_SEW8, 2 << vex.l);
             GETGY_empty_vector(v0);
             avx_set_vector_width(dyn, ninst, x1, VECTOR_SEW64, 16 << vex.l);
             VSEXT_VF8(v0, q0, VECTOR_UNMASKED);
@@ -304,7 +304,7 @@ uintptr_t dynarec64_AVX_66_0F38_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
         case 0x23:
             INST_NAME("VPMOVSXWD Gx, Ex");
             nextop = F8;
-            GETEY_vector(q0, 0, VECTOR_SEW16);
+            GETEY_vector_w(q0, 0, VECTOR_SEW16, 8 << vex.l);
             GETGY_empty_vector(v0);
             avx_set_vector_width(dyn, ninst, x1, VECTOR_SEW32, 16 << vex.l);
             VSEXT_VF2(v0, q0, VECTOR_UNMASKED);
@@ -313,7 +313,7 @@ uintptr_t dynarec64_AVX_66_0F38_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
         case 0x24:
             INST_NAME("VPMOVSXWQ Gx, Ex");
             nextop = F8;
-            GETEY_vector(q0, 0, VECTOR_SEW16);
+            GETEY_vector_w(q0, 0, VECTOR_SEW16, 4 << vex.l);
             GETGY_empty_vector(v0);
             avx_set_vector_width(dyn, ninst, x1, VECTOR_SEW64, 16 << vex.l);
             VSEXT_VF4(v0, q0, VECTOR_UNMASKED);
@@ -322,7 +322,7 @@ uintptr_t dynarec64_AVX_66_0F38_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
         case 0x25:
             INST_NAME("VPMOVSXDQ Gx, Ex");
             nextop = F8;
-            GETEY_vector(q0, 0, VECTOR_SEW32);
+            GETEY_vector_w(q0, 0, VECTOR_SEW32, 8 << vex.l);
             GETGY_empty_vector(v0);
             avx_set_vector_width(dyn, ninst, x1, VECTOR_SEW64, 16 << vex.l);
             VSEXT_VF2(v0, q0, VECTOR_UNMASKED);
@@ -467,7 +467,7 @@ uintptr_t dynarec64_AVX_66_0F38_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
         case 0x30:
             INST_NAME("VPMOVZXBW Gx, Ex");
             nextop = F8;
-            GETEY_vector(q0, 0, VECTOR_SEW8);
+            GETEY_vector_w(q0, 0, VECTOR_SEW8, 8 << vex.l);
             GETGY_empty_vector(v0);
             avx_set_vector_width(dyn, ninst, x1, VECTOR_SEW16, 16 << vex.l);
             VZEXT_VF2(v0, q0, VECTOR_UNMASKED);
@@ -476,7 +476,7 @@ uintptr_t dynarec64_AVX_66_0F38_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
         case 0x31:
             INST_NAME("VPMOVZXBD Gx, Ex");
             nextop = F8;
-            GETEY_vector(q0, 0, VECTOR_SEW8);
+            GETEY_vector_w(q0, 0, VECTOR_SEW8, 4 << vex.l);
             GETGY_empty_vector(v0);
             avx_set_vector_width(dyn, ninst, x1, VECTOR_SEW32, 16 << vex.l);
             VZEXT_VF4(v0, q0, VECTOR_UNMASKED);
@@ -485,7 +485,7 @@ uintptr_t dynarec64_AVX_66_0F38_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
         case 0x32:
             INST_NAME("VPMOVZXBQ Gx, Ex");
             nextop = F8;
-            GETEY_vector(q0, 0, VECTOR_SEW8);
+            GETEY_vector_w(q0, 0, VECTOR_SEW8, 2 << vex.l);
             GETGY_empty_vector(v0);
             avx_set_vector_width(dyn, ninst, x1, VECTOR_SEW64, 16 << vex.l);
             VZEXT_VF8(v0, q0, VECTOR_UNMASKED);
@@ -494,7 +494,7 @@ uintptr_t dynarec64_AVX_66_0F38_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
         case 0x33:
             INST_NAME("VPMOVZXWD Gx, Ex");
             nextop = F8;
-            GETEY_vector(q0, 0, VECTOR_SEW16);
+            GETEY_vector_w(q0, 0, VECTOR_SEW16, 8 << vex.l);
             GETGY_empty_vector(v0);
             avx_set_vector_width(dyn, ninst, x1, VECTOR_SEW32, 16 << vex.l);
             VZEXT_VF2(v0, q0, VECTOR_UNMASKED);
@@ -503,7 +503,7 @@ uintptr_t dynarec64_AVX_66_0F38_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
         case 0x34:
             INST_NAME("VPMOVZXWQ Gx, Ex");
             nextop = F8;
-            GETEY_vector(q0, 0, VECTOR_SEW16);
+            GETEY_vector_w(q0, 0, VECTOR_SEW16, 4 << vex.l);
             GETGY_empty_vector(v0);
             avx_set_vector_width(dyn, ninst, x1, VECTOR_SEW64, 16 << vex.l);
             VZEXT_VF4(v0, q0, VECTOR_UNMASKED);
@@ -512,7 +512,7 @@ uintptr_t dynarec64_AVX_66_0F38_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
         case 0x35:
             INST_NAME("VPMOVZXDQ Gx, Ex");
             nextop = F8;
-            GETEY_vector(q0, 0, VECTOR_SEW32);
+            GETEY_vector_w(q0, 0, VECTOR_SEW32, 8 << vex.l);
             GETGY_empty_vector(v0);
             avx_set_vector_width(dyn, ninst, x1, VECTOR_SEW64, 16 << vex.l);
             VZEXT_VF2(v0, q0, VECTOR_UNMASKED);
