@@ -2550,8 +2550,9 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GETEB(x2, 0);
             gd = x2; ed = x1;    // swap gd/ed
             emit_add8(dyn, ninst, x1, x2, x4, x5);
-            GBBACK; // gb gets x2 (old ed)
-            EBBACK; // eb gets x1 (sum)
+            EBBACK; // Eb writeback must be done first, as Gb writeback can clobber the address register
+            if (!(MODREG && wback == gb1 && wb2 == gb2))
+                GBBACK;
             break;
         case 0xC1:
             INST_NAME("XADD Ed, Gd");
