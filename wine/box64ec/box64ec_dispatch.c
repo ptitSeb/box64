@@ -142,6 +142,8 @@ void EmitInterruption(x64emu_t* emu, int num, void* addr)
     printf_log(LOG_DEBUG, "box64ec EmitInterruption int=0x%x at %p RIP=%p RCX=%p\n",
                num, addr, (void*)R_RIP, (void*)(uintptr_t)R_RCX);
 
+    if (num == 0x2d)
+        R_RIP = (uintptr_t)rip + 3;
     if (area && area->ContextAmd64)
         emu_to_context(emu, area->ContextAmd64);
     if (area)
@@ -173,6 +175,9 @@ void EmitInterruption(x64emu_t* emu, int num, void* addr)
                 area->InSimulation = TRUE;
             return;
         }
+        rec.ExceptionAddress = (void*)(uintptr_t)R_RIP;
+        /* Wine delivers the handler context one byte before the debug-service address. */
+        --R_RIP;
         rec.ExceptionCode = STATUS_BREAKPOINT;
         rec.NumberParameters = 1;
         rec.ExceptionInformation[0] = (ULONG_PTR)R_RAX;
