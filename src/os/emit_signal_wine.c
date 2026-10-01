@@ -125,16 +125,19 @@ void EmitDiv0(x64emu_t* emu, void* addr, int code)
 #endif
 }
 
-void EmuInt3(void* emu, void* addr)
+void EmuInt3(void* opaque, void* addr)
 {
 #ifdef BOX64EC
+    x64emu_t* emu = opaque;
     EXCEPTION_RECORD rec;
-    (void)emu;
 
+    /* The interpreter cursor is past INT3; Wine handlers resume at INT3. */
+    R_RIP = *(uintptr_t*)addr - 1;
     memset(&rec, 0, sizeof(rec));
-    printf_log(LOG_DEBUG, "box64ec INT3 at %p\n", addr);
+    printf_log(LOG_DEBUG, "box64ec INT3 at %p\n", (void*)(uintptr_t)R_RIP);
     rec.ExceptionCode = STATUS_BREAKPOINT;
-    rec.ExceptionAddress = addr;
+    rec.ExceptionAddress = (void*)(uintptr_t)R_RIP;
+    rec.NumberParameters = 1;
     Box64EC_RaiseGuestException(&rec);
 #else
     EXCEPTION_RECORD rec;
