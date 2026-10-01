@@ -2119,7 +2119,7 @@ static void fpuCacheTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2, int
     int i2 = dyn->insts[ninst].x64.jmp_insts;
     if(i2<0)
         return;
-    MESSAGE(LOG_DUMP, "\tCache Transform ---- ninst=%d -> %d\n", ninst, i2);
+    MESSAGE(LOG_DUMP, "\tFPU Cache Transform ---- ninst=%d -> %d\n", ninst, i2);
     uint32_t unneeded = dyn->insts[i2].n.xmm_unneeded | (dyn->insts[i2].n.ymm_unneeded<<16);
     if((!i2) || (dyn->insts[i2].x64.barrier&BARRIER_FLOAT)) {
         int need_purge = 0;
@@ -2128,10 +2128,12 @@ static void fpuCacheTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2, int
         for(int i=0; i<32 && !need_purge; ++i)
             if(dyn->n.neoncache[i].v) 
                 need_purge = 1;
+        if(dyn->ymm_zero)
+            need_purge = 1;
         if(need_purge) {       // there is something at ninst for i
             fpu_purgecache(dyn, ninst, 1, s1, s2, s3, unneeded);
         }
-        MESSAGE(LOG_DUMP, "\t---- Cache Transform\n");
+        MESSAGE(LOG_DUMP, "\t---- FPU Cache Transform (purge)\n");
         return;
     }
     neoncache_t cache_i2 = dyn->insts[i2].n;
@@ -2158,7 +2160,7 @@ static void fpuCacheTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2, int
                 purge = 0;
         if(purge) {
             fpu_purgecache(dyn, ninst, 1, s1, s2, s3, unneeded);
-            MESSAGE(LOG_DUMP, "\t---- Cache Transform\n");
+            MESSAGE(LOG_DUMP, "\t---- FPU Cache Transform (purge)\n");
             return;
         }
     }

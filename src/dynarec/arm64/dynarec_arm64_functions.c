@@ -456,6 +456,8 @@ static int isCacheEmpty(dynarec_native_t* dyn, int ninst) {
             && dyn->insts[ninst].n.neoncache[i].n<dyn->insts[ninst].n.stack_pop))
                 return 0;
         }
+    if(dyn->insts[ninst].ymm0_out)
+        return 0;
     return 1;
 
 }
