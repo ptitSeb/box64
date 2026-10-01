@@ -153,7 +153,9 @@ typdef struct {
 // if the funciton needs more than 100 args, it will also fail
 #define CREATE_VALIST_FROM_VAARG(STACK, SCRATCH, N)                     \
   va_list sysv_varargs;                                                 \
-  {                                                                     \
+  if((N)>6) {                                                           \
+    sysv_varargs = (va_list)(void*)(STACK);                             \
+  } else {                                                              \
     uintptr_t *p = (uintptr_t*)(SCRATCH);                               \
     p[0]=R_RDI; p[1]=R_RSI; p[2]=R_RDX;                                 \
     p[3]=R_RCX; p[4]=R_R8; p[5]=R_R9;                                   \
