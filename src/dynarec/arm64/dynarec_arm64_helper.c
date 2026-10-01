@@ -2614,8 +2614,6 @@ void fpu_reset_cache(dynarec_arm_t* dyn, int ninst, int reset_n)
     MESSAGE(LOG_DEBUG, "Reset Caches with %d\n",reset_n);
     #if STEP > 1
     // for STEP 2 & 3, just need to refresh with current, and undo the changes (push & swap)
-    if(dyn->ymm_zero && dyn->insts[ninst].purge_ymm)
-        avx_purge_ymm(dyn, ninst, dyn->insts[ninst].purge_ymm, x1);
     dyn->n = dyn->insts[ninst].n;
     dyn->ymm_zero = dyn->insts[ninst].ymm0_in;
     neoncacheUnwind(&dyn->n);
