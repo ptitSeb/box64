@@ -2677,6 +2677,7 @@ void updateProtection(uintptr_t addr, size_t size, uint32_t prot)
         if(!(never)) {
             if(dyn && (prot&PROT_WRITE)) {   // need to remove the write protection from this block
                 dyn = PROT_DYNAREC;
+                #ifdef DYNAREC
                 if(imposeWriteProtection_locked(cur, bend, prot)) {
                     dynarec_log(LOG_DEBUG, " mprotect %p:%p 0x%hhx\n", (void*)cur, (void*)(bend-1), prot&~PROT_WRITE);
                 } else {
@@ -2687,6 +2688,10 @@ void updateProtection(uintptr_t addr, size_t size, uint32_t prot)
                     cleanDBFromAddressRange(cur, bend-cur, 2);
                     flagUnprotectedNeighbours_locked(cur);
                 }
+                #else
+                int ret = mprotect((void*)cur, bend-cur, prot&~PROT_WRITE);
+                dynarec_log(LOG_DEBUG, " mprotect %p:%p 0x%hhx => %d\n", (void*)cur, (void*)(bend-1), prot&~PROT_WRITE, ret);
+                #endif
             } else if(dyn && !(prot&PROT_WRITE)) {
                 dyn = PROT_DYNAREC_R;
             }
@@ -2773,8 +2778,10 @@ void refreshProtection(uintptr_t addr)
     uintptr_t bend;
     if (rb_get_end(memprot, addr, &prot, &bend)) {
         int ret = mprotect((void*)ALIGN_DOWN(addr), box64_pagesize, prot&~PROT_CUSTOM);
+        #ifdef DYNAREC
         if (box64_pagesize > X86_PAGE_SIZE && (prot & PROT_WRITE))
             flagUnprotectedNeighbours_locked(addr);
+        #endif
         dynarec_log(LOG_DEBUG, "refreshProtection(%p): %p/0x%x (ret=%d/%s)\n", (void*)addr, (void*)ALIGN_DOWN(addr), prot, ret, ret?strerror(errno):"ok");
     }
     UNLOCK_PROT();
