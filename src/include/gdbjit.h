@@ -23,6 +23,7 @@ void GdbJITNewBlock(gdbjit_block_t* block, GDB_CORE_ADDR start, GDB_CORE_ADDR en
 gdbjit_block_t* GdbJITBlockAddLine(gdbjit_block_t* block, GDB_CORE_ADDR addr, const char* line);
 void GdbJITBlockReady(gdbjit_block_t* block);
 void GdbJITBlockCleanup(gdbjit_block_t* block);
+void GdbJITCleanupFiles(void);
 
 #else
 
@@ -30,6 +31,7 @@ void GdbJITBlockCleanup(gdbjit_block_t* block);
 #define GdbJITBlockAddLine(a, b, c) NULL
 #define GdbJITBlockReady(a)
 #define GdbJITBlockCleanup(a)
+#define GdbJITCleanupFiles()
 
 #endif
 

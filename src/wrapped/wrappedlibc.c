@@ -84,6 +84,7 @@ extern const char *const sys_siglist[] __asm__("__sys_siglist");
 #include "librarian/library_private.h"
 #include "emu/x64emu_private.h"
 #include "box64context.h"
+#include "gdbjit.h"
 #include "steamwebhelper.h"
 #include "syscall_user_dispatch.h"
 #include "myalign.h"
@@ -5027,6 +5028,7 @@ EXPORT void my_exit(x64emu_t* emu, int code)
 
 EXPORT void my__exit(x64emu_t* emu, int code)
 {
+    GdbJITCleanupFiles();
     if(emu->flags.quitonexit || emu->quit) {
         _exit(code);
     }
