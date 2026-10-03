@@ -3,6 +3,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include <pthread.h>
 #include <elf.h>
 #include <errno.h>
 #include "gdbjit.h"
@@ -47,6 +49,45 @@ EXPORT gdbjit_descriptor_t __jit_debug_descriptor = { 1, GDBJIT_NOACTION, NULL, 
 
 /* --------------------------------------------------------------------------- */
 
+#define GDBJIT_MAX_TMPFILES 4096
+static char* gdbjit_tmpfiles[GDBJIT_MAX_TMPFILES];
+static int gdbjit_tmpfiles_idx = 0;
+static int gdbjit_atexit_registered = 0;
+static char gdbjit_tmpfiles_lock = 0;
+
+static void GdbJITUnlinkAllFiles(void)
+{
+    for(int i=0; i<GDBJIT_MAX_TMPFILES; ++i) {
+        if(gdbjit_tmpfiles[i]) {
+            unlink(gdbjit_tmpfiles[i]);
+            box_free(gdbjit_tmpfiles[i]);
+            gdbjit_tmpfiles[i] = NULL;
+        }
+    }
+}
+
+void GdbJITCleanupFiles(void)
+{
+    GdbJITUnlinkAllFiles();
+    gdbjit_tmpfiles_idx = 0;
+}
+
+static void GdbJITRememberFile(const char* filename)
+{
+    while(__atomic_test_and_set(&gdbjit_tmpfiles_lock, __ATOMIC_ACQUIRE)) ;
+    if(!gdbjit_atexit_registered) {
+        atexit(GdbJITUnlinkAllFiles);
+        gdbjit_atexit_registered = 1;
+    }
+    int idx = gdbjit_tmpfiles_idx++ % GDBJIT_MAX_TMPFILES;
+    if(gdbjit_tmpfiles[idx]) {
+        unlink(gdbjit_tmpfiles[idx]);
+        box_free(gdbjit_tmpfiles[idx]);
+    }
+    gdbjit_tmpfiles[idx] = box_strdup(filename);
+    __atomic_clear(&gdbjit_tmpfiles_lock, __ATOMIC_RELEASE);
+}
+
 void GdbJITNewBlock(gdbjit_block_t* block, GDB_CORE_ADDR start, GDB_CORE_ADDR end, uintptr_t x64start)
 {
     if (!block) return;
@@ -56,6 +97,7 @@ void GdbJITNewBlock(gdbjit_block_t* block, GDB_CORE_ADDR start, GDB_CORE_ADDR en
 
     strcpy(block->filename, "/tmp/box64gdbjit-XXXXXX.S");
     int fd = mkstemps(block->filename, 2);
+    if (fd >= 0) GdbJITRememberFile(block->filename);
     block->file = fdopen(fd, "w");
 
     block->start = start;
