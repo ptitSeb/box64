@@ -2243,6 +2243,56 @@ static int hostPageHasExternalWrite_locked(uintptr_t host_page, uintptr_t prot_s
     return 0;
 }
 
+static int imposeWriteProtection_locked(uintptr_t cur, uintptr_t bend, uint32_t prot)
+{
+    if (box64_pagesize == X86_PAGE_SIZE)
+        return !mprotect((void*)cur, bend - cur, prot & ~PROT_WRITE);
+    uintptr_t hostpage_start = ALIGN_DOWN(cur);
+    uintptr_t hostpage_end = ALIGN(bend);
+    for (uintptr_t hostpage = hostpage_start; hostpage < hostpage_end; hostpage += box64_pagesize)
+        if (hostPageHasExternalWrite_locked(hostpage, cur, bend))
+            return 0;
+    return !mprotect((void*)hostpage_start, hostpage_end - hostpage_start, prot & ~PROT_WRITE);
+}
+
+static void liftWriteProtection_locked(uintptr_t cur, uintptr_t bend, uint32_t prot)
+{
+    if (box64_pagesize == X86_PAGE_SIZE) {
+        mprotect((void*)cur, bend - cur, prot);
+        return;
+    }
+    uintptr_t hostpage_start = ALIGN_DOWN(cur);
+    uintptr_t hostpage_end = ALIGN(bend);
+    if (mprotect((void*)hostpage_start, hostpage_end - hostpage_start, prot))
+        return;
+    if (hostpage_start == cur && hostpage_end == bend)
+        return;
+    for (uintptr_t page = hostpage_start; page < hostpage_end; page += X86_PAGE_SIZE) {
+        if (bend > cur && page < bend && page + X86_PAGE_SIZE > cur) continue;
+        uint32_t gprot;
+        uintptr_t gend;
+        if (!rb_get_end(memprot, page, &gprot, &gend) || !(gprot & (PROT_DYNAREC | PROT_DYNAREC_R)) || (gprot & PROT_NEVERCLEAN))
+            continue;
+        rb_set(memprot, page, page + X86_PAGE_SIZE, gprot | PROT_NEVERCLEAN | PROT_NEVERCLEAN_MIXED);
+        cleanDBFromAddressRange(page, X86_PAGE_SIZE, 2);
+    }
+}
+
+static void flagUnprotectedNeighbours_locked(uintptr_t addr)
+{
+    if (box64_pagesize == X86_PAGE_SIZE) return;
+    uintptr_t hostpage_start = ALIGN_DOWN(addr);
+    for (uintptr_t page = hostpage_start; page < hostpage_start + box64_pagesize; page += X86_PAGE_SIZE) {
+        if (page <= addr && addr < page + X86_PAGE_SIZE) continue;
+        uint32_t gprot;
+        uintptr_t gend;
+        if (!rb_get_end(memprot, page, &gprot, &gend) || !(gprot & (PROT_DYNAREC | PROT_DYNAREC_R)) || (gprot & PROT_NEVERCLEAN))
+            continue;
+        rb_set(memprot, page, page + X86_PAGE_SIZE, gprot | PROT_NEVERCLEAN | PROT_NEVERCLEAN_MIXED);
+        cleanDBFromAddressRange(page, X86_PAGE_SIZE, 2);
+    }
+}
+
 // apply the real host-page protection implied by the current guest page
 // returns 1 if needs rebuild
 static int applyDBHostPageProtection_locked(uintptr_t cur, uintptr_t bend, uint32_t prot, uintptr_t prot_start, uintptr_t prot_end, int protect_requested)
@@ -2258,16 +2308,24 @@ static int applyDBHostPageProtection_locked(uintptr_t cur, uintptr_t bend, uint3
 
     int external_write = box64_pagesize > X86_PAGE_SIZE && hostPageHasExternalWrite_locked(ALIGN_DOWN(cur), prot_start, prot_end);
 
+    uintptr_t hostpage_start = ALIGN_DOWN(cur);
+    uintptr_t hostpage_end = ALIGN(bend);
+    if (hostpage_end <= hostpage_start) hostpage_end = hostpage_start + box64_pagesize;
+
     if (external_write && (base_prot & PROT_WRITE)) {
         if ((dyn & PROT_DYNAREC) && !(dyn & PROT_NEVERCLEAN))
-            mprotect((void*)cur, bend - cur, base_prot);
+            liftWriteProtection_locked(cur, bend, base_prot);
         // a neighboring guest page needs write access
         prot = base_prot | PROT_DYNAREC | PROT_NEVERCLEAN | PROT_NEVERCLEAN_MIXED;
+    } else if (external_write) {
+        prot = base_prot | PROT_DYNAREC_R | PROT_NEVERCLEAN | PROT_NEVERCLEAN_MIXED;
     } else if (base_prot & PROT_WRITE) {
         if (!(dyn & PROT_DYNAREC) || (dyn & PROT_NEVERCLEAN_MIXED))
-            mprotect((void*)cur, bend - cur, base_prot & ~PROT_WRITE);
+            mprotect((void*)hostpage_start, hostpage_end - hostpage_start, base_prot & ~PROT_WRITE);
         prot = base_prot | PROT_DYNAREC;
     } else {
+        if (!(dyn & PROT_DYNAREC_R) || (dyn & PROT_NEVERCLEAN_MIXED))
+            mprotect((void*)hostpage_start, hostpage_end - hostpage_start, base_prot);
         prot = base_prot | PROT_DYNAREC_R;
     }
 
@@ -2362,7 +2420,7 @@ void unprotectDB(uintptr_t addr, size_t size, int mark)
                 prot&=~PROT_DYN;
                 if(mark)
                     cleanDBFromAddressRange(cur, bend-cur, 0);
-                mprotect((void*)cur, bend-cur, prot);
+                liftWriteProtection_locked(cur, bend, prot);
             } else if(prot&PROT_DYNAREC_R) {
                 if(mark)
                     cleanDBFromAddressRange(cur, bend-cur, 0);
@@ -2407,7 +2465,7 @@ void neverprotectDB(uintptr_t addr, size_t size, int mark)
                 prot&=~PROT_DYN;
                 if(mark)
                     cleanDBFromAddressRange(cur, bend-cur, (mark==2)?2:0);
-                mprotect((void*)cur, bend-cur, prot);
+                liftWriteProtection_locked(cur, bend, prot);
             } else if(prot&PROT_DYNAREC_R) {
                 if(mark)
                     cleanDBFromAddressRange(cur, bend-cur, (mark==2)?2:0);
@@ -2562,7 +2620,7 @@ int checkInHotPage(uintptr_t addr)
     return ((idx==-1) || !hotpage[idx].cnt)?0:1;
 }
 
-static void updateDBHostProtectionForGuestRange(uintptr_t addr, size_t size)
+void updateDBHostProtectionForGuestRange(uintptr_t addr, size_t size)
 {
     if (box64_pagesize <= X86_PAGE_SIZE || !size)
         return;
@@ -2619,8 +2677,21 @@ void updateProtection(uintptr_t addr, size_t size, uint32_t prot)
         if(!(never)) {
             if(dyn && (prot&PROT_WRITE)) {   // need to remove the write protection from this block
                 dyn = PROT_DYNAREC;
+                #ifdef DYNAREC
+                if(imposeWriteProtection_locked(cur, bend, prot)) {
+                    dynarec_log(LOG_DEBUG, " mprotect %p:%p 0x%hhx\n", (void*)cur, (void*)(bend-1), prot&~PROT_WRITE);
+                } else {
+                    // writable guest pages share the host page
+                    // the write protection cannot be enforced, rely on tested blocks instead
+                    dynarec_log(LOG_INFO, "Dynarec host pages %p:%p cannot be write-protected\n", (void*)ALIGN_DOWN(cur), (void*)ALIGN(bend));
+                    prot |= PROT_NEVERCLEAN | PROT_NEVERCLEAN_MIXED;
+                    cleanDBFromAddressRange(cur, bend-cur, 2);
+                    flagUnprotectedNeighbours_locked(cur);
+                }
+                #else
                 int ret = mprotect((void*)cur, bend-cur, prot&~PROT_WRITE);
                 dynarec_log(LOG_DEBUG, " mprotect %p:%p 0x%hhx => %d\n", (void*)cur, (void*)(bend-1), prot&~PROT_WRITE, ret);
+                #endif
             } else if(dyn && !(prot&PROT_WRITE)) {
                 dyn = PROT_DYNAREC_R;
             }
@@ -2707,6 +2778,10 @@ void refreshProtection(uintptr_t addr)
     uintptr_t bend;
     if (rb_get_end(memprot, addr, &prot, &bend)) {
         int ret = mprotect((void*)ALIGN_DOWN(addr), box64_pagesize, prot&~PROT_CUSTOM);
+        #ifdef DYNAREC
+        if (box64_pagesize > X86_PAGE_SIZE && (prot & PROT_WRITE))
+            flagUnprotectedNeighbours_locked(addr);
+        #endif
         dynarec_log(LOG_DEBUG, "refreshProtection(%p): %p/0x%x (ret=%d/%s)\n", (void*)addr, (void*)ALIGN_DOWN(addr), prot, ret, ret?strerror(errno):"ok");
     }
     UNLOCK_PROT();
@@ -2755,7 +2830,7 @@ void loadProtectionFromMap()
             if(prev!=s) {
                 LOCK_PROT();
                 if(rb_get_end(mapallmem, prev, &val, &endb)) {
-                    if(endb>s) endb = s; 
+                    if(endb>s) endb = s;
                     if(val==MEM_EXTERNAL) {
                         // free the place, it's not longer taken
                         rb_unset(mapallmem, prev, endb);

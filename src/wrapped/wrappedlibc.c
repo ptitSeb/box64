@@ -3808,6 +3808,13 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, size_t length, int prot, int f
             }
         }
 
+        #ifdef DYNAREC
+        if(!failed) {
+            if(emulated_first_edge) updateDBHostProtectionForGuestRange(first_edge_page, box64_pagesize);
+            if(emulated_last_edge && last_edge_page != first_edge_page) updateDBHostProtectionForGuestRange(last_edge_page, box64_pagesize);
+        }
+        #endif
+
         if(failed) {
             ret = MAP_FAILED;
             errno = saved_errno;

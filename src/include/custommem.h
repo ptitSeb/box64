@@ -132,6 +132,7 @@ void setGuestProtection(uintptr_t addr, size_t size, uint32_t prot, int new_mapp
 void freeGuestProtection(uintptr_t addr, size_t size);
 int isGuestRangeFakelyProtected(uintptr_t addr, size_t size, uint32_t prot);
 void refreshProtection(uintptr_t addr);
+void updateDBHostProtectionForGuestRange(uintptr_t addr, size_t size);
 uint32_t getProtection(uintptr_t addr);
 uint32_t getProtection_fast(uintptr_t addr);
 int getMmapped(uintptr_t addr);
