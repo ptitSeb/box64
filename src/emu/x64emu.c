@@ -1683,6 +1683,12 @@ void free_tlsdatasize(void* p)
 
 uintptr_t GetSegmentBaseEmu(x64emu_t* emu, int seg)
 {
+#ifdef BOX64EC
+    if (seg == _GS)
+        return emu->win64_teb;
+    if (seg == _FS)
+        return emu->segs_offs[_FS];
+#endif
     if(emu->segs[seg]) {
         emu->segs_offs[seg] = (uintptr_t)GetSegmentBase(emu, emu->segs[seg]);
         //printf_log(LOG_DEBUG, "%04d|GetSegmentBaseEmu seg=%d(%x), offs=%p\n", GetTID(), seg, emu->segs[seg], (void*)emu->segs_offs[seg]);
