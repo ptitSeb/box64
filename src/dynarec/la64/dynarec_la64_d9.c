@@ -375,7 +375,7 @@ uintptr_t dynarec64_D9(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 v0 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
                 v1 = fpu_get_scratch(dyn);
                 v2 = fpu_get_scratch(dyn);
-                if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x2);
+                u8 = x87_setround(dyn, ninst, x1, x2);
 
                 if (ST_IS_F(0)) {
                     FCMP_S(fcc0, v0, v0, cEQ);
@@ -411,7 +411,7 @@ uintptr_t dynarec64_D9(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     FCOPYSIGN_D(v0, v1, v0);
                 }
                 MARK3;
-                if (!BOX64ENV(dynarec_fastround)) x87_restoreround(dyn, ninst, u8);
+                x87_restoreround(dyn, ninst, u8);
                 break;
             case 0xFD:
                 INST_NAME("FSCALE");
