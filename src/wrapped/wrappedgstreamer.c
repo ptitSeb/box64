@@ -1493,6 +1493,6 @@ EXPORT void my_gst_debug_log_id(x64emu_t* emu, void* cat, uint32_t level, void* 
     SetGstURIHandlerID(my->gst_uri_handler_get_type());        \
     SetGstBufferPoolID(my->gst_buffer_pool_get_type());        \
 
-#define NEEDED_LIBS "libgtk-3.so.0"
+#define NEEDED_LIBS "libgobject-2.0.so.0", "libglib-2.0.so.0", "libgmodule-2.0.so.0"
 
 #include "wrappedlib_init.h"
