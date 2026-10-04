@@ -1493,9 +1493,6 @@ EXPORT void my_gst_debug_log_id(x64emu_t* emu, void* cat, uint32_t level, void* 
     SetGstURIHandlerID(my->gst_uri_handler_get_type());        \
     SetGstBufferPoolID(my->gst_buffer_pool_get_type());        \
 
-/* The wrapper bridges GObject classes (gtkclass.c) and needs GLib's object system loaded,
- * not GTK itself: it makes no GTK call. Requiring libgtk-3 made every GStreamer user fail
- * on a system without GTK (an Android rootfs for Wine: no video decoding at all). */
-#define NEEDED_LIBS "libgobject-2.0.so.0", "libglib-2.0.so.0", "libgmodule-2.0.so.0", "libgio-2.0.so.0"
+#define NEEDED_LIBS "libgobject-2.0.so.0", "libglib-2.0.so.0", "libgmodule-2.0.so.0"
 
 #include "wrappedlib_init.h"
