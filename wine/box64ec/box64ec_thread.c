@@ -91,6 +91,8 @@ NTSTATUS WINAPI ThreadInit(void)
                (void*)ctx);
 
     area->EmulatorData[EC_DATA_EMU] = emu;
+    area->EmulatorData[EC_DATA_ENTER] = (void*)Box64EC_EnterX64;
+    area->EmulatorData[EC_DATA_ENTER_CTX] = (void*)Box64EC_BeginSimulation;
 
     return STATUS_SUCCESS;
 }

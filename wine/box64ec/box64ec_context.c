@@ -5,6 +5,7 @@
 #include <windows.h>
 
 #include "box64ec_private.h"
+#include "env.h"
 #include "emu/x64emu_private.h"
 #include "emu/x87emu_private.h"
 
@@ -209,4 +210,133 @@ void emu_to_context(x64emu_t* emu, ARM64EC_NT_CONTEXT* context)
                ? sizeof(emu->xmm) : sizeof(context->V));
     if ((ymm = context_ymm(context)))
         memcpy(ymm, emu->ymm, sizeof(emu->ymm));
+}
+
+extern NTSTATUS (WINAPI* __os_arm64x_get_x64_information)(ULONG, void*, void*);
+extern NTSTATUS (WINAPI* __os_arm64x_set_x64_information)(ULONG, ULONG_PTR, void*);
+
+static const uint32_t EC_VALID_EFLAGS =
+    (1u << 0) | (1u << 6) | (1u << 7) | (1u << 8) | (1u << 11);
+
+#define CONTEXT_ARM64_BOX64_YMMSTATE (CONTEXT_ARM64 | 0x00000040u)
+
+static int read_live_mxcsr(uint32_t* mxcsr)
+{
+    return __os_arm64x_get_x64_information &&
+           !__os_arm64x_get_x64_information(0, mxcsr, NULL);
+}
+
+static void write_live_mxcsr(uint32_t mxcsr)
+{
+    if (__os_arm64x_set_x64_information)
+        __os_arm64x_set_x64_information(0, mxcsr, NULL);
+}
+
+x64emu_t* Box64EC_ApplyLiveMxcsr(x64emu_t* emu)
+{
+    if (emu)
+        write_live_mxcsr(emu->mxcsr.x32);
+    return emu;
+}
+
+x64emu_t* Box64EC_CaptureLiveMxcsr(x64emu_t* emu)
+{
+    uint32_t mxcsr;
+
+    if (emu && read_live_mxcsr(&mxcsr))
+        emu->mxcsr.x32 = mxcsr;
+    return emu;
+}
+
+void Box64EC_CaptureContextMxcsr(ARM64EC_NT_CONTEXT* context)
+{
+    uint32_t mxcsr;
+
+    if (!context)
+        return;
+    if (read_live_mxcsr(&mxcsr))
+        context->AMD64_MxCsr = context->AMD64_MxCsr_copy = mxcsr;
+}
+
+void Box64EC_ApplyContextMxcsr(ARM64EC_NT_CONTEXT* context)
+{
+    if (context)
+        write_live_mxcsr(context->AMD64_MxCsr);
+}
+
+void merge_eflags_from_emu(x64emu_t* emu, ARM64EC_NT_CONTEXT* context)
+{
+    uint32_t current = context->AMD64_EFlags;
+    uint32_t flags = Box64EC_GetEflags(emu);
+
+    context->AMD64_EFlags =
+        (current & EC_VALID_EFLAGS) | (flags & ~EC_VALID_EFLAGS);
+}
+
+void merge_unmapped_context_from_emu(x64emu_t* emu,
+                                     ARM64EC_NT_CONTEXT* context)
+{
+    merge_eflags_from_emu(emu, context);
+    context->AMD64_ControlWord = emu->cw.x16;
+    context->AMD64_StatusWord = x87_status_word(emu);
+    uint8_t tag = x87_abridged_tag(emu);
+    unsigned top = emu->top & 7;
+    context->AMD64_TagWord = (tag << top) | (tag >> ((8 - top) & 7));
+}
+
+void emu_to_arm64_ec_packed(x64emu_t* emu, ARM64_NT_CONTEXT* context)
+{
+    uint8_t fp[8][16];
+    uint64_t flags;
+
+    memset(context, 0, sizeof(*context));
+    context->ContextFlags = CONTEXT_ARM64_FULL;
+    if (BOX64ENV(avx))
+        context->ContextFlags |= CONTEXT_ARM64_BOX64_YMMSTATE;
+    context->X8  = R_RAX;
+    context->X0  = R_RCX;
+    context->X1  = R_RDX;
+    context->X27 = R_RBX;
+    context->Sp  = R_RSP;
+    context->Fp  = R_RBP;
+    context->X25 = R_RSI;
+    context->X26 = R_RDI;
+    context->X2  = R_R8;
+    context->X3  = R_R9;
+    context->X4  = R_R10;
+    context->X5  = R_R11;
+    context->X19 = R_R12;
+    context->X20 = R_R13;
+    context->X21 = R_R14;
+    context->X22 = R_R15;
+    context->Pc  = R_RIP;
+    memcpy(&context->V[0], &emu->xmm[0], sizeof(emu->xmm));
+    if (BOX64ENV(avx))
+        memcpy(&context->V[16], &emu->ymm[0], sizeof(emu->ymm));
+
+    x87_slots_from_emu(emu, fp);
+    memcpy(&context->Lr,  fp[0], 8);
+    memcpy(&context->X6,  fp[1], 8);
+    memcpy(&context->X7,  fp[2], 8);
+    memcpy(&context->X9,  fp[3], 8);
+    memcpy(&context->X10, fp[4], 8);
+    memcpy(&context->X11, fp[5], 8);
+    memcpy(&context->X12, fp[6], 8);
+    memcpy(&context->X15, fp[7], 8);
+    for (int i = 0; i < 4; ++i) {
+        uint16_t hi;
+        memcpy(&hi, fp[i] + 8, sizeof(hi));
+        context->X16 |= (uint64_t)hi << (i * 16);
+        memcpy(&hi, fp[i + 4] + 8, sizeof(hi));
+        context->X17 |= (uint64_t)hi << (i * 16);
+    }
+    context->X13 = context->X14 = context->X18 = context->X23 =
+        context->X24 = context->X28 = 0;
+    flags = Box64EC_GetEflags(emu);
+    context->Cpsr = 0;
+    if (flags & (1u << 8))  context->Cpsr |= (1u << 21);
+    if (flags & (1u << 0))  context->Cpsr |= (1u << 29);
+    if (flags & (1u << 6))  context->Cpsr |= (1u << 30);
+    if (flags & (1u << 7))  context->Cpsr |= (1u << 31);
+    if (flags & (1u << 11)) context->Cpsr |= (1u << 28);
 }

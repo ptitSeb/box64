@@ -23,6 +23,9 @@
 #include "alternate.h"
 #include "emit_signals.h"
 #include "mysignal.h"
+#if defined(BOX64EC) && !defined(TEST_INTERPRETER)
+#include "box64ec.h"
+#endif
 #ifdef DYNAREC
 #include "../dynarec/native_lock.h"
 #endif
@@ -76,6 +79,13 @@ x64emurun:
     while(1) 
 #endif
     {
+#if defined(BOX64EC) && !defined(TEST_INTERPRETER)
+        /* Suspension must also be noticed inside a single-page loop. */
+        if (Box64EC_PollSuspend()) {
+            Box64EC_HandleSuspend(emu);
+            return 0;
+        }
+#endif
         #ifndef TEST_INTERPRETER
         if(oldpage_exec!=(addr&~0xfffULL)) {
             oldpage_exec = (addr&~0xfffULL);
