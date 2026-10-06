@@ -661,7 +661,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 case 0x30:
                     INST_NAME("PMOVZXBW Gx, Ex"); // SSE4 opcode!
                     nextop = F8;
-                    GETEX(q1, 0, 0);
+                    GETEX64(q1, 0, 0);
                     GETGX_empty(q0);
                     if (cpuext.lasx)
                         VEXT2XV_HU_BU(q0, q1);
@@ -2325,7 +2325,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         SETFLAGS(X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION);
                     }
                     SET_DFNONE();
-                    GETED(1);
+                    GETEW(x1, 1);
                     u8 = F8;
                     u8 &= (rex.w ? 0x3f : 0x0f);
                     IFX (X_CF) {

@@ -975,7 +975,16 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
         case 0xD1:
             INST_NAME("VPSRLW Gx, Vx, Ex");
             nextop = F8;
-            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            GETVYxy(v1, 0);
+            if (MODREG) {
+                GETEYxy(v2, 0, 0);
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                v2 = fpu_get_scratch(dyn);
+                VLD(v2, ed, fixedaddress);
+            }
+            GETGYxy_empty(v0);
             q0 = fpu_get_scratch(dyn);
             d0 = fpu_get_scratch(dyn);
             VREPLVE0xy(D, q0, v2);
@@ -987,7 +996,16 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
         case 0xD2:
             INST_NAME("VPSRLD Gx, Vx, Ex");
             nextop = F8;
-            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            GETVYxy(v1, 0);
+            if (MODREG) {
+                GETEYxy(v2, 0, 0);
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                v2 = fpu_get_scratch(dyn);
+                VLD(v2, ed, fixedaddress);
+            }
+            GETGYxy_empty(v0);
             q0 = fpu_get_scratch(dyn);
             d0 = fpu_get_scratch(dyn);
             VREPLVE0xy(D, q0, v2);
@@ -999,7 +1017,16 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
         case 0xD3:
             INST_NAME("VPSRLQ Gx, Vx, Ex");
             nextop = F8;
-            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            GETVYxy(v1, 0);
+            if (MODREG) {
+                GETEYxy(v2, 0, 0);
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                v2 = fpu_get_scratch(dyn);
+                VLD(v2, ed, fixedaddress);
+            }
+            GETGYxy_empty(v0);
             q0 = fpu_get_scratch(dyn);
             d0 = fpu_get_scratch(dyn);
             VREPLVE0xy(D, q0, v2);
@@ -1106,7 +1133,16 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
         case 0xE1:
             INST_NAME("VPSRAW Gx, Vx, Ex");
             nextop = F8;
-            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            GETVYxy(v1, 0);
+            if (MODREG) {
+                GETEYxy(v2, 0, 0);
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                v2 = fpu_get_scratch(dyn);
+                VLD(v2, ed, fixedaddress);
+            }
+            GETGYxy_empty(v0);
             d0 = fpu_get_scratch(dyn);
             VMINIxy(DU, d0, v2, 15);
             VREPLVE0xy(H, d0, d0);
@@ -1115,7 +1151,16 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
         case 0xE2:
             INST_NAME("VPSRAD Gx, Vx, Ex");
             nextop = F8;
-            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            GETVYxy(v1, 0);
+            if (MODREG) {
+                GETEYxy(v2, 0, 0);
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                v2 = fpu_get_scratch(dyn);
+                VLD(v2, ed, fixedaddress);
+            }
+            GETGYxy_empty(v0);
             d0 = fpu_get_scratch(dyn);
             VMINIxy(DU, d0, v2, 31);
             VREPLVE0xy(W, d0, d0);
@@ -1245,7 +1290,16 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
         case 0xF1:
             INST_NAME("VPSLLW Gx, Vx, Ex");
             nextop = F8;
-            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            GETVYxy(v1, 0);
+            if (MODREG) {
+                GETEYxy(v2, 0, 0);
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                v2 = fpu_get_scratch(dyn);
+                VLD(v2, ed, fixedaddress);
+            }
+            GETGYxy_empty(v0);
             q0 = fpu_get_scratch(dyn);
             d0 = fpu_get_scratch(dyn);
             VREPLVE0xy(D, q0, v2);
@@ -1257,7 +1311,16 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
         case 0xF2:
             INST_NAME("VPSLLD Gx, Vx, Ex");
             nextop = F8;
-            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            GETVYxy(v1, 0);
+            if (MODREG) {
+                GETEYxy(v2, 0, 0);
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                v2 = fpu_get_scratch(dyn);
+                VLD(v2, ed, fixedaddress);
+            }
+            GETGYxy_empty(v0);
             q0 = fpu_get_scratch(dyn);
             d0 = fpu_get_scratch(dyn);
             VREPLVE0xy(D, q0, v2);
@@ -1269,7 +1332,16 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
         case 0xF3:
             INST_NAME("VPSLLQ Gx, Vx, Ex");
             nextop = F8;
-            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+            GETVYxy(v1, 0);
+            if (MODREG) {
+                GETEYxy(v2, 0, 0);
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                v2 = fpu_get_scratch(dyn);
+                VLD(v2, ed, fixedaddress);
+            }
+            GETGYxy_empty(v0);
             q0 = fpu_get_scratch(dyn);
             d0 = fpu_get_scratch(dyn);
             VREPLVE0xy(D, q0, v2);

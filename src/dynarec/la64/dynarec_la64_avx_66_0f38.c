@@ -487,57 +487,161 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
         case 0x2C:
             INST_NAME("VMASKMOVPS Gx, Vx, Ex");
             nextop = F8;
-            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
-            d1 = fpu_get_scratch(dyn);
-            if (vex.l) {
-                XVSLTI_W(d1, v1, 0); // create all-one mask for negetive element.
-                XVBITSEL_V(v0, VZERO, v2, d1);
+            if (MODREG) {
+                GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+                d1 = fpu_get_scratch(dyn);
+                if (vex.l) {
+                    XVSLTI_W(d1, v1, 0); // create all-one mask for negetive element.
+                    XVBITSEL_V(v0, VZERO, v2, d1);
+                } else {
+                    VSLTI_W(d1, v1, 0); // create all-one mask for negetive element.
+                    VBITSEL_V(v0, VZERO, v2, d1);
+                }
             } else {
-                VSLTI_W(d1, v1, 0); // create all-one mask for negetive element.
-                VBITSEL_V(v0, VZERO, v2, d1);
+                GETVYxy(v1, 0);
+                GETGYxy_empty(v0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 28, 0);
+                SMREAD();
+                d1 = fpu_get_scratch(dyn);
+                if (vex.l) {
+                    XVSRLI_W(d1, v1, 31);
+                    XVXOR_V(v0, v0, v0);
+                    for (int i = 0; i < 8; ++i) {
+                        XVPICKVE2GR_WU(x4, d1, i);
+                        BEQZ(x4, 4 + 4 * 2);
+                        LD_WU(x5, ed, fixedaddress + i * 4);
+                        XVINSGR2VR_W(v0, x5, i);
+                    }
+                } else {
+                    VSRLI_W(d1, v1, 31);
+                    VXOR_V(v0, v0, v0);
+                    for (int i = 0; i < 4; ++i) {
+                        VPICKVE2GR_WU(x4, d1, i);
+                        BEQZ(x4, 4 + 4 * 2);
+                        LD_WU(x5, ed, fixedaddress + i * 4);
+                        VINSGR2VR_W(v0, x5, i);
+                    }
+                }
             }
             break;
         case 0x2D:
             INST_NAME("VMASKMOVPD Gx, Vx, Ex");
             nextop = F8;
-            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
-            d1 = fpu_get_scratch(dyn);
-            if (vex.l) {
-                XVSLTI_D(d1, v1, 0); // create all-one mask for negetive element.
-                XVBITSEL_V(v0, VZERO, v2, d1);
+            if (MODREG) {
+                GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+                d1 = fpu_get_scratch(dyn);
+                if (vex.l) {
+                    XVSLTI_D(d1, v1, 0); // create all-one mask for negetive element.
+                    XVBITSEL_V(v0, VZERO, v2, d1);
+                } else {
+                    VSLTI_D(d1, v1, 0); // create all-one mask for negetive element.
+                    VBITSEL_V(v0, VZERO, v2, d1);
+                }
             } else {
-                VSLTI_D(d1, v1, 0); // create all-one mask for negetive element.
-                VBITSEL_V(v0, VZERO, v2, d1);
+                GETVYxy(v1, 0);
+                GETGYxy_empty(v0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 28, 0);
+                SMREAD();
+                d1 = fpu_get_scratch(dyn);
+                if (vex.l) {
+                    XVSRLI_D(d1, v1, 63);
+                    XVXOR_V(v0, v0, v0);
+                    for (int i = 0; i < 4; ++i) {
+                        XVPICKVE2GR_DU(x4, d1, i);
+                        BEQZ(x4, 4 + 4 * 2);
+                        LD_D(x5, ed, fixedaddress + i * 8);
+                        XVINSGR2VR_D(v0, x5, i);
+                    }
+                } else {
+                    VSRLI_D(d1, v1, 63);
+                    VXOR_V(v0, v0, v0);
+                    for (int i = 0; i < 2; ++i) {
+                        VPICKVE2GR_DU(x4, d1, i);
+                        BEQZ(x4, 4 + 4 * 2);
+                        LD_D(x5, ed, fixedaddress + i * 8);
+                        VINSGR2VR_D(v0, x5, i);
+                    }
+                }
             }
             break;
         case 0x2E:
             INST_NAME("VMASKMOVPS Ex, Vx, Gx");
             nextop = F8;
-            GETEY_VYGY_xy(v0, v1, v2, 0);
-            d0 = fpu_get_scratch(dyn);
-            if (vex.l) {
-                XVSLTI_W(d0, v1, 0); // create all-one mask for negetive element.
-                XVBITSEL_V(v0, v0, v2, d0);
-                PUTEYy(v0);
+            if (MODREG) {
+                GETEY_VYGY_xy(v0, v1, v2, 0);
+                d0 = fpu_get_scratch(dyn);
+                if (vex.l) {
+                    XVSLTI_W(d0, v1, 0); // create all-one mask for negetive element.
+                    XVBITSEL_V(v0, v0, v2, d0);
+                    PUTEYy(v0);
+                } else {
+                    VSLTI_W(d0, v1, 0); // create all-one mask for negetive element.
+                    VBITSEL_V(v0, v0, v2, d0);
+                    PUTEYx(v0);
+                }
             } else {
-                VSLTI_W(d0, v1, 0); // create all-one mask for negetive element.
-                VBITSEL_V(v0, v0, v2, d0);
-                PUTEYx(v0);
+                GETVYxy(v1, 0);
+                GETGYxy(v2, 0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 28, 0);
+                d0 = fpu_get_scratch(dyn);
+                if (vex.l) {
+                    XVSRLI_W(d0, v1, 31);
+                    for (int i = 0; i < 8; ++i) {
+                        XVPICKVE2GR_WU(x4, d0, i);
+                        BEQZ(x4, 4 + 4 * 2);
+                        XVPICKVE2GR_W(x5, v2, i);
+                        ST_W(x5, ed, fixedaddress + i * 4);
+                    }
+                } else {
+                    VSRLI_W(d0, v1, 31);
+                    for (int i = 0; i < 4; ++i) {
+                        VPICKVE2GR_WU(x4, d0, i);
+                        BEQZ(x4, 4 + 4 * 2);
+                        VPICKVE2GR_W(x5, v2, i);
+                        ST_W(x5, ed, fixedaddress + i * 4);
+                    }
+                }
+                SMWRITE2();
             }
             break;
         case 0x2F:
             INST_NAME("VMASKMOVPD Ex, Vx, Gx");
             nextop = F8;
-            GETEY_VYGY_xy(v0, v1, v2, 0);
-            d0 = fpu_get_scratch(dyn);
-            if (vex.l) {
-                XVSLTI_D(d0, v1, 0); // create all-one mask for negetive element.
-                XVBITSEL_V(v0, v0, v2, d0);
-                PUTEYy(v0);
+            if (MODREG) {
+                GETEY_VYGY_xy(v0, v1, v2, 0);
+                d0 = fpu_get_scratch(dyn);
+                if (vex.l) {
+                    XVSLTI_D(d0, v1, 0); // create all-one mask for negetive element.
+                    XVBITSEL_V(v0, v0, v2, d0);
+                    PUTEYy(v0);
+                } else {
+                    VSLTI_D(d0, v1, 0); // create all-one mask for negetive element.
+                    VBITSEL_V(v0, v0, v2, d0);
+                    PUTEYx(v0);
+                }
             } else {
-                VSLTI_D(d0, v1, 0); // create all-one mask for negetive element.
-                VBITSEL_V(v0, v0, v2, d0);
-                PUTEYx(v0);
+                GETVYxy(v1, 0);
+                GETGYxy(v2, 0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 28, 0);
+                d0 = fpu_get_scratch(dyn);
+                if (vex.l) {
+                    XVSRLI_D(d0, v1, 63);
+                    for (int i = 0; i < 4; ++i) {
+                        XVPICKVE2GR_DU(x4, d0, i);
+                        BEQZ(x4, 4 + 4 * 2);
+                        XVPICKVE2GR_D(x5, v2, i);
+                        ST_D(x5, ed, fixedaddress + i * 8);
+                    }
+                } else {
+                    VSRLI_D(d0, v1, 63);
+                    for (int i = 0; i < 2; ++i) {
+                        VPICKVE2GR_DU(x4, d0, i);
+                        BEQZ(x4, 4 + 4 * 2);
+                        VPICKVE2GR_D(x5, v2, i);
+                        ST_D(x5, ed, fixedaddress + i * 8);
+                    }
+                }
+                SMWRITE2();
             }
             break;
         case 0x30:
@@ -822,45 +926,119 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
         case 0x8C:
             INST_NAME("VPMASKMOVD/Q Gx, Vx, Ex");
             nextop = F8;
-            GETGY_empty_VYEY_xy(v0, v1, v2, 0);
-            d1 = fpu_get_scratch(dyn);
-            if (vex.l) {
-                if (rex.w) {
-                    XVSLTI_D(d1, v1, 0);
+            if (MODREG) {
+                GETGY_empty_VYEY_xy(v0, v1, v2, 0);
+                d1 = fpu_get_scratch(dyn);
+                if (vex.l) {
+                    if (rex.w) {
+                        XVSLTI_D(d1, v1, 0);
+                    } else {
+                        XVSLTI_W(d1, v1, 0);
+                    }
+                    XVBITSEL_V(v0, VZERO, v2, d1);
                 } else {
-                    XVSLTI_W(d1, v1, 0);
+                    if (rex.w) {
+                        VSLTI_D(d1, v1, 0);
+                    } else {
+                        VSLTI_W(d1, v1, 0);
+                    }
+                    VBITSEL_V(v0, VZERO, v2, d1);
                 }
-                XVBITSEL_V(v0, VZERO, v2, d1);
             } else {
-                if (rex.w) {
-                    VSLTI_D(d1, v1, 0);
+                GETVYxy(v1, 0);
+                GETGYxy_empty(v0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 28, 0);
+                SMREAD();
+                d1 = fpu_get_scratch(dyn);
+                if (vex.l) {
+                    if (rex.w) {
+                        XVSRLI_D(d1, v1, 63);
+                    } else {
+                        XVSRLI_W(d1, v1, 31);
+                    }
+                    XVXOR_V(v0, v0, v0);
+                    for (int i = 0; i < (rex.w ? 4 : 8); ++i) {
+                        XVPICKVE2GRxw(x4, d1, i);
+                        BEQZ(x4, 4 + 4 * 2);
+                        LDxw(x5, ed, fixedaddress + i * (rex.w ? 8 : 4));
+                        XVINSGR2VRxw(v0, x5, i);
+                    }
                 } else {
-                    VSLTI_W(d1, v1, 0);
+                    if (rex.w) {
+                        VSRLI_D(d1, v1, 63);
+                    } else {
+                        VSRLI_W(d1, v1, 31);
+                    }
+                    VXOR_V(v0, v0, v0);
+                    for (int i = 0; i < (rex.w ? 2 : 4); ++i) {
+                        VPICKVE2GRxw(x4, d1, i);
+                        BEQZ(x4, 4 + 4 * 2);
+                        LDxw(x5, ed, fixedaddress + i * (rex.w ? 8 : 4));
+                        VINSGR2VRxw(v0, x5, i);
+                    }
                 }
-                VBITSEL_V(v0, VZERO, v2, d1);
             }
             break;
         case 0x8E:
             INST_NAME("VPMASKMOVD/Q Ex, Vx, Gx");
             nextop = F8;
-            GETEY_VYGY_xy(v0, v1, v2, 0);
-            d0 = fpu_get_scratch(dyn);
-            if (vex.l) {
-                if (rex.w) {
-                    XVSLTI_D(d0, v1, 0);
+            if (MODREG) {
+                GETEY_VYGY_xy(v0, v1, v2, 0);
+                d0 = fpu_get_scratch(dyn);
+                if (vex.l) {
+                    if (rex.w) {
+                        XVSLTI_D(d0, v1, 0);
+                    } else {
+                        XVSLTI_W(d0, v1, 0);
+                    }
+                    XVBITSEL_V(v0, v0, v2, d0);
+                    PUTEYy(v0);
                 } else {
-                    XVSLTI_W(d0, v1, 0);
+                    if (rex.w) {
+                        VSLTI_D(d0, v1, 0);
+                    } else {
+                        VSLTI_W(d0, v1, 0);
+                    }
+                    VBITSEL_V(v0, v0, v2, d0);
+                    PUTEYx(v0);
                 }
-                XVBITSEL_V(v0, v0, v2, d0);
-                PUTEYy(v0);
             } else {
-                if (rex.w) {
-                    VSLTI_D(d0, v1, 0);
+                GETVYxy(v1, 0);
+                GETGYxy(v2, 0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 28, 0);
+                d0 = fpu_get_scratch(dyn);
+                if (vex.l) {
+                    if (rex.w) {
+                        XVSRLI_D(d0, v1, 63);
+                    } else {
+                        XVSRLI_W(d0, v1, 31);
+                    }
+                    for (int i = 0; i < (rex.w ? 4 : 8); ++i) {
+                        XVPICKVE2GRxw(x4, d0, i);
+                        BEQZ(x4, 4 + 4 * 2);
+                        XVPICKVE2GRxw(x5, v2, i);
+                        if (rex.w)
+                            ST_D(x5, ed, fixedaddress + i * 8);
+                        else
+                            ST_W(x5, ed, fixedaddress + i * 4);
+                    }
                 } else {
-                    VSLTI_W(d0, v1, 0);
+                    if (rex.w) {
+                        VSRLI_D(d0, v1, 63);
+                    } else {
+                        VSRLI_W(d0, v1, 31);
+                    }
+                    for (int i = 0; i < (rex.w ? 2 : 4); ++i) {
+                        VPICKVE2GRxw(x4, d0, i);
+                        BEQZ(x4, 4 + 4 * 2);
+                        VPICKVE2GRxw(x5, v2, i);
+                        if (rex.w)
+                            ST_D(x5, ed, fixedaddress + i * 8);
+                        else
+                            ST_W(x5, ed, fixedaddress + i * 4);
+                    }
                 }
-                VBITSEL_V(v0, v0, v2, d0);
-                PUTEYx(v0);
+                SMWRITE2();
             }
             break;
         case 0x90:
