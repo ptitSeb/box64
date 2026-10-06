@@ -107,7 +107,7 @@ uintptr_t dynarec64_DF(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         switch ((nextop >> 3) & 7) {
             case 0:
                 INST_NAME("FILD ST0, Ew");
-                X87_PUSH_OR_FAIL(v1, dyn, ninst, x1, LSX_CACHE_ST_F);
+                X87_PUSH_OR_FAIL(v1, dyn, ninst, x1, (BOX64ENV(dynarec_x87double) == 1) ? LSX_CACHE_ST_D : LSX_CACHE_ST_F);
                 addr = geted(dyn, addr, ninst, nextop, &wback, x3, x4, &fixedaddress, rex, NULL, 1, 0);
                 LD_H(x1, wback, fixedaddress);
                 MOVGR2FR_D(v1, x1);
