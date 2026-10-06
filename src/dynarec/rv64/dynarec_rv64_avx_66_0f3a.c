@@ -1228,11 +1228,12 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 1);
             }
-            SEXT_W(x2, xRDX);
-            SEXT_W(x4, xRAX);
+            MV(x2, xRDX);
+            MV(x4, xRAX);
             u8 = F8;
             ADDI(x5, xZR, u8);
-            CALL6(const_sse42_compare_string_explicit_len, x1, ed, x2, x3, x4, x5, 0);
+            ADDI(x7, xZR, rex.w);
+            CALL6(const_sse42_compare_string_explicit_len, x1, ed, x2, x3, x4, x5, x7);
             ZEROUP(x1);
             sse_forget_reg(dyn, ninst, x3, 0);
             if (u8 & 0b1000000) {
@@ -1275,11 +1276,12 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 1);
             }
-            SEXT_W(x2, xRDX);
-            SEXT_W(x4, xRAX);
+            MV(x2, xRDX);
+            MV(x4, xRAX);
             u8 = F8;
             ADDI(x5, xZR, u8);
-            CALL6(const_sse42_compare_string_explicit_len, x1, ed, x2, x3, x4, x5, 0);
+            ADDI(x7, xZR, rex.w);
+            CALL6(const_sse42_compare_string_explicit_len, x1, ed, x2, x3, x4, x5, x7);
             ZEROUP(x1);
             BNEZ_MARK(x1);
             MOV32w(xRCX, (u8 & 1) ? 8 : 16);

@@ -1320,7 +1320,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     GETEX(q0, 0, 1);
                     u8 = F8;
                     q2 = sse_get_reg_empty(dyn, ninst, x1, 0);
-                    emit_pcmpstr(dyn, ninst, q0, q1, q2, u8, 1, 0);
+                    emit_pcmpstr(dyn, ninst, q0, q1, q2, u8, 1, 0, rex.w);
                     break;
                 case 0x61:
                     INST_NAME("PCMPESTRI Gx, Ex, Ib");
@@ -1329,7 +1329,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     GETGX(q1, 0);
                     GETEX(q0, 0, 1);
                     u8 = F8;
-                    emit_pcmpstr(dyn, ninst, q0, q1, -1, u8, 1, 1);
+                    emit_pcmpstr(dyn, ninst, q0, q1, -1, u8, 1, 1, rex.w);
                     break;
                 case 0x62:
                     INST_NAME("PCMPISTRM Gx, Ex, Ib");
@@ -1339,7 +1339,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     GETEX(q0, 0, 1);
                     u8 = F8;
                     q2 = sse_get_reg_empty(dyn, ninst, x1, 0);
-                    emit_pcmpstr(dyn, ninst, q0, q1, q2, u8, 0, 0);
+                    emit_pcmpstr(dyn, ninst, q0, q1, q2, u8, 0, 0, rex.w);
                     break;
                 case 0x63:
                     INST_NAME("PCMPISTRI Gx, Ex, Ib");
@@ -1348,7 +1348,7 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     GETGX(q1, 0);
                     GETEX(q0, 0, 1);
                     u8 = F8;
-                    emit_pcmpstr(dyn, ninst, q0, q1, -1, u8, 0, 1);
+                    emit_pcmpstr(dyn, ninst, q0, q1, -1, u8, 0, 1, rex.w);
                     break;
                 case 0xDF:
                     INST_NAME("AESKEYGENASSIST Gx, Ex, Ib"); // AES-NI

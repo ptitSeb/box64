@@ -1609,11 +1609,12 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                             ed = x1;
                         }
                     }
-                    SEXT_W(x2, xRDX);
-                    SEXT_W(x4, xRAX);
+                    MV(x2, xRDX);
+                    MV(x4, xRAX);
                     u8 = F8;
                     ADDI(x5, xZR, u8);
-                    CALL6(const_sse42_compare_string_explicit_len, x1, ed, x2, x3, x4, x5, 0);
+                    ADDI(x7, xZR, rex.w);
+                    CALL6(const_sse42_compare_string_explicit_len, x1, ed, x2, x3, x4, x5, x7);
                     if (u8 & 0b1000000) {
                         switch (u8 & 1) {
                             case 0b00:
@@ -1657,11 +1658,12 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                             ed = x1;
                         }
                     }
-                    SEXT_W(x2, xRDX);
-                    SEXT_W(x4, xRAX);
+                    MV(x2, xRDX);
+                    MV(x4, xRAX);
                     u8 = F8;
                     ADDI(x5, xZR, u8);
-                    CALL6(const_sse42_compare_string_explicit_len, x1, ed, x2, x3, x4, x5, 0);
+                    ADDI(x7, xZR, rex.w);
+                    CALL6(const_sse42_compare_string_explicit_len, x1, ed, x2, x3, x4, x5, x7);
                     ZEROUP(x1);
                     BNEZ_MARK(x1);
                     MOV32w(xRCX, (u8 & 1) ? 8 : 16);

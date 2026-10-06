@@ -50,10 +50,14 @@ static int overrideIfDataInvalid(sse_regs_t* mem, int lmem, sse_regs_t* reg, int
     }
 }
 
-uint32_t sse42_compare_string_explicit_len(x64emu_t* emu, sse_regs_t* mem, int lmem, sse_regs_t* reg, int lreg, uint8_t imm8)
+uint32_t sse42_compare_string_explicit_len(x64emu_t* emu, sse_regs_t* mem, int64_t lmem, sse_regs_t* reg, int64_t lreg, uint8_t imm8, int w)
 {
     // get number of packed byte/word
     int n_packed = (imm8&1)?8:16;
+    if (!w) {
+        lreg = (int32_t)lreg;
+        lmem = (int32_t)lmem;
+    }
     if (lreg<-n_packed || lreg>n_packed)
         lreg = n_packed;
     else if (lreg<0)
@@ -112,7 +116,7 @@ uint32_t sse42_compare_string_explicit_len(x64emu_t* emu, sse_regs_t* mem, int l
     //CONDITIONAL_SET_FLAG(((!intres2) && (lmem==n_packed)), F_AF);
     CLEAR_FLAG(F_AF);
     CLEAR_FLAG(F_PF);
-    
+
     return intres2;
 }
 
@@ -128,5 +132,5 @@ uint32_t sse42_compare_string_implicit_len(x64emu_t* emu, sse_regs_t* mem, sse_r
         while(lmem<16 && mem->ub[lmem]) ++lmem;
         while(lreg<16 && reg->ub[lreg]) ++lreg;
     }
-    return sse42_compare_string_explicit_len(emu, mem, lmem, reg, lreg, imm8);
+    return sse42_compare_string_explicit_len(emu, mem, lmem, reg, lreg, imm8, 0);
 }

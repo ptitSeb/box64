@@ -789,7 +789,7 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             GETEYx(q0, 0, 1);
             u8 = F8;
             q2 = avx_get_reg_empty(dyn, ninst, x1, 0, LSX_AVX_WIDTH_128);
-            emit_pcmpstr(dyn, ninst, q0, q1, q2, u8, 1, 0);
+            emit_pcmpstr(dyn, ninst, q0, q1, q2, u8, 1, 0, rex.w);
             break;
         case 0x61:
             INST_NAME("VPCMPESTRI Gx, Ex, Ib");
@@ -802,7 +802,7 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             GETGYx(q1, 0);
             GETEYx(q0, 0, 1);
             u8 = F8;
-            emit_pcmpstr(dyn, ninst, q0, q1, -1, u8, 1, 1);
+            emit_pcmpstr(dyn, ninst, q0, q1, -1, u8, 1, 1, rex.w);
             break;
         case 0x62:
             INST_NAME("VPCMPISTRM Gx, Ex, Ib");
@@ -816,7 +816,7 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             GETEYx(q0, 0, 1);
             u8 = F8;
             q2 = avx_get_reg_empty(dyn, ninst, x1, 0, LSX_AVX_WIDTH_128);
-            emit_pcmpstr(dyn, ninst, q0, q1, q2, u8, 0, 0);
+            emit_pcmpstr(dyn, ninst, q0, q1, q2, u8, 0, 0, rex.w);
             break;
         case 0x63:
             INST_NAME("VPCMPISTRI Gx, Ex, Ib");
@@ -829,7 +829,7 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t i
             GETGYx(q1, 0);
             GETEYx(q0, 0, 1);
             u8 = F8;
-            emit_pcmpstr(dyn, ninst, q0, q1, -1, u8, 0, 1);
+            emit_pcmpstr(dyn, ninst, q0, q1, -1, u8, 0, 1, rex.w);
             break;
         case 0xDF:
             INST_NAME("VAESKEYGENASSIST Gx, Ex, Ib");

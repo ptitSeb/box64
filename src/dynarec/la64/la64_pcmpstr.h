@@ -21,6 +21,18 @@ static inline void pcmpstr_normalize_length(dynarec_la64_t* dyn, int ninst, int 
     XORI(dst, dst, count);
 }
 
+static inline void pcmpstr_normalize_length64(dynarec_la64_t* dyn, int ninst, int dst, int src, int count, int tmp)
+{
+    SRAI_D(tmp, src, 63);
+    XOR(dst, src, tmp);
+    SUB_D(dst, dst, tmp);
+    SLTUI(tmp, dst, count + 1);
+    SUB_D(tmp, xZR, tmp);
+    XORI(dst, dst, count);
+    AND(dst, dst, tmp);
+    XORI(dst, dst, count);
+}
+
 static inline void pcmpstr_extract_mask(dynarec_la64_t* dyn, int ninst, int result, int vector, int word)
 {
     if (word)
@@ -459,7 +471,7 @@ static inline void pcmpstr_write_mask(dynarec_la64_t* dyn, int ninst, int dst, i
 }
 
 static inline void emit_pcmpstr(dynarec_la64_t* dyn, int ninst, int vmem, int vreg, int vdst,
-                                uint8_t imm8, int explicit_len, int index)
+                                uint8_t imm8, int explicit_len, int index, int w)
 {
     const int word = imm8 & 1;
     const int count = word ? 8 : 16;
@@ -469,8 +481,15 @@ static inline void emit_pcmpstr(dynarec_la64_t* dyn, int ninst, int vmem, int vr
 
     imm8 &= 0x7f;
     if (explicit_len) {
-        pcmpstr_normalize_length(dyn, ninst, lmem, xRDX, count, x4);
-        pcmpstr_normalize_length(dyn, ninst, lreg, xRAX, count, x4);
+        if (w) {
+            UP32_READ(xRDX);
+            UP32_READ(xRAX);
+            pcmpstr_normalize_length64(dyn, ninst, lmem, xRDX, count, x4);
+            pcmpstr_normalize_length64(dyn, ninst, lreg, xRAX, count, x4);
+        } else {
+            pcmpstr_normalize_length(dyn, ninst, lmem, xRDX, count, x4);
+            pcmpstr_normalize_length(dyn, ninst, lreg, xRAX, count, x4);
+        }
     } else {
         int tmp = SCRATCH;
         pcmpstr_compare_equal(dyn, ninst, tmp, vmem, VZERO, word);
