@@ -30,7 +30,7 @@ uintptr_t dynarec64_DA(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
     uint8_t ed;
     uint8_t u8;
     uint8_t wback;
-    int v1, v2;
+    int v1, v2, s1, s2;
     int d0;
     int s0;
     int64_t fixedaddress;
@@ -40,6 +40,8 @@ uintptr_t dynarec64_DA(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
     MAYUSE(d0);
     MAYUSE(v2);
     MAYUSE(v1);
+    MAYUSE(s1);
+    MAYUSE(s2);
     MAYUSE(ed);
     MAYUSE(j64);
 
@@ -123,7 +125,16 @@ uintptr_t dynarec64_DA(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 FLD_S(v2, ed, fixedaddress);
                 FFINT_D_W(v2, v2); // i32 -> double
                 if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x5);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    s1 = fpu_get_scratch(dyn);
+                    s2 = fpu_get_scratch(dyn);
+                    FMOV_D(s1, v1);
+                    FMOV_D(s2, v2);
+                }
                 FADD_D(v1, v1, v2);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    X87_ARITH_NAN_FIX_D(v1, s1, s2);
+                }
                 X87_CHECK_PRECISION(v1);
                 if (!BOX64ENV(dynarec_fastround)) x87_restoreround(dyn, ninst, u8);
                 break;
@@ -135,7 +146,16 @@ uintptr_t dynarec64_DA(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 FLD_S(v2, ed, fixedaddress);
                 FFINT_D_W(v2, v2); // i32 -> double
                 if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x5);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    s1 = fpu_get_scratch(dyn);
+                    s2 = fpu_get_scratch(dyn);
+                    FMOV_D(s1, v1);
+                    FMOV_D(s2, v2);
+                }
                 FMUL_D(v1, v1, v2);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    X87_ARITH_NAN_FIX_D(v1, s1, s2);
+                }
                 X87_CHECK_PRECISION(v1);
                 if (!BOX64ENV(dynarec_fastround)) x87_restoreround(dyn, ninst, u8);
                 break;
@@ -166,7 +186,16 @@ uintptr_t dynarec64_DA(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 FLD_S(v2, ed, fixedaddress);
                 FFINT_D_W(v2, v2); // i32 -> double
                 if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x5);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    s1 = fpu_get_scratch(dyn);
+                    s2 = fpu_get_scratch(dyn);
+                    FMOV_D(s1, v1);
+                    FMOV_D(s2, v2);
+                }
                 FSUB_D(v1, v1, v2);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    X87_ARITH_NAN_FIX_D(v1, s1, s2);
+                }
                 X87_CHECK_PRECISION(v1);
                 if (!BOX64ENV(dynarec_fastround)) x87_restoreround(dyn, ninst, u8);
                 break;
@@ -178,7 +207,16 @@ uintptr_t dynarec64_DA(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 FLD_S(v2, ed, fixedaddress);
                 FFINT_D_W(v2, v2); // i32 -> double
                 if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x5);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    s1 = fpu_get_scratch(dyn);
+                    s2 = fpu_get_scratch(dyn);
+                    FMOV_D(s1, v2);
+                    FMOV_D(s2, v1);
+                }
                 FSUB_D(v1, v2, v1);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    X87_ARITH_NAN_FIX_D(v1, s1, s2);
+                }
                 X87_CHECK_PRECISION(v1);
                 if (!BOX64ENV(dynarec_fastround)) x87_restoreround(dyn, ninst, u8);
                 break;
@@ -210,7 +248,16 @@ uintptr_t dynarec64_DA(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     MARK3;
                 }
                 if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x5);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    s1 = fpu_get_scratch(dyn);
+                    s2 = fpu_get_scratch(dyn);
+                    FMOV_D(s1, v1);
+                    FMOV_D(s2, v2);
+                }
                 FDIV_D(v1, v1, v2);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    X87_ARITH_NAN_FIX_D(v1, s1, s2);
+                }
                 X87_CHECK_PRECISION(v1);
                 if (!BOX64ENV(dynarec_fastround)) x87_restoreround(dyn, ninst, u8);
                 break;
@@ -222,7 +269,16 @@ uintptr_t dynarec64_DA(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 FLD_S(v2, ed, fixedaddress);
                 FFINT_D_W(v2, v2); // i32 -> double
                 if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x5);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    s1 = fpu_get_scratch(dyn);
+                    s2 = fpu_get_scratch(dyn);
+                    FMOV_D(s1, v2);
+                    FMOV_D(s2, v1);
+                }
                 FDIV_D(v1, v2, v1);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    X87_ARITH_NAN_FIX_D(v1, s1, s2);
+                }
                 X87_CHECK_PRECISION(v1);
                 if (!BOX64ENV(dynarec_fastround)) x87_restoreround(dyn, ninst, u8);
                 break;

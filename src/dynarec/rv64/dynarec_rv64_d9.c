@@ -34,7 +34,7 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
     int64_t fixedaddress;
     int unscaled;
     int v0, v1, v2;
-    int s0;
+    int s0, s1, s3;
     int i1, i2, i3;
     int64_t j64;
 
@@ -363,9 +363,39 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
             if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x2);
             if (ST_IS_F(0)) {
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    s1 = fpu_get_scratch(dyn);
+                    FMVS(s1, v1);
+                }
                 FSQRTS(v1, v1);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    FEQS(x2, v1, v1);
+                    BNEZ_MARK(x2);
+                    FEQS(x2, s1, s1);
+                    BNEZ_MARK2(x2);
+                    FMVS(v1, s1);
+                    B_MARK_nocond;
+                    MARK2;
+                    FNEGS(v1, v1);
+                    MARK;
+                }
             } else {
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    s1 = fpu_get_scratch(dyn);
+                    FMVD(s1, v1);
+                }
                 FSQRTD(v1, v1);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    FEQD(x2, v1, v1);
+                    BNEZ_MARK(x2);
+                    FEQD(x2, s1, s1);
+                    BNEZ_MARK2(x2);
+                    FMVD(v1, s1);
+                    B_MARK_nocond;
+                    MARK2;
+                    FNEGD(v1, v1);
+                    MARK;
+                }
             }
             X87_CHECK_PRECISION(v1);
             if (!BOX64ENV(dynarec_fastround)) x87_restoreround(dyn, ninst, u8);
@@ -468,7 +498,14 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
                 FLW(v1, ed, fixedaddress);
                 if (!ST_IS_F(0)) {
+                    if (!BOX64ENV(dynarec_fastnan)) {
+                        s3 = fpu_get_scratch(dyn);
+                        FMVS(s3, v1);
+                    }
                     FCVTDS(v1, v1);
+                    if (!BOX64ENV(dynarec_fastnan)) {
+                        X87_FLOAT_TO_DOUBLE(v1, s3, x5, x6, 1);
+                    }
                 }
                 break;
             case 2:
@@ -481,6 +518,17 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x2);
                     FCVTSD(s0, v1);
                     if (!BOX64ENV(dynarec_fastround)) x87_restoreround(dyn, ninst, u8);
+                    if (!BOX64ENV(dynarec_fastnan)) {
+                        FEQS(x5, s0, s0);
+                        BNEZ_MARK(x5);
+                        FMVXD(x5, v1);
+                        SRLI(x5, x5, 63);
+                        BNEZ_MARK2(x5);
+                        B_MARK_nocond;
+                        MARK2;
+                        FNEGS(s0, s0);
+                        MARK;
+                    }
                 }
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
                 FSW(s0, ed, fixedaddress);
@@ -491,8 +539,23 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
                 if (!ST_IS_F(0)) {
                     if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x3);
+                    if (!BOX64ENV(dynarec_fastnan)) {
+                        s1 = fpu_get_scratch(dyn);
+                        FMVD(s1, v1);
+                    }
                     FCVTSD(v1, v1);
                     if (!BOX64ENV(dynarec_fastround)) x87_restoreround(dyn, ninst, u8);
+                    if (!BOX64ENV(dynarec_fastnan)) {
+                        FEQS(x5, v1, v1);
+                        BNEZ_MARK(x5);
+                        FMVXD(x5, s1);
+                        SRLI(x5, x5, 63);
+                        BNEZ_MARK2(x5);
+                        B_MARK_nocond;
+                        MARK2;
+                        FNEGS(v1, v1);
+                        MARK;
+                    }
                 }
                 FSW(v1, ed, fixedaddress);
                 X87_POP_OR_FAIL(dyn, ninst, x3);

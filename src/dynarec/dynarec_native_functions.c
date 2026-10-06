@@ -89,13 +89,13 @@ void native_fprem(x64emu_t* emu)
     double x = ST0.d, y = ST1.d;
     int64_t q = 0;
     if (isnan(x) || isnan(y)) {
-        ST0.d = NAN;
+        ST0.d = fpu_quiet_nan(isnan(x) ? x : y);
         q = 0;
     } else if (isinf(x) || y == 0.0) {
 #if !defined(_WIN32) && !defined(__MINGW32__)
         feraiseexcept(FE_INVALID);
 #endif
-        ST0.d = NAN;
+        ST0.q = X87_REAL_INDEFINITE_DOUBLE;
         q = 0;
     } else {
 #if defined(_WIN32) || defined(__MINGW32__)
@@ -135,8 +135,7 @@ void native_frndint(x64emu_t* emu)
 void native_fscale(x64emu_t* emu)
 {
 #pragma STDC FENV_ACCESS ON
-    if(ST0.d!=0.0)
-        ST0.d = ldexp(ST0.d, trunc(ST1.d));
+    ST0.d = fpu_fscale(ST0.d, ST1.d);
 }
 void native_fsin(x64emu_t* emu)
 {
@@ -194,7 +193,7 @@ double direct_ftan(x64emu_t* emu, double a)
 double direct_fscale(x64emu_t* emu, double a, double b)
 {
 #pragma STDC FENV_ACCESS ON
-    return a?ldexp(a, trunc(b)):a;
+    return fpu_fscale(a, b);
 }
 
 void native_fbld(x64emu_t* emu, uint8_t* ed)
@@ -348,12 +347,12 @@ void native_fprem1(x64emu_t* emu)
     double x = ST0.d, y = ST1.d;
     int q = 0;
     if (isnan(x) || isnan(y)) {
-        ST0.d = NAN;
+        ST0.d = fpu_quiet_nan(isnan(x) ? x : y);
     } else if (isinf(x) || y == 0.0) {
 #if !defined(_WIN32) && !defined(__MINGW32__)
         feraiseexcept(FE_INVALID);
 #endif
-        ST0.d = NAN;
+        ST0.q = X87_REAL_INDEFINITE_DOUBLE;
     } else {
 #if defined(_WIN32) || defined(__MINGW32__)
         if(isinf(y))

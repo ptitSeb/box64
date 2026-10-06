@@ -450,9 +450,19 @@ uintptr_t dynarec64_D9(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             if(!BOX64ENV(dynarec_fastround))
                 u8 = x87_setround(dyn, ninst, x1, x2, x4);
             if(ST_IS_F(0)) {
+                FCMPS_0(v1);
                 FSQRTS(v1, v1);
+                v2 = fpu_get_scratch(dyn, ninst);
+                MOV32w(x3, X87_REAL_INDEFINITE_FLOAT);
+                FMOVSw(v2, x3);
+                FCSELS(v1, v2, v1, cMI); // MI: less than, not unordered
             } else {
+                FCMPD_0(v1);
                 FSQRTD(v1, v1);
+                v2 = fpu_get_scratch(dyn, ninst);
+                MOV64x(x3, X87_REAL_INDEFINITE_DOUBLE);
+                FMOVDx(v2, x3);
+                FCSELD(v1, v2, v1, cMI); // MI: less than, not unordered
             }
             X87_CHECK_PRECISION(v1);
             if(!BOX64ENV(dynarec_fastround))

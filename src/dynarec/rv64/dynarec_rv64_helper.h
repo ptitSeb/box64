@@ -912,6 +912,110 @@
     }
 #endif
 
+#ifndef X87_ARITH_NAN_FIX_S
+#define X87_ARITH_NAN_FIX_S(v1, va, vb, xs, xt, xq) \
+    FEQS(xs, v1, v1);                               \
+    BNEZ_MARK(xs);                                  \
+    FEQS(xs, va, va);                               \
+    BNE_MARK2(xs, xZR);                             \
+    FEQS(xt, vb, vb);                               \
+    FMVS(v1, va);                                   \
+    Bxx_gen(NE, MARKF, xt, xZR);                    \
+    FMVXW(xs, va);                                  \
+    SLLIW(xs, xs, 9);                               \
+    SRLIW(xs, xs, 9);                               \
+    BSETI(xs, xs, 22, xq);                          \
+    FMVXW(xt, vb);                                  \
+    SLLIW(xt, xt, 9);                               \
+    SRLIW(xt, xt, 9);                               \
+    BEQ_MARKLOCK(xs, xt);                           \
+    Bxx_gen(LTU, MARKLOCK2, xs, xt);                \
+    FMVS(v1, va);                                   \
+    Bxx_gen(__, MARKF, 0, 0);                       \
+    MARKLOCK2;                                      \
+    FMVS(v1, vb);                                   \
+    Bxx_gen(__, MARKF, 0, 0);                       \
+    MARKLOCK;                                       \
+    FMVXW(xs, va);                                  \
+    SRLIW(xs, xs, 31);                              \
+    BNEZ_MARKLOCK2(xs);                             \
+    FMVS(v1, va);                                   \
+    Bxx_gen(__, MARKF, 0, 0);                       \
+    MARK2;                                          \
+    FEQS(xt, vb, vb);                               \
+    BNE_MARK3(xt, xZR);                             \
+    FMVS(v1, vb);                                   \
+    Bxx_gen(__, MARKF, 0, 0);                       \
+    MARK3;                                          \
+    FNEGS(v1, v1);                                  \
+    Bxx_gen(__, MARK, 0, 0);                        \
+    MARKF;                                          \
+    FMVXW(xs, v1);                                  \
+    BSETI(xs, xs, 22, xq);                          \
+    FMVWX(v1, xs);                                  \
+    MARK
+#endif
+
+#ifndef X87_ARITH_NAN_FIX_D
+#define X87_ARITH_NAN_FIX_D(v1, va, vb, xs, xt, xq) \
+    FEQD(xs, v1, v1);                               \
+    BNEZ_MARK(xs);                                  \
+    FEQD(xs, va, va);                               \
+    BNE_MARK2(xs, xZR);                             \
+    FEQD(xt, vb, vb);                               \
+    FMVD(v1, va);                                   \
+    Bxx_gen(NE, MARKF, xt, xZR);                    \
+    FMVXD(xs, va);                                  \
+    SLLI(xs, xs, 12);                               \
+    BSETI(xs, xs, 63, xq);                          \
+    FMVXD(xt, vb);                                  \
+    SLLI(xt, xt, 12);                               \
+    BEQ_MARKLOCK(xs, xt);                           \
+    Bxx_gen(LTU, MARKLOCK2, xs, xt);                \
+    FMVD(v1, va);                                   \
+    Bxx_gen(__, MARKF, 0, 0);                       \
+    MARKLOCK2;                                      \
+    FMVD(v1, vb);                                   \
+    Bxx_gen(__, MARKF, 0, 0);                       \
+    MARKLOCK;                                       \
+    FMVXD(xs, va);                                  \
+    SRLI(xs, xs, 63);                               \
+    BNEZ_MARKLOCK2(xs);                             \
+    FMVD(v1, va);                                   \
+    Bxx_gen(__, MARKF, 0, 0);                       \
+    MARK2;                                          \
+    FEQD(xt, vb, vb);                               \
+    BNE_MARK3(xt, xZR);                             \
+    FMVD(v1, vb);                                   \
+    Bxx_gen(__, MARKF, 0, 0);                       \
+    MARK3;                                          \
+    FNEGD(v1, v1);                                  \
+    Bxx_gen(__, MARK, 0, 0);                        \
+    MARKF;                                          \
+    FMVXD(xs, v1);                                  \
+    BSETI(xs, xs, 51, xq);                          \
+    FMVDX(v1, xs);                                  \
+    MARK
+#endif
+
+#ifndef X87_FLOAT_TO_DOUBLE
+#define X87_FLOAT_TO_DOUBLE(d, sf, xs, xt, q)                  \
+    FEQS(xs, sf, sf);                                          \
+    Bxx_gen(NE, MARKSEG, xs, xZR);                             \
+    FMVXW(xs, sf);                                             \
+    SRLIW(xt, xs, 31);                                         \
+    SLLI(xt, xt, 63);                                          \
+    SLLI(xs, xs, 32);                                          \
+    SRLI(xs, xs, 32);                                          \
+    SLLI(xs, xs, 41);                                          \
+    SRLI(xs, xs, 12);                                          \
+    OR(xs, xs, xt);                                            \
+    MOV64x(xt, (q) ? 0x7FF8000000000000 : 0x7FF0000000000000); \
+    OR(xs, xs, xt);                                            \
+    FMVDX(d, xs);                                              \
+    MARKSEG
+#endif
+
 #define STORE_REG(A) SD(x##A, xEmu, offsetof(x64emu_t, regs[_##A]))
 #define LOAD_REG(A)  LD(x##A, xEmu, offsetof(x64emu_t, regs[_##A]))
 
