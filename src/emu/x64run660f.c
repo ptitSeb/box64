@@ -1257,7 +1257,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 GETEX(1);
                 GETGX;
                 tmp8u = F8;
-                tmp32u = sse42_compare_string_explicit_len(emu, EX, R_EDX, GX, R_EAX, tmp8u);
+                tmp32u = sse42_compare_string_explicit_len(emu, EX, R_RDX, GX, R_RAX, tmp8u, rex.w);
                 if(tmp8u&0b1000000) {
                     switch(tmp8u&1) {
                         case 0: for(int i=0; i<16; ++i) emu->xmm[0].ub[i] = ((tmp32u>>i)&1)?0xff:0x00; break;
@@ -1273,7 +1273,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 GETEX(1);
                 GETGX;
                 tmp8u = F8;
-                tmp32u = sse42_compare_string_explicit_len(emu, EX, R_EDX, GX, R_EAX, tmp8u);
+                tmp32u = sse42_compare_string_explicit_len(emu, EX, R_RDX, GX, R_RAX, tmp8u, rex.w);
                 if(!tmp32u)
                     R_RCX = (tmp8u&1)?8:16;
                 else if(tmp8u&0b1000000)
