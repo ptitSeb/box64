@@ -36,10 +36,13 @@ uintptr_t dynarec64_D9(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
     int64_t fixedaddress;
     int unscaled;
     int v0, v1, v2;
+    int q0, q1;
     int s0;
     int i1, i2, i3;
     int64_t j64;
 
+    MAYUSE(q0);
+    MAYUSE(q1);
     MAYUSE(s0);
     MAYUSE(v0);
     MAYUSE(v1);
@@ -351,7 +354,22 @@ uintptr_t dynarec64_D9(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 INST_NAME("FSQRT");
                 v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
                 if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x2);
-                if (ST_IS_F(0)) {
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    q0 = fpu_get_scratch(dyn);
+                    q1 = fpu_get_scratch(dyn);
+                    if (ST_IS_F(0)) {
+                        VFCMP_S(q0, v1, VZERO, cLT);
+                        FSQRT_S(v1, v1);
+                        MOV32w(x3, X87_REAL_INDEFINITE_FLOAT);
+                        MOVGR2FR_W(q1, x3);
+                    } else {
+                        VFCMP_D(q0, v1, VZERO, cLT);
+                        FSQRT_D(v1, v1);
+                        MOV64x(x3, X87_REAL_INDEFINITE_DOUBLE);
+                        MOVGR2FR_D(q1, x3);
+                    }
+                    VBITSEL_V(v1, v1, q1, q0);
+                } else if (ST_IS_F(0)) {
                     FSQRT_S(v1, v1);
                 } else {
                     FSQRT_D(v1, v1);

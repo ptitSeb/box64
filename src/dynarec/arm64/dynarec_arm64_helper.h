@@ -854,6 +854,34 @@
     }
 #endif
 
+#ifndef X87_ARITH_NAN_START_D
+#define X87_ARITH_NAN_START_D(va, vb, tmp) \
+    FMAXD(tmp, va, vb);                    \
+    FCMEQD(tmp, tmp, tmp)
+#endif
+
+#ifndef X87_ARITH_NAN_END_D
+#define X87_ARITH_NAN_END_D(vres, tmp, tmp2) \
+    FCMEQD(tmp2, vres, vres);                \
+    VBIC(tmp, tmp, tmp2);                    \
+    VSHLQ_64(tmp, tmp, 63);                  \
+    VORR(vres, vres, tmp)
+#endif
+
+#ifndef X87_ARITH_NAN_START_S
+#define X87_ARITH_NAN_START_S(va, vb, tmp) \
+    FMAXS(tmp, va, vb);                    \
+    FCMEQS(tmp, tmp, tmp)
+#endif
+
+#ifndef X87_ARITH_NAN_END_S
+#define X87_ARITH_NAN_END_S(vres, tmp, tmp2) \
+    FCMEQS(tmp2, vres, vres);                \
+    VBIC(tmp, tmp, tmp2);                    \
+    VSHL_32(tmp, tmp, 31);                   \
+    VORR(vres, vres, tmp)
+#endif
+
 #define STORE_REG(A)    STRx_U12(x##A, xEmu, offsetof(x64emu_t, regs[_##A]))
 #define STP_REGS(A, B)  STPx_S7_offset(x##A, x##B, xEmu, offsetof(x64emu_t, regs[_##A]))
 #define LDP_REGS(A, B)  LDPx_S7_offset(x##A, x##B, xEmu, offsetof(x64emu_t, regs[_##A]))

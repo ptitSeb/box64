@@ -1398,6 +1398,50 @@ static inline int comis_fuse_inverted(int condition)
     }
 #endif
 
+#ifndef X87_ARITH_NAN_FIX_D
+#define X87_ARITH_NAN_FIX_D(vres, va, vb) \
+    do {                                  \
+        int _t1 = fpu_get_scratch(dyn);   \
+        int _t2 = fpu_get_scratch(dyn);   \
+        int _t3 = fpu_get_scratch(dyn);   \
+        VFCMP_D(_t1, va, va, cUN);        \
+        VFCMP_D(_t2, vb, vb, cUN);        \
+        VSLT_D(_t3, va, VZERO);           \
+        VAND_V(_t3, _t3, _t2);            \
+        VBITSEL_V(va, va, vb, _t3);       \
+        VBITSEL_V(vb, vb, va, _t1);       \
+        VFCMP_D(_t3, vres, vres, cUN);    \
+        VOR_V(_t1, _t1, _t2);             \
+        VAND_V(_t3, _t3, _t1);            \
+        VBITSEL_V(vres, vres, vb, _t3);   \
+        VFCMP_D(_t3, vres, vres, cUN);    \
+        VANDN_V(_t2, _t1, _t3);           \
+        VSLLI_D(_t2, _t2, 63);            \
+        VOR_V(vres, vres, _t2);           \
+    } while (0)
+
+#define X87_ARITH_NAN_FIX_S(vres, va, vb) \
+    do {                                  \
+        int _t1 = fpu_get_scratch(dyn);   \
+        int _t2 = fpu_get_scratch(dyn);   \
+        int _t3 = fpu_get_scratch(dyn);   \
+        VFCMP_S(_t1, va, va, cUN);        \
+        VFCMP_S(_t2, vb, vb, cUN);        \
+        VSLT_W(_t3, va, VZERO);           \
+        VAND_V(_t3, _t3, _t2);            \
+        VBITSEL_V(va, va, vb, _t3);       \
+        VBITSEL_V(vb, vb, va, _t1);       \
+        VFCMP_S(_t3, vres, vres, cUN);    \
+        VOR_V(_t1, _t1, _t2);             \
+        VAND_V(_t3, _t3, _t1);            \
+        VBITSEL_V(vres, vres, vb, _t3);   \
+        VFCMP_S(_t3, vres, vres, cUN);    \
+        VANDN_V(_t2, _t1, _t3);           \
+        VSLLI_W(_t2, _t2, 31);            \
+        VOR_V(vres, vres, _t2);           \
+    } while (0)
+#endif
+
 #define STORE_REG(A) ST_D(x##A, xEmu, offsetof(x64emu_t, regs[_##A]))
 #define LOAD_REG(A)  LD_D(x##A, xEmu, offsetof(x64emu_t, regs[_##A]))
 

@@ -208,12 +208,12 @@ uintptr_t RunD9(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 double x = ST0.d, y = ST1.d;
                 int q = 0;
                 if (isnan(x) || isnan(y)) {
-                    ST0.d = NAN;
+                    ST0.d = fpu_quiet_nan(isnan(x) ? x : y);
                 } else if (isinf(x) || y == 0.0) {
 #if !defined(_WIN32) && !defined(__MINGW32__)
                     feraiseexcept(FE_INVALID);
 #endif
-                    ST0.d = NAN;
+                    ST0.q = X87_REAL_INDEFINITE_DOUBLE;
                 } else {
 #if defined(_WIN32) || defined(__MINGW32__)
                     q = (int)round(x / y);
@@ -250,13 +250,13 @@ uintptr_t RunD9(x64emu_t *emu, rex_t rex, uintptr_t addr)
                     double x = ST0.d, y = ST1.d;
                     int64_t q = 0;
                     if (isnan(x) || isnan(y)) {
-                        ST0.d = NAN;
+                        ST0.d = fpu_quiet_nan(isnan(x) ? x : y);
                         q = 0;
                     } else if (isinf(x) || y == 0.0) {
 #if !defined(_WIN32) && !defined(__MINGW32__)
                         feraiseexcept(FE_INVALID);
 #endif
-                        ST0.d = NAN;
+                        ST0.q = X87_REAL_INDEFINITE_DOUBLE;
                         q = 0;
                     } else {
 #if defined(_WIN32) || defined(__MINGW32__)
@@ -284,8 +284,13 @@ uintptr_t RunD9(x64emu_t *emu, rex_t rex, uintptr_t addr)
             break;
         case 0xFA:  /* FSQRT */
             oldround = fpu_setround(emu);
-            ST0.d = sqrt(ST0.d);
-            if(!emu->cw.f.C87_PC) ST0.d = (float)ST0.d;
+            if (isnan(ST0.d))
+                ST0.d = fpu_quiet_nan(ST0.d);
+            else if(ST0.d < 0.0)
+                ST0.q = X87_REAL_INDEFINITE_DOUBLE;
+            else
+                ST0.d = sqrt(ST0.d);
+            if(!emu->cw.f.C87_PC) ST0.d = fpu_narrow(ST0.d);
             fesetround(oldround);
             break;
         case 0xFB:  /* FSINCOS */
@@ -299,18 +304,9 @@ uintptr_t RunD9(x64emu_t *emu, rex_t rex, uintptr_t addr)
             ST0.d = fpu_round(emu, ST0.d);
             break;
         case 0xFD:  /* FSCALE */
-            // this could probably be done by just altering the exponant part of the float...
-            if (ST1.d > INT32_MAX)
-                tmp32s = INT32_MAX;
-            else if (ST1.d < INT32_MIN)
-                tmp32s = INT32_MIN;
-            else
-                tmp32s = ST1.d;
-            if(ST0.d!=0.0) {
-                oldround = fpu_setround(emu);
-                ST0.d = ldexp(ST0.d, tmp32s);
-                fesetround(oldround);
-            }
+            oldround = fpu_setround(emu);
+            ST0.d = fpu_fscale(ST0.d, ST1.d);
+            fesetround(oldround);
             break;
         case 0xFE:  /* FSIN */
             oldround = fpu_setround(emu);
@@ -333,18 +329,18 @@ uintptr_t RunD9(x64emu_t *emu, rex_t rex, uintptr_t addr)
             case 0:     /* FLD ST0, Ed float */
                 GETE4(0);
                 fpu_do_push(emu);
-                ST0.d = *(float*)ED;
+                ST0.d = fpu_quiet_nan(fpu_from_float(*(float*)ED));
                 break;
             case 2:     /* FST Ed, ST0 */
                 GETE4(0);
                 oldround = fpu_setround(emu);
-                *(float*)ED = ST0.d;
+                *(float*)ED = fpu_to_float(ST0.d);
                 fesetround(oldround);
                 break;
             case 3:     /* FSTP Ed, ST0 */
                 GETE4(0);
                 oldround = fpu_setround(emu);
-                *(float*)ED = ST0.d;
+                *(float*)ED = fpu_to_float(ST0.d);
                 fesetround(oldround);
                 fpu_do_pop(emu);
                 break;

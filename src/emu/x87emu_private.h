@@ -18,6 +18,122 @@ typedef struct x64emu_s x64emu_t;
 
 #define TAGS_EMPTY 0b1111111111111111
 
+#define X87_REAL_INDEFINITE_DOUBLE UINT64_C(0xFFF8000000000000)
+#define X87_REAL_INDEFINITE_FLOAT  0xFFC00000U
+
+static inline double fpu_quiet_nan(double d)
+{
+    union {
+        double d;
+        uint64_t q;
+    } u;
+    u.d = d;
+    if ((u.q & 0x7FF8000000000000ULL) == 0x7FF0000000000000ULL && (u.q & 0x000FFFFFFFFFFFFFULL))
+        u.q |= 0x0008000000000000ULL;
+    return u.d;
+}
+
+static inline double fpu_check_invalid(double res, double a, double b)
+{
+    union {
+        double d;
+        uint64_t q;
+    } ua, ub, u;
+    if (isnan(res)) {
+        if (isnan(a) && isnan(b)) {
+            ua.d = fpu_quiet_nan(a);
+            ub.d = b;
+            uint64_t fa = ua.q & 0x000FFFFFFFFFFFFFULL;
+            uint64_t fb = ub.q & 0x000FFFFFFFFFFFFFULL;
+            if (fa != fb)
+                return fa > fb ? ua.d : fpu_quiet_nan(ub.d);
+            return (ua.q & 0x8000000000000000ULL) ? fpu_quiet_nan(ub.d) : ua.d;
+        }
+        if (isnan(a)) return fpu_quiet_nan(a);
+        if (isnan(b)) return fpu_quiet_nan(b);
+        u.q = X87_REAL_INDEFINITE_DOUBLE;
+        return u.d;
+    }
+    return res;
+}
+
+static inline double fpu_narrow(double d)
+{
+    union {
+        double d;
+        uint64_t q;
+    } u;
+    if (isnan(d)) {
+        u.d = d;
+        u.q = (u.q & 0xFFFFFFFFE0000000ULL) | 0x0008000000000000ULL;
+        return u.d;
+    }
+    return (float)d;
+}
+
+static inline float fpu_to_float(double d)
+{
+    union {
+        float f;
+        uint32_t u;
+    } vf;
+    union {
+        double d;
+        uint64_t q;
+    } vd;
+    if (isnan(d)) {
+        vd.d = d;
+        vf.u = 0x7FC00000U | (uint32_t)((vd.q >> 29) & 0x007FFFFFU) | ((uint32_t)(vd.q >> 32) & 0x80000000U);
+        return vf.f;
+    }
+    return (float)d;
+}
+
+static inline double fpu_from_float(float f)
+{
+    union {
+        float f;
+        uint32_t u;
+    } vf;
+    union {
+        double d;
+        uint64_t q;
+    } vd;
+    if (isnan(f)) {
+        vf.f = f;
+        vd.q = 0x7FF0000000000000ULL | ((uint64_t)(vf.u & 0x007FFFFFU) << 29) | ((uint64_t)(vf.u & 0x80000000U) << 32);
+        return vd.d;
+    }
+    return f;
+}
+
+static inline double fpu_fscale(double a, double b)
+{
+    union {
+        double d;
+        uint64_t q;
+    } u;
+    if (isnan(a) || isnan(b))
+        return fpu_quiet_nan(isnan(a) ? a : b);
+    if (isinf(b)) {
+        if (b > 0) {
+            if (a == 0.0) {
+                u.q = X87_REAL_INDEFINITE_DOUBLE;
+                return u.d;
+            }
+            return copysign(INFINITY, a);
+        }
+        if (isinf(a)) {
+            u.q = X87_REAL_INDEFINITE_DOUBLE;
+            return u.d;
+        }
+        return copysign(0.0, a);
+    }
+    if (a == 0.0 || isinf(a))
+        return a;
+    return ldexp(a, (int)(b > INT32_MAX ? INT32_MAX : (b < INT32_MIN ? INT32_MIN : b)));
+}
+
 #define ST0 emu->x87[emu->top]
 #define ST1 emu->x87[(emu->top+1)&7]
 #define ST(a) emu->x87[(emu->top+(a))&7]
