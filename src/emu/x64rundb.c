@@ -32,6 +32,7 @@ uintptr_t RunDB(x64emu_t *emu, rex_t rex, uintptr_t addr)
 {
     uint8_t nextop;
     int32_t tmp32s;
+    double tmpd;
     reg64_t *oped;
     #ifdef TEST_INTERPRETER
     x64emu_t*emu = test->emu;
@@ -148,30 +149,33 @@ uintptr_t RunDB(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 break;
             case 1: /* FISTTP Ed, ST0 */
                 GETE4(0);
-                if(isgreater(ST0.d, (double)0x7fffffff) || isless(ST0.d, -(double)0x80000000U) || !isfinite(ST0.d)) {
+                tmpd = trunc(ST0.d);
+                if(tmpd > (double)0x7fffffff || tmpd < -(double)0x80000000U || !isfinite(tmpd)) {
                     fpu_raise_invalid(emu);
                     ED->sdword[0] = 0x80000000;
                 } else
-                    ED->sdword[0] = ST0.d;
+                    ED->sdword[0] = tmpd;
                 fpu_do_pop(emu);
                 break;
             case 2: /* FIST Ed, ST0 */
                 GETE4(0);
-                if(isgreater(ST0.d, (double)0x7fffffff) || isless(ST0.d, -(double)0x80000000U) || !isfinite(ST0.d)) {
+                tmpd = fpu_round(emu, ST0.d);
+                if(tmpd > (double)0x7fffffff || tmpd < -(double)0x80000000U || !isfinite(tmpd)) {
                     fpu_raise_invalid(emu);
                     ED->sdword[0] = 0x80000000;
                 } else {
-                    volatile int32_t tmp = fpu_round(emu, ST0.d);    // tmp to avoid BUS ERROR
+                    volatile int32_t tmp = (int32_t)tmpd;    // tmp to avoid BUS ERROR
                     ED->sdword[0] = tmp;
                 }
                 break;
             case 3: /* FISTP Ed, ST0 */
                 GETE4(0);
-                if(isgreater(ST0.d, (double)0x7fffffff) || isless(ST0.d, -(double)0x80000000U) || !isfinite(ST0.d)) {
+                tmpd = fpu_round(emu, ST0.d);
+                if(tmpd > (double)0x7fffffff || tmpd < -(double)0x80000000U || !isfinite(tmpd)) {
                     fpu_raise_invalid(emu);
                     ED->sdword[0] = 0x80000000;
                 } else {
-                    volatile int32_t tmp = fpu_round(emu, ST0.d);    // tmp to avoid BUS ERROR
+                    volatile int32_t tmp = (int32_t)tmpd;    // tmp to avoid BUS ERROR
                     ED->sdword[0] = tmp;
                 }
                 fpu_do_pop(emu);
