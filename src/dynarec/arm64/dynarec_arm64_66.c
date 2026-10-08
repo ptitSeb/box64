@@ -950,6 +950,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 CBNZx_MARK2(xRCX);
                 MARK3;  // end
                 emit_cmp16(dyn, ninst, x1, x2, x3, x4, x5);
+                STOP_NATIVE_FLAGS(dyn, ninst);
                 break;
             default:
                 INST_NAME("CMPSW");
@@ -1070,6 +1071,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 CBNZx_MARK2(xRCX);
                 MARK3;  // end
                 emit_cmp16(dyn, ninst, x1, x2, x3, x4, x5);
+                STOP_NATIVE_FLAGS(dyn, ninst);
                 break;
             default:
                 INST_NAME("SCASW");

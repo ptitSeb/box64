@@ -2162,6 +2162,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 CBNZx_MARK2(xRCX);
                 MARK3;  // end
                 emit_cmp8(dyn, ninst, x1, x2, x3, x4, x5);
+                STOP_NATIVE_FLAGS(dyn, ninst);
                 break;
             default:
                 INST_NAME("CMPSB");
@@ -2214,6 +2215,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 CBNZx_MARK2(xRCX);
                 MARK3;  // end
                 emit_cmp32(dyn, ninst, rex, x1, x2, x3, x4, x5);
+                STOP_NATIVE_FLAGS(dyn, ninst);
                 break;
             default:
                 INST_NAME("CMPSD");
@@ -2412,6 +2414,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 CBNZx_MARK2(xRCX);
                 MARK3;  // end
                 emit_cmp8(dyn, ninst, x1, x2, x3, x4, x5);
+                STOP_NATIVE_FLAGS(dyn, ninst);
                 break;
             default:
                 INST_NAME("SCASB");
@@ -2458,6 +2461,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 CBNZx_MARK2(xRCX);
                 MARK3;  // end
                 emit_cmp32(dyn, ninst, rex, xRAX, x2, x3, x4, x5);
+                STOP_NATIVE_FLAGS(dyn, ninst);
                 break;
             default:
                 INST_NAME("SCASD");
