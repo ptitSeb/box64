@@ -31,6 +31,7 @@ typedef struct arch_arch_s
     uint8_t mmx;            // MMX registers cached in a vector register
     uint32_t x87_pos;       // vector register of each stack register, 3 bits each
     uint16_t x87_type;      // type of each cached x87 value, 2 bits each
+    int8_t x87delta;        // pending x87 stack count at this instruction
 } arch_arch_t;
 
 typedef struct arch_build_s
@@ -48,6 +49,7 @@ typedef struct arch_build_s
     uint8_t mmx;
     uint32_t x87_pos;
     uint16_t x87_type;
+    int8_t x87delta;
 } arch_build_t;
 
 static int arch_build(dynarec_la64_t* dyn, int ninst, arch_build_t* arch)
@@ -61,6 +63,7 @@ static int arch_build(dynarec_la64_t* dyn, int ninst, arch_build_t* arch)
     arch->up32 = dyn->insts[ninst].up32_pending;
     arch->ymm_zero = dyn->insts[ninst].vector_liveness.ymm_pending;
     arch->rsp = dyn->insts[ninst].rsp_entry;
+    arch->x87delta = dyn->insts[ninst].lsx.x87stack;
     for (int i = 0; i < 16; ++i) {
         if (dyn->insts[ninst].lsx.ssecache[i].v != -1) arch->xmm |= (uint16_t)(1 << i);
         if (dyn->insts[ninst].lsx.avxcache[i].v != -1) arch->ymm |= (uint16_t)(1 << i);
@@ -88,7 +91,7 @@ static int arch_build(dynarec_la64_t* dyn, int ninst, arch_build_t* arch)
     }
     arch->vec = (arch->xmm || arch->ymm || arch->x87 || arch->mmx);
     return arch->unaligned || arch->host_call || arch->vec || arch->up32 || arch->ymm_zero ||
-           arch->rsp;
+           arch->rsp || arch->x87delta;
 }
 
 size_t get_size_arch(dynarec_la64_t* dyn)
@@ -133,6 +136,7 @@ static void build_next(arch_arch_t* arch, arch_build_t* build)
     arch->mmx = build->mmx;
     arch->x87_pos = build->x87_pos;
     arch->x87_type = build->x87_type;
+    arch->x87delta = build->x87delta;
 }
 
 void* populate_arch(dynarec_la64_t* dyn, void* p, size_t sz)
@@ -230,6 +234,10 @@ void adjust_arch(dynablock_t* db, x64emu_t* emu, ucontext_t* p, uintptr_t x64pc)
         emu->ymm[r].u128 = 0;
     }
     if (arch->rsp && !arch->host_call) emu->regs[_SP].q[0] += arch->rsp;
+    if (arch->x87delta) {
+        emu->fpu_stack += arch->x87delta;
+        emu->top = (emu->top - arch->x87delta) & 7;
+    }
     if (arch->vec && !arch->host_call) {
         struct sctx_info* info = (struct sctx_info*)p->uc_mcontext.__extcontext;
         uint64_t* vec = NULL;
