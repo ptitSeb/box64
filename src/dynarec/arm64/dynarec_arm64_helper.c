@@ -2265,9 +2265,9 @@ static void fpuCacheTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2, int
             }
         }
     }
-    if(stack_cnt != cache_i2.stack) {
-        MESSAGE(LOG_DUMP, "\t    - adjust stack count %d -> %d -\n", stack_cnt, cache_i2.stack);
-        int a = stack_cnt - cache_i2.stack;
+    if(stack_cnt != cache_i2.stack || dyn->n.x87stack != cache_i2.x87stack) {
+        MESSAGE(LOG_DUMP, "\t    - adjust stack count %d -> %d / pending %d -> %d -\n", stack_cnt, cache_i2.stack, dyn->n.x87stack, cache_i2.x87stack);
+        int a = stack_cnt - cache_i2.stack + dyn->n.x87stack - cache_i2.x87stack;
         // Add x87stack to emu fpu_stack
         LDRw_U12(s3, xEmu, offsetof(x64emu_t, fpu_stack));
         if(a>0) {
