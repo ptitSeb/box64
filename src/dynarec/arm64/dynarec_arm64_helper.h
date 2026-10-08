@@ -861,11 +861,22 @@
 #endif
 
 #ifndef X87_ARITH_NAN_END_D
-#define X87_ARITH_NAN_END_D(vres, tmp, tmp2) \
+#define X87_ARITH_NAN_END_D(vres, vb, tmp, tmp2) \
     FCMEQD(tmp2, vres, vres);                \
-    VBIC(tmp, tmp, tmp2);                    \
-    VSHLQ_64(tmp, tmp, 63);                  \
-    VORR(vres, vres, tmp)
+    VBIC(tmp2, tmp, tmp2);                   \
+    VSHLQ_64(tmp2, tmp2, 63);                \
+    VORR(vres, vres, tmp2);                  \
+    VSSHRQ_64(tmp2, vres, 63);               \
+    FCMEQD(tmp, vres, vres);                 \
+    VMVNQ(tmp, tmp);                         \
+    VANDQ(tmp, tmp, tmp2);                   \
+    VSSHRQ_64(tmp2, vb, 63);                 \
+    VMVNQ(tmp2, tmp2);                       \
+    VANDQ(tmp, tmp, tmp2);                   \
+    FCMEQD(tmp2, vb, vb);                    \
+    VMVNQ(tmp2, tmp2);                       \
+    VANDQ(tmp, tmp, tmp2);                   \
+    VBIT(vres, vb, tmp)
 #endif
 
 #ifndef X87_ARITH_NAN_START_S
@@ -875,11 +886,22 @@
 #endif
 
 #ifndef X87_ARITH_NAN_END_S
-#define X87_ARITH_NAN_END_S(vres, tmp, tmp2) \
+#define X87_ARITH_NAN_END_S(vres, vb, tmp, tmp2) \
     FCMEQS(tmp2, vres, vres);                \
-    VBIC(tmp, tmp, tmp2);                    \
-    VSHL_32(tmp, tmp, 31);                   \
-    VORR(vres, vres, tmp)
+    VBIC(tmp2, tmp, tmp2);                   \
+    VSHL_32(tmp2, tmp2, 31);                 \
+    VORR(vres, vres, tmp2);                  \
+    VSSHR_32(tmp2, vres, 31);                \
+    FCMEQS(tmp, vres, vres);                 \
+    VMVNQ(tmp, tmp);                         \
+    VANDQ(tmp, tmp, tmp2);                   \
+    VSSHR_32(tmp2, vb, 31);                  \
+    VMVNQ(tmp2, tmp2);                       \
+    VANDQ(tmp, tmp, tmp2);                   \
+    FCMEQS(tmp2, vb, vb);                    \
+    VMVNQ(tmp2, tmp2);                       \
+    VANDQ(tmp, tmp, tmp2);                   \
+    VBIT(vres, vb, tmp)
 #endif
 
 #define STORE_REG(A)    STRx_U12(x##A, xEmu, offsetof(x64emu_t, regs[_##A]))

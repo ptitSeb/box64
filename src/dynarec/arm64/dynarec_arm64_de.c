@@ -59,7 +59,7 @@ uintptr_t dynarec64_DE(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 }
                 FADDS(v1, v1, v2);
                 if(!BOX64ENV(dynarec_fastnan)) {
-                    X87_ARITH_NAN_END_S(v1, s5, s6);
+                    X87_ARITH_NAN_END_S(v1, v2, s5, s6);
                 }
             } else {
                 if(!BOX64ENV(dynarec_fastnan)) {
@@ -69,7 +69,7 @@ uintptr_t dynarec64_DE(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 }
                 FADDD(v1, v1, v2);
                 if(!BOX64ENV(dynarec_fastnan)) {
-                    X87_ARITH_NAN_END_D(v1, s5, s6);
+                    X87_ARITH_NAN_END_D(v1, v2, s5, s6);
                 }
             }
             X87_CHECK_PRECISION(v1);
@@ -98,7 +98,7 @@ uintptr_t dynarec64_DE(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 }
                 FMULS(v1, v1, v2);
                 if(!BOX64ENV(dynarec_fastnan)) {
-                    X87_ARITH_NAN_END_S(v1, s5, s6);
+                    X87_ARITH_NAN_END_S(v1, v2, s5, s6);
                 }
             } else {
                 if(!BOX64ENV(dynarec_fastnan)) {
@@ -108,7 +108,7 @@ uintptr_t dynarec64_DE(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 }
                 FMULD(v1, v1, v2);
                 if(!BOX64ENV(dynarec_fastnan)) {
-                    X87_ARITH_NAN_END_D(v1, s5, s6);
+                    X87_ARITH_NAN_END_D(v1, v2, s5, s6);
                 }
             }
             X87_CHECK_PRECISION(v1);
@@ -169,7 +169,7 @@ uintptr_t dynarec64_DE(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 }
                 FSUBS(v1, v2, v1);
                 if(!BOX64ENV(dynarec_fastnan)) {
-                    X87_ARITH_NAN_END_S(v1, s5, s6);
+                    X87_ARITH_NAN_END_S(v1, v2, s5, s6);
                 }
             } else {
                 if(!BOX64ENV(dynarec_fastnan)) {
@@ -179,7 +179,7 @@ uintptr_t dynarec64_DE(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 }
                 FSUBD(v1, v2, v1);
                 if(!BOX64ENV(dynarec_fastnan)) {
-                    X87_ARITH_NAN_END_D(v1, s5, s6);
+                    X87_ARITH_NAN_END_D(v1, v2, s5, s6);
                 }
             }
             X87_CHECK_PRECISION(v1);
@@ -208,7 +208,7 @@ uintptr_t dynarec64_DE(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 }
                 FSUBS(v1, v1, v2);
                 if(!BOX64ENV(dynarec_fastnan)) {
-                    X87_ARITH_NAN_END_S(v1, s5, s6);
+                    X87_ARITH_NAN_END_S(v1, v2, s5, s6);
                 }
             } else {
                 if(!BOX64ENV(dynarec_fastnan)) {
@@ -218,7 +218,7 @@ uintptr_t dynarec64_DE(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 }
                 FSUBD(v1, v1, v2);
                 if(!BOX64ENV(dynarec_fastnan)) {
-                    X87_ARITH_NAN_END_D(v1, s5, s6);
+                    X87_ARITH_NAN_END_D(v1, v2, s5, s6);
                 }
             }
             X87_CHECK_PRECISION(v1);
@@ -247,7 +247,7 @@ uintptr_t dynarec64_DE(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 }
                 FDIVS(v1, v2, v1);
                 if(!BOX64ENV(dynarec_fastnan)) {
-                    X87_ARITH_NAN_END_S(v1, s5, s6);
+                    X87_ARITH_NAN_END_S(v1, v2, s5, s6);
                 }
             } else {
                 if(!BOX64ENV(dynarec_fastnan)) {
@@ -257,7 +257,7 @@ uintptr_t dynarec64_DE(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 }
                 FDIVD(v1, v2, v1);
                 if(!BOX64ENV(dynarec_fastnan)) {
-                    X87_ARITH_NAN_END_D(v1, s5, s6);
+                    X87_ARITH_NAN_END_D(v1, v2, s5, s6);
                 }
             }
             X87_CHECK_PRECISION(v1);
@@ -286,7 +286,7 @@ uintptr_t dynarec64_DE(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 }
                 FDIVS(v1, v1, v2);
                 if(!BOX64ENV(dynarec_fastnan)) {
-                    X87_ARITH_NAN_END_S(v1, s5, s6);
+                    X87_ARITH_NAN_END_S(v1, v2, s5, s6);
                 }
             } else {
                 if(!BOX64ENV(dynarec_fastnan)) {
@@ -296,7 +296,7 @@ uintptr_t dynarec64_DE(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 }
                 FDIVD(v1, v1, v2);
                 if(!BOX64ENV(dynarec_fastnan)) {
-                    X87_ARITH_NAN_END_D(v1, s5, s6);
+                    X87_ARITH_NAN_END_D(v1, v2, s5, s6);
                 }
             }
             X87_CHECK_PRECISION(v1);
@@ -327,7 +327,7 @@ uintptr_t dynarec64_DE(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 }
                 FADDD(v1, v1, v2);
                 if(!BOX64ENV(dynarec_fastnan)) {
-                    X87_ARITH_NAN_END_D(v1, s5, s6);
+                    X87_ARITH_NAN_END_D(v1, v2, s5, s6);
                 }
                 X87_CHECK_PRECISION(v1);
                 if(!BOX64ENV(dynarec_fastround))
@@ -351,7 +351,7 @@ uintptr_t dynarec64_DE(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 }
                 FMULD(v1, v1, v2);
                 if(!BOX64ENV(dynarec_fastnan)) {
-                    X87_ARITH_NAN_END_D(v1, s5, s6);
+                    X87_ARITH_NAN_END_D(v1, v2, s5, s6);
                 }
                 X87_CHECK_PRECISION(v1);
                 if(!BOX64ENV(dynarec_fastround))
@@ -400,7 +400,7 @@ uintptr_t dynarec64_DE(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 }
                 FSUBD(v1, v1, v2);
                 if(!BOX64ENV(dynarec_fastnan)) {
-                    X87_ARITH_NAN_END_D(v1, s5, s6);
+                    X87_ARITH_NAN_END_D(v1, v2, s5, s6);
                 }
                 X87_CHECK_PRECISION(v1);
                 if(!BOX64ENV(dynarec_fastround))
@@ -424,7 +424,7 @@ uintptr_t dynarec64_DE(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 }
                 FSUBD(v1, v2, v1);
                 if(!BOX64ENV(dynarec_fastnan)) {
-                    X87_ARITH_NAN_END_D(v1, s5, s6);
+                    X87_ARITH_NAN_END_D(v1, v2, s5, s6);
                 }
                 X87_CHECK_PRECISION(v1);
                 if(!BOX64ENV(dynarec_fastround))
@@ -448,7 +448,7 @@ uintptr_t dynarec64_DE(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 }
                 FDIVD(v1, v1, v2);
                 if(!BOX64ENV(dynarec_fastnan)) {
-                    X87_ARITH_NAN_END_D(v1, s5, s6);
+                    X87_ARITH_NAN_END_D(v1, v2, s5, s6);
                 }
                 X87_CHECK_PRECISION(v1);
                 if(!BOX64ENV(dynarec_fastround))
@@ -472,7 +472,7 @@ uintptr_t dynarec64_DE(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 }
                 FDIVD(v1, v2, v1);
                 if(!BOX64ENV(dynarec_fastnan)) {
-                    X87_ARITH_NAN_END_D(v1, s5, s6);
+                    X87_ARITH_NAN_END_D(v1, v2, s5, s6);
                 }
                 X87_CHECK_PRECISION(v1);
                 if(!BOX64ENV(dynarec_fastround))
