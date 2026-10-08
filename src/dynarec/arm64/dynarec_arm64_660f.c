@@ -951,9 +951,13 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                             }
                         }
                     } else {
-                        MRS_nzcv(x3);
-                        BFIx(x3, xFlags, 29, 1); // set C
-                        MSR_nzcv(x3);      // load CC into ARM CF
+                        if(cpuext.flagm)
+                            RMIF(xFlags, 63, 0b0010);
+                        else {
+                            MRS_nzcv(x3);
+                            BFIx(x3, xFlags, 29, 1); // set C
+                            MSR_nzcv(x3);      // load CC into ARM CF
+                        }
                     }
                     IFX(X_CF) {
                         ADCSxw_REG(gd, gd, ed);
