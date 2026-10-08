@@ -2861,7 +2861,7 @@ GO(PEM_write_bio_X509_REQ, iFpp)
 //GO(PKCS12_BAGS_new, 
 //GO(PKCS12_certbag2x509, 
 //GO(PKCS12_certbag2x509crl, 
-GO(PKCS12_create, pFppppp)
+GO(PKCS12_create, pFpppppiiiii)
 //GO(PKCS12_decrypt_skey, 
 GO(PKCS12_free, vFp)
 //GO(PKCS12_gen_mac, 
