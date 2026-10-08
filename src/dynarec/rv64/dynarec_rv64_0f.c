@@ -267,14 +267,18 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             break;
         case 0x13:
-            INST_NAME("MOVLPS Ex,Gx");
             nextop = F8;
-            GETGX();
-            GETEX(x2, 0, 1);
-            LD(x3, gback, gdoffset + 0);
-            SD(x3, wback, fixedaddress + 0);
-            if (!MODREG)
+            if (MODREG) {
+                INST_NAME("Illegal 0F 13");
+                UDF();
+            } else {
+                INST_NAME("MOVLPS Ex,Gx");
+                GETGX();
+                GETEX(x2, 0, 1);
+                LD(x3, gback, gdoffset + 0);
+                SD(x3, wback, fixedaddress + 0);
                 SMWRITE2();
+            }
             break;
         case 0x14:
             INST_NAME("UNPCKLPS Gx,Ex");
@@ -315,14 +319,18 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             SD(x4, gback, gdoffset + 8);
             break;
         case 0x17:
-            INST_NAME("MOVHPS Ex,Gx");
             nextop = F8;
-            GETGX();
-            GETEX(x2, 0, 1);
-            LD(x4, gback, gdoffset + 8);
-            SD(x4, wback, fixedaddress + 0);
-            if (!MODREG)
+            if (MODREG) {
+                INST_NAME("Illegal 0F 17");
+                UDF();
+            } else {
+                INST_NAME("MOVHPS Ex,Gx");
+                GETGX();
+                GETEX(x2, 0, 1);
+                LD(x4, gback, gdoffset + 8);
+                SD(x4, wback, fixedaddress + 0);
                 SMWRITE2();
+            }
             break;
         case 0x18:
             nextop = F8;

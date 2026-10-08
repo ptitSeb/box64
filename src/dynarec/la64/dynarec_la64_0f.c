@@ -300,12 +300,12 @@ uintptr_t dynarec64_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             break;
         case 0x17:
             nextop = F8;
-            INST_NAME("MOVHPS Ex,Gx");
-            GETGX(v0, 0);
             if (MODREG) {
-                v1 = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 1);
-                VEXTRINS_D(v1, v0, 0x01);
+                INST_NAME("Illegal 0F 17");
+                UDF();
             } else {
+                INST_NAME("MOVHPS Ex,Gx");
+                GETGX(v0, 0);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 0);
                 VSTELM_D(v0, ed, 0, 1);
                 SMWRITE2();

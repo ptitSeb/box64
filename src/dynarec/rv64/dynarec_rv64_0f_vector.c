@@ -121,15 +121,15 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             }
             break;
         case 0x13:
-            INST_NAME("MOVLPS Ex, Gx");
             nextop = F8;
-            GETG;
-            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
-            v0 = sse_get_reg_vector(dyn, ninst, x1, gd, 0, VECTOR_SEW64);
             if (MODREG) {
-                DEFAULT;
-                return addr;
+                INST_NAME("Illegal 0F 13");
+                UDF();
             } else {
+                INST_NAME("MOVLPS Ex, Gx");
+                GETG;
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+                v0 = sse_get_reg_vector(dyn, ninst, x1, gd, 0, VECTOR_SEW64);
                 VMV_X_S(x4, v0);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 1, 0);
                 SD(x4, ed, fixedaddress);
@@ -210,23 +210,15 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             }
             break;
         case 0x17:
-            INST_NAME("MOVHPS Ex, Gx");
             nextop = F8;
-            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
-            GETGX_vector(v0, 0, VECTOR_SEW64);
-            // EX->q[0] = GX->q[1];
             if (MODREG) {
-                v1 = sse_get_reg_vector(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 1, VECTOR_SEW64);
-                q0 = fpu_get_scratch(dyn);
-                VSLIDE1DOWN_VX(q0, v0, xZR, VECTOR_UNMASKED);
-                if (cpuext.xtheadvector) {
-                    VECTOR_LOAD_VMASK(0b01, x4, 1);
-                    VMERGE_VVM(v1, v1, q0); // implies VMASK
-                } else {
-                    VMV_X_S(x4, q0);
-                    VMV_S_X(v1, x4);
-                }
+                INST_NAME("Illegal 0F 17");
+                UDF();
             } else {
+                INST_NAME("MOVHPS Ex, Gx");
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+                GETGX_vector(v0, 0, VECTOR_SEW64);
+                // EX->q[0] = GX->q[1];
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
                 q0 = fpu_get_scratch(dyn);
                 VSLIDE1DOWN_VX(q0, v0, xZR, VECTOR_UNMASKED);
