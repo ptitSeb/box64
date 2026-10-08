@@ -947,8 +947,6 @@ x64emurun:
             if(is32bits) {
                 uint32_t new_addr = (rex.is32bits && rex.is66)?(F16):(F32);
                 uint16_t new_cs = F16;
-                Push32(emu, emu->segs[_CS]);
-                Push32(emu, addr);
                 #ifndef TEST_INTERPRETER
                 if((new_cs&3)!=3) {
                     // R_RIP doesn't advance
@@ -957,6 +955,8 @@ x64emurun:
                     EmitSignal(emu, X64_SIGSEGV, (void*)R_RIP, 0xbad0); // GP if trying to change priv level
                     goto fini;
                 }
+                Push32(emu, emu->segs[_CS]);
+                Push32(emu, addr);
                 emu->segs[_CS] = new_cs;
                 addr = new_addr;
                 if(is32bits!=(emu->segs[_CS]==0x23)) {
@@ -1665,32 +1665,44 @@ x64emurun:
             tmp16u = F16;
             if(rex.is32bits || !rex.w) {
                 addr = Pop32(emu);
-                emu->segs[_CS] = Pop32(emu);    // no check, no use....
+                tmp16u = Pop32(emu);    // no check, no use....
             } else {
                 addr = Pop64(emu);
-                emu->segs[_CS] = Pop64(emu);    // no check, no use....
+                tmp16u = Pop64(emu);    // no check, no use....
             }
             R_RSP += tmp16u;
-            is32bits = (R_CS==0x23);    // checking if CS changed
+            is32bits = (tmp16u==0x23);    // checking if CS changed
             #ifndef TEST_INTERPRETER
             if(is32bits)
                 running32bits = 1;
             #endif
+            if((tmp16u&3)!=3) {
+                R_RSP-=(rex.w?4:8)*2;
+                EmitSignal(emu, X64_SIGSEGV, (void*)R_RIP, 0xbad0); // GP if trying to change priv level
+                goto fini;
+            } else
+                emu->segs[_CS] = tmp16u;
             STEP2;
             break;
         case 0xCB:                      /* FAR RET */
             if(rex.is32bits || !rex.w) {
                 addr = Pop32(emu);
-                emu->segs[_CS] = Pop32(emu);    // no check....
+                tmp16u = Pop32(emu);    // no check....
             } else {
                 addr = Pop64(emu);
-                emu->segs[_CS] = Pop64(emu);    // no check....
+                tmp16u = Pop64(emu);    // no check....
             }
-            is32bits = (R_CS==0x23);    // checking if CS changed
+            is32bits = (tmp16u==0x23);    // checking if CS changed
             #ifndef TEST_INTERPRETER
             if(is32bits)
                 running32bits = 1;
             #endif
+            if((tmp16u&3)!=3) {
+                R_RSP-=(rex.w?4:8)*2;
+                EmitSignal(emu, X64_SIGSEGV, (void*)R_RIP, 0xbad0); // GP if trying to change priv level
+                goto fini;
+            } else
+                emu->segs[_CS] = tmp16u;
             STEP2;
             break;
         case 0xCC:                      /* INT 3 */
@@ -2408,6 +2420,18 @@ x64emurun:
                         EmitSignal(emu, X64_SIGILL, (void*)R_RIP, 0);
                         goto fini;
                     } else {
+                        tmp8u = 0;
+                        if(rex.is32bits || !rex.w) {
+                            if((ED->word[2]&3)!=3)
+                                tmp8u = 1;
+                        } else {
+                            if(((ED+1)->word[0]&3)!=3)
+                                tmp8u = 2;
+                        }
+                        if(tmp8u) {
+                            EmitSignal(emu, X64_SIGSEGV, (void*)R_RIP, 0xbad0); // GP if trying to change priv level
+                            goto fini;
+                        }
                         if(rex.is32bits || !rex.w) {
                             Push32(emu, R_CS);
                             Push32(emu, addr);
