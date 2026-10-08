@@ -118,7 +118,7 @@ extern void la64_next_invalid();
 
 #define ARCH_SIZE(A)    get_size_arch(A)
 #define ARCH_FILL(A, B, C) populate_arch(A, B, C)
-#define ARCH_ADJUST(A, B, C, D) {}
+#define ARCH_ADJUST(A, B, C, D) adjust_arch(A, B, C, D)
 #define STOP_NATIVE_FLAGS(A, B) {}
 #define ARCH_UNALIGNED(A, B) arch_unaligned(A, B)
 #define ARCH_HOST_CALL(A, B, C) 0
