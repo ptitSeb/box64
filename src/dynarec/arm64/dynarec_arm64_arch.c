@@ -121,11 +121,11 @@ static int arch_build(dynarec_arm_t* dyn, int ninst, arch_build_t* arch, int noa
                             arch->ymm = 1;
                             arch->ymm_.ymm |= 1<<dyn->insts[ninst].n.neoncache[i].n;
                             idx = i;
-                            if(idx>=EMM0 && idx<=EMM0+8)
+                            if(idx>=EMM0 && idx<EMM0+8)
                                 idx-=EMM0;
                             else
                                 idx-=SCRATCH0-8;
-                            arch->ymm_.ymm_pos |= idx<<(dyn->insts[ninst].n.neoncache[i].n*4);
+                            arch->ymm_.ymm_pos |= (uint64_t)idx<<(dyn->insts[ninst].n.neoncache[i].n*4);
                             break;
                         case NEON_CACHE_ST_D:
                             arch->x87 = 1;
