@@ -16,6 +16,7 @@
 #include "env.h"
 #include "emu/x64emu_private.h"
 #include "emu/x87emu_private.h"
+#include "emu/x64run_private.h"
 #include "x64trace.h"
 #include "box64context.h"
 #include "box64cpu.h"
@@ -307,13 +308,6 @@ NTSTATUS WINAPI BTCpuProcessInit(void)
     return STATUS_SUCCESS;
 }
 
-static uint8_t box64_is_addr_in_jit(void* addr)
-{
-    if (!addr)
-        return FALSE;
-    return !!FindDynablockFromNativeAddress(addr);
-}
-
 NTSTATUS WINAPI BTCpuResetToConsistentState(EXCEPTION_POINTERS* ptrs)
 {
     printf_log(LOG_DEBUG, "BTCpuResetToConsistentState(%p)\n", ptrs);
@@ -335,8 +329,33 @@ NTSTATUS WINAPI BTCpuResetToConsistentState(EXCEPTION_POINTERS* ptrs)
         }
     }
 
-    if (!box64_is_addr_in_jit(ULongToPtr(ctx->Pc)))
+    dynablock_t* db = FindDynablockFromNativeAddress((void*)ctx->Pc);
+    if (!db)
         return STATUS_SUCCESS;
+
+    {
+        WOW64_CPURESERVED* cpu = NtCurrentTeb()->TlsSlots[WOW64_TLS_CPURESERVED];
+        WOW64_CONTEXT* wctx = (WOW64_CONTEXT*)(cpu + 1);
+        uintptr_t x64pc = getX64Address(db, ctx->Pc);
+
+        for (int i = 0; i < 8; i++) // x10-x17 hold RAX-RDI
+            emu->regs[i].q[0] = (uint32_t)ctx->X[10 + i];
+        emu->eflags.x64 = (uint32_t)ctx->X[26];
+        CHECK_FLAGS(emu);
+        R_RIP = x64pc ? x64pc : (uint32_t)ctx->X[27];
+
+        wctx->Eax = R_EAX;
+        wctx->Ecx = R_ECX;
+        wctx->Edx = R_EDX;
+        wctx->Ebx = R_EBX;
+        wctx->Esp = R_ESP;
+        wctx->Ebp = R_EBP;
+        wctx->Esi = R_ESI;
+        wctx->Edi = R_EDI;
+        wctx->Eip = R_RIP;
+        wctx->EFlags = emu->eflags.x64;
+        box_to_fpu(wctx, emu);
+    }
 
     /* Replace the host context with one captured before JIT entry so host code can unwind */
     memcpy(ctx, NtCurrentTeb()->TlsSlots[WOW64_TLS_ENTRY_CONTEXT], sizeof(*ctx));
