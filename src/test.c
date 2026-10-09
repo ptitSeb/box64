@@ -613,6 +613,7 @@ static int runSingleTest(const char* filepath, const char* include_path)
 
     x64emu_t* emu = NewX64Emu(my_context, my_context->ep,
         (uintptr_t)my_context->stack, my_context->stacksz, 0);
+    thread_set_emu(emu);
 
     bool have_mmregs = false;
     for (int i = 0; i < 8; ++i) {
