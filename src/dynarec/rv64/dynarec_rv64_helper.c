@@ -2825,7 +2825,7 @@ void fpu_propagate_stack(dynarec_rv64_t* dyn, int ninst)
 
 void avx_set_vector_width(dynarec_rv64_t* dyn, int ninst, int s1, int sew, int width)
 {
-    dyn->vector_sew = sew;
+    dyn->vector_sew = (width == 16) ? sew : VECTOR_SEWNA;
     dyn->vector_eew = vector_vsetvli(dyn, ninst, s1, sew, VECTOR_LMUL1, (float)width / 16.0f);
 }
 
