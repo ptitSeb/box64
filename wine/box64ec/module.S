@@ -540,6 +540,7 @@ ExitFunctionSuspendResumePoint:
     /* Leave retaddr on stack; EC returns to a single x64 `ret` (0xC3). */
     adrp    x16, Box64EC_X64ReturnInstr
     ldr     x30, [x16, :lo12:Box64EC_X64ReturnInstr]
+    add     x4, x4, #8                   /* entry thunks read stack args via x4: point past the retaddr */
 
 .Lexit_ec_br:
     br      x17
