@@ -30,9 +30,12 @@ uintptr_t dynarec64_DE(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
     uint8_t nextop = F8;
     uint8_t wback;
     uint8_t u8;
+    uint8_t ed;
     int64_t fixedaddress;
     int v1, v2, s1, s2;
     int64_t j64;
+
+    MAYUSE(ed);
 
     MAYUSE(v2);
     MAYUSE(v1);
@@ -260,8 +263,151 @@ uintptr_t dynarec64_DE(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         }
     else
         switch ((nextop >> 3) & 7) {
-            default:
-                DEFAULT;
+            case 0:
+                INST_NAME("FIADD ST0, Ed");
+                v1 = x87_get_st(dyn, ninst, x1, x2, 0, EXT_CACHE_ST_D);
+                v2 = fpu_get_scratch(dyn);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                LH(x1, ed, fixedaddress);
+                FCVTDW(v2, x1, RD_RNE); // i32 -> double
+                if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x5);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    s1 = fpu_get_scratch(dyn);
+                    s2 = fpu_get_scratch(dyn);
+                    FMVD(s1, v1);
+                    FMVD(s2, v2);
+                }
+                FADDD(v1, v1, v2);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    X87_ARITH_NAN_FIX_D(v1, s1, s2, x5, x6, x4);
+                }
+                X87_CHECK_PRECISION(v1);
+                if (!BOX64ENV(dynarec_fastround)) x87_restoreround(dyn, ninst, u8);
+                break;
+            case 1:
+                INST_NAME("FIMUL ST0, Ed");
+                v1 = x87_get_st(dyn, ninst, x1, x2, 0, EXT_CACHE_ST_D);
+                v2 = fpu_get_scratch(dyn);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                LH(x1, ed, fixedaddress);
+                FCVTDW(v2, x1, RD_RNE); // i32 -> double
+                if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x5);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    s1 = fpu_get_scratch(dyn);
+                    s2 = fpu_get_scratch(dyn);
+                    FMVD(s1, v1);
+                    FMVD(s2, v2);
+                }
+                FMULD(v1, v1, v2);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    X87_ARITH_NAN_FIX_D(v1, s1, s2, x5, x6, x4);
+                }
+                X87_CHECK_PRECISION(v1);
+                if (!BOX64ENV(dynarec_fastround)) x87_restoreround(dyn, ninst, u8);
+                break;
+            case 2:
+                INST_NAME("FICOM ST0, Ed");
+                v1 = x87_get_st(dyn, ninst, x1, x2, 0, EXT_CACHE_ST_D);
+                v2 = fpu_get_scratch(dyn);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                LH(x1, ed, fixedaddress);
+                FCVTDW(v2, x1, RD_RNE); // i32 -> double
+                FCOMD(v1, v2, x1, x2, x3, x4, x5);
+                break;
+            case 3:
+                INST_NAME("FICOMP ST0, Ed");
+                v1 = x87_get_st(dyn, ninst, x1, x2, 0, EXT_CACHE_ST_D);
+                v2 = fpu_get_scratch(dyn);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                LH(x1, ed, fixedaddress);
+                FCVTDW(v2, x1, RD_RNE); // i32 -> double
+                FCOMD(v1, v2, x1, x2, x3, x4, x5);
+                X87_POP_OR_FAIL(dyn, ninst, x3);
+                break;
+            case 4:
+                INST_NAME("FISUB ST0, Ed");
+                v1 = x87_get_st(dyn, ninst, x1, x2, 0, EXT_CACHE_ST_D);
+                v2 = fpu_get_scratch(dyn);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                LH(x1, ed, fixedaddress);
+                FCVTDW(v2, x1, RD_RNE); // i32 -> double
+                if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x5);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    s1 = fpu_get_scratch(dyn);
+                    s2 = fpu_get_scratch(dyn);
+                    FMVD(s1, v1);
+                    FMVD(s2, v2);
+                }
+                FSUBD(v1, v1, v2);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    X87_ARITH_NAN_FIX_D(v1, s1, s2, x5, x6, x4);
+                }
+                X87_CHECK_PRECISION(v1);
+                if (!BOX64ENV(dynarec_fastround)) x87_restoreround(dyn, ninst, u8);
+                break;
+            case 5:
+                INST_NAME("FISUBR ST0, Ed");
+                v1 = x87_get_st(dyn, ninst, x1, x2, 0, EXT_CACHE_ST_D);
+                v2 = fpu_get_scratch(dyn);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                LH(x1, ed, fixedaddress);
+                FCVTDW(v2, x1, RD_RNE); // i32 -> double
+                if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x5);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    s1 = fpu_get_scratch(dyn);
+                    s2 = fpu_get_scratch(dyn);
+                    FMVD(s1, v2);
+                    FMVD(s2, v1);
+                }
+                FSUBD(v1, v2, v1);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    X87_ARITH_NAN_FIX_D(v1, s1, s2, x5, x6, x4);
+                }
+                X87_CHECK_PRECISION(v1);
+                if (!BOX64ENV(dynarec_fastround)) x87_restoreround(dyn, ninst, u8);
+                break;
+            case 6:
+                INST_NAME("FIDIV ST0, Ed");
+                v1 = x87_get_st(dyn, ninst, x1, x2, 0, EXT_CACHE_ST_D);
+                v2 = fpu_get_scratch(dyn);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                LH(x1, ed, fixedaddress);
+                FCVTDW(v2, x1, RD_RNE); // i32 -> double
+                if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x5);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    s1 = fpu_get_scratch(dyn);
+                    s2 = fpu_get_scratch(dyn);
+                    FMVD(s1, v1);
+                    FMVD(s2, v2);
+                }
+                FDIVD(v1, v1, v2);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    X87_ARITH_NAN_FIX_D(v1, s1, s2, x5, x6, x4);
+                }
+                X87_CHECK_PRECISION(v1);
+                if (!BOX64ENV(dynarec_fastround)) x87_restoreround(dyn, ninst, u8);
+                break;
+            case 7:
+                INST_NAME("FIDIVR ST0, Ed");
+                v1 = x87_get_st(dyn, ninst, x1, x2, 0, EXT_CACHE_ST_D);
+                v2 = fpu_get_scratch(dyn);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
+                LH(x1, ed, fixedaddress);
+                FCVTDW(v2, x1, RD_RNE); // i32 -> double
+                if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x5);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    s1 = fpu_get_scratch(dyn);
+                    s2 = fpu_get_scratch(dyn);
+                    FMVD(s1, v2);
+                    FMVD(s2, v1);
+                }
+                FDIVD(v1, v2, v1);
+                if (!BOX64ENV(dynarec_fastnan)) {
+                    X87_ARITH_NAN_FIX_D(v1, s1, s2, x5, x6, x4);
+                }
+                X87_CHECK_PRECISION(v1);
+                if (!BOX64ENV(dynarec_fastround)) x87_restoreround(dyn, ninst, u8);
+                break;
         }
     return addr;
 }

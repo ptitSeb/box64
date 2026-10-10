@@ -249,6 +249,37 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 }
             }
             break;
+        case 0x2D:
+            INST_NAME("VCVTSS2SI Gd, Ex");
+            nextop = F8;
+            GETGDd;
+            d0 = fpu_get_scratch(dyn);
+            if (MODREG) {
+                ed = (nextop & 7) + (rex.b << 3);
+                sse_forget_reg(dyn, ninst, x1, ed);
+                FLW(d0, xEmu, offsetof(x64emu_t, xmm[ed]));
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 0, 0);
+                FLW(d0, wback, fixedaddress);
+            }
+            if (!BOX64ENV(dynarec_fastround)) {
+                FSFLAGSI(0);
+            }
+            u8 = sse_setround(dyn, ninst, x5, x6);
+            FCVTSxw(gd, d0, RD_DYN);
+            x87_restoreround(dyn, ninst, u8);
+            if (!rex.w) ZEROUP(gd);
+            if (!BOX64ENV(dynarec_fastround)) {
+                FRFLAGS(x5);
+                ANDI(x5, x5, (1 << FR_NV) | (1 << FR_OF));
+                CBZ_NEXT(x5);
+                if (rex.w) {
+                    MOV64x(gd, 0x8000000000000000LL);
+                } else {
+                    MOV32w(gd, 0x80000000);
+                }
+            }
+            break;
         case 0x58:
             INST_NAME("VADDSS Gx, Vx, Ex");
             nextop = F8;

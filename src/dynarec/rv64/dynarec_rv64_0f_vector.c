@@ -274,6 +274,27 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 SMWRITE2();
             }
             break;
+        case 0x2C:
+            INST_NAME("CVTTPS2PI Gm, Ex");
+            nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+            GETG;
+            if (MODREG) {
+                ed = (nextop & 7) + (rex.b << 3);
+                v1 = sse_get_reg_vector(dyn, ninst, x1, ed, 0, VECTOR_SEW32);
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
+                v1 = fpu_get_scratch(dyn);
+                vector_vsetvli(dyn, ninst, x1, VECTOR_SEW64, VECTOR_LMUL1, 0.5);
+                LD(x4, ed, fixedaddress);
+                VMV_S_X(v1, x4);
+            }
+            v0 = mmx_get_reg_empty_vector(dyn, ninst, x1, x2, x3, gd);
+            vector_vsetvli(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL1, 0.5);
+            VFCVT_RTZ_X_F_V(v0, v1, VECTOR_UNMASKED);
+            vector_vsetvli(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL1, 1);
+            break;
         case 0x2E:
         case 0x2F:
             return 0;

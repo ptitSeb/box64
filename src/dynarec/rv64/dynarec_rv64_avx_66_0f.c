@@ -171,6 +171,19 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             SD(x3, gback, gdoffset + 8);
             YMM0(gd);
             break;
+        case 0x17:
+            INST_NAME("VMOVHPD Ex, Gx");
+            nextop = F8;
+            if (MODREG) {
+                DEFAULT;
+                return addr;
+            }
+            GETGX();
+            addr = geted(dyn, addr, ninst, nextop, &wback, x2, x3, &fixedaddress, rex, NULL, 1, 0);
+            LD(x3, gback, gdoffset + 8);
+            SD(x3, wback, fixedaddress);
+            SMWRITE2();
+            break;
         case 0x28:
             INST_NAME("VMOVAPD Gx, Ex");
             nextop = F8;

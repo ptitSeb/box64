@@ -475,6 +475,43 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             VNSRL_WX(d1, v0, x4, VECTOR_UNMASKED);
             VFADD_VV(q0, d1, d0, VECTOR_UNMASKED);
             break;
+        case 0x7D:
+            INST_NAME("HSUBPS Gx, Ex");
+            nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+            GETGX_vector(q0, 1, VECTOR_SEW32);
+            GETEX_vector(q1, 0, 0, VECTOR_SEW32);
+            v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+            d1 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+            d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+            VMV_V_V(v0, q0);
+            if (q1 & 1) VMV_V_V(d1, q1);
+            vector_vsetvli(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL2, 2);
+            VSLIDEUP_VI(v0, (q1 & 1) ? d1 : q1, 4, VECTOR_UNMASKED);
+            vector_vsetvli(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL1, 1);
+            ADDI(x4, xZR, 32);
+            VNSRL_WX(d0, v0, xZR, VECTOR_UNMASKED); // first of each pair
+            VNSRL_WX(d1, v0, x4, VECTOR_UNMASKED);  // second of each pair
+            VFSUB_VV(q0, d0, d1, VECTOR_UNMASKED);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                MOV32w(x5, 0x00400000);
+                VOR_VX(d1, d1, x5, VECTOR_UNMASKED); // quiet(second), still NaN
+                VMFEQ_VV(VMASK, d1, d1, VECTOR_UNMASKED);
+                VMERGE_VVM(q0, d1, q0);              // second is NaN -> quiet(second)
+                VOR_VX(d0, d0, x5, VECTOR_UNMASKED); // quiet(first), still NaN
+                VMFEQ_VV(VMASK, d0, d0, VECTOR_UNMASKED);
+                VMERGE_VVM(q0, d0, q0); // first is NaN -> quiet(first), priority
+                VMFEQ_VV(VMASK, d0, d0, VECTOR_UNMASKED);
+                VMFEQ_VV(v0, d1, d1, VECTOR_UNMASKED);
+                VMAND_MM(VMASK, VMASK, v0);
+                VMFEQ_VV(v0, q0, q0, VECTOR_UNMASKED);
+                VMNAND_MM(v0, v0, v0);
+                VMAND_MM(VMASK, VMASK, v0); // both non-NaN and result is NaN
+                MOV32w(x5, 0x80000000);
+                VOR_VX(v0, q0, x5, VECTOR_UNMASKED);
+                VMERGE_VVM(q0, q0, v0); // NAN -> -NAN
+            }
+            break;
         case 0xC2:
             INST_NAME("CMPSD Gx, Ex, Ib");
             nextop = F8;
