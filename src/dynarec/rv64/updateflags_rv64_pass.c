@@ -645,7 +645,7 @@ SETMARK(d_adc16);
     LHU(x3, xEmu, offsetof(x64emu_t, op2));
     SRLI(x4, x1, 16);
     PUTFLAG(x4, F_CF); // CF from bit 16 of the 17 bits result
-    ANDI(x4, x1, 0xffff);
+    ZEXTH(x4, x1);
     SRLI(x5, x4, 15);
     PUTFLAG(x5, F_SF);
     SEQZ(x5, x4);
@@ -676,7 +676,7 @@ SETMARK(d_adc16b);
     ADD(x1, x1, x4); // recompute res as 17 bits
     SRLI(x4, x1, 16);
     PUTFLAG(x4, F_CF);
-    ANDI(x4, x1, 0xffff);
+    ZEXTH(x4, x1);
     SRLI(x5, x4, 15);
     PUTFLAG(x5, F_SF);
     SEQZ(x5, x4);

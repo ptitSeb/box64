@@ -1048,7 +1048,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 u8 = F8;
                 MOV32w(x2, u8);
                 CALL(const_aam16, x1, x1, x2);
-                ANDI(x1, x1, 0xffff);
+                ZEXTH(x1, x1);
                 SRLI(x3, xRAX, 16);
                 SLLI(x3, x3, 16);
                 OR(xRAX, x3, x1);
@@ -1069,11 +1069,11 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             if (rex.is32bits) {
                 INST_NAME("AAD Ib");
                 SETFLAGS(X_ALL, SF_SET_DF, NAT_FLAGS_NOFUSION);
-                ANDI(x1, xRAX, 0xffff);
+                ZEXTH(x1, xRAX);
                 u8 = F8;
                 MOV32w(x2, u8);
                 CALL(const_aad16, x1, x1, x2);
-                ANDI(x1, x1, 0xffff);
+                ZEXTH(x1, x1);
                 SRLI(x3, xRAX, 16);
                 SLLI(x3, x3, 16);
                 OR(xRAX, x3, x1);
