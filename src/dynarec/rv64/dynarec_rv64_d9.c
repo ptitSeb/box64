@@ -516,12 +516,7 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     if (!BOX64ENV(dynarec_fastnan)) {
                         FEQS(x5, s0, s0);
                         BNEZ_MARK(x5);
-                        FMVXD(x5, v1);
-                        SRLI(x5, x5, 63);
-                        BNEZ_MARK2(x5);
-                        B_MARK_nocond;
-                        MARK2;
-                        FNEGS(s0, s0);
+                        X87_DOUBLE_TO_FLOAT(s0, v1, x5, x6);
                         MARK;
                     }
                 }
@@ -543,12 +538,7 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     if (!BOX64ENV(dynarec_fastnan)) {
                         FEQS(x5, v1, v1);
                         BNEZ_MARK(x5);
-                        FMVXD(x5, s1);
-                        SRLI(x5, x5, 63);
-                        BNEZ_MARK2(x5);
-                        B_MARK_nocond;
-                        MARK2;
-                        FNEGS(v1, v1);
+                        X87_DOUBLE_TO_FLOAT(v1, s1, x5, x6);
                         MARK;
                     }
                 }

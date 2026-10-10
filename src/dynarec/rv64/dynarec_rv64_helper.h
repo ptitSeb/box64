@@ -1016,6 +1016,20 @@
     MARKSEG
 #endif
 
+#ifndef X87_DOUBLE_TO_FLOAT
+#define X87_DOUBLE_TO_FLOAT(d, sd, xs, xt) \
+    FMVXD(xs, sd);                         \
+    SRLI(xt, xs, 63);                      \
+    SLLI(xt, xt, 31);                      \
+    SRLI(xs, xs, 29);                      \
+    SLLI(xs, xs, 41);                      \
+    SRLI(xs, xs, 41);                      \
+    OR(xs, xs, xt);                        \
+    LUI(xt, 0x7fc00);                      \
+    OR(xs, xs, xt);                        \
+    FMVWX(d, xs)
+#endif
+
 #define STORE_REG(A) SD(x##A, xEmu, offsetof(x64emu_t, regs[_##A]))
 #define LOAD_REG(A)  LD(x##A, xEmu, offsetof(x64emu_t, regs[_##A]))
 
