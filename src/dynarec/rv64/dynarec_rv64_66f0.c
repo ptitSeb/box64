@@ -113,9 +113,8 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                                 u8 &= 0x0f;
                                 ADDI(x3, wback, u8 >> 3);
                                 ANDI(x4, x3, 3);
-                                SLLI(x4, x4, 3);
                                 ADDI(x5, xZR, u8 & 7);
-                                ADD(x5, x4, x5);
+                                ADDSL(x5, x5, x4, 3, x4);
                                 ANDI(x3, x3, ~3);
                                 ADDI(x6, xZR, 1);
                                 SLL(x6, x6, x5);
@@ -143,9 +142,8 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                                 u8 &= 0x0f;
                                 ADDI(x3, wback, u8 >> 3);
                                 ANDI(x4, x3, 3);
-                                SLLI(x4, x4, 3);
                                 ADDI(x5, xZR, u8 & 7);
-                                ADD(x5, x4, x5);
+                                ADDSL(x5, x5, x4, 3, x4);
                                 ANDI(x3, x3, ~3);
                                 ADDI(x6, xZR, 1);
                                 SLL(x6, x6, x5);
@@ -174,9 +172,8 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                                 u8 &= 0x0f;
                                 ADDI(x3, wback, u8 >> 3);
                                 ANDI(x4, x3, 3);
-                                SLLI(x4, x4, 3);
                                 ADDI(x5, xZR, u8 & 7);
-                                ADD(x5, x4, x5);
+                                ADDSL(x5, x5, x4, 3, x4);
                                 ANDI(x3, x3, ~3);
                                 ADDI(x6, xZR, 1);
                                 SLL(x6, x6, x5);
