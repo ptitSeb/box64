@@ -1818,7 +1818,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             nextop = F8;
             GETEX(x2, 0, 14);
             GETGX();
-            ADDI(x6, xZR, 0xffff);
+            MOV32w(x6, 0xffff);
             ADDI(x7, xZR, 0);
             for (int i = 0; i < 8; ++i) {
                 LHU(x3, wback, fixedaddress + 2 * i);
