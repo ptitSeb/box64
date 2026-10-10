@@ -466,13 +466,18 @@
     "options": [
       {
         "key": "0",
-        "description": "Precisely emulate the -NaN generation like on x86.",
+        "description": "Precisely emulate the -NaN generation like on x86, except on x87 instructions.",
         "default": false
       },
       {
         "key": "1",
         "description": "Do not do anything special with -NAN generation, faster.",
         "default": true
+      },
+      {
+        "key": "2",
+        "description": "Precisely emulate the -NaN generation like on x86, including on x87 instructions.",
+        "default": false
       }
     ]
   },

@@ -148,7 +148,7 @@ uintptr_t dynarec64_AVX_F3_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             }
             break;
         case 0x51:
-            if (!BOX64ENV(dynarec_fastnan)) return 0;
+            if (BOX64ENV(dynarec_fastnan) != 1) return 0;
             INST_NAME("VSQRTSS Gx, Vx, Ex");
             nextop = F8;
             q0 = fpu_get_scratch(dyn);
@@ -171,7 +171,7 @@ uintptr_t dynarec64_AVX_F3_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             avx_store_reg_vector(dyn, ninst, x1, v0, gd, 16, VECTOR_SEW32);
             break;
         case 0x58:
-            if (!BOX64ENV(dynarec_fastnan)) return 0;
+            if (BOX64ENV(dynarec_fastnan) != 1) return 0;
             INST_NAME("VADDSS Gx, Vx, Ex");
             nextop = F8;
             q0 = fpu_get_scratch(dyn);
@@ -196,7 +196,7 @@ uintptr_t dynarec64_AVX_F3_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             avx_store_reg_vector(dyn, ninst, x1, v0, gd, 16, VECTOR_SEW32);
             break;
         case 0x59:
-            if (!BOX64ENV(dynarec_fastnan)) return 0;
+            if (BOX64ENV(dynarec_fastnan) != 1) return 0;
             INST_NAME("VMULSS Gx, Vx, Ex");
             nextop = F8;
             q0 = fpu_get_scratch(dyn);
@@ -244,7 +244,7 @@ uintptr_t dynarec64_AVX_F3_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             PUTGY_vector(v0, VECTOR_SEW32);
             break;
         case 0x5C:
-            if (!BOX64ENV(dynarec_fastnan)) return 0;
+            if (BOX64ENV(dynarec_fastnan) != 1) return 0;
             INST_NAME("VSUBSS Gx, Vx, Ex");
             nextop = F8;
             q0 = fpu_get_scratch(dyn);
@@ -269,7 +269,7 @@ uintptr_t dynarec64_AVX_F3_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             avx_store_reg_vector(dyn, ninst, x1, v0, gd, 16, VECTOR_SEW32);
             break;
         case 0x5E:
-            if (!BOX64ENV(dynarec_fastnan)) return 0;
+            if (BOX64ENV(dynarec_fastnan) != 1) return 0;
             INST_NAME("VDIVSS Gx, Vx, Ex");
             nextop = F8;
             q0 = fpu_get_scratch(dyn);

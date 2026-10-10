@@ -173,12 +173,12 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETGY();
             s0 = fpu_get_scratch(dyn);
             FLW(s0, wback, fixedaddress);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 FEQS(x3, s0, s0);
                 FMVXW(x4, s0);
             }
             FCVTDS(s0, s0);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 BNEZ_MARK(x3);
                 SRLIW(x5, x4, 31);
                 SLLI(x5, x5, 63);
@@ -292,7 +292,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             q0 = fpu_get_scratch(dyn);
             FLW(d0, vback, vxoffset);
             FLW(d1, wback, fixedaddress);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 MOV32w(x6, 0x00400000);
                 FMVS(q0, d1);
                 FEQS(x3, d1, d1);
@@ -301,7 +301,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 BEQZ(x5, 4 + 4 * 4);
             }
             FADDS(q0, d0, d1);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 FEQS(x5, q0, q0);
                 BNEZ(x5, 4 + 6 * 4);
                 FNEGS(q0, q0);
@@ -332,7 +332,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             q0 = fpu_get_scratch(dyn);
             FLW(d0, vback, vxoffset);
             FLW(d1, wback, fixedaddress);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 MOV32w(x6, 0x00400000);
                 FMVS(q0, d1);
                 FEQS(x3, d1, d1);
@@ -341,7 +341,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 BEQZ(x5, 4 + 4 * 4);
             }
             FMULS(q0, d0, d1);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 FEQS(x5, q0, q0);
                 BNEZ(x5, 4 + 6 * 4);
                 FNEGS(q0, q0);
@@ -412,7 +412,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             q0 = fpu_get_scratch(dyn);
             FLW(d0, vback, vxoffset);
             FLW(d1, wback, fixedaddress);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 MOV32w(x6, 0x00400000);
                 FMVS(q0, d1);
                 FEQS(x3, d1, d1);
@@ -421,7 +421,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 BEQZ(x5, 4 + 4 * 4);
             }
             FSUBS(q0, d0, d1);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 FEQS(x5, q0, q0);
                 BNEZ(x5, 4 + 6 * 4);
                 FNEGS(q0, q0);

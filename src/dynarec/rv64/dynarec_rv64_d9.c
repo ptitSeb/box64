@@ -358,12 +358,12 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
             if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x2);
             if (ST_IS_F(0)) {
-                if (!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) == 2) {
                     s1 = fpu_get_scratch(dyn);
                     FMVS(s1, v1);
                 }
                 FSQRTS(v1, v1);
-                if (!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) == 2) {
                     FEQS(x2, v1, v1);
                     BNEZ_MARK(x2);
                     FEQS(x2, s1, s1);
@@ -375,12 +375,12 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     MARK;
                 }
             } else {
-                if (!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) == 2) {
                     s1 = fpu_get_scratch(dyn);
                     FMVD(s1, v1);
                 }
                 FSQRTD(v1, v1);
-                if (!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) == 2) {
                     FEQD(x2, v1, v1);
                     BNEZ_MARK(x2);
                     FEQD(x2, s1, s1);
@@ -493,12 +493,12 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
                 FLW(v1, ed, fixedaddress);
                 if (!ST_IS_F(0)) {
-                    if (!BOX64ENV(dynarec_fastnan)) {
+                    if (BOX64ENV(dynarec_fastnan) == 2) {
                         s3 = fpu_get_scratch(dyn);
                         FMVS(s3, v1);
                     }
                     FCVTDS(v1, v1);
-                    if (!BOX64ENV(dynarec_fastnan)) {
+                    if (BOX64ENV(dynarec_fastnan) == 2) {
                         X87_FLOAT_TO_DOUBLE(v1, s3, x5, x6, 1);
                     }
                 }
@@ -513,7 +513,7 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x2);
                     FCVTSD(s0, v1);
                     if (!BOX64ENV(dynarec_fastround)) x87_restoreround(dyn, ninst, u8);
-                    if (!BOX64ENV(dynarec_fastnan)) {
+                    if (BOX64ENV(dynarec_fastnan) == 2) {
                         FEQS(x5, s0, s0);
                         BNEZ_MARK(x5);
                         X87_DOUBLE_TO_FLOAT(s0, v1, x5, x6);
@@ -529,13 +529,13 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x1, &fixedaddress, rex, NULL, 1, 0);
                 if (!ST_IS_F(0)) {
                     if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x3);
-                    if (!BOX64ENV(dynarec_fastnan)) {
+                    if (BOX64ENV(dynarec_fastnan) == 2) {
                         s1 = fpu_get_scratch(dyn);
                         FMVD(s1, v1);
                     }
                     FCVTSD(v1, v1);
                     if (!BOX64ENV(dynarec_fastround)) x87_restoreround(dyn, ninst, u8);
-                    if (!BOX64ENV(dynarec_fastnan)) {
+                    if (BOX64ENV(dynarec_fastnan) == 2) {
                         FEQS(x5, v1, v1);
                         BNEZ_MARK(x5);
                         X87_DOUBLE_TO_FLOAT(v1, s1, x5, x6);

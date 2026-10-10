@@ -335,13 +335,13 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
             INST_NAME("VSQRTPS Gx, Ex");
             nextop = F8;
             SKIPTEST(x1);
-            if(!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 d0 = fpu_get_scratch(dyn, ninst);
                 d1 = fpu_get_scratch(dyn, ninst);
             }
             for(int l=0; l<1+vex.l; ++l) {
                 if(!l) { GETGX_empty_EX(v0, v1, 0); } else { GETGY_empty_EY(v0, v1); }
-                if(!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) != 1) {
                     // check if any input value was NAN
                     VFCMEQQS(d0, v1, v1);    // 0 if NAN, 1 if not NAN
                     VFSQRTQS(v0, v1);
@@ -453,21 +453,21 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
         case 0x58:
             INST_NAME("VADDPS Gx, Vx, Ex");
             nextop = F8;
-            if(!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 q0 = fpu_get_scratch(dyn, ninst);
                 q1 = fpu_get_scratch(dyn, ninst);
                 q2 = fpu_get_scratch(dyn, ninst);
             }
             for(int l=0; l<1+vex.l; ++l) {
                 if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
-                if(!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) != 1) {
                     VMOVQ(q2, v2); // save src1
                     // check if any input value was NAN
                     VFMAXQS(q0, v2, v1);    // propagate NAN
                     VFCMEQQS(q0, q0, q0);    // 0 if NAN, 1 if not NAN
                 }
                 VFADDQS(v0, v2, v1);
-                if(!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) != 1) {
                     VFCMEQQS(q1, v0, v0);      // 0 => out is NAN
                     VBICQ(q1, q0, q1);         // forget it in any input was a NAN already
                     VSHLQ_32(q1, q1, 31);      // only keep the sign bit
@@ -483,21 +483,21 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
         case 0x59:
             INST_NAME("VMULPS Gx, Vx, Ex");
             nextop = F8;
-            if(!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 q0 = fpu_get_scratch(dyn, ninst);
                 q1 = fpu_get_scratch(dyn, ninst);
                 q2 = fpu_get_scratch(dyn, ninst);
             }
             for(int l=0; l<1+vex.l; ++l) {
                 if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
-                if(!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) != 1) {
                     VMOVQ(q2, v2); // save src1
                     // check if any input value was NAN
                     VFMAXQS(q0, v2, v1);    // propagate NAN
                     VFCMEQQS(q0, q0, q0);    // 0 if NAN, 1 if not NAN
                 }
                 VFMULQS(v0, v2, v1);
-                if(!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) != 1) {
                     VFCMEQQS(q1, v0, v0);      // 0 => out is NAN
                     VBICQ(q1, q0, q1);         // forget it in any input was a NAN already
                     VSHLQ_32(q1, q1, 31);      // only keep the sign bit
@@ -538,21 +538,21 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
         case 0x5C:
             INST_NAME("VSUBPS Gx, Vx, Ex");
             nextop = F8;
-            if(!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 q0 = fpu_get_scratch(dyn, ninst);
                 q1 = fpu_get_scratch(dyn, ninst);
                 q2 = fpu_get_scratch(dyn, ninst);
             }
             for(int l=0; l<1+vex.l; ++l) {
                 if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
-                if(!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) != 1) {
                     VMOVQ(q2, v2); // save src1
                     // check if any input value was NAN
                     VFMAXQS(q0, v2, v1);    // propagate NAN
                     VFCMEQQS(q0, q0, q0);    // 0 if NAN, 1 if not NAN
                 }
                 VFSUBQS(v0, v2, v1);
-                if(!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) != 1) {
                     VFCMEQQS(q1, v0, v0);      // 0 => out is NAN
                     VBICQ(q1, q0, q1);         // forget it in any input was a NAN already
                     VSHLQ_32(q1, q1, 31);      // only keep the sign bit
@@ -582,21 +582,21 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
         case 0x5E:
             INST_NAME("VDIVPS Gx, Vx, Ex");
             nextop = F8;
-            if(!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 q0 = fpu_get_scratch(dyn, ninst);
                 q1 = fpu_get_scratch(dyn, ninst);
                 q2 = fpu_get_scratch(dyn, ninst);
             }
             for(int l=0; l<1+vex.l; ++l) {
                 if(!l) { GETGX_empty_VXEX(v0, v2, v1, 0); } else { GETGY_empty_VYEY(v0, v2, v1); }
-                if(!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) != 1) {
                     VMOVQ(q2, v2); // save src1
                     // check if any input value was NAN
                     VFMAXQS(q0, v2, v1);    // propagate NAN
                     VFCMEQQS(q0, q0, q0);    // 0 if NAN, 1 if not NAN
                 }
                 VFDIVQS(v0, v2, v1);
-                if(!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) != 1) {
                     VFCMEQQS(q1, v0, v0);      // 0 => out is NAN
                     VBICQ(q1, q0, q1);         // forget it in any input was a NAN already
                     VSHLQ_32(q1, q1, 31);      // only keep the sign bit

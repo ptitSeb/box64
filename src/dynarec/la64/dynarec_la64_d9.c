@@ -354,7 +354,7 @@ uintptr_t dynarec64_D9(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 INST_NAME("FSQRT");
                 v1 = x87_get_st(dyn, ninst, x1, x2, 0, X87_ST0);
                 if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x2);
-                if (!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) == 2) {
                     q0 = fpu_get_scratch(dyn);
                     q1 = fpu_get_scratch(dyn);
                     if (ST_IS_F(0)) {

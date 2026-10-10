@@ -108,8 +108,9 @@ BOX64_DYNAREC_CALLRET=1
 
 启用或禁用快速 NaN 处理。 在 WowBox64 中可用。
 
- * 0: 精确模拟 x86 上的 -NaN 生成。
+ * 0: 精确模拟 x86 上的 -NaN 生成，但 x87 指令除外。
  * 1: 不对 -NaN 生成做任何特殊处理，速度更快。 [默认值]
+ * 2: 精确模拟 x86 上的 -NaN 生成，包括 x87 指令。
 
 ### BOX64_DYNAREC_FASTROUND
 

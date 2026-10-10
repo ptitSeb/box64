@@ -118,14 +118,14 @@ uintptr_t dynarec64_DA(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 LW(x1, ed, fixedaddress);
                 FCVTDW(v2, x1, RD_RNE); // i32 -> double
                 if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x5);
-                if (!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) == 2) {
                     s1 = fpu_get_scratch(dyn);
                     s2 = fpu_get_scratch(dyn);
                     FMVD(s1, v1);
                     FMVD(s2, v2);
                 }
                 FADDD(v1, v1, v2);
-                if (!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) == 2) {
                     X87_ARITH_NAN_FIX_D(v1, s1, s2, x5, x6, x4);
                 }
                 X87_CHECK_PRECISION(v1);
@@ -139,14 +139,14 @@ uintptr_t dynarec64_DA(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 LW(x1, ed, fixedaddress);
                 FCVTDW(v2, x1, RD_RNE); // i32 -> double
                 if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x5);
-                if (!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) == 2) {
                     s1 = fpu_get_scratch(dyn);
                     s2 = fpu_get_scratch(dyn);
                     FMVD(s1, v1);
                     FMVD(s2, v2);
                 }
                 FMULD(v1, v1, v2);
-                if (!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) == 2) {
                     X87_ARITH_NAN_FIX_D(v1, s1, s2, x5, x6, x4);
                 }
                 X87_CHECK_PRECISION(v1);
@@ -179,14 +179,14 @@ uintptr_t dynarec64_DA(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 LW(x1, ed, fixedaddress);
                 FCVTDW(v2, x1, RD_RNE); // i32 -> double
                 if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x5);
-                if (!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) == 2) {
                     s1 = fpu_get_scratch(dyn);
                     s2 = fpu_get_scratch(dyn);
                     FMVD(s1, v1);
                     FMVD(s2, v2);
                 }
                 FSUBD(v1, v1, v2);
-                if (!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) == 2) {
                     X87_ARITH_NAN_FIX_D(v1, s1, s2, x5, x6, x4);
                 }
                 X87_CHECK_PRECISION(v1);
@@ -200,14 +200,14 @@ uintptr_t dynarec64_DA(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 LW(x1, ed, fixedaddress);
                 FCVTDW(v2, x1, RD_RNE); // i32 -> double
                 if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x5);
-                if (!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) == 2) {
                     s1 = fpu_get_scratch(dyn);
                     s2 = fpu_get_scratch(dyn);
                     FMVD(s1, v2);
                     FMVD(s2, v1);
                 }
                 FSUBD(v1, v2, v1);
-                if (!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) == 2) {
                     X87_ARITH_NAN_FIX_D(v1, s1, s2, x5, x6, x4);
                 }
                 X87_CHECK_PRECISION(v1);
@@ -221,14 +221,14 @@ uintptr_t dynarec64_DA(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 LW(x1, ed, fixedaddress);
                 FCVTDW(v2, x1, RD_RNE); // i32 -> double
                 if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x5);
-                if (!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) == 2) {
                     s1 = fpu_get_scratch(dyn);
                     s2 = fpu_get_scratch(dyn);
                     FMVD(s1, v1);
                     FMVD(s2, v2);
                 }
                 FDIVD(v1, v1, v2);
-                if (!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) == 2) {
                     X87_ARITH_NAN_FIX_D(v1, s1, s2, x5, x6, x4);
                 }
                 X87_CHECK_PRECISION(v1);
@@ -242,14 +242,14 @@ uintptr_t dynarec64_DA(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 LW(x1, ed, fixedaddress);
                 FCVTDW(v2, x1, RD_RNE); // i32 -> double
                 if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x5);
-                if (!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) == 2) {
                     s1 = fpu_get_scratch(dyn);
                     s2 = fpu_get_scratch(dyn);
                     FMVD(s1, v2);
                     FMVD(s2, v1);
                 }
                 FDIVD(v1, v2, v1);
-                if (!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) == 2) {
                     X87_ARITH_NAN_FIX_D(v1, s1, s2, x5, x6, x4);
                 }
                 X87_CHECK_PRECISION(v1);

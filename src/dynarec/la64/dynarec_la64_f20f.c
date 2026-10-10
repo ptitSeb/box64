@@ -205,9 +205,9 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGXSD(v0, 1);
             GETEXSD(d0, 0, 0);
-            d1 = xmm_scalar_begin(dyn, ninst, &scalar, v0, gd, BOX64ENV(dynarec_fastnan), XMM_SCALAR_SD, XMM_UPPER_PRESERVE);
+            d1 = xmm_scalar_begin(dyn, ninst, &scalar, v0, gd, (BOX64ENV(dynarec_fastnan) == 1), XMM_SCALAR_SD, XMM_UPPER_PRESERVE);
             FSQRT_D(d1, d0);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 v1 = fpu_get_scratch(dyn);
                 MOVGR2FR_D(v1, xZR);
                 FCMP_D(fcc0, d0, v1, cLT);
@@ -222,9 +222,9 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGXSD(v0, 1);
             GETEXSD(v1, 0, 0);
             xmm_live_read(dyn, ninst, gd, XMM_WIDTH_64);
-            d0 = xmm_scalar_begin(dyn, ninst, &scalar, v0, gd, BOX64ENV(dynarec_fastnan), XMM_SCALAR_SD, XMM_UPPER_PRESERVE);
+            d0 = xmm_scalar_begin(dyn, ninst, &scalar, v0, gd, (BOX64ENV(dynarec_fastnan) == 1), XMM_SCALAR_SD, XMM_UPPER_PRESERVE);
             FADD_D(d0, v0, v1);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 d1 = fpu_get_scratch(dyn);
                 FCMP_D(fcc0, v0, v1, cUN);
                 BCNEZ_MARK(fcc0);
@@ -247,9 +247,9 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGXSD(v0, 1);
             GETEXSD(v1, 0, 0);
             xmm_live_read(dyn, ninst, gd, XMM_WIDTH_64);
-            d0 = xmm_scalar_begin(dyn, ninst, &scalar, v0, gd, BOX64ENV(dynarec_fastnan), XMM_SCALAR_SD, XMM_UPPER_PRESERVE);
+            d0 = xmm_scalar_begin(dyn, ninst, &scalar, v0, gd, (BOX64ENV(dynarec_fastnan) == 1), XMM_SCALAR_SD, XMM_UPPER_PRESERVE);
             FMUL_D(d0, v0, v1);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 d1 = fpu_get_scratch(dyn);
                 FCMP_D(fcc0, v0, v1, cUN);
                 BCNEZ_MARK(fcc0);
@@ -281,9 +281,9 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGXSD(v0, 1);
             GETEXSD(v1, 0, 0);
             xmm_live_read(dyn, ninst, gd, XMM_WIDTH_64);
-            d0 = xmm_scalar_begin(dyn, ninst, &scalar, v0, gd, BOX64ENV(dynarec_fastnan), XMM_SCALAR_SD, XMM_UPPER_PRESERVE);
+            d0 = xmm_scalar_begin(dyn, ninst, &scalar, v0, gd, (BOX64ENV(dynarec_fastnan) == 1), XMM_SCALAR_SD, XMM_UPPER_PRESERVE);
             FSUB_D(d0, v0, v1);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 d1 = fpu_get_scratch(dyn);
                 FCMP_D(fcc0, v0, v1, cUN);
                 BCNEZ_MARK(fcc0);
@@ -320,9 +320,9 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGXSD(v0, 1);
             GETEXSD(v1, 0, 0);
             xmm_live_read(dyn, ninst, gd, XMM_WIDTH_64);
-            d0 = xmm_scalar_begin(dyn, ninst, &scalar, v0, gd, BOX64ENV(dynarec_fastnan), XMM_SCALAR_SD, XMM_UPPER_PRESERVE);
+            d0 = xmm_scalar_begin(dyn, ninst, &scalar, v0, gd, (BOX64ENV(dynarec_fastnan) == 1), XMM_SCALAR_SD, XMM_UPPER_PRESERVE);
             FDIV_D(d0, v0, v1);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 d1 = fpu_get_scratch(dyn);
                 FCMP_D(fcc0, v0, v1, cUN);
                 BCNEZ_MARK(fcc0);
@@ -377,7 +377,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             v1 = fpu_get_scratch(dyn);
             VPICKEV_W(v0, q1, q0);
             VPICKOD_W(v1, q1, q0);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 d0 = fpu_get_scratch(dyn);
                 d1 = fpu_get_scratch(dyn);
                 VFCMP_S(d0, v0, v0, cUN);
@@ -386,7 +386,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 VOR_V(d1, v0, d1);
             }
             VFADD_S(q0, v0, v1);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 VBITSEL_V(q0, q0, d1, d0);
                 VFCMP_S(d1, q0, q0, cUN);
                 VFCMP_S(d0, v0, v1, cUN);
@@ -405,7 +405,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             v1 = fpu_get_scratch(dyn);
             VPICKEV_W(v0, q1, q0);
             VPICKOD_W(v1, q1, q0);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 d0 = fpu_get_scratch(dyn);
                 d1 = fpu_get_scratch(dyn);
                 VFCMP_S(d0, v0, v0, cUN);
@@ -414,7 +414,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 VOR_V(d1, v0, d1);
             }
             VFSUB_S(q0, v0, v1);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 VBITSEL_V(q0, q0, d1, d0);
                 VFCMP_S(d1, q0, q0, cUN);
                 VFCMP_S(d0, v0, v1, cUN);
@@ -482,7 +482,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGX(q0, 1);
             GETEX(q1, 0, 0);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 d0 = fpu_get_scratch(dyn);
                 d1 = fpu_get_scratch(dyn);
                 v1 = fpu_get_scratch(dyn);
@@ -497,7 +497,7 @@ uintptr_t dynarec64_F20F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             VFADD_S(q0, q0, q1);
             VEXTRINS_W(q0, v0, 0);
             VEXTRINS_W(q0, v0, 0b00100010);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 VBITSEL_V(q0, q0, v1, d1);
                 VFCMP_S(d1, q0, q0, cUN);
                 VANDN_V(d0, d0, d1);

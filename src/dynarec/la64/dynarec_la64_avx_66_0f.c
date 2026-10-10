@@ -259,7 +259,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             INST_NAME("VSQRTPD Gx, Ex");
             nextop = F8;
             GETGY_empty_EY_xy(v0, v1, 0);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 d0 = fpu_get_scratch(dyn);
                 d1 = fpu_get_scratch(dyn);
                 VFCMPxy(D, d0, v1, v1, cEQ);
@@ -300,7 +300,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             INST_NAME("VADDPD Gx, Vx, Ex");
             nextop = F8;
             GETGY_empty_VYEY_xy(v0, v1, v2, 0);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 d0 = fpu_get_scratch(dyn);
                 d1 = fpu_get_scratch(dyn);
                 q0 = fpu_get_scratch(dyn);
@@ -312,7 +312,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 VOR_Vxy(q1, v1, q1);
             }
             VFADDxy(D, v0, v1, v2);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 VBITSEL_Vxy(v0, v0, q1, q0);
                 VFCMPxy(D, d1, v0, v0, cUN);
                 VANDN_Vxy(d0, d0, d1);
@@ -325,7 +325,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             INST_NAME("VMULPD Gx, Vx, Ex");
             nextop = F8;
             GETGY_empty_VYEY_xy(v0, v1, v2, 0);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 d0 = fpu_get_scratch(dyn);
                 d1 = fpu_get_scratch(dyn);
                 q0 = fpu_get_scratch(dyn);
@@ -337,7 +337,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 VOR_Vxy(q1, v1, q1);
             }
             VFMULxy(D, v0, v1, v2);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 VBITSEL_Vxy(v0, v0, q1, q0);
                 VFCMPxy(D, d1, v0, v0, cUN);
                 VANDN_Vxy(d0, d0, d1);
@@ -398,7 +398,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             INST_NAME("VSUBPD Gx, Vx, Ex");
             nextop = F8;
             GETGY_empty_VYEY_xy(v0, v1, v2, 0);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 d0 = fpu_get_scratch(dyn);
                 d1 = fpu_get_scratch(dyn);
                 q0 = fpu_get_scratch(dyn);
@@ -410,7 +410,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 VOR_Vxy(q1, v1, q1);
             }
             VFSUBxy(D, v0, v1, v2);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 VBITSEL_Vxy(v0, v0, q1, q0);
                 VFCMPxy(D, d1, v0, v0, cUN);
                 VANDN_Vxy(d0, d0, d1);
@@ -432,7 +432,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             INST_NAME("VDIVPD Gx, Vx, Ex");
             nextop = F8;
             GETGY_empty_VYEY_xy(v0, v1, v2, 0);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 d0 = fpu_get_scratch(dyn);
                 d1 = fpu_get_scratch(dyn);
                 q0 = fpu_get_scratch(dyn);
@@ -444,7 +444,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
                 VOR_Vxy(q1, v1, q1);
             }
             VFDIVxy(D, v0, v1, v2);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 VBITSEL_Vxy(v0, v0, q1, q0);
                 VFCMPxy(D, d1, v0, v0, cUN);
                 VANDN_Vxy(d0, d0, d1);
@@ -457,7 +457,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             INST_NAME("VMAXPD Gx, Vx, Ex");
             nextop = F8;
             GETGY_empty_VYEY_xy(v0, v1, v2, 0);
-            if (BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) == 1) {
                 VFMAXxy(D, v0, v2, v1);
             } else {
                 q0 = fpu_get_scratch(dyn);
@@ -780,13 +780,13 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             q0 = fpu_get_scratch(dyn);
             VPICKEVxy(D, q0, v2, v1);
             VPICKODxy(D, v0, v2, v1);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 d0 = fpu_get_scratch(dyn);
                 d1 = fpu_get_scratch(dyn);
                 VFCMPxy(D, d0, q0, v0, cUN);
             }
             VFADDxy(D, v0, q0, v0);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 q1 = fpu_get_scratch(dyn);
                 VFCMPxy(D, q1, q0, q0, cUN);
                 VLDIxy(d1, (0b011 << 10) | 0b0000001000);
@@ -807,13 +807,13 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             q0 = fpu_get_scratch(dyn);
             VPICKEVxy(D, q0, v2, v1);
             VPICKODxy(D, v0, v2, v1);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 d0 = fpu_get_scratch(dyn);
                 d1 = fpu_get_scratch(dyn);
                 VFCMPxy(D, d0, q0, v0, cUN);
             }
             VFSUBxy(D, v0, q0, v0);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 q1 = fpu_get_scratch(dyn);
                 VFCMPxy(D, q1, q0, q0, cUN);
                 VLDIxy(d1, (0b011 << 10) | 0b0000001000);
@@ -949,7 +949,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             INST_NAME("VADDSUBPD Gx, Vx, Ex");
             nextop = F8;
             GETGY_empty_VYEY_xy(v0, v1, v2, 0);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 d0 = fpu_get_scratch(dyn);
                 d1 = fpu_get_scratch(dyn);
                 q1 = fpu_get_scratch(dyn);
@@ -963,7 +963,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip,
             VFSUBxy(D, q0, v1, v2);
             VFADDxy(D, v0, v1, v2);
             VEXTRINSxy(D, v0, q0, 0);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 VBITSEL_Vxy(v0, v0, d1, q1);
                 VFCMPxy(D, d1, v0, v0, cUN);
                 VANDN_Vxy(d0, d0, d1);

@@ -236,12 +236,13 @@ Try to initialize libZydis for more readable x86 disassembly in dump, trace, cra
  * 1 : Try to load Zydis for Dynarec. 
 
 
-=item B<BOX64_DYNAREC_FASTNAN> =I<0|1>
+=item B<BOX64_DYNAREC_FASTNAN> =I<0|1|2>
 
 Enable or disable fast NaN handling. Available in WowBox64.
 
- * 0 : Precisely emulate the -NaN generation like on x86. 
+ * 0 : Precisely emulate the -NaN generation like on x86, except on x87 instructions. 
  * 1 : Do not do anything special with -NAN generation, faster. [Default]
+ * 2 : Precisely emulate the -NaN generation like on x86, including on x87 instructions. 
 
 
 =item B<BOX64_DYNAREC_FASTROUND> =I<0|1|2>
