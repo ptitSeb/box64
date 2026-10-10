@@ -142,12 +142,7 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             ANDI(x5, x5, 7); // (emu->top + i)&7
                         }
                         // load x2 with ST0 anyway, for sign extraction
-                        if (cpuext.zba)
-                            SH3ADD(x1, x5, xEmu);
-                        else {
-                            SLLI(x5, x5, 3);
-                            ADD(x1, xEmu, x5);
-                        }
+                        ADDSL(x1, xEmu, x5, 3, x5);
                         LD(x2, x1, offsetof(x64emu_t, x87));
                         // load tag
                         if (i2 >= 0) {
