@@ -16,12 +16,15 @@
 #include "debug.h"
 #include "fileutils.h"
 
-static const char* x86lib  = "\x7f" "ELF" "\x01" "\x01" "\x01" "\x03" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x02" "\x00" "\x03" "\x00";
-static const char* x64lib  = "\x7f" "ELF" "\x02" "\x01" "\x01" "\x03" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x02" "\x00" "\x3e" "\x00";
-static const char* bashsign= "#!/bin/bash";
-static const char* shsign  = "#!/bin/sh";
-static const char* bashsign2="#!/usr/bin/env bash";
-static const char* pythonsign="#!/usr/bin/env python3";
+static const char x86lib[]     = "\x7f" "ELF" "\x01" "\x01" "\x01" "\x03" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x02" "\x00" "\x03" "\x00";
+static const char x64lib[]     = "\x7f" "ELF" "\x02" "\x01" "\x01" "\x03" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x00" "\x02" "\x00" "\x3e" "\x00";
+static const char bashsign[]   = "#!/bin/bash";
+static const char shsign[]     = "#!/bin/sh";
+static const char bashsign2[]  = "#!/usr/bin/env bash";
+static const char pythonsign[] = "#!/usr/bin/env python3";
+
+#define MAX2(a, b)       ((a) > (b) ? (a) : (b))
+#define MAX3(a, b, c)    MAX2(MAX2(a, b), c)
 
 static char* ResolvePathInner(const char* path, int resolve_symlink) {
     if (resolve_symlink) {
@@ -67,18 +70,19 @@ int FileIsX64ELF(const char* filename)
     FILE *f = fopen(filename, "rb");
     if(!f)
         return 0;
-    char head[20] = {0};
-    int sz = fread(head, 20, 1, f);
+    
+    char head[sizeof(x64lib)] = {0};
+    int sz = fread(head, sizeof(x64lib) - 1, 1, f);
     fclose(f);
-    if(sz!=1) {
+    if(sz != 1) {
         return 0;
     }
     head[7] = x64lib[7];   // this one changes
     head[8] = x64lib[8];   // AppImage customized this
     head[9] = x64lib[9];   // and this one too
-    head[10] = x64lib[10];   // and that last one too
-    head[16]&=0xfe;
-    if(!memcmp(head, x64lib, 20))
+    head[10] = x64lib[10]; // and that last one too
+    head[16] &= 0xfe;
+    if(!memcmp(head, x64lib, sizeof(x64lib) - 1))
         return 1;
     return 0;
 }
@@ -88,8 +92,9 @@ int FileIsX86ELF(const char* filename)
     FILE *f = fopen(filename, "rb");
     if(!f)
         return 0;
-    char head[20] = {0};
-    int sz = fread(head, 20, 1, f);
+    
+    char head[sizeof(x86lib)] = {0};
+    int sz = fread(head, sizeof(x86lib) - 1, 1, f);
     fclose(f);
     if(sz!=1) {
         return 0;
@@ -106,8 +111,9 @@ int FileIsX64X86ELF(const char* filename)
     FILE *f = fopen(filename, "rb");
     if(!f)
         return 0;
-    char head[20] = {0};
-    int sz = fread(head, 20, 1, f);
+    
+    char head[sizeof(x64lib)] = {0};
+    int sz = fread(head, sizeof(x64lib) - 1, 1, f);
     fclose(f);
     if(sz!=1) {
         return 0;
@@ -129,18 +135,23 @@ int FileIsShell(const char* filename)
     FILE *f = fopen(filename, "rb");
     if(!f)
         return 0;
-    char head[20] = {0};
-    int sz = fread(head, strlen(bashsign2), 1, f);
+
+    #define SHELL_MAX_LEN MAX3(sizeof(bashsign), sizeof(bashsign2), sizeof(shsign))
+    char head[SHELL_MAX_LEN] = {0};
+
+    int sz = fread(head, SHELL_MAX_LEN - 1, 1, f);
     fclose(f);
-    if(sz!=1)
+    if(sz != 1)
         return 0;
-    if(!strncmp(head, bashsign2, strlen(bashsign2)))
+
+    if(!strncmp(head, bashsign2, sizeof(bashsign2) - 1))
         return 1;
-    if(!strncmp(head, bashsign, strlen(bashsign)))
+    if(!strncmp(head, bashsign, sizeof(bashsign) - 1))
         return 1;
-    if(!strncmp(head, shsign, strlen(shsign)))
+    if(!strncmp(head, shsign, sizeof(shsign) - 1))
         return 1;
     return 0;
+    #undef SHELL_MAX_LEN
 }
 
 int FileIsPython(const char* filename)
@@ -148,12 +159,15 @@ int FileIsPython(const char* filename)
     FILE *f = fopen(filename, "rb");
     if(!f)
         return 0;
-    char head[25] = {0};
-    int sz = fread(head, strlen(pythonsign), 1, f);
+
+    char head[sizeof(pythonsign)] = {0};
+
+    int sz = fread(head, sizeof(pythonsign) - 1, 1, f);
     fclose(f);
-    if(sz!=1)
+    if(sz != 1)
         return 0;
-    if(!strncmp(head, pythonsign, strlen(pythonsign)))
+
+    if(!strncmp(head, pythonsign, sizeof(pythonsign) - 1))
         return 1;
     return 0;
 }
