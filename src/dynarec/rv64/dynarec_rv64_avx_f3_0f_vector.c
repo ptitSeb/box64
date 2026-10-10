@@ -123,7 +123,7 @@ uintptr_t dynarec64_AVX_F3_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
         case 0x2C:
             INST_NAME("VCVTTSS2SI Gd, Ex");
             nextop = F8;
-            GETGD;
+            GETGDd;
             d0 = fpu_get_scratch(dyn);
             if (MODREG) {
                 q0 = fpu_get_scratch(dyn);

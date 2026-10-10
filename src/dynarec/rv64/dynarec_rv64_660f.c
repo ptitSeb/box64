@@ -1281,6 +1281,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             if (rex.w) {
                 if (MODREG) {
                     ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                    MARKREGd(ed);
                     LD(ed, gback, gdoffset + 0);
                 } else {
                     addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
@@ -1291,6 +1292,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             } else {
                 if (MODREG) {
                     ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                    MARKREGd(ed);
                     LWU(ed, gback, gdoffset + 0);
                 } else {
                     addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
@@ -1942,7 +1944,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0xC5:
             INST_NAME("PEXTRW Gd,Ex,Ib");
             nextop = F8;
-            GETGD;
+            GETGDd;
             GETEX(x1, 0, 14);
             u8 = (F8) & 7;
             LHU(gd, wback, fixedaddress + u8 * 2);
@@ -2105,7 +2107,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             INST_NAME("PMOVMSKB Gd, Ex");
             nextop = F8;
             GETEX(x2, 0, 8);
-            GETGD;
+            GETGDd;
             LD(x1, wback, fixedaddress + 8); // high part
             LD(x2, wback, fixedaddress + 0); // low part, also destroyed wback(x2)
             MOV64x(x5, 0x8080808080808080);
@@ -2660,6 +2662,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             break;
         case 0xF7:
             INST_NAME("MASKMOVDQU Gx, Ex");
+            UP32_READ(xRDI);
             nextop = F8;
             GETEX(x1, 0, 15);
             GETGX();

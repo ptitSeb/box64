@@ -250,7 +250,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
             MESSAGE(LOG_DUMP, "TEST STEP ----\n");
             extcache_native_t save;
             fpu_save_and_unwind(dyn, ninst, &save);
-            #ifdef LA64
+            #if defined(LA64) || defined(RV64)
             UP32_READALL();
             #endif
             fpu_reflectcache(dyn, ninst, x1, x2, x3);
@@ -267,7 +267,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
                 #if defined (SPILL_NF_REGISTERS)
                 if (BOX64ENV(dynarec_nativeflags)) SPILL_NF_REGISTERS;
                 #endif
-                #ifdef LA64
+                #if defined(LA64) || defined(RV64)
                 UP32_READALL();
                 #endif
                 fpu_reflectcache(dyn, ninst, x1, x2, x3);

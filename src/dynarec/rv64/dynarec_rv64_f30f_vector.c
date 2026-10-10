@@ -163,7 +163,7 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
         case 0x2C:
             INST_NAME("CVTTSS2SI Gd, Ex");
             nextop = F8;
-            GETGD;
+            GETGDd;
             SET_ELEMENT_WIDTH(x3, VECTOR_SEW32, 1);
             if (MODREG) {
                 ed = (nextop & 7) + (rex.b << 3);
@@ -189,7 +189,7 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
         case 0x2D:
             INST_NAME("CVTSS2SI Gd, Ex");
             nextop = F8;
-            GETGD;
+            GETGDd;
             SET_ELEMENT_WIDTH(x3, VECTOR_SEW32, 1);
             if (MODREG) {
                 ed = (nextop & 7) + (rex.b << 3);

@@ -1062,7 +1062,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             INST_NAME("PMOVMSKD Gd, Ex");
             nextop = F8;
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
-            GETGD;
+            GETGDd;
             GETEX_vector(q0, 0, 0, VECTOR_SEW64);
             if (cpuext.xtheadvector) {
                 v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
@@ -1806,7 +1806,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             INST_NAME("PEXTRW Gd, Ex, Ib");
             nextop = F8;
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW16, 1);
-            GETGD;
+            GETGDd;
             if (MODREG) {
                 GETEX_vector(q0, 0, 1, VECTOR_SEW16);
                 u8 = (F8) & 7;
@@ -1923,7 +1923,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             INST_NAME("PMOVMSKB Gd, Ex");
             nextop = F8;
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
-            GETGD;
+            GETGDd;
             GETEX_vector(q0, 0, 0, VECTOR_SEW8);
             if (cpuext.xtheadvector) {
                 v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL8);
@@ -2343,6 +2343,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             break;
         case 0xF7:
             INST_NAME("MASKMOVDQU Gx, Ex");
+            UP32_READ(xRDI);
             nextop = F8;
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
             GETGX_vector(q0, 0, VECTOR_SEW8);

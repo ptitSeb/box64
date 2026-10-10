@@ -60,7 +60,7 @@ uintptr_t dynarec64_AVX_F2_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
         case 0xF5:
             INST_NAME("PDEP Gd, Vd, Ed");
             nextop = F8;
-            GETGD;
+            GETGDd;
             GETVD;
             GETED(0);
             if (gd == ed || gd == vd) {
@@ -94,7 +94,7 @@ uintptr_t dynarec64_AVX_F2_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
         case 0xF6:
             INST_NAME("MULX Gd, Vd, Ed (,RDX)");
             nextop = F8;
-            GETGD;
+            GETGDd;
             GETED(0);
             GETVD;
             if (rex.w) {
@@ -118,7 +118,7 @@ uintptr_t dynarec64_AVX_F2_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
         case 0xF7:
             INST_NAME("SHRX Gd, Ed, Vd");
             nextop = F8;
-            GETGD;
+            GETGDd;
             GETED(0);
             GETVD;
             ANDI(x5, vd, rex.w ? 0x3f : 0x1f);

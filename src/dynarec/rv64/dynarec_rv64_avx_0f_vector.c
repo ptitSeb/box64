@@ -214,7 +214,7 @@ uintptr_t dynarec64_AVX_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t
             INST_NAME("VMOVMSKPS Gd, Ex");
             nextop = F8;
             GETEY_vector(q0, 0, VECTOR_SEW32);
-            GETGD;
+            GETGDd;
             VMSLT_VX(VMASK, q0, xZR, VECTOR_UNMASKED);
             VMV_X_S(gd, VMASK);
             ANDI(gd, gd, vex.l ? 0xff : 0x0f);

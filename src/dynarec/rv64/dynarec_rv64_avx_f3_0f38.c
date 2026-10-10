@@ -60,7 +60,7 @@ uintptr_t dynarec64_AVX_F3_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
         case 0xF5:
             INST_NAME("PEXT Gd, Vd, Ed");
             nextop = F8;
-            GETGD;
+            GETGDd;
             GETVD;
             GETED(0);
             if (gd == ed || gd == vd) {
@@ -95,7 +95,7 @@ uintptr_t dynarec64_AVX_F3_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
         case 0xF7:
             INST_NAME("SARX Gd, Ed, Vd");
             nextop = F8;
-            GETGD;
+            GETGDd;
             GETED(0);
             GETVD;
             ANDI(x5, vd, rex.w ? 0x3f : 0x1f);

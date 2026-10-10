@@ -2516,7 +2516,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
         case 0xF7:
             INST_NAME("SHLX Gd, Ed, Vd");
             nextop = F8;
-            GETGD;
+            GETGDd;
             GETED(0);
             GETVD;
             ANDI(x5, vd, rex.w ? 0x3f : 0x1f);

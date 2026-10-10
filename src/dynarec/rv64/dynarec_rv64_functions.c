@@ -872,6 +872,7 @@ void updateNativeFlags(dynarec_rv64_t* dyn)
                         }
                         dyn->insts[i].x64.use_flags = 0;
                         dyn->insts[j].nat_next_inst = i;
+                        dyn->insts[i].up32_read |= dyn->insts[j].up32_write32;
                         found = 1;
                         break;
                     } else if (j && dyn->insts[j].pred_sz == 1 && dyn->insts[j].pred[0] == j - 1
@@ -912,4 +913,179 @@ void fpu_save_and_unwind(dynarec_rv64_t* dyn, int ninst, extcache_t* cache)
 void fpu_unwind_restore(dynarec_rv64_t* dyn, int ninst, extcache_t* cache)
 {
     memcpy(&dyn->insts[ninst].e, cache, sizeof(extcache_t));
+}
+
+static int hasLinearPredecessor(const dynarec_rv64_t* dyn, int ninst)
+{
+    return ninst > 0 && dyn->insts[ninst].pred_sz == 1 && dyn->insts[ninst].pred[0] == ninst - 1;
+}
+
+int isUpper32Zero(dynarec_rv64_t* dyn, int ninst, int reg)
+{
+    if (!IS_GPR(reg))
+        return 0;
+
+    const uint16_t bit = (uint16_t)(1 << TO_X64(reg));
+    int current = ninst;
+    for (int depth = 0; depth < 4 && hasLinearPredecessor(dyn, current); ++depth) {
+        const instruction_rv64_t* prev = &dyn->insts[current - 1];
+        if (prev->x64.has_callret || prev->x64.barrier)
+            return 0;
+        if (prev->up32_write64 & bit) return prev->up32_zero & bit;
+        --current;
+    }
+    return 0;
+}
+
+void updateUpperLiveness(dynarec_rv64_t* dyn)
+{
+    int n = dyn->size;
+    if (n <= 0)
+        return;
+
+    size_t live_size = (size_t)n * sizeof(uint16_t);
+    size_t pending_size = (size_t)n * sizeof(uint16_t);
+    size_t work_size = (size_t)n * sizeof(int);
+    size_t list_size = (size_t)n * sizeof(uint8_t);
+    void* buffer = calloc(1, 2 * live_size + pending_size + work_size + list_size);
+    if (!buffer)
+        return;
+    uint16_t* live_in = (uint16_t*)buffer;
+    uint16_t* live_out = (uint16_t*)((char*)live_in + live_size);
+    uint16_t* pending_in = (uint16_t*)((char*)live_out + live_size);
+    int* work = (int*)((char*)pending_in + pending_size);
+    uint8_t* on_list = (uint8_t*)((char*)work + work_size);
+
+    int sp = 0;
+    for (int i = n - 1; i >= 0; --i) {
+        if (dyn->insts[i].x64.alive) {
+            work[sp++] = i;
+            on_list[i] = 1;
+        }
+    }
+    // backward analysis
+    while (sp > 0) {
+        int i = work[--sp];
+        on_list[i] = 0;
+        const instruction_rv64_t* inst = &dyn->insts[i];
+        if (!inst->x64.alive)
+            continue;
+        uint16_t combined_out = 0;
+        if (inst->x64.has_next && i + 1 < n && dyn->insts[i + 1].x64.alive)
+            combined_out |= live_in[i + 1];
+        if (inst->x64.jmp) {
+            if (inst->x64.jmp_insts >= 0 && inst->x64.jmp_insts < n)
+                combined_out |= live_in[inst->x64.jmp_insts];
+            else
+                combined_out = UINT16_MAX;
+        }
+        int has_internal_jump = inst->x64.jmp && inst->x64.jmp_insts >= 0 && inst->x64.jmp_insts < n;
+        if ((inst->x64.has_next && i == n - 1) || (!inst->x64.has_next && !has_internal_jump))
+            combined_out = UINT16_MAX;
+        live_out[i] = combined_out;
+
+        uint16_t live_in_val = inst->up32_read | (combined_out & (uint16_t)~inst->up32_write64);
+        if (live_in_val != live_in[i]) {
+            live_in[i] = live_in_val;
+            for (int p = 0; p < inst->pred_sz; ++p) {
+                int j = inst->pred[p];
+                if (!on_list[j]) {
+                    work[sp++] = j;
+                    on_list[j] = 1;
+                }
+            }
+        }
+    }
+
+    for (int i = 0; i < n; ++i) {
+        instruction_rv64_t* inst = &dyn->insts[i];
+        inst->up32_skip = inst->up32_write32 & (uint16_t)~live_out[i];
+    }
+
+    memset(on_list, 0, list_size);
+    sp = 0;
+    for (int i = 0; i < n; ++i) {
+        if (dyn->insts[i].x64.alive) {
+            work[sp++] = i;
+            on_list[i] = 1;
+        }
+    }
+    // forward analysis
+    while (sp > 0) {
+        int i = work[--sp];
+        on_list[i] = 0;
+        instruction_rv64_t* inst = &dyn->insts[i];
+        if (!inst->x64.alive)
+            continue;
+
+        uint16_t merged_pending = 0;
+        for (int p = 0; p < inst->pred_sz; ++p) {
+            int j = inst->pred[p];
+            const instruction_rv64_t* pred = &dyn->insts[j];
+            merged_pending |= (pending_in[j] & (uint16_t)~pred->up32_write64) | pred->up32_skip;
+        }
+        if (merged_pending != pending_in[i]) {
+            pending_in[i] = merged_pending;
+            if (inst->x64.has_next && i + 1 < n && dyn->insts[i + 1].x64.alive && !on_list[i + 1]) {
+                work[sp++] = i + 1;
+                on_list[i + 1] = 1;
+            }
+            if (inst->x64.jmp && inst->x64.jmp_insts >= 0 && inst->x64.jmp_insts < n) {
+                int j = inst->x64.jmp_insts;
+                if (dyn->insts[j].x64.alive && !on_list[j]) {
+                    work[sp++] = j;
+                    on_list[j] = 1;
+                }
+            }
+        }
+    }
+    for (int i = 0; i < n; ++i) {
+        dyn->insts[i].up32_pending = pending_in[i];
+    }
+
+    free(buffer);
+}
+
+void updateRspMerge(dynarec_rv64_t* dyn, int is32bits)
+{
+    const int delta = is32bits ? 4 : 8;
+    int pending = 0;
+    int last_pushpop = -1;
+    for (int i = 0; i < dyn->size; ++i) {
+        instruction_rv64_t* inst = &dyn->insts[i];
+        inst->rsp_entry = 0;
+        inst->rsp_flush = 0;
+        inst->rsp_merge = 0;
+        int class = (inst->x64.alive && !BOX64ENV(dynarec_test)) ? inst->rsp_class : RSP_CLASS_BARRIER;
+        if (pending && (class == RSP_CLASS_BARRIER || (i == 0) || (inst->pred_sz != 1) || (inst->pred[0] != i - 1))) {
+            dyn->insts[last_pushpop].rsp_flush = pending;
+            pending = 0;
+            last_pushpop = -1;
+        }
+        switch (class) {
+            case RSP_CLASS_PUSH:
+                if (pending - (inst->rsp_span ? inst->rsp_span : delta) < -2048) {
+                    dyn->insts[last_pushpop].rsp_flush = pending;
+                    pending = 0;
+                }
+                inst->rsp_entry = pending;
+                inst->rsp_merge = 1;
+                pending -= (inst->rsp_span ? inst->rsp_span : delta);
+                last_pushpop = i;
+                break;
+            case RSP_CLASS_POP:
+                if (pending + (inst->rsp_span ? inst->rsp_span : delta) > 2047) {
+                    dyn->insts[last_pushpop].rsp_flush = pending;
+                    pending = 0;
+                }
+                inst->rsp_entry = pending;
+                inst->rsp_merge = 1;
+                pending += (inst->rsp_span ? inst->rsp_span : delta);
+                last_pushpop = i;
+                break;
+            default:
+                break;
+        }
+    }
+    if (pending) dyn->insts[last_pushpop].rsp_flush = pending;
 }

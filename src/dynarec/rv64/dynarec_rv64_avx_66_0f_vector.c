@@ -199,7 +199,7 @@ uintptr_t dynarec64_AVX_66_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             INST_NAME("VMOVMSKPD Gd, Ex");
             nextop = F8;
             GETEY_vector(q0, 0, VECTOR_SEW64);
-            GETGD;
+            GETGDd;
             VMSLT_VX(VMASK, q0, xZR, VECTOR_UNMASKED);
             VMV_X_S(gd, VMASK);
             ANDI(gd, gd, vex.l ? 0x0f : 0x03);
@@ -1306,7 +1306,7 @@ uintptr_t dynarec64_AVX_66_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             nextop = F8;
             if (!MODREG) return 0;
             INST_NAME("VPEXTRW Gd, Ex, Ib");
-            GETGD;
+            GETGDd;
             q0 = fpu_get_scratch(dyn);
             avx_load_reg_vector(dyn, ninst, x1, q0, (nextop & 7) + (rex.b << 3), 16, VECTOR_SEW16);
             SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW16);
@@ -1319,7 +1319,7 @@ uintptr_t dynarec64_AVX_66_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
         case 0xD7:
             INST_NAME("VPMOVMSKB Gd, Ex");
             nextop = F8;
-            GETGD;
+            GETGDd;
             SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW8);
             q0 = fpu_get_scratch(dyn);
             avx_load_reg_vector(dyn, ninst, x1, q0, (nextop & 7) + (rex.b << 3), 16 << vex.l, VECTOR_SEW8);
