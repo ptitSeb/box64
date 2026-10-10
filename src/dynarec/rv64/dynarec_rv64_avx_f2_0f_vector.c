@@ -137,7 +137,7 @@ uintptr_t dynarec64_AVX_F2_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             PUTGY_vector(v0, VECTOR_SEW64);
             break;
         case 0x51:
-            if (!BOX64ENV(dynarec_fastnan)) return 0;
+            if (BOX64ENV(dynarec_fastnan) != 1) return 0;
             INST_NAME("VSQRTSD Gx, Vx, Ex");
             nextop = F8;
             q0 = fpu_get_scratch(dyn);

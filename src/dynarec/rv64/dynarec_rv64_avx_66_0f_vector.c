@@ -205,7 +205,7 @@ uintptr_t dynarec64_AVX_66_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             ANDI(gd, gd, vex.l ? 0x0f : 0x03);
             break;
         case 0x51:
-            if (!BOX64ENV(dynarec_fastround) || !BOX64ENV(dynarec_fastnan)) return 0;
+            if (!BOX64ENV(dynarec_fastround) || BOX64ENV(dynarec_fastnan) != 1) return 0;
             INST_NAME("VSQRTPD Gx, Ex");
             nextop = F8;
             GETEY_vector(v1, 0, VECTOR_SEW64);
@@ -251,7 +251,7 @@ uintptr_t dynarec64_AVX_66_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             PUTGY_vector(v0, VECTOR_SEW64);
             break;
         case 0x58:
-            if (!BOX64ENV(dynarec_fastnan)) return 0;
+            if (BOX64ENV(dynarec_fastnan) != 1) return 0;
             INST_NAME("VADDPD Gx, Vx, Ex");
             nextop = F8;
             GETVY_vector(q0, VECTOR_SEW64);
@@ -261,7 +261,7 @@ uintptr_t dynarec64_AVX_66_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             PUTGY_vector(v0, VECTOR_SEW64);
             break;
         case 0x59:
-            if (!BOX64ENV(dynarec_fastnan)) return 0;
+            if (BOX64ENV(dynarec_fastnan) != 1) return 0;
             INST_NAME("VMULPD Gx, Vx, Ex");
             nextop = F8;
             GETVY_vector(q0, VECTOR_SEW64);
@@ -271,7 +271,7 @@ uintptr_t dynarec64_AVX_66_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             PUTGY_vector(v0, VECTOR_SEW64);
             break;
         case 0x5A:
-            if (!BOX64ENV(dynarec_fastnan)) return 0;
+            if (BOX64ENV(dynarec_fastnan) != 1) return 0;
             INST_NAME("VCVTPD2PS Gx, Ex");
             nextop = F8;
             d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
@@ -303,7 +303,7 @@ uintptr_t dynarec64_AVX_66_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             PUTGY_vector(v0, VECTOR_SEW32);
             break;
         case 0x5C:
-            if (!BOX64ENV(dynarec_fastnan)) return 0;
+            if (BOX64ENV(dynarec_fastnan) != 1) return 0;
             INST_NAME("VSUBPD Gx, Vx, Ex");
             nextop = F8;
             GETVY_vector(q0, VECTOR_SEW64);
@@ -325,7 +325,7 @@ uintptr_t dynarec64_AVX_66_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             PUTGY_vector(v0, VECTOR_SEW64);
             break;
         case 0x5E:
-            if (!BOX64ENV(dynarec_fastnan)) return 0;
+            if (BOX64ENV(dynarec_fastnan) != 1) return 0;
             INST_NAME("VDIVPD Gx, Vx, Ex");
             nextop = F8;
             GETVY_vector(q0, VECTOR_SEW64);
@@ -848,7 +848,7 @@ uintptr_t dynarec64_AVX_66_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
         case 0x7E:
             return 0;
         case 0xD0:
-            if (!BOX64ENV(dynarec_fastnan)) return 0;
+            if (BOX64ENV(dynarec_fastnan) != 1) return 0;
             INST_NAME("VADDSUBPD Gx, Vx, Ex");
             nextop = F8;
             GETVY_vector(q0, VECTOR_SEW64);

@@ -1136,7 +1136,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             nextop = F8;
             GETEX(q0, 0, 0);
             GETGX_empty(q1);
-            if(!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 v0 = fpu_get_scratch(dyn, ninst);
                 v1 = fpu_get_scratch(dyn, ninst);
                 // check if any input value was NAN
@@ -1156,7 +1156,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             GETEX(q0, 0, 0);
             GETGX_empty(q1);
             v0 = fpu_get_scratch(dyn, ninst);
-            if(!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 d0 = fpu_get_scratch(dyn, ninst);
                 d1 = fpu_get_scratch(dyn, ninst);
                 // check if any input value was NAN
@@ -1165,7 +1165,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             VFMOVSQ_8(v0, 0b01110000);    //1.0f
             VFSQRTQS(q1, q0);
             VFDIVQS(q1, v0, q1);
-            if(!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 VFCMEQQS(d1, q1, q1);    // 0 => out is NAN
                 VBICQ(d1, d0, d1);      // forget it in any input was a NAN already
                 VSHLQ_32(d1, d1, 31);   // only keep the sign bit
@@ -1233,7 +1233,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             nextop = F8;
             GETEX(q0, 0, 0);
             GETGX(q1, 1);
-            if(!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 v0 = fpu_get_scratch(dyn, ninst);
                 v1 = fpu_get_scratch(dyn, ninst);
                 v2 = fpu_get_scratch(dyn, ninst);
@@ -1243,7 +1243,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 VFCMEQQS(v0, v0, v0);    // 0 if NAN, 1 if not NAN
             }
             VFADDQS(q1, q1, q0);
-            if(!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 VFCMEQQS(v1, q1, q1);    // 0 => out is NAN
                 VBICQ(v1, v0, v1);      // forget it in any input was a NAN already
                 VSHLQ_32(v1, v1, 31);   // only keep the sign bit
@@ -1259,7 +1259,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             nextop = F8;
             GETEX(q0, 0, 0);
             GETGX(q1, 1);
-            if(!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 v0 = fpu_get_scratch(dyn, ninst);
                 v1 = fpu_get_scratch(dyn, ninst);
                 v2 = fpu_get_scratch(dyn, ninst);
@@ -1269,7 +1269,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 VFCMEQQS(v0, v0, v0);    // 0 if NAN, 1 if not NAN
             }
             VFMULQS(q1, q1, q0);
-            if(!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 VFCMEQQS(v1, q1, q1);    // 0 => out is NAN
                 VBICQ(v1, v0, v1);      // forget it in any input was a NAN already
                 VSHLQ_32(v1, v1, 31);   // only keep the sign bit
@@ -1299,7 +1299,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             nextop = F8;
             GETEX(q0, 0, 0);
             GETGX(q1, 1);
-            if(!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 v0 = fpu_get_scratch(dyn, ninst);
                 v1 = fpu_get_scratch(dyn, ninst);
                 v2 = fpu_get_scratch(dyn, ninst);
@@ -1309,7 +1309,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 VFCMEQQS(v0, v0, v0);    // 0 if NAN, 1 if not NAN
             }
             VFSUBQS(q1, q1, q0);
-            if(!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 VFCMEQQS(v1, q1, q1);    // 0 => out is NAN
                 VBICQ(v1, v0, v1);      // forget it in any input was a NAN already
                 VSHLQ_32(v1, v1, 31);   // only keep the sign bit
@@ -1336,7 +1336,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             nextop = F8;
             GETEX(q0, 0, 0);
             GETGX(q1, 1);
-            if(!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 v0 = fpu_get_scratch(dyn, ninst);
                 v1 = fpu_get_scratch(dyn, ninst);
                 v2 = fpu_get_scratch(dyn, ninst);
@@ -1346,7 +1346,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 VFCMEQQS(v0, v0, v0);    // 0 if NAN, 1 if not NAN
             }
             VFDIVQS(q1, q1, q0);
-            if(!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 VFCMEQQS(v1, q1, q1);    // 0 => out is NAN
                 VBICQ(v1, v0, v1);      // forget it in any input was a NAN already
                 VSHLQ_32(v1, v1, 31);   // only keep the sign bit

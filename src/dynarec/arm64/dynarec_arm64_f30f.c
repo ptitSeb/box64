@@ -241,7 +241,7 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETEXSS(d0, 0, 0);
             MARK_XMM_SCALAR_SINGLE(gd);
             if(MODREG) MARK_XMM_SCALAR_SINGLE((nextop&7)+(rex.b<<3));
-            if(!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 v0 = fpu_get_scratch(dyn, ninst);
                 v1 = fpu_get_scratch(dyn, ninst);
                 // check if any input value was NAN
@@ -252,7 +252,7 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 VSHL_32(v1, v1, 31);   // only keep the sign bit
                 VORR(d1, d1, v1);      // NAN -> -NAN
                 VMOVeS(q0, 0, d1, 0);
-            } else if(XMMS_UNNEEDED(gd)) {
+            } else if (XMMS_UNNEEDED(gd)) {
                 FSQRTS(q0, d0);  // upper 96 dead: compute in place, skip preserve
             } else {
                 FSQRTS(d1, d0);
@@ -299,7 +299,7 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETEXSS(d0, 0, 0);
             MARK_XMM_SCALAR_SINGLE(gd);
             if(MODREG) MARK_XMM_SCALAR_SINGLE((nextop&7)+(rex.b<<3));
-            if(!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 v0 = fpu_get_scratch(dyn, ninst);
                 q0 = fpu_get_scratch(dyn, ninst);
                 v2 = fpu_get_scratch(dyn, ninst);
@@ -319,7 +319,7 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 VORR(v2, v2, q0);      // quiet any SNaN in src1
                 VBIF(v1, v2, v0);      // where src1 was NaN, use QNaN(src1)
                 VMOVeS(d1, 0, v1, 0);
-            } else if(XMMS_UNNEEDED(gd)) {
+            } else if (XMMS_UNNEEDED(gd)) {
                 FADDS(d1, d1, d0);  // upper 96 dead: compute in place, skip preserve
             } else {
                 FADDS(v1, d1, d0);  // the high part of the vector is erased...
@@ -334,7 +334,7 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETEXSS(d0, 0, 0);
             MARK_XMM_SCALAR_SINGLE(gd);
             if(MODREG) MARK_XMM_SCALAR_SINGLE((nextop&7)+(rex.b<<3));
-            if(!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 v0 = fpu_get_scratch(dyn, ninst);
                 q0 = fpu_get_scratch(dyn, ninst);
                 v2 = fpu_get_scratch(dyn, ninst);
@@ -354,7 +354,7 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 VORR(v2, v2, q0);      // quiet any SNaN in src1
                 VBIF(v1, v2, v0);      // where src1 was NaN, use QNaN(src1)
                 VMOVeS(d1, 0, v1, 0);
-            } else if(XMMS_UNNEEDED(gd)) {
+            } else if (XMMS_UNNEEDED(gd)) {
                 FMULS(d1, d1, d0);  // upper 96 dead: compute in place, skip preserve
             } else {
                 FMULS(v1, d1, d0);  // the high part of the vector is erased...
@@ -423,7 +423,7 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETEXSS(d0, 0, 0);
             MARK_XMM_SCALAR_SINGLE(gd);
             if(MODREG) MARK_XMM_SCALAR_SINGLE((nextop&7)+(rex.b<<3));
-            if(!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 v0 = fpu_get_scratch(dyn, ninst);
                 q0 = fpu_get_scratch(dyn, ninst);
                 v2 = fpu_get_scratch(dyn, ninst);
@@ -443,7 +443,7 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 VORR(v2, v2, q0);      // quiet any SNaN in src1
                 VBIF(v1, v2, v0);      // where src1 was NaN, use QNaN(src1)
                 VMOVeS(d1, 0, v1, 0);
-            } else if(XMMS_UNNEEDED(gd)) {
+            } else if (XMMS_UNNEEDED(gd)) {
                 FSUBS(d1, d1, d0);  // upper 96 dead: compute in place, skip preserve
             } else {
                 FSUBS(v1, d1, d0);  // the high part of the vector is erased...
@@ -488,7 +488,7 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 STRw_U12(x5, xEmu, offsetof(x64emu_t, mxcsr));
                 MARK3;
             }
-            if(!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 v0 = fpu_get_scratch(dyn, ninst);
                 q0 = fpu_get_scratch(dyn, ninst);
                 v2 = fpu_get_scratch(dyn, ninst);
@@ -508,7 +508,7 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 VORR(v2, v2, q0);      // quiet any SNaN in src1
                 VBIF(v1, v2, v0);      // where src1 was NaN, use QNaN(src1)
                 VMOVeS(d1, 0, v1, 0);
-            } else if(XMMS_UNNEEDED(gd)) {
+            } else if (XMMS_UNNEEDED(gd)) {
                 FDIVS(d1, d1, d0);  // upper 96 dead: compute in place, skip preserve
             } else {
                 FDIVS(v1, d1, d0);  // the high part of the vector is erased...

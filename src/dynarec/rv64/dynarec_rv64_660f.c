@@ -329,14 +329,14 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGX();
             GETEX(x2, 0, 8);
             d0 = fpu_get_scratch(dyn);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 d1 = fpu_get_scratch(dyn);
                 FMVDX(d1, xZR);
                 MOV64x(x6, 0x0008000000000000ULL);
             }
             for (int i = 0; i < 2; ++i) {
                 FLD(d0, wback, fixedaddress + i * 8);
-                if (!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) != 1) {
                     FEQD(x3, d0, d0);
                     BNEZ(x3, 5 * 4);
                     FMVXD(x4, d0);
@@ -346,7 +346,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     FLTD(x3, d0, d1);
                 }
                 FSQRTD(d0, d0);
-                if (!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) != 1) {
                     BEQ(x3, xZR, 8);
                     FNEGD(d0, d0);
                 }
@@ -388,18 +388,18 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEX(x2, 0, 8);
             d0 = fpu_get_scratch(dyn);
             d1 = fpu_get_scratch(dyn);
-            if (!BOX64ENV(dynarec_fastnan)) MOV64x(x6, 0x0008000000000000ULL);
+            if (BOX64ENV(dynarec_fastnan) != 1) MOV64x(x6, 0x0008000000000000ULL);
             for (int i = 0; i < 2; ++i) {
                 FLD(d0, wback, fixedaddress + 8 * i);
                 FLD(d1, gback, gdoffset + 8 * i);
-                if (!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) != 1) {
                     FEQD(x3, d0, d0);
                     FEQD(x4, d1, d1);
                     AND(x5, x3, x4);
                     BEQZ(x5, 4 + 4 * 4);
                 }
                 FADDD(d0, d0, d1);
-                if (!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) != 1) {
                     FEQD(x5, d0, d0);
                     BNEZ(x5, 4 + 6 * 4);
                     FNEGD(d0, d0);
@@ -419,18 +419,18 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEX(x2, 0, 8);
             d0 = fpu_get_scratch(dyn);
             d1 = fpu_get_scratch(dyn);
-            if (!BOX64ENV(dynarec_fastnan)) MOV64x(x6, 0x0008000000000000ULL);
+            if (BOX64ENV(dynarec_fastnan) != 1) MOV64x(x6, 0x0008000000000000ULL);
             for (int i = 0; i < 2; ++i) {
                 FLD(d0, wback, fixedaddress + 8 * i);
                 FLD(d1, gback, gdoffset + 8 * i);
-                if (!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) != 1) {
                     FEQD(x3, d0, d0);
                     FEQD(x4, d1, d1);
                     AND(x5, x3, x4);
                     BEQZ(x5, 4 + 4 * 4);
                 }
                 FMULD(d0, d0, d1);
-                if (!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) != 1) {
                     FEQD(x5, d0, d0);
                     BNEZ(x5, 4 + 6 * 4);
                     FNEGD(d0, d0);
@@ -452,12 +452,12 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             u8 = sse_setround(dyn, ninst, x6, x4);
             for (int i = 0; i < 2; ++i) {
                 FLD(d0, wback, fixedaddress + i * 8);
-                if (!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) != 1) {
                     FMVXD(x3, d0);
                     FEQD(x4, d0, d0);
                 }
                 FCVTSD(d0, d0);
-                if (!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) != 1) {
                     BNEZ_MARKi(x4, i);
                     SRLI(x4, x3, 63);
                     SLLI(x4, x4, 31);
@@ -500,18 +500,18 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEX(x2, 0, 8);
             d0 = fpu_get_scratch(dyn);
             d1 = fpu_get_scratch(dyn);
-            if (!BOX64ENV(dynarec_fastnan)) MOV64x(x6, 0x0008000000000000ULL);
+            if (BOX64ENV(dynarec_fastnan) != 1) MOV64x(x6, 0x0008000000000000ULL);
             for (int i = 0; i < 2; ++i) {
                 FLD(d0, wback, fixedaddress + 8 * i);
                 FLD(d1, gback, gdoffset + 8 * i);
-                if (!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) != 1) {
                     FEQD(x3, d0, d0);
                     FEQD(x4, d1, d1);
                     AND(x5, x3, x4);
                     BEQZ(x5, 4 + 4 * 4);
                 }
                 FSUBD(d0, d1, d0);
-                if (!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) != 1) {
                     FEQD(x5, d0, d0);
                     BNEZ(x5, 4 + 6 * 4);
                     FNEGD(d0, d0);
@@ -550,18 +550,18 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEX(x2, 0, 8);
             d0 = fpu_get_scratch(dyn);
             d1 = fpu_get_scratch(dyn);
-            if (!BOX64ENV(dynarec_fastnan)) MOV64x(x6, 0x0008000000000000ULL);
+            if (BOX64ENV(dynarec_fastnan) != 1) MOV64x(x6, 0x0008000000000000ULL);
             for (int i = 0; i < 2; ++i) {
                 FLD(d0, wback, fixedaddress + 8 * i);
                 FLD(d1, gback, gdoffset + 8 * i);
-                if (!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) != 1) {
                     FEQD(x3, d0, d0);
                     FEQD(x4, d1, d1);
                     AND(x5, x3, x4);
                     BEQZ(x5, 4 + 4 * 4);
                 }
                 FDIVD(d0, d1, d0);
-                if (!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) != 1) {
                     FEQD(x5, d0, d0);
                     BNEZ(x5, 4 + 6 * 4);
                     FNEGD(d0, d0);
@@ -1154,12 +1154,12 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGX();
             d0 = fpu_get_scratch(dyn);
             d1 = fpu_get_scratch(dyn);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 MOV64x(x7, 0x0008000000000000ULL);
             }
             FLD(d0, gback, gdoffset + 0);
             FLD(d1, gback, gdoffset + 8);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 FMVXD(x5, d0);
                 FMVXD(x6, d1);
                 FEQD(x3, d0, d0);
@@ -1167,7 +1167,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 AND(x4, x3, x4);
             }
             FADDD(d0, d0, d1);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 BNEZ(x4, 4 + 7 * 4);
                 BNEZ(x3, 4 + 3 * 4);
                 OR(x5, x5, x7);
@@ -1187,7 +1187,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 GETEX(x2, 0, 8);
                 FLD(d0, wback, fixedaddress + 0);
                 FLD(d1, wback, fixedaddress + 8);
-                if (!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) != 1) {
                     FMVXD(x5, d0);
                     FMVXD(x6, d1);
                     FEQD(x3, d0, d0);
@@ -1195,7 +1195,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     AND(x4, x3, x4);
                 }
                 FADDD(d0, d0, d1);
-                if (!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) != 1) {
                     BNEZ(x4, 4 + 7 * 4);
                     BNEZ(x3, 4 + 3 * 4);
                     OR(x5, x5, x7);
@@ -1217,12 +1217,12 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGX();
             d0 = fpu_get_scratch(dyn);
             d1 = fpu_get_scratch(dyn);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 MOV64x(x7, 0x0008000000000000ULL);
             }
             FLD(d0, gback, gdoffset + 0);
             FLD(d1, gback, gdoffset + 8);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 FMVXD(x5, d0);
                 FMVXD(x6, d1);
                 FEQD(x3, d0, d0);
@@ -1230,7 +1230,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 AND(x4, x3, x4);
             }
             FSUBD(d0, d0, d1);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 BNEZ(x4, 4 + 7 * 4);
                 BNEZ(x3, 4 + 3 * 4);
                 OR(x5, x5, x7);
@@ -1250,7 +1250,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 GETEX(x2, 0, 8);
                 FLD(d0, wback, fixedaddress + 0);
                 FLD(d1, wback, fixedaddress + 8);
-                if (!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) != 1) {
                     FMVXD(x5, d0);
                     FMVXD(x6, d1);
                     FEQD(x3, d0, d0);
@@ -1258,7 +1258,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     AND(x4, x3, x4);
                 }
                 FSUBD(d0, d0, d1);
-                if (!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) != 1) {
                     BNEZ(x4, 4 + 7 * 4);
                     BNEZ(x3, 4 + 3 * 4);
                     OR(x5, x5, x7);
@@ -1972,11 +1972,11 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEX(x2, 0, 8);
             d0 = fpu_get_scratch(dyn);
             d1 = fpu_get_scratch(dyn);
-            if (!BOX64ENV(dynarec_fastnan)) MOV64x(x6, 0x0008000000000000LL);
+            if (BOX64ENV(dynarec_fastnan) != 1) MOV64x(x6, 0x0008000000000000LL);
             for (int i = 0; i < 2; ++i) {
                 FLD(d0, wback, fixedaddress + 8 * i);
                 FLD(d1, gback, gdoffset + 8 * i);
-                if (!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) != 1) {
                     FEQD(x3, d0, d0);
                     FEQD(x4, d1, d1);
                     AND(x5, x3, x4);
@@ -1986,7 +1986,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     FADDD(d1, d1, d0);
                 else
                     FSUBD(d1, d1, d0);
-                if (!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) != 1) {
                     FEQD(x5, d1, d1);
                     BNEZ(x5, 8 * 4);
                     FNEGD(d1, d1);

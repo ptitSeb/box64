@@ -48,25 +48,25 @@ uintptr_t dynarec64_DE(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 v1 = x87_get_st(dyn, ninst, x1, x2, nextop & 7, X87_COMBINE(0, nextop & 7));
                 if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x5);
                 if (ST_IS_F(0)) {
-                    if (!BOX64ENV(dynarec_fastnan)) {
+                    if (BOX64ENV(dynarec_fastnan) == 2) {
                         s1 = fpu_get_scratch(dyn);
                         s2 = fpu_get_scratch(dyn);
                         FMOV_S(s1, v1);
                         FMOV_S(s2, v2);
                     }
                     FADD_S(v1, v1, v2);
-                    if (!BOX64ENV(dynarec_fastnan)) {
+                    if (BOX64ENV(dynarec_fastnan) == 2) {
                         X87_ARITH_NAN_FIX_S(v1, s1, s2);
                     }
                 } else {
-                    if (!BOX64ENV(dynarec_fastnan)) {
+                    if (BOX64ENV(dynarec_fastnan) == 2) {
                         s1 = fpu_get_scratch(dyn);
                         s2 = fpu_get_scratch(dyn);
                         FMOV_D(s1, v1);
                         FMOV_D(s2, v2);
                     }
                     FADD_D(v1, v1, v2);
-                    if (!BOX64ENV(dynarec_fastnan)) {
+                    if (BOX64ENV(dynarec_fastnan) == 2) {
                         X87_ARITH_NAN_FIX_D(v1, s1, s2);
                     }
                 }
@@ -80,25 +80,25 @@ uintptr_t dynarec64_DE(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 v1 = x87_get_st(dyn, ninst, x1, x2, nextop & 7, X87_COMBINE(0, nextop & 7));
                 if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x5);
                 if (ST_IS_F(0)) {
-                    if (!BOX64ENV(dynarec_fastnan)) {
+                    if (BOX64ENV(dynarec_fastnan) == 2) {
                         s1 = fpu_get_scratch(dyn);
                         s2 = fpu_get_scratch(dyn);
                         FMOV_S(s1, v1);
                         FMOV_S(s2, v2);
                     }
                     FMUL_S(v1, v1, v2);
-                    if (!BOX64ENV(dynarec_fastnan)) {
+                    if (BOX64ENV(dynarec_fastnan) == 2) {
                         X87_ARITH_NAN_FIX_S(v1, s1, s2);
                     }
                 } else {
-                    if (!BOX64ENV(dynarec_fastnan)) {
+                    if (BOX64ENV(dynarec_fastnan) == 2) {
                         s1 = fpu_get_scratch(dyn);
                         s2 = fpu_get_scratch(dyn);
                         FMOV_D(s1, v1);
                         FMOV_D(s2, v2);
                     }
                     FMUL_D(v1, v1, v2);
-                    if (!BOX64ENV(dynarec_fastnan)) {
+                    if (BOX64ENV(dynarec_fastnan) == 2) {
                         X87_ARITH_NAN_FIX_D(v1, s1, s2);
                     }
                 }
@@ -135,25 +135,25 @@ uintptr_t dynarec64_DE(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 v1 = x87_get_st(dyn, ninst, x1, x2, nextop & 7, X87_COMBINE(0, nextop & 7));
                 if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x5);
                 if (ST_IS_F(0)) {
-                    if (!BOX64ENV(dynarec_fastnan)) {
+                    if (BOX64ENV(dynarec_fastnan) == 2) {
                         s1 = fpu_get_scratch(dyn);
                         s2 = fpu_get_scratch(dyn);
                         FMOV_S(s1, v2);
                         FMOV_S(s2, v1);
                     }
                     FSUB_S(v1, v2, v1);
-                    if (!BOX64ENV(dynarec_fastnan)) {
+                    if (BOX64ENV(dynarec_fastnan) == 2) {
                         X87_ARITH_NAN_FIX_S(v1, s1, s2);
                     }
                 } else {
-                    if (!BOX64ENV(dynarec_fastnan)) {
+                    if (BOX64ENV(dynarec_fastnan) == 2) {
                         s1 = fpu_get_scratch(dyn);
                         s2 = fpu_get_scratch(dyn);
                         FMOV_D(s1, v2);
                         FMOV_D(s2, v1);
                     }
                     FSUB_D(v1, v2, v1);
-                    if (!BOX64ENV(dynarec_fastnan)) {
+                    if (BOX64ENV(dynarec_fastnan) == 2) {
                         X87_ARITH_NAN_FIX_D(v1, s1, s2);
                     }
                 }
@@ -167,25 +167,25 @@ uintptr_t dynarec64_DE(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 v1 = x87_get_st(dyn, ninst, x1, x2, nextop & 7, X87_COMBINE(0, nextop & 7));
                 if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x5);
                 if (ST_IS_F(0)) {
-                    if (!BOX64ENV(dynarec_fastnan)) {
+                    if (BOX64ENV(dynarec_fastnan) == 2) {
                         s1 = fpu_get_scratch(dyn);
                         s2 = fpu_get_scratch(dyn);
                         FMOV_S(s1, v1);
                         FMOV_S(s2, v2);
                     }
                     FSUB_S(v1, v1, v2);
-                    if (!BOX64ENV(dynarec_fastnan)) {
+                    if (BOX64ENV(dynarec_fastnan) == 2) {
                         X87_ARITH_NAN_FIX_S(v1, s1, s2);
                     }
                 } else {
-                    if (!BOX64ENV(dynarec_fastnan)) {
+                    if (BOX64ENV(dynarec_fastnan) == 2) {
                         s1 = fpu_get_scratch(dyn);
                         s2 = fpu_get_scratch(dyn);
                         FMOV_D(s1, v1);
                         FMOV_D(s2, v2);
                     }
                     FSUB_D(v1, v1, v2);
-                    if (!BOX64ENV(dynarec_fastnan)) {
+                    if (BOX64ENV(dynarec_fastnan) == 2) {
                         X87_ARITH_NAN_FIX_D(v1, s1, s2);
                     }
                 }
@@ -199,25 +199,25 @@ uintptr_t dynarec64_DE(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 v1 = x87_get_st(dyn, ninst, x1, x2, nextop & 7, X87_COMBINE(0, nextop & 7));
                 if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x5);
                 if (ST_IS_F(0)) {
-                    if (!BOX64ENV(dynarec_fastnan)) {
+                    if (BOX64ENV(dynarec_fastnan) == 2) {
                         s1 = fpu_get_scratch(dyn);
                         s2 = fpu_get_scratch(dyn);
                         FMOV_S(s1, v2);
                         FMOV_S(s2, v1);
                     }
                     FDIV_S(v1, v2, v1);
-                    if (!BOX64ENV(dynarec_fastnan)) {
+                    if (BOX64ENV(dynarec_fastnan) == 2) {
                         X87_ARITH_NAN_FIX_S(v1, s1, s2);
                     }
                 } else {
-                    if (!BOX64ENV(dynarec_fastnan)) {
+                    if (BOX64ENV(dynarec_fastnan) == 2) {
                         s1 = fpu_get_scratch(dyn);
                         s2 = fpu_get_scratch(dyn);
                         FMOV_D(s1, v2);
                         FMOV_D(s2, v1);
                     }
                     FDIV_D(v1, v2, v1);
-                    if (!BOX64ENV(dynarec_fastnan)) {
+                    if (BOX64ENV(dynarec_fastnan) == 2) {
                         X87_ARITH_NAN_FIX_D(v1, s1, s2);
                     }
                 }
@@ -231,25 +231,25 @@ uintptr_t dynarec64_DE(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 v1 = x87_get_st(dyn, ninst, x1, x2, nextop & 7, X87_COMBINE(0, nextop & 7));
                 if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x5);
                 if (ST_IS_F(0)) {
-                    if (!BOX64ENV(dynarec_fastnan)) {
+                    if (BOX64ENV(dynarec_fastnan) == 2) {
                         s1 = fpu_get_scratch(dyn);
                         s2 = fpu_get_scratch(dyn);
                         FMOV_S(s1, v1);
                         FMOV_S(s2, v2);
                     }
                     FDIV_S(v1, v1, v2);
-                    if (!BOX64ENV(dynarec_fastnan)) {
+                    if (BOX64ENV(dynarec_fastnan) == 2) {
                         X87_ARITH_NAN_FIX_S(v1, s1, s2);
                     }
                 } else {
-                    if (!BOX64ENV(dynarec_fastnan)) {
+                    if (BOX64ENV(dynarec_fastnan) == 2) {
                         s1 = fpu_get_scratch(dyn);
                         s2 = fpu_get_scratch(dyn);
                         FMOV_D(s1, v1);
                         FMOV_D(s2, v2);
                     }
                     FDIV_D(v1, v1, v2);
-                    if (!BOX64ENV(dynarec_fastnan)) {
+                    if (BOX64ENV(dynarec_fastnan) == 2) {
                         X87_ARITH_NAN_FIX_D(v1, s1, s2);
                     }
                 }
@@ -272,14 +272,14 @@ uintptr_t dynarec64_DE(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 MOVGR2FR_D(v2, x2);
                 FFINT_D_L(v2, v2);
                 if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x5);
-                if (!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) == 2) {
                     s1 = fpu_get_scratch(dyn);
                     s2 = fpu_get_scratch(dyn);
                     FMOV_D(s1, v1);
                     FMOV_D(s2, v2);
                 }
                 FADD_D(v1, v1, v2);
-                if (!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) == 2) {
                     X87_ARITH_NAN_FIX_D(v1, s1, s2);
                 }
                 X87_CHECK_PRECISION(v1);
@@ -294,14 +294,14 @@ uintptr_t dynarec64_DE(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 MOVGR2FR_D(v2, x2);
                 FFINT_D_L(v2, v2);
                 if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x5);
-                if (!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) == 2) {
                     s1 = fpu_get_scratch(dyn);
                     s2 = fpu_get_scratch(dyn);
                     FMOV_D(s1, v1);
                     FMOV_D(s2, v2);
                 }
                 FMUL_D(v1, v1, v2);
-                if (!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) == 2) {
                     X87_ARITH_NAN_FIX_D(v1, s1, s2);
                 }
                 X87_CHECK_PRECISION(v1);
@@ -337,14 +337,14 @@ uintptr_t dynarec64_DE(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 MOVGR2FR_D(v2, x2);
                 FFINT_D_L(v2, v2);
                 if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x5);
-                if (!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) == 2) {
                     s1 = fpu_get_scratch(dyn);
                     s2 = fpu_get_scratch(dyn);
                     FMOV_D(s1, v1);
                     FMOV_D(s2, v2);
                 }
                 FSUB_D(v1, v1, v2);
-                if (!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) == 2) {
                     X87_ARITH_NAN_FIX_D(v1, s1, s2);
                 }
                 X87_CHECK_PRECISION(v1);
@@ -359,14 +359,14 @@ uintptr_t dynarec64_DE(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 MOVGR2FR_D(v2, x2);
                 FFINT_D_L(v2, v2);
                 if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x5);
-                if (!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) == 2) {
                     s1 = fpu_get_scratch(dyn);
                     s2 = fpu_get_scratch(dyn);
                     FMOV_D(s1, v2);
                     FMOV_D(s2, v1);
                 }
                 FSUB_D(v1, v2, v1);
-                if (!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) == 2) {
                     X87_ARITH_NAN_FIX_D(v1, s1, s2);
                 }
                 X87_CHECK_PRECISION(v1);
@@ -381,14 +381,14 @@ uintptr_t dynarec64_DE(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 MOVGR2FR_D(v2, x2);
                 FFINT_D_L(v2, v2);
                 if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x5);
-                if (!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) == 2) {
                     s1 = fpu_get_scratch(dyn);
                     s2 = fpu_get_scratch(dyn);
                     FMOV_D(s1, v1);
                     FMOV_D(s2, v2);
                 }
                 FDIV_D(v1, v1, v2);
-                if (!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) == 2) {
                     X87_ARITH_NAN_FIX_D(v1, s1, s2);
                 }
                 X87_CHECK_PRECISION(v1);
@@ -403,14 +403,14 @@ uintptr_t dynarec64_DE(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 MOVGR2FR_D(v2, x2);
                 FFINT_D_L(v2, v2);
                 if (!BOX64ENV(dynarec_fastround)) u8 = x87_setround(dyn, ninst, x1, x5);
-                if (!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) == 2) {
                     s1 = fpu_get_scratch(dyn);
                     s2 = fpu_get_scratch(dyn);
                     FMOV_D(s1, v2);
                     FMOV_D(s2, v1);
                 }
                 FDIV_D(v1, v2, v1);
-                if (!BOX64ENV(dynarec_fastnan)) {
+                if (BOX64ENV(dynarec_fastnan) == 2) {
                     X87_ARITH_NAN_FIX_D(v1, s1, s2);
                 }
                 X87_CHECK_PRECISION(v1);

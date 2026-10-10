@@ -271,9 +271,9 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGXSS(v0, 1);
             GETEXSS(d0, 0, 0);
-            d1 = xmm_scalar_begin(dyn, ninst, &scalar, v0, gd, BOX64ENV(dynarec_fastnan), XMM_SCALAR_SS, XMM_UPPER_PRESERVE);
+            d1 = xmm_scalar_begin(dyn, ninst, &scalar, v0, gd, (BOX64ENV(dynarec_fastnan) == 1), XMM_SCALAR_SS, XMM_UPPER_PRESERVE);
             FSQRT_S(d1, d0);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 v1 = fpu_get_scratch(dyn);
                 MOVGR2FR_W(v1, xZR);
                 FCMP_S(fcc0, d0, v1, cLT);
@@ -309,9 +309,9 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGXSS(v0, 1);
             GETEXSS(d0, 0, 0);
-            d1 = xmm_scalar_begin(dyn, ninst, &scalar, v0, gd, BOX64ENV(dynarec_fastnan), XMM_SCALAR_SS, XMM_UPPER_PRESERVE);
+            d1 = xmm_scalar_begin(dyn, ninst, &scalar, v0, gd, (BOX64ENV(dynarec_fastnan) == 1), XMM_SCALAR_SS, XMM_UPPER_PRESERVE);
             FADD_S(d1, v0, d0);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 q0 = fpu_get_scratch(dyn);
                 FCMP_S(fcc0, v0, d0, cUN);
                 BCNEZ_MARK(fcc0);
@@ -333,9 +333,9 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGXSS(v0, 1);
             GETEXSS(d0, 0, 0);
-            d1 = xmm_scalar_begin(dyn, ninst, &scalar, v0, gd, BOX64ENV(dynarec_fastnan), XMM_SCALAR_SS, XMM_UPPER_PRESERVE);
+            d1 = xmm_scalar_begin(dyn, ninst, &scalar, v0, gd, (BOX64ENV(dynarec_fastnan) == 1), XMM_SCALAR_SS, XMM_UPPER_PRESERVE);
             FMUL_S(d1, v0, d0);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 q0 = fpu_get_scratch(dyn);
                 FCMP_S(fcc0, v0, d0, cUN);
                 BCNEZ_MARK(fcc0);
@@ -391,9 +391,9 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGXSS(v0, 1);
             GETEXSS(d0, 0, 0);
-            d1 = xmm_scalar_begin(dyn, ninst, &scalar, v0, gd, BOX64ENV(dynarec_fastnan), XMM_SCALAR_SS, XMM_UPPER_PRESERVE);
+            d1 = xmm_scalar_begin(dyn, ninst, &scalar, v0, gd, (BOX64ENV(dynarec_fastnan) == 1), XMM_SCALAR_SS, XMM_UPPER_PRESERVE);
             FSUB_S(d1, v0, d0);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 q0 = fpu_get_scratch(dyn);
                 FCMP_S(fcc0, v0, d0, cUN);
                 BCNEZ_MARK(fcc0);
@@ -425,7 +425,7 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGXSS(v0, 1);
             GETEXSS(d0, 0, 0);
-            d1 = xmm_scalar_begin(dyn, ninst, &scalar, v0, gd, BOX64ENV(dynarec_fastnan), XMM_SCALAR_SS, XMM_UPPER_PRESERVE);
+            d1 = xmm_scalar_begin(dyn, ninst, &scalar, v0, gd, (BOX64ENV(dynarec_fastnan) == 1), XMM_SCALAR_SS, XMM_UPPER_PRESERVE);
             if (BOX64ENV(dynarec_div0)) {
                 LD_WU(x5, xEmu, offsetof(x64emu_t, mxcsr));
                 ANDI(x5, x5, 1 << 9); // ZE mask bit
@@ -447,7 +447,7 @@ uintptr_t dynarec64_F30F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 MARK3;
             }
             FDIV_S(d1, v0, d0);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 q0 = fpu_get_scratch(dyn);
                 FCMP_S(fcc0, v0, d0, cUN);
                 BCNEZ_MARK(fcc0);

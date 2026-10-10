@@ -209,7 +209,7 @@ static void applyCustomRules()
         parseRange(box64env.dynarec_dump_range, &box64env.dynarec_dump_range_start, &box64env.dynarec_dump_range_end);
 
     if (box64env.dynarec_test) {
-        SET_BOX64ENV(dynarec_fastnan, 0);
+        SET_BOX64ENV(dynarec_fastnan, 2);
         SET_BOX64ENV(dynarec_fastround, 0);
         if (BOX64ENV(dynarec_x87double) == 0)
             SET_BOX64ENV(dynarec_x87double, 1);

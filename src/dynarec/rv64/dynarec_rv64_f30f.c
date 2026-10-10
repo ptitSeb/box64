@@ -212,12 +212,12 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETEXSS(v0, 0);
             GETGXSS_empty(v1);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 FMVXW(x3, v0);
                 FEQS(x4, v0, v0);
             }
             FSQRTS(v1, v0);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 FEQS(x5, v1, v1);
                 BNEZ_MARK(x5);
                 BNEZ_MARK2(x4);
@@ -239,11 +239,11 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             d0 = fpu_get_scratch(dyn); // 0.0f
             LUI(x3, 0x3F800); // 1.0f
             FMVWX(q0, x3);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 MOV32w(x6, 0x00400000);
                 FCVTSW(d0, xZR, RD_DYN);
             }
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 FEQS(x3, v0, v0);
                 BNEZ(x3, 5 * 4);
                 FMVXW(x4, v0);
@@ -259,7 +259,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             }
             FSQRTS(v1, v0);
             FDIVS(v1, q0, v1);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 FEQS(x3, v1, v1);
                 BNEZ(x3, 2 * 4); // isnan(v1)? negate it
                 FNEGS(v1, v1);
@@ -273,7 +273,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             q0 = fpu_get_scratch(dyn);
             LUI(x3, 0x3F800); // 1.0f
             FMVWX(q0, x3);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 MOV32w(x6, 0x00400000);
                 FEQS(x3, v0, v0);
                 BNEZ(x3, 5 * 4);
@@ -283,7 +283,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 J(5 * 4); // done
             }
             FDIVS(v1, q0, v0);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 FEQS(x3, v1, v1);
                 BNEZ(x3, 2 * 4); // isnan(v1)? negate it
                 FNEGS(v1, v1);
@@ -295,7 +295,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGXSS(v0);
             GETEXSS(d0, 0);
             q0 = fpu_get_scratch(dyn);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 MOV32w(x6, 0x00400000);
                 FMVS(q0, d0);
                 FEQS(x3, d0, d0);
@@ -304,7 +304,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 BEQZ(x5, 4 + 4 * 4);
             }
             FADDS(q0, d0, v0);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 FEQS(x5, q0, q0);
                 BNEZ(x5, 4 + 6 * 4);
                 FNEGS(q0, q0);
@@ -322,7 +322,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGXSS(v0);
             GETEXSS(d0, 0);
             q0 = fpu_get_scratch(dyn);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 MOV32w(x6, 0x00400000);
                 FMVS(q0, d0);
                 FEQS(x3, d0, d0);
@@ -331,7 +331,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 BEQZ(x5, 4 + 4 * 4);
             }
             FMULS(q0, d0, v0);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 FEQS(x5, q0, q0);
                 BNEZ(x5, 4 + 6 * 4);
                 FNEGS(q0, q0);
@@ -348,7 +348,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             gd = ((nextop & 0x38) >> 3) + (rex.r << 3);
             GETEXSS(v1, 0);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 FEQS(x3, v1, v1);
                 FMVXW(x4, v1);
             }
@@ -358,7 +358,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 GETGXSD_empty(v0);
             }
             FCVTDS(v0, v1);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 BNEZ_MARK(x3);
                 SRLIW(x5, x4, 31);
                 SLLI(x5, x5, 63);
@@ -399,7 +399,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGXSS(v0);
             GETEXSS(d0, 0);
             q0 = fpu_get_scratch(dyn);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 MOV32w(x6, 0x00400000);
                 FMVS(q0, d0);
                 FEQS(x3, d0, d0);
@@ -408,7 +408,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 BEQZ(x5, 4 + 4 * 4);
             }
             FSUBS(q0, v0, d0);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 FEQS(x5, q0, q0);
                 BNEZ(x5, 4 + 6 * 4);
                 FNEGS(q0, q0);
@@ -441,7 +441,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGXSS(v0);
             GETEXSS(d0, 0);
             q0 = fpu_get_scratch(dyn);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 MOV32w(x6, 0x00400000);
                 FMVS(q0, d0);
                 FEQS(x3, d0, d0);
@@ -450,7 +450,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 BEQZ(x5, 4 + 4 * 4);
             }
             FDIVS(q0, v0, d0);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 FEQS(x5, q0, q0);
                 BNEZ(x5, 4 + 6 * 4);
                 FNEGS(q0, q0);

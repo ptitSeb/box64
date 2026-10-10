@@ -515,7 +515,7 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             v1 = fpu_get_scratch(dyn);
             FEQS(x2, d0, d0);
             BNEZ_MARK(x2);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 // sNaN -> qNaN
                 FMVXW(x3, d0);
                 MOV32w(x4, 0x00400000);
@@ -577,7 +577,7 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             v1 = fpu_get_scratch(dyn);
             FEQD(x2, d0, d0);
             BNEZ_MARK(x2);
-            if (!BOX64ENV(dynarec_fastnan)) {
+            if (BOX64ENV(dynarec_fastnan) != 1) {
                 // sNaN -> qNaN
                 FMVXD(x3, d0);
                 MOV64x(x4, 0x0008000000000000ULL);

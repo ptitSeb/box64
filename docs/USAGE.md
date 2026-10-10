@@ -108,8 +108,9 @@ Disable detection of hot page (where code is executed and data written at the sa
 
 Enable or disable fast NaN handling. Available in WowBox64.
 
- * 0: Precisely emulate the -NaN generation like on x86.
+ * 0: Precisely emulate the -NaN generation like on x86, except on x87 instructions.
  * 1: Do not do anything special with -NAN generation, faster. [Default]
+ * 2: Precisely emulate the -NaN generation like on x86, including on x87 instructions.
 
 ### BOX64_DYNAREC_FASTROUND
 
