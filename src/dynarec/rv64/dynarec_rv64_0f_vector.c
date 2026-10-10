@@ -275,6 +275,7 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             }
             break;
         case 0x2C:
+            if (!BOX64ENV(dynarec_fastround)) return 0;
             INST_NAME("CVTTPS2PI Gm, Ex");
             nextop = F8;
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
