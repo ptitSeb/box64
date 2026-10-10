@@ -270,7 +270,7 @@ void emit_cmp32_0(dynarec_rv64_t* dyn, int ninst, rex_t rex, uint8_t nextop, int
     }
     int res = s1;
     IFX (X_ZF | X_PF) {
-        if (!rex.w && MODREG) {
+        if (!rex.w && MODREG && !isUpper32Zero(dyn, ninst, s1)) {
             ZEXTW2(s5, s1);
             res = s5;
         }
@@ -419,7 +419,7 @@ void emit_test32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int 
     }
 
     IFX (X_SF | X_ZF) {
-        if (!rex.w) ZEROUP(s3);
+        if (!rex.w && !isUpper32Zero(dyn, ninst, s1) && !isUpper32Zero(dyn, ninst, s2)) ZEROUP(s3);
     }
 
     IFX (X_SF) {

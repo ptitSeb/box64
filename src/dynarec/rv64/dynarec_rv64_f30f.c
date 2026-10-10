@@ -134,14 +134,14 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x2C:
             INST_NAME("CVTTSS2SI Gd, Ex");
             nextop = F8;
-            GETGD;
+            GETGDd;
             GETEXSS(d0, 0);
             if (!BOX64ENV(dynarec_fastround)) {
                 FSFLAGSI(0); // // reset all bits
             }
             FCVTSxw(gd, d0, RD_RTZ);
-            if (!rex.w)
-                ZEROUP(gd);
+            if (NEED_ZEROUP(gd))
+                ZEROUP_RESULT(gd);
             if (!BOX64ENV(dynarec_fastround)) {
                 FRFLAGS(x5); // get back FPSR to check the IOC bit
                 ANDI(x5, x5, (1 << FR_NV) | (1 << FR_OF));
@@ -156,7 +156,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x2D:
             INST_NAME("CVTSS2SI Gd, Ex");
             nextop = F8;
-            GETGD;
+            GETGDd;
             GETEXSS(d0, 0);
             if (!BOX64ENV(dynarec_fastround)) {
                 FSFLAGSI(0); // // reset all bits
@@ -164,8 +164,8 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             u8 = sse_setround(dyn, ninst, x5, x6);
             FCVTSxw(gd, d0, RD_DYN);
             x87_restoreround(dyn, ninst, u8);
-            if (!rex.w)
-                ZEROUP(gd);
+            if (NEED_ZEROUP(gd))
+                ZEROUP_RESULT(gd);
             if (!BOX64ENV(dynarec_fastround)) {
                 FRFLAGS(x5); // get back FPSR to check the IOC bit
                 ANDI(x5, x5, (1 << FR_NV) | (1 << FR_OF));
@@ -573,6 +573,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             INST_NAME("RDFSBASE");
                         }
                         ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                        MARKREGd(ed);
                         int seg = _FS + ((nextop >> 3) & 7);
                         grab_segdata(dyn, addr, ninst, x4, seg);
                         MVxw(ed, x4);
@@ -591,6 +592,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             INST_NAME("WRFSBASE");
                         }
                         ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                        MARKREGs(ed);
                         int seg = _FS + ((nextop >> 3) & 7) - 2;
                         if (!rex.w) {
                             ZEXTW2(x4, ed);
@@ -620,7 +622,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             SET_DFNONE();
             nextop = F8;
             GETED(0);
-            GETGD;
+            GETGDsd;
             if (!rex.w && MODREG) {
                 ZEXTW2(x4, ed);
                 ed = x4;
@@ -727,7 +729,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             SET_DFNONE();
             nextop = F8;
             GETED(0);
-            GETGD;
+            GETGDsd;
             CLEAR_FLAGS();
             if (!rex.w && MODREG) {
                 ZEXTW2(x4, ed);
@@ -752,7 +754,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             SET_DFNONE();
             nextop = F8;
             GETED(0);
-            GETGD;
+            GETGDsd;
             CLEAR_FLAGS();
             if (!rex.w && MODREG) {
                 ZEXTW2(x4, ed);
@@ -853,7 +855,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     nextop = F8;
                     READFLAGS(X_OF);
                     SETFLAGS(X_OF, SF_SUBSET, NAT_FLAGS_NOFUSION);
-                    GETGD;
+                    GETGDsd;
                     GETED(0);
                     BEXTI(x3, xFlags, F_OF2);
                     IFX (X_OF) {
@@ -878,7 +880,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     } else {
                         ADDxw(x5, gd, ed);
                         ADDxw(gd, x5, x3);
-                        if (!rex.w) ZEROUP(gd);
+                        if (NEED_ZEROUP(gd)) ZEROUP_RESULT(gd);
                     }
                     break;
                 default:

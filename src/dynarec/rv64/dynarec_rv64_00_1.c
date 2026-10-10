@@ -63,6 +63,7 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             INST_NAME("INC Reg (32bits)");
             SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING, NAT_FLAGS_FUSION);
             gd = TO_NAT(opcode & 7);
+            MARKREGsd(gd);
             emit_inc32(dyn, ninst, rex, gd, x1, x2, x3, x4);
             break;
         case 0x48:
@@ -76,6 +77,7 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             INST_NAME("DEC Reg (32bits)");
             SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING, NAT_FLAGS_FUSION);
             gd = TO_NAT(opcode & 7);
+            MARKREGsd(gd);
             emit_dec32(dyn, ninst, rex, gd, x1, x2, x3, x4);
             break;
         case 0x50:
@@ -89,7 +91,9 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             INST_NAME("PUSH reg");
             SCRATCH_USAGE(0);
             gd = TO_NAT((opcode & 0x07) + (rex.b << 3));
-            PUSH1z(gd);
+            MARKREGsz(gd);
+            if (!rex.is32bits) UP32_READ(xRSP);
+            PUSH1mz(gd);
             break;
         case 0x58:
         case 0x59:
@@ -102,21 +106,39 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             INST_NAME("POP reg");
             SCRATCH_USAGE(0);
             gd = TO_NAT((opcode & 0x07) + (rex.b << 3));
-            POP1z(gd);
+            if (!rex.is32bits) UP32_READ(xRSP);
+            MARKREGdz(gd);
+            POP1mz(gd);
             break;
 
         case 0x60:
             if (rex.is32bits) {
                 INST_NAME("PUSHAD");
+                dyn->insts[ninst].rsp_class = RSP_CLASS_PUSH;
+                dyn->insts[ninst].rsp_span = 32;
                 ZEXTW2(x1, xRSP);
-                PUSH1_32(xRAX);
-                PUSH1_32(xRCX);
-                PUSH1_32(xRDX);
-                PUSH1_32(xRBX);
-                PUSH1_32(x1);
-                PUSH1_32(xRBP);
-                PUSH1_32(xRSI);
-                PUSH1_32(xRDI);
+                if (dyn->insts[ninst].rsp_merge && !(cpuext.xtheadmemidx && dyn->insts[ninst].rsp_flush && !dyn->insts[ninst].rsp_entry)) {
+                    int entry = dyn->insts[ninst].rsp_entry;
+                    SW(xRAX, xRSP, entry - 4);
+                    SW(xRCX, xRSP, entry - 8);
+                    SW(xRDX, xRSP, entry - 12);
+                    SW(xRBX, xRSP, entry - 16);
+                    SW(x1, xRSP, entry - 20);
+                    SW(xRBP, xRSP, entry - 24);
+                    SW(xRSI, xRSP, entry - 28);
+                    SW(xRDI, xRSP, entry - 32);
+                    if (dyn->insts[ninst].rsp_flush)
+                        ADDI(xRSP, xRSP, dyn->insts[ninst].rsp_flush);
+                } else {
+                    PUSH1_32(xRAX);
+                    PUSH1_32(xRCX);
+                    PUSH1_32(xRDX);
+                    PUSH1_32(xRBX);
+                    PUSH1_32(x1);
+                    PUSH1_32(xRBP);
+                    PUSH1_32(xRSI);
+                    PUSH1_32(xRDI);
+                }
                 SMWRITE();
             } else {
                 INST_NAME("Illegal 60");
@@ -135,15 +157,45 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x61:
             if (rex.is32bits) {
                 INST_NAME("POPAD");
+                dyn->insts[ninst].rsp_class = RSP_CLASS_POP;
+                dyn->insts[ninst].rsp_span = 32;
                 SMREAD();
-                POP1_32(xRDI);
-                POP1_32(xRSI);
-                POP1_32(xRBP);
-                POP1_32(x1);
-                POP1_32(xRBX);
-                POP1_32(xRDX);
-                POP1_32(xRCX);
-                POP1_32(xRAX);
+                if (dyn->insts[ninst].rsp_merge && !(cpuext.xtheadmemidx && dyn->insts[ninst].rsp_flush && !dyn->insts[ninst].rsp_entry)) {
+                    int entry = dyn->insts[ninst].rsp_entry;
+                    LWU(xRDI, xRSP, entry + 0);
+                    LWU(xRSI, xRSP, entry + 4);
+                    LWU(xRBP, xRSP, entry + 8);
+                    LWU(x1, xRSP, entry + 12);
+                    LWU(xRBX, xRSP, entry + 16);
+                    LWU(xRDX, xRSP, entry + 20);
+                    LWU(xRCX, xRSP, entry + 24);
+                    LWU(xRAX, xRSP, entry + 28);
+                    if (dyn->insts[ninst].rsp_flush)
+                        ADDI(xRSP, xRSP, dyn->insts[ninst].rsp_flush);
+                } else {
+                    POP1_32(xRDI);
+                    POP1_32(xRSI);
+                    POP1_32(xRBP);
+                    POP1_32(x1);
+                    POP1_32(xRBX);
+                    POP1_32(xRDX);
+                    POP1_32(xRCX);
+                    POP1_32(xRAX);
+                }
+                UP32_WRITE32(xRDI);
+                UP32_ZERO(xRDI);
+                UP32_WRITE32(xRSI);
+                UP32_ZERO(xRSI);
+                UP32_WRITE32(xRBP);
+                UP32_ZERO(xRBP);
+                UP32_WRITE32(xRBX);
+                UP32_ZERO(xRBX);
+                UP32_WRITE32(xRDX);
+                UP32_ZERO(xRDX);
+                UP32_WRITE32(xRCX);
+                UP32_ZERO(xRCX);
+                UP32_WRITE32(xRAX);
+                UP32_ZERO(xRAX);
             } else {
                 INST_NAME("Illegal 61");
                 if (BOX64DRENV(dynarec_safeflags) > 1) {
@@ -199,7 +251,7 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             } else {
                 INST_NAME("MOVSXD Gd, Ed");
                 nextop = F8;
-                GETGD;
+                GETGDd;
                 SCRATCH_USAGE(0);
                 if (rex.w) {
                     if (MODREG) { // reg <= reg
@@ -222,18 +274,19 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             break;
         case 0x68:
             INST_NAME("PUSH Id");
+            if (!rex.is32bits) UP32_READ(xRSP);
             i64 = F32S;
             if (PK(0) == 0xC3) {
                 MESSAGE(LOG_DUMP, "PUSH then RET, using indirect\n");
                 TABLE64(x3, addr - 4);
                 LW(x1, x3, 0);
-                PUSH1z(x1);
+                PUSH1mz(x1);
             } else {
                 if (!i64) {
-                    PUSH1z(xZR);
+                    PUSH1mz(xZR);
                 } else {
                     MOV64z(x3, i64);
-                    PUSH1z(x3);
+                    PUSH1mz(x3);
                 }
             }
             break;
@@ -241,7 +294,7 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             INST_NAME("IMUL Gd, Ed, Id");
             SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
             nextop = F8;
-            GETGD;
+            GETGDd;
             GETED(4);
             i64 = F32S;
             MOV64x(x4, i64);
@@ -284,7 +337,7 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     ZEXTW2(gd, x5);
                 } else {
                     MULxw(gd, ed, x4);
-                    ZEROUP(gd);
+                    if (NEED_ZEROUP(gd)) ZEROUP_RESULT(gd);
                 }
             }
             IFX (X_SF) {
@@ -296,19 +349,20 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             break;
         case 0x6A:
             INST_NAME("PUSH Ib");
+            if (!rex.is32bits) UP32_READ(xRSP);
             i64 = F8S;
             if (!i64) {
-                PUSH1z(xZR);
+                PUSH1mz(xZR);
             } else {
                 MOV64z(x3, i64);
-                PUSH1z(x3);
+                PUSH1mz(x3);
             }
             break;
         case 0x6B:
             INST_NAME("IMUL Gd, Ed, Ib");
             SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
             nextop = F8;
-            GETGD;
+            GETGDd;
             GETED(1);
             i64 = F8S;
             MOV64x(x4, i64);
@@ -351,7 +405,7 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     ZEXTW2(gd, x5);
                 } else {
                     MULW(gd, ed, x4);
-                    ZEROUP(gd);
+                    if (NEED_ZEROUP(gd)) ZEROUP_RESULT(gd);
                 }
             }
             IFX (X_SF) {

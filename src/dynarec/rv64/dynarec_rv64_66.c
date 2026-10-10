@@ -905,8 +905,11 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xA4:
             return dynarec64_00(dyn, addr - 1, ip, ninst, rex, ok, need_epilog);
         case 0xA5:
+            UP32_READ(xRSI);
+            UP32_READ(xRDI);
             if (rex.rep) {
                 INST_NAME("REP MOVSW");
+                UP32_READ(xRCX);
                 CBZ_NEXT(xRCX);
                 if (rex.is67 && !rex.is32bits) {
                     ZEROUP(xRSI);
@@ -952,13 +955,17 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             SMWRITE();
             break;
         case 0xA7:
+            UP32_READ(xRSI);
+            UP32_READ(xRDI);
             switch (rex.rep) {
                 case 1:
                 case 2:
                     if (rex.rep == 1) {
                         INST_NAME("REPNZ CMPSW");
+                        UP32_READ(xRCX);
                     } else {
                         INST_NAME("REPZ CMPSW");
+                        UP32_READ(xRCX);
                     }
                     if (BOX64DRENV(dynarec_safeflags) > 1) {
                         READFLAGS(X_ALL);
@@ -1025,8 +1032,10 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             emit_test16(dyn, ninst, x1, x2, x3, x4, x5);
             break;
         case 0xAB:
+            UP32_READ(xRDI);
             if (rex.rep) {
                 INST_NAME("REP STOSW");
+                UP32_READ(xRCX);
                 CBZ_NEXT(xRCX);
                 if (rex.is67 && !rex.is32bits) {
                     ZEROUP(xRDI);
@@ -1056,6 +1065,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             break;
         case 0xAD:
+            UP32_READ(xRSI);
             if (rex.rep) {
                 DEFAULT;
             } else {
@@ -1070,13 +1080,17 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             }
             break;
         case 0xAF:
+            UP32_READ(xRDI);
+            if (rex.w) MARKREGs(xRAX);
             switch (rex.rep) {
                 case 1:
                 case 2:
                     if (rex.rep == 1) {
                         INST_NAME("REPNZ SCASW");
+                        UP32_READ(xRCX);
                     } else {
                         INST_NAME("REPZ SCASW");
+                        UP32_READ(xRCX);
                     }
                     if (BOX64DRENV(dynarec_safeflags) > 1) {
                         READFLAGS(X_ALL);

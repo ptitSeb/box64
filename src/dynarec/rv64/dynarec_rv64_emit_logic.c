@@ -95,9 +95,9 @@ void emit_xor32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 
     if (!rex.w && s1 != s2) {
         IFX (X_ZF)
-            ZEROUP(s1);
-        else if (IS_GPR(s1) || dyn->insts[ninst].nat_flags_fusion)
-            ZEROUP(s1);
+            ZEROUP_RESULT(s1);
+        else if (NEED_ZEROUP32(s1) && (IS_GPR(s1) || dyn->insts[ninst].nat_flags_fusion))
+            ZEROUP_RESULT(s1);
     }
 
     IFX (X_PEND) {
@@ -137,9 +137,9 @@ void emit_xor32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
     }
     if (!rex.w) {
         IFX (X_ZF)
-            ZEROUP(s1);
-        else if (IS_GPR(s1) || dyn->insts[ninst].nat_flags_fusion)
-            ZEROUP(s1);
+            ZEROUP_RESULT(s1);
+        else if (NEED_ZEROUP32(s1) && (IS_GPR(s1) || dyn->insts[ninst].nat_flags_fusion))
+            ZEROUP_RESULT(s1);
     }
     IFX (X_PEND) {
         SDxw(s1, xEmu, offsetof(x64emu_t, res));
@@ -233,9 +233,9 @@ void emit_or32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
     }
     if (!rex.w) {
         IFX (X_ZF)
-            ZEROUP(s1);
-        else if (IS_GPR(s1) || dyn->insts[ninst].nat_flags_fusion)
-            ZEROUP(s1);
+            ZEROUP_RESULT(s1);
+        else if (NEED_ZEROUP32(s1) && (IS_GPR(s1) || dyn->insts[ninst].nat_flags_fusion))
+            ZEROUP_RESULT(s1);
     }
     IFX (X_PEND) {
         SDxw(s1, xEmu, offsetof(x64emu_t, res));
@@ -273,9 +273,9 @@ void emit_or32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, in
     }
     if (!rex.w) {
         IFX (X_ZF)
-            ZEROUP(s1);
-        else if (IS_GPR(s1) || dyn->insts[ninst].nat_flags_fusion)
-            ZEROUP(s1);
+            ZEROUP_RESULT(s1);
+        else if (NEED_ZEROUP32(s1) && (IS_GPR(s1) || dyn->insts[ninst].nat_flags_fusion))
+            ZEROUP_RESULT(s1);
     }
     IFX (X_PEND) {
         SDxw(s1, xEmu, offsetof(x64emu_t, res));
@@ -388,9 +388,9 @@ void emit_and32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     AND(s1, s1, s2); // res = s1 & s2
     if (!rex.w) {
         IFX (X_ZF | X_SF)
-            ZEROUP(s1);
-        else if (IS_GPR(s1) || dyn->insts[ninst].nat_flags_fusion)
-            ZEROUP(s1);
+            ZEROUP_RESULT(s1);
+        else if (NEED_ZEROUP32(s1) && (IS_GPR(s1) || dyn->insts[ninst].nat_flags_fusion))
+            ZEROUP_RESULT(s1);
     }
     IFX (X_PEND) {
         SDxw(s1, xEmu, offsetof(x64emu_t, res));
@@ -426,9 +426,9 @@ void emit_and32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
     }
     if (!rex.w) {
         IFX (X_ZF | X_SF)
-            ZEROUP(s1);
-        else if (IS_GPR(s1) || dyn->insts[ninst].nat_flags_fusion)
-            ZEROUP(s1);
+            ZEROUP_RESULT(s1);
+        else if (NEED_ZEROUP32(s1) && (IS_GPR(s1) || dyn->insts[ninst].nat_flags_fusion))
+            ZEROUP_RESULT(s1);
     }
     IFX (X_PEND) {
         SDxw(s1, xEmu, offsetof(x64emu_t, res));

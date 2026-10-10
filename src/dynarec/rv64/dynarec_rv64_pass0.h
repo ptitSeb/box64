@@ -63,6 +63,7 @@
     } while (0)
 #define BARRIER(A)                                 \
     if (A != BARRIER_MAYBE) {                      \
+        UP32_READALL();                            \
         fpu_purgecache(dyn, ninst, 0, x1, x2, x3); \
         dyn->insts[ninst].x64.barrier = A;         \
     } else                                         \

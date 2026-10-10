@@ -101,6 +101,10 @@ typedef enum flagcache_s {
 
 typedef struct callret_s callret_t;
 
+#define RSP_CLASS_BARRIER 0
+#define RSP_CLASS_PUSH    1
+#define RSP_CLASS_POP     2
+
 typedef struct instruction_rv64_s {
     instruction_x64_t   x64;
     uintptr_t           address;    // (start) address of the riscv emitted instruction
@@ -141,6 +145,17 @@ typedef struct instruction_rv64_s {
     flagcache_t         f_entry;    // flags status before the instruction begin
     uint8_t             vector_sew_entry; // sew status before the instruction begin
     uint8_t             vector_sew_exit;  // sew status at the end of instruction
+    int16_t             rsp_entry;        // pending rsp offset at entry
+    int16_t             rsp_flush;        // rsp offset to emit right after this push/pop
+    uint8_t             rsp_merge:1;      // this push/pop is emitted with merged rsp offset
+    uint8_t             rsp_class:2;      // RSP_* of this opcode (marked by the opcode handler)
+    uint8_t             rsp_span;         // push/pop depth of this opcode in bytes (0 = one delta, PUSHA/POPA = 32)
+    uint16_t            up32_read;        // bitmask of GPRs whose upper 32 bits are read by this instruction
+    uint16_t            up32_write64;     // bitmask of GPRs written as 64-bit by this instruction (upper 32 become defined)
+    uint16_t            up32_write32;     // bitmask of GPRs written as 32-bit by this instruction
+    uint16_t            up32_zero;        // bitmask of GPRs guaranteed to be zero-extended at instruction exit
+    uint16_t            up32_skip;        // bitmask of GPRs where the implicit zero-up after a 32-bit write can be skipped
+    uint16_t            up32_pending;     // bitmask of GPRs whose upper 32 bits are stale at entry to this instruction
 } instruction_rv64_t;
 
 typedef struct dynarec_rv64_s {

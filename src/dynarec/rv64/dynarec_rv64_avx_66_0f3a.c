@@ -1259,6 +1259,8 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             break;
         case 0x61:
             INST_NAME("VPCMPESTRI Gx, Ex, Ib");
+            MARKREGs(xRAX);
+            MARKREGs(xRDX);
             nextop = F8;
             if (vex.l) {
                 DEFAULT;
@@ -1345,6 +1347,8 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             break;
         case 0x63:
             INST_NAME("VPCMPISTRI Gx, Ex, Ib");
+            MARKREGs(xRAX);
+            MARKREGs(xRDX);
             nextop = F8;
             if (vex.l) {
                 DEFAULT;

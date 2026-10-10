@@ -309,7 +309,7 @@ uintptr_t dynarec64_AVX_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
         case 0x50:
             INST_NAME("VMOVMSKPS Gd, Ex");
             nextop = F8;
-            GETGD;
+            GETGDd;
             GETEX(x2, 0, vex.l ? 24 : 8);
             XOR(gd, gd, gd);
             for (int i = 0; i < 4; ++i) {

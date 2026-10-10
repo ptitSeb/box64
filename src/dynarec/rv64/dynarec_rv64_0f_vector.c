@@ -477,7 +477,7 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             INST_NAME("MOVMSKPS Gd, Ex");
             nextop = F8;
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
-            GETGD;
+            GETGDd;
             GETEX_vector(q0, 0, 0, VECTOR_SEW32);
             if (cpuext.xtheadvector) {
                 v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL8);
@@ -1099,7 +1099,7 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
         case 0xC5:
             INST_NAME("PEXTRW Gd, Em, Ib");
             nextop = F8;
-            GETGD;
+            GETGDd;
             if (MODREG) {
                 SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
                 GETEM_vector(q0, 1);
@@ -1207,7 +1207,7 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
         case 0xD7:
             INST_NAME("PMOVMSKB Gd, Em");
             nextop = F8;
-            GETGD;
+            GETGDd;
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
             GETEM_vector(q0, 0);
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);

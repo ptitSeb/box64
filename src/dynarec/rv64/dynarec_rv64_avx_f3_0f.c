@@ -223,7 +223,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
         case 0x2C:
             INST_NAME("VCVTTSS2SI Gd, Ex");
             nextop = F8;
-            GETGD;
+            GETGDd;
             d0 = fpu_get_scratch(dyn);
             if (MODREG) {
                 ed = (nextop & 7) + (rex.b << 3);

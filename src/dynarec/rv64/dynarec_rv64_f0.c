@@ -267,6 +267,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                 INST_NAME("LOCK CMPXCHG Ed, Gd");
                                 SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
                                 GETGD;
+                                MARKREGs(xRAX);
                                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
                                 UFLAG_IF { MVxw(x6, xRAX); }
                                 ANDI(x1, wback, (1 << (rex.w + 2)) - 1);
@@ -474,6 +475,8 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                     INST_NAME("LOCK CMPXCHG8B Gq, Eq");
                                     SETFLAGS(X_ZF, SF_SUBSET, NAT_FLAGS_NOFUSION);
                                     SET_DFNONE();
+                                    MARKREGd(xRAX);
+                                    MARKREGd(xRDX);
                                     nextop = F8;
                                     addr = geted(dyn, addr, ninst, nextop, &wback, x1, x2, &fixedaddress, rex, LOCK_LOCK, 0, 0);
                                     ANDI(xFlags, xFlags, ~(1 << F_ZF));
@@ -515,6 +518,10 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                     break;
                                 case 1:
                                     INST_NAME("LOCK CMPXCHG16B Gq, Eq");
+                                    MARKREGsd(xRAX);
+                                    MARKREGsd(xRDX);
+                                    MARKREGs(xRBX);
+                                    MARKREGs(xRCX);
                                     static int warned = 0;
                                     PASS3(if (!warned) dynarec_log(LOG_INFO, "Warning, LOCK CMPXCHG16B is not well supported on RISC-V and issues are expected.\n"));
                                     PASS3(warned = 1);
@@ -1264,7 +1271,7 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 *ok = 0;
             } else {
                 INST_NAME("LOCK XCHG Ed, Gd");
-                GETGD;
+                GETGDsd;
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
                 ANDI(x1, wback, (1 << (rex.w + 2)) - 1);
                 BNEZ_MARK3(x1);

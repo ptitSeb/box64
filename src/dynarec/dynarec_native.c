@@ -1155,7 +1155,7 @@ dynablock_t* FillBlock64(uintptr_t addr, int is32bits, int inst_max, int is_new,
             int pos = helper.size-1;
             while (pos>=0)
                 pos = updateNeed(&helper, pos, 0);
-            #if defined(LA64)
+            #if defined(LA64) || defined(RV64)
             updateUpperLiveness(&helper);
             updateRspMerge(&helper, is32bits);
             #endif

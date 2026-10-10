@@ -70,6 +70,8 @@ typedef struct arch_arch_s
     #undef GO
     uint16_t unaligned:1;
     uint16_t seq:10;    // how many instruction on the same values
+    int16_t rsp;        // pending rsp offset at the end of this instruction
+    uint16_t up32;      // GPRs with pending 32-bit zero-up at the end of this instruction
 } arch_arch_t;
 
 typedef struct arch_build_s
@@ -78,7 +80,9 @@ typedef struct arch_build_s
     SUPER()
     #undef GO
     uint8_t unaligned;
-    #define GO(A) arch_##A##_t A##_;
+    int16_t rsp;
+    uint16_t up32;
+#define GO(A) arch_##A##_t A##_;
     SUPER()
     #undef GO
 } arch_build_t;
@@ -86,9 +90,10 @@ typedef struct arch_build_s
 static int arch_build(dynarec_rv64_t* dyn, int ninst, arch_build_t* arch)
 {
     memset(arch, 0, sizeof(arch_build_t));
-    // todo
     // opcode can handle unaligned
     arch->unaligned = dyn->insts[ninst].unaligned;
+    arch->rsp = dyn->insts[ninst].rsp_entry;
+    arch->up32 = dyn->insts[ninst].up32_pending;
     extcache_t* e = &dyn->insts[ninst].e;
     for (int i = 0; i < 32; ++i) {
         if (!e->extcache[i].t)
@@ -180,6 +185,8 @@ static void build_next(arch_arch_t* arch, arch_build_t* build)
     SUPER()
     #undef GO
     arch->unaligned = build->unaligned;
+    arch->rsp = build->rsp;
+    arch->up32 = build->up32;
     arch->seq = 0;
     void* p = ((void*)arch)+sizeof(arch_arch_t);
     #define GO(A)                                           \
@@ -329,6 +336,16 @@ void adjust_arch(dynablock_t* db, x64emu_t* emu, ucontext_t* p, uintptr_t x64pc)
     }
     SUPER()
     #undef GO
+    uint16_t up32 = arch->up32;
+    while (up32) {
+        int r = __builtin_ctz(up32);
+        up32 &= up32 - 1;
+        emu->regs[r].q[0] &= 0xffffffffULL;
+    }
+    if (arch->rsp) {
+        dynarec_log(LOG_INFO, " rsp[%d] ", arch->rsp);
+        emu->regs[_SP].q[0] += arch->rsp;
+    }
     if (sse || mmx) {
         size_t vlenb = 0;
         const void* vframe = get_vframe(p, &vlenb);

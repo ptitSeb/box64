@@ -61,7 +61,7 @@ uintptr_t dynarec64_AVX_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, 
             INST_NAME("ANDN Gd, Vd, Ed");
             nextop = F8;
             SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
-            GETGD;
+            GETGDd;
             GETED(0);
             GETVD;
             ANDN(gd, ed, vd, x5);
@@ -88,7 +88,7 @@ uintptr_t dynarec64_AVX_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, 
                     INST_NAME("BLSR Vd, Ed");
                     SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
                     GETED(0);
-                    GETVD;
+                    GETVDsd;
                     if (!rex.w) {
                         ZEXTW2(x4, ed);
                         ed = x4;
@@ -116,7 +116,7 @@ uintptr_t dynarec64_AVX_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, 
                     INST_NAME("BLSMSK Vd, Ed");
                     SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
                     GETED(0);
-                    GETVD;
+                    GETVDsd;
                     if (!rex.w) {
                         ZEXTW2(x4, ed);
                         ed = x4;
@@ -141,7 +141,7 @@ uintptr_t dynarec64_AVX_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, 
                     INST_NAME("BLSI Vd, Ed");
                     SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
                     GETED(0);
-                    GETVD;
+                    GETVDsd;
                     if (!rex.w) {
                         ZEXTW2(x4, ed);
                         ed = x4;
@@ -174,7 +174,7 @@ uintptr_t dynarec64_AVX_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, 
             INST_NAME("BZHI Gd, Ed, Vd");
             nextop = F8;
             SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
-            GETGD;
+            GETGDd;
             GETED(0);
             GETVD;
             CLEAR_FLAGS();
@@ -208,7 +208,7 @@ uintptr_t dynarec64_AVX_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, 
             INST_NAME("BEXTR Gd, Ed, Vd");
             nextop = F8;
             SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
-            GETGD;
+            GETGDd;
             GETED(0);
             GETVD;
             ANDI(x4, vd, 0xff);       // start

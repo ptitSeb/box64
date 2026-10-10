@@ -72,8 +72,9 @@ void emit_add32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     IFX (X_SF) {
         SET_FLAGS_LTZ(s1, F_SF, s3, s5);
     }
-    if (!rex.w && (IS_GPR(s1) || dyn->insts[ninst].nat_flags_fusion)) {
-        ZEROUP(s1);
+    UP32_WRITE32(s1);
+    if (!rex.w && NEED_ZEROUP32(s1) && (IS_GPR(s1) || dyn->insts[ninst].nat_flags_fusion)) {
+        ZEROUP_RESULT(s1);
     }
     IFX (X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
@@ -95,8 +96,9 @@ void emit_add32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
             MOV64x(s2, c);
             ADD(s1, s1, s2);
         }
+        UP32_WRITE32(s1);
         if (!rex.w) {
-            ZEROUP(s1);
+            ZEROUP_RESULT(s1);
         }
         return;
     }
@@ -160,8 +162,9 @@ void emit_add32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
     IFX (X_SF) {
         SET_FLAGS_LTZ(s1, F_SF, s3, s5);
     }
-    if (!rex.w && (IS_GPR(s1) || dyn->insts[ninst].nat_flags_fusion)) {
-        ZEROUP(s1);
+    UP32_WRITE32(s1);
+    if (!rex.w && NEED_ZEROUP32(s1) && (IS_GPR(s1) || dyn->insts[ninst].nat_flags_fusion)) {
+        ZEROUP_RESULT(s1);
     }
     IFX (X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);
@@ -447,8 +450,9 @@ void emit_sub32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     IFX (X_SF) {
         SET_FLAGS_LTZ(s1, F_SF, s3, s4);
     }
-    if (!rex.w && (IS_GPR(s1) || dyn->insts[ninst].nat_flags_fusion)) {
-        ZEROUP(s1);
+    UP32_WRITE32(s1);
+    if (!rex.w && NEED_ZEROUP32(s1) && (IS_GPR(s1) || dyn->insts[ninst].nat_flags_fusion)) {
+        ZEROUP_RESULT(s1);
     }
     CALC_SUB_FLAGS(s5, s2, s1, s3, s4, rex.w ? 64 : 32);
     IFX (X_ZF) {
@@ -472,8 +476,9 @@ void emit_sub32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
             MOV64xw(s2, c);
             SUBxw(s1, s1, s2);
         }
+        UP32_WRITE32(s1);
         if (!rex.w) {
-            ZEROUP(s1);
+            ZEROUP_RESULT(s1);
         }
         return;
     }
@@ -514,8 +519,9 @@ void emit_sub32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
     IFX (X_SF) {
         SET_FLAGS_LTZ(s1, F_SF, s3, s4);
     }
-    if (!rex.w && (IS_GPR(s1) || dyn->insts[ninst].nat_flags_fusion)) {
-        ZEROUP(s1);
+    UP32_WRITE32(s1);
+    if (!rex.w && NEED_ZEROUP32(s1) && (IS_GPR(s1) || dyn->insts[ninst].nat_flags_fusion)) {
+        ZEROUP_RESULT(s1);
     }
     CALC_SUB_FLAGS(s5, s2, s1, s3, s4, rex.w ? 64 : 32);
     IFX (X_ZF) {
@@ -671,8 +677,9 @@ void emit_inc32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     IFX (X_SF) {
         SET_FLAGS_LTZ(s1, F_SF, s4, s5);
     }
-    if (!rex.w && (IS_GPR(s1) || dyn->insts[ninst].nat_flags_fusion)) {
-        ZEROUP(s1);
+    UP32_WRITE32(s1);
+    if (!rex.w && NEED_ZEROUP32(s1) && (IS_GPR(s1) || dyn->insts[ninst].nat_flags_fusion)) {
+        ZEROUP_RESULT(s1);
     }
     IFX (X_PF) {
         emit_pf(dyn, ninst, s1, s3, s2);
@@ -724,8 +731,9 @@ void emit_dec32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     IFX (X_SF) {
         SET_FLAGS_LTZ(s1, F_SF, s4, s5);
     }
-    if (!rex.w && (IS_GPR(s1) || dyn->insts[ninst].nat_flags_fusion)) {
-        ZEROUP(s1);
+    UP32_WRITE32(s1);
+    if (!rex.w && NEED_ZEROUP32(s1) && (IS_GPR(s1) || dyn->insts[ninst].nat_flags_fusion)) {
+        ZEROUP_RESULT(s1);
     }
     IFX (X_PF) {
         emit_pf(dyn, ninst, s1, s3, s2);
@@ -1018,8 +1026,9 @@ void emit_sbb32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     IFX (X_SF) {
         SET_FLAGS_LTZ(s1, F_SF, s3, s4);
     }
-    if (!rex.w && (IS_GPR(s1) || dyn->insts[ninst].nat_flags_fusion)) {
-        ZEROUP(s1);
+    UP32_WRITE32(s1);
+    if (!rex.w && NEED_ZEROUP32(s1) && (IS_GPR(s1) || dyn->insts[ninst].nat_flags_fusion)) {
+        ZEROUP_RESULT(s1);
     }
 
     IFX (X_PEND) {
@@ -1079,8 +1088,9 @@ void emit_neg32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     IFX (X_SF) {
         SET_FLAGS_LTZ(s1, F_SF, s4, s5);
     }
-    if (!rex.w && (IS_GPR(s1) || dyn->insts[ninst].nat_flags_fusion)) {
-        ZEROUP(s1);
+    UP32_WRITE32(s1);
+    if (!rex.w && NEED_ZEROUP32(s1) && (IS_GPR(s1) || dyn->insts[ninst].nat_flags_fusion)) {
+        ZEROUP_RESULT(s1);
     }
     IFX (X_PF) {
         emit_pf(dyn, ninst, s1, s3, s2);
@@ -1328,8 +1338,9 @@ void emit_adc32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     IFX (X_SF) {
         SET_FLAGS_LTZ(s1, F_SF, s5, s6);
     }
-    if (!rex.w && (IS_GPR(s1) || dyn->insts[ninst].nat_flags_fusion)) {
-        ZEROUP(s1);
+    UP32_WRITE32(s1);
+    if (!rex.w && NEED_ZEROUP32(s1) && (IS_GPR(s1) || dyn->insts[ninst].nat_flags_fusion)) {
+        ZEROUP_RESULT(s1);
     }
     IFX (X_PF) {
         emit_pf(dyn, ninst, s1, s3, s4);

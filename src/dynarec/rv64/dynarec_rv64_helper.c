@@ -56,6 +56,8 @@ uintptr_t geted(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
             uint8_t sib = F8;
             int sib_reg = ((sib >> 3) & 7) + (rex.x << 3);
             int sib_reg2 = (sib & 0x7) + (rex.b << 3);
+            if ((sib & 0x7) != 5) UP32_READ(TO_NAT(sib_reg2));
+            if (sib_reg != 4) UP32_READ(TO_NAT(sib_reg));
             if ((sib & 0x7) == 5) {
                 int64_t tmp = F32S;
                 if (sib_reg != 4) {
@@ -173,6 +175,7 @@ uintptr_t geted(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
                 if (!IS_GPR(ret)) SCRATCH_USAGE(1);
             }
         } else {
+            UP32_READ(TO_NAT((nextop & 7) + (rex.b << 3)));
             ret = TO_NAT((nextop & 7) + (rex.b << 3));
         }
     } else {
@@ -182,6 +185,8 @@ uintptr_t geted(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
         if ((nextop & 7) == 4) {
             sib = F8;
             sib_reg = ((sib >> 3) & 7) + (rex.x << 3);
+            UP32_READ(TO_NAT((sib & 0x07) + (rex.b << 3)));
+            if (sib_reg != 4) UP32_READ(TO_NAT(sib_reg));
         }
         int sib_reg2 = (sib & 0x07) + (rex.b << 3);
         if (nextop & 0x80)
@@ -210,8 +215,10 @@ uintptr_t geted(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
                 } else {
                     ret = TO_NAT(sib_reg2);
                 }
-            } else
+            } else {
+                UP32_READ(TO_NAT((nextop & 0x07) + (rex.b << 3)));
                 ret = TO_NAT((nextop & 0x07) + (rex.b << 3));
+            }
         } else {
             if (i64 >= -2048 && i64 <= 2047) {
                 if ((nextop & 7) == 4) {
@@ -236,6 +243,7 @@ uintptr_t geted(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
                         if (!IS_GPR(ret)) SCRATCH_USAGE(1);
                     }
                 } else {
+                    UP32_READ(TO_NAT((nextop & 0x07) + (rex.b << 3)));
                     ADDIy(ret, TO_NAT((nextop & 0x07) + (rex.b << 3)), i64);
                     if (!IS_GPR(ret)) SCRATCH_USAGE(1);
                 }
@@ -251,6 +259,7 @@ uintptr_t geted(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, 
                         ADDy(ret, tmp, scratch);
                     }
                 } else {
+                    UP32_READ(TO_NAT((nextop & 0x07) + (rex.b << 3)));
                     PASS3(int tmp = TO_NAT((nextop & 0x07) + (rex.b << 3)));
                     ADDy(ret, tmp, scratch);
                 }
@@ -605,6 +614,7 @@ void call_c(dynarec_rv64_t* dyn, int ninst, rv64_consts_t fnc, int reg, int ret,
 {
     MAYUSE(fnc);
     CHECK_DFNONE(1);
+    UP32_READALL();
     if (savereg == 0)
         savereg = x87pc;
     if (saveflags) {
@@ -672,6 +682,7 @@ void call_n(dynarec_rv64_t* dyn, int ninst, void* fnc, int w)
 {
     MAYUSE(fnc);
     CHECK_DFNONE(1);
+    UP32_READALL();
     fpu_pushcache(dyn, ninst, x3, 1);
     // save RSP in case there are x86 callbacks...
     SD(xRSP, xEmu, offsetof(x64emu_t, regs[_SP]));

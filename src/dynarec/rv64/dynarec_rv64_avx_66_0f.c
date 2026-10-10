@@ -273,7 +273,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
         case 0x50:
             INST_NAME("VMOVMSKPD Gd, Ex");
             nextop = F8;
-            GETGD;
+            GETGDd;
             GETEX(x1, 0, vex.l ? 24 : 8);
             XOR(gd, gd, gd);
             for (int i = 0; i < 2; ++i) {
@@ -2268,7 +2268,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
         case 0xC5:
             INST_NAME("VPEXTRW Gd, Ex, Ib");
             nextop = F8;
-            GETGD;
+            GETGDd;
             GETEX(x2, 1, 14);
             u8 = (F8) & 7;
             LHU(gd, wback, fixedaddress + 2 * u8);
@@ -3682,6 +3682,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             break;
         case 0xF7:
             INST_NAME("VMASKMOVDQU Gx, Ex");
+            UP32_READ(xRDI);
             nextop = F8;
             GETEX(x1, 0, 15);
             GETGX();
