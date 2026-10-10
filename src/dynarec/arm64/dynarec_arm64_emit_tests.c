@@ -81,9 +81,8 @@ void emit_cmp32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
 void emit_cmp32_0(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s3, int s4)
 {
     IFX_PENDOR0 {
-        MOV64xw(s4, 0);
         STRxw_U12(s1, xEmu, offsetof(x64emu_t, op1));
-        STRxw_U12(s4, xEmu, offsetof(x64emu_t, op2));
+        STRxw_U12(xZR, xEmu, offsetof(x64emu_t, op2));
         STRxw_U12(s1, xEmu, offsetof(x64emu_t, res));
         SET_DF(s4, rex.w?d_cmp64:d_cmp32);
     } else {
@@ -199,9 +198,8 @@ void emit_cmp16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
 void emit_cmp16_0(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
 {
     IFX_PENDOR0 {
-        MOV32w(s3, 0);
         STRH_U12(s1, xEmu, offsetof(x64emu_t, op1));
-        STRH_U12(s3, xEmu, offsetof(x64emu_t, op2));
+        STRH_U12(wZR, xEmu, offsetof(x64emu_t, op2));
         STRH_U12(s1, xEmu, offsetof(x64emu_t, res));
         SET_DF(s3, d_cmp16);
     } else {
@@ -292,8 +290,7 @@ void emit_cmp8_0(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
 {
     IFX_PENDOR0 {
         STRB_U12(s1, xEmu, offsetof(x64emu_t, op1));
-        MOV32w(s4, 0);
-        STRB_U12(s4, xEmu, offsetof(x64emu_t, op2));
+        STRB_U12(wZR, xEmu, offsetof(x64emu_t, op2));
         STRB_U12(s1, xEmu, offsetof(x64emu_t, res));
         SET_DF(s3, d_cmp8);
     } else {
@@ -411,6 +408,19 @@ void emit_test16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
     } else {
         SET_DFNONE();
     }
+    if((dyn->insts[ninst].x64.gen_flags&(X_ZF|X_PEND)) && !(dyn->insts[ninst].x64.gen_flags&~(X_ZF|X_PEND))) {
+        ANDSw_REG(s5, s1, s2);
+        IFX(X_PEND) {
+            STRH_U12(s5, xEmu, offsetof(x64emu_t, res));
+        }
+        IFX(X_ZF) {
+            IFNATIVE(NF_EQ) {} else {
+                CSETw(s4, cEQ);
+                BFIw(xFlags, s4, F_ZF, 1);
+            }
+        }
+        return;
+    }
     IFX(X_CF|X_ZF|X_SF|X_OF) {
         LSLw(s5, s1, 16);
         ANDSw_REG_LSL(s5, s5, s2, 16);
@@ -458,6 +468,22 @@ void emit_test16c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int
         SET_DF(s3, d_tst16);
     } else {
         SET_DFNONE();
+    }
+    if((dyn->insts[ninst].x64.gen_flags&(X_ZF|X_PEND)) && !(dyn->insts[ninst].x64.gen_flags&~(X_ZF|X_PEND))) {
+        mask = convert_bitmask_w(c);
+        if(mask) {
+            ANDSw_mask(s5, s1, mask&0x3F, (mask>>6)&0x3F);
+            IFX(X_PEND) {
+                STRH_U12(s5, xEmu, offsetof(x64emu_t, res));
+            }
+            IFX(X_ZF) {
+                IFNATIVE(NF_EQ) {} else {
+                    CSETw(s4, cEQ);
+                    BFIw(xFlags, s4, F_ZF, 1);
+                }
+            }
+            return;
+        }
     }
     IFX(X_CF|X_ZF|X_SF|X_OF) {
         LSLw(s5, s1, 16);
@@ -565,6 +591,22 @@ void emit_test8c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
         SET_DF(s3, d_tst8);
     } else {
         SET_DFNONE();
+    }
+    if((dyn->insts[ninst].x64.gen_flags&(X_ZF|X_PEND)) && !(dyn->insts[ninst].x64.gen_flags&~(X_ZF|X_PEND))) {
+        mask = convert_bitmask_w(c);
+        if(mask) {
+            ANDSw_mask(s5, s1, mask&0x3F, (mask>>6)&0x3F);
+            IFX(X_PEND) {
+                STRB_U12(s5, xEmu, offsetof(x64emu_t, res));
+            }
+            IFX(X_ZF) {
+                IFNATIVE(NF_EQ) {} else {
+                    CSETw(s4, cEQ);
+                    BFIw(xFlags, s4, F_ZF, 1);
+                }
+            }
+            return;
+        }
     }
     IFX(X_CF|X_ZF|X_SF|X_OF) {
         LSLw(s5, s1, 24);
