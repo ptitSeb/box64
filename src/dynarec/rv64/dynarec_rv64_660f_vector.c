@@ -1204,8 +1204,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             GETGX_vector(q0, 1, VECTOR_SEW64);
             GETEX_vector(q1, 0, 0, VECTOR_SEW64);
             VMFLT_VV(VMASK, q0, q1, VECTOR_UNMASKED);
-            VXOR_VI(VMASK, VMASK, 0x1F, VECTOR_UNMASKED);
-            VADD_VX(q0, q1, xZR, VECTOR_MASKED);
+            VMERGE_VVM(q0, q1, q0);
             break;
         case 0x5E:
             if (!BOX64ENV(dynarec_fastnan)) return 0;
@@ -1223,8 +1222,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             GETGX_vector(q0, 1, VECTOR_SEW64);
             GETEX_vector(q1, 0, 0, VECTOR_SEW64);
             VMFLT_VV(VMASK, q1, q0, VECTOR_UNMASKED);
-            VXOR_VI(VMASK, VMASK, 0x1F, VECTOR_UNMASKED);
-            VADD_VX(q0, q1, xZR, VECTOR_MASKED);
+            VMERGE_VVM(q0, q1, q0);
             break;
         case 0x60:
             INST_NAME("PUNPCKLBW Gx, Ex");

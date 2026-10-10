@@ -357,10 +357,8 @@ uintptr_t dynarec64_AVX_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t
             GETVY_vector(q0, VECTOR_SEW32);
             GETEY_vector(q1, 0, VECTOR_SEW32);
             GETGY_empty_vector(v0);
-            VMV_V_V(v0, q0);
             VMFLT_VV(VMASK, q0, q1, VECTOR_UNMASKED);
-            VXOR_VI(VMASK, VMASK, 0x1f, VECTOR_UNMASKED);
-            VADD_VX(v0, q1, xZR, VECTOR_MASKED);
+            VMERGE_VVM(v0, q1, q0);
             PUTGY_vector(v0, VECTOR_SEW32);
             break;
         case 0x5E:
@@ -379,10 +377,8 @@ uintptr_t dynarec64_AVX_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t
             GETVY_vector(q0, VECTOR_SEW32);
             GETEY_vector(q1, 0, VECTOR_SEW32);
             GETGY_empty_vector(v0);
-            VMV_V_V(v0, q0);
             VMFLT_VV(VMASK, q1, q0, VECTOR_UNMASKED);
-            VXOR_VI(VMASK, VMASK, 0x1f, VECTOR_UNMASKED);
-            VADD_VX(v0, q1, xZR, VECTOR_MASKED);
+            VMERGE_VVM(v0, q1, q0);
             PUTGY_vector(v0, VECTOR_SEW32);
             break;
         case 0x77:
