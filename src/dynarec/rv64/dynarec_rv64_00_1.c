@@ -452,7 +452,6 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
 #define GO(GETFLAGS, NO, YES, NATNO, NATYES, F)                                             \
     READFLAGS_FUSION(F, x1, x2, x3, x4, x5);                                                \
     i8 = F8S;                                                                               \
-    BARRIER(BARRIER_MAYBE);                                                                 \
     JUMP(addr + i8, 1);                                                                     \
     if (!dyn->insts[ninst].nat_flags_fusion) {                                              \
         GETFLAGS;                                                                           \

@@ -1151,7 +1151,6 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             addr = dynarec64_DF(dyn, addr, ip, ninst, rex, ok, need_epilog);
             break;
 #define GO(Z, R)                                                                            \
-    BARRIER(BARRIER_MAYBE);                                                                 \
     JUMP(addr + i8, 1);                                                                     \
     if (dyn->insts[ninst].x64.jmp_insts == -1 || CHECK_CACHE()) {                           \
         /* out of the block */                                                              \
@@ -1344,7 +1343,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     } else {
                         MOV64x(x2, addr);
                     }
-                    fpu_purgecache(dyn, ninst, 0, x1, x3, x4);
+                    BARRIER(BARRIER_FLOAT);
                     PUSH1z(x2);
                     int can_continue = (addr < (dyn->start + dyn->isize));
                     if (BOX64DRENV(dynarec_callret)) {
@@ -1415,7 +1414,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             JUMP((uintptr_t)getAlternate((void*)j64), 0);
             if (dyn->insts[ninst].x64.jmp_insts == -1) {
                 // out of the block
-                fpu_purgecache(dyn, ninst, 1, x1, x2, x3);
+                BARRIER(BARRIER_FLOAT);
                 jump_to_next(dyn, (uintptr_t)getAlternate((void*)j64), 0, ninst, rex.is32bits);
             } else {
                 // inside the block

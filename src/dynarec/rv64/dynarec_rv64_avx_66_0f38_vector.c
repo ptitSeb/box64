@@ -42,7 +42,7 @@ uintptr_t dynarec64_AVX_66_0F38_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
     switch (opcode) {
         case 0x00:
             INST_NAME("VPSHUFB Gx, Vx, Ex");
-            fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
+            BARRIER(BARRIER_FLOAT);
             nextop = F8;
             GETVY_vector(q0, VECTOR_SEW8);
             GETEY_vector(q1, 0, VECTOR_SEW8);
@@ -1081,11 +1081,11 @@ uintptr_t dynarec64_AVX_66_0F38_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             break;
         case 0xDC:
         case 0xDD:
-            fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
+            BARRIER(BARRIER_FLOAT);
             return 0;
         case 0x13:
             if (!cpuext.zvfh) {
-                fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
+                BARRIER(BARRIER_FLOAT);
                 return 0;
             }
             INST_NAME("VCVTPH2PS Gx, Ex");
