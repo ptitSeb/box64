@@ -59,7 +59,7 @@ uintptr_t dynarec64_AVX(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     avx_set_vector_width(dyn, ninst, x1, dyn->vector_sew, 16);
             } else {
                 addr = vaddr;
-                fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
+                BARRIER(BARRIER_FLOAT);
             }
         }
         addr = retaddr ? retaddr : dynarec64_AVX_0F(dyn, addr, ip, ninst, vex, ok, need_epilog);
@@ -72,7 +72,7 @@ uintptr_t dynarec64_AVX(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     avx_set_vector_width(dyn, ninst, x1, dyn->vector_sew, 16);
             } else {
                 addr = vaddr;
-                fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
+                BARRIER(BARRIER_FLOAT);
             }
         }
         addr = retaddr ? retaddr : dynarec64_AVX_66_0F(dyn, addr, ip, ninst, vex, ok, need_epilog);
@@ -85,7 +85,7 @@ uintptr_t dynarec64_AVX(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     avx_set_vector_width(dyn, ninst, x1, dyn->vector_sew, 16);
             } else {
                 addr = vaddr;
-                fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
+                BARRIER(BARRIER_FLOAT);
             }
         }
         addr = retaddr ? retaddr : dynarec64_AVX_F2_0F(dyn, addr, ip, ninst, vex, ok, need_epilog);
@@ -98,7 +98,7 @@ uintptr_t dynarec64_AVX(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     avx_set_vector_width(dyn, ninst, x1, dyn->vector_sew, 16);
             } else {
                 addr = vaddr;
-                fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
+                BARRIER(BARRIER_FLOAT);
             }
         }
         addr = retaddr ? retaddr : dynarec64_AVX_F3_0F(dyn, addr, ip, ninst, vex, ok, need_epilog);
@@ -111,7 +111,7 @@ uintptr_t dynarec64_AVX(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     avx_set_vector_width(dyn, ninst, x1, dyn->vector_sew, 16);
             } else {
                 addr = vaddr;
-                fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
+                BARRIER(BARRIER_FLOAT);
             }
         }
         addr = retaddr ? retaddr : dynarec64_AVX_66_0F38(dyn, addr, ip, ninst, vex, ok, need_epilog);
@@ -130,7 +130,7 @@ uintptr_t dynarec64_AVX(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     avx_set_vector_width(dyn, ninst, x1, dyn->vector_sew, 16);
             } else {
                 addr = vaddr;
-                fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
+                BARRIER(BARRIER_FLOAT);
             }
         }
         addr = retaddr ? retaddr : dynarec64_AVX_66_0F3A(dyn, addr, ip, ninst, vex, ok, need_epilog);

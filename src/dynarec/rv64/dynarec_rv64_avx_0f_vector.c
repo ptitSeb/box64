@@ -390,7 +390,7 @@ uintptr_t dynarec64_AVX_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t
                 UDF();
                 break;
             }
-            fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
+            BARRIER(BARRIER_FLOAT);
             if (vex.l) {
                 INST_NAME("VZEROALL");
                 for (int i = 0; i < (rex.is32bits ? 8 : 16); ++i) {
