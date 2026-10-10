@@ -306,7 +306,7 @@ void adjust_arch(dynablock_t* db, x64emu_t* emu, ucontext_t* p, uintptr_t x64pc)
         return;
     int ninst = getX64AddressInst(db, x64pc);
     dynarec_log(LOG_INFO, "adjust_arch(...), db=%p, x64pc=%p, nints=%d", db, (void*)x64pc, ninst);
-    if(ninst<0) {
+    if(ninst<0 || ninst >= db->isize) {
     dynarec_log(LOG_INFO, "\n");
         return;
     }
@@ -315,23 +315,26 @@ void adjust_arch(dynablock_t* db, x64emu_t* emu, ucontext_t* p, uintptr_t x64pc)
         CHECK_FLAGS(emu);
         return;
     }
-    // look for state at ninst-1
+    // look for state at ninst.
     arch_arch_t* arch = db->arch;
+    // look for state at ninst-1.
+    arch_arch_t* prev_arch = arch;
     arch_arch_t* next = arch;
     #define GO(A) arch_##A##_t* A = NULL;
     SUPER()
     #undef GO
-    int i = 0;
-    while(i<ninst-1) {
+    int i = -1;
+    while(i<ninst) {
         arch = next;
+        if(i<ninst-1) prev_arch = arch;
         i += 1+arch->seq;
         dynarec_log(LOG_INFO, "[ seq=%d%s%s%s%s%s ] ", arch->seq, arch->flags?" Flags":"", arch->x87?" x87":"", arch->mmx?" MMX":"", arch->sse?" SSE":"", arch->ymm?" YMM":"");
         next = (arch_arch_t*)((uintptr_t)next + sizeof_arch(arch));
     }
     int sz = sizeof(arch_arch_t);
     #define GO(A)                                   \
-    if(arch->A) {                                   \
-        A = (arch_##A##_t*)((uintptr_t)arch + sz);  \
+    if(prev_arch->A) {                                   \
+        A = (arch_##A##_t*)((uintptr_t)prev_arch + sz);  \
         sz+=sizeof(arch_##A##_t);                   \
     }
     SUPER()
@@ -412,7 +415,7 @@ int arch_unaligned(dynablock_t* db, uintptr_t x64pc)
     if(!db->arch_size || !db->arch)
         return 0;
     int ninst = getX64AddressInst(db, x64pc);
-    if(ninst<0) {
+    if(ninst<0 || ninst >= db->isize) {
         return 0;
     }
     // look for state at ninst
