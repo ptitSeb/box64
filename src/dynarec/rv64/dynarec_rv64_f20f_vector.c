@@ -494,22 +494,17 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             VNSRL_WX(d1, v0, x4, VECTOR_UNMASKED);  // second of each pair
             VFSUB_VV(q0, d0, d1, VECTOR_UNMASKED);
             if (!BOX64ENV(dynarec_fastnan)) {
-                MOV32w(x5, 0x00400000);
-                VOR_VX(d1, d1, x5, VECTOR_UNMASKED); // quiet(second), still NaN
-                VMFEQ_VV(VMASK, d1, d1, VECTOR_UNMASKED);
-                VMERGE_VVM(q0, d1, q0);              // second is NaN -> quiet(second)
-                VOR_VX(d0, d0, x5, VECTOR_UNMASKED); // quiet(first), still NaN
-                VMFEQ_VV(VMASK, d0, d0, VECTOR_UNMASKED);
-                VMERGE_VVM(q0, d0, q0); // first is NaN -> quiet(first), priority
-                VMFEQ_VV(VMASK, d0, d0, VECTOR_UNMASKED);
-                VMFEQ_VV(v0, d1, d1, VECTOR_UNMASKED);
-                VMAND_MM(VMASK, VMASK, v0);
-                VMFEQ_VV(v0, q0, q0, VECTOR_UNMASKED);
-                VMNAND_MM(v0, v0, v0);
-                VMAND_MM(VMASK, VMASK, v0); // both non-NaN and result is NaN
                 MOV32w(x5, 0x80000000);
-                VOR_VX(v0, q0, x5, VECTOR_UNMASKED);
-                VMERGE_VVM(q0, q0, v0); // NAN -> -NAN
+                VMFEQ_VV(VMASK, q0, q0, VECTOR_UNMASKED);
+                VMNAND_MM(VMASK, VMASK, VMASK);
+                VOR_VX(q0, q0, x5, VECTOR_MASKED);
+                MOV32w(x5, 0x00400000);
+                VMFNE_VV(VMASK, d1, d1, VECTOR_UNMASKED); // isnan(second), on the original value
+                VOR_VX(d1, d1, x5, VECTOR_UNMASKED);      // quiet(second)
+                VMERGE_VVM(q0, q0, d1);                   // second is NaN -> quiet(second)
+                VMFNE_VV(VMASK, d0, d0, VECTOR_UNMASKED); // isnan(first), on the original value
+                VOR_VX(d0, d0, x5, VECTOR_UNMASKED);      // quiet(first)
+                VMERGE_VVM(q0, q0, d0);                   // first is NaN -> quiet(first), priority
             }
             break;
         case 0xC2:
