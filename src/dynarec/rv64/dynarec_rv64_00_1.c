@@ -119,6 +119,7 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 ZEXTW2(x1, xRSP);
                 if (dyn->insts[ninst].rsp_merge && !(cpuext.xtheadmemidx && dyn->insts[ninst].rsp_flush && !dyn->insts[ninst].rsp_entry)) {
                     int entry = dyn->insts[ninst].rsp_entry;
+                    if (entry) ADDIW(x1, x1, entry);
                     SW(xRAX, xRSP, entry - 4);
                     SW(xRCX, xRSP, entry - 8);
                     SW(xRDX, xRSP, entry - 12);
