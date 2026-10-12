@@ -2397,6 +2397,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
             nextop = F8;
             GETGD;
+            MARKREGs(xRAX);
             MVxw(x7, xRAX);
             if (MODREG) {
                 ed = TO_NAT((nextop & 7) + (rex.b << 3));
