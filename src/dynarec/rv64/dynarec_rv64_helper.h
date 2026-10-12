@@ -892,6 +892,9 @@
 #define MARKF2       MARKFi(1)
 #define GETMARKF2    GETMARKFi(1)
 
+#define MARKFNAN     dyn->insts[ninst].markfnan = dyn->native_size
+#define GETMARKFNAN  dyn->insts[ninst].markfnan
+
 #define MARKSEG      dyn->insts[ninst].markseg = dyn->native_size
 #define GETMARKSEG   dyn->insts[ninst].markseg
 #define MARKLOCK     dyn->insts[ninst].marklock = dyn->native_size
@@ -1047,7 +1050,7 @@
     BNE_MARK2(xs, xZR);                             \
     FEQS(xt, vb, vb);                               \
     FMVS(v1, va);                                   \
-    Bxx_gen(NE, MARKF, xt, xZR);                    \
+    Bxx_gen(NE, MARKFNAN, xt, xZR);                 \
     FMVXW(xs, va);                                  \
     SLLIW(xs, xs, 9);                               \
     SRLIW(xs, xs, 9);                               \
@@ -1058,25 +1061,25 @@
     BEQ_MARKLOCK(xs, xt);                           \
     Bxx_gen(LTU, MARKLOCK2, xs, xt);                \
     FMVS(v1, va);                                   \
-    Bxx_gen(__, MARKF, 0, 0);                       \
+    Bxx_gen(__, MARKFNAN, 0, 0);                    \
     MARKLOCK2;                                      \
     FMVS(v1, vb);                                   \
-    Bxx_gen(__, MARKF, 0, 0);                       \
+    Bxx_gen(__, MARKFNAN, 0, 0);                    \
     MARKLOCK;                                       \
     FMVXW(xs, va);                                  \
     SRLIW(xs, xs, 31);                              \
     BNEZ_MARKLOCK2(xs);                             \
     FMVS(v1, va);                                   \
-    Bxx_gen(__, MARKF, 0, 0);                       \
+    Bxx_gen(__, MARKFNAN, 0, 0);                    \
     MARK2;                                          \
     FEQS(xt, vb, vb);                               \
     BNE_MARK3(xt, xZR);                             \
     FMVS(v1, vb);                                   \
-    Bxx_gen(__, MARKF, 0, 0);                       \
+    Bxx_gen(__, MARKFNAN, 0, 0);                    \
     MARK3;                                          \
     FNEGS(v1, v1);                                  \
     Bxx_gen(__, MARK, 0, 0);                        \
-    MARKF;                                          \
+    MARKFNAN;                                       \
     FMVXW(xs, v1);                                  \
     BSETI(xs, xs, 22, xq);                          \
     FMVWX(v1, xs);                                  \
@@ -1091,7 +1094,7 @@
     BNE_MARK2(xs, xZR);                             \
     FEQD(xt, vb, vb);                               \
     FMVD(v1, va);                                   \
-    Bxx_gen(NE, MARKF, xt, xZR);                    \
+    Bxx_gen(NE, MARKFNAN, xt, xZR);                 \
     FMVXD(xs, va);                                  \
     SLLI(xs, xs, 12);                               \
     BSETI(xs, xs, 63, xq);                          \
@@ -1100,25 +1103,25 @@
     BEQ_MARKLOCK(xs, xt);                           \
     Bxx_gen(LTU, MARKLOCK2, xs, xt);                \
     FMVD(v1, va);                                   \
-    Bxx_gen(__, MARKF, 0, 0);                       \
+    Bxx_gen(__, MARKFNAN, 0, 0);                    \
     MARKLOCK2;                                      \
     FMVD(v1, vb);                                   \
-    Bxx_gen(__, MARKF, 0, 0);                       \
+    Bxx_gen(__, MARKFNAN, 0, 0);                    \
     MARKLOCK;                                       \
     FMVXD(xs, va);                                  \
     SRLI(xs, xs, 63);                               \
     BNEZ_MARKLOCK2(xs);                             \
     FMVD(v1, va);                                   \
-    Bxx_gen(__, MARKF, 0, 0);                       \
+    Bxx_gen(__, MARKFNAN, 0, 0);                    \
     MARK2;                                          \
     FEQD(xt, vb, vb);                               \
     BNE_MARK3(xt, xZR);                             \
     FMVD(v1, vb);                                   \
-    Bxx_gen(__, MARKF, 0, 0);                       \
+    Bxx_gen(__, MARKFNAN, 0, 0);                    \
     MARK3;                                          \
     FNEGD(v1, v1);                                  \
     Bxx_gen(__, MARK, 0, 0);                        \
-    MARKF;                                          \
+    MARKFNAN;                                       \
     FMVXD(xs, v1);                                  \
     BSETI(xs, xs, 51, xq);                          \
     FMVDX(v1, xs);                                  \

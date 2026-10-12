@@ -115,6 +115,7 @@ typedef struct instruction_rv64_s {
     int                 *pred;      // predecessor array
     uintptr_t           mark[4];
     uintptr_t           markf[2];
+    uintptr_t           markfnan;
     uintptr_t           markseg;
     uintptr_t           marklock;
     uintptr_t           marklock2;
