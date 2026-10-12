@@ -119,6 +119,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
     fpu_reset(dyn);
     ARCH_INIT();
     int reset_n = -1; // -1 no reset; -2 reset to 0; else reset to the state of reset_n
+    int pending_fpu_purge = 0;  // fpu cache must be written back before the next emitted instruction
     #if defined(HAVE_LEAFCALL)
     dyn->last_ip = (dyn->inline_leaf || alternate || (dyn->insts && dyn->insts[0].pred_sz)) ? 0 : ip; // RIP is always set at start of ordinary blocks unless there is a predecessor!
     #else
@@ -226,6 +227,14 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         if(dyn->insts[ninst].x64.alive && dyn->insts[ninst].x64.self_loop)
             CALLRET_LOOP();
         #endif
+        if (pending_fpu_purge) {
+            pending_fpu_purge = 0;
+            #if defined(RV64) || defined(LA64) || defined(PPC64LE)
+            fpu_purgecache(dyn, ninst, 1, x1, x2, x3);
+            #else
+            fpu_purgecache(dyn, ninst, 1, x1, x2, x3, 0);
+            #endif
+        }
         if(!ninst) {
             GOTEST(x1, x2);
         }
@@ -386,6 +395,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
                     addr += dyn->insts[ninst].x64.size;
                     INST_EPILOG;
                 }
+                pending_fpu_purge = 1;
             }
             if((dyn->insts[ninst+1].x64.barrier&BARRIER_FULL)==BARRIER_FULL)
                 reset_n = -2;    // hack to say Barrier!
