@@ -1484,7 +1484,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             INST_NAME("VPMINSB Gx, Vx, Ex");
             nextop = F8;
             GETGX();
-            GETEX(x2, 0, vex.l ? 28 : 12);
+            GETEX(x2, 0, vex.l ? 31 : 15);
             GETVX();
             GETGY();
             GETVY();
@@ -1554,7 +1554,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             INST_NAME("VPMINUW Gx, Vx, Ex");
             nextop = F8;
             GETGX();
-            GETEX(x2, 0, vex.l ? 28 : 12);
+            GETEX(x2, 0, vex.l ? 30 : 14);
             GETVX();
             GETGY();
             GETVY();
@@ -1624,7 +1624,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             INST_NAME("VPMAXSB Gx, Vx, Ex");
             nextop = F8;
             GETGX();
-            GETEX(x2, 0, vex.l ? 28 : 12);
+            GETEX(x2, 0, vex.l ? 31 : 15);
             GETVX();
             GETGY();
             GETVY();
@@ -1694,7 +1694,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             INST_NAME("VPMAXUW Gx, Vx, Ex");
             nextop = F8;
             GETGX();
-            GETEX(x2, 0, vex.l ? 28 : 12);
+            GETEX(x2, 0, vex.l ? 30 : 14);
             GETVX();
             GETGY();
             GETVY();
