@@ -22,6 +22,10 @@ void PrintHostCpuFeatures(void)
         printf_log_prefix(0, LOG_INFO, " USCAT");
     if(cpuext.flagm)
         printf_log_prefix(0, LOG_INFO, " FLAGM");
+    if(cpuext.lrcpc)
+        printf_log_prefix(0, LOG_INFO, " LRCPC");
+    if(cpuext.lrcpc2)
+        printf_log_prefix(0, LOG_INFO, " LRCPC2");
     if(cpuext.flagm2)
         printf_log_prefix(0, LOG_INFO, " FLAGM2");
     if(cpuext.frintts)
@@ -30,6 +34,8 @@ void PrintHostCpuFeatures(void)
         printf_log_prefix(0, LOG_INFO, " AFP");
     if(cpuext.rndr)
         printf_log_prefix(0, LOG_INFO, " RNDR");
+    if(cpuext.lrcpc3)
+        printf_log_prefix(0, LOG_INFO, " LRCPC3");
     printf_log_prefix(0, LOG_INFO, "\n");
 #elif defined(LA64)
     printf_log(LOG_INFO, "Dynarec for LoongArch with extension LSX");

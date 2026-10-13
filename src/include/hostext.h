@@ -20,6 +20,9 @@ typedef union cpu_ext_s {
         uint64_t frintts : 1;
         uint64_t afp : 1;
         uint64_t rndr : 1;
+        uint64_t lrcpc : 1;
+        uint64_t lrcpc2 : 1;
+        uint64_t lrcpc3 : 1;
 #elif defined(RV64)
         uint64_t vlen : 8; // Not *8, 8bits should be enugh? that's 2048 vector
         uint64_t zba : 1;

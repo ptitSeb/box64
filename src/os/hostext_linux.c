@@ -228,6 +228,14 @@ int DetectHostCpuFeatures(void)
         if(hwcap&HWCAP_FLAGM)
             cpuext.flagm = 1;
         #endif
+        #ifdef HWCAP_LRCPC
+        if(hwcap&HWCAP_LRCPC)
+            cpuext.lrcpc = 1;
+        #endif
+        #ifdef HWCAP_ILRCPC
+        if(hwcap&HWCAP_ILRCPC)
+            cpuext.lrcpc2 = 1;
+        #endif
         unsigned long hwcap2 = real_getauxval(AT_HWCAP2);
         #ifdef HWCAP2_FLAGM2
         if(hwcap2&HWCAP2_FLAGM2)
@@ -245,6 +253,10 @@ int DetectHostCpuFeatures(void)
         if(hwcap2&HWCAP2_RNG)
             cpuext.rndr = 1;
         #endif
+        #ifdef HWCAP2_LRCPC3
+        if(hwcap2&HWCAP2_LRCPC3)
+            cpuext.lrcpc3 = 1;
+        #endif
         if (p) {
             p = strtok(p, ",");
             while (p) {
@@ -256,10 +268,13 @@ int DetectHostCpuFeatures(void)
                 if (!strcasecmp(p, "sha2")) cpuext.sha2 = 0;
                 if (!strcasecmp(p, "uscat")) cpuext.uscat = 0;
                 if (!strcasecmp(p, "flagm")) cpuext.flagm = 0;
+                if (!strcasecmp(p, "lrcpc")) cpuext.lrcpc = 0;
+                if (!strcasecmp(p, "lrcpc2")) cpuext.lrcpc2 = 0;
                 if (!strcasecmp(p, "flagm2")) cpuext.flagm2 = 0;
                 if (!strcasecmp(p, "frintts")) cpuext.frintts = 0;
                 if (!strcasecmp(p, "afp")) cpuext.afp = 0;
                 if (!strcasecmp(p, "rndr")) cpuext.rndr = 0;
+                if (!strcasecmp(p, "lrcpc3")) cpuext.lrcpc3 = 0;
                 p = strtok(NULL, ",");
             }
         }
