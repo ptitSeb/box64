@@ -95,11 +95,11 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             GETGY_empty_vector(v0);
             u8 = F8;
             VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
+            q1 = fpu_get_scratch(dyn);
             for (int i = 0; i < (4 << vex.l); ++i) {
                 int lane = i & ~3;
                 int selector = lane + ((u8 >> ((i & 3) * 2)) & 3);
                 MOV32w(x4, selector);
-                q1 = fpu_get_scratch(dyn);
                 VRGATHER_VX(q1, q0, x4, VECTOR_UNMASKED);
                 VECTOR_LOAD_VMASK(1 << i, x4, vex.l ? 2 : 1);
                 VMERGE_VVM(v0, v0, q1);
@@ -113,11 +113,11 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             GETGY_empty_vector(v0);
             u8 = F8;
             VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
+            q1 = fpu_get_scratch(dyn);
             for (int i = 0; i < (2 << vex.l); ++i) {
                 int lane = i & ~1;
                 int selector = lane + ((u8 >> i) & 1);
                 MOV32w(x4, selector);
-                q1 = fpu_get_scratch(dyn);
                 VRGATHER_VX(q1, q0, x4, VECTOR_UNMASKED);
                 VECTOR_LOAD_VMASK(1 << i, x4, vex.l ? 2 : 1);
                 VMERGE_VVM(v0, v0, q1);
