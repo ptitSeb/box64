@@ -109,7 +109,7 @@ uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr, int* step)
         break;
     case 0x2C:  /* CVTTSS2SI Gd, Ex */
         nextop = F8;
-        GETEX(0);
+        GETEX4(0);
         GETGD;
         if (rex.w) {
             if(isnanf(EX->f[0]) || isinff(EX->f[0]) || EX->f[0]>=(float)0x7fffffffffffffffLL) {
@@ -128,7 +128,7 @@ uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr, int* step)
         break;
     case 0x2D:  /* CVTSS2SI Gd, Ex */
         nextop = F8;
-        GETEX(0);
+        GETEX4(0);
         GETGD;
         if(rex.w) {
             if(isnanf(EX->f[0]) || isinff(EX->f[0]) || EX->f[0]>=(float)0x7fffffffffffffffLL) {
@@ -284,7 +284,7 @@ uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr, int* step)
         break;
     case 0x59:  /* MULSS Gx, Ex */
         nextop = F8;
-        GETEX(0);
+        GETEX4(0);
         GETGX;
         if(isnanf(GX->f[0])) GX->ud[0] |= 0x00400000;
         else if(isnanf(EX->f[0])) GX->ud[0] = EX->ud[0] | 0x00400000;
@@ -296,7 +296,7 @@ uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr, int* step)
         break;
     case 0x5A:  /* CVTSS2SD Gx, Ex */
         nextop = F8;
-        GETEX(0);
+        GETEX4(0);
         GETGX;
         #ifdef RV64
         if(isnanf(EX->f[0]))
@@ -328,7 +328,7 @@ uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr, int* step)
         break;
     case 0x5C:  /* SUBSS Gx, Ex */
         nextop = F8;
-        GETEX(0);
+        GETEX4(0);
         GETGX;
         if(isnanf(GX->f[0])) GX->ud[0] |= 0x00400000;
         else if(isnanf(EX->f[0])) GX->ud[0] = EX->ud[0] | 0x00400000;
@@ -340,14 +340,14 @@ uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr, int* step)
         break;
     case 0x5D:  /* MINSS Gx, Ex */
         nextop = F8;
-        GETEX(0);
+        GETEX4(0);
         GETGX;
         if(isnan(GX->f[0]) || isnan(EX->f[0]) || islessequal(EX->f[0], GX->f[0]))
             GX->f[0] = EX->f[0];
         break;
     case 0x5E:  /* DIVSS Gx, Ex */
         nextop = F8;
-        GETEX(0);
+        GETEX4(0);
         GETGX;
         if(isnanf(GX->f[0])) GX->ud[0] |= 0x00400000;
         else if(isnanf(EX->f[0])) GX->ud[0] = EX->ud[0] | 0x00400000;
@@ -359,7 +359,7 @@ uintptr_t RunF30F(x64emu_t *emu, rex_t rex, uintptr_t addr, int* step)
         break;
     case 0x5F:  /* MAXSS Gx, Ex */
         nextop = F8;
-        GETEX(0);
+        GETEX4(0);
         GETGX;
         if (isnan(GX->f[0]) || isnan(EX->f[0]) || isgreaterequal(EX->f[0], GX->f[0]))
             GX->f[0] = EX->f[0];

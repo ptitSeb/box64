@@ -271,7 +271,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             if(MODREG) {
                 EmitSignal(emu, X64_SIGILL, (void*)R_RIP, 0);
             } else {
-                GETEX(0);
+                GETEX8(0);
                 GETGX;
                 EX->q[0] = GX->q[0];
             }
@@ -295,7 +295,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             break;
         case 0x16:                      /* MOVHPS Gx,Ex */
             nextop = F8;               /* MOVLHPS Gx,Ex (Ex==reg) */
-            GETEX(0);
+            GETEX8(0);
             GETGX;
             GX->q[1] = EX->q[0];
             break;
@@ -304,7 +304,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             if(MODREG) {
                 EmitSignal(emu, X64_SIGILL, (void*)R_RIP, 0);
             } else {
-                GETEX(0);
+                GETEX8(0);
                 GETGX;
                 EX->q[0] = GX->q[1];
             }
@@ -385,7 +385,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             break;
         case 0x2C:                      /* CVTTPS2PI Gm, Ex */
             nextop = F8;
-            GETEX(0);
+            GETEX8(0);
             GETGM;
             tmp64s = EX->f[1];
             if (tmp64s==(int32_t)tmp64s && !isnanf(EX->f[1]))
@@ -405,7 +405,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         case 0x2D:                      /* CVTPS2PI Gm, Ex */
             // rounding should be done; and indefinite integer should also be assigned if overflow or NaN/Inf
             nextop = F8;
-            GETEX(0);
+            GETEX8(0);
             GETGM;
             for(int i=1; i>=0; --i) {
                 if(isnanf(EX->f[i]))
@@ -442,7 +442,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         case 0x2F:                      /* COMISS Gx, Ex */
             RESET_FLAGS(emu);
             nextop = F8;
-            GETEX(0);
+            GETEX4(0);
             GETGX;
             if(isnanf(GX->f[0]) || isnanf(EX->f[0])) {
                 SET_FLAG(F_ZF); SET_FLAG(F_PF); SET_FLAG(F_CF);
@@ -887,7 +887,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         break;
         case 0x5A:                      /* CVTPS2PD Gx, Ex */
             nextop = F8;
-            GETEX(0);
+            GETEX8(0);
             GETGX;
             #ifdef RV64
             for(int i=1; i>=0; --i) {
@@ -1839,7 +1839,7 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             break;
         case 0xC4:                      /* PINSRW Gm,Ew,Ib */
             nextop = F8;
-            GETED(1);
+            GETE2(1);
             GETGM;
             tmp8u = F8;
             GM->uw[tmp8u&3] = ED->word[0];   // only low 16bits
