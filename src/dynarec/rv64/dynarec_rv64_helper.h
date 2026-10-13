@@ -1543,7 +1543,8 @@
     do {                                                                              \
         if ((sew) == VECTOR_SEWANY && dyn->vector_sew != VECTOR_SEWNA) {              \
             dyn->vector_eew = dyn->vector_sew;                                        \
-        } else if ((sew) == dyn->vector_sew) {                                        \
+        } else if ((sew) == dyn->vector_sew && (unsigned)(sew) < 4 &&                 \
+                   dyn->inst_vl == (uint32_t)(16u >> (sew))) {                        \
             dyn->vector_eew = dyn->vector_sew;                                        \
         } else {                                                                      \
             dyn->vector_eew = vector_vsetvli(dyn, ninst, s1, (sew), VECTOR_LMUL1, 1); \

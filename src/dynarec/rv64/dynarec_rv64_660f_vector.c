@@ -1010,6 +1010,36 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                         SMWRITE2();
                     }
                     break;
+                case 0x20:
+                    INST_NAME("PINSRB Gx, Ed, Ib");
+                    nextop = F8;
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW8, 1);
+                    GETGX_vector(q0, 1, dyn->vector_eew);
+                    if (MODREG) {
+                        u8 = (F8) & 0xF;
+                        ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                    } else {
+                        SMREAD();
+                        addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 1);
+                        u8 = (F8) & 0xF;
+                        LB(x4, ed, fixedaddress);
+                        ed = x4;
+                    }
+                    if (cpuext.xtheadvector) {
+                        VECTOR_LOAD_VMASK(1 << u8, x5, 1);
+                        v0 = fpu_get_scratch(dyn);
+                        VMERGE_VXM(v0, q0, ed);
+                        VMV_V_V(q0, v0);
+                    } else if (u8 == 0) {
+                        VMV_S_X(q0, ed);
+                    } else {
+                        v0 = fpu_get_scratch(dyn);
+                        VMV_S_X(v0, ed);
+                        vector_vsetvli(dyn, ninst, x1, VECTOR_SEW8, VECTOR_LMUL1, (u8 + 1) / 16.0f);
+                        VSLIDEUP_VI(q0, v0, u8, VECTOR_UNMASKED);
+                        vector_vsetvli(dyn, ninst, x1, dyn->vector_sew, VECTOR_LMUL1, 1);
+                    }
+                    break;
                 case 0x22:
                     INST_NAME("PINSRD Gx, Ed, Ib");
                     nextop = F8;
@@ -1018,6 +1048,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     if (MODREG) {
                         u8 = (F8) & (rex.w ? 1 : 3);
                         ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                        MARKREGs(ed);
                     } else {
                         SMREAD();
                         addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 1);
@@ -1025,12 +1056,29 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                         LDxw(x4, ed, fixedaddress);
                         ed = x4;
                     }
-                    v0 = fpu_get_scratch(dyn);
-                    VID_V(v0, VECTOR_UNMASKED);
-                    VMSEQ_VI(VMASK, v0, u8, VECTOR_UNMASKED);
-                    VMERGE_VXM(v0, q0, ed);
-                    VMV_V_V(q0, v0);
-                    sse_forget_reg_vector(dyn, ninst, x1, gd);
+                    if (cpuext.xtheadvector) {
+                        v0 = fpu_get_scratch(dyn);
+                        if (rex.w) {
+                            SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
+                            VECTOR_LOAD_VMASK(1 << (u8 * 2), x5, 1);
+                            VMERGE_VXM(v0, q0, ed);
+                            SRLI(x4, ed, 32);
+                            VECTOR_LOAD_VMASK(1 << (u8 * 2 + 1), x5, 1);
+                            VMERGE_VXM(q0, v0, x4);
+                        } else {
+                            VECTOR_LOAD_VMASK(1 << u8, x5, 1);
+                            VMERGE_VXM(v0, q0, ed);
+                            VMV_V_V(q0, v0);
+                        }
+                    } else if (u8 == 0) {
+                        VMV_S_X(q0, ed);
+                    } else {
+                        v0 = fpu_get_scratch(dyn);
+                        VMV_S_X(v0, ed);
+                        vector_vsetvli(dyn, ninst, x1, dyn->vector_sew, VECTOR_LMUL1, (u8 + 1) / (float)(rex.w ? 2 : 4));
+                        VSLIDEUP_VI(q0, v0, u8, VECTOR_UNMASKED);
+                        vector_vsetvli(dyn, ninst, x1, dyn->vector_sew, VECTOR_LMUL1, 1);
+                    }
                     break;
                 case 0x40:
                     INST_NAME("DPPS Gx, Ex, Ib");
