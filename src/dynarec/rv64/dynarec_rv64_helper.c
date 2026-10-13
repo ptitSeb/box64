@@ -3107,51 +3107,24 @@ void vector_loadmask(dynarec_rv64_t* dyn, int ninst, int vreg, uint64_t imm, int
             abort();
     } else {
         int sew = dyn->vector_eew;
-        int count;
-        int scratch;
-        int result;
-        int first;
-        int scratch_mark = dyn->e.fpu_scratch;
         if (sew < VECTOR_SEW8 || sew > VECTOR_SEW64)
             sew = VECTOR_SEW8;
-        count = (16 >> sew) * (int)multiple;
+        int count = (int)((16 >> sew) * multiple);
         if (count > 32)
             count = 32;
-        scratch = fpu_get_scratch(dyn);
-        result = fpu_get_scratch(dyn);
+        imm &= (1ULL << count) - 1;
         uint8_t cur_sew = dyn->inst_sew;
         uint8_t cur_vlmul = dyn->inst_vlmul;
         float cur_multiple = (cur_sew == VECTOR_SEWNA || (16 >> cur_sew) == 0) ? 1.0 : (float)dyn->inst_vl / (float)(16 >> cur_sew);
-        int need_wrap = (cur_sew != VECTOR_SEWNA && cur_vlmul != VECTOR_LMUL1);
-        if (need_wrap) vector_vsetvli(dyn, ninst, s1, cur_sew, VECTOR_LMUL1, cur_multiple);
-        first = 1;
-        VID_V(scratch, VECTOR_UNMASKED);
-        for (int i = 0; i < count; ++i) {
-            if (imm & (1ULL << i)) {
-                if (first) {
-                    if (i < 16) {
-                        VMSEQ_VI(vreg, scratch, i, VECTOR_UNMASKED);
-                    } else {
-                        ADDI(s1, xZR, i);
-                        VMSEQ_VX(vreg, scratch, s1, VECTOR_UNMASKED);
-                    }
-                    first = 0;
-                } else {
-                    if (i < 16) {
-                        VMSEQ_VI(result, scratch, i, VECTOR_UNMASKED);
-                    } else {
-                        ADDI(s1, xZR, i);
-                        VMSEQ_VX(result, scratch, s1, VECTOR_UNMASKED);
-                    }
-                    VMOR_MM(vreg, vreg, result);
-                }
-            }
-        }
-        if (first)
-            VMSNE_VV(vreg, scratch, scratch, VECTOR_UNMASKED);
+        int need_wrap = (cur_sew > VECTOR_SEW64 || cur_vlmul != VECTOR_LMUL1 || !dyn->inst_vl);
+        if ((cur_sew == VECTOR_SEW8 && count > 8) || (cur_sew == VECTOR_SEW16 && count > 16))
+            need_wrap |= 1;
         if (need_wrap)
+            vector_vsetvli(dyn, ninst, s1, VECTOR_SEW32, VECTOR_LMUL1, 0.25);
+        MOV32w(s1, imm);
+        VMV_S_X(vreg, s1);
+        if (need_wrap && cur_sew != VECTOR_SEWNA)
             vector_vsetvli(dyn, ninst, s1, cur_sew, cur_vlmul, cur_multiple);
-        dyn->e.fpu_scratch = scratch_mark;
     }
 #endif
 }
