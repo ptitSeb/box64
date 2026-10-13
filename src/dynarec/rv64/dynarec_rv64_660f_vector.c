@@ -1026,7 +1026,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                         ed = x4;
                     }
                     if (cpuext.xtheadvector) {
-                        VECTOR_LOAD_VMASK(1 << u8, x4, 1);
+                        VECTOR_LOAD_VMASK(1 << u8, x5, 1);
                         v0 = fpu_get_scratch(dyn);
                         VMERGE_VXM(v0, q0, ed);
                         VMV_V_V(q0, v0);
@@ -1060,13 +1060,13 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                         v0 = fpu_get_scratch(dyn);
                         if (rex.w) {
                             SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
-                            VECTOR_LOAD_VMASK(1 << (u8 * 2), x4, 1);
+                            VECTOR_LOAD_VMASK(1 << (u8 * 2), x5, 1);
                             VMERGE_VXM(v0, q0, ed);
                             SRLI(x4, ed, 32);
-                            VECTOR_LOAD_VMASK(1 << (u8 * 2 + 1), x4, 1);
+                            VECTOR_LOAD_VMASK(1 << (u8 * 2 + 1), x5, 1);
                             VMERGE_VXM(q0, v0, x4);
                         } else {
-                            VECTOR_LOAD_VMASK(1 << u8, x4, 1);
+                            VECTOR_LOAD_VMASK(1 << u8, x5, 1);
                             VMERGE_VXM(v0, q0, ed);
                             VMV_V_V(q0, v0);
                         }
