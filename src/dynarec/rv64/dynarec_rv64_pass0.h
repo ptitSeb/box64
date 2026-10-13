@@ -83,6 +83,7 @@
     dyn->inst_sew = dyn->vector_sew;                             \
     dyn->inst_vlmul = VECTOR_LMUL1;                              \
     dyn->inst_vl = 0;                                            \
+    dyn->insts[ninst].x64.strongmem = ((box64_wine && VolatileRangesContains(ip)) ? 0 : BOX64DRENV(dynarec_strongmem));\
     if (ninst)                                                   \
         dyn->insts[ninst - 1].x64.size = dyn->insts[ninst].x64.addr - dyn->insts[ninst - 1].x64.addr;\
     AREFLAGSNEEDED()

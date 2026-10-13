@@ -64,6 +64,7 @@
         dyn->v.combined1 = dyn->v.combined2 = 0;\
         dyn->v.swapped = 0; dyn->v.barrier = 0; \
         dyn->insts[ninst].f_entry = dyn->f;     \
+        dyn->insts[ninst].x64.strongmem = ((box64_wine && VolatileRangesContains(ip)) ? 0 : BOX64DRENV(dynarec_strongmem));\
         if(ninst) {dyn->insts[ninst-1].x64.size = dyn->insts[ninst].x64.addr - dyn->insts[ninst-1].x64.addr;}  \
         AREFLAGSNEEDED()
 

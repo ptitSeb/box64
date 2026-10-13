@@ -65,6 +65,7 @@ typedef struct instruction_x64_s {
     uint8_t     leaf_kind;
     uint8_t     leaf_rsp;
     uintptr_t   leaf_target;
+    uint8_t     strongmem:3;    // strongmem model at the opcode
 } instruction_x64_t;
 
 #endif //__DYNAREC_PRIVATE_H_
