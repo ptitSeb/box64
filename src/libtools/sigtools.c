@@ -172,6 +172,27 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd, 
         p->uc_mcontext.pc+=4;   // go to next opcode
         return 1;
     }
+    if((opcode&0b10111111111000000000110000000000) == 0b10011001000000000000000000000000) {
+        // this is a STLUR that SIGBUS if accessing unaligned device memory
+        int size = 1<<((opcode>>30)&3);
+        int val = opcode&31;
+        int dest = (opcode>>5)&31;
+        int64_t offset = (opcode>>12)&0b111111111;
+        if((offset>>(9-1))&1)
+            offset |= (0xffffffffffffffffll<<9);
+        volatile uint8_t* addr = (void*)(p->uc_mcontext.regs[dest] + offset);
+        if(is32bits) addr = (uint8_t*)(((uintptr_t)addr)&0xffffffff);
+        CHECK_ALIGNED(addr, size);
+        uint64_t value = p->uc_mcontext.regs[val];
+        if(size==8 && (((uintptr_t)addr)&3)==0) {
+            for(int i=0; i<2; ++i)
+                ((volatile uint32_t*)addr)[i] = (value>>(i*32))&0xffffffff;
+        } else
+            for(int i=0; i<size; ++i)
+                addr[i] = (value>>(i*8))&0xff;
+        p->uc_mcontext.pc+=4;   // go to next opcode
+        return 1;
+    }
     if((opcode&0b00111111010000000000000000000000)==0b00111101000000000000000000000000) {
         // this is VSTR
         int scale = (opcode>>30)&3;
@@ -323,6 +344,28 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd, 
         p->uc_mcontext.pc+=4;   // go to next opcode
         return 1;
     }
+    if((opcode&0b10111111111000000000110000000000) == 0b10011001010000000000000000000000) {
+        // this is a LDAPUR
+        int size = 1<<((opcode>>30)&3);
+        int val = opcode&31;
+        int dest = (opcode>>5)&31;
+        int64_t offset = (opcode>>12)&0b111111111;
+        if((offset>>(9-1))&1)
+            offset |= (0xffffffffffffffffll<<9);
+        volatile uint8_t* addr = (void*)(p->uc_mcontext.regs[dest] + offset);
+        if(is32bits) addr = (uint8_t*)(((uintptr_t)addr)&0xffffffff);
+        CHECK_ALIGNED(addr, size);
+        uint64_t value = 0;
+        if(size==8 && (((uintptr_t)addr)&3)==0) {
+            for(int i=0; i<2; ++i)
+                value |= ((uint64_t)((volatile  uint32_t*)addr)[i]) << (i*32);
+        } else
+            for(int i=0; i<size; ++i)
+                value |= ((uint64_t)addr[i]) << (i*8);
+        p->uc_mcontext.regs[val] = value;
+        p->uc_mcontext.pc+=4;   // go to next opcode
+        return 1;
+    }
     if((opcode&0b11111111110000000000000000000000)==0b01111001000000000000000000000000) {
         // this is STRH
         int scale = (opcode>>30)&3;
@@ -341,6 +384,22 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd, 
     }
     if((opcode&0b11111111111000000000110000000000)==0b01111000000000000000000000000000) {
         // this is STURH
+        int val = opcode&31;
+        int dest = (opcode>>5)&31;
+        int64_t offset = (opcode>>12)&0b111111111;
+        if((offset>>(9-1))&1)
+            offset |= (0xffffffffffffffffll<<9);
+        volatile uint8_t* addr = (void*)(p->uc_mcontext.regs[dest] + offset);
+        if(is32bits) addr = (uint8_t*)(((uintptr_t)addr)&0xffffffff);
+        CHECK_ALIGNED(addr, 2);
+        uint64_t value = p->uc_mcontext.regs[val];
+        for(int i=0; i<2; ++i)
+            addr[i] = (value>>(i*8))&0xff;
+        p->uc_mcontext.pc+=4;   // go to next opcode
+        return 1;
+    }
+    if((opcode&0b11111111111000000000110000000000)==0b00110010000000000000000000000000) {
+        // this is STLURH
         int val = opcode&31;
         int dest = (opcode>>5)&31;
         int64_t offset = (opcode>>12)&0b111111111;

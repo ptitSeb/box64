@@ -35,6 +35,8 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
     int lock = l?((l==LOCK_LOCK)?1:2):0;
     if(lock==2) *l = 0;
 
+    if(dyn->insts[ninst].use_lrcpc) { absmax = 0; mask=0;}// there is no "Scaled" version, only Unscaled
+
     if(rex.is32bits && rex.is67)
         return geted16(dyn, addr, ninst, nextop, ed, hint, fixaddress, unscaled, absmax, mask, rex, s);
 

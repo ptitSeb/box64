@@ -1610,15 +1610,22 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         wback = x2;
                     }
                     for(int i=0; i<(1<<(2+rex.w)); ++i) {
-                        STURB_I9(gd, wback, i);
+                        if(dyn->insts[ninst].use_lrcpc)
+                            STLURB(gd, wback, i);
+                        else
+                            STURB_I9(gd, wback, i);
                         RORxw(gd, gd, 8);
                     }
                     // gd restored after that
                 } else {
                     addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff << (2 + rex.w), (1 << (2 + rex.w)) - 1, rex, &lock, 0, 0);
-                    if(!lock && BOX64ENV(unity) && !VolatileRangesContains(ip) && ((fixedaddress==0x80) || (fixedaddress==0x84) || (fixedaddress==0xc0) || (fixedaddress==0xc4))) {
-                        DMB_ISH();
-                        lock = 1;
+                    if(!lock && !dyn->insts[ninst].use_lrcpc && BOX64ENV(unity) && !VolatileRangesContains(ip) && ((fixedaddress==0x80) || (fixedaddress==0x84) || (fixedaddress==0xc0) || (fixedaddress==0xc4))) {
+                        if(!dyn->insts[ninst].x64.strongmem && cpuext.lrcpc && cpuext.lrcpc2 && cpuext.uscat)
+                            dyn->insts[ninst].use_lrcpc = 1;
+                        else {
+                            DMB_ISH();
+                            lock = 1;
+                        }
                     }
                     STxw(gd, ed, fixedaddress);
                 }
@@ -1667,8 +1674,11 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 MOVxw_REG(gd, TO_NAT((nextop & 7) + (rex.b << 3)));
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, &lock, 0, 0);
-                if(!lock && BOX64ENV(unity) && !VolatileRangesContains(ip) && ((fixedaddress==0x80) || (fixedaddress==0x84) || (fixedaddress==0xc0) || (fixedaddress==0xc4))) {
-                    lock = 1;
+                if(!lock && !dyn->insts[ninst].use_lrcpc && BOX64ENV(unity) && !VolatileRangesContains(ip) && ((fixedaddress==0x80) || (fixedaddress==0x84) || (fixedaddress==0xc0) || (fixedaddress==0xc4))) {
+                    if(!dyn->insts[ninst].x64.strongmem && cpuext.lrcpc && cpuext.lrcpc2 && cpuext.uscat)
+                        dyn->insts[ninst].use_lrcpc = 1;
+                    else
+                        lock = 1;
                 }
                 SMREADLOCK(lock);
                 LDxw(gd, ed, fixedaddress);

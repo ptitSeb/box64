@@ -156,6 +156,7 @@ typedef struct instruction_arm64_s {
     unsigned            x87_used:1; // no fine tracking, just a global "any reg used"
     unsigned            fpu_used:1; // any xmm/ymm/x87/mmx reg used
     unsigned            fpupurge:1;   // this opcode will purge all fpu regs
+    unsigned            use_lrcpc:1;// use the various lrcpc opcode here instead of regular LD/ST  + memory barrier
     flagcache_t         f_exit;     // flags status at end of instruction
     neoncache_t         n;          // neoncache at end of instruction (but before poping)
     flagcache_t         f_entry;    // flags status before the instruction begin

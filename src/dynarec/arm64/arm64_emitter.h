@@ -230,25 +230,25 @@ int convert_bitmask(uint64_t bitmask);
 #define LDURSBx_I9(Rt, Rn, imm9)          EMIT(LDU_gen(0b00, 0b10, imm9, Rn, Rt))
 #define LDURSBxw_I9(Rt, Rn, imm9)         EMIT(LDU_gen(0b00, (rex.w)?0b10:0b11, imm9, Rn, Rt))
 
-#define LDxw(A, B, C)   if(unscaled) {LDURxw_I9(A, B, C);} else {LDRxw_U12(A, B, C);}
-#define LDz(A, B, C)    if(unscaled) {LDURz_I9(A, B, C);} else {LDRz_U12(A, B, C);}
-#define LDx(A, B, C)    if(unscaled) {LDURx_I9(A, B, C);} else {LDRx_U12(A, B, C);}
-#define LDW(A, B, C)    if(unscaled) {LDURw_I9(A, B, C);} else {LDRw_U12(A, B, C);}
-#define LDH(A, B, C)    if(unscaled) {LDURH_I9(A, B, C);} else {LDRH_U12(A, B, C);}
-#define LDB(A, B, C)    if(unscaled) {LDURB_I9(A, B, C);} else {LDRB_U12(A, B, C);}
-#define LDSW(A, B, C)   if(unscaled) {LDURSW_I9(A, B, C);} else {LDRSW_U12(A, B, C);}
-#define LDSHxw(A, B, C) if(unscaled) {LDURSHxw_I9(A, B, C);} else {LDRSHxw_U12(A, B, C);}
-#define LDSHx(A, B, C)  if(unscaled) {LDURSHx_I9(A, B, C);} else {LDRSHx_U12(A, B, C);}
-#define LDSHw(A, B, C)  if(unscaled) {LDURSHw_I9(A, B, C);} else {LDRSHw_U12(A, B, C);}
-#define LDSBxw(A, B, C) if(unscaled) {LDURSBxw_I9(A, B, C);} else {LDRSBxw_U12(A, B, C);}
-#define LDSBx(A, B, C)  if(unscaled) {LDURSBx_I9(A, B, C);} else {LDRSBx_U12(A, B, C);}
-#define LDSBw(A, B, C)  if(unscaled) {LDURSBw_I9(A, B, C);} else {LDRSBw_U12(A, B, C);}
-#define STxw(A, B, C)   if(unscaled) {STURxw_I9(A, B, C);} else {STRxw_U12(A, B, C);}
-#define STz(A, B, C)    if(unscaled) {STURz_I9(A, B, C);} else {STRz_U12(A, B, C);}
-#define STx(A, B, C)    if(unscaled) {STURx_I9(A, B, C);} else {STRx_U12(A, B, C);}
-#define STW(A, B, C)    if(unscaled) {STURw_I9(A, B, C);} else {STRw_U12(A, B, C);}
-#define STH(A, B, C)    if(unscaled) {STURH_I9(A, B, C);} else {STRH_U12(A, B, C);}
-#define STB(A, B, C)    if(unscaled) {STURB_I9(A, B, C);} else {STRB_U12(A, B, C);}
+#define LDxw(A, B, C)   do {if(dyn->insts[ninst].use_lrcpc) {LDAPURxw(A, B, C);} else if(unscaled) {LDURxw_I9(A, B, C);} else {LDRxw_U12(A, B, C);}} while(0)
+#define LDz(A, B, C)    do {if(dyn->insts[ninst].use_lrcpc) {LDAPURz(A, B, C);} else if(unscaled) {LDURz_I9(A, B, C);} else {LDRz_U12(A, B, C);}} while(0)
+#define LDx(A, B, C)    do {if(dyn->insts[ninst].use_lrcpc) {LDAPURx(A, B, C);} else if(unscaled) {LDURx_I9(A, B, C);} else {LDRx_U12(A, B, C);}} while(0)
+#define LDW(A, B, C)    do {if(dyn->insts[ninst].use_lrcpc) {LDAPURw(A, B, C);} else if(unscaled) {LDURw_I9(A, B, C);} else {LDRw_U12(A, B, C);}} while(0)
+#define LDH(A, B, C)    do {if(dyn->insts[ninst].use_lrcpc) {LDAPURH(A, B, C);} else if(unscaled) {LDURH_I9(A, B, C);} else {LDRH_U12(A, B, C);}} while(0)
+#define LDB(A, B, C)    do {if(dyn->insts[ninst].use_lrcpc) {LDAPURB(A, B, C);} else if(unscaled) {LDURB_I9(A, B, C);} else {LDRB_U12(A, B, C);}} while(0)
+#define LDSW(A, B, C)   do {if(dyn->insts[ninst].use_lrcpc) {LDAPURSW(A, B, C);} else if(unscaled) {LDURSW_I9(A, B, C);} else {LDRSW_U12(A, B, C);}} while (0)
+#define LDSHxw(A, B, C) do {if(dyn->insts[ninst].use_lrcpc) {LDAPURSHxw(A, B, C);} else if(unscaled) {LDURSHxw_I9(A, B, C);} else {LDRSHxw_U12(A, B, C);}} while (0)
+#define LDSHx(A, B, C)  do {if(dyn->insts[ninst].use_lrcpc) {LDAPURSHx(A, B, C);} else if(unscaled) {LDURSHx_I9(A, B, C);} else {LDRSHx_U12(A, B, C);}} while (0)
+#define LDSHw(A, B, C)  do {if(dyn->insts[ninst].use_lrcpc) {LDAPURSHw(A, B, C);} else if(unscaled) {LDURSHw_I9(A, B, C);} else {LDRSHw_U12(A, B, C);}} while (0)
+#define LDSBxw(A, B, C) do {if(dyn->insts[ninst].use_lrcpc) {LDAPURSBxw(A, B, C);} else if(unscaled) {LDURSBxw_I9(A, B, C);} else {LDRSBxw_U12(A, B, C);}} while (0)
+#define LDSBx(A, B, C)  do {if(dyn->insts[ninst].use_lrcpc) {LDAPURSBx(A, B, C);} else if(unscaled) {LDURSBx_I9(A, B, C);} else {LDRSBx_U12(A, B, C);}} while (0)
+#define LDSBw(A, B, C)  do {if(dyn->insts[ninst].use_lrcpc) {LDAPURSBw(A, B, C);} else if(unscaled) {LDURSBw_I9(A, B, C);} else {LDRSBw_U12(A, B, C);}} while (0)
+#define STxw(A, B, C)   do {if(dyn->insts[ninst].use_lrcpc) {STLURxw(A, B, C);} else if(unscaled) {STURxw_I9(A, B, C);} else {STRxw_U12(A, B, C);}} while(0)
+#define STz(A, B, C)    do {if(dyn->insts[ninst].use_lrcpc) {STLURz(A, B, C);} else if(unscaled) {STURz_I9(A, B, C);} else {STRz_U12(A, B, C);}} while(0)
+#define STx(A, B, C)    do {if(dyn->insts[ninst].use_lrcpc) {STLURx(A, B, C);} else if(unscaled) {STURx_I9(A, B, C);} else {STRx_U12(A, B, C);}} while(0)
+#define STW(A, B, C)    do {if(dyn->insts[ninst].use_lrcpc) {STLURw(A, B, C);} else if(unscaled) {STURw_I9(A, B, C);} else {STRw_U12(A, B, C);}} while(0)
+#define STH(A, B, C)    do {if(dyn->insts[ninst].use_lrcpc) {STLURH(A, B, C);} else if(unscaled) {STURH_I9(A, B, C);} else {STRH_U12(A, B, C);}} while(0)
+#define STB(A, B, C)    do {if(dyn->insts[ninst].use_lrcpc) {STLURB(A, B, C);} else if(unscaled) {STURB_I9(A, B, C);} else {STRB_U12(A, B, C);}} while(0)
 
 // STR
 #define STR_gen(size, op1, imm9, op2, Rn, Rt)    ((size)<<30 | 0b111<<27 | (op1)<<24 | 0b00<<22 | (imm9)<<12 | (op2)<<10 | (Rn)<<5 | (Rt))
@@ -2379,5 +2379,29 @@ int convert_bitmask(uint64_t bitmask);
 #define LDAPRz(Rt, Rn)      EMIT(LDAPR_gen(rex.is32bits?0b10:0b11, Rn, Rt))
 #define LDAPRH(Rt, Rn)      EMIT(LDAPR_gen(0b01, Rn, Rt))
 #define LDAPRB(Rt, Rn)      EMIT(LDAPR_gen(0b00, Rn, Rt))
+
+// LRCPC2 extension
+
+#define LRCPC2_gen(sz, opc, imm9, Rn, Rt) ((sz)<<30 | 0b011001<<24 | (opc)<<22 | ((imm9)&0b111111111)<<12 | (Rn)<<5 | (Rt))
+#define STLURx(Rt, Rn, imm9)    EMIT(LRCPC2_gen(0b11, 0b00, imm9, Rn, Rt))
+#define STLURw(Rt, Rn, imm9)    EMIT(LRCPC2_gen(0b10, 0b00, imm9, Rn, Rt))
+#define STLURxw(Rt, Rn, imm9)   EMIT(LRCPC2_gen(0b10+rex.w, 0b00, imm9, Rn, Rt))
+#define STLURz(Rt, Rn, imm9)    EMIT(LRCPC2_gen(rex.is32bits?0b10:0b11, 0b00, imm9, Rn, Rt))
+#define STLURH(Rt, Rn, imm9)    EMIT(LRCPC2_gen(0b01, 0b00, imm9, Rn, Rt))
+#define STLURB(Rt, Rn, imm9)    EMIT(LRCPC2_gen(0b00, 0b00, imm9, Rn, Rt))
+
+#define LDAPURx(Rt, Rn, imm9)       EMIT(LRCPC2_gen(0b11, 0b01, imm9, Rn, Rt))
+#define LDAPURw(Rt, Rn, imm9)       EMIT(LRCPC2_gen(0b10, 0b01, imm9, Rn, Rt))
+#define LDAPURxw(Rt, Rn, imm9)      EMIT(LRCPC2_gen(0b10+rex.w, 0b01, imm9, Rn, Rt))
+#define LDAPURz(Rt, Rn, imm9)       EMIT(LRCPC2_gen(rex.is32bits?0b10:0b11, 0b01, imm9, Rn, Rt))
+#define LDAPURH(Rt, Rn, imm9)       EMIT(LRCPC2_gen(0b01, 0b01, imm9, Rn, Rt))
+#define LDAPURB(Rt, Rn, imm9)       EMIT(LRCPC2_gen(0b00, 0b01, imm9, Rn, Rt))
+#define LDAPURSW(Rt, Rn, imm9)      EMIT(LRCPC2_gen(0b10, 0b10, imm9, Rn, Rt))
+#define LDAPURSHw(Rt, Rn, imm9)     EMIT(LRCPC2_gen(0b01, 0b10, imm9, Rn, Rt))
+#define LDAPURSHx(Rt, Rn, imm9)     EMIT(LRCPC2_gen(0b01, 0b11, imm9, Rn, Rt))
+#define LDAPURSHxw(Rt, Rn, imm9)    EMIT(LRCPC2_gen(0b01, 0b10+rex.w, imm9, Rn, Rt))
+#define LDAPURSBw(Rt, Rn, imm9)     EMIT(LRCPC2_gen(0b00, 0b10, imm9, Rn, Rt))
+#define LDAPURSBx(Rt, Rn, imm9)     EMIT(LRCPC2_gen(0b00, 0b11, imm9, Rn, Rt))
+#define LDAPURSBxw(Rt, Rn, imm9)    EMIT(LRCPC2_gen(0b00, 0b10+rex.w, imm9, Rn, Rt))
 
 #endif  //__ARM64_EMITTER_H__
