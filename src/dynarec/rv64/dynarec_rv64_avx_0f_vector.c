@@ -452,7 +452,7 @@ uintptr_t dynarec64_AVX_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t
                         ANDI(x5, x5, 4);
                         OR(x4, x4, x5);
                         SRLIW(x5, x3, 4);
-                        ANDI(x5, x5, 2);
+                        ANDI(x5, x5, 1);
                         OR(x4, x4, x5);
                     }
                     SW(x4, ed, fixedaddress);
