@@ -2281,7 +2281,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                             OR(x4, x4, x5);
                             // x4 = x4 | (x3 & 0b10000) >> 4;
                             SRLIW(x5, x3, 4);
-                            ANDI(x5, x5, 2);
+                            ANDI(x5, x5, 1);
                             OR(x4, x4, x5);
                         }
                         SW(x4, wback, fixedaddress);
