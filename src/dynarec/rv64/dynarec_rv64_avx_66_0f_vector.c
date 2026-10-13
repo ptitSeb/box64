@@ -908,7 +908,7 @@ uintptr_t dynarec64_AVX_66_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             if (MODREG) {
                 ed = (nextop & 7) + (rex.b << 3);
                 q1 = fpu_get_scratch(dyn);
-                avx_set_vector_width(dyn, ninst, x1, VECTOR_SEW64, 2);
+                avx_set_vector_width(dyn, ninst, x1, VECTOR_SEW64, 16);
                 VXOR_VV(q1, q1, q1, VECTOR_UNMASKED);
                 VECTOR_LOAD_VMASK(1, x4, 1);
                 VMERGE_VVM(q1, q1, q0);
