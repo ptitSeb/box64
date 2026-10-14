@@ -674,7 +674,7 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
 
         case 0x20:  /* VPMOVSXBW Gx, Ex */
             nextop = F8;
-            GETEX(0);
+            if(vex.l) GETEX(0); else GETEX8(0);
             GETGX;
             GETGY;
             if(vex.l)
@@ -687,7 +687,7 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             break;
         case 0x21:  /* VPMOVSXBD Gx, Ex */
             nextop = F8;
-            GETEX(0);
+            if(vex.l) GETEX8(0); else GETEX4(0);
             GETGX;
             GETGY;
             if(vex.l)
@@ -700,7 +700,7 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             break;
         case 0x22:  /* VPMOVSXBQ Gx, Ex */
             nextop = F8;
-            GETEX(0);
+            if(vex.l) GETEX4(0); else GETEX2(0);
             GETGX;
             GETGY;
             if(vex.l)
@@ -713,7 +713,7 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             break;
         case 0x23:  /* VPMOVSXWD Gx, Ex */
             nextop = F8;
-            GETEX(0);
+            if(vex.l) GETEX(0); else GETEX8(0);
             GETGX;
             GETGY;
             if(vex.l)
@@ -726,7 +726,7 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             break;
         case 0x24:  /* VPMOVSXWQ Gx, Ex */
             nextop = F8;
-            GETEX(0);
+            if(vex.l) GETEX8(0); else GETEX4(0);
             GETGX;
             GETGY;
             if(vex.l)
@@ -739,7 +739,7 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             break;
         case 0x25:  /* VPMOVSXDQ Gx, Ex */
             nextop = F8;
-            GETEX(0);
+            if(vex.l) GETEX(0); else GETEX8(0);
             GETGX;
             GETGY;
             if(vex.l)
@@ -914,7 +914,7 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             break;
         case 0x30: /* VPMOVZXBW Gx, Ex */
             nextop = F8;
-            GETEX(0);
+            if(vex.l) GETEX(0); else GETEX8(0);
             GETGX;
             GETGY;
             if(vex.l)
@@ -927,7 +927,7 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             break;
         case 0x31: /* VPMOVZXBD Gx, Ex */
             nextop = F8;
-            GETEX(0);
+            if(vex.l) GETEX8(0); else GETEX4(0);
             GETGX;
             GETGY;
             if(vex.l)
@@ -940,7 +940,7 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             break;
         case 0x32: /* VPMOVZXBQ Gx, Ex */
             nextop = F8;
-            GETEX(0);
+            if(vex.l) GETEX4(0); else GETEX2(0);
             GETGX;
             GETGY;
             if(vex.l)
@@ -953,7 +953,7 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             break;
         case 0x33: /* VPMOVZXWD Gx, Ex */
             nextop = F8;
-            GETEX(0);
+            if(vex.l) GETEX(0); else GETEX8(0);
             GETGX;
             GETGY;
             if(vex.l)
@@ -966,7 +966,7 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             break;
         case 0x34: /* VPMOVZXWQ Gx, Ex */
             nextop = F8;
-            GETEX(0);
+            if(vex.l) GETEX8(0); else GETEX4(0);
             GETGX;
             GETGY;
             if(vex.l)
@@ -979,7 +979,7 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             break;
         case 0x35: /* VPMOVZXDQ Gx, Ex */
             nextop = F8;
-            GETEX(0);
+            if(vex.l) GETEX(0); else GETEX8(0);
             GETGX;
             GETGY;
             if(vex.l)
