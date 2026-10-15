@@ -46,6 +46,7 @@ extern void arm64_next_invalid();
 #define ARCH_NOP    0b11010101000000110010000000011111
 #define ARCH_UDF    0xcafe
 #define JMPNEXT_SIZE    (4*sizeof(void*))
+#define PRINT_OPCODE(C, A)  arm64_print(C, A)
 #elif defined(LA64)
 
 #define HAVE_LEAFCALL
@@ -89,6 +90,7 @@ extern void la64_crc_autocrc(); // same as la64_crc, but not using regular ABI
 #define ADDITIONNAL_CHECKS()
 #define ARCH_CRC_INLINE
 extern void la64_next_invalid();
+#define PRINT_OPCODE(C, A)  la64_print(C, A)
 
 #elif defined(RV64)
 
@@ -130,6 +132,7 @@ extern void la64_next_invalid();
 #define ADDITIONNAL_CHECKS()
 extern void* create_updateflags();
 #define ARCH_UPDATEFLAGS()      create_updateflags()
+#define PRINT_OPCODE(C, A)  rv64_print(C, A)
 
 #elif defined(PPC64LE)
 
@@ -168,6 +171,7 @@ extern void* create_updateflags();
 // so the jmpnext area needs 5 void* slots (40 bytes) instead of the default 4 (32 bytes).
 #define JMPNEXT_SIZE    (5*sizeof(void*))
 #define ADDITIONNAL_CHECKS()
+#define PRINT_OPCODE(C, A)  ppc64le_print(C, A)
 
 #else
 #error Unsupported platform
