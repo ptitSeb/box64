@@ -828,16 +828,16 @@ int convert_bitmask(uint64_t bitmask);
 #define VSTR64_I9(Vt, Rn, imm9)             EMIT(VMEMUR_vector(0b11, 0b00, (imm9)&0b111111111, Rn, Vt))
 #define VSTR128_I9(Vt, Rn, imm9)            EMIT(VMEMUR_vector(0b00, 0b10, (imm9)&0b111111111, Rn, Vt))
 
-#define VLD128(A, B, C)     if(unscaled) {VLDR128_I9(A, B, C);} else {VLDR128_U12(A, B, C);}
-#define VLD64(A, B, C)      if(unscaled) {VLDR64_I9(A, B, C);} else {VLDR64_U12(A, B, C);}
-#define VLD32(A, B, C)      if(unscaled) {VLDR32_I9(A, B, C);} else {VLDR32_U12(A, B, C);}
-#define VLD16(A, B, C)      if(unscaled) {VLDR16_I9(A, B, C);} else {VLDR16_U12(A, B, C);}
-#define VLD8(A, B, C)       if(unscaled) {VLDR8_I9(A, B, C);} else {VLDR8_U12(A, B, C);}
-#define VST128(A, B, C)     if(unscaled) {VSTR128_I9(A, B, C);} else {VSTR128_U12(A, B, C);}
-#define VST64(A, B, C)      if(unscaled) {VSTR64_I9(A, B, C);} else {VSTR64_U12(A, B, C);}
-#define VST32(A, B, C)      if(unscaled) {VSTR32_I9(A, B, C);} else {VSTR32_U12(A, B, C);}
-#define VST16(A, B, C)      if(unscaled) {VSTR16_I9(A, B, C);} else {VSTR16_U12(A, B, C);}
-#define VST8(A, B, C)       if(unscaled) {VSTR8_I9(A, B, C);} else {VSTR8_U12(A, B, C);}
+#define VLD128(A, B, C)     do {if(dyn->insts[ninst].use_lrcpc) {VLDAPUR128(A, B, C);} else if(unscaled) {VLDR128_I9(A, B, C);} else {VLDR128_U12(A, B, C);}} while(0)
+#define VLD64(A, B, C)      do {if(dyn->insts[ninst].use_lrcpc) {VLDAPUR64(A, B, C);} else if(unscaled) {VLDR64_I9(A, B, C);} else {VLDR64_U12(A, B, C);}} while(0)
+#define VLD32(A, B, C)      do {if(dyn->insts[ninst].use_lrcpc) {VLDAPUR32(A, B, C);} else if(unscaled) {VLDR32_I9(A, B, C);} else {VLDR32_U12(A, B, C);}} while(0)
+#define VLD16(A, B, C)      do {if(dyn->insts[ninst].use_lrcpc) {VLDAPUR16(A, B, C);} else if(unscaled) {VLDR16_I9(A, B, C);} else {VLDR16_U12(A, B, C);}} while(0)
+#define VLD8(A, B, C)       do {if(dyn->insts[ninst].use_lrcpc) {VLDAPUR8(A, B, C);} else if(unscaled) {VLDR8_I9(A, B, C);} else {VLDR8_U12(A, B, C);}} while(0)
+#define VST128(A, B, C)     do {if(dyn->insts[ninst].use_lrcpc) {VSTLUR128(A, B, C);} else if(unscaled) {VSTR128_I9(A, B, C);} else {VSTR128_U12(A, B, C);}} while (0)
+#define VST64(A, B, C)      do {if(dyn->insts[ninst].use_lrcpc) {VSTLUR64(A, B, C);} else if(unscaled) {VSTR64_I9(A, B, C);} else {VSTR64_U12(A, B, C);}} while (0)
+#define VST32(A, B, C)      do {if(dyn->insts[ninst].use_lrcpc) {VSTLUR32(A, B, C);} else if(unscaled) {VSTR32_I9(A, B, C);} else {VSTR32_U12(A, B, C);}} while (0)
+#define VST16(A, B, C)      do {if(dyn->insts[ninst].use_lrcpc) {VSTLUR16(A, B, C);} else if(unscaled) {VSTR16_I9(A, B, C);} else {VSTR16_U12(A, B, C);}} while (0)
+#define VST8(A, B, C)       do {if(dyn->insts[ninst].use_lrcpc) {VSTLUR8(A, B, C);} else if(unscaled) {VSTR8_I9(A, B, C);} else {VSTR8_U12(A, B, C);}} while (0)
 
 #define VMEMW_gen(size, opc, imm9, op2, Rn, Rt)  ((size)<<30 | 0b111<<27 | 1<<26 | (opc)<<22 | (imm9)<<12 | (op2)<<10 | 0b01<<10 | (Rn)<<5 | (Rt))
 #define VLDR64_S9_postindex(Rt, Rn, imm9)   EMIT(VMEMW_gen(0b11, 0b01, (imm9)&0x1ff, 0b01, Rn, Rt))
@@ -2397,11 +2397,27 @@ int convert_bitmask(uint64_t bitmask);
 #define LDAPURH(Rt, Rn, imm9)       EMIT(LRCPC2_gen(0b01, 0b01, imm9, Rn, Rt))
 #define LDAPURB(Rt, Rn, imm9)       EMIT(LRCPC2_gen(0b00, 0b01, imm9, Rn, Rt))
 #define LDAPURSW(Rt, Rn, imm9)      EMIT(LRCPC2_gen(0b10, 0b10, imm9, Rn, Rt))
-#define LDAPURSHw(Rt, Rn, imm9)     EMIT(LRCPC2_gen(0b01, 0b10, imm9, Rn, Rt))
-#define LDAPURSHx(Rt, Rn, imm9)     EMIT(LRCPC2_gen(0b01, 0b11, imm9, Rn, Rt))
-#define LDAPURSHxw(Rt, Rn, imm9)    EMIT(LRCPC2_gen(0b01, 0b10+rex.w, imm9, Rn, Rt))
-#define LDAPURSBw(Rt, Rn, imm9)     EMIT(LRCPC2_gen(0b00, 0b10, imm9, Rn, Rt))
-#define LDAPURSBx(Rt, Rn, imm9)     EMIT(LRCPC2_gen(0b00, 0b11, imm9, Rn, Rt))
-#define LDAPURSBxw(Rt, Rn, imm9)    EMIT(LRCPC2_gen(0b00, 0b10+rex.w, imm9, Rn, Rt))
+#define LDAPURSHw(Rt, Rn, imm9)     EMIT(LRCPC2_gen(0b01, 0b11, imm9, Rn, Rt))
+#define LDAPURSHx(Rt, Rn, imm9)     EMIT(LRCPC2_gen(0b01, 0b10, imm9, Rn, Rt))
+#define LDAPURSHxw(Rt, Rn, imm9)    EMIT(LRCPC2_gen(0b01, rex.w?0b10:0b11, imm9, Rn, Rt))
+#define LDAPURSBw(Rt, Rn, imm9)     EMIT(LRCPC2_gen(0b00, 0b11, imm9, Rn, Rt))
+#define LDAPURSBx(Rt, Rn, imm9)     EMIT(LRCPC2_gen(0b00, 0b10, imm9, Rn, Rt))
+#define LDAPURSBxw(Rt, Rn, imm9)    EMIT(LRCPC2_gen(0b00, rex.w?0b10:0b11, imm9, Rn, Rt))
+
+#define NOLRCPC()   dyn->insts[ninst].use_lrcpc=0
+
+// LRCPC3 extension
+#define LRCPC3_gen(sz, opc, imm9, Rn, Rt)   ((sz)<<30 | 0b011101<<24 | (opc)<<22 | ((imm9)&0b111111111)<<12 | 0b10<<10 | (Rn)<<5 | (Rt))
+#define VLDAPUR128(Vt, Vn, imm9)    do{if(!cpuext.lrcpc3) NOLRCPC(); else EMIT(LRCPC3_gen(0b00, 0b11, imm9, Vn, Vt));} while(0)
+#define VLDAPUR64(Vt, Vn, imm9)     do{if(!cpuext.lrcpc3) NOLRCPC(); else EMIT(LRCPC3_gen(0b11, 0b01, imm9, Vn, Vt));} while(0)
+#define VLDAPUR32(Vt, Vn, imm9)     do{if(!cpuext.lrcpc3) NOLRCPC(); else EMIT(LRCPC3_gen(0b10, 0b01, imm9, Vn, Vt));} while(0)
+#define VLDAPUR16(Vt, Vn, imm9)     do{if(!cpuext.lrcpc3) NOLRCPC(); else EMIT(LRCPC3_gen(0b01, 0b01, imm9, Vn, Vt));} while(0)
+#define VLDAPUR8(Vt, Vn, imm9)      do{if(!cpuext.lrcpc3) NOLRCPC(); else EMIT(LRCPC3_gen(0b00, 0b01, imm9, Vn, Vt));} while(0)
+
+#define VSTLUR128(Vt, Vn, imm9)     do{if(!cpuext.lrcpc3) NOLRCPC(); else EMIT(LRCPC3_gen(0b00, 0b10, imm9, Vn, Vt));} while(0)
+#define VSTLUR64(Vt, Vn, imm9)      do{if(!cpuext.lrcpc3) NOLRCPC(); else EMIT(LRCPC3_gen(0b11, 0b00, imm9, Vn, Vt));} while(0)
+#define VSTLUR32(Vt, Vn, imm9)      do{if(!cpuext.lrcpc3) NOLRCPC(); else EMIT(LRCPC3_gen(0b10, 0b00, imm9, Vn, Vt));} while(0)
+#define VSTLUR16(Vt, Vn, imm9)      do{if(!cpuext.lrcpc3) NOLRCPC(); else EMIT(LRCPC3_gen(0b01, 0b00, imm9, Vn, Vt));} while(0)
+#define VSTLUR8(Vt, Vn, imm9)       do{if(!cpuext.lrcpc3) NOLRCPC(); else EMIT(LRCPC3_gen(0b00, 0b00, imm9, Vn, Vt));} while(0)
 
 #endif  //__ARM64_EMITTER_H__

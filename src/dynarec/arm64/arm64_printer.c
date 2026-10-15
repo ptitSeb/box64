@@ -209,17 +209,48 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
     }
     if(isMask(opcode, "001110001x0iiiiiiiii00nnnnnttttt", &a)) {
         int offset = signExtend(imm, 9);
-        snprintf(buff, sizeof(buff), "LDURSB %s, [%s, %s0x%x]", a.x?Xt[Rt]:Wt[Rt], XtSp[Rn], (offset<0)?"-":"", abs(offset));
+        snprintf(buff, sizeof(buff), "LDURSB %s, [%s, %s0x%x]", a.x?Wt[Rt]:Xt[Rt], XtSp[Rn], (offset<0)?"-":"", abs(offset));
         return buff;
     }
     if(isMask(opcode, "011110001x0iiiiiiiii00nnnnnttttt", &a)) {
         int offset = signExtend(imm, 9);
-        snprintf(buff, sizeof(buff), "LDURSH %s, [%s, %s0x%x]", a.x?Xt[Rt]:Wt[Rt], XtSp[Rn], (offset<0)?"-":"", abs(offset));
+        snprintf(buff, sizeof(buff), "LDURSH %s, [%s, %s0x%x]", a.x?Wt[Rt]:Xt[Rt], XtSp[Rn], (offset<0)?"-":"", abs(offset));
         return buff;
     }
     if(isMask(opcode, "10111000100iiiiiiiii00nnnnnttttt", &a)) {
         int offset = signExtend(imm, 9);
         snprintf(buff, sizeof(buff), "LDURSW %s, [%s, %s0x%x]", Xt[Rt], XtSp[Rn], (offset<0)?"-":"", abs(offset));
+        return buff;
+    }
+    if(isMask(opcode, "1x011001010iiiiiiiii00nnnnnttttt", &a)) {
+        int size = (opcode>>30)&3;
+        int offset = signExtend(imm, 9);
+        snprintf(buff, sizeof(buff), "LDAPUR %s, [%s, %s0x%x]", (size==0b10)?Wt[Rt]:Xt[Rt], XtSp[Rn], (offset<0)?"-":"", abs(offset));
+        return buff;
+    }
+    if(isMask(opcode, "00011001010iiiiiiiii00nnnnnttttt", &a)) {
+        int offset = signExtend(imm, 9);
+        snprintf(buff, sizeof(buff), "LDAPURB %s, [%s, %s0x%x]", Wt[Rt], XtSp[Rn], (offset<0)?"-":"", abs(offset));
+        return buff;
+    }
+    if(isMask(opcode, "01011001010iiiiiiiii00nnnnnttttt", &a)) {
+        int offset = signExtend(imm, 9);
+        snprintf(buff, sizeof(buff), "LDAPURH %s, [%s, %s0x%x]", Wt[Rt], XtSp[Rn], (offset<0)?"-":"", abs(offset));
+        return buff;
+    }
+    if(isMask(opcode, "000110011x0iiiiiiiii00nnnnnttttt", &a)) {
+        int offset = signExtend(imm, 9);
+        snprintf(buff, sizeof(buff), "LDAPURSB %s, [%s, %s0x%x]", a.x?Wt[Rt]:Xt[Rt], XtSp[Rn], (offset<0)?"-":"", abs(offset));
+        return buff;
+    }
+    if(isMask(opcode, "010110011x0iiiiiiiii00nnnnnttttt", &a)) {
+        int offset = signExtend(imm, 9);
+        snprintf(buff, sizeof(buff), "LDAPURSH %s, [%s, %s0x%x]", a.x?Wt[Rt]:Xt[Rt], XtSp[Rn], (offset<0)?"-":"", abs(offset));
+        return buff;
+    }
+    if(isMask(opcode, "10011001100iiiiiiiii00nnnnnttttt", &a)) {
+        int offset = signExtend(imm, 9);
+        snprintf(buff, sizeof(buff), "LDAPURSW %s, [%s, %s0x%x]", Xt[Rt], XtSp[Rn], (offset<0)?"-":"", abs(offset));
         return buff;
     }
     if(isMask(opcode, "1x111000000iiiiiiiii00nnnnnttttt", &a)) {
@@ -236,6 +267,22 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
     if(isMask(opcode, "01111000000iiiiiiiii00nnnnnttttt", &a)) {
         int offset = signExtend(imm, 9);
         snprintf(buff, sizeof(buff), "STURH %s, [%s, %s0x%x]", Wt[Rt], XtSp[Rn], (offset<0)?"-":"", abs(offset));
+        return buff;
+    }
+    if(isMask(opcode, "1x011001000iiiiiiiii00nnnnnttttt", &a)) {
+        int size = (opcode>>30)&3;
+        int offset = signExtend(imm, 9);
+        snprintf(buff, sizeof(buff), "STLUR %s, [%s, %s0x%x]", (size==0b10)?Wt[Rt]:Xt[Rt], XtSp[Rn], (offset<0)?"-":"", abs(offset));
+        return buff;
+    }
+    if(isMask(opcode, "00011001000iiiiiiiii00nnnnnttttt", &a)) {
+        int offset = signExtend(imm, 9);
+        snprintf(buff, sizeof(buff), "STLURB %s, [%s, %s0x%x]", Wt[Rt], XtSp[Rn], (offset<0)?"-":"", abs(offset));
+        return buff;
+    }
+    if(isMask(opcode, "01011001000iiiiiiiii00nnnnnttttt", &a)) {
+        int offset = signExtend(imm, 9);
+        snprintf(buff, sizeof(buff), "STLURH %s, [%s, %s0x%x]", Wt[Rt], XtSp[Rn], (offset<0)?"-":"", abs(offset));
         return buff;
     }
     if(isMask(opcode, "1x11100101iiiiiiiiiiiinnnnnttttt", &a)) {
@@ -1663,6 +1710,19 @@ const char* arm64_print(uint32_t opcode, uintptr_t addr)
             snprintf(buff, sizeof(buff), "%sUR %s%d, [%s]", a.L?"LD":"ST", Y[sz], Rt, XtSp[Rn]);
         else
             snprintf(buff, sizeof(buff), "%sUR %s%d, [%s, %s0x%x]", a.L?"LD":"ST", Y[sz], Rt, XtSp[Rn], (offset<0)?"-":"", abs(offset));
+        return buff;
+    }
+    // LDAPUR/STLUR
+    if(isMask(opcode, "ff011101cL0iiiiiiiii10nnnnnttttt", &a)) {
+        const char* Y[] = {"B", "H", "S", "D", "Q"};
+        int sz = sf;
+        if(sz==0 && a.c)
+            sz = 4;
+        int offset = signExtend(imm, 9);
+        if(!offset)
+            snprintf(buff, sizeof(buff), "%sUR %s%d, [%s]", a.L?"LDAP":"STL", Y[sz], Rt, XtSp[Rn]);
+        else
+            snprintf(buff, sizeof(buff), "%sUR %s%d, [%s, %s0x%x]", a.L?"LDAP":"STL", Y[sz], Rt, XtSp[Rn], (offset<0)?"-":"", abs(offset));
         return buff;
     }
     // LDR/STR vector immediate
