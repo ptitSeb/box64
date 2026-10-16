@@ -7,7 +7,7 @@
 typedef struct x64emu_s x64emu_t;
 typedef struct dynarec_rv64_s dynarec_rv64_t;
 
-#define SCRATCH0 3
+#define SCRATCH0 1
 #define VMASK    0
 
 // Get an FPU scratch reg

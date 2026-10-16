@@ -153,7 +153,7 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
                         VMV_V_V(q2, q0);
                 }
                 if (i) {
-                    VSLIDEUP_VI(q1, q2, 16, VECTOR_UNMASKED);
+                    VSLIDEUP_VI_SAFE(q1, q2, 16, VECTOR_UNMASKED);
                     q2 = q1;
                 }
                 VECTOR_LOAD_VMASK(i ? 0xffff0000 : 0xffff, x4, 2);
@@ -194,6 +194,7 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             gd = ((nextop & 0x38) >> 3) + (rex.r << 3);
             avx_set_vector_width(dyn, ninst, x1, VECTOR_SEW8, 16);
             sse_forget_reg_vector(dyn, ninst, x1, gd);
+            sse_set_pending_zero(dyn, gd, 0);
             ADDI(x1, xEmu, offsetof(x64emu_t, xmm[gd]));
             if (u8 & 1) {
                 VSE8_V(q0, x1, VECTOR_UNMASKED, VECTOR_NFIELD1);
@@ -259,7 +260,7 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             if (u8 & 1) {
                 v1 = fpu_get_scratch(dyn);
                 VXOR_VV(v1, v1, v1, VECTOR_UNMASKED);
-                VSLIDEUP_VI(v1, q1, 2, VECTOR_UNMASKED);
+                VSLIDEUP_VI_SAFE(v1, q1, 2, VECTOR_UNMASKED);
                 VECTOR_LOAD_VMASK(0b1100, x4, 2);
                 VMERGE_VVM(v0, v0, v1);
             } else {
@@ -299,19 +300,17 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
         case 0x42:
             INST_NAME("VMPSADBW Gx, Vx, Ex, Ib");
             nextop = F8;
-            mmx_purgecache(dyn, ninst, 0, x1);
-            GETVY_vector(q0, VECTOR_SEW8);
+            GETVY_vector_cached(q0, VECTOR_SEW8);
             GETEY_vector(q1, 1, VECTOR_SEW8);
             GETGY_empty_vector(v0);
             u8 = F8;
-            q2 = fpu_get_scratch(dyn);
             int q3 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
             int q4 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-            int q5 = fpu_get_scratch(dyn);
-            int q6 = fpu_get_scratch(dyn);
-            int q7 = fpu_get_scratch(dyn);
-            int q8 = fpu_get_scratch(dyn);
-            int q9 = fpu_get_scratch(dyn);
+            int q2 = fpu_borrow_reg(dyn, ninst, x1, x2, 8);
+            int q5 = fpu_borrow_reg(dyn, ninst, x1, x2, 9);
+            int q6 = fpu_borrow_reg(dyn, ninst, x1, x2, 10);
+            int q7 = fpu_borrow_reg(dyn, ninst, x1, x2, 11);
+            int q8 = fpu_borrow_reg(dyn, ninst, x1, x2, 12);
 
             for (int pass = 0; pass < (vex.l ? 2 : 1); ++pass) {
                 vector_vsetvli(dyn, ninst, x1, VECTOR_SEW8, VECTOR_LMUL1, 2);
@@ -333,8 +332,8 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
                 if (off5) VADD_VI(q5, q5, off5, VECTOR_UNMASKED);
                 if (off6) VADD_VI(q6, q6, off6, VECTOR_UNMASKED);
 
-                VRGATHER_VV(q3, q7, q5, VECTOR_UNMASKED);
-                VRGATHER_VV(q4, q8, q6, VECTOR_UNMASKED);
+                VRGATHER_VV_SAFE(q3, q7, q5, VECTOR_UNMASKED);
+                VRGATHER_VV_SAFE(q4, q8, q6, VECTOR_UNMASKED);
                 VMAXU_VV(q7, q3, q4, VECTOR_UNMASKED);
                 VMINU_VV(q4, q3, q4, VECTOR_UNMASKED);
                 VSUB_VV(q7, q7, q4, VECTOR_UNMASKED);
@@ -358,7 +357,7 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             VMV_V_V(v0, q2);
             if (vex.l) {
                 avx_set_vector_width(dyn, ninst, x1, VECTOR_SEW16, 32);
-                VSLIDEUP_VI(v0, q3, 8, VECTOR_UNMASKED);
+                VSLIDEUP_VI_SAFE(v0, q3, 8, VECTOR_UNMASKED);
             }
             PUTGY_vector(v0, VECTOR_SEW16);
             break;
@@ -391,7 +390,7 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
                         VMV_V_V(q2, q0);
                 }
                 if (i) {
-                    VSLIDEUP_VI(q1, q2, 16, VECTOR_UNMASKED);
+                    VSLIDEUP_VI_SAFE(q1, q2, 16, VECTOR_UNMASKED);
                     q2 = q1;
                 }
                 VECTOR_LOAD_VMASK(i ? 0xffff0000 : 0xffff, x4, 2);
@@ -682,9 +681,9 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             if (rex.w) return 0;
             INST_NAME("VPINSRB Gx, Vx, Ed, Ib");
             nextop = F8;
-            GETGY_empty_vector(v0);
             q0 = fpu_get_scratch(dyn);
             avx_load_reg_vector(dyn, ninst, x1, q0, vex.v, 16, VECTOR_SEW8);
+            GETGY_empty_vector(v0);
             if (MODREG) {
                 ed = TO_NAT((nextop & 7) + (rex.b << 3));
                 ANDI(x5, ed, 0xFF);
@@ -705,7 +704,6 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
         case 0x21:
             INST_NAME("VINSERTPS Gx, Vx, Ex, Ib");
             nextop = F8;
-            GETGY_empty_vector(v0);
             q0 = fpu_get_scratch(dyn);
             avx_load_reg_vector(dyn, ninst, x1, q0, vex.v, 16, VECTOR_SEW32);
             SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW32);
@@ -716,6 +714,7 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 1);
             }
+            GETGY_empty_vector(v0);
             u8 = F8;
             q2 = fpu_get_scratch(dyn);
             if (MODREG) {
@@ -740,7 +739,7 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
         case 0x40: {
             INST_NAME("VDPPS Gx, Vx, Ex, Ib");
             nextop = F8;
-            GETVY_vector(q0, VECTOR_SEW32);
+            GETVY_vector_cached(q0, VECTOR_SEW32);
             GETEY_vector(q1, 1, VECTOR_SEW32);
             GETGY_empty_vector(v0);
             u8 = F8;
@@ -782,10 +781,10 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             q0 = fpu_get_scratch(dyn);
             avx_load_reg_vector(dyn, ninst, x1, q0, vex.v, 16 << vex.l, VECTOR_SEW8);
             GETEY_vector(q1, 1, VECTOR_SEW8);
-            GETGY_empty_vector(v0);
             u8 = F8;
             q2 = fpu_get_scratch(dyn);
             avx_load_reg_vector(dyn, ninst, x1, q2, (u8 >> 4) & 0xf, 16 << vex.l, VECTOR_SEW8);
+            GETGY_empty_vector(v0);
             VMSLT_VX(VMASK, q2, xZR, VECTOR_UNMASKED);
             VMERGE_VVM(v0, q0, q1);
             PUTGY_vector(v0, VECTOR_SEW8);
@@ -796,10 +795,10 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             q0 = fpu_get_scratch(dyn);
             avx_load_reg_vector(dyn, ninst, x1, q0, vex.v, 16 << vex.l, VECTOR_SEW64);
             GETEY_vector(q1, 1, VECTOR_SEW64);
-            GETGY_empty_vector(v0);
             u8 = F8;
             q2 = fpu_get_scratch(dyn);
             avx_load_reg_vector(dyn, ninst, x1, q2, (u8 >> 4) & 0xf, 16 << vex.l, VECTOR_SEW64);
+            GETGY_empty_vector(v0);
             VMSLT_VX(VMASK, q2, xZR, VECTOR_UNMASKED);
             VMERGE_VVM(v0, q0, q1);
             PUTGY_vector(v0, VECTOR_SEW64);

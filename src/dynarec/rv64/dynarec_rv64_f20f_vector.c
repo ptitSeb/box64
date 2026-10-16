@@ -447,13 +447,13 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             VMV_S_X(d1, x5);
             tmp64u0 = ((((uint64_t)u8 >> 6) & 3) << 48) | ((((uint64_t)u8 >> 4) & 3) << 32) | (((u8 >> 2) & 3) << 16) | (u8 & 3);
             MOV64x(x5, tmp64u0);
-            VSLIDE1UP_VX(d0, d1, x5, VECTOR_UNMASKED);
+            VSLIDE1UP_VX_SAFE(d0, d1, x5, VECTOR_UNMASKED);
             vector_vsetvli(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 1);
             if (v0 == v1) {
                 v1 = fpu_get_scratch(dyn);
                 VMV_V_V(v1, v0);
             }
-            VRGATHER_VV(v0, v1, d0, VECTOR_UNMASKED);
+            VRGATHER_VV_SAFE(v0, v1, d0, VECTOR_UNMASKED);
             break;
         case 0x7C:
             if (!BOX64ENV(dynarec_fastnan)) return 0;
@@ -468,7 +468,7 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             VMV_V_V(v0, q0);
             if (q1 & 1) VMV_V_V(d1, q1);
             vector_vsetvli(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL2, 2);
-            VSLIDEUP_VI(v0, (q1 & 1) ? d1 : q1, 4, VECTOR_UNMASKED);
+            VSLIDEUP_VI_SAFE(v0, (q1 & 1) ? d1 : q1, 4, VECTOR_UNMASKED);
             vector_vsetvli(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL1, 1);
             ADDI(x4, xZR, 32);
             VNSRL_WX(d0, v0, xZR, VECTOR_UNMASKED);
@@ -487,7 +487,7 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             VMV_V_V(v0, q0);
             if (q1 & 1) VMV_V_V(d1, q1);
             vector_vsetvli(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL2, 2);
-            VSLIDEUP_VI(v0, (q1 & 1) ? d1 : q1, 4, VECTOR_UNMASKED);
+            VSLIDEUP_VI_SAFE(v0, (q1 & 1) ? d1 : q1, 4, VECTOR_UNMASKED);
             vector_vsetvli(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL1, 1);
             ADDI(x4, xZR, 32);
             VNSRL_WX(d0, v0, xZR, VECTOR_UNMASKED); // first of each pair
