@@ -38,9 +38,7 @@ static int fpu_scratch_vreg(int n)
 {
     if (n < 7)
         return SCRATCH0 + n;
-    if (n < 13)
-        return 26 + (n - 7);
-    return ((n - 13) & 1) + 1;
+    abort();
 }
 
 // Get a FPU scratch reg
@@ -79,6 +77,7 @@ int fpu_get_reg_x87(dynarec_rv64_t* dyn, int t, int n)
     dyn->e.fpuused[i] = 1;
     dyn->e.extcache[i].n = n;
     dyn->e.extcache[i].t = t;
+    dyn->e.extcache[i].y = 0;
     dyn->e.news |= (1 << i);
     return EXTREG(i); // return a Dx
 }
@@ -99,6 +98,7 @@ int fpu_get_reg_emm(dynarec_rv64_t* dyn, int t, int emm)
     dyn->e.fpuused[i] = 1;
     dyn->e.extcache[i].t = t;
     dyn->e.extcache[i].n = emm;
+    dyn->e.extcache[i].y = 0;
     dyn->e.news |= (1 << (i));
     return EXTREG(i);
 }
@@ -110,6 +110,7 @@ int fpu_get_reg_xmm(dynarec_rv64_t* dyn, int t, int xmm)
     dyn->e.fpuused[i] = 1;
     dyn->e.extcache[i].t = t;
     dyn->e.extcache[i].n = xmm;
+    dyn->e.extcache[i].y = 0;
     dyn->e.news |= (1 << i);
     return EXTREG(i);
 }
@@ -541,6 +542,8 @@ void extcacheUnwind(extcache_t* cache)
                     cache->ssecache[cache->extcache[i].n].reg = EXTREG(i);
                     cache->ssecache[cache->extcache[i].n].vector = 1;
                     cache->ssecache[cache->extcache[i].n].write = (cache->extcache[i].t == EXT_CACHE_XMMW) ? 1 : 0;
+                    cache->ssecache[cache->extcache[i].n].ymm = cache->extcache[i].y;
+                    cache->ssecache[cache->extcache[i].n].ymm0 = (cache->ymm0 >> cache->extcache[i].n) & 1;
                     break;
                 case EXT_CACHE_ST_F:
                 case EXT_CACHE_ST_D:
@@ -947,13 +950,16 @@ void updateUpperLiveness(dynarec_rv64_t* dyn)
     size_t pending_size = (size_t)n * sizeof(uint16_t);
     size_t work_size = (size_t)n * sizeof(int);
     size_t list_size = (size_t)n * sizeof(uint8_t);
-    void* buffer = calloc(1, 2 * live_size + pending_size + work_size + list_size);
+    void* buffer = calloc(1, 5 * live_size + pending_size + work_size + list_size);
     if (!buffer)
         return;
     uint16_t* live_in = (uint16_t*)buffer;
     uint16_t* live_out = (uint16_t*)((char*)live_in + live_size);
-    uint16_t* pending_in = (uint16_t*)((char*)live_out + live_size);
-    int* work = (int*)((char*)pending_in + pending_size);
+    uint16_t* live_ymm_in = (uint16_t*)((char*)live_out + live_size);
+    uint16_t* live_ymm_out = (uint16_t*)((char*)live_ymm_in + live_size);
+    uint16_t* pending_in = (uint16_t*)((char*)live_ymm_out + live_size);
+    uint16_t* pend_ymm = (uint16_t*)((char*)pending_in + pending_size);
+    int* work = (int*)((char*)pend_ymm + live_size);
     uint8_t* on_list = (uint8_t*)((char*)work + work_size);
 
     int sp = 0;
@@ -984,9 +990,23 @@ void updateUpperLiveness(dynarec_rv64_t* dyn)
             combined_out = UINT16_MAX;
         live_out[i] = combined_out;
 
+        uint16_t combined_ymm_out = 0;
+        if (inst->x64.has_next && i + 1 < n && dyn->insts[i + 1].x64.alive)
+            combined_ymm_out |= live_ymm_in[i + 1];
+        if (inst->x64.jmp && inst->x64.jmp_insts >= 0 && inst->x64.jmp_insts < n)
+            combined_ymm_out |= live_ymm_in[inst->x64.jmp_insts];
+        if ((!inst->x64.has_next && !has_internal_jump) || (inst->x64.jmp && inst->x64.jmp_insts < 0))
+            combined_ymm_out = UINT16_MAX;
+        live_ymm_out[i] = combined_ymm_out;
+
+        uint16_t live_ymm_in_val = inst->ymm_upper_use | (combined_ymm_out & (uint16_t)~inst->ymm_upper_def);
+        if ((inst->x64.barrier & BARRIER_FLOAT) || inst->x64.has_callret)
+            live_ymm_in_val = UINT16_MAX;
+
         uint16_t live_in_val = inst->up32_read | (combined_out & (uint16_t)~inst->up32_write64);
-        if (live_in_val != live_in[i]) {
+        if ((live_in_val != live_in[i]) || (live_ymm_in_val != live_ymm_in[i])) {
             live_in[i] = live_in_val;
+            live_ymm_in[i] = live_ymm_in_val;
             for (int p = 0; p < inst->pred_sz; ++p) {
                 int j = inst->pred[p];
                 if (!on_list[j]) {
@@ -1000,6 +1020,7 @@ void updateUpperLiveness(dynarec_rv64_t* dyn)
     for (int i = 0; i < n; ++i) {
         instruction_rv64_t* inst = &dyn->insts[i];
         inst->up32_skip = inst->up32_write32 & (uint16_t)~live_out[i];
+        inst->ymm_upper_live = live_ymm_out[i];
     }
 
     memset(on_list, 0, list_size);
@@ -1019,13 +1040,17 @@ void updateUpperLiveness(dynarec_rv64_t* dyn)
             continue;
 
         uint16_t merged_pending = 0;
+        uint16_t merged_ymm = 0;
         for (int p = 0; p < inst->pred_sz; ++p) {
             int j = inst->pred[p];
             const instruction_rv64_t* pred = &dyn->insts[j];
             merged_pending |= (pending_in[j] & (uint16_t)~pred->up32_write64) | pred->up32_skip;
+            merged_ymm |= (pend_ymm[j] & (uint16_t)~pred->ymm_upper_def) |
+                (pred->ymm_zero & (uint16_t)~pred->ymm_upper_live);
         }
-        if (merged_pending != pending_in[i]) {
+        if ((merged_pending != pending_in[i]) || (merged_ymm != pend_ymm[i])) {
             pending_in[i] = merged_pending;
+            pend_ymm[i] = merged_ymm;
             if (inst->x64.has_next && i + 1 < n && dyn->insts[i + 1].x64.alive && !on_list[i + 1]) {
                 work[sp++] = i + 1;
                 on_list[i + 1] = 1;
@@ -1041,6 +1066,7 @@ void updateUpperLiveness(dynarec_rv64_t* dyn)
     }
     for (int i = 0; i < n; ++i) {
         dyn->insts[i].up32_pending = pending_in[i];
+        dyn->insts[i].ymm_pending = pend_ymm[i];
     }
 
     free(buffer);

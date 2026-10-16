@@ -121,7 +121,7 @@ uintptr_t dynarec64_AVX_F2_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
                 if (delta) VADD_VI(d0, q0, delta, VECTOR_UNMASKED);
                 VMERGE_VVM(q2, q2, delta ? d0 : q0);
             }
-            VRGATHER_VV(v0, q1, q2, VECTOR_UNMASKED);
+            VRGATHER_VV_SAFE(v0, q1, q2, VECTOR_UNMASKED);
             PUTGY_vector(v0, VECTOR_SEW16);
             break;
         case 0x12:
@@ -133,7 +133,7 @@ uintptr_t dynarec64_AVX_F2_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW64);
             VID_V(v2, VECTOR_UNMASKED);
             VAND_VI(v2, v2, 0x1e, VECTOR_UNMASKED);
-            VRGATHER_VV(v0, v1, v2, VECTOR_UNMASKED);
+            VRGATHER_VV_SAFE(v0, v1, v2, VECTOR_UNMASKED);
             PUTGY_vector(v0, VECTOR_SEW64);
             break;
         case 0x51:

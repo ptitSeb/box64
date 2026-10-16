@@ -1415,6 +1415,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             if (dyn->insts[ninst].x64.jmp_insts == -1) {
                 // out of the block
                 BARRIER(BARRIER_FLOAT);
+                fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
                 jump_to_next(dyn, (uintptr_t)getAlternate((void*)j64), 0, ninst, rex.is32bits);
             } else {
                 // inside the block
@@ -1457,6 +1458,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             if (box64_unittest_mode) { // HLT in unittest mode is an exit
                 READFLAGS(X_ALL);
                 BARRIER(BARRIER_FLOAT);
+                fpu_purgecache(dyn, ninst, 0, x1, x2, x3);
                 MOV32w(x1, 1);
                 SW(x1, xEmu, offsetof(x64emu_t, quit));
             } else {

@@ -609,10 +609,33 @@
         avx_load_reg_vector(dyn, ninst, x1, a, gd, 16 << vex.l, sew); \
     } while (0)
 
-#define GETGY_empty_vector(a)                       \
-    do {                                            \
-        gd = ((nextop & 0x38) >> 3) + (rex.r << 3); \
-        a = fpu_get_scratch(dyn);                   \
+#define GETVY_vector_cached(a, sew)                                          \
+    do {                                                                     \
+        if (vex.l) {                                                         \
+            a = fpu_get_scratch(dyn);                                        \
+            avx_load_reg_vector(dyn, ninst, x1, a, vex.v, 16 << vex.l, sew); \
+        } else {                                                             \
+            avx_set_vector_width(dyn, ninst, x1, sew, 16);                   \
+            a = sse_get_reg_vector(dyn, ninst, x1, vex.v, 0, sew);           \
+        }                                                                    \
+    } while (0)
+
+#define GETGY_vector_cached(a, sew)                                       \
+    do {                                                                  \
+        gd = ((nextop & 0x38) >> 3) + (rex.r << 3);                       \
+        if (vex.l) {                                                      \
+            a = fpu_get_scratch(dyn);                                     \
+            avx_load_reg_vector(dyn, ninst, x1, a, gd, 16 << vex.l, sew); \
+        } else {                                                          \
+            avx_set_vector_width(dyn, ninst, x1, sew, 16);                \
+            a = sse_get_reg_vector(dyn, ninst, x1, gd, 0, sew);           \
+        }                                                                 \
+    } while (0)
+
+#define GETGY_empty_vector(a)                             \
+    do {                                                  \
+        gd = ((nextop & 0x38) >> 3) + (rex.r << 3);       \
+        a = sse_get_reg_empty_vector(dyn, ninst, x1, gd); \
     } while (0)
 
 #define GETEY_vector(a, D, sew)                                                                  \
@@ -677,6 +700,60 @@
 #define GETEX64_vector(a, w, D, sew) GETEX_PARTIAL_vector(a, w, D, sew, 0.5)
 #define GETEX32_vector(a, w, D, sew) GETEX_PARTIAL_vector(a, w, D, sew, 0.25)
 #define GETEX16_vector(a, w, D, sew) GETEX_PARTIAL_vector(a, w, D, sew, 0.125)
+
+#define VRGATHER_VX_SAFE(vd, vs2, rs1, vm) \
+    do {                                   \
+        int d_ = (vd), s_ = (vs2);         \
+        if (d_ == s_) {                    \
+            s_ = fpu_get_scratch(dyn);     \
+            VMV_V_V(s_, (vs2));            \
+        }                                  \
+        VRGATHER_VX(d_, s_, (rs1), (vm));  \
+    } while (0)
+
+#define VRGATHER_VV_SAFE(vd, vs2, vs1, vm)       \
+    do {                                         \
+        int d_ = (vd), s2_ = (vs2), s1_ = (vs1); \
+        if (d_ == s2_) {                         \
+            s2_ = fpu_get_scratch(dyn);          \
+            VMV_V_V(s2_, (vs2));                 \
+        }                                        \
+        if (d_ == s1_) {                         \
+            s1_ = fpu_get_scratch(dyn);          \
+            VMV_V_V(s1_, (vs1));                 \
+        }                                        \
+        VRGATHER_VV(d_, s2_, s1_, (vm));         \
+    } while (0)
+
+#define VSLIDEUP_VI_SAFE(vd, vs2, imm, vm) \
+    do {                                   \
+        int d_ = (vd), s_ = (vs2);         \
+        if (d_ == s_) {                    \
+            s_ = fpu_get_scratch(dyn);     \
+            VMV_V_V(s_, (vs2));            \
+        }                                  \
+        VSLIDEUP_VI(d_, s_, (imm), (vm));  \
+    } while (0)
+
+#define VSLIDEUP_VX_SAFE(vd, vs2, rs1, vm) \
+    do {                                   \
+        int d_ = (vd), s_ = (vs2);         \
+        if (d_ == s_) {                    \
+            s_ = fpu_get_scratch(dyn);     \
+            VMV_V_V(s_, (vs2));            \
+        }                                  \
+        VSLIDEUP_VX(d_, s_, (rs1), (vm));  \
+    } while (0)
+
+#define VSLIDE1UP_VX_SAFE(vd, vs2, rs1, vm) \
+    do {                                    \
+        int d_ = (vd), s_ = (vs2);          \
+        if (d_ == s_) {                     \
+            s_ = fpu_get_scratch(dyn);      \
+            VMV_V_V(s_, (vs2));             \
+        }                                   \
+        VSLIDE1UP_VX(d_, s_, (rs1), (vm));  \
+    } while (0)
 
 // Put Back EX if it was a memory and not an emm register
 #define PUTEX_vector(a, sew)                                \
@@ -1482,9 +1559,10 @@
 #define TABLE64_(A, V)
 #endif
 
-#define ARCH_INIT() \
-    SMSTART();      \
-    dyn->vector_sew = VECTOR_SEWNA;
+#define ARCH_INIT()                 \
+    SMSTART();                      \
+    dyn->vector_sew = VECTOR_SEWNA; \
+    dyn->e.ymm0 = 0;
 
 #define ARCH_RESET() \
     dyn->vector_sew = VECTOR_SEWNA;
@@ -1766,6 +1844,7 @@
 #define mmx_get_reg                  STEPNAME(mmx_get_reg)
 #define mmx_get_reg_empty            STEPNAME(mmx_get_reg_empty)
 #define mmx_forget_reg               STEPNAME(mmx_forget_reg)
+#define fpu_borrow_reg               STEPNAME(fpu_borrow_reg)
 #define mmx_flush_reg_preserve_vtype STEPNAME(mmx_flush_reg_preserve_vtype)
 #define sse_get_reg                  STEPNAME(sse_get_reg)
 #define sse_get_reg_empty            STEPNAME(sse_get_reg_empty)
@@ -1782,6 +1861,9 @@
 #define avx_set_vector_width     STEPNAME(avx_set_vector_width)
 #define avx_load_reg_vector      STEPNAME(avx_load_reg_vector)
 #define avx_store_reg_vector     STEPNAME(avx_store_reg_vector)
+#define avx_flush_upper_vector        STEPNAME(avx_flush_upper_vector)
+#define avx_sync_upper_vector         STEPNAME(avx_sync_upper_vector)
+#define avx_flush_pending_zero_vector STEPNAME(avx_flush_pending_zero_vector)
 
 #define fpu_pushcache       STEPNAME(fpu_pushcache)
 #define fpu_popcache        STEPNAME(fpu_popcache)
@@ -2023,6 +2105,7 @@ int mmx_get_reg_empty(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, in
 int mmx_get_reg_empty_vector(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int a);
 // forget float register for a MMX reg, create the entry if needed
 void mmx_forget_reg(dynarec_rv64_t* dyn, int ninst, int s1, int a);
+int fpu_borrow_reg(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int reg);
 void mmx_flush_reg_preserve_vtype(dynarec_rv64_t* dyn, int ninst, int s1, int a);
 
 // SSE/SSE2 helpers
@@ -2045,10 +2128,44 @@ void sse_purge07cache(dynarec_rv64_t* dyn, int ninst, int s1);
 // Push current value to the cache
 void sse_reflect_reg(dynarec_rv64_t* dyn, int ninst, int s1, int a);
 
-// Cache-neutral helpers for Box64's split XMM/YMM register storage.
+void avx_flush_upper_vector(dynarec_rv64_t* dyn, int ninst, int s1, int a, int reg, int next);
+void avx_sync_upper_vector(dynarec_rv64_t* dyn, int ninst, int s1, int next);
+void avx_flush_pending_zero_vector(dynarec_rv64_t* dyn, int ninst, int s1, int next);
 void avx_set_vector_width(dynarec_rv64_t* dyn, int ninst, int s1, int sew, int width);
 void avx_load_reg_vector(dynarec_rv64_t* dyn, int ninst, int s1, int vreg, int a, int width, int sew);
 void avx_store_reg_vector(dynarec_rv64_t* dyn, int ninst, int s1, int vreg, int a, int width, int sew);
+
+static inline void sse_set_pending_zero(dynarec_rv64_t* dyn, int a, int pending)
+{
+    if (dyn->e.ssecache[a].v != -1)
+        dyn->e.ssecache[a].ymm0 = pending ? 1 : 0;
+    if (pending)
+        dyn->e.ymm0 |= (1 << a);
+    else
+        dyn->e.ymm0 &= ~(1 << a);
+}
+
+static inline void ymm_live_read(dynarec_rv64_t* dyn, int ninst, int reg)
+{
+#if STEP == 0
+    dyn->insts[ninst].ymm_upper_use |= (uint16_t)(1 << reg);
+#endif
+}
+
+static inline void ymm_live_write(dynarec_rv64_t* dyn, int ninst, int reg)
+{
+#if STEP == 0
+    dyn->insts[ninst].ymm_upper_def |= (uint16_t)(1 << reg);
+#endif
+}
+
+static inline void ymm_live_zero(dynarec_rv64_t* dyn, int ninst, int reg)
+{
+#if STEP == 0
+    ymm_live_write(dyn, ninst, reg);
+    dyn->insts[ninst].ymm_zero |= (uint16_t)(1 << reg);
+#endif
+}
 
 // common coproc helpers
 // reset the cache with n

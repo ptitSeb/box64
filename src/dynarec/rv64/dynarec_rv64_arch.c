@@ -141,6 +141,16 @@ static int arch_build(dynarec_rv64_t* dyn, int ninst, arch_build_t* arch)
     // pending x87 stack count
     if (e->x87stack)
         arch->x87_.delta = e->x87stack;
+    for (int i = 0; i < 32; ++i) {
+        if (e->extcache[i].t != EXT_CACHE_XMMR && e->extcache[i].t != EXT_CACHE_XMMW)
+            continue;
+        int xmm = e->extcache[i].n & 15;
+        if (e->ssecache[xmm].ymm)
+            arch->ymm_.ymm |= (uint16_t)(1 << xmm);
+    }
+    arch->ymm_.ymm0 = e->ymm0;
+    if (arch->ymm_.ymm || arch->ymm_.ymm0)
+        arch->ymm = 1;
     if (arch->x87_.x87 || arch->x87_.delta)
         arch->x87 = 1;
     if (arch->mmx_.mmx)
@@ -208,20 +218,23 @@ static int sizeof_arch(arch_arch_t* arch)
 }
 
 
-static void read_vector_reg(const void* vframe, size_t vlenb, int reg, void* buf)
+static int read_vector_reg(const void* vframe, size_t vlenb, int reg, void* buf, size_t sz)
 {
     if (vframe) {
-        memcpy(buf, (const uint8_t*)vframe + (reg & 31) * vlenb, 16);
-        return;
+        if (vlenb < sz) return 0;
+        memcpy(buf, (const uint8_t*)vframe + (reg & 31) * vlenb, sz);
+        return 1;
     }
 
     // HACK: if vframe is absent, the live register is read instead.
     switch (reg & 31) {
-#define VREG_CASE(N)                                                                                                                                        \
-    case N:                                                                                                                                                 \
-        __asm__ volatile(".option push\n\t.option arch, +v\n\taddi t1, zero, 16\n\tvsetvli t0, t1, 0\n\tvse8.v v" #N ", (%0)\n\t.option pop\n\t" ::"r"(buf) \
-            : "memory", "t0", "t1");                                                                                                                        \
-        break;
+#define VREG_CASE(N)                                                                            \
+    case N:                                                                                     \
+        __asm__ volatile(".option push\n\t.option arch, +v\n\tvsetvli t0, %1, 0\n\tvse8.v v" #N \
+                         ", (%0)\n\t.option pop\n\t" ::"r"(buf),                                \
+            "r"(sz)                                                                             \
+            : "memory", "t0");                                                                  \
+        return 1;
         VREG_CASE(0)
         VREG_CASE(1)
         VREG_CASE(2)
@@ -256,6 +269,7 @@ static void read_vector_reg(const void* vframe, size_t vlenb, int reg, void* buf
         VREG_CASE(31)
 #undef VREG_CASE
     }
+    return 0;
 }
 
 static const void* get_vframe(const ucontext_t* p, size_t* vlenb)
@@ -349,7 +363,7 @@ void adjust_arch(dynablock_t* db, x64emu_t* emu, ucontext_t* p, uintptr_t x64pc)
         dynarec_log(LOG_INFO, " rsp[%d] ", arch->rsp);
         emu->regs[_SP].q[0] += arch->rsp;
     }
-    if (sse || mmx) {
+    if (sse || mmx || ymm) {
         size_t vlenb = 0;
         const void* vframe = get_vframe(p, &vlenb);
         if (sse) {
@@ -358,15 +372,27 @@ void adjust_arch(dynablock_t* db, x64emu_t* emu, ucontext_t* p, uintptr_t x64pc)
                 if (!((sse->sse >> i) & 1))
                     continue;
                 if ((sse->vector >> i) & 1) {
-                    uint8_t vbuf[16];
-                    read_vector_reg(vframe, vlenb, sse->reg[i], vbuf);
-                    memcpy(&emu->xmm[i], vbuf, 16);
+                    uint8_t vbuf[32];
+                    if (read_vector_reg(vframe, vlenb, sse->reg[i], vbuf, 16))
+                        memcpy(&emu->xmm[i], vbuf, 16);
                 } else if (sse->single[i]) {
                     uint64_t raw = p->uc_mcontext.__fpregs.__d.__f[sse->reg[i] & 31];
                     *(uint32_t*)&emu->xmm[i] = (uint32_t)raw;
                 } else {
                     emu->xmm[i].q[0] = p->uc_mcontext.__fpregs.__d.__f[sse->reg[i] & 31];
                 }
+            }
+        }
+        if (ymm) {
+            dynarec_log(LOG_INFO, " ymm[%x, 0=%x] ", ymm->ymm, ymm->ymm0);
+            for (int i = 0; i < 16; ++i) {
+                if (((ymm->ymm >> i) & 1) && sse && ((sse->vector >> i) & 1)) {
+                    uint8_t vbuf[32];
+                    if (read_vector_reg(vframe, vlenb, sse->reg[i], vbuf, 32))
+                        memcpy(&emu->ymm[i], vbuf + 16, 16);
+                }
+                if ((ymm->ymm0 >> i) & 1)
+                    emu->ymm[i].q[0] = emu->ymm[i].q[1] = 0;
             }
         }
         if (mmx) {
@@ -376,8 +402,8 @@ void adjust_arch(dynablock_t* db, x64emu_t* emu, ucontext_t* p, uintptr_t x64pc)
                     continue;
                 if ((mmx->vector >> i) & 1) {
                     uint8_t vbuf[16];
-                    read_vector_reg(vframe, vlenb, mmx->reg[i], vbuf);
-                    emu->mmx[i].q = *(uint64_t*)vbuf;
+                    if (read_vector_reg(vframe, vlenb, mmx->reg[i], vbuf, 8))
+                        emu->mmx[i].q = *(uint64_t*)vbuf;
                 } else {
                     emu->mmx[i].q = p->uc_mcontext.__fpregs.__d.__f[mmx->reg[i] & 31];
                 }

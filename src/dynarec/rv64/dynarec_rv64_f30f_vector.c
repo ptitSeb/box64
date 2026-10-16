@@ -503,13 +503,13 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             VMV_S_X(d1, x5);
             tmp64u0 = 0x0003000200010000ULL;
             MOV64x(x5, tmp64u0);
-            VSLIDE1UP_VX(d0, d1, x5, VECTOR_UNMASKED);
+            VSLIDE1UP_VX_SAFE(d0, d1, x5, VECTOR_UNMASKED);
             vector_vsetvli(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 1);
             if (v0 == v1) {
                 v1 = fpu_get_scratch(dyn);
                 VMV_V_V(v1, v0);
             }
-            VRGATHER_VV(v0, v1, d0, VECTOR_UNMASKED);
+            VRGATHER_VV_SAFE(v0, v1, d0, VECTOR_UNMASKED);
             break;
         case 0x7E:
             INST_NAME("MOVQ Gx, Ex");
