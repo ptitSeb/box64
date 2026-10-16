@@ -386,6 +386,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
                     addr += dyn->insts[ninst].x64.size;
                     INST_EPILOG;
                 }
+                if ((ninst + 1) < dyn->size) dyn->insts[ninst + 1].x64.barrier |= BARRIER_FLOAT;
             }
             if((dyn->insts[ninst+1].x64.barrier&BARRIER_FULL)==BARRIER_FULL)
                 reset_n = -2;    // hack to say Barrier!
