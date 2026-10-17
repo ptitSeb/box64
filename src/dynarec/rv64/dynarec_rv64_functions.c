@@ -404,6 +404,7 @@ int fpuCacheNeedsTransform(dynarec_rv64_t* dyn, int ninst)
                 if (dyn->insts[ninst].e.extcache[i].n != cache_i2.extcache[i].n) {    // not the same x64 reg
                     ret = 1;
                 } else if (dyn->insts[ninst].e.extcache[i].t == EXT_CACHE_XMMR && cache_i2.extcache[i].t == EXT_CACHE_XMMW) { /* nothing */
+                } else if (dyn->insts[ninst].e.extcache[i].t == EXT_CACHE_YMMR && cache_i2.extcache[i].t == EXT_CACHE_YMMW) { /* nothing */
                 } else
                     ret = 1;
             }
@@ -539,10 +540,12 @@ void extcacheUnwind(extcache_t* cache)
                     break;
                 case EXT_CACHE_XMMR:
                 case EXT_CACHE_XMMW:
+                case EXT_CACHE_YMMR:
+                case EXT_CACHE_YMMW:
                     cache->ssecache[cache->extcache[i].n].reg = EXTREG(i);
                     cache->ssecache[cache->extcache[i].n].vector = 1;
-                    cache->ssecache[cache->extcache[i].n].write = (cache->extcache[i].t == EXT_CACHE_XMMW) ? 1 : 0;
-                    cache->ssecache[cache->extcache[i].n].ymm = cache->extcache[i].y;
+                    cache->ssecache[cache->extcache[i].n].write = (cache->extcache[i].t == EXT_CACHE_XMMW || cache->extcache[i].t == EXT_CACHE_YMMW) ? 1 : 0;
+                    cache->ssecache[cache->extcache[i].n].ymm = (cache->extcache[i].t == EXT_CACHE_YMMR || cache->extcache[i].t == EXT_CACHE_YMMW) ? 1 : cache->extcache[i].y;
                     cache->ssecache[cache->extcache[i].n].ymm0 = (cache->ymm0 >> cache->extcache[i].n) & 1;
                     break;
                 case EXT_CACHE_ST_F:
@@ -561,6 +564,7 @@ void extcacheUnwind(extcache_t* cache)
             cache->fpuused[i] = 0;
         }
     }
+    sse_sync_all_cache_types(cache);
 }
 
 // will go badly if address is unaligned
@@ -630,6 +634,8 @@ const char* getCacheName(int t, int n)
         case EXT_CACHE_SCR: sprintf(buff, "Scratch"); break;
         case EXT_CACHE_XMMW: sprintf(buff, "XMM%d", n); break;
         case EXT_CACHE_XMMR: sprintf(buff, "xmm%d", n); break;
+        case EXT_CACHE_YMMW: sprintf(buff, "YMM%d", n); break;
+        case EXT_CACHE_YMMR: sprintf(buff, "ymm%d", n); break;
         case EXT_CACHE_NONE: buff[0] = '\0'; break;
     }
     return buff;
@@ -756,6 +762,8 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
             case EXT_CACHE_SD: length += sprintf(buf + length, " f%d:%s", EXTREG(ii), getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;
             case EXT_CACHE_XMMR: length += sprintf(buf + length, " v%d:%s", EXTREG(ii), getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;
             case EXT_CACHE_XMMW: length += sprintf(buf + length, " v%d:%s", EXTREG(ii), getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;
+            case EXT_CACHE_YMMR: length += sprintf(buf + length, " v%d:%s", EXTREG(ii), getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;
+            case EXT_CACHE_YMMW: length += sprintf(buf + length, " v%d:%s", EXTREG(ii), getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;
             case EXT_CACHE_SCR: length += sprintf(buf + length, " f%d:%s", EXTREG(ii), getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;
             case EXT_CACHE_NONE:
             default: break;
@@ -962,6 +970,26 @@ void updateUpperLiveness(dynarec_rv64_t* dyn)
     int* work = (int*)((char*)pend_ymm + live_size);
     uint8_t* on_list = (uint8_t*)((char*)work + work_size);
 
+    for (int i = 0; i < n; ++i) {
+        instruction_rv64_t* inst = &dyn->insts[i];
+        if (!inst->x64.alive || inst->pred_sz < 2 || (inst->x64.barrier & BARRIER_FLOAT))
+            continue;
+        const extcache_t* first = &dyn->insts[inst->pred[0]].e;
+        for (int p = 1; p < inst->pred_sz; ++p) {
+            const extcache_t* pe = &dyn->insts[inst->pred[p]].e;
+            int diff = (first->ymm0 != pe->ymm0);
+            for (int r = 0; r < 16 && !diff; ++r)
+                if (first->ssecache[r].v != -1 && pe->ssecache[r].v != -1
+                    && (first->ssecache[r].ymm != pe->ssecache[r].ymm
+                        || first->ssecache[r].ymm0 != pe->ssecache[r].ymm0))
+                    diff = 1;
+            if (diff) {
+                inst->x64.barrier |= BARRIER_FLOAT;
+                break;
+            }
+        }
+    }
+
     int sp = 0;
     for (int i = n - 1; i >= 0; --i) {
         if (dyn->insts[i].x64.alive) {
@@ -1023,6 +1051,9 @@ void updateUpperLiveness(dynarec_rv64_t* dyn)
         inst->ymm_upper_live = live_ymm_out[i];
     }
 
+    // forward analysis
+    memset(pending_in, 0, pending_size);
+    memset(pend_ymm, 0, live_size);
     memset(on_list, 0, list_size);
     sp = 0;
     for (int i = 0; i < n; ++i) {
@@ -1031,7 +1062,6 @@ void updateUpperLiveness(dynarec_rv64_t* dyn)
             on_list[i] = 1;
         }
     }
-    // forward analysis
     while (sp > 0) {
         int i = work[--sp];
         on_list[i] = 0;
@@ -1045,9 +1075,9 @@ void updateUpperLiveness(dynarec_rv64_t* dyn)
             int j = inst->pred[p];
             const instruction_rv64_t* pred = &dyn->insts[j];
             merged_pending |= (pending_in[j] & (uint16_t)~pred->up32_write64) | pred->up32_skip;
-            merged_ymm |= (pend_ymm[j] & (uint16_t)~pred->ymm_upper_def) |
-                (pred->ymm_zero & (uint16_t)~pred->ymm_upper_live);
+            merged_ymm |= (pend_ymm[j] & (uint16_t)~pred->ymm_upper_def) | (pred->ymm_zero & (uint16_t)~pred->ymm_upper_live);
         }
+        if (inst->x64.barrier & BARRIER_FLOAT) merged_ymm = 0;
         if ((merged_pending != pending_in[i]) || (merged_ymm != pend_ymm[i])) {
             pending_in[i] = merged_pending;
             pend_ymm[i] = merged_ymm;

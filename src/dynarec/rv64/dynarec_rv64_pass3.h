@@ -26,6 +26,7 @@
         addInst(dyn->instsize, &dyn->insts_size, dyn->insts[ninst - 1].x64.size, dyn->insts[ninst - 1].size / 4); \
         dyn->insts[ninst].ymm0_pass3 = dyn->ymm_zero;                                                             \
     }                                                                                                             \
+    sse_sync_all_cache_types(&dyn->e);                                                                            \
     AREFLAGSNEEDED()
 #define INST_EPILOG                                      \
     dyn->vector_sew = dyn->insts[ninst].vector_sew_exit; \
