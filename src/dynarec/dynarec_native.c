@@ -789,7 +789,7 @@ int interblock_flags_needed(dynarec_native_t* dyn, uintptr_t addr, int is32bits)
     if (BOX64ENV(dynarec_test) || BOX64ENV(dynarec_trace))
         return 1;
 
-    if (addr >= BOX64ENV(nodynarec_start) && addr < BOX64ENV(nodynarec_end))
+    if (IsNoDynarecAddress(addr))
         return 1;
     if (checkInHotPage(addr) && !BOX64ENV(dynarec_dirty))
         return 1;
@@ -897,7 +897,7 @@ dynablock_t* FillBlock64(uintptr_t addr, int is32bits, int inst_max, int is_new,
     #else
     uintptr_t altjump = 0;
     #endif
-    if(addr>=BOX64ENV(nodynarec_start) && addr<BOX64ENV(nodynarec_end)) {
+    if(IsNoDynarecAddress(addr)) {
         dynarec_log(LOG_INFO, "Create empty block in no-dynarec zone\n");
         return BOX64ENV(nodynarec_delay)?NULL:CreateEmptyBlock(old_addr, is32bits, is_new);
     }
