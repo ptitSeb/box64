@@ -285,6 +285,9 @@ uintptr_t dynarec64_AVX_66_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
                 VLE64_V(d0, ed, VECTOR_UNMASKED, VECTOR_NFIELD1);
             }
             v0 = fpu_get_scratch(dyn);
+            if (!vex.l && !cpuext.xtheadvector) {
+                VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
+            }
             vector_vsetvli(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL1, vex.l ? 1 : 0.5);
             u8 = sse_setround(dyn, ninst, x6, x4);
             VFNCVT_F_F_W(v0, d0, VECTOR_UNMASKED);
