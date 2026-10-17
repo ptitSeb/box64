@@ -23,6 +23,8 @@ typedef struct box64env_s box64env_t;
 #define EXT_CACHE_XMMW   8
 #define EXT_CACHE_XMMR   9
 #define EXT_CACHE_MMV    10
+#define EXT_CACHE_YMMW   11
+#define EXT_CACHE_YMMR   12
 
 #define EXT_CACHE_OLD_SD   0
 #define EXT_CACHE_OLD_SS   1
@@ -228,6 +230,28 @@ typedef struct dynarec_rv64_s {
 #define EXTREG(A) (((A) < 16) ? (16 + (A)) : ((A) - 8))
 // convert reg index (8..31) to idx (0..23)
 #define EXTIDX(A) (((A) >= 16) ? ((A) - 16) : ((A) + 8))
+
+static inline void sse_sync_cache_type(extcache_t* cache, int a)
+{
+    sse_cache_t* e = &cache->ssecache[a];
+    if (e->v == -1)
+        return;
+    if (!e->vector) {
+        cache->extcache[EXTIDX(e->reg)].t = e->single ? EXT_CACHE_SS : EXT_CACHE_SD;
+        return;
+    }
+    int dirty = e->write || e->ymm0;
+    if (e->ymm)
+        cache->extcache[EXTIDX(e->reg)].t = dirty ? EXT_CACHE_YMMW : EXT_CACHE_YMMR;
+    else
+        cache->extcache[EXTIDX(e->reg)].t = dirty ? EXT_CACHE_XMMW : EXT_CACHE_XMMR;
+}
+
+static inline void sse_sync_all_cache_types(extcache_t* cache)
+{
+    for (int i = 0; i < 16; ++i)
+        sse_sync_cache_type(cache, i);
+}
 
 void add_next(dynarec_rv64_t *dyn, uintptr_t addr);
 uintptr_t get_closest_next(dynarec_rv64_t *dyn, uintptr_t addr);

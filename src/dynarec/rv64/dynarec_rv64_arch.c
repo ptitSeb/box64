@@ -125,10 +125,13 @@ static int arch_build(dynarec_rv64_t* dyn, int ninst, arch_build_t* arch)
             case EXT_CACHE_SS:
             case EXT_CACHE_SD:
             case EXT_CACHE_XMMR:
-            case EXT_CACHE_XMMW: {
+            case EXT_CACHE_XMMW:
+            case EXT_CACHE_YMMR:
+            case EXT_CACHE_YMMW: {
                 int xmm = e->extcache[i].n & 15;
                 arch->sse_.sse |= (uint16_t)(1 << xmm);
-                if (e->extcache[i].t == EXT_CACHE_XMMR || e->extcache[i].t == EXT_CACHE_XMMW)
+                if (e->extcache[i].t == EXT_CACHE_XMMR || e->extcache[i].t == EXT_CACHE_XMMW
+                    || e->extcache[i].t == EXT_CACHE_YMMR || e->extcache[i].t == EXT_CACHE_YMMW)
                     arch->sse_.vector |= (uint16_t)(1 << xmm);
                 arch->sse_.reg[xmm] = (uint8_t)reg;
                 arch->sse_.single[xmm] = (e->extcache[i].t == EXT_CACHE_SS) ? 1 : 0;
@@ -142,7 +145,8 @@ static int arch_build(dynarec_rv64_t* dyn, int ninst, arch_build_t* arch)
     if (e->x87stack)
         arch->x87_.delta = e->x87stack;
     for (int i = 0; i < 32; ++i) {
-        if (e->extcache[i].t != EXT_CACHE_XMMR && e->extcache[i].t != EXT_CACHE_XMMW)
+        if (e->extcache[i].t != EXT_CACHE_XMMR && e->extcache[i].t != EXT_CACHE_XMMW
+            && e->extcache[i].t != EXT_CACHE_YMMR && e->extcache[i].t != EXT_CACHE_YMMW)
             continue;
         int xmm = e->extcache[i].n & 15;
         if (e->ssecache[xmm].ymm)

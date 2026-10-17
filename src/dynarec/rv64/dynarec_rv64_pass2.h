@@ -27,6 +27,7 @@
     AREFLAGSNEEDED()
 #define INST_EPILOG                                      \
     dyn->insts[ninst].epilog = dyn->native_size;         \
+    sse_sync_all_cache_types(&dyn->e);                   \
     dyn->vector_sew = dyn->insts[ninst].vector_sew_exit; \
     dyn->inst_sew = dyn->vector_sew;                     \
     dyn->inst_vlmul = VECTOR_LMUL1;                      \

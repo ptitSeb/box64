@@ -1839,7 +1839,8 @@ void sse_forget_reg_vector(dynarec_rv64_t* dyn, int ninst, int s1, int a)
         return;
     if (dyn->e.ssecache[a].vector == 0)
         return sse_forget_reg(dyn, ninst, s1, a);
-    if (dyn->e.extcache[EXTIDX(dyn->e.ssecache[a].reg)].t == EXT_CACHE_XMMW) {
+    if (dyn->e.extcache[EXTIDX(dyn->e.ssecache[a].reg)].t == EXT_CACHE_XMMW
+        || dyn->e.extcache[EXTIDX(dyn->e.ssecache[a].reg)].t == EXT_CACHE_YMMW) {
         uint8_t sew, vlmul, vl;
         vector_save_vtype(dyn, &sew, &vlmul, &vl);
         vector_vsetvli(dyn, ninst, s1, VECTOR_SEW8, VECTOR_LMUL1, 1);
@@ -2199,6 +2200,14 @@ static int findCacheSlot(dynarec_rv64_t* dyn, int ninst, int t, int n, extcache_
                     if (t == EXT_CACHE_XMMR)
                         return i;
                     break;
+                case EXT_CACHE_YMMR:
+                    if (t == EXT_CACHE_YMMW)
+                        return i;
+                    break;
+                case EXT_CACHE_YMMW:
+                    if (t == EXT_CACHE_YMMR)
+                        return i;
+                    break;
             }
         }
     }
@@ -2210,7 +2219,9 @@ static void swapCache(dynarec_rv64_t* dyn, int ninst, int s1, int i, int j, extc
     if (i == j) return;
 
     if (cache->extcache[i].t == EXT_CACHE_XMMR || cache->extcache[i].t == EXT_CACHE_XMMW
-        || cache->extcache[j].t == EXT_CACHE_XMMR || cache->extcache[j].t == EXT_CACHE_XMMW) {
+        || cache->extcache[i].t == EXT_CACHE_YMMR || cache->extcache[i].t == EXT_CACHE_YMMW
+        || cache->extcache[j].t == EXT_CACHE_XMMR || cache->extcache[j].t == EXT_CACHE_XMMW
+        || cache->extcache[j].t == EXT_CACHE_YMMR || cache->extcache[j].t == EXT_CACHE_YMMW) {
         SET_CACHE_VECTOR_WIDTH(s1);
         int reg_i = EXTREG(i);
         int reg_j = EXTREG(j);
@@ -2266,10 +2277,31 @@ static void swapCache(dynarec_rv64_t* dyn, int ninst, int s1, int i, int j, extc
     cache->extcache[j].v = tmp.v;
 }
 
+static void loadUpperCache(dynarec_rv64_t* dyn, int ninst, int s1, int a, int reg, int tozero)
+{
+    uint8_t sew0, vlmul0, vl0;
+    vector_save_vtype(dyn, &sew0, &vlmul0, &vl0);
+    dyn->inst_sew = VECTOR_SEWNA;
+    dyn->inst_vl = 0;
+    if (tozero) {
+        vector_vsetvli(dyn, ninst, s1, VECTOR_SEW32, VECTOR_LMUL1, 2);
+        VECTOR_LOAD_VMASK(0xf0, s1, 2);
+        VMERGE_VXM(reg, reg, xZR);
+    } else {
+        vector_vsetvli(dyn, ninst, s1, VECTOR_SEW8, VECTOR_LMUL1, 2);
+        VECTOR_LOAD_VMASK(0xffff0000, s1, 2);
+        dyn->inst_vl = 0; // the mask load changed the real vl
+        vector_vsetvli(dyn, ninst, s1, VECTOR_SEW8, VECTOR_LMUL1, 2);
+        ADDI(s1, xEmu, offsetof(x64emu_t, ymm[a]) - 16);
+        VLE8_V(reg, s1, VECTOR_MASKED, VECTOR_NFIELD1);
+    }
+    vector_restore_vtype(dyn, ninst, s1, sew0, vlmul0, vl0);
+}
+
 static void loadCache(dynarec_rv64_t* dyn, int ninst, int stack_cnt, int s1, int s2, int s3, int* s1_val, int* s2_val, int* s3_top, extcache_t* cache, int i, int t, int n)
 {
     int reg = EXTREG(i);
-    if (cache->extcache[i].v && (cache->extcache[i].t == EXT_CACHE_XMMR || cache->extcache[i].t == EXT_CACHE_XMMW)) {
+    if (cache->extcache[i].v && (cache->extcache[i].t == EXT_CACHE_XMMR || cache->extcache[i].t == EXT_CACHE_XMMW || cache->extcache[i].t == EXT_CACHE_YMMR || cache->extcache[i].t == EXT_CACHE_YMMW)) {
         SET_CACHE_VECTOR_WIDTH(s1);
         int j = i + 1;
         while (j < 24 && cache->extcache[j].v)
@@ -2311,6 +2343,14 @@ static void loadCache(dynarec_rv64_t* dyn, int ninst, int stack_cnt, int s1, int
             SET_CACHE_VECTOR_WIDTH(s1);
             ADDI(s1, xEmu, offsetof(x64emu_t, xmm[n]));
             VLE_V(reg, s1, dyn->vector_eew, VECTOR_UNMASKED, VECTOR_NFIELD1);
+            break;
+        case EXT_CACHE_YMMR:
+        case EXT_CACHE_YMMW:
+            MESSAGE(LOG_DUMP, "\t  - Loading %s\n", getCacheName(t, n));
+            SET_CACHE_VECTOR_WIDTH(s1);
+            ADDI(s1, xEmu, offsetof(x64emu_t, xmm[n]));
+            VLE_V(reg, s1, dyn->vector_eew, VECTOR_UNMASKED, VECTOR_NFIELD1);
+            loadUpperCache(dyn, ninst, s1, n, reg, (cache->ymm0 >> n) & 1);
             break;
         case EXT_CACHE_SS:
             MESSAGE(LOG_DUMP, "\t  - Loading %s\n", getCacheName(t, n));
@@ -2365,7 +2405,7 @@ static void loadCache(dynarec_rv64_t* dyn, int ninst, int stack_cnt, int s1, int
     }
     cache->extcache[i].n = n;
     cache->extcache[i].t = t;
-    cache->extcache[i].y = 0;
+    cache->extcache[i].y = (t == EXT_CACHE_YMMR || t == EXT_CACHE_YMMW) ? 1 : 0;
 }
 
 static void unloadCache(dynarec_rv64_t* dyn, int ninst, int stack_cnt, int s1, int s2, int s3, int* s1_val, int* s2_val, int* s3_top, extcache_t* cache, int i, int t, int n)
@@ -2373,9 +2413,11 @@ static void unloadCache(dynarec_rv64_t* dyn, int ninst, int stack_cnt, int s1, i
     int reg = EXTREG(i);
     switch (t) {
         case EXT_CACHE_XMMR:
+        case EXT_CACHE_YMMR:
             MESSAGE(LOG_DUMP, "\t  - ignoring %s\n", getCacheName(t, n));
             break;
         case EXT_CACHE_XMMW:
+        case EXT_CACHE_YMMW:
             MESSAGE(LOG_DUMP, "\t  - Unloading %s\n", getCacheName(t, n));
             {
                 uint8_t sew, vlmul, vl;
@@ -2385,6 +2427,8 @@ static void unloadCache(dynarec_rv64_t* dyn, int ninst, int stack_cnt, int s1, i
                 VSE8_V(reg, s1, VECTOR_UNMASKED, VECTOR_NFIELD1);
                 vector_restore_vtype(dyn, ninst, s1, sew, vlmul, vl);
             }
+            if (t == EXT_CACHE_YMMW)
+                avx_flush_upper_vector(dyn, ninst, s1, n, reg, 1);
             break;
         case EXT_CACHE_SS:
             MESSAGE(LOG_DUMP, "\t  - Unloading %s\n", getCacheName(t, n));
@@ -2440,27 +2484,6 @@ static void unloadCache(dynarec_rv64_t* dyn, int ninst, int stack_cnt, int s1, i
     cache->extcache[i].v = 0;
 }
 
-static void loadUpperCache(dynarec_rv64_t* dyn, int ninst, int s1, int a, int reg, int tozero)
-{
-    uint8_t sew0, vlmul0, vl0;
-    vector_save_vtype(dyn, &sew0, &vlmul0, &vl0);
-    dyn->inst_sew = VECTOR_SEWNA;
-    dyn->inst_vl = 0;
-    if (tozero) {
-        vector_vsetvli(dyn, ninst, s1, VECTOR_SEW32, VECTOR_LMUL1, 2);
-        VECTOR_LOAD_VMASK(0xf0, s1, 2);
-        VMERGE_VXM(reg, reg, xZR);
-    } else {
-        vector_vsetvli(dyn, ninst, s1, VECTOR_SEW8, VECTOR_LMUL1, 2);
-        VECTOR_LOAD_VMASK(0xffff0000, s1, 2);
-        dyn->inst_vl = 0; // the mask load changed the real vl
-        vector_vsetvli(dyn, ninst, s1, VECTOR_SEW8, VECTOR_LMUL1, 2);
-        ADDI(s1, xEmu, offsetof(x64emu_t, ymm[a]) - 16);
-        VLE8_V(reg, s1, VECTOR_MASKED, VECTOR_NFIELD1);
-    }
-    vector_restore_vtype(dyn, ninst, s1, sew0, vlmul0, vl0);
-}
-
 static void fpuCacheTransform(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3)
 {
     int i2 = dyn->insts[ninst].x64.jmp_insts;
@@ -2513,6 +2536,9 @@ static void fpuCacheTransform(dynarec_rv64_t* dyn, int ninst, int s1, int s2, in
             unloadCache(dyn, ninst, stack_cnt, s1, s2, s3, &s1_val, &s2_val, &s3_top, &cache, j, cache.extcache[j].t, cache.extcache[j].n);
         j = findCacheSlot(dyn, ninst, EXT_CACHE_XMMW, i, &cache);
         if (j >= 0 && findCacheSlot(dyn, ninst, EXT_CACHE_XMMW, i, &cache_i2) == -1)
+            unloadCache(dyn, ninst, stack_cnt, s1, s2, s3, &s1_val, &s2_val, &s3_top, &cache, j, cache.extcache[j].t, cache.extcache[j].n);
+        j = findCacheSlot(dyn, ninst, EXT_CACHE_YMMW, i, &cache);
+        if (j >= 0 && findCacheSlot(dyn, ninst, EXT_CACHE_YMMW, i, &cache_i2) == -1)
             unloadCache(dyn, ninst, stack_cnt, s1, s2, s3, &s1_val, &s2_val, &s3_top, &cache, j, cache.extcache[j].t, cache.extcache[j].n);
     }
     for (int i = 0; i < 8; ++i) {
@@ -2572,6 +2598,18 @@ static void fpuCacheTransform(dynarec_rv64_t* dyn, int ninst, int s1, int s2, in
                     cache.extcache[i].t = EXT_CACHE_ST_D;
                 } else if (cache.extcache[i].t == EXT_CACHE_XMMR && cache_i2.extcache[i].t == EXT_CACHE_XMMW) {
                     cache.extcache[i].t = EXT_CACHE_XMMW;
+                } else if (cache.extcache[i].t == EXT_CACHE_YMMR && cache_i2.extcache[i].t == EXT_CACHE_YMMW) {
+                    cache.extcache[i].t = EXT_CACHE_YMMW;
+                    cache.ssecache[cache.extcache[i].n].write = 1;
+                } else if (cache.extcache[i].t == EXT_CACHE_YMMW && cache_i2.extcache[i].t == EXT_CACHE_YMMR) {
+                    MESSAGE(LOG_DUMP, "\t  - Store %s\n", getCacheName(cache.extcache[i].t, cache.extcache[i].n));
+                    avx_flush_upper_vector(dyn, ninst, s1, cache.extcache[i].n, EXTREG(i), 1);
+                    SET_CACHE_VECTOR_WIDTH(s1);
+                    ADDI(s1, xEmu, offsetof(x64emu_t, xmm[cache.extcache[i].n]));
+                    VSE_V(EXTREG(i), s1, dyn->vector_eew, VECTOR_UNMASKED, VECTOR_NFIELD1);
+                    cache.extcache[i].t = EXT_CACHE_YMMR;
+                    cache.ssecache[cache.extcache[i].n].write = 0;
+                    cache.ssecache[cache.extcache[i].n].ymm0 = 0;
                 } else if (cache.extcache[i].t == EXT_CACHE_XMMW && cache_i2.extcache[i].t == EXT_CACHE_XMMR) {
                     // refresh cache...
                     MESSAGE(LOG_DUMP, "\t  - Refreh %s\n", getCacheName(cache.extcache[i].t, cache.extcache[i].n));
@@ -2581,15 +2619,18 @@ static void fpuCacheTransform(dynarec_rv64_t* dyn, int ninst, int s1, int s2, in
                     cache.extcache[i].t = EXT_CACHE_XMMR;
                 }
             }
-            if ((cache.extcache[i].t == EXT_CACHE_XMMR || cache.extcache[i].t == EXT_CACHE_XMMW)
-                && (cache_i2.extcache[i].t == EXT_CACHE_XMMR || cache_i2.extcache[i].t == EXT_CACHE_XMMW)
-                && cache.extcache[i].y != cache_i2.extcache[i].y) {
+            int src_ymm = (cache.extcache[i].t == EXT_CACHE_YMMR || cache.extcache[i].t == EXT_CACHE_YMMW);
+            int dst_ymm = (cache_i2.extcache[i].t == EXT_CACHE_YMMR || cache_i2.extcache[i].t == EXT_CACHE_YMMW);
+            if (src_ymm != dst_ymm && cache.extcache[i].n == cache_i2.extcache[i].n) {
                 int n = cache.extcache[i].n;
-                if (cache_i2.extcache[i].y) {
+                if (dst_ymm) {
                     MESSAGE(LOG_DUMP, "\t  - Loading upper half of %s\n", getCacheName(cache.extcache[i].t, n));
                     loadUpperCache(dyn, ninst, s1, n, EXTREG(i), (cache_i2.ymm0 >> n) & 1);
+                } else if (src_ymm) {
+                    MESSAGE(LOG_DUMP, "\t  - Storing upper half of %s\n", getCacheName(cache.extcache[i].t, n));
+                    avx_flush_upper_vector(dyn, ninst, s1, n, EXTREG(i), 1);
                 }
-                cache.extcache[i].y = cache_i2.extcache[i].y;
+                cache.extcache[i].y = dst_ymm;
             }
         }
     }

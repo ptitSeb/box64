@@ -90,6 +90,7 @@
 
 #define INST_EPILOG                                      \
     dyn->insts[ninst].f_exit = dyn->f;                   \
+    sse_sync_all_cache_types(&dyn->e);                   \
     dyn->insts[ninst].e = dyn->e;                        \
     dyn->insts[ninst].vector_sew_exit = dyn->vector_sew; \
     dyn->insts[ninst].x64.has_next = (ok > 0) ? 1 : 0;
