@@ -1338,6 +1338,37 @@ uintptr_t dynarec64_AVX_66_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
                 ZEXTH(gd, gd);
             }
             break;
+        case 0xC6:
+            INST_NAME("VSHUFPD Gx, Vx, Ex, Ib");
+            nextop = F8;
+            q0 = fpu_get_scratch(dyn);
+            q1 = fpu_get_scratch(dyn);
+            v1 = fpu_get_scratch(dyn);
+            q2 = fpu_get_scratch(dyn);
+            v2 = fpu_get_scratch(dyn);
+            avx_load_reg_vector(dyn, ninst, x1, q0, vex.v, 16 << vex.l, VECTOR_SEW64);
+            if (MODREG) {
+                avx_load_reg_vector(dyn, ninst, x1, q1, (nextop & 7) + (rex.b << 3), 16 << vex.l, VECTOR_SEW64);
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x3, x2, &fixedaddress, rex, NULL, 0, 1);
+                SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW64);
+                VLE64_V(q1, ed, VECTOR_UNMASKED, VECTOR_NFIELD1);
+            }
+            GETGY_empty_vector(v0);
+            u8 = F8;
+            selectors = 0;
+            for (int i = 0; i < (2 << vex.l); ++i)
+                selectors |= (uint64_t)((i >> 1) * 2 + ((u8 >> i) & 1)) << (i * 16);
+            MOV64x(x4, selectors);
+            SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW64);
+            VMV_V_X(v1, x4);
+            VRGATHEREI16_VV(q2, q0, v1, VECTOR_UNMASKED);
+            VRGATHEREI16_VV(v2, q1, v1, VECTOR_UNMASKED);
+            VECTOR_LOAD_VMASK(0xa, x4, vex.l ? 2 : 1);
+            VMERGE_VVM(v0, q2, v2);
+            PUTGY_vector(v0, VECTOR_SEW64);
+            break;
         default:
             DEFAULT_VECTOR;
     }

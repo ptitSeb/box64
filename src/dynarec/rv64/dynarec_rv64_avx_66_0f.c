@@ -751,28 +751,20 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             v0 = fpu_get_scratch(dyn);
             v1 = fpu_get_scratch(dyn);
             for (int i = 0; i < 2; ++i) {
-                FLD(v0, vback, vxoffset + 8 * i);
-                FLD(v1, wback, fixedaddress + 8 * i);
-                FEQD(x3, v0, v0);
-                FEQD(x4, v1, v1);
-                AND(x3, x3, x4);
-                BEQ(x3, xZR, 4 + 3 * 4);
-                FLTD(x3, v0, v1);
-                BEQ(x3, xZR, 4 + 4); // continue
+                FLD(v0, wback, fixedaddress + 8 * i);
+                FLD(v1, vback, vxoffset + 8 * i);
+                FLTD(x3, v1, v0);
+                BNEZ(x3, 8);
                 FMVD(v1, v0);
                 FSD(v1, gback, gdoffset + 8 * i);
             }
             if (vex.l) {
                 GETEY();
                 for (int i = 0; i < 2; ++i) {
-                    FLD(v0, vback, vyoffset + 8 * i);
-                    FLD(v1, wback, fixedaddress + 8 * i);
-                    FEQD(x3, v0, v0);
-                    FEQD(x4, v1, v1);
-                    AND(x3, x3, x4);
-                    BEQ(x3, xZR, 4 + 3 * 4);
-                    FLTD(x3, v0, v1);
-                    BEQ(x3, xZR, 4 + 4); // continue
+                    FLD(v0, wback, fixedaddress + 8 * i);
+                    FLD(v1, vback, vyoffset + 8 * i);
+                    FLTD(x3, v1, v0);
+                    BNEZ(x3, 8);
                     FMVD(v1, v0);
                     FSD(v1, gback, gyoffset + 8 * i);
                 }
@@ -850,28 +842,20 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             v0 = fpu_get_scratch(dyn);
             v1 = fpu_get_scratch(dyn);
             for (int i = 0; i < 2; ++i) {
-                FLD(v0, vback, vxoffset + 8 * i);
-                FLD(v1, wback, fixedaddress + 8 * i);
-                FEQD(x3, v0, v0);
-                FEQD(x4, v1, v1);
-                AND(x3, x3, x4);
-                BEQ(x3, xZR, 4 + 3 * 4);
-                FLTD(x3, v1, v0);
-                BEQ(x3, xZR, 4 + 4); // continue
+                FLD(v0, wback, fixedaddress + 8 * i);
+                FLD(v1, vback, vxoffset + 8 * i);
+                FLTD(x3, v0, v1);
+                BNEZ(x3, 8);
                 FMVD(v1, v0);
                 FSD(v1, gback, gdoffset + 8 * i);
             }
             if (vex.l) {
                 GETEY();
                 for (int i = 0; i < 2; ++i) {
-                    FLD(v0, vback, vyoffset + 8 * i);
-                    FLD(v1, wback, fixedaddress + 8 * i);
-                    FEQD(x3, v0, v0);
-                    FEQD(x4, v1, v1);
-                    AND(x3, x3, x4);
-                    BEQ(x3, xZR, 4 + 3 * 4);
-                    FLTD(x3, v1, v0);
-                    BEQ(x3, xZR, 4 + 4); // continue
+                    FLD(v0, wback, fixedaddress + 8 * i);
+                    FLD(v1, vback, vyoffset + 8 * i);
+                    FLTD(x3, v0, v1);
+                    BNEZ(x3, 8);
                     FMVD(v1, v0);
                     FSD(v1, gback, gyoffset + 8 * i);
                 }
@@ -3673,7 +3657,10 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 FLD(d0, wback, fixedaddress + 8 * i);
                 FCVTLD(x3, d0, RD_RTZ);
                 SEXT_W(x5, x3);
-                BEQ(x5, x3, 8);
+                BEQ(x5, x3, 20);
+                LWU(x5, xEmu, offsetof(x64emu_t, mxcsr));
+                ORI(x5, x5, 1);
+                SW(x5, xEmu, offsetof(x64emu_t, mxcsr));
                 LUI(x3, 0x80000);
                 SW(x3, gback, gdoffset + 4 * i);
             }
@@ -3683,7 +3670,10 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                     FLD(d0, wback, fixedaddress + 8 * i);
                     FCVTLD(x3, d0, RD_RTZ);
                     SEXT_W(x5, x3);
-                    BEQ(x5, x3, 8);
+                    BEQ(x5, x3, 20);
+                    LWU(x5, xEmu, offsetof(x64emu_t, mxcsr));
+                    ORI(x5, x5, 1);
+                    SW(x5, xEmu, offsetof(x64emu_t, mxcsr));
                     LUI(x3, 0x80000);
                     SW(x3, gback, gdoffset + 8 + 4 * i);
                 }

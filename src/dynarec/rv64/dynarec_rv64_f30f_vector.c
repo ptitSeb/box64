@@ -393,25 +393,19 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 VMV_S_X(v1, x4);
                 GETGX_vector(v0, 1, VECTOR_SEW32);
             }
-                d0 = fpu_get_scratch(dyn);
-                d1 = fpu_get_scratch(dyn);
-                VFMV_F_S(d0, v0);
-                VFMV_F_S(d1, v1);
-                FEQS(x2, d0, d0);
-                FEQS(x3, d1, d1);
-                AND(x2, x2, x3);
-                BEQ_MARK(x2, xZR);
-                FLES(x2, d1, d0);
-                BEQ_MARK2(x2, xZR);
-                MARK;
-                FMVS(d0, d1);
-                MARK2;
-                if (cpuext.xtheadvector) {
-                    VFMV_S_F(d0, d0);
-                    VECTOR_LOAD_VMASK(0b0001, x4, 1);
-                    VMERGE_VVM(v0, v0, d0); // implies VMASK
-                } else {
-                    VFMV_S_F(v0, d0);
+            d0 = fpu_get_scratch(dyn);
+            d1 = fpu_get_scratch(dyn);
+            VFMV_F_S(d0, v0);
+            VFMV_F_S(d1, v1);
+            FLTS(x2, d0, d1);
+            BNEZ(x2, 8);
+            FMVS(d0, d1);
+            if (cpuext.xtheadvector) {
+                VFMV_S_F(d0, d0);
+                VECTOR_LOAD_VMASK(0b0001, x4, 1);
+                VMERGE_VVM(v0, v0, d0);
+            } else {
+                VFMV_S_F(v0, d0);
             }
             break;
         case 0x5E:
@@ -448,25 +442,19 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 VMV_S_X(v1, x4);
                 GETGX_vector(v0, 1, VECTOR_SEW32);
             }
-                d0 = fpu_get_scratch(dyn);
-                d1 = fpu_get_scratch(dyn);
-                VFMV_F_S(d0, v0);
-                VFMV_F_S(d1, v1);
-                FEQS(x2, d0, d0);
-                FEQS(x3, d1, d1);
-                AND(x2, x2, x3);
-                BEQ_MARK(x2, xZR);
-                FLES(x2, d0, d1);
-                BEQ_MARK2(x2, xZR);
-                MARK;
-                FMVS(d0, d1);
-                MARK2;
-                if (cpuext.xtheadvector) {
-                    VFMV_S_F(d0, d0);
-                    VECTOR_LOAD_VMASK(0b0001, x4, 1);
-                    VMERGE_VVM(v0, v0, d0); // implies VMASK
-                } else {
-                    VFMV_S_F(v0, d0);
+            d0 = fpu_get_scratch(dyn);
+            d1 = fpu_get_scratch(dyn);
+            VFMV_F_S(d0, v0);
+            VFMV_F_S(d1, v1);
+            FLTS(x2, d1, d0);
+            BNEZ(x2, 8);
+            FMVS(d0, d1);
+            if (cpuext.xtheadvector) {
+                VFMV_S_F(d0, d0);
+                VECTOR_LOAD_VMASK(0b0001, x4, 1);
+                VMERGE_VVM(v0, v0, d0); // implies VMASK
+            } else {
+                VFMV_S_F(v0, d0);
             }
             break;
         case 0x6F:

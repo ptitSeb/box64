@@ -336,15 +336,9 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             v1 = fpu_get_scratch(dyn);
             FLD(v0, vback, vxoffset + 0);
             FLD(v1, wback, fixedaddress + 0);
-            FEQD(x2, v0, v0);
-            FEQD(x3, v1, v1);
-            AND(x2, x2, x3);
-            BEQ_MARK(x2, xZR);
-            FLED(x2, v1, v0);
-            BEQ_MARK2(x2, xZR);
-            MARK;
+            FLTD(x2, v0, v1);
+            BNEZ(x2, 8);
             FMVD(v0, v1);
-            MARK2;
             FSD(v0, gback, gdoffset + 0);
             if (gd != vex.v) {
                 LD(x3, vback, vxoffset + 8);
@@ -435,15 +429,9 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             v1 = fpu_get_scratch(dyn);
             FLD(v0, vback, vxoffset + 0);
             FLD(v1, wback, fixedaddress + 0);
-            FEQD(x2, v0, v0);
-            FEQD(x3, v1, v1);
-            AND(x2, x2, x3);
-            BEQ_MARK(x2, xZR);
-            FLED(x2, v0, v1);
-            BEQ_MARK2(x2, xZR);
-            MARK;
+            FLTD(x2, v1, v0);
+            BNEZ(x2, 8);
             FMVD(v0, v1);
-            MARK2;
             FSD(v0, gback, gdoffset + 0);
             if (gd != vex.v) {
                 LD(x3, vback, vxoffset + 8);
