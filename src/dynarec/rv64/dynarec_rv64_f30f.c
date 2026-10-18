@@ -425,15 +425,9 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGXSS(d0);
             GETEXSS(d1, 0);
-            FEQS(x2, d0, d0);
-            FEQS(x3, d1, d1);
-            AND(x2, x2, x3);
-            BEQ_MARK(x2, xZR);
-            FLES(x2, d1, d0);
-            BEQ_MARK2(x2, xZR);
-            MARK;
+            FLTS(x2, d0, d1);
+            BNEZ(x2, 8);
             FMVS(d0, d1);
-            MARK2;
             break;
         case 0x5E:
             INST_NAME("DIVSS Gx, Ex");
@@ -467,15 +461,9 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGXSS(d0);
             GETEXSS(d1, 0);
-            FEQS(x2, d0, d0);
-            FEQS(x3, d1, d1);
-            AND(x2, x2, x3);
-            BEQ_MARK(x2, xZR);
-            FLES(x2, d0, d1);
-            BEQ_MARK2(x2, xZR);
-            MARK;
+            FLTS(x2, d1, d0);
+            BNEZ(x2, 8);
             FMVS(d0, d1);
-            MARK2;
             break;
         case 0x6F:
             INST_NAME("MOVDQU Gx,Ex");

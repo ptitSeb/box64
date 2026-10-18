@@ -2285,8 +2285,8 @@ static void loadUpperCache(dynarec_rv64_t* dyn, int ninst, int s1, int a, int re
     dyn->inst_vl = 0;
     if (tozero) {
         vector_vsetvli(dyn, ninst, s1, VECTOR_SEW32, VECTOR_LMUL1, 2);
-        VECTOR_LOAD_VMASK(0xf0, s1, 2);
-        VMERGE_VXM(reg, reg, xZR);
+        VXOR_VV(VMASK, VMASK, VMASK, VECTOR_UNMASKED);
+        VSLIDEUP_VI(reg, VMASK, 4, VECTOR_UNMASKED);
     } else {
         vector_vsetvli(dyn, ninst, s1, VECTOR_SEW8, VECTOR_LMUL1, 2);
         VECTOR_LOAD_VMASK(0xffff0000, s1, 2);
@@ -2937,8 +2937,8 @@ void avx_load_reg_vector(dynarec_rv64_t* dyn, int ninst, int s1, int vreg, int a
     if (width == 32 && !dyn->e.ssecache[a].ymm) {
         if (dyn->e.ssecache[a].ymm0) {
             avx_set_vector_width(dyn, ninst, s1, VECTOR_SEW32, 32);
-            VECTOR_LOAD_VMASK(0xf0, s1, 2);
-            VMERGE_VXM(low, low, xZR);
+            VXOR_VV(VMASK, VMASK, VMASK, VECTOR_UNMASKED);
+            VSLIDEUP_VI(low, VMASK, 4, VECTOR_UNMASKED);
         } else {
             dyn->inst_sew = VECTOR_SEWNA;
             dyn->inst_vl = 0; // real vtype here is unknown, never elide vsetvli
@@ -2971,8 +2971,8 @@ void avx_store_reg_vector(dynarec_rv64_t* dyn, int ninst, int s1, int vreg, int 
         dyn->e.extcache[EXTIDX(cache)].y = 1;
         if (width == 16) {
             avx_set_vector_width(dyn, ninst, s1, VECTOR_SEW32, 32);
-            VECTOR_LOAD_VMASK(0xf0, s1, 2);
-            VMERGE_VXM(cache, cache, xZR);
+            VXOR_VV(VMASK, VMASK, VMASK, VECTOR_UNMASKED);
+            VSLIDEUP_VI(cache, VMASK, 4, VECTOR_UNMASKED);
             sse_set_pending_zero(dyn, a, 1);
             ymm_live_zero(dyn, ninst, a);
         } else {

@@ -523,13 +523,26 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             }
             break;
         case 0x51:
-            if (!BOX64ENV(dynarec_fastround) || !BOX64ENV(dynarec_fastnan)) return 0;
             INST_NAME("SQRTPS Gx, Ex");
             nextop = F8;
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
             GETEX_vector(v0, 0, 0, VECTOR_SEW32);
             GETGX_empty_vector(v1);
-            VFSQRT_V(v1, v0, VECTOR_UNMASKED);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                v2 = fpu_get_scratch(dyn);
+                q0 = fpu_get_scratch(dyn);
+                MOV32w(x4, 0x00400000);
+                VMV_V_X(v2, x4);
+                VOR_VV(v2, v0, v2, VECTOR_UNMASKED);
+                MOV32w(x4, 0xFFC00000);
+                VMV_V_X(q0, x4);
+                VMFEQ_VV(VMASK, v0, v0, VECTOR_UNMASKED);
+                VMERGE_VVM(v2, v2, q0);
+                VFSQRT_V(v1, v0, VECTOR_UNMASKED);
+                VMFNE_VV(VMASK, v1, v1, VECTOR_UNMASKED);
+                VMERGE_VVM(v1, v1, v2);
+            } else
+                VFSQRT_V(v1, v0, VECTOR_UNMASKED);
             break;
         case 0x52:
             if (!BOX64ENV(dynarec_fastnan)) return 0;

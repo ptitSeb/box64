@@ -451,15 +451,9 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             d1 = fpu_get_scratch(dyn);
             FLW(d0, vback, vxoffset);
             FLW(d1, wback, fixedaddress);
-            FEQS(x2, d0, d0);
-            FEQS(x3, d1, d1);
-            AND(x2, x2, x3);
-            BEQ_MARK(x2, xZR);
-            FLES(x2, d1, d0);
-            BEQ_MARK2(x2, xZR);
-            MARK;
+            FLTS(x2, d0, d1);
+            BNEZ(x2, 8);
             FMVS(d0, d1);
-            MARK2;
             FSW(d0, gback, gdoffset);
             if (gd != vex.v) {
                 LWU(x2, vback, vxoffset + 4);
@@ -480,15 +474,9 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             d1 = fpu_get_scratch(dyn);
             FLW(d0, vback, vxoffset);
             FLW(d1, wback, fixedaddress);
-            FEQS(x2, d0, d0);
-            FEQS(x3, d1, d1);
-            AND(x2, x2, x3);
-            BEQ_MARK(x2, xZR);
-            FLES(x2, d0, d1);
-            BEQ_MARK2(x2, xZR);
-            MARK;
+            FLTS(x2, d1, d0);
+            BNEZ(x2, 8);
             FMVS(d0, d1);
-            MARK2;
             FSW(d0, gback, gdoffset);
             if (gd != vex.v) {
                 LWU(x2, vback, vxoffset + 4);
