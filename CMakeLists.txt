@@ -457,6 +457,7 @@ set(PROJECT_SYMBOL_CHECKS
     obstack_vprintf                     stdio.h
     getprotobyname_r                    netdb.h
     getprotobynumber_r                  netdb.h
+    scandirat                           dirent.h
 )
 
 list(LENGTH PROJECT_SYMBOL_CHECKS checks_len)

@@ -8,6 +8,11 @@
 #include <stddef.h>
 #include <string.h>
 #include <stdint.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <dirent.h>
+#include <stdlib.h>
 
 
 #if !defined(HAVE_OBSTACK_VPRINTF) && !defined(ANDROID)
@@ -45,7 +50,7 @@ int obstack_vprintf(struct obstack *obstack,  const char *fmt, va_list args)
     if(len > 0) obstack_grow(obstack, buf, len);
     if(buf != buffer) free(buf);
 
-	return len;
+    return len;
 }
 #endif
 
@@ -125,4 +130,59 @@ int getprotobynumber_r(int proto, struct protoent *result_buf, char *buf, size_t
     return res;
 }
 #endif
+#endif
+
+
+#ifndef HAVE_SCANDIRAT
+
+// Copyright (c) 2015-2016 Nuxi, https://nuxi.nl/
+// SPDX-License-Identifier: BSD-2-Clause
+// https://github.com/WebAssembly/wasi-libc/blob/main/libc-bottom-half/cloudlibc/src/libc/dirent/scandirat.c
+int scandirat(int dirfd, const char *dir, struct dirent ***res,
+              int (*sel)(const struct dirent *),
+              int (*cmp)(const struct dirent **, const struct dirent **))
+{
+    dirfd = openat(dirfd, dir, O_RDONLY | O_DIRECTORY | O_CLOEXEC);
+    if (dirfd < 0) {
+        return -1;
+    }
+
+    DIR *d = fdopendir(dirfd);
+    struct dirent *de, **names=0, **tmp;
+    size_t cnt=0, len=0;
+    int old_errno = errno;
+
+    if (!d) {
+        close(dirfd);
+        return -1;
+    }
+
+    while ((errno=0), (de = readdir(d))) {
+        if (sel && !sel(de)) continue;
+        if (cnt >= len) {
+            len = 2*len+1;
+            if (len > SIZE_MAX/sizeof *names) break;
+            tmp = realloc(names, len * sizeof *names);
+            if (!tmp) break;
+            names = tmp;
+        }
+        size_t size = de->d_reclen;
+        names[cnt] = malloc(size);
+        if (!names[cnt]) break;
+        memcpy(names[cnt++], de, size);
+    }
+
+    closedir(d);
+
+    if (errno) {
+        if (names) while (cnt-->0) free(names[cnt]);
+        free(names);
+        return -1;
+    }
+    errno = old_errno;
+
+    if (cmp) qsort(names, cnt, sizeof *names, (int (*)(const void *, const void *))cmp);
+    *res = names;
+    return cnt;
+}
 #endif
