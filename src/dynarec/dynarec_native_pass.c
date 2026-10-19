@@ -192,6 +192,8 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         if(!ninst) {
             if (BOX64DRENV(dynarec_callret) >= 2)
                 doEnterBlock(dyn, 0, x1, x2, x3);
+            if (dyn->insts[0].preload_xmmymm)
+                doPreload(dyn, 0);
         }
         #endif
         fpu_propagate_stack(dyn, ninst);
@@ -333,7 +335,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         else if (is_opcode_volatile && dyn->insts[ninst].will_read)
             DMB_ISHLD();
         #endif
-        #if defined(ARM64) || defined(LA64)
+        #if defined(ARM64) || defined(LA64) || defined(RV64)
         if(dyn->insts[ninst].x64.has_next && dyn->insts[ninst+1].preload_xmmymm) {
             doPreload(dyn, ninst+1);
         }

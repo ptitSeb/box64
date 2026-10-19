@@ -1644,10 +1644,17 @@ static void mmx_reflectcache(dynarec_rv64_t* dyn, int ninst, int s1)
         vector_restore_vtype(dyn, ninst, s1, sew, vlmul, vl);
 }
 
+static void sse_mark_used(dynarec_rv64_t* dyn, int ninst, int a)
+{
+    if (ninst >= 0 && ninst < dyn->size && a >= 0 && a < 16)
+        dyn->insts[ninst].vec_used |= 1u << a;
+}
+
 // SSE / SSE2 helpers
 // get ext register for a SSE reg, create the entry if needed
 int sse_get_reg(dynarec_rv64_t* dyn, int ninst, int s1, int a, int single)
 {
+    sse_mark_used(dyn, ninst, a);
     if (dyn->e.ssecache[a].v != -1) {
         if (dyn->e.ssecache[a].vector == 1) {
             // it's in the fpu, forget it first...
@@ -1684,6 +1691,7 @@ int sse_get_reg(dynarec_rv64_t* dyn, int ninst, int s1, int a, int single)
 // get ext register for a SSE reg, but don't try to synch it if it needed to be created
 int sse_get_reg_empty(dynarec_rv64_t* dyn, int ninst, int s1, int a, int single)
 {
+    sse_mark_used(dyn, ninst, a);
     if (dyn->e.ssecache[a].v != -1) {
         if (dyn->e.ssecache[a].vector == 1) {
             // it's in the vpu, forget it first...
@@ -1770,6 +1778,7 @@ void sse_forget_reg(dynarec_rv64_t* dyn, int ninst, int s1, int a)
 // get rvv register for a SSE reg, create the entry if needed
 int sse_get_reg_vector(dynarec_rv64_t* dyn, int ninst, int s1, int a, int forwrite, int sew)
 {
+    sse_mark_used(dyn, ninst, a);
     if (dyn->e.ssecache[a].v != -1) {
         if (dyn->e.ssecache[a].vector == 0) {
             // it's in the fpu, forget it first...
@@ -1804,6 +1813,7 @@ int sse_get_reg_vector(dynarec_rv64_t* dyn, int ninst, int s1, int a, int forwri
 }
 int sse_get_reg_empty_vector(dynarec_rv64_t* dyn, int ninst, int s1, int a)
 {
+    sse_mark_used(dyn, ninst, a);
     if (dyn->e.ssecache[a].v != -1) {
         if (dyn->e.ssecache[a].vector == 0) {
             // it's in the fpu, forget it first...
@@ -2930,6 +2940,7 @@ void avx_set_vector_width(dynarec_rv64_t* dyn, int ninst, int s1, int sew, int w
 
 void avx_load_reg_vector(dynarec_rv64_t* dyn, int ninst, int s1, int vreg, int a, int width, int sew)
 {
+    sse_mark_used(dyn, ninst, a);
     if (width == 32 && cpuext.vlen >= 32)
         ymm_live_read(dyn, ninst, a);
     avx_set_vector_width(dyn, ninst, s1, VECTOR_SEW8, 16);
@@ -2960,6 +2971,7 @@ void avx_load_reg_vector(dynarec_rv64_t* dyn, int ninst, int s1, int vreg, int a
 
 void avx_store_reg_vector(dynarec_rv64_t* dyn, int ninst, int s1, int vreg, int a, int width, int sew)
 {
+    sse_mark_used(dyn, ninst, a);
     avx_set_vector_width(dyn, ninst, s1, VECTOR_SEW8, 16);
     int cache = sse_get_reg_empty_vector(dyn, ninst, s1, a);
     if (cache != vreg) {
@@ -2981,6 +2993,19 @@ void avx_store_reg_vector(dynarec_rv64_t* dyn, int ninst, int s1, int vreg, int 
         }
     }
     avx_set_vector_width(dyn, ninst, s1, sew, width);
+}
+
+void doPreload(dynarec_rv64_t* dyn, int ninst)
+{
+    uint32_t preload = dyn->insts[ninst].preload_xmmymm;
+    if (!preload)
+        return;
+    MESSAGE(LOG_INFO, "Preload XMM/YMM -------- %x\n", preload);
+    avx_set_vector_width(dyn, ninst, x1, VECTOR_SEW8, 16);
+    for (int i = 0; i < 16; ++i)
+        if (preload & (1u << i))
+            sse_get_reg_vector(dyn, ninst, x1, i, 0, VECTOR_SEW8);
+    MESSAGE(LOG_INFO, "-------- Preload XMM/YMM\n");
 }
 
 // Simple wrapper for vsetvli, may use s1 as scratch

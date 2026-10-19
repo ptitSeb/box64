@@ -163,6 +163,9 @@ typedef struct instruction_rv64_s {
     uint16_t            up32_zero;        // bitmask of GPRs guaranteed to be zero-extended at instruction exit
     uint16_t            up32_skip;        // bitmask of GPRs where the implicit zero-up after a 32-bit write can be skipped
     uint16_t            up32_pending;     // bitmask of GPRs whose upper 32 bits are stale at entry to this instruction
+    uint32_t            vec_used;         // bitmask of XMM/YMM registers touched by this instruction
+    uint32_t            preload_xmmymm;   // registers to preload at this instruction
+    int                 preload_from;     // last instruction of the region that uses them
     uint16_t            ymm_upper_use;    // bitmask of YMM upper halves read by this instruction
     uint16_t            ymm_upper_def;    // bitmask of YMM upper halves written by this instruction
     uint16_t            ymm_upper_live;   // bitmask of YMM upper halves live after this instruction
@@ -230,6 +233,11 @@ typedef struct dynarec_rv64_s {
 #define EXTREG(A) (((A) < 16) ? (16 + (A)) : ((A) - 8))
 // convert reg index (8..31) to idx (0..23)
 #define EXTIDX(A) (((A) >= 16) ? ((A) - 16) : ((A) + 8))
+
+#define XMM0    0
+#define X870    (XMM0 + 16)
+#define EMM0    (XMM0 + 16)
+#define VREG(A) EXTREG(XMM0 + (A))
 
 static inline void sse_sync_cache_type(extcache_t* cache, int a)
 {
