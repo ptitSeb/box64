@@ -2,6 +2,7 @@ include(CheckIncludeFile)
 
 set(PROJECT_HEADERS
     execinfo.h
+    error.h
 )
 
 foreach(header IN LISTS PROJECT_HEADERS)
@@ -184,4 +185,23 @@ elseif(POSIX_SPAWN_FILE_ACTIONS_T__PAD0) # musl
   add_compile_definitions("POSIX_SPAWN_FILE_ACTIONS_T__PAD=__pad")
 elseif(NOT ANDROID)
   message(FATAL_ERROR "Unknown posix_spawn_file_actions_t layout!")
+endif()
+
+if(HAVE_ERROR_H)
+    set(ERROR_TEST [[
+        #include <error.h>
+        int main(void) { error(0, 0, "test"); return 0; }
+    ]])
+    check_c_source_compiles("${ERROR_TEST}" HAVE_ERROR)
+    if(NOT HAVE_ERROR)
+        include(CMakePushCheckState)
+        cmake_push_check_state()
+        set(CMAKE_REQUIRED_LIBRARIES error)
+        check_c_source_compiles("${ERROR_TEST}" HAVE_ERROR_LIB)
+        cmake_pop_check_state()
+    endif()
+endif()
+
+if(NOT HAVE_ERROR AND NOT HAVE_ERROR_LIB)
+    message(FATAL_ERROR "error() is unavailable")
 endif()
