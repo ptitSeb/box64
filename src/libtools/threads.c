@@ -277,7 +277,7 @@ x64emu_t* thread_get_emu(void)
 		int stacksize = 256*1024;
 		void* stack = NULL;
 		if(box64_is32bits)
-			stack = mmap64(NULL, stacksize, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_32BIT, -1, 0);
+			stack = mmap(NULL, stacksize, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_32BIT, -1, 0);
 		else
             stack = InternalMmap(NULL, stacksize, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_GROWSDOWN, -1, 0);
 		if(stack!=MAP_FAILED && !box64_quit)	// to avoid marking memory when box64 is quitting
