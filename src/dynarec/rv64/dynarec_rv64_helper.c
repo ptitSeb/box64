@@ -1908,6 +1908,8 @@ static void sse_purgecache(dynarec_rv64_t* dyn, int ninst, int next, int s1)
     uint8_t sew, vlmul, vl;
     int flushed8 = 0;
     vector_save_vtype(dyn, &sew, &vlmul, &vl);
+    dyn->inst_sew = VECTOR_SEWNA;
+    dyn->inst_vl = 0;
     for (int i = 0; i < 16; ++i)
         if (dyn->e.ssecache[i].v != -1) {
             if (old == -1) {
