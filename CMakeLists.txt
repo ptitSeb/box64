@@ -386,6 +386,7 @@ set(BOX64_ROOT ${CMAKE_SOURCE_DIR})
 add_definitions(-std=gnu11 -funwind-tables -fvisibility=hidden)
 add_definitions(-D_GNU_SOURCE=1)
 add_definitions(-D_FILE_OFFSET_BITS=64)
+list(APPEND CMAKE_REQUIRED_DEFINITIONS -D_GNU_SOURCE)
 
 if(USE_CCACHE)
     find_program(CCACHE_FOUND ccache)
@@ -416,6 +417,29 @@ add_custom_target(generate_dynacache_hashes
     BYPRODUCTS "${DYNACACHE_HASH_HEADER}"
     VERBATIM
 )
+
+include(CheckIncludeFile)
+
+set(PROJECT_HEADERS
+    execinfo.h
+)
+
+foreach(header IN LISTS PROJECT_HEADERS)
+    string(MAKE_C_IDENTIFIER "${header}" header_ident)
+    string(TOUPPER "${header_ident}" header_ident)
+
+    set(var "HAVE_${header_ident}")
+
+    check_include_file("${header}" "${var}")
+
+    if(${var})
+        add_compile_definitions("${var}=1")
+    endif()
+endforeach()
+
+if(HAVE_EXECINFO_H AND NOT ANDROID)
+    add_compile_definitions(USE_BACKTRACE)
+endif()
 
 # generated files
 set_source_files_properties(

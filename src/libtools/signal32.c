@@ -12,7 +12,7 @@
 #include <setjmp.h>
 #include <sys/mman.h>
 #include <pthread.h>
-#ifndef ANDROID
+#ifdef USE_BACKTRACE
 #include <execinfo.h>
 #endif
 

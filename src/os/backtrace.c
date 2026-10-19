@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 #include "backtrace.h"
 
-#if !defined(ANDROID) && !defined(_WIN32)
+#ifdef USE_BACKTRACE
 
 #include <stdlib.h>
 #include <stdio.h>
