@@ -59,7 +59,8 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             GETEY_vector(q0, 1, VECTOR_SEW64);
             GETGY_empty_vector(v0);
             u8 = F8;
-            q2 = fpu_get_scratch(dyn);
+            q1 = fpu_get_scratch(dyn);
+            q2 = fpu_get_scratch_lmul(dyn, vex.l ? VECTOR_LMUL1 : VECTOR_LMUL2);
             {
                 uint64_t iota = (u8 & 3) | (((u8 >> 2) & 3) << 16);
                 iota |= ((uint64_t)((u8 >> 4) & 3)) << 32;
@@ -68,7 +69,6 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
                 VECTOR_SPLAT_IMM(q2, iota, x4);
             }
             if (v0 == q0 || v0 == q2) {
-                q1 = fpu_get_scratch(dyn);
                 VRGATHEREI16_VV(q1, q0, q2, VECTOR_UNMASKED);
                 VMV_V_V(v0, q1);
             } else {
@@ -92,6 +92,7 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             GETEY_vector(q0, 1, VECTOR_SEW32);
             GETGY_empty_vector(v0);
             u8 = F8;
+            VEC_SRC_KEEP(q0, v0);
             VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
             q1 = fpu_get_scratch(dyn);
             for (int i = 0; i < (4 << vex.l); ++i) {
@@ -110,6 +111,7 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             GETEY_vector(q0, 1, VECTOR_SEW64);
             GETGY_empty_vector(v0);
             u8 = F8;
+            VEC_SRC_KEEP(q0, v0);
             VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
             q1 = fpu_get_scratch(dyn);
             for (int i = 0; i < (2 << vex.l); ++i) {
@@ -160,8 +162,9 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
                         VMV_V_V(q2, q0);
                 }
                 if (i) {
-                    VSLIDEUP_VI_SAFE(q1, q2, 16, VECTOR_UNMASKED);
-                    q2 = q1;
+                    VMV_V_V(q3, q1);
+                    VSLIDEUP_VI_SAFE(q3, q2, 16, VECTOR_UNMASKED);
+                    q2 = q3;
                 }
                 VECTOR_LOAD_VMASK(i ? 0xffff0000 : 0xffff, x4, 2);
                 VMERGE_VVM(v0, v0, q2);
@@ -196,6 +199,12 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             if (!(u8 & 1))
                 v1 = fpu_get_scratch(dyn);
             gd = ((nextop & 0x38) >> 3) + (rex.r << 3);
+            if (q0 == VREG(gd)) {
+                avx_set_vector_width(dyn, ninst, x1, VECTOR_SEW8, 32);
+                q2 = fpu_get_scratch(dyn);
+                VMV_V_V(q2, q0);
+                q0 = q2;
+            }
             avx_set_vector_width(dyn, ninst, x1, VECTOR_SEW8, 16);
             sse_forget_reg_vector(dyn, ninst, x1, gd);
             sse_set_pending_zero(dyn, gd, 0);
@@ -401,8 +410,9 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
                         VMV_V_V(q2, q0);
                 }
                 if (i) {
-                    VSLIDEUP_VI_SAFE(q1, q2, 16, VECTOR_UNMASKED);
-                    q2 = q1;
+                    VMV_V_V(q3, q1);
+                    VSLIDEUP_VI_SAFE(q3, q2, 16, VECTOR_UNMASKED);
+                    q2 = q3;
                 }
                 VECTOR_LOAD_VMASK(i ? 0xffff0000 : 0xffff, x4, 2);
                 VMERGE_VVM(v0, v0, q2);

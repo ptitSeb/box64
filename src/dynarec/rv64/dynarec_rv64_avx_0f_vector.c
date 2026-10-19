@@ -94,7 +94,7 @@ uintptr_t dynarec64_AVX_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t
             INST_NAME("VMOVLPS Ex, Gx");
             nextop = F8;
             if (MODREG) return 0;
-            GETGY_vector_cached(q0, VECTOR_SEW64);
+            GETGY_vector(q0, VECTOR_SEW64);
             addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
             VMV_X_S(x4, q0);
             SD(x4, ed, fixedaddress);
@@ -162,7 +162,7 @@ uintptr_t dynarec64_AVX_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t
             INST_NAME("VMOVHPS Ex, Gx");
             nextop = F8;
             if (MODREG) return 0;
-            GETGY_vector_cached(q0, VECTOR_SEW64);
+            GETGY_vector(q0, VECTOR_SEW64);
             q1 = fpu_get_scratch(dyn);
             VSLIDEDOWN_VI(q1, q0, 1, VECTOR_UNMASKED);
             VMV_X_S(x4, q1);
@@ -441,7 +441,7 @@ uintptr_t dynarec64_AVX_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t
         case 0xC2:
             INST_NAME("VCMPPS Gx, Vx, Ex, Ib");
             nextop = F8;
-            GETVY_vector_cached(q0, VECTOR_SEW32);
+            GETVY_vector(q0, VECTOR_SEW32);
             GETEY_vector(q1, 1, VECTOR_SEW32);
             u8 = F8;
             GETGY_empty_vector(v0);
@@ -498,7 +498,7 @@ uintptr_t dynarec64_AVX_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t
         case 0xC6:
             INST_NAME("VSHUFPS Gx, Vx, Ex, Ib");
             nextop = F8;
-            GETVY_vector_cached(q0, VECTOR_SEW32);
+            GETVY_vector(q0, VECTOR_SEW32);
             GETEY_vector(q1, 1, VECTOR_SEW32);
             u8 = F8;
             selectors = 0;
