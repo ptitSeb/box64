@@ -27,6 +27,7 @@
 #ifdef BOX32
 #include "myalign32.h"
 #endif
+#include "libc_obstack.h"
 
 typedef void    (*vFv_t)    ();
 typedef int32_t (*iFppp_t)  (void*, void*, void*);
