@@ -599,7 +599,7 @@ EXPORT int my32_fstatat(x64emu_t* emu, int fd, void* name, void* buff, int flags
 {
     struct stat s = {0};
     struct stat* p = buff?&s:NULL;
-    int ret = fstatat64(fd, name, p, flags);
+    int ret = fstatat(fd, name, p, flags);
     if(buff)
         FillStatFromStat64(3, &s, buff);
     return ret;
@@ -609,7 +609,7 @@ EXPORT int my32_fstatat64(x64emu_t* emu, int fd, void* name, void* buff, int fla
 {
     struct stat s = {0};
     struct stat* p = buff?&s:NULL;
-    int ret = fstatat64(fd, name, p, flags);
+    int ret = fstatat(fd, name, p, flags);
     if(buff)
         UnalignStat64_32(&s, buff);
     return ret;
@@ -619,7 +619,7 @@ EXPORT int my32___stat64_time64(x64emu_t* emu, void* f, void* r)
 {
     struct stat s = {0};
     struct stat* p = r?&s:NULL;
-    int ret = stat64(f, p);
+    int ret = stat(f, p);
     if(r)
         UnalignStat64_32_t64(&s, r);
     return ret;
@@ -629,7 +629,7 @@ EXPORT int my32___lstat64_time64(x64emu_t* emu, void* f, void* r)
 {
     struct stat s = {0};
     struct stat* p = r?&s:NULL;
-    int ret = lstat64(f, p);
+    int ret = lstat(f, p);
     if(r)
         UnalignStat64_32_t64(&s, r);
     return ret;
@@ -639,7 +639,7 @@ EXPORT int my32___fstat64_time64(x64emu_t* emu, int fd, void* r)
 {
     struct stat s = {0};
     struct stat* p = r?&s:NULL;
-    int ret = fstat64(fd, p);
+    int ret = fstat(fd, p);
     if(r)
         UnalignStat64_32_t64(&s, r);
     return ret;
@@ -1230,7 +1230,7 @@ EXPORT void my32__ITM_deregisterTMCloneTable(x64emu_t* emu, void* p) {}
 EXPORT int my32_stat(char* path, void* buf)
 {
     struct stat st;
-    int r = stat64(path, &st);
+    int r = stat(path, &st);
     FillStatFromStat64(3, &st, buf);
     return r;
 }
@@ -1238,7 +1238,7 @@ EXPORT int my32_stat(char* path, void* buf)
 EXPORT int my32_fstat(int fd, void* buf)
 {
     struct stat st;
-    int r = fstat64(fd, &st);
+    int r = fstat(fd, &st);
     FillStatFromStat64(3, &st, buf);
     return r;
 }
@@ -1246,7 +1246,7 @@ EXPORT int my32_fstat(int fd, void* buf)
 EXPORT int my32_lstat(char* path, void* buf)
 {
     struct stat st;
-    int r = lstat64(path, &st);
+    int r = lstat(path, &st);
     FillStatFromStat64(3, &st, buf);
     return r;
 }
@@ -1254,7 +1254,7 @@ EXPORT int my32_lstat(char* path, void* buf)
 EXPORT int my32___fxstat(x64emu_t *emu, int vers, int fd, void* buf)
 {
     struct stat st;
-    int r = fstat64(fd, &st);
+    int r = fstat(fd, &st);
     if (r) return r;
     r = FillStatFromStat64(vers, &st, buf);
     return r;
@@ -1263,7 +1263,7 @@ EXPORT int my32___fxstat(x64emu_t *emu, int vers, int fd, void* buf)
 EXPORT int my32___fxstat64(x64emu_t *emu, int vers, int fd, void* buf)
 {
     struct stat st;
-    int r = fstat64(fd, &st);
+    int r = fstat(fd, &st);
     //int r = syscall(__NR_stat64, fd, &st);
     UnalignStat64_32(&st, buf);
     return r;
@@ -1293,21 +1293,21 @@ EXPORT int my32_statx(x64emu_t* emu, int dirfd, void* path, int flags, uint32_t 
 EXPORT int my32_stat64(void* path, void* buf)
 {
     struct stat st;
-    int r = stat64(path, &st);
+    int r = stat(path, &st);
     UnalignStat64_32(&st, buf);
     return r;
 }
 EXPORT int my32_lstat64(void* path, void* buf)
 {
     struct stat st;
-    int r = lstat64(path, &st);
+    int r = lstat(path, &st);
     UnalignStat64_32(&st, buf);
     return r;
 }
 EXPORT int my32_fstat64(int fd, void* buf)
 {
     struct stat st;
-    int r = fstat64(fd, &st);
+    int r = fstat(fd, &st);
     UnalignStat64_32(&st, buf);
     return r;
 }
@@ -1315,7 +1315,7 @@ EXPORT int my32_fstat64(int fd, void* buf)
 EXPORT int my32___xstat(x64emu_t* emu, int v, void* path, void* buf)
 {
     struct stat st;
-    int r = stat64((const char*)path, &st);
+    int r = stat((const char*)path, &st);
     if (r) return r;
     r = FillStatFromStat64(v, &st, buf);
     return r;
@@ -1324,7 +1324,7 @@ EXPORT int my32___xstat(x64emu_t* emu, int v, void* path, void* buf)
 EXPORT int my32___xstat64(x64emu_t* emu, int v, void* path, void* buf)
 {
     struct stat st;
-    int r = stat64((const char*)path, &st);
+    int r = stat((const char*)path, &st);
     UnalignStat64_32(&st, buf);
     return r;
 }
@@ -1332,7 +1332,7 @@ EXPORT int my32___xstat64(x64emu_t* emu, int v, void* path, void* buf)
 EXPORT int my32___lxstat(x64emu_t* emu, int v, void* name, void* buf)
 {
     struct stat st;
-    int r = lstat64((const char*)name, &st);
+    int r = lstat((const char*)name, &st);
     if (r) return r;
     r = FillStatFromStat64(v, &st, buf);
     return r;
@@ -1341,7 +1341,7 @@ EXPORT int my32___lxstat(x64emu_t* emu, int v, void* name, void* buf)
 EXPORT int my32___lxstat64(x64emu_t* emu, int v, void* name, void* buf)
 {
     struct stat st;
-    int r = lstat64((const char*)name, &st);
+    int r = lstat((const char*)name, &st);
     UnalignStat64_32(&st, buf);
     return r;
 }
@@ -1349,7 +1349,7 @@ EXPORT int my32___lxstat64(x64emu_t* emu, int v, void* name, void* buf)
 EXPORT int my32___fxstatat(x64emu_t* emu, int v, int d, void* path, void* buf, int flags)
 {
     struct  stat st;
-    int r = fstatat64(d, path, &st, flags);
+    int r = fstatat(d, path, &st, flags);
     if (r) return r;
     r = FillStatFromStat64(v, &st, buf);
     return r;
@@ -1358,7 +1358,7 @@ EXPORT int my32___fxstatat(x64emu_t* emu, int v, int d, void* path, void* buf, i
 EXPORT int my32___fxstatat64(x64emu_t* emu, int v, int d, void* path, void* buf, int flags)
 {
     struct  stat st;
-    int r = fstatat64(d, path, &st, flags);
+    int r = fstatat(d, path, &st, flags);
     UnalignStat64_32(&st, buf);
     return r;
 }
@@ -1374,30 +1374,30 @@ EXPORT int my32__IO_file_stat(x64emu_t* emu, void* f, void* buf)
 #endif
 EXPORT int my32_fstatfs(int fd, void* buf)
 {
-    struct statfs64 st;
-    int r = fstatfs64(fd, &st);
+    struct statfs st;
+    int r = fstatfs(fd, &st);
     UnalignStatFS_32(&st, buf);
     return r;
 }
 EXPORT int my32_fstatfs64(int fd, void* buf)
 {
-    struct statfs64 st;
-    int r = fstatfs64(fd, &st);
+    struct statfs st;
+    int r = fstatfs(fd, &st);
     UnalignStatFS64_32(&st, buf);
     return r;
 }
 
 EXPORT int my32_statfs(const char* path, void* buf)
 {
-    struct statfs64 st;
-    int r = statfs64(path, &st);
+    struct statfs st;
+    int r = statfs(path, &st);
     UnalignStatFS_32(&st, buf);
     return r;
 }
 EXPORT int my32_statfs64(const char* path, void* buf)
 {
-    struct statfs64 st;
-    int r = statfs64(path, &st);
+    struct statfs st;
+    int r = statfs(path, &st);
     UnalignStatFS64_32(&st, buf);
     return r;
 }
