@@ -209,6 +209,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     FRFLAGS(x5); // get back FPSR to check the IOC bit
                     ANDI(x5, x5, (1 << FR_NV) | (1 << FR_OF));
                     BEQ_MARKi(x5, xZR, i);
+                    emit_mxcsr_raise_invalid(x5);
                     MOV32w(x1, 0x80000000);
                     MARKi(i);
                 }
@@ -232,6 +233,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     FRFLAGS(x5); // get back FPSR to check the IOC bit
                     ANDI(x5, x5, (1 << FR_NV) | (1 << FR_OF));
                     BEQ_MARKi(x5, xZR, i);
+                    emit_mxcsr_raise_invalid(x5);
                     MOV32w(x1, 0x80000000);
                     MARKi(i);
                 }
@@ -2337,6 +2339,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 FRFLAGS(x5); // get back FPSR to check the IOC bit
                 ANDI(x5, x5, (1 << FR_NV) | (1 << FR_OF));
                 BEQ_MARK(x5, xZR);
+                emit_mxcsr_raise_invalid(x5);
                 MOV32w(x3, 0x80000000);
                 MARK;
                 FSFLAGSI(0); // // reset all bits
