@@ -18,21 +18,22 @@
         if (dyn->need_dump && dyn->need_dump != 3) dynarec_log(LOG_NONE, __VA_ARGS__); \
     } while (0)
 #define NEW_INST                                                                                                  \
+    if (!(ninst > 0 && dyn->insts[ninst].pred_sz == 1 && dyn->insts[ninst].pred[0] == ninst - 1                   \
+            && dyn->insts[ninst - 1].x64.has_next && !dyn->insts[ninst - 1].x64.jmp                               \
+            && !(dyn->insts[ninst - 1].x64.barrier & BARRIER_FLOAT) && !dyn->insts[ninst - 1].x64.has_callret)) { \
+        dyn->inst_sew = dyn->insts[ninst].vector_sew_entry;                                                       \
+        dyn->inst_vlmul = VECTOR_LMUL1;                                                                           \
+        dyn->inst_vl = 0;                                                                                         \
+    }                                                                                                             \
     dyn->vector_sew = dyn->insts[ninst].vector_sew_entry;                                                         \
-    dyn->inst_sew = dyn->vector_sew;                                                                              \
-    dyn->inst_vlmul = VECTOR_LMUL1;                                                                               \
-    dyn->inst_vl = 0;                                                                                             \
     if (ninst) {                                                                                                  \
         addInst(dyn->instsize, &dyn->insts_size, dyn->insts[ninst - 1].x64.size, dyn->insts[ninst - 1].size / 4); \
         dyn->insts[ninst].ymm0_pass3 = dyn->ymm_zero;                                                             \
     }                                                                                                             \
     sse_sync_all_cache_types(&dyn->e);                                                                            \
     AREFLAGSNEEDED()
-#define INST_EPILOG                                      \
-    dyn->vector_sew = dyn->insts[ninst].vector_sew_exit; \
-    dyn->inst_sew = dyn->vector_sew;                     \
-    dyn->inst_vlmul = VECTOR_LMUL1;                      \
-    dyn->inst_vl = 0;
+#define INST_EPILOG \
+    dyn->vector_sew = dyn->insts[ninst].vector_sew_exit;
 #define INST_NAME(name) inst_name_pass3(dyn, ninst, name, rex)
 
 #define TABLE64(A, V)                                 \
