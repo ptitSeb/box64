@@ -2129,7 +2129,7 @@ void sse_purge07cache(dynarec_rv64_t* dyn, int ninst, int s1);
 // Push current value to the cache
 void sse_reflect_reg(dynarec_rv64_t* dyn, int ninst, int s1, int a);
 
-void avx_flush_upper_vector(dynarec_rv64_t* dyn, int ninst, int s1, int a, int reg, int next);
+void avx_flush_upper_vector(dynarec_rv64_t* dyn, int ninst, int s1, int a, int reg, int next, int dead);
 void avx_sync_upper_vector(dynarec_rv64_t* dyn, int ninst, int s1, int next);
 void avx_flush_pending_zero_vector(dynarec_rv64_t* dyn, int ninst, int s1, int next);
 void doPreload(dynarec_rv64_t* dyn, int ninst);
