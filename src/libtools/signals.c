@@ -13,7 +13,7 @@
 #include <sys/mman.h>
 #include <pthread.h>
 #include <signal.h>
-#ifndef ANDROID
+#ifdef USE_BACKTRACE
 #include <execinfo.h>
 #endif
 
@@ -1876,7 +1876,7 @@ void box64_abort() {
             char **strings;
             x64emu_t* emu = thread_get_emu();
 
-#ifndef ANDROID
+#ifdef USE_BACKTRACE
             nptrs = backtrace(buffer, BT_BUF_SIZE);
             strings = backtrace_symbols(buffer, nptrs);
             if(strings) {
