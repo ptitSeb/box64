@@ -39,6 +39,7 @@
 #include "box32.h"
 #include "converter32.h"
 #include "custommem.h"
+#include "libc_netdb.h"
 
 EXPORT ssize_t my32_recvmsg(x64emu_t* emu, int socket, struct i386_msghdr* msg, int flags)
 {
