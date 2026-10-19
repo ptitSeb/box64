@@ -2384,16 +2384,11 @@ enum {
 
 static int32_t open_func_fallback(char *pathname, int32_t flags, uint32_t open_mode, char *fopen_mode, int type, FILE **file)
 {
-    if (type == FOPEN64_TYPE) {
-        *file = fopen64(pathname, fopen_mode);
-        return 0;
-    } else if (type == FOPEN_TYPE) {
+   if (type == FOPEN_TYPE || type == FOPEN64_TYPE) {
         *file = fopen(pathname, fopen_mode);
         return 0;
-    } else if (type == OPEN_TYPE) {
+    } else if (type == OPEN_TYPE || type == OPEN64_TYPE) {
         return open(pathname, flags, open_mode);
-    } else if (type == OPEN64_TYPE) {
-        return open64(pathname, flags, open_mode);
     }
     return -1;
 }

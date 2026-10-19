@@ -1694,7 +1694,7 @@ EXPORT int my32_mkstemps64(x64emu_t* emu, char* template, int suffixlen)
         sprintf(num, "%06d", rand()%999999);
         memcpy(fname+strlen(fname)-suffixlen-6, num, 6);
     } while(!FileExist(fname, -1));
-    int ret = open64(fname, O_EXCL);
+    int ret = open(fname, O_EXCL);
     free(fname);
     return ret;
 }
