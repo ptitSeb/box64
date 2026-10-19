@@ -887,6 +887,7 @@ EXPORT int my32_pthread_setaffinity_np(x64emu_t* emu, pthread_t thread, int cpus
     return ret;
 }
 
+#ifdef HAVE_PTHREAD_ATTR_SETAFFINITY_NP
 EXPORT int my32_pthread_attr_setaffinity_np(x64emu_t* emu, void* attr, uint32_t cpusetsize, void* cpuset)
 {
     if(cpusetsize>0x1000) {
@@ -908,6 +909,8 @@ EXPORT int my32_pthread_attr_setaffinity_np(x64emu_t* emu, void* attr, uint32_t 
 
     return ret;
 }
+#endif
+#ifdef HAVE_PTHREAD_ATTR_GETAFFINITY_NP
 EXPORT int my32_pthread_attr_getaffinity_np(x64emu_t* emu, void* attr, uint32_t cpusetsize, void* cpuset)
 {
     if(cpusetsize>0x1000) {
@@ -922,6 +925,7 @@ EXPORT int my32_pthread_attr_getaffinity_np(x64emu_t* emu, void* attr, uint32_t 
 	}
 	return ret;
 }
+#endif
 
 #endif
 
