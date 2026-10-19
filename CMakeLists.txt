@@ -479,6 +479,25 @@ foreach(i RANGE 0 ${checks_last} 2)
     endif()
 endforeach()
 
+include(CheckCSourceCompiles)
+
+check_c_source_compiles("#include <obstack.h>
+int main(void){ struct obstack o = { .temp.tempptr = NULL }; return 0; }" OBSTACK_TEMP_TEMPPTR)
+check_c_source_compiles("#include <obstack.h>
+int main(void){ struct obstack o = { .temp.p = NULL }; return 0; }"       OBSTACK_TEMP_P)
+
+if(OBSTACK_TEMP_TEMPPTR) # glibc
+  add_compile_definitions("STRUCT_OBSTACK_TEMP=tempptr")
+  add_compile_definitions("STRUCT_OBSTACK_CHUNKFUN=chunkfun")
+  add_compile_definitions("STRUCT_OBSTACK_FREEFUN=freefun")
+elseif(OBSTACK_TEMP_P) # musl-obstack
+  add_compile_definitions("STRUCT_OBSTACK_TEMP=p")
+  add_compile_definitions("STRUCT_OBSTACK_CHUNKFUN=chunkfun.extra")
+  add_compile_definitions("STRUCT_OBSTACK_FREEFUN=freefun.extra")
+elseif(NOT ANDROID)
+  message(FATAL_ERROR "Unknown struct obstack layout!")
+endif()
+
 # generated files
 set_source_files_properties(
     "${BOX64_ROOT}/src/git_head.h"
