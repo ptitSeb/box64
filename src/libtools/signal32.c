@@ -287,8 +287,8 @@ typedef struct __attribute__((packed, aligned(4))) my_siginfo32_s
     union {
 	    int _pad[128/sizeof(int)-3];
 	struct {
-	    __pid_t __si_pid;
-	    __uid_t __si_uid;
+	    pid_t __si_pid;
+	    uid_t __si_uid;
     } _kill;
 	struct {
 	    int si_tid;
@@ -296,13 +296,13 @@ typedef struct __attribute__((packed, aligned(4))) my_siginfo32_s
 	    my_sigval32_t si_sigval;
     } _timer;
 	struct {
-	    __pid_t __si_pid;
-	    __uid_t __si_uid;
+	    pid_t __si_pid;
+	    uid_t __si_uid;
 	    my_sigval32_t si_sigval;
     } _rt;
 	struct {
-	    __pid_t __si_pid;
-	    __uid_t __si_uid;
+	    pid_t __si_pid;
+	    uid_t __si_uid;
 	    int __si_status;
 	    int32_t __si_utime;
 	    int32_t __si_stime;
