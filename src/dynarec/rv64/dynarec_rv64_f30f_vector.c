@@ -232,8 +232,8 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 VMV_S_X(v1, x4);
                 GETGX_vector(v0, 1, VECTOR_SEW32);
             }
-            VECTOR_LOAD_VMASK(0b0001, x4, 1);
-            VFSQRT_V(v0, v1, VECTOR_MASKED);
+            SET_SCALAR_FP_WIDTH(x1, VECTOR_SEW32);
+            VFSQRT_V(v0, v1, VECTOR_UNMASKED);
             break;
         case 0x52:
             if (!BOX64ENV(dynarec_fastnan)) return 0;
@@ -253,9 +253,9 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             }
             LUI(x4, 0x3f800);
             FMVWX(v1, x4); // 1.0f
-            VECTOR_LOAD_VMASK(0b0001, x4, 1);
-            VFSQRT_V(v0, v1, VECTOR_MASKED);
-            VFRDIV_VF(v0, v0, v1, VECTOR_MASKED);
+            SET_SCALAR_FP_WIDTH(x1, VECTOR_SEW32);
+            VFSQRT_V(v0, v1, VECTOR_UNMASKED);
+            VFRDIV_VF(v0, v0, v1, VECTOR_UNMASKED);
             break;
         case 0x53:
             if (!BOX64ENV(dynarec_fastnan)) return 0;
@@ -294,8 +294,8 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 VMV_S_X(v1, x4);
                 GETGX_vector(v0, 1, VECTOR_SEW32);
             }
-            VECTOR_LOAD_VMASK(0b0001, x4, 1);
-            VFADD_VV(v0, v0, v1, VECTOR_MASKED);
+            SET_SCALAR_FP_WIDTH(x1, VECTOR_SEW32);
+            VFADD_VV(v0, v0, v1, VECTOR_UNMASKED);
             break;
         case 0x59:
             if (!BOX64ENV(dynarec_fastnan)) return 0;
@@ -313,8 +313,8 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 VMV_S_X(v1, x4);
                 GETGX_vector(v0, 1, VECTOR_SEW32);
             }
-            VECTOR_LOAD_VMASK(0b0001, x4, 1);
-            VFMUL_VV(v0, v0, v1, VECTOR_MASKED);
+            SET_SCALAR_FP_WIDTH(x1, VECTOR_SEW32);
+            VFMUL_VV(v0, v0, v1, VECTOR_UNMASKED);
             break;
         case 0x5A:
             if (!BOX64ENV(dynarec_fastnan)) return 0;
@@ -375,8 +375,8 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 VMV_S_X(v1, x4);
                 GETGX_vector(v0, 1, VECTOR_SEW32);
             }
-            VECTOR_LOAD_VMASK(0b0001, x4, 1);
-            VFSUB_VV(v0, v0, v1, VECTOR_MASKED);
+            SET_SCALAR_FP_WIDTH(x1, VECTOR_SEW32);
+            VFSUB_VV(v0, v0, v1, VECTOR_UNMASKED);
             break;
         case 0x5D:
             INST_NAME("MINSS Gx, Ex");
@@ -393,19 +393,21 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 VMV_S_X(v1, x4);
                 GETGX_vector(v0, 1, VECTOR_SEW32);
             }
-            d0 = fpu_get_scratch(dyn);
-            d1 = fpu_get_scratch(dyn);
-            VFMV_F_S(d0, v0);
-            VFMV_F_S(d1, v1);
-            FLTS(x2, d0, d1);
-            BNEZ(x2, 8);
-            FMVS(d0, d1);
             if (cpuext.xtheadvector) {
+                d0 = fpu_get_scratch(dyn);
+                d1 = fpu_get_scratch(dyn);
+                VFMV_F_S(d0, v0);
+                VFMV_F_S(d1, v1);
+                FLTS(x2, d0, d1);
+                BNEZ(x2, 8);
+                FMVS(d0, d1);
                 VFMV_S_F(d0, d0);
                 VECTOR_LOAD_VMASK(0b0001, x4, 1);
                 VMERGE_VVM(v0, v0, d0);
             } else {
-                VFMV_S_F(v0, d0);
+                SET_SCALAR_FP_WIDTH(x1, VECTOR_SEW32);
+                VMFLT_VV(VMASK, v0, v1, VECTOR_UNMASKED);
+                VMERGE_VVM(v0, v1, v0);
             }
             break;
         case 0x5E:
@@ -424,8 +426,8 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 VMV_S_X(v1, x4);
                 GETGX_vector(v0, 1, VECTOR_SEW32);
             }
-            VECTOR_LOAD_VMASK(0b0001, x4, 1);
-            VFDIV_VV(v0, v0, v1, VECTOR_MASKED);
+            SET_SCALAR_FP_WIDTH(x1, VECTOR_SEW32);
+            VFDIV_VV(v0, v0, v1, VECTOR_UNMASKED);
             break;
         case 0x5F:
             INST_NAME("MAXSS Gx, Ex");
@@ -442,19 +444,21 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 VMV_S_X(v1, x4);
                 GETGX_vector(v0, 1, VECTOR_SEW32);
             }
-            d0 = fpu_get_scratch(dyn);
-            d1 = fpu_get_scratch(dyn);
-            VFMV_F_S(d0, v0);
-            VFMV_F_S(d1, v1);
-            FLTS(x2, d1, d0);
-            BNEZ(x2, 8);
-            FMVS(d0, d1);
             if (cpuext.xtheadvector) {
+                d0 = fpu_get_scratch(dyn);
+                d1 = fpu_get_scratch(dyn);
+                VFMV_F_S(d0, v0);
+                VFMV_F_S(d1, v1);
+                FLTS(x2, d1, d0);
+                BNEZ(x2, 8);
+                FMVS(d0, d1);
                 VFMV_S_F(d0, d0);
                 VECTOR_LOAD_VMASK(0b0001, x4, 1);
                 VMERGE_VVM(v0, v0, d0); // implies VMASK
             } else {
-                VFMV_S_F(v0, d0);
+                SET_SCALAR_FP_WIDTH(x1, VECTOR_SEW32);
+                VMFLT_VV(VMASK, v1, v0, VECTOR_UNMASKED);
+                VMERGE_VVM(v0, v1, v0);
             }
             break;
         case 0x6F:

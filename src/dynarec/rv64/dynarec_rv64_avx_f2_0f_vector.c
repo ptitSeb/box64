@@ -94,152 +94,49 @@ uintptr_t dynarec64_AVX_F2_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             if (!BOX64ENV(dynarec_fastnan)) return 0;
             INST_NAME("VADDSD Gx, Vx, Ex");
             nextop = F8;
-            q0 = fpu_get_scratch(dyn);
-            avx_load_reg_vector(dyn, ninst, x1, q0, vex.v, 16, VECTOR_SEW64);
-            d1 = fpu_get_scratch(dyn);
-            if (MODREG) {
-                q1 = fpu_get_scratch(dyn);
-                avx_load_reg_vector(dyn, ninst, x1, q1, (nextop & 7) + (rex.b << 3), 16, VECTOR_SEW64);
-                VFMV_F_S(d1, q1);
-            } else {
-                SMREAD();
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 0);
-                FLD(d1, ed, fixedaddress);
-            }
-            d0 = fpu_get_scratch(dyn);
-            VFMV_F_S(d0, q0);
-            FADDD(d0, d0, d1);
-            GETGY_empty_vector(v0);
-            if (v0 != q0)
-                VMV_V_V(v0, q0);
-            VFMV_S_F(v0, d0);
-            avx_store_reg_vector(dyn, ninst, x1, v0, gd, 16, VECTOR_SEW64);
+            AVX_SCALAR_OP_PROLOG(VECTOR_SEW64);
+            VFADD_VV(v0, q0, q1, VECTOR_UNMASKED);
+            AVX_SCALAR_OP_STORE(VECTOR_SEW64);
             break;
         case 0x59:
             if (!BOX64ENV(dynarec_fastnan)) return 0;
             INST_NAME("VMULSD Gx, Vx, Ex");
             nextop = F8;
-            q0 = fpu_get_scratch(dyn);
-            avx_load_reg_vector(dyn, ninst, x1, q0, vex.v, 16, VECTOR_SEW64);
-            d1 = fpu_get_scratch(dyn);
-            if (MODREG) {
-                q1 = fpu_get_scratch(dyn);
-                avx_load_reg_vector(dyn, ninst, x1, q1, (nextop & 7) + (rex.b << 3), 16, VECTOR_SEW64);
-                VFMV_F_S(d1, q1);
-            } else {
-                SMREAD();
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 0);
-                FLD(d1, ed, fixedaddress);
-            }
-            d0 = fpu_get_scratch(dyn);
-            VFMV_F_S(d0, q0);
-            FMULD(d0, d0, d1);
-            GETGY_empty_vector(v0);
-            if (v0 != q0)
-                VMV_V_V(v0, q0);
-            VFMV_S_F(v0, d0);
-            avx_store_reg_vector(dyn, ninst, x1, v0, gd, 16, VECTOR_SEW64);
+            AVX_SCALAR_OP_PROLOG(VECTOR_SEW64);
+            VFMUL_VV(v0, q0, q1, VECTOR_UNMASKED);
+            AVX_SCALAR_OP_STORE(VECTOR_SEW64);
             break;
         case 0x5C:
             if (!BOX64ENV(dynarec_fastnan)) return 0;
             INST_NAME("VSUBSD Gx, Vx, Ex");
             nextop = F8;
-            q0 = fpu_get_scratch(dyn);
-            avx_load_reg_vector(dyn, ninst, x1, q0, vex.v, 16, VECTOR_SEW64);
-            d1 = fpu_get_scratch(dyn);
-            if (MODREG) {
-                q1 = fpu_get_scratch(dyn);
-                avx_load_reg_vector(dyn, ninst, x1, q1, (nextop & 7) + (rex.b << 3), 16, VECTOR_SEW64);
-                VFMV_F_S(d1, q1);
-            } else {
-                SMREAD();
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 0);
-                FLD(d1, ed, fixedaddress);
-            }
-            d0 = fpu_get_scratch(dyn);
-            VFMV_F_S(d0, q0);
-            FSUBD(d0, d0, d1);
-            GETGY_empty_vector(v0);
-            if (v0 != q0)
-                VMV_V_V(v0, q0);
-            VFMV_S_F(v0, d0);
-            avx_store_reg_vector(dyn, ninst, x1, v0, gd, 16, VECTOR_SEW64);
+            AVX_SCALAR_OP_PROLOG(VECTOR_SEW64);
+            VFSUB_VV(v0, q0, q1, VECTOR_UNMASKED);
+            AVX_SCALAR_OP_STORE(VECTOR_SEW64);
             break;
         case 0x5D:
             INST_NAME("VMINSD Gx, Vx, Ex");
             nextop = F8;
-            q0 = fpu_get_scratch(dyn);
-            avx_load_reg_vector(dyn, ninst, x1, q0, vex.v, 16, VECTOR_SEW64);
-            d1 = fpu_get_scratch(dyn);
-            if (MODREG) {
-                q1 = fpu_get_scratch(dyn);
-                avx_load_reg_vector(dyn, ninst, x1, q1, (nextop & 7) + (rex.b << 3), 16, VECTOR_SEW64);
-                VFMV_F_S(d1, q1);
-            } else {
-                SMREAD();
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 0);
-                FLD(d1, ed, fixedaddress);
-            }
-            d0 = fpu_get_scratch(dyn);
-            VFMV_F_S(d0, q0);
-            FLTD(x2, d0, d1);
-            BNEZ(x2, 8);
-            FMVD(d0, d1);
-            GETGY_empty_vector(v0);
-            if (v0 != q0)
-                VMV_V_V(v0, q0);
-            VFMV_S_F(v0, d0);
-            avx_store_reg_vector(dyn, ninst, x1, v0, gd, 16, VECTOR_SEW64);
+            AVX_SCALAR_OP_PROLOG(VECTOR_SEW64);
+            VMFLT_VV(VMASK, q0, q1, VECTOR_UNMASKED);
+            VMERGE_VVM(v0, q1, q0);
+            AVX_SCALAR_OP_STORE(VECTOR_SEW64);
             break;
         case 0x5E:
             if (!BOX64ENV(dynarec_fastnan)) return 0;
             INST_NAME("VDIVSD Gx, Vx, Ex");
             nextop = F8;
-            q0 = fpu_get_scratch(dyn);
-            avx_load_reg_vector(dyn, ninst, x1, q0, vex.v, 16, VECTOR_SEW64);
-            d1 = fpu_get_scratch(dyn);
-            if (MODREG) {
-                q1 = fpu_get_scratch(dyn);
-                avx_load_reg_vector(dyn, ninst, x1, q1, (nextop & 7) + (rex.b << 3), 16, VECTOR_SEW64);
-                VFMV_F_S(d1, q1);
-            } else {
-                SMREAD();
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 0);
-                FLD(d1, ed, fixedaddress);
-            }
-            d0 = fpu_get_scratch(dyn);
-            VFMV_F_S(d0, q0);
-            FDIVD(d0, d0, d1);
-            GETGY_empty_vector(v0);
-            if (v0 != q0)
-                VMV_V_V(v0, q0);
-            VFMV_S_F(v0, d0);
-            avx_store_reg_vector(dyn, ninst, x1, v0, gd, 16, VECTOR_SEW64);
+            AVX_SCALAR_OP_PROLOG(VECTOR_SEW64);
+            VFDIV_VV(v0, q0, q1, VECTOR_UNMASKED);
+            AVX_SCALAR_OP_STORE(VECTOR_SEW64);
             break;
         case 0x5F:
             INST_NAME("VMAXSD Gx, Vx, Ex");
             nextop = F8;
-            q0 = fpu_get_scratch(dyn);
-            avx_load_reg_vector(dyn, ninst, x1, q0, vex.v, 16, VECTOR_SEW64);
-            d1 = fpu_get_scratch(dyn);
-            if (MODREG) {
-                q1 = fpu_get_scratch(dyn);
-                avx_load_reg_vector(dyn, ninst, x1, q1, (nextop & 7) + (rex.b << 3), 16, VECTOR_SEW64);
-                VFMV_F_S(d1, q1);
-            } else {
-                SMREAD();
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 0);
-                FLD(d1, ed, fixedaddress);
-            }
-            d0 = fpu_get_scratch(dyn);
-            VFMV_F_S(d0, q0);
-            FLTD(x2, d1, d0);
-            BNEZ(x2, 8);
-            FMVD(d0, d1);
-            GETGY_empty_vector(v0);
-            if (v0 != q0) VMV_V_V(v0, q0);
-            VFMV_S_F(v0, d0);
-            avx_store_reg_vector(dyn, ninst, x1, v0, gd, 16, VECTOR_SEW64);
+            AVX_SCALAR_OP_PROLOG(VECTOR_SEW64);
+            VMFLT_VV(VMASK, q1, q0, VECTOR_UNMASKED);
+            VMERGE_VVM(v0, q1, q0);
+            AVX_SCALAR_OP_STORE(VECTOR_SEW64);
             break;
         case 0x5A:
             INST_NAME("VCVTSD2SS Gx, Vx, Ex");
@@ -283,7 +180,7 @@ uintptr_t dynarec64_AVX_F2_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
         case 0x2A:
             INST_NAME("VCVTSI2SD Gx, Vx, Ed");
             nextop = F8;
-            q0 = fpu_get_scratch(dyn);
+            q0 = VREG(vex.v);
             avx_load_reg_vector(dyn, ninst, x1, q0, vex.v, 16, VECTOR_SEW64);
             if (MODREG) {
                 ed = TO_NAT((nextop & 7) + (rex.b << 3));
@@ -304,8 +201,11 @@ uintptr_t dynarec64_AVX_F2_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
                 FCVTDW(d0, ed, RD_DYN);
             x87_restoreround(dyn, ninst, u8);
             GETGY_empty_vector(v0);
-            if (v0 != q0)
+            if (v0 != q0) {
+                avx_set_vector_width(dyn, ninst, x1, VECTOR_SEW64, 16);
                 VMV_V_V(v0, q0);
+            }
+            SET_SCALAR_FP_WIDTH(x1, VECTOR_SEW64);
             VFMV_S_F(v0, d0);
             avx_store_reg_vector(dyn, ninst, x1, v0, gd, 16, VECTOR_SEW64);
             break;
@@ -315,7 +215,7 @@ uintptr_t dynarec64_AVX_F2_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             GETGDd;
             d0 = fpu_get_scratch(dyn);
             if (MODREG) {
-                q0 = fpu_get_scratch(dyn);
+                q0 = VREG((nextop & 7) + (rex.b << 3));
                 avx_load_reg_vector(dyn, ninst, x1, q0, (nextop & 7) + (rex.b << 3), 16, VECTOR_SEW64);
                 VFMV_F_S(d0, q0);
             } else {
@@ -376,24 +276,9 @@ uintptr_t dynarec64_AVX_F2_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             if (!BOX64ENV(dynarec_fastnan)) return 0;
             INST_NAME("VSQRTSD Gx, Vx, Ex");
             nextop = F8;
-            q0 = fpu_get_scratch(dyn);
-            avx_load_reg_vector(dyn, ninst, x1, q0, vex.v, 16, VECTOR_SEW64);
-            d0 = fpu_get_scratch(dyn);
-            if (MODREG) {
-                q1 = fpu_get_scratch(dyn);
-                avx_load_reg_vector(dyn, ninst, x1, q1, (nextop & 7) + (rex.b << 3), 16, VECTOR_SEW64);
-                VFMV_F_S(d0, q1);
-            } else {
-                SMREAD();
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 0);
-                FLD(d0, ed, fixedaddress);
-            }
-            FSQRTD(d0, d0);
-            GETGY_empty_vector(v0);
-            if (v0 != q0)
-                VMV_V_V(v0, q0);
-            VFMV_S_F(v0, d0);
-            avx_store_reg_vector(dyn, ninst, x1, v0, gd, 16, VECTOR_SEW64);
+            AVX_SCALAR_OP_PROLOG(VECTOR_SEW64);
+            VFSQRT_V(v0, q1, VECTOR_UNMASKED);
+            AVX_SCALAR_OP_STORE(VECTOR_SEW64);
             break;
         case 0xF0:
             INST_NAME("VLDDQU Gx, Ex");
