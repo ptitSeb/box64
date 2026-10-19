@@ -444,8 +444,10 @@ endif()
 include(CheckSymbolExists)
 
 set(PROJECT_SYMBOL_CHECKS
-    mallopt                         malloc.h
-    malloc_trim                     malloc.h
+    mallopt                             malloc.h
+    malloc_trim                         malloc.h
+    mallinfo                            malloc.h
+    mallinfo2                           malloc.h
 )
 
 list(LENGTH PROJECT_SYMBOL_CHECKS checks_len)

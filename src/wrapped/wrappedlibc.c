@@ -99,6 +99,7 @@ extern const char *const sys_siglist[] __asm__("__sys_siglist");
 #include "random.h"
 #include "cpumask.h"
 #include "x64tls.h"
+#include "libc_malloc.h"
 #ifndef LOG_INFO
 #define LOG_INFO 1
 #endif
@@ -4162,6 +4163,7 @@ EXPORT int my_posix_madvise(x64emu_t* emu, void* addr, size_t length, int advice
 typedef struct mallinfo (*mallinfo_fnc)(void);
 EXPORT void* my_mallinfo(x64emu_t* emu, void* p)
 {
+#ifdef HAVE_MALLINFO
     static mallinfo_fnc f = NULL;
     static int inited = 0;
     if(!inited) {
@@ -4171,26 +4173,15 @@ EXPORT void* my_mallinfo(x64emu_t* emu, void* p)
     if(f)
         *(struct mallinfo*)p=f();
     else
+#endif
         memset(p, 0, sizeof(struct mallinfo));
     return p;
 }
 
-struct my_mallinfo2_s {
-    size_t arena;
-    size_t ordblks;
-    size_t smblks;
-    size_t hblks;
-    size_t hblkhd;
-    size_t usmblks;
-    size_t fsmblks;
-    size_t uordblks;
-    size_t fordblks;
-    size_t keepcost;
-};
-
-typedef struct my_mallinfo2_s (*mallinfo2_fnc)(void);
+typedef struct mallinfo2 (*mallinfo2_fnc)(void);
 EXPORT void* my_mallinfo2(x64emu_t* emu, void* p)
 {
+#ifdef HAVE_MALLINFO2
     static mallinfo2_fnc f = NULL;
     static int inited = 0;
     if(!inited) {
@@ -4198,9 +4189,10 @@ EXPORT void* my_mallinfo2(x64emu_t* emu, void* p)
         f = (mallinfo2_fnc)dlsym(my_lib->w.lib, "mallinfo2");
     }
     if(f)
-        *(struct my_mallinfo2_s*)p = f();
+        *(struct mallinfo2*)p = f();
     else
-        memset(p, 0, sizeof(struct my_mallinfo2_s));
+#endif
+        memset(p, 0, sizeof(struct mallinfo2));
     return p;
 }
 
