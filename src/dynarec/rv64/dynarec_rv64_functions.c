@@ -63,6 +63,7 @@ int fpu_get_scratch_lmul(dynarec_rv64_t* dyn, int lmul)
 void fpu_reset_scratch(dynarec_rv64_t* dyn)
 {
     dyn->e.fpu_scratch = 0;
+    dyn->pending_zero_flushed = 0;
 }
 // Get a x87 double reg
 int fpu_get_reg_x87(dynarec_rv64_t* dyn, int t, int n)
@@ -1170,7 +1171,7 @@ void updateUpperLiveness(dynarec_rv64_t* dyn)
             int j = inst->pred[p];
             const instruction_rv64_t* pred = &dyn->insts[j];
             merged_pending |= (pending_in[j] & (uint16_t)~pred->up32_write64) | pred->up32_skip;
-            merged_ymm |= (pend_ymm[j] & (uint16_t)~pred->ymm_upper_def) | (pred->ymm_zero & (uint16_t)~pred->ymm_upper_live);
+            merged_ymm |= (pend_ymm[j] & (uint16_t)~pred->ymm_upper_def) | (pred->ymm_zero & pred->ymm_upper_live);
         }
         if (inst->x64.barrier & BARRIER_FLOAT) merged_ymm = 0;
         if ((merged_pending != pending_in[i]) || (merged_ymm != pend_ymm[i])) {
