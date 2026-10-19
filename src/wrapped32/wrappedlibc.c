@@ -79,6 +79,7 @@
 #include "syscall_user_dispatch.h"
 #include "cpumask.h"
 #include "libc_malloc.h"
+#include "libc_ctype.h"
 
 // need to undef all read / read64 stuffs!
 #undef pread
