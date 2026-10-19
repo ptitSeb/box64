@@ -149,6 +149,7 @@ EXPORT int my32___getpagesize(x64emu_t* emu) __attribute__((alias("my32_getpages
 
 typedef int32_t (*iFiiV_t)(int32_t, int32_t, ...);
 typedef int32_t (*iFpipp_t)(void*, int32_t, void*, void*);
+typedef int32_t (*iFcpcpp_t)(const void*, const void*, void*);
 #if 0
 typedef int (*iFL_t)(unsigned long);
 typedef void (*vFpp_t)(void*, void*);
@@ -1405,9 +1406,9 @@ EXPORT int my32_statfs64(const char* path, void* buf)
 #if 0
 
 #ifdef ANDROID
-typedef int (*__compar_d_fn_t)(const void*, const void*, void*);
+typedef int (*iFcpcpp_t)(const void*, const void*, void*);
 
-static size_t qsort_r_partition(void* base, size_t size, __compar_d_fn_t compar, void* arg, size_t lo, size_t hi)
+static size_t qsort_r_partition(void* base, size_t size, iFcpcpp_t compar, void* arg, size_t lo, size_t hi)
 {
     void* tmp = malloc(size);
     void* pivot = ((char*)base) + lo * size;
@@ -1433,7 +1434,7 @@ static size_t qsort_r_partition(void* base, size_t size, __compar_d_fn_t compar,
     return i;
 }
 
-static void qsort_r_helper(void* base, size_t size, __compar_d_fn_t compar, void* arg, ssize_t lo, ssize_t hi)
+static void qsort_r_helper(void* base, size_t size, iFcpcpp_t compar, void* arg, ssize_t lo, ssize_t hi)
 {
     if (lo < hi)
     {
@@ -1443,7 +1444,7 @@ static void qsort_r_helper(void* base, size_t size, __compar_d_fn_t compar, void
     }
 }
 
-static void qsort_r(void* base, size_t nmemb, size_t size, __compar_d_fn_t compar, void* arg)
+static void qsort_r(void* base, size_t nmemb, size_t size, iFcpcpp_t compar, void* arg)
 {
     return qsort_r_helper(base, size, compar, arg, 0, nmemb - 1);
 }
@@ -1466,13 +1467,13 @@ EXPORT void my32_qsort(x64emu_t* emu, void* base, size_t nmemb, size_t size, voi
 {
     compare_r_t args;
     args.emu = emu; args.f = (uintptr_t)fnc; args.r = 0; args.data = NULL;
-    qsort_r(base, nmemb, size, (__compar_d_fn_t)my32_compare_r_cb, &args);
+    qsort_r(base, nmemb, size, (iFcpcpp_t)my32_compare_r_cb, &args);
 }
 EXPORT void my32_qsort_r(x64emu_t* emu, void* base, size_t nmemb, size_t size, void* fnc, void* data)
 {
     compare_r_t args;
     args.emu = emu; args.f = (uintptr_t)fnc; args.r = 1; args.data = data;
-    qsort_r(base, nmemb, size, (__compar_d_fn_t)my32_compare_r_cb, &args);
+    qsort_r(base, nmemb, size, (iFcpcpp_t)my32_compare_r_cb, &args);
 }
 #endif
 
