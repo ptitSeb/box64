@@ -117,9 +117,15 @@ struct box64ec_jmpbuf_s { uint64_t regs[18]; };    // see Box64EC_SetJmp in modu
 #define GET_JUMPBUFF(name) NULL
 #endif
 
+#ifndef PROT_READ
 #define PROT_READ  0x1
+#endif
+#ifndef PROT_WRITE
 #define PROT_WRITE 0x2
+#endif
+#ifndef PROT_EXEC
 #define PROT_EXEC  0x4
+#endif
 
 void PrintfFtrace(int prefix, const char* fmt, ...);
 
