@@ -64,6 +64,7 @@ extern const char *const sys_siglist[] __asm__("__sys_siglist");
 #include <sys/wait.h>
 #include <error.h>
 #include <sched.h>
+#include <dirent.h>
 #undef LOG_INFO
 #undef LOG_DEBUG
 
@@ -2029,7 +2030,7 @@ EXPORT void* my_readdir(x64emu_t* emu, void* dirp)
 {
     if (BOX64ENV(fix_64bit_inodes))
     {
-        struct dirent *dp64 = readdir64((DIR *)dirp);
+        struct dirent *dp64 = readdir((DIR *)dirp);
         if (!dp64) return NULL;
         uint32_t ino32 = dp64->d_ino ^ (dp64->d_ino >> 32);
         int32_t off32 = dp64->d_off;
@@ -2065,7 +2066,7 @@ EXPORT int32_t my_readdir_r(x64emu_t* emu, void* dirp, void* entry, void** resul
                 *result = NULL;
                 return 0;
             }
-            f = (iFppp_t)dlsym(lib->w.lib, "readdir64_r");
+            f = (iFppp_t)dlsym(lib->w.lib, "readdir_r");
         }
 
         int r = f(dirp, &d64, &dp64);
@@ -2654,7 +2655,7 @@ EXPORT int32_t my_glob(x64emu_t *emu, void* pat, int32_t flags, void* errfnc, vo
 EXPORT int my_scandir64(x64emu_t *emu, void* dir, void* namelist, void* sel, void* comp)
 {
     (void)emu;
-    return scandir64(dir, namelist, findfilter64Fct(sel), findcompare64Fct(comp));
+    return scandir(dir, namelist, findfilter64Fct(sel), findcompare64Fct(comp));
 }
 EXPORT int my_scandir(x64emu_t *emu, void* dir, void* namelist, void* sel, void* comp) __attribute__((alias("my_scandir64")));
 
@@ -2667,7 +2668,7 @@ EXPORT int my_scandirat(x64emu_t *emu, int dirfd, void* dirp, void* namelist, vo
 EXPORT int my_scandirat64(x64emu_t *emu, int dirfd, void* dirp, void* namelist, void* sel, void* comp)
 {
     (void)emu;
-    return scandirat64(dirfd, dirp, namelist, findfilter64Fct(sel), findcompare64Fct(comp));
+    return scandirat(dirfd, dirp, namelist, findfilter64Fct(sel), findcompare64Fct(comp));
 }
 
 EXPORT int my_ftw64(x64emu_t* emu, void* filename, void* func, int descriptors)

@@ -48,6 +48,7 @@
 #endif
 #include <sys/wait.h>
 #include <sched.h>
+#include <dirent.h>
 
 #include "wrappedlibs.h"
 
@@ -1496,7 +1497,7 @@ EXPORT void* my32_fts_open(x64emu_t* emu, void* path, int options, void* c)
 
 EXPORT void* my32_readdir(x64emu_t* emu, void* dirp)
 {
-    struct dirent *dp64 = readdir64((DIR *)dirp);
+    struct dirent *dp64 = readdir((DIR *)dirp);
     if (!dp64) return NULL;
     static struct i386_dirent dp32 = {0};
     uint32_t ino32 = dp64->d_ino ^ (dp64->d_ino >> 32);
@@ -1523,7 +1524,7 @@ EXPORT int32_t my32_readdir_r(x64emu_t* emu, void* dirp, void* entry, void** res
                 *result = NULL;
                 return 0;
             }
-            f = (iFppp_t)dlsym(lib->priv.w.lib, "readdir64_r");
+            f = (iFppp_t)dlsym(lib->priv.w.lib, "readdir_r");
         }
 
         int r = f(dirp, &d64, &dp64);
@@ -1817,7 +1818,7 @@ EXPORT void my32_globfree64(x64emu_t* emu, void* pglob)
 EXPORT int my32_scandir(x64emu_t *emu, void* dir, ptr_t* namelist, void* sel, void* comp)
 {
     struct dirent** list = NULL;
-    int ret = scandir64(dir, &list, findfilter_dirFct(sel), findcompare_dirFct(comp));
+    int ret = scandir(dir, &list, findfilter_dirFct(sel), findcompare_dirFct(comp));
     *namelist = to_ptrv(list);
     if (ret>0) {
         // adjust the array of dirent... inplace adjust of listname and inplace of dirent too
@@ -1841,7 +1842,7 @@ EXPORT int my32_scandir(x64emu_t *emu, void* dir, ptr_t* namelist, void* sel, vo
 EXPORT int my32_scandir64(x64emu_t *emu, void* dir, ptr_t* namelist, void* sel, void* comp)
 {
     struct dirent** list;
-    int ret = scandir64(dir, &list, findfilter64Fct(sel), findcompare64Fct(comp));
+    int ret = scandir(dir, &list, findfilter64Fct(sel), findcompare64Fct(comp));
     if(ret>=0)
         *namelist = to_ptrv(list);
     if (ret>0) {
