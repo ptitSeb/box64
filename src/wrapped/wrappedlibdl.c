@@ -19,6 +19,7 @@
 #include "x64tls.h"
 #include "elfloader.h"
 #include "elfs/elfloader_private.h"
+#include "mydlfcn.h"
 
 typedef struct dllib_s {
     library_t*  lib;
@@ -523,14 +524,6 @@ int my_dlclose(x64emu_t* emu, void *handle)
     unlockLibLoader();
     return ret;
 }
-#ifdef ANDROID
-#ifndef RTLD_DL_SYMENT
-#define RTLD_DL_SYMENT 1
-#endif
-#ifndef RTLD_DL_LINKMAP
-#define RTLD_DL_LINKMAP 2
-#endif
-#endif
 
 static int my_dladdr1_internal(x64emu_t* emu, void *addr, void *i, void** extra_info, int flags)
 {
