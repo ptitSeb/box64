@@ -1702,7 +1702,7 @@ EXPORT void my__ITM_deregisterTMCloneTable(x64emu_t* emu, void* p) { (void)emu; 
 EXPORT int my___fxstat(x64emu_t *emu, int vers, int fd, void* buf)
 {
     (void)emu; (void)vers;
-    struct stat64 st;
+    struct stat st;
     int r = fstat64(fd, buf?&st:buf);
     if(buf && !r)
         UnalignStat64(&st, buf);
@@ -1744,7 +1744,7 @@ EXPORT int my___xmknodat(x64emu_t* emu, int v, int dirfd, char* path, uint32_t m
 EXPORT int my___xstat(x64emu_t* emu, int v, void* path, void* buf)
 {
     (void)emu; (void)v;
-    struct stat64 st;
+    struct stat st;
     int r = stat64((const char*)path, buf?&st:buf);
     if(buf && !r)
         UnalignStat64(&st, buf);
@@ -1755,7 +1755,7 @@ EXPORT int my___xstat64(x64emu_t* emu, int v, void* path, void* buf) __attribute
 EXPORT int my___lxstat(x64emu_t* emu, int v, void* name, void* buf)
 {
     (void)emu; (void)v;
-    struct stat64 st;
+    struct stat st;
     int r = lstat64((const char*)name, buf?&st:buf);
     if(buf && !r)
         UnalignStat64(&st, buf);
@@ -1766,7 +1766,7 @@ EXPORT int my___lxstat64(x64emu_t* emu, int v, void* name, void* buf) __attribut
 EXPORT int my___fxstatat(x64emu_t* emu, int v, int d, void* path, void* buf, int flags)
 {
     (void)emu; (void)v;
-    struct  stat64 st;
+    struct  stat st;
     int r = fstatat64(d, path, &st, flags);
     if(!r)
         UnalignStat64(&st, buf);
@@ -1820,7 +1820,7 @@ EXPORT int my_fstatat64(x64emu_t *emu, int fd, const char* path, void* buf, int 
 
 EXPORT int my__IO_file_stat(x64emu_t* emu, void* f, void* buf)
 {
-    struct stat64 st;
+    struct stat st;
     int r = my->_IO_file_stat(f, &st);
     UnalignStat64(&st, buf);
     return r;
