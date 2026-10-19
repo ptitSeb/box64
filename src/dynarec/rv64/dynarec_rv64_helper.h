@@ -1863,6 +1863,7 @@
 #define avx_store_reg_vector     STEPNAME(avx_store_reg_vector)
 #define avx_flush_upper_vector        STEPNAME(avx_flush_upper_vector)
 #define avx_sync_upper_vector         STEPNAME(avx_sync_upper_vector)
+#define doPreload                     STEPNAME(doPreload)
 #define avx_flush_pending_zero_vector STEPNAME(avx_flush_pending_zero_vector)
 
 #define fpu_pushcache       STEPNAME(fpu_pushcache)
@@ -2131,6 +2132,7 @@ void sse_reflect_reg(dynarec_rv64_t* dyn, int ninst, int s1, int a);
 void avx_flush_upper_vector(dynarec_rv64_t* dyn, int ninst, int s1, int a, int reg, int next);
 void avx_sync_upper_vector(dynarec_rv64_t* dyn, int ninst, int s1, int next);
 void avx_flush_pending_zero_vector(dynarec_rv64_t* dyn, int ninst, int s1, int next);
+void doPreload(dynarec_rv64_t* dyn, int ninst);
 void avx_set_vector_width(dynarec_rv64_t* dyn, int ninst, int s1, int sew, int width);
 void avx_load_reg_vector(dynarec_rv64_t* dyn, int ninst, int s1, int vreg, int a, int width, int sew);
 void avx_store_reg_vector(dynarec_rv64_t* dyn, int ninst, int s1, int vreg, int a, int width, int sew);

@@ -30,10 +30,6 @@
 #include "gdbjit.h"
 #include "perfmap.h"
 
-#define XMM0 0
-#define X870 XMM0 + 16
-#define EMM0 XMM0 + 16
-
 static int fpu_scratch_vreg(int n)
 {
     if (n < 7)
@@ -946,6 +942,105 @@ int isUpper32Zero(dynarec_rv64_t* dyn, int ninst, int reg)
         --current;
     }
     return 0;
+}
+
+static uint32_t getUsedVectorMask(const dynarec_rv64_t* dyn, int first, int last)
+{
+    uint32_t ret = 0;
+    for (int i = first; i <= last && i < dyn->size; ++i)
+        ret |= dyn->insts[i].vec_used;
+    return ret;
+}
+
+static int getFirstVectorUse(const dynarec_rv64_t* dyn, int first, int last, int reg)
+{
+    for (int i = first; i <= last && i < dyn->size; ++i)
+        if (dyn->insts[i].vec_used & (1u << reg))
+            return i;
+    return -1;
+}
+
+static void applyPreloadState(dynarec_rv64_t* dyn, int first, int first_use, int reg)
+{
+    for (int i = first; i < first_use; ++i) {
+        extcache_t* e = &dyn->insts[i].e;
+        sse_cache_t* s = &e->ssecache[reg];
+        s->reg = VREG(reg);
+        s->vector = 1;
+        s->single = 0;
+        s->write = 0;
+        s->ymm = 0;
+        s->ymm0 = (e->ymm0 >> reg) & 1;
+        e->fpuused[EXTIDX(VREG(reg))] = 1;
+        sse_sync_cache_type(e, reg);
+    }
+}
+
+void updatePreloads(dynarec_rv64_t* dyn)
+{
+    if (!cpuext.vector)
+        return;
+    for (int first = 0; first < dyn->size; ++first) {
+        if (dyn->insts[first].preload_xmmymm)
+            continue;
+        if (first) {
+            if (dyn->insts[first].pred_sz <= 1)
+                continue;
+            int has_linear = 0;
+            for (int j = 0; j < dyn->insts[first].pred_sz; ++j)
+                if (dyn->insts[first].pred[j] == first - 1)
+                    has_linear = 1;
+            if (!has_linear)
+                continue;
+        } else if (!dyn->insts[first].pred_sz) {
+            continue;
+        }
+        int last = dyn->size + 1;
+        for (int j = 0; j < dyn->insts[first].pred_sz; ++j) {
+            int pred = dyn->insts[first].pred[j];
+            if (pred != first - 1 && pred < last)
+                last = pred;
+        }
+        if (last > dyn->size || last <= first)
+            continue;
+        if (first && !dyn->insts[first - 1].x64.has_next)
+            continue;
+        int straight = 1;
+        for (int i = first; i < last && straight; ++i) {
+            const instruction_rv64_t* inst = &dyn->insts[i];
+            if (!inst->x64.has_next || (inst->x64.barrier & BARRIER_FLOAT)
+                || inst->x64.has_callret)
+                straight = 0;
+        }
+        if (!straight)
+            continue;
+        uint32_t preload = getUsedVectorMask(dyn, first, last);
+        if (!preload)
+            continue;
+        uint32_t accepted = 0;
+        for (int reg = 0; reg < 16; ++reg) {
+            if (!(preload & (1u << reg)))
+                continue;
+            int first_use = getFirstVectorUse(dyn, first, last, reg);
+            if (first_use < 0)
+                continue;
+            int ok = 1;
+            int prev = first - 1;
+            if (prev >= 0 && dyn->insts[prev].e.ssecache[reg].v != -1)
+                ok = 0;
+            for (int i = first; i < first_use && ok; ++i)
+                if (dyn->insts[i].e.ssecache[reg].v != -1)
+                    ok = 0;
+            if (ok && dyn->insts[first_use].e.ssecache[reg].v == -1)
+                ok = 0;
+            if (!ok)
+                continue;
+            applyPreloadState(dyn, first, first_use, reg);
+            accepted |= 1u << reg;
+        }
+        if (accepted)
+            dyn->insts[first].preload_xmmymm = accepted;
+    }
 }
 
 void updateUpperLiveness(dynarec_rv64_t* dyn)
