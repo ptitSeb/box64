@@ -27,7 +27,7 @@ static int LoadSH(FILE *f, Elf64_Shdr *s, void** SH, const char* name, uint32_t 
         printf_log(LOG_INFO, "Section Header \"%s\" (off=%ld, size=%ld) has size (not multiple of %ld)\n", name, s->sh_offset, s->sh_size, sizeof(Elf64_Sym));
     }
     *SH = box_calloc(1, s->sh_size);
-    fseeko64(f, s->sh_offset ,SEEK_SET);
+    fseeko(f, s->sh_offset ,SEEK_SET);
     if(fread(*SH, s->sh_size, 1, f)!=1) {
             printf_log(LOG_INFO, "Cannot read Section Header \"%s\" (off=%ld, size=%ld)\n", name, s->sh_offset, s->sh_size);
             return -1;
@@ -70,7 +70,7 @@ static void LoadProgramSection(FILE *f, elfheader_t* h, int size, uint32_t type,
     for (size_t i=0; i<h->numPHEntries && !*what; ++i) {
         if(h->PHEntries._64[i].p_type == type) {
             *what = box_calloc(1, h->PHEntries._64[i].p_memsz);
-            fseeko64(f, h->PHEntries._64[i].p_offset ,SEEK_SET);
+            fseeko(f, h->PHEntries._64[i].p_offset ,SEEK_SET);
             if(fread(h->Dynamic._64, h->PHEntries._64[i].p_filesz, 1, f)!=1) {
                     printf_log(LOG_INFO, "Cannot read Program Header %zd \"%s\" (off=%ld, size=%ld)\n", i, "PT_DYNAMIC", h->PHEntries._64[i].p_offset, h->PHEntries._64[i].p_filesz);
                     box_free(*what);
@@ -103,7 +103,7 @@ static void* LoadSubLoadSection(FILE *f, elfheader_t* h, uintptr_t offset, size_
                     size = end - start;
                 }
                 ret = box_calloc(1, size);
-                fseeko64(f, h->PHEntries._64[i].p_offset + offset - h->PHEntries._64[i].p_vaddr, SEEK_SET);
+                fseeko(f, h->PHEntries._64[i].p_offset + offset - h->PHEntries._64[i].p_vaddr, SEEK_SET);
                 size_t to_read = size;
                 if (size + offset - h->PHEntries._64[i].p_vaddr > h->PHEntries._64[i].p_filesz)
                     to_read -= (size + offset - h->PHEntries._64[i].p_vaddr) - h->PHEntries._64[i].p_filesz;
@@ -196,7 +196,7 @@ elfheader_t* ParseElfHeader64(FILE* f, const char* name, int exec)
     if(header.e_shentsize && !h->numSHEntries && header.e_shoff) {
         printf_dump(LOG_DEBUG, "Read number of Sections in 1st Section\n");
         // read 1st section header and grab actual number from here
-        fseeko64(f, header.e_shoff, SEEK_SET);
+        fseeko(f, header.e_shoff, SEEK_SET);
         Elf64_Shdr section;
         if(fread(&section, sizeof(Elf64_Shdr), 1, f)!=1) {
             box_free(h);
@@ -209,7 +209,7 @@ elfheader_t* ParseElfHeader64(FILE* f, const char* name, int exec)
         // now read all section headers
         printf_dump(LOG_DEBUG, "Read %zu Section header\n", h->numSHEntries);
         h->SHEntries._64 = (Elf64_Shdr*)box_calloc(h->numSHEntries, sizeof(Elf64_Shdr));
-        fseeko64(f, header.e_shoff ,SEEK_SET);
+        fseeko(f, header.e_shoff ,SEEK_SET);
         if(fread(h->SHEntries._64, sizeof(Elf64_Shdr), h->numSHEntries, f)!=h->numSHEntries) {
                 FreeElfHeader(&h);
                 printf_log(LOG_INFO, "Cannot read all Section Header\n");
@@ -225,7 +225,7 @@ elfheader_t* ParseElfHeader64(FILE* f, const char* name, int exec)
 
     printf_dump(LOG_DEBUG, "Read %zu Program header\n", h->numPHEntries);
     h->PHEntries._64 = (Elf64_Phdr*)box_calloc(h->numPHEntries, sizeof(Elf64_Phdr));
-    fseeko64(f, header.e_phoff ,SEEK_SET);
+    fseeko(f, header.e_phoff ,SEEK_SET);
     if(fread(h->PHEntries._64, sizeof(Elf64_Phdr), h->numPHEntries, f)!=h->numPHEntries) {
             FreeElfHeader(&h);
             printf_log(LOG_INFO, "Cannot read all Program Header\n");

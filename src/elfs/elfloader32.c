@@ -325,7 +325,7 @@ int AllocLoadElfMemory32(box64context_t* context, elfheader_t* head, int mainbin
                 setProtection_elf((uintptr_t)p, asize, prot);
                 head->multiblocks[n].p = p;
                 if (file_read_size) {
-                    fseeko64(head->file, head->multiblocks[n].offs, SEEK_SET);
+                    fseeko(head->file, head->multiblocks[n].offs, SEEK_SET);
                     if(fread((void*)head->multiblocks[n].paddr, file_read_size, 1, head->file)!=1) {
                         printf_log(LOG_NONE, "Cannot read elf block (@%p 0x%zx/0x%zx) for elf \"%s\"\n", (void*)head->multiblocks[n].offs, head->multiblocks[n].asize, (box64_pagesize - 1), head->name);
                         return 1;
@@ -350,7 +350,7 @@ int AllocLoadElfMemory32(box64context_t* context, elfheader_t* head, int mainbin
             char* dest = (char*)(context->tlsdata+context->tlssize+head->tlsbase);
             printf_log(LOG_DEBUG, "Loading TLS block #%zu @%p (0x%zx/0x%zx)\n", i, dest, e->p_filesz, e->p_memsz);
             if(e->p_filesz) {
-                fseeko64(head->file, e->p_offset, SEEK_SET);
+                fseeko(head->file, e->p_offset, SEEK_SET);
                 if(fread(dest, e->p_filesz, 1, head->file)!=1) {
                     mutex_unlock(&context->mutex_tls);
                     printf_log(LOG_NONE, "Fail to read PT_TLS part #%zu (size=%zd)\n", i, e->p_filesz);

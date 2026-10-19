@@ -25,7 +25,7 @@ static int LoadSH(FILE *f, Elf32_Shdr *s, void** SH, const char* name, uint32_t 
         printf_log(LOG_INFO, "Section Header \"%s\" (off=%d, size=%d) has size (not multiple of %ld)\n", name, s->sh_offset, s->sh_size, sizeof(Elf32_Sym));
     }
     *SH = actual_calloc(1, s->sh_size);
-    fseeko64(f, s->sh_offset ,SEEK_SET);
+    fseeko(f, s->sh_offset ,SEEK_SET);
     if(fread(*SH, s->sh_size, 1, f)!=1) {
             printf_log(LOG_INFO, "Cannot read Section Header \"%s\" (off=%d, size=%d)\n", name, s->sh_offset, s->sh_size);
             return -1;
@@ -127,7 +127,7 @@ elfheader_t* ParseElfHeader32(FILE* f, const char* name, int exec)
         if(h->numSHEntries == 0) {
             printf_log(LOG_DEBUG, "Read number of Sections in 1st Section\n");
             // read 1st section header and grab actual number from here
-            fseeko64(f, header.e_shoff, SEEK_SET);
+            fseeko(f, header.e_shoff, SEEK_SET);
             Elf32_Shdr section;
             if(fread(&section, sizeof(Elf32_Shdr), 1, f)!=1) {
                 actual_free(h);
@@ -139,7 +139,7 @@ elfheader_t* ParseElfHeader32(FILE* f, const char* name, int exec)
         // now read all section headers
         printf_log(LOG_DEBUG, "Read %d Section header\n", h->numSHEntries);
         h->SHEntries._32 = (Elf32_Shdr*)actual_calloc(h->numSHEntries, sizeof(Elf32_Shdr));
-        fseeko64(f, header.e_shoff ,SEEK_SET);
+        fseeko(f, header.e_shoff ,SEEK_SET);
         if(fread(h->SHEntries._32, sizeof(Elf32_Shdr), h->numSHEntries, f)!=h->numSHEntries) {
                 FreeElfHeader(&h);
                 printf_log(LOG_INFO, "Cannot read all Section Header\n");
@@ -155,7 +155,7 @@ elfheader_t* ParseElfHeader32(FILE* f, const char* name, int exec)
 
     printf_log(LOG_DEBUG, "Read %d Program header\n", h->numPHEntries);
     h->PHEntries._32 = (Elf32_Phdr*)actual_calloc(h->numPHEntries, sizeof(Elf32_Phdr));
-    fseeko64(f, header.e_phoff ,SEEK_SET);
+    fseeko(f, header.e_phoff ,SEEK_SET);
     if(fread(h->PHEntries._32, sizeof(Elf32_Phdr), h->numPHEntries, f)!=h->numPHEntries) {
             FreeElfHeader(&h);
             printf_log(LOG_INFO, "Cannot read all Program Header\n");
