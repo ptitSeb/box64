@@ -478,7 +478,7 @@ EXPORT int my_pthread_attr_init(x64emu_t* emu, pthread_attr_t* attr)
 	PTHREAD_ATTR_UNALIGN(attr);
 	return ret;
 }
-#ifndef ANDROID
+#ifdef HAVE_PTHREAD_ATTR_GETAFFINITY_NP
 EXPORT int my_pthread_attr_getaffinity_np(x64emu_t* emu, pthread_attr_t* attr, size_t cpusize, void* cpuset)
 {
 	(void)emu;
@@ -491,6 +491,8 @@ EXPORT int my_pthread_attr_getaffinity_np(x64emu_t* emu, pthread_attr_t* attr, s
 	}
 	return ret;
 }
+#endif
+#ifdef HAVE_PTHREAD_ATTR_SETAFFINITY_NP
 EXPORT int my_pthread_attr_setaffinity_np(x64emu_t* emu, pthread_attr_t* attr, size_t cpusize, void* cpuset)
 {
 	(void)emu;
@@ -1093,7 +1095,7 @@ EXPORT int my_pthread_mutexattr_setkind_np(x64emu_t* emu, my_mutexattr_t *attr, 
 }
 EXPORT int my_pthread_mutexattr_setprioceiling(x64emu_t* emu, my_mutexattr_t *attr, int p)
 {
-#if !defined(TERMUX) && !defined(ANDROID)
+#ifdef HAVE_PTHREAD_MUTEXATTR_SETPRIOCEILING
 	(void)emu;
 	my_mutexattr_t mattr = {0};
 	mattr.x86 = attr->x86;
