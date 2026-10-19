@@ -1116,6 +1116,7 @@ void init_pthread_helper_32()
 
     // search for older symbol for pthread_kill
     {
+#ifdef HAVE_DLVSYM
         char buff[50];
         for(int i=0; i<34 && !real_phtread_kill_old; ++i) {
             snprintf(buff, 50, "GLIBC_2.%d", i);
@@ -1124,6 +1125,7 @@ void init_pthread_helper_32()
     }
     if(!real_phtread_kill_old) {
         printf_log(LOG_INFO, "Warning, older than 2.34 pthread_kill not found, using current one\n");
+#endif
         real_phtread_kill_old = (iFLi_t)pthread_kill;
     }
     // pthread_yield (or sched_yield if not found)

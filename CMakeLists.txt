@@ -453,6 +453,7 @@ set(PROJECT_SYMBOL_CHECKS
     pthread_attr_getaffinity_np         pthread.h
     pthread_attr_setaffinity_np         pthread.h
     pthread_mutexattr_setprioceiling    pthread.h
+    dlvsym                              dlfcn.h
 )
 
 list(LENGTH PROJECT_SYMBOL_CHECKS checks_len)
