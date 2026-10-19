@@ -138,6 +138,48 @@ typedef void* (*pFpLLp_t)(void*, size_t, size_t, void*);
 
 size_t(*box_malloc_usable_size)(void*) = NULL;
 
+#if ! defined(STATICBUILD) && ! defined(ANDROID) && ! defined(__GLIBC__)
+// musl's calloc and memalign call the exported (hooked) malloc and aligned_alloc,
+// so only use libc functions that don't to prevent infinite loops.
+// Resolve on first use: malloc can be called before init_malloc_hook
+// nothing on the dlsym path may allocate
+static void* (*libc_malloc)(size_t) = NULL;
+static void* (*libc_realloc)(void*, size_t) = NULL;
+static void  (*libc_free)(void*) = NULL;
+static void* (*libc_aligned_alloc)(size_t, size_t) = NULL;
+
+void* box_malloc(size_t s)
+{
+    if(libc_malloc == NULL) libc_malloc = dlsym(RTLD_NEXT, "malloc");
+    return libc_malloc(s);
+}
+void* box_realloc(void* p, size_t s)
+{
+    if(libc_realloc == NULL) libc_realloc = dlsym(RTLD_NEXT, "realloc");
+    return libc_realloc(p, s);
+}
+void box_free(void* p)
+{
+    if(libc_free == NULL) libc_free = dlsym(RTLD_NEXT, "free");
+    libc_free(p);
+}
+void* box_memalign(size_t align, size_t s)
+{
+    if(libc_aligned_alloc == NULL) libc_aligned_alloc = dlsym(RTLD_NEXT, "aligned_alloc");
+    return libc_aligned_alloc(align, s);
+}
+void* box_calloc(size_t n, size_t s)
+{
+    if(s && n>((size_t)-1)/s) {
+        errno = ENOMEM;
+        return NULL;
+    }
+    void* ret = box_malloc(n*s);
+    if(ret) memset(ret, 0, n*s);
+    return ret;
+}
+#endif
+
 int GetTID();
 uint32_t getProtection(uintptr_t addr);
 // malloc_hack "2" handling
