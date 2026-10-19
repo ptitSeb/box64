@@ -1,6 +1,4 @@
 // SPDX-License-Identifier: MIT
-#define _LARGEFILE_SOURCE 1
-#define _FILE_OFFSET_BITS 64
 #include <stdlib.h>
 #include <stdio.h>
 #include <stddef.h>
