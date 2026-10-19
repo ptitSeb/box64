@@ -542,6 +542,29 @@ elseif(CTYPE_B_LOC_EXT) # musl
   add_compile_definitions("HAVE_CTYPE_B_LOC_EXT")
 endif()
 
+check_c_source_compiles("#include <glob.h>
+int main(void){ glob_t g = { .gl_flags = 0 }; return 0; }" GLOB_T_GL_FLAGS)
+check_c_source_compiles("#include <glob.h>
+int main(void){ glob_t g = { .__dummy1 = 0 }; return 0; }" GLOB_T_DUMMY)
+
+if(GLOB_T_GL_FLAGS) # glibc
+  add_compile_definitions("GLOB_T_GL_FLAGS=gl_flags")
+  add_compile_definitions("GLOB_T_GL_CLOSEDIR=gl_closedir")
+  add_compile_definitions("GLOB_T_GL_READDIR=gl_readdir")
+  add_compile_definitions("GLOB_T_GL_OPENDIR=gl_opendir")
+  add_compile_definitions("GLOB_T_GL_LSTAT=gl_lstat")
+  add_compile_definitions("GLOB_T_GL_STAT=gl_stat")
+elseif(GLOB_T_DUMMY) # musl
+  add_compile_definitions("GLOB_T_GL_FLAGS=__dummy1")
+  add_compile_definitions("GLOB_T_GL_CLOSEDIR=__dummy2[0]")
+  add_compile_definitions("GLOB_T_GL_READDIR=__dummy2[1]")
+  add_compile_definitions("GLOB_T_GL_OPENDIR=__dummy2[2]")
+  add_compile_definitions("GLOB_T_GL_LSTAT=__dummy2[3]")
+  add_compile_definitions("GLOB_T_GL_STAT=__dummy2[4]")
+elseif(NOT ANDROID)
+  message(FATAL_ERROR "Unknown glob_t layout!")
+endif()
+
 # generated files
 set_source_files_properties(
     "${BOX64_ROOT}/src/git_head.h"
