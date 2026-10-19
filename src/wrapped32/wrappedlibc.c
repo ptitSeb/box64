@@ -472,7 +472,7 @@ static void* findcompare_dirFct(void* fct)
 {
     if(!fct) return NULL;
     void* p;
-    if((p = GetNativeFnc((uintptr_t)fct))) { if(p==my32_alphasort64) return alphasort64; else return p; }
+    if((p = GetNativeFnc((uintptr_t)fct))) { if(p==my32_alphasort64) return alphasort; else return p; }
     #define GO(A) if(my32_compare_dir_fct_##A == (uintptr_t)fct) return my32_compare_dir_##A;
     SUPER()
     #undef GO
@@ -518,7 +518,7 @@ static void* findcompare64Fct(void* fct)
 {
     if(!fct) return NULL;
     void* p;
-    if((p = GetNativeFnc((uintptr_t)fct))) { if(p==my32_alphasort64) return alphasort64; else return p; }
+    if((p = GetNativeFnc((uintptr_t)fct))) { if(p==my32_alphasort64) return alphasort; else return p; }
     #define GO(A) if(my32_compare64_fct_##A == (uintptr_t)fct) return my32_compare64_##A;
     SUPER()
     #undef GO
@@ -2793,7 +2793,7 @@ EXPORT int my32_alphasort64(x64emu_t* emu, ptr_t* d1_, ptr_t* d2_)
     if(d2_) d2 = (struct dirent*)from_ptrv(*d2_);
     const struct dirent** e1 = d1_?(&d1):NULL;
     const struct dirent** e2 = d2_?(&d2):NULL;
-    return alphasort64(e1, e2);
+    return alphasort(e1, e2);
 }
 
 #ifndef ANDROID
