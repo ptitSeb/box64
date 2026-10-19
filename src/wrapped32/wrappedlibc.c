@@ -1752,7 +1752,7 @@ typedef struct my_glob_32_s
     ptr_t   gl_lstat;       //int (*gl_lstat) (const char *__restrict, struct stat *__restrict);
     ptr_t   gl_stat;        //int (*gl_stat) (const char *__restrict, struct stat *__restrict);
 } my_glob_32_t;
-// glob64 is identical, except function are 64bits versions
+// glob is identical, except function are 64bits versions
 
 static void convert_glob_to_32(void* d, void* s, int is64)
 {
@@ -1783,36 +1783,36 @@ static void convert_glob_to_64(void* d, void* s, int is64)
 
 EXPORT int32_t my32_glob(x64emu_t *emu, void* pat, int32_t flags, void* errfnc, void* pglob)
 {
-    glob64_t glob_l = {0};
+    glob_t glob_l = {0};
     if(flags & GLOB_ALTDIRFUNC) printf_log(LOG_NONE, "Error: using unsupport GLOB_ALTDIRFUNC in glob\n");
     if(flags&(1<<5))    // GLOB_APPEND is used, so convert also before
         convert_glob_to_64(&glob_l, pglob, 0);
-    int ret = glob64(pat, flags, findgloberrFct(errfnc), &glob_l);
+    int ret = glob(pat, flags, findgloberrFct(errfnc), &glob_l);
     convert_glob_to_32(pglob, &glob_l, 0);
     return ret;
 }
 EXPORT void my32_globfree(x64emu_t* emu, void* pglob)
 {
-    glob64_t glob_l = {0};
+    glob_t glob_l = {0};
     convert_glob_to_64(&glob_l, pglob, 0);
-    globfree64(&glob_l);
+    globfree(&glob_l);
 }
 #ifndef ANDROID
 EXPORT int32_t my32_glob64(x64emu_t *emu, void* pat, int32_t flags, void* errfnc, void* pglob)
 {
-    glob64_t glob_l = {0};
+    glob_t glob_l = {0};
     if(flags & GLOB_ALTDIRFUNC) printf_log(LOG_NONE, "Error: using unsupport GLOB_ALTDIRFUNC in glob64\n");
     if(flags&(1<<5))    // GLOB_APPEND is used, so convert also before
         convert_glob_to_64(&glob_l, pglob, 1);
-    int ret = glob64(pat, flags, findgloberrFct(errfnc), &glob_l);
+    int ret = glob(pat, flags, findgloberrFct(errfnc), &glob_l);
     convert_glob_to_32(pglob, &glob_l, 1);
     return ret;
 }
 EXPORT void my32_globfree64(x64emu_t* emu, void* pglob)
 {
-    glob64_t glob_l = {0};
+    glob_t glob_l = {0};
     convert_glob_to_64(&glob_l, pglob, 1);
-    globfree64(&glob_l);
+    globfree(&glob_l);
 }
 #endif
 EXPORT int my32_scandir(x64emu_t *emu, void* dir, ptr_t* namelist, void* sel, void* comp)
