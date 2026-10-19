@@ -441,6 +441,34 @@ if(HAVE_EXECINFO_H AND NOT ANDROID)
     add_compile_definitions(USE_BACKTRACE)
 endif()
 
+include(CheckSymbolExists)
+
+set(PROJECT_SYMBOL_CHECKS
+    mallopt                         malloc.h
+)
+
+list(LENGTH PROJECT_SYMBOL_CHECKS checks_len)
+math(EXPR checks_last "${checks_len} - 1")
+
+foreach(i RANGE 0 ${checks_last} 2)
+    math(EXPR j "${i} + 1")
+
+    list(GET PROJECT_SYMBOL_CHECKS ${i} symbol)
+    list(GET PROJECT_SYMBOL_CHECKS ${j} header)
+
+    string(MAKE_C_IDENTIFIER "${symbol}" symbol_ident)
+    string(TOUPPER "${symbol_ident}" symbol_ident)
+
+    set(var "HAVE_${symbol_ident}")
+
+    set(headers "${header}")
+    check_symbol_exists("${symbol}" "${headers}" "${var}")
+
+    if(${var})
+        add_compile_definitions("${var}=1")
+    endif()
+endforeach()
+
 # generated files
 set_source_files_properties(
     "${BOX64_ROOT}/src/git_head.h"
