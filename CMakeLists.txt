@@ -450,6 +450,9 @@ set(PROJECT_SYMBOL_CHECKS
     mallinfo2                           malloc.h
     _pthread_cleanup_push               pthread.h
     _pthread_cleanup_pop                pthread.h
+    pthread_attr_getaffinity_np         pthread.h
+    pthread_attr_setaffinity_np         pthread.h
+    pthread_mutexattr_setprioceiling    pthread.h
 )
 
 list(LENGTH PROJECT_SYMBOL_CHECKS checks_len)

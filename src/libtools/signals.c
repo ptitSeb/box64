@@ -822,8 +822,10 @@ extern int fillblock_active;
 #ifdef USE_SIGNAL_MUTEX
 #ifdef USE_CUSTOM_MUTEX
 static uint32_t mutex_dynarec_prot = 0;
-#else
+#elif defined(PTHREAD_ERRORCHECK_MUTEX_INITIALIZER_NP)
 static pthread_mutex_t mutex_dynarec_prot = PTHREAD_ERRORCHECK_MUTEX_INITIALIZER_NP;
+#else
+static pthread_mutex_t mutex_dynarec_prot = PTHREAD_MUTEX_INITIALIZER;
 #endif
 #define lock_signal()     mutex_lock(&mutex_dynarec_prot)
 #define unlock_signal()   mutex_unlock(&mutex_dynarec_prot)
@@ -1845,8 +1847,17 @@ static void atfork_child_dynarec_prot(void)
     #ifdef USE_CUSTOM_MUTEX
     native_lock_store(&mutex_dynarec_prot, 0);
     #else
+    #ifdef PTHREAD_ERRORCHECK_MUTEX_INITIALIZER_NP
     pthread_mutex_t tmp = PTHREAD_ERRORCHECK_MUTEX_INITIALIZER_NP;
     memcpy(&mutex_dynarec_prot, &tmp, sizeof(mutex_dynarec_prot));
+    #else
+    pthread_mutex_t tmp = PTHREAD_MUTEX_INITIALIZER;
+    pthread_mutexattr_t attr;
+    pthread_mutexattr_init(&attr);
+    pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK);
+    pthread_mutex_init(&mutex_dynarec_prot, &attr);
+    pthread_mutexattr_destroy(&attr);
+    #endif
     #endif
 }
 #endif
