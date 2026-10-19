@@ -454,6 +454,7 @@ set(PROJECT_SYMBOL_CHECKS
     pthread_attr_setaffinity_np         pthread.h
     pthread_mutexattr_setprioceiling    pthread.h
     dlvsym                              dlfcn.h
+    obstack_vprintf                     stdio.h
 )
 
 list(LENGTH PROJECT_SYMBOL_CHECKS checks_len)
@@ -537,6 +538,7 @@ set(ELFLOADER_SRC
     "${BOX64_ROOT}/src/libtools/syscall_user_dispatch.c"
     "${BOX64_ROOT}/src/libtools/decopcode.c"
     "${BOX64_ROOT}/src/libtools/threads.c"
+    "${BOX64_ROOT}/src/libtools/libc.c"
     "${BOX64_ROOT}/src/steamwebhelper.c"
     "${BOX64_ROOT}/src/tools/bitutils.c"
     "${BOX64_ROOT}/src/tools/box64stack.c"
