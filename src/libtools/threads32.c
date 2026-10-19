@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 // __USE_UNIX98 is needed for sttype / gettype definition
 #define __USE_UNIX98
-#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>

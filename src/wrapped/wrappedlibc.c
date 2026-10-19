@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 #define _LARGEFILE_SOURCE 1
 #define _FILE_OFFSET_BITS 64
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
 #if !defined(TERMUX) && !defined(ANDROID)
 # if defined(__has_include)
 #  if __has_include(<argp.h>)

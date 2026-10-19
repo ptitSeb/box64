@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
-#define _GNU_SOURCE
 #include <dlfcn.h>
 
 #include "wrappedlibs.h"
