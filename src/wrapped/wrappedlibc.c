@@ -441,7 +441,7 @@ static void* findcompare_dirFct(void* fct)
 // filter64
 #define GO(A)   \
 static uintptr_t my_filter64_fct_##A = 0;                                   \
-static int my_filter64_##A(const struct dirent64* a)                        \
+static int my_filter64_##A(const struct dirent* a)                        \
 {                                                                           \
     return (int)RunFunctionFmt(my_filter64_fct_##A, "p", a);          \
 }
@@ -464,7 +464,7 @@ static void* findfilter64Fct(void* fct)
 // compare64
 #define GO(A)   \
 static uintptr_t my_compare64_fct_##A = 0;                                      \
-static int my_compare64_##A(const struct dirent64* a, const struct dirent64* b) \
+static int my_compare64_##A(const struct dirent* a, const struct dirent* b) \
 {                                                                               \
     return (int)RunFunctionFmt(my_compare64_fct_##A, "pp", a, b);         \
 }
@@ -2029,7 +2029,7 @@ EXPORT void* my_readdir(x64emu_t* emu, void* dirp)
 {
     if (BOX64ENV(fix_64bit_inodes))
     {
-        struct dirent64 *dp64 = readdir64((DIR *)dirp);
+        struct dirent *dp64 = readdir64((DIR *)dirp);
         if (!dp64) return NULL;
         uint32_t ino32 = dp64->d_ino ^ (dp64->d_ino >> 32);
         int32_t off32 = dp64->d_off;
@@ -2054,7 +2054,7 @@ EXPORT void* my_readdir(x64emu_t* emu, void* dirp)
 
 EXPORT int32_t my_readdir_r(x64emu_t* emu, void* dirp, void* entry, void** result)
 {
-    struct dirent64 d64, *dp64;
+    struct dirent d64, *dp64;
     if (BOX64ENV(fix_64bit_inodes) && (sizeof(d64.d_name) > 1))
     {
         static iFppp_t f = NULL;
@@ -2076,7 +2076,7 @@ EXPORT int32_t my_readdir_r(x64emu_t* emu, void* dirp, void* entry, void** resul
         }
 
         struct i386_dirent *dp32 = (struct i386_dirent *)entry;
-        int namelen = dp64->d_reclen - offsetof(struct dirent64, d_name);
+        int namelen = dp64->d_reclen - offsetof(struct dirent, d_name);
         if (namelen > sizeof(dp32->d_name))
         {
             *result = NULL;

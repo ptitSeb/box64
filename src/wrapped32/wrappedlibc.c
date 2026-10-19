@@ -433,7 +433,7 @@ static void* findgloberrFct(void* fct)
 // filter_dir
 #define GO(A)   \
 static uintptr_t my32_filter_dir_fct_##A = 0;                       \
-static int my32_filter_dir_##A(const struct dirent64* a)            \
+static int my32_filter_dir_##A(const struct dirent* a)            \
 {                                                                   \
     static struct i386_dirent d = {0};                              \
     UnalignDirent_32(a, &d);                                        \
@@ -485,7 +485,7 @@ static void* findcompare_dirFct(void* fct)
 // filter64
 #define GO(A)   \
 static uintptr_t my32_filter64_fct_##A = 0;                                 \
-static int my32_filter64_##A(const struct dirent64* a)                      \
+static int my32_filter64_##A(const struct dirent* a)                      \
 {                                                                           \
     return (int)RunFunctionFmt(my32_filter64_fct_##A, "p", a);  \
 }
@@ -508,7 +508,7 @@ static void* findfilter64Fct(void* fct)
 // compare64
 #define GO(A)   \
 static uintptr_t my32_compare64_fct_##A = 0;                                        \
-static int my32_compare64_##A(const struct dirent64* a, const struct dirent64* b)   \
+static int my32_compare64_##A(const struct dirent* a, const struct dirent* b)   \
 {                                                                                   \
     return (int)RunFunctionFmt(my32_compare64_fct_##A, "pp", a, b);                 \
 }
@@ -1496,7 +1496,7 @@ EXPORT void* my32_fts_open(x64emu_t* emu, void* path, int options, void* c)
 
 EXPORT void* my32_readdir(x64emu_t* emu, void* dirp)
 {
-    struct dirent64 *dp64 = readdir64((DIR *)dirp);
+    struct dirent *dp64 = readdir64((DIR *)dirp);
     if (!dp64) return NULL;
     static struct i386_dirent dp32 = {0};
     uint32_t ino32 = dp64->d_ino ^ (dp64->d_ino >> 32);
@@ -1512,7 +1512,7 @@ EXPORT void* my32_readdir(x64emu_t* emu, void* dirp)
 
 EXPORT int32_t my32_readdir_r(x64emu_t* emu, void* dirp, void* entry, void** result)
 {
-    struct dirent64 d64, *dp64;
+    struct dirent d64, *dp64;
     if (BOX64ENV(fix_64bit_inodes) && (sizeof(d64.d_name) > 1))
     {
         static iFppp_t f = NULL;
@@ -1534,7 +1534,7 @@ EXPORT int32_t my32_readdir_r(x64emu_t* emu, void* dirp, void* entry, void** res
         }
 
         struct i386_dirent *dp32 = (struct i386_dirent *)entry;
-        int namelen = dp64->d_reclen - offsetof(struct dirent64, d_name);
+        int namelen = dp64->d_reclen - offsetof(struct dirent, d_name);
         if (namelen > sizeof(dp32->d_name))
         {
             *result = NULL;
@@ -1816,20 +1816,20 @@ EXPORT void my32_globfree64(x64emu_t* emu, void* pglob)
 #endif
 EXPORT int my32_scandir(x64emu_t *emu, void* dir, ptr_t* namelist, void* sel, void* comp)
 {
-    struct dirent64** list = NULL;
+    struct dirent** list = NULL;
     int ret = scandir64(dir, &list, findfilter_dirFct(sel), findcompare_dirFct(comp));
     *namelist = to_ptrv(list);
     if (ret>0) {
         // adjust the array of dirent... inplace adjust of listname and inplace of dirent too
         for(int i=0; i<ret; ++i) {
-            struct dirent64* dp64 = list[i];
+            struct dirent* dp64 = list[i];
             struct i386_dirent *dp32 = (struct i386_dirent*)dp64;
             // inplace shrink dirent
             uint32_t ino32 = dp64->d_ino ^ (dp64->d_ino >> 32);
             int32_t off32 = dp64->d_off;
             dp32->d_ino = ino32;
             dp32->d_off = off32;
-            dp32->d_reclen = dp64->d_reclen-(offsetof(struct dirent64, d_name)-offsetof(struct i386_dirent, d_name));
+            dp32->d_reclen = dp64->d_reclen-(offsetof(struct dirent, d_name)-offsetof(struct i386_dirent, d_name));
             dp32->d_type = dp64->d_type;
             memmove(dp32->d_name, dp64->d_name, dp32->d_reclen-offsetof(struct i386_dirent, d_name));
             // inplace shrink pointer to
@@ -1840,7 +1840,7 @@ EXPORT int my32_scandir(x64emu_t *emu, void* dir, ptr_t* namelist, void* sel, vo
 }
 EXPORT int my32_scandir64(x64emu_t *emu, void* dir, ptr_t* namelist, void* sel, void* comp)
 {
-    struct dirent64** list;
+    struct dirent** list;
     int ret = scandir64(dir, &list, findfilter64Fct(sel), findcompare64Fct(comp));
     if(ret>=0)
         *namelist = to_ptrv(list);
@@ -2787,12 +2787,12 @@ EXPORT int my32_getopt_long_only(int argc, char* const argv[], const char* optst
 
 EXPORT int my32_alphasort64(x64emu_t* emu, ptr_t* d1_, ptr_t* d2_)
 {
-    const struct dirent64* d1 = NULL;
-    const struct dirent64* d2 = NULL;
-    if(d1_) d1 = (struct dirent64*)from_ptrv(*d1_);
-    if(d2_) d2 = (struct dirent64*)from_ptrv(*d2_);
-    const struct dirent64** e1 = d1_?(&d1):NULL;
-    const struct dirent64** e2 = d2_?(&d2):NULL;
+    const struct dirent* d1 = NULL;
+    const struct dirent* d2 = NULL;
+    if(d1_) d1 = (struct dirent*)from_ptrv(*d1_);
+    if(d2_) d2 = (struct dirent*)from_ptrv(*d2_);
+    const struct dirent** e1 = d1_?(&d1):NULL;
+    const struct dirent** e2 = d2_?(&d2):NULL;
     return alphasort64(e1, e2);
 }
 
