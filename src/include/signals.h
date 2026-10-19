@@ -6,6 +6,10 @@
 #include "x64_signals.h"
 #include "box64context.h"
 
+#ifndef __SI_SIGFAULT_ADDL
+#define __SI_SIGFAULT_ADDL
+#endif
+
 typedef void (*sighandler_t)(int);
 
 #ifdef ANDROID
