@@ -80,6 +80,7 @@
 #include "cpumask.h"
 #include "libc_malloc.h"
 #include "libc_ctype.h"
+#include "libc_glob.h"
 
 // need to undef all read / read64 stuffs!
 #undef pread
@@ -1751,7 +1752,7 @@ typedef struct my_glob_32_s
     ulong_t gl_offs;
     int     gl_flags;
     ptr_t   gl_closedir;    //void (*gl_closedir) (void *);
-    ptr_t   gl_readir;      //struct dirent *(*gl_readdir) (void *);
+    ptr_t   gl_readdir;     //struct dirent *(*gl_readdir) (void *);
     ptr_t   gl_opendir;     //void *(*gl_opendir) (const char *);
     ptr_t   gl_lstat;       //int (*gl_lstat) (const char *__restrict, struct stat *__restrict);
     ptr_t   gl_stat;        //int (*gl_stat) (const char *__restrict, struct stat *__restrict);
@@ -1768,8 +1769,13 @@ static void convert_glob_to_32(void* d, void* s, int is64)
     dst->gl_pathc = to_ulong(src->gl_pathc);
     dst->gl_pathv = to_ptrv(src->gl_pathv);
     dst->gl_offs = to_ulong(src->gl_offs);
-    dst->gl_flags = src->gl_flags;
+    dst->gl_flags = src->GLOB_T_GL_FLAGS;
     // TODO: functions pointers
+    // dst->gl_closedir = to_ptrv(src->GLOB_T_GL_CLOSEDIR);
+    // dst->gl_readdir = to_ptrv(src->GLOB_T_GL_READDIR);
+    // dst->gl_opendir = to_ptrv(src->GLOB_T_GL_OPENDIR);
+    // dst->gl_lstat = to_ptrv(src->GLOB_T_GL_LSTAT);
+    // dst->gl_stat = to_ptrv(src->GLOB_T_GL_STAT);
 }
 static void convert_glob_to_64(void* d, void* s, int is64)
 {
@@ -1779,10 +1785,15 @@ static void convert_glob_to_64(void* d, void* s, int is64)
     dst->gl_pathc = from_ulong(src->gl_pathc);
     dst->gl_pathv = from_ptrv(src->gl_pathv);
     dst->gl_offs = from_ulong(src->gl_offs);
-    dst->gl_flags = src->gl_flags;
+    dst->GLOB_T_GL_FLAGS = src->gl_flags;
     for(ulong_t i=dst->gl_pathc; i--;)
         dst->gl_pathv[i] = from_ptrv(((ptr_t*)dst->gl_pathv)[i]);
     // TODO: functions pointers
+    // dst->GLOB_T_GL_CLOSEDIR = from_ptrv(src->gl_closedir);
+    // dst->GLOB_T_GL_READDIR = from_ptrv(src->gl_readdir);
+    // dst->GLOB_T_GL_OPENDIR = from_ptrv(src->gl_opendir);
+    // dst->GLOB_T_GL_LSTAT = from_ptrv(src->gl_lstat);
+    // dst->GLOB_T_GL_STAT = from_ptrv(src->gl_stat);
 }
 
 EXPORT int32_t my32_glob(x64emu_t *emu, void* pat, int32_t flags, void* errfnc, void* pglob)
