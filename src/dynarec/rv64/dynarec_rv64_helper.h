@@ -2137,6 +2137,13 @@ void avx_set_vector_width(dynarec_rv64_t* dyn, int ninst, int s1, int sew, int w
 void avx_load_reg_vector(dynarec_rv64_t* dyn, int ninst, int s1, int vreg, int a, int width, int sew);
 void avx_store_reg_vector(dynarec_rv64_t* dyn, int ninst, int s1, int vreg, int a, int width, int sew);
 
+#define emit_mxcsr_raise_invalid(s1)             \
+    do {                                         \
+        LW(s1, xEmu, offsetof(x64emu_t, mxcsr)); \
+        ORI(s1, s1, 1);                          \
+        SW(s1, xEmu, offsetof(x64emu_t, mxcsr)); \
+    } while (0)
+
 static inline void sse_set_pending_zero(dynarec_rv64_t* dyn, int a, int pending)
 {
     if (dyn->e.ssecache[a].v != -1)
