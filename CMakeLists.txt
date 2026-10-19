@@ -498,6 +498,19 @@ elseif(NOT ANDROID)
   message(FATAL_ERROR "Unknown struct obstack layout!")
 endif()
 
+check_c_source_compiles("#include <signal.h>
+int main(void){ siginfo_t s = { ._sifields = { 0 } }; return 0; }"   SIGINFO_S__SIFIELDS)
+check_c_source_compiles("#include <signal.h>
+int main(void){ siginfo_t s = { .__si_fields = { 0 } }; return 0; }" SIGINFO_S___SI_FIELDS)
+
+if(SIGINFO_S__SIFIELDS) # glibc
+  add_compile_definitions("SIGINFO_S_SIFIELDS=_sifields")
+elseif(SIGINFO_S___SI_FIELDS) # musl
+  add_compile_definitions("SIGINFO_S_SIFIELDS=__si_fields")
+elseif(NOT ANDROID)
+  message(FATAL_ERROR "Unknown siginfo_t layout!")
+endif()
+
 # generated files
 set_source_files_properties(
     "${BOX64_ROOT}/src/git_head.h"

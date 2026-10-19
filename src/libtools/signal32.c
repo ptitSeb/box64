@@ -468,7 +468,7 @@ void convert_siginfo_to_32(void* d, void* s, int sig)
     dst->si_signo = src->si_signo;
     dst->si_errno = src->si_errno;
     dst->si_code = src->si_code;
-    memcpy(&dst->_sifields, &src->_sifields, sizeof(siginfo_t) - offsetof(siginfo_t, _sifields));
+    memcpy(&dst->_sifields, &src->SIGINFO_S_SIFIELDS, sizeof(siginfo_t) - offsetof(siginfo_t, SIGINFO_S_SIFIELDS));
     if(sig==X64_SIGILL || sig==X64_SIGFPE || sig==X64_SIGSEGV || sig==X64_SIGBUS)
         dst->_sifields._sigfault.__si_addr = to_ptr(((uintptr_t)src->si_addr)&0xffffffff);  // in case addr is not a 32bits value...
     if(sig==X64_SIGCHLD) {
