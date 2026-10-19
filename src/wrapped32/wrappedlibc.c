@@ -49,6 +49,7 @@
 #include <sys/wait.h>
 #include <sched.h>
 #include <dirent.h>
+#include <malloc.h>
 
 #include "wrappedlibs.h"
 
@@ -77,6 +78,7 @@
 #include "box32_inputevent.h"
 #include "syscall_user_dispatch.h"
 #include "cpumask.h"
+#include "libc_malloc.h"
 
 // need to undef all read / read64 stuffs!
 #undef pread
@@ -2500,27 +2502,21 @@ EXPORT int my32_utimensat(int dirfd, void* name, void* times, int flags)
     return utimensat(dirfd, name, times ? times_l : NULL, flags);
 }
 
-#ifndef ANDROID
-struct mallinfo {
-    int arena;
-    int ordblks;
-    int smblks;
-    int hblks;
-    int hblkhd;
-    int usmblks;
-    int fsmblks;
-    int uordblks;
-    int fordblks;
-    int keepcost;
-};
-#endif
-
+typedef struct mallinfo (*mallinfo_fnc)(void);
 EXPORT void* my32_mallinfo(x86emu_t* emu, void* p)
 {
-    (void)emu;
-    static struct mallinfo(*p_mallinfo)() = NULL;
-    if(!p_mallinfo) p_mallinfo = dlsym(NULL, "mallinfo");
-    *((struct mallinfo*)p) = p_mallinfo();
+#ifdef HAVE_MALLINFO
+    static mallinfo_fnc f = NULL;
+    static int inited = 0;
+    if(!inited) {
+        inited = 1;
+        f = (mallinfo_fnc)dlsym(my_lib->w.lib, "mallinfo");
+    }
+    if(f)
+        *(struct mallinfo*)p=f();
+    else
+#endif
+        memset(p, 0, sizeof(struct mallinfo));
     return p;
 }
 
