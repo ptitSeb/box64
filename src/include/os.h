@@ -94,9 +94,15 @@ const char* GetBridgeName(void* p);
 #define GET_JUMPBUFF(name) NULL
 #endif
 
+#ifndef PROT_READ
 #define PROT_READ  0x1
+#endif
+#ifndef PROT_WRITE
 #define PROT_WRITE 0x2
+#endif
+#ifndef PROT_EXEC
 #define PROT_EXEC  0x4
+#endif
 
 void PrintfFtrace(int prefix, const char* fmt, ...);
 
