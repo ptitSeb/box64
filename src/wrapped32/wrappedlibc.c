@@ -1701,11 +1701,11 @@ EXPORT int my32_mkstemps64(x64emu_t* emu, char* template, int suffixlen)
 
 EXPORT int32_t my32_ftw(x64emu_t* emu, void* pathname, void* B, int32_t nopenfd)
 {
-    return ftw64(pathname, findftwFct(B), nopenfd);
+    return ftw(pathname, findftwFct(B), nopenfd);
 }
 EXPORT int32_t my32_nftw(x64emu_t* emu, void* pathname, void* B, int32_t nopenfd, int32_t flags)
 {
-    return nftw64(pathname, findnftwFct(B), nopenfd, flags);
+    return nftw(pathname, findnftwFct(B), nopenfd, flags);
 }
 
 EXPORT void* my32_ldiv(x64emu_t* emu, void* p, int32_t num, int32_t den)
@@ -1897,12 +1897,12 @@ EXPORT long my32_readv(x64emu_t* emu, int fd, struct i386_iovec* iov, int niov)
 
 EXPORT int my32_ftw64(x64emu_t* emu, void* filename, void* func, int descriptors)
 {
-    return ftw64(filename, findftw64Fct(func), descriptors);
+    return ftw(filename, findftw64Fct(func), descriptors);
 }
 
 EXPORT int32_t my32_nftw64(x64emu_t* emu, void* pathname, void* B, int32_t nopenfd, int32_t flags)
 {
-    return nftw64(pathname, findnftw64Fct(B), nopenfd, flags);
+    return nftw(pathname, findnftw64Fct(B), nopenfd, flags);
 }
 
 EXPORT ptr_t my32_environ = 0; //char**

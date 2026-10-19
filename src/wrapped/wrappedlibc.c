@@ -2673,14 +2673,14 @@ EXPORT int my_scandirat64(x64emu_t *emu, int dirfd, void* dirp, void* namelist, 
 EXPORT int my_ftw64(x64emu_t* emu, void* filename, void* func, int descriptors)
 {
     (void)emu;
-    return ftw64(filename, findftw64Fct(func), descriptors);
+    return ftw(filename, findftw64Fct(func), descriptors);
 }
 EXPORT int my_ftw(x64emu_t* emu, void* filename, void* func, int descriptors) __attribute__((alias("my_ftw64")));
 
 EXPORT int32_t my_nftw64(x64emu_t* emu, void* pathname, void* B, int32_t nopenfd, int32_t flags)
 {
     (void)emu;
-    return nftw64(pathname, findnftw64Fct(B), nopenfd, flags);
+    return nftw(pathname, findnftw64Fct(B), nopenfd, flags);
 }
 EXPORT int my_nftw(x64emu_t* emu, void* pathname, void* B, int32_t nopenfd, int32_t flags) __attribute__((alias("my_nftw64")));
 
