@@ -190,7 +190,7 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                     fesetround(FE_TONEAREST);
                     for(int i=0; i<4; ++i)
                         #ifdef RV64
-                        if(isnanf(EX->f[i]))
+                        if(isnan(EX->f[i]))
                             GX->ud[i] = EX->ud[i] | 0x00400000;
                         else
                         #endif
@@ -201,7 +201,7 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 case ROUND_Down:
                     for(int i=0; i<4; ++i)
                         #ifdef RV64
-                        if(isnanf(EX->f[i]))
+                        if(isnan(EX->f[i]))
                             GX->ud[i] = EX->ud[i] | 0x00400000;
                         else
                         #endif
@@ -210,7 +210,7 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 case ROUND_Up:
                     for(int i=0; i<4; ++i)
                         #ifdef RV64
-                        if(isnanf(EX->f[i]))
+                        if(isnan(EX->f[i]))
                             GX->ud[i] = EX->ud[i] | 0x00400000;
                         else
                         #endif
@@ -219,7 +219,7 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 case ROUND_Chop:
                     for(int i=0; i<4; ++i)
                         #ifdef RV64
-                        if(isnanf(EX->f[i]))
+                        if(isnan(EX->f[i]))
                             GX->ud[i] = EX->ud[i] | 0x00400000;
                         else
                         #endif
@@ -234,7 +234,7 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                         fesetround(FE_TONEAREST);
                         for(int i=0; i<4; ++i)
                             #ifdef RV64
-                            if(isnanf(EY->f[i]))
+                            if(isnan(EY->f[i]))
                                 GY->ud[i] = EY->ud[i] | 0x00400000;
                             else
                             #endif
@@ -245,7 +245,7 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                     case ROUND_Down:
                         for(int i=0; i<4; ++i)
                             #ifdef RV64
-                            if(isnanf(EY->f[i]))
+                            if(isnan(EY->f[i]))
                                 GY->ud[i] = EY->ud[i] | 0x00400000;
                             else
                             #endif
@@ -254,7 +254,7 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                     case ROUND_Up:
                         for(int i=0; i<4; ++i)
                             #ifdef RV64
-                            if(isnanf(EY->f[i]))
+                            if(isnan(EY->f[i]))
                                 GY->ud[i] = EY->ud[i] | 0x00400000;
                             else
                             #endif
@@ -263,7 +263,7 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                     case ROUND_Chop:
                         for(int i=0; i<4; ++i)
                             #ifdef RV64
-                            if(isnanf(EY->f[i]))
+                            if(isnan(EY->f[i]))
                                 GY->ud[i] = EY->ud[i] | 0x00400000;
                             else
                             #endif
@@ -377,7 +377,7 @@ uintptr_t RunAVX_660F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGX; GETVX; GETGY;
             tmp8u = F8; // ignoring bit 3 interupt thingy
             #ifdef RV64
-            if(isnanf(EX->f[0])) {
+            if(isnan(EX->f[0])) {
                 GX->ud[0] = EX->ud[0] | 0x00400000;
             } else
             #endif

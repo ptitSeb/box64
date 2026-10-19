@@ -372,40 +372,40 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         GETGX;
         int oldround = mxcsr_setround(emu);
         eax1 = *GX;
-        if(isnanf(eax1.f[0])) {
+        if(isnan(eax1.f[0])) {
             GX->ud[0] = eax1.ud[0] | 0x00400000;
-        } else if(isnanf(eax1.f[1])) {
+        } else if(isnan(eax1.f[1])) {
             GX->ud[0] = eax1.ud[1] | 0x00400000;
         } else {
             GX->f[0] = eax1.f[0] + eax1.f[1];
-            if(isnanf(GX->f[0])) GX->ud[0] |= 0x80000000;
+            if(isnan(GX->f[0])) GX->ud[0] |= 0x80000000;
         }
-        if(isnanf(eax1.f[2])) {
+        if(isnan(eax1.f[2])) {
             GX->ud[1] = eax1.ud[2] | 0x00400000;
-        } else if(isnanf(eax1.f[3])) {
+        } else if(isnan(eax1.f[3])) {
             GX->ud[1] = eax1.ud[3] | 0x00400000;
         } else {
             GX->f[1] = eax1.f[2] + eax1.f[3];
-            if(isnanf(GX->f[1])) GX->ud[1] |= 0x80000000;
+            if(isnan(GX->f[1])) GX->ud[1] |= 0x80000000;
         }
         if(EX==GX) {
             GX->q[1] = GX->q[0];
         } else {
-            if(isnanf(EX->f[0])) {
+            if(isnan(EX->f[0])) {
                 GX->ud[2] = EX->ud[0] | 0x00400000;
-            } else if(isnanf(EX->f[1])) {
+            } else if(isnan(EX->f[1])) {
                 GX->ud[2] = EX->ud[1] | 0x00400000;
             } else {
                 GX->f[2] = EX->f[0] + EX->f[1];
-                if(isnanf(GX->f[2])) GX->ud[2] |= 0x80000000;
+                if(isnan(GX->f[2])) GX->ud[2] |= 0x80000000;
             }
-            if(isnanf(EX->f[2])) {
+            if(isnan(EX->f[2])) {
                 GX->ud[3] = EX->ud[2] | 0x00400000;
-            } else if(isnanf(EX->f[3])) {
+            } else if(isnan(EX->f[3])) {
                 GX->ud[3] = EX->ud[3] | 0x00400000;
             } else {
                 GX->f[3] = EX->f[2] + EX->f[3];
-                if(isnanf(GX->f[3])) GX->ud[3] |= 0x80000000;
+                if(isnan(GX->f[3])) GX->ud[3] |= 0x80000000;
             }
         }
         fesetround(oldround);
@@ -417,40 +417,40 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         GETGX;
         int oldround = mxcsr_setround(emu);
         eax1 = *GX;
-        if(isnanf(eax1.f[0])) {
+        if(isnan(eax1.f[0])) {
             GX->ud[0] = eax1.ud[0] | 0x00400000;
-        } else if(isnanf(eax1.f[1])) {
+        } else if(isnan(eax1.f[1])) {
             GX->ud[0] = eax1.ud[1] | 0x00400000;
         } else {
             GX->f[0] = eax1.f[0] - eax1.f[1];
-            if(isnanf(GX->f[0])) GX->ud[0] |= 0x80000000;
+            if(isnan(GX->f[0])) GX->ud[0] |= 0x80000000;
         }
-        if(isnanf(eax1.f[2])) {
+        if(isnan(eax1.f[2])) {
             GX->ud[1] = eax1.ud[2] | 0x00400000;
-        } else if(isnanf(eax1.f[3])) {
+        } else if(isnan(eax1.f[3])) {
             GX->ud[1] = eax1.ud[3] | 0x00400000;
         } else {
             GX->f[1] = eax1.f[2] - eax1.f[3];
-            if(isnanf(GX->f[1])) GX->ud[1] |= 0x80000000;
+            if(isnan(GX->f[1])) GX->ud[1] |= 0x80000000;
         }
         if(EX==GX) {
             GX->q[1] = GX->q[0];
         } else {
-            if(isnanf(EX->f[0])) {
+            if(isnan(EX->f[0])) {
                 GX->ud[2] = EX->ud[0] | 0x00400000;
-            } else if(isnanf(EX->f[1])) {
+            } else if(isnan(EX->f[1])) {
                 GX->ud[2] = EX->ud[1] | 0x00400000;
             } else {
                 GX->f[2] = EX->f[0] - EX->f[1];
-                if(isnanf(GX->f[2])) GX->ud[2] |= 0x80000000;
+                if(isnan(GX->f[2])) GX->ud[2] |= 0x80000000;
             }
-            if(isnanf(EX->f[2])) {
+            if(isnan(EX->f[2])) {
                 GX->ud[3] = EX->ud[2] | 0x00400000;
-            } else if(isnanf(EX->f[3])) {
+            } else if(isnan(EX->f[3])) {
                 GX->ud[3] = EX->ud[3] | 0x00400000;
             } else {
                 GX->f[3] = EX->f[2] - EX->f[3];
-                if(isnanf(GX->f[3])) GX->ud[3] |= 0x80000000;
+                if(isnan(GX->f[3])) GX->ud[3] |= 0x80000000;
             }
         }
         fesetround(oldround);
@@ -510,9 +510,9 @@ uintptr_t RunF20F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
         GETGX;
         int oldround = mxcsr_setround(emu);
         for(int i=0; i<4; ++i) {
-            if(isnanf(GX->f[i])) GX->ud[i] |= 0x00400000;
-            else if(isnanf(EX->f[i])) GX->ud[i] = EX->ud[i] | 0x00400000;
-            else { if(i&1) GX->f[i] += EX->f[i]; else GX->f[i] -= EX->f[i]; if(isnanf(GX->f[i])) GX->ud[i] |= 0x80000000; }
+            if(isnan(GX->f[i])) GX->ud[i] |= 0x00400000;
+            else if(isnan(EX->f[i])) GX->ud[i] = EX->ud[i] | 0x00400000;
+            else { if(i&1) GX->f[i] += EX->f[i]; else GX->f[i] -= EX->f[i]; if(isnan(GX->f[i])) GX->ud[i] |= 0x80000000; }
         }
         fesetround(oldround);
     }

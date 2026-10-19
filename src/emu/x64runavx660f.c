@@ -439,7 +439,7 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGX;
             GETGY;
             for(int i=0; i<4; ++i) {
-                if(isnanf(EX->f[i]))
+                if(isnan(EX->f[i]))
                     tmp64s = INT32_MIN;
                 else
                     switch(emu->mxcsr.f.MXCSR_RC) {
@@ -470,7 +470,7 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             if(vex.l) {
                 GETEY;
                 for(int i=0; i<4; ++i) {
-                    if(isnanf(EY->f[i]))
+                    if(isnan(EY->f[i]))
                         tmp64s = INT32_MIN;
                     else
                         switch(emu->mxcsr.f.MXCSR_RC) {

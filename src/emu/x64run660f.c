@@ -900,7 +900,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                         fesetround(FE_TONEAREST);
                         for(int i=0; i<4; ++i)
                             #ifdef RV64
-                            if(isnanf(EX->f[i]))
+                            if(isnan(EX->f[i]))
                                 GX->ud[i] = EX->ud[i] | 0x00400000;
                             else
                             #endif
@@ -911,7 +911,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                     case ROUND_Down:
                         for(int i=0; i<4; ++i)
                             #ifdef RV64
-                            if(isnanf(EX->f[i]))
+                            if(isnan(EX->f[i]))
                                 GX->ud[i] = EX->ud[i] | 0x00400000;
                             else
                             #endif
@@ -920,7 +920,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                     case ROUND_Up:
                         for(int i=0; i<4; ++i)
                             #ifdef RV64
-                            if(isnanf(EX->f[i]))
+                            if(isnan(EX->f[i]))
                                 GX->ud[i] = EX->ud[i] | 0x00400000;
                             else
                             #endif
@@ -929,7 +929,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                     case ROUND_Chop:
                         for(int i=0; i<4; ++i)
                             #ifdef RV64
-                            if(isnanf(EX->f[i]))
+                            if(isnan(EX->f[i]))
                                 GX->ud[i] = EX->ud[i] | 0x00400000;
                             else
                             #endif
@@ -995,7 +995,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 GETGX;
                 tmp8u = F8; // ignoring bit 3 interupt thingy
                 #ifdef RV64
-                if(isnanf(EX->f[0])) {
+                if(isnan(EX->f[0])) {
                     GX->ud[0] = EX->ud[0] | 0x00400000;
                     break;
                 }
@@ -1461,7 +1461,7 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
         GETEX(0);
         GETGX;
         for(int i=0; i<4; ++i) {
-            if(isnanf(EX->f[i]))
+            if(isnan(EX->f[i]))
                 tmp64s = INT32_MIN;
             else
                 switch(emu->mxcsr.f.MXCSR_RC) {

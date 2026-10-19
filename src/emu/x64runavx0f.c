@@ -398,26 +398,26 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGY;
             int oldround = mxcsr_setround(emu);
             for(int i=0; i<4; ++i) {
-                if(isnanf(VX->f[i])) {
+                if(isnan(VX->f[i])) {
                     GX->ud[i] = VX->ud[i] | 0x00400000;
-                } else if(isnanf(EX->f[i])) {
+                } else if(isnan(EX->f[i])) {
                     GX->ud[i] = EX->ud[i] | 0x00400000;
                 } else {
                     GX->f[i] = VX->f[i] + EX->f[i];
-                    if(isnanf(GX->f[i])) GX->ud[i] |= 0x80000000;
+                    if(isnan(GX->f[i])) GX->ud[i] |= 0x80000000;
                 }
             }
             if(vex.l) {
                 GETEY;
                 GETVY;
                 for(int i=0; i<4; ++i) {
-                    if(isnanf(VY->f[i])) {
+                    if(isnan(VY->f[i])) {
                         GY->ud[i] = VY->ud[i] | 0x00400000;
-                    } else if(isnanf(EY->f[i])) {
+                    } else if(isnan(EY->f[i])) {
                         GY->ud[i] = EY->ud[i] | 0x00400000;
                     } else {
                         GY->f[i] = VY->f[i] + EY->f[i];
-                        if(isnanf(GY->f[i])) GY->ud[i] |= 0x80000000;
+                        if(isnan(GY->f[i])) GY->ud[i] |= 0x80000000;
                     }
                 }
             } else
@@ -433,26 +433,26 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGY;
             int oldround = mxcsr_setround(emu);
             for(int i=0; i<4; ++i) {
-                if(isnanf(VX->f[i])) {
+                if(isnan(VX->f[i])) {
                     GX->ud[i] = VX->ud[i] | 0x00400000;
-                } else if(isnanf(EX->f[i])) {
+                } else if(isnan(EX->f[i])) {
                     GX->ud[i] = EX->ud[i] | 0x00400000;
                 } else {
                     GX->f[i] = VX->f[i] * EX->f[i];
-                    if(isnanf(GX->f[i])) GX->ud[i] |= 0x80000000;
+                    if(isnan(GX->f[i])) GX->ud[i] |= 0x80000000;
                 }
             }
             if(vex.l) {
                 GETEY;
                 GETVY;
                 for(int i=0; i<4; ++i) {
-                    if(isnanf(VY->f[i])) {
+                    if(isnan(VY->f[i])) {
                         GY->ud[i] = VY->ud[i] | 0x00400000;
-                    } else if(isnanf(EY->f[i])) {
+                    } else if(isnan(EY->f[i])) {
                         GY->ud[i] = EY->ud[i] | 0x00400000;
                     } else {
                         GY->f[i] = VY->f[i] * EY->f[i];
-                        if(isnanf(GY->f[i])) GY->ud[i] |= 0x80000000;
+                        if(isnan(GY->f[i])) GY->ud[i] |= 0x80000000;
                     }
                 }
             } else
@@ -468,7 +468,7 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             if (vex.l) {
                 #ifdef RV64
                 for (int i = 1; i >= 0; --i) {
-                    if (isnanf(EX->f[i + 2]))
+                    if (isnan(EX->f[i + 2]))
                         GY->q[i] = ((uint64_t)(EX->ud[i + 2] & 0x80000000) << 32)
                                  | ((uint64_t)(EX->ud[i + 2] & 0x007fffff) << 29)
                                  | 0x7ff8000000000000ULL;
@@ -483,7 +483,7 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GY->u128 = 0;
             #ifdef RV64
             for (int i = 1; i >= 0; --i) {
-                if (isnanf(EX->f[i]))
+                if (isnan(EX->f[i]))
                     GX->q[i] = ((uint64_t)(EX->ud[i] & 0x80000000) << 32)
                              | ((uint64_t)(EX->ud[i] & 0x007fffff) << 29)
                              | 0x7ff8000000000000ULL;
@@ -525,26 +525,26 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGY;
             int oldround = mxcsr_setround(emu);
             for(int i=0; i<4; ++i) {
-                if(isnanf(VX->f[i])) {
+                if(isnan(VX->f[i])) {
                     GX->ud[i] = VX->ud[i] | 0x00400000;
-                } else if(isnanf(EX->f[i])) {
+                } else if(isnan(EX->f[i])) {
                     GX->ud[i] = EX->ud[i] | 0x00400000;
                 } else {
                     GX->f[i] = VX->f[i] - EX->f[i];
-                    if(isnanf(GX->f[i])) GX->ud[i] |= 0x80000000;
+                    if(isnan(GX->f[i])) GX->ud[i] |= 0x80000000;
                 }
             }
             if(vex.l) {
                 GETEY;
                 GETVY;
                 for(int i=0; i<4; ++i) {
-                    if(isnanf(VY->f[i])) {
+                    if(isnan(VY->f[i])) {
                         GY->ud[i] = VY->ud[i] | 0x00400000;
-                    } else if(isnanf(EY->f[i])) {
+                    } else if(isnan(EY->f[i])) {
                         GY->ud[i] = EY->ud[i] | 0x00400000;
                     } else {
                         GY->f[i] = VY->f[i] - EY->f[i];
-                        if(isnanf(GY->f[i])) GY->ud[i] |= 0x80000000;
+                        if(isnan(GY->f[i])) GY->ud[i] |= 0x80000000;
                     }
                 }
             } else
@@ -559,7 +559,7 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETVX;
             GETGY;
             for(int i=0; i<4; ++i)
-                if (isnanf(VX->f[i]) || isnanf(EX->f[i]) || islessequal(EX->f[i], VX->f[i]))
+                if (isnan(VX->f[i]) || isnan(EX->f[i]) || islessequal(EX->f[i], VX->f[i]))
                     GX->f[i] = EX->f[i];
                 else
                     GX->f[i] = VX->f[i];
@@ -567,7 +567,7 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GETEY;
                 GETVY;
                 for(int i=0; i<4; ++i)
-                    if (isnanf(VY->f[i]) || isnanf(EY->f[i]) || islessequal(EY->f[i], VY->f[i]))
+                    if (isnan(VY->f[i]) || isnan(EY->f[i]) || islessequal(EY->f[i], VY->f[i]))
                         GY->f[i] = EY->f[i];
                     else
                         GY->f[i] = VY->f[i];
@@ -582,26 +582,26 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGY;
             int oldround = mxcsr_setround(emu);
             for(int i=0; i<4; ++i) {
-                if(isnanf(VX->f[i])) {
+                if(isnan(VX->f[i])) {
                     GX->ud[i] = VX->ud[i] | 0x00400000;
-                } else if(isnanf(EX->f[i])) {
+                } else if(isnan(EX->f[i])) {
                     GX->ud[i] = EX->ud[i] | 0x00400000;
                 } else {
                     GX->f[i] = VX->f[i] / EX->f[i];
-                    if(isnanf(GX->f[i])) GX->ud[i] |= 0x80000000;
+                    if(isnan(GX->f[i])) GX->ud[i] |= 0x80000000;
                 }
             }
             if(vex.l) {
                 GETEY;
                 GETVY;
                 for(int i=0; i<4; ++i) {
-                    if(isnanf(VY->f[i])) {
+                    if(isnan(VY->f[i])) {
                         GY->ud[i] = VY->ud[i] | 0x00400000;
-                    } else if(isnanf(EY->f[i])) {
+                    } else if(isnan(EY->f[i])) {
                         GY->ud[i] = EY->ud[i] | 0x00400000;
                     } else {
                         GY->f[i] = VY->f[i] / EY->f[i];
-                        if(isnanf(GY->f[i])) GY->ud[i] |= 0x80000000;
+                        if(isnan(GY->f[i])) GY->ud[i] |= 0x80000000;
                     }
                 }
             } else
@@ -616,7 +616,7 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETVX;
             GETGY;
             for(int i=0; i<4; ++i)
-                if (isnanf(VX->f[i]) || isnanf(EX->f[i]) || isgreaterequal(EX->f[i], VX->f[i]))
+                if (isnan(VX->f[i]) || isnan(EX->f[i]) || isgreaterequal(EX->f[i], VX->f[i]))
                     GX->f[i] = EX->f[i];
                 else
                     GX->f[i] = VX->f[i];
@@ -624,7 +624,7 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 GETEY;
                 GETVY;
                 for(int i=0; i<4; ++i)
-                    if (isnanf(VY->f[i]) || isnanf(EY->f[i]) || isgreaterequal(EY->f[i], VY->f[i]))
+                    if (isnan(VY->f[i]) || isnan(EY->f[i]) || isgreaterequal(EY->f[i], VY->f[i]))
                         GY->f[i] = EY->f[i];
                     else
                         GY->f[i] = VY->f[i];
