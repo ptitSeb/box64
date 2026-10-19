@@ -513,6 +513,21 @@ elseif(NOT ANDROID)
   message(FATAL_ERROR "Unknown siginfo_t layout!")
 endif()
 
+check_c_source_compiles("#include <resolv.h>
+int main(void){ struct __res_state r = { .__glibc_unused_qhook = NULL }; return 0; }"  RES_STATE_GLIBC_UNUSED_QHOOK)
+check_c_source_compiles("#include <resolv.h>
+int main(void){ struct __res_state r = { .qhook = NULL }; return 0; }"                 RES_STATE_QHOOK)
+
+if(RES_STATE_GLIBC_UNUSED_QHOOK) # glibc
+  add_compile_definitions("RES_STATE_QHOOK=__glibc_unused_qhook")
+  add_compile_definitions("RES_STATE_RHOOK=__glibc_unused_rhook")
+elseif(RES_STATE_QHOOK) # musl
+  add_compile_definitions("RES_STATE_QHOOK=qhook")
+  add_compile_definitions("RES_STATE_RHOOK=rhook")
+elseif(NOT ANDROID)
+  message(FATAL_ERROR "Unknown res_state layout!")
+endif()
+
 # generated files
 set_source_files_properties(
     "${BOX64_ROOT}/src/git_head.h"
