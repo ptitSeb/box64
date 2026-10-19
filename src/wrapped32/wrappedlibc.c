@@ -2208,17 +2208,17 @@ void convert_file_action_to_32(void* d, void* s)
 {
     posix_spawn_file_actions_32_t* dst = d;
     posix_spawn_file_actions_t* src = s;
-    dst->__allocated = src->__allocated;
-    dst->__used = src->__used;
-    dst->__actions = to_ptrv(src->__actions);
+    dst->__allocated = src->POSIX_SPAWN_FILE_ACTIONS_T__ALLOCATED;
+    dst->__used = src->POSIX_SPAWN_FILE_ACTIONS_T__USED;
+    dst->__actions = to_ptrv(src->POSIX_SPAWN_FILE_ACTIONS_T__ACTIONS);
 }
 void convert_file_action_to_64(void* d, void* s)
 {
     posix_spawn_file_actions_t* dst = d;
     posix_spawn_file_actions_32_t* src = s;
-    dst->__actions = from_ptrv(src->__actions);
-    dst->__used = src->__used;
-    dst->__allocated = src->__allocated;
+    dst->POSIX_SPAWN_FILE_ACTIONS_T__ACTIONS = from_ptrv(src->__actions);
+    dst->POSIX_SPAWN_FILE_ACTIONS_T__USED = src->__used;
+    dst->POSIX_SPAWN_FILE_ACTIONS_T__ALLOCATED = src->__allocated;
 }
 
 EXPORT int my32_posix_spawn_file_actions_init(x64emu_t* emu, posix_spawn_file_actions_32_t* action)

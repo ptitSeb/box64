@@ -565,6 +565,27 @@ elseif(NOT ANDROID)
   message(FATAL_ERROR "Unknown glob_t layout!")
 endif()
 
+check_c_source_compiles("#include <spawn.h>
+int main(void){ posix_spawn_file_actions_t a = { .__allocated = 0 }; return 0; }" 
+    POSIX_SPAWN_FILE_ACTIONS_T__ALLOCATED)
+check_c_source_compiles("#include <spawn.h>
+int main(void){ posix_spawn_file_actions_t a = { .__pad0 = {0} }; return 0; }" 
+    POSIX_SPAWN_FILE_ACTIONS_T__PAD0)
+
+if(POSIX_SPAWN_FILE_ACTIONS_T__ALLOCATED) # glibc
+  add_compile_definitions("POSIX_SPAWN_FILE_ACTIONS_T__ALLOCATED=__allocated")
+  add_compile_definitions("POSIX_SPAWN_FILE_ACTIONS_T__USED=__used")
+  add_compile_definitions("POSIX_SPAWN_FILE_ACTIONS_T__ACTIONS=__actions")
+  add_compile_definitions("POSIX_SPAWN_FILE_ACTIONS_T__PAD=__pad")
+elseif(POSIX_SPAWN_FILE_ACTIONS_T__PAD0) # musl
+  add_compile_definitions("POSIX_SPAWN_FILE_ACTIONS_T__ALLOCATED=__pad0[0]")
+  add_compile_definitions("POSIX_SPAWN_FILE_ACTIONS_T__USED=__pad0[1]")
+  add_compile_definitions("POSIX_SPAWN_FILE_ACTIONS_T__ACTIONS=__actions")
+  add_compile_definitions("POSIX_SPAWN_FILE_ACTIONS_T__PAD=__pad")
+elseif(NOT ANDROID)
+  message(FATAL_ERROR "Unknown posix_spawn_file_actions_t layout!")
+endif()
+
 # generated files
 set_source_files_properties(
     "${BOX64_ROOT}/src/git_head.h"
