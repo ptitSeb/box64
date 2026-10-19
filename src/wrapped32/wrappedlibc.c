@@ -2369,8 +2369,8 @@ EXPORT unsigned long int my32___fdelt_chk (unsigned long int d)
 
 EXPORT int my32_getrlimit(x64emu_t* emu, int what, uint32_t* pr)
 {
-    struct rlimit64 l = {0};
-    int ret = getrlimit64(what, &l);
+    struct rlimit l = {0};
+    int ret = getrlimit(what, &l);
     if(pr) {
         pr[0] = (l.rlim_cur<0x100000000LL)?l.rlim_cur:0xffffffff;
         pr[1] = (l.rlim_max<0x100000000LL)?l.rlim_max:0xffffffff;
@@ -2379,10 +2379,10 @@ EXPORT int my32_getrlimit(x64emu_t* emu, int what, uint32_t* pr)
 }
 EXPORT int my32_setrlimit(x64emu_t* emu, int what, uint32_t* pr)
 {
-    struct rlimit64 l = {0};
+    struct rlimit l = {0};
     l.rlim_cur = (pr[0]!=0xffffffff)?pr[0]:0xffffffffffffffffLL;
     l.rlim_max = (pr[1]!=0xffffffff)?pr[1]:0xffffffffffffffffLL;
-    return setrlimit64(what, &l);
+    return setrlimit(what, &l);
 }
 
 EXPORT void* my32___localtime64(x64emu_t* emu, void* t)

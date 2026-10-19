@@ -4374,10 +4374,10 @@ EXPORT int my_getrlimit(x64emu_t* emu, uint32_t resource, struct rlimit* rlim)
     return my___getrlimit(emu, resource, rlim);
 }
 
-EXPORT int my_getrlimit64(x64emu_t* emu, uint32_t resource, struct rlimit64* rlim)
+EXPORT int my_getrlimit64(x64emu_t* emu, uint32_t resource, struct rlimit* rlim)
 {
     (void)emu;
-    return check_getrlimit_buffer(rlim, sizeof(*rlim)) ? getrlimit64(resource, rlim) : -1;
+    return check_getrlimit_buffer(rlim, sizeof(*rlim)) ? getrlimit(resource, rlim) : -1;
 }
 
 EXPORT int my_setrlimit(x64emu_t* emu, int ressource, const struct rlimit *rlim)
