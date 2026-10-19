@@ -43,7 +43,7 @@ _Atomic int g_active_emu_workers = 0;
 typedef void (*vFppp_t)(void*, void*, void*);
 typedef void (*vFpi_t)(void*, int);
 typedef int (*iFppip_t)(void*, void*, int, void*);
-typedef int (*iFli_t)(long unsigned int, int);
+typedef int (*iFli_t)(pthread_t, int);
 typedef struct emuthread_s emuthread_t;
 
 static vFppp_t real_pthread_cleanup_push_defer = NULL;
