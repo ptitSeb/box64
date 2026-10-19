@@ -455,6 +455,8 @@ set(PROJECT_SYMBOL_CHECKS
     pthread_mutexattr_setprioceiling    pthread.h
     dlvsym                              dlfcn.h
     obstack_vprintf                     stdio.h
+    getprotobyname_r                    netdb.h
+    getprotobynumber_r                  netdb.h
 )
 
 list(LENGTH PROJECT_SYMBOL_CHECKS checks_len)
