@@ -49,8 +49,12 @@ typedef struct emuthread_s emuthread_t;
 static vFppp_t real_pthread_cleanup_push_defer = NULL;
 static vFpi_t real_pthread_cleanup_pop_restore = NULL;
 static iFppip_t real_pthread_cond_clockwait = NULL;
+#ifndef HAVE__PTHREAD_CLEANUP_PUSH
 void _pthread_cleanup_push(void* buffer, void* routine, void* arg);	// declare hidden functions
+#endif
+#ifndef HAVE__PTHREAD_CLEANUP_POP
 void _pthread_cleanup_pop(void* buffer, int exec);
+#endif
 // with glibc 2.34+, pthread_kill changed behaviour and might break some program, so using old version if possible
 // it will be pthread_kill@GLIBC_2.17 on aarch64, but it's GLIBC_2.2.5 on x86_64
 static iFli_t real_phtread_kill_old = NULL;
