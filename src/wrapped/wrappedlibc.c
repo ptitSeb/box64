@@ -4259,7 +4259,7 @@ static ssize_t my_cookie_write(void *p, const char *buf, size_t size)
     my_cookie_t* cookie = (my_cookie_t*)p;
     return (ssize_t)RunFunctionFmt(cookie->w, "ppL", cookie->cookie, buf, size)       ;
 }
-static int my_cookie_seek(void *p, off64_t *offset, int whence)
+static int my_cookie_seek(void *p, off_t *offset, int whence)
 {
     my_cookie_t* cookie = (my_cookie_t*)p;
     return RunFunctionFmt(cookie->s, "ppi", cookie->cookie, offset, whence)       ;

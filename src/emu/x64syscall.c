@@ -430,8 +430,8 @@ typedef struct x86_linux_dirent_s {
 } x86_linux_dirent_t;
 
 typedef struct nat_linux_dirent64_s {
-    ino64_t        d_ino;
-    off64_t        d_off;
+    ino_t          d_ino;
+    off_t          d_off;
     unsigned short d_reclen;
     unsigned char  d_type;
     char           d_name[];

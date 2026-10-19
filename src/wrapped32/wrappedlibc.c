@@ -3201,7 +3201,7 @@ static ssize_t my32_cookie_write(void *p, const char *buf, size_t size)
     my32_cookie_t* cookie = (my32_cookie_t*)p;
     return (ssize_t)RunFunction(my_context, cookie->w, 3, cookie->cookie, buf, size);
 }
-static int my32_cookie_seek(void *p, off64_t *offset, int whence)
+static int my32_cookie_seek(void *p, off_t *offset, int whence)
 {
     my32_cookie_t* cookie = (my32_cookie_t*)p;
     return RunFunction(my_context, cookie->s, 3, cookie->cookie, offset, whence);
