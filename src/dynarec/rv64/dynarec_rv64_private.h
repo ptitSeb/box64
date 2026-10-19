@@ -211,6 +211,7 @@ typedef struct dynarec_rv64_s {
     int32_t             forward_size;   // size at the forward point
     int                 forward_ninst;  // ninst at the forward point
     uint16_t            ymm_zero;   // bitmap of ymm to zero at purge
+    uint8_t pending_zero_flushed;
     uint8_t             always_test;
     uint8_t             abort;
     uint8_t             vector_sew;     // current sew status
