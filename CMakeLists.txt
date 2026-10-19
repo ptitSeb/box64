@@ -529,6 +529,19 @@ elseif(NOT ANDROID)
   message(FATAL_ERROR "Unknown res_state layout!")
 endif()
 
+check_c_source_compiles("#include <ctype.h>
+int main(void){ return &__ctype_b_loc == 0; }" CTYPE_B_LOC)
+check_c_source_compiles("#include <ctype.h>
+extern const unsigned short int **__ctype_b_loc(void);
+int main(void){ __ctype_b_loc(); return 0; }" CTYPE_B_LOC_EXT)
+
+if(CTYPE_B_LOC) # glibc
+  add_compile_definitions("HAVE_CTYPE_B_LOC")
+elseif(CTYPE_B_LOC_EXT) # musl
+  add_compile_definitions("HAVE_CTYPE_B_LOC")
+  add_compile_definitions("HAVE_CTYPE_B_LOC_EXT")
+endif()
+
 # generated files
 set_source_files_properties(
     "${BOX64_ROOT}/src/git_head.h"
