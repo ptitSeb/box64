@@ -7,7 +7,7 @@
 #include <sys/mman.h>
 #include <ucontext.h>
 #include <setjmp.h>
-#ifndef ANDROID
+#ifdef USE_BACKTRACE
 #include <execinfo.h>
 #endif
 
@@ -69,7 +69,7 @@ void EmitSignal(x64emu_t* emu, int sig, void* addr, int code)
             void* buffer[BT_BUF_SIZE];
             char** strings;
 
-            #ifndef ANDROID
+            #ifdef USE_BACKTRACE
             nptrs = backtrace(buffer, BT_BUF_SIZE);
             strings = backtrace_symbols(buffer, nptrs);
             if (strings) {
