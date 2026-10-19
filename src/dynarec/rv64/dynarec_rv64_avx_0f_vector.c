@@ -103,9 +103,7 @@ uintptr_t dynarec64_AVX_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t
         case 0x14:
             INST_NAME("VUNPCKLPS Gx, Vx, Ex");
             nextop = F8;
-            GETVY_vector_cached(q0, VECTOR_SEW32);
-            GETEY_vector(q1, 0, VECTOR_SEW32);
-            GETGY_empty_vector(v0);
+            GETGY_empty_VYEY_vector(v0, q0, q1, VECTOR_SEW32);
             q2 = fpu_get_scratch(dyn);
             v1 = fpu_get_scratch(dyn);
             v2 = fpu_get_scratch(dyn);
@@ -122,9 +120,7 @@ uintptr_t dynarec64_AVX_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t
         case 0x15:
             INST_NAME("VUNPCKHPS Gx, Vx, Ex");
             nextop = F8;
-            GETVY_vector_cached(q0, VECTOR_SEW32);
-            GETEY_vector(q1, 0, VECTOR_SEW32);
-            GETGY_empty_vector(v0);
+            GETGY_empty_VYEY_vector(v0, q0, q1, VECTOR_SEW32);
             q2 = fpu_get_scratch(dyn);
             v1 = fpu_get_scratch(dyn);
             v2 = fpu_get_scratch(dyn);
@@ -256,18 +252,14 @@ uintptr_t dynarec64_AVX_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t
         case 0x54:
             INST_NAME("VANDPS Gx, Vx, Ex");
             nextop = F8;
-            GETVY_vector_cached(q0, VECTOR_SEW32);
-            GETEY_vector(q1, 0, VECTOR_SEW32);
-            GETGY_empty_vector(v0);
+            GETGY_empty_VYEY_vector(v0, q0, q1, VECTOR_SEW32);
             VAND_VV(v0, q0, q1, VECTOR_UNMASKED);
             PUTGY_vector(v0, VECTOR_SEW32);
             break;
         case 0x55:
             INST_NAME("VANDNPS Gx, Vx, Ex");
             nextop = F8;
-            GETVY_vector_cached(q0, VECTOR_SEW32);
-            GETEY_vector(q1, 0, VECTOR_SEW32);
-            GETGY_empty_vector(v0);
+            GETGY_empty_VYEY_vector_safe(v0, q0, q1, VECTOR_SEW32);
             VXOR_VI(v0, q0, 0x1f, VECTOR_UNMASKED);
             VAND_VV(v0, v0, q1, VECTOR_UNMASKED);
             PUTGY_vector(v0, VECTOR_SEW32);
@@ -275,18 +267,14 @@ uintptr_t dynarec64_AVX_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t
         case 0x56:
             INST_NAME("VORPS Gx, Vx, Ex");
             nextop = F8;
-            GETVY_vector_cached(q0, VECTOR_SEW32);
-            GETEY_vector(q1, 0, VECTOR_SEW32);
-            GETGY_empty_vector(v0);
+            GETGY_empty_VYEY_vector(v0, q0, q1, VECTOR_SEW32);
             VOR_VV(v0, q0, q1, VECTOR_UNMASKED);
             PUTGY_vector(v0, VECTOR_SEW32);
             break;
         case 0x57:
             INST_NAME("VXORPS Gx, Vx, Ex");
             nextop = F8;
-            GETVY_vector_cached(q0, VECTOR_SEW32);
-            GETEY_vector(q1, 0, VECTOR_SEW32);
-            GETGY_empty_vector(v0);
+            GETGY_empty_VYEY_vector(v0, q0, q1, VECTOR_SEW32);
             VXOR_VV(v0, q0, q1, VECTOR_UNMASKED);
             PUTGY_vector(v0, VECTOR_SEW32);
             break;
@@ -294,9 +282,7 @@ uintptr_t dynarec64_AVX_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t
             if (!BOX64ENV(dynarec_fastnan)) return 0;
             INST_NAME("VADDPS Gx, Vx, Ex");
             nextop = F8;
-            GETVY_vector_cached(q0, VECTOR_SEW32);
-            GETEY_vector(q1, 0, VECTOR_SEW32);
-            GETGY_empty_vector(v0);
+            GETGY_empty_VYEY_vector(v0, q0, q1, VECTOR_SEW32);
             VFADD_VV(v0, q0, q1, VECTOR_UNMASKED);
             PUTGY_vector(v0, VECTOR_SEW32);
             break;
@@ -304,9 +290,7 @@ uintptr_t dynarec64_AVX_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t
             if (!BOX64ENV(dynarec_fastnan)) return 0;
             INST_NAME("VMULPS Gx, Vx, Ex");
             nextop = F8;
-            GETVY_vector_cached(q0, VECTOR_SEW32);
-            GETEY_vector(q1, 0, VECTOR_SEW32);
-            GETGY_empty_vector(v0);
+            GETGY_empty_VYEY_vector(v0, q0, q1, VECTOR_SEW32);
             VFMUL_VV(v0, q0, q1, VECTOR_UNMASKED);
             PUTGY_vector(v0, VECTOR_SEW32);
             break;
@@ -345,18 +329,14 @@ uintptr_t dynarec64_AVX_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t
             if (!BOX64ENV(dynarec_fastnan)) return 0;
             INST_NAME("VSUBPS Gx, Vx, Ex");
             nextop = F8;
-            GETVY_vector_cached(q0, VECTOR_SEW32);
-            GETEY_vector(q1, 0, VECTOR_SEW32);
-            GETGY_empty_vector(v0);
+            GETGY_empty_VYEY_vector(v0, q0, q1, VECTOR_SEW32);
             VFSUB_VV(v0, q0, q1, VECTOR_UNMASKED);
             PUTGY_vector(v0, VECTOR_SEW32);
             break;
         case 0x5D:
             INST_NAME("VMINPS Gx, Vx, Ex");
             nextop = F8;
-            GETVY_vector_cached(q0, VECTOR_SEW32);
-            GETEY_vector(q1, 0, VECTOR_SEW32);
-            GETGY_empty_vector(v0);
+            GETGY_empty_VYEY_vector(v0, q0, q1, VECTOR_SEW32);
             VMFLT_VV(VMASK, q0, q1, VECTOR_UNMASKED);
             VMERGE_VVM(v0, q1, q0);
             PUTGY_vector(v0, VECTOR_SEW32);
@@ -365,18 +345,14 @@ uintptr_t dynarec64_AVX_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t
             if (!BOX64ENV(dynarec_fastnan)) return 0;
             INST_NAME("VDIVPS Gx, Vx, Ex");
             nextop = F8;
-            GETVY_vector_cached(q0, VECTOR_SEW32);
-            GETEY_vector(q1, 0, VECTOR_SEW32);
-            GETGY_empty_vector(v0);
+            GETGY_empty_VYEY_vector(v0, q0, q1, VECTOR_SEW32);
             VFDIV_VV(v0, q0, q1, VECTOR_UNMASKED);
             PUTGY_vector(v0, VECTOR_SEW32);
             break;
         case 0x5F:
             INST_NAME("VMAXPS Gx, Vx, Ex");
             nextop = F8;
-            GETVY_vector_cached(q0, VECTOR_SEW32);
-            GETEY_vector(q1, 0, VECTOR_SEW32);
-            GETGY_empty_vector(v0);
+            GETGY_empty_VYEY_vector(v0, q0, q1, VECTOR_SEW32);
             VMFLT_VV(VMASK, q1, q0, VECTOR_UNMASKED);
             VMERGE_VVM(v0, q1, q0);
             PUTGY_vector(v0, VECTOR_SEW32);

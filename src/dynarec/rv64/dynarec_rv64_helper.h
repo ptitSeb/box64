@@ -646,6 +646,34 @@
         SET_AVX_VECTOR_WIDTH(x1, sew);                                                           \
     } while (0)
 
+#define VEC_SRC_KEEP(a, dst)                  \
+    do {                                      \
+        if ((a) == (dst)) {                   \
+            int keep_ = fpu_get_scratch(dyn); \
+            VMV_V_V(keep_, (a));              \
+            (a) = keep_;                      \
+        }                                     \
+    } while (0)
+
+#define GETGY_empty_VYEY_vector_D(gx, vx, ex, sew, D) \
+    do {                                              \
+        GETVY_vector(vx, sew);                        \
+        GETEY_vector(ex, D, sew);                     \
+        GETGY_empty_vector(gx);                       \
+    } while (0)
+
+#define GETGY_empty_VYEY_vector(gx, vx, ex, sew) \
+    GETGY_empty_VYEY_vector_D(gx, vx, ex, sew, 0)
+
+#define GETGY_empty_VYEY_vector_safe(gx, vx, ex, sew) \
+    do {                                              \
+        GETVY_vector(vx, sew);                        \
+        GETEY_vector(ex, 0, sew);                     \
+        GETGY_empty_vector(gx);                       \
+        VEC_SRC_KEEP(vx, gx);                         \
+        VEC_SRC_KEEP(ex, gx);                         \
+    } while (0)
+
 #define VEC_SRC_SAFE(a, dst)                                                \
     do {                                                                    \
         if ((a) == (dst)) {                                                 \
