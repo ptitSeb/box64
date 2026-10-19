@@ -422,6 +422,7 @@ include(CheckIncludeFile)
 
 set(PROJECT_HEADERS
     execinfo.h
+    error.h
 )
 
 foreach(header IN LISTS PROJECT_HEADERS)
@@ -603,6 +604,25 @@ elseif(POSIX_SPAWN_FILE_ACTIONS_T__PAD0) # musl
   add_compile_definitions("POSIX_SPAWN_FILE_ACTIONS_T__PAD=__pad")
 elseif(NOT ANDROID)
   message(FATAL_ERROR "Unknown posix_spawn_file_actions_t layout!")
+endif()
+
+if(HAVE_ERROR_H)
+    set(ERROR_TEST [[
+        #include <error.h>
+        int main(void) { error(0, 0, "test"); return 0; }
+    ]])
+    check_c_source_compiles("${ERROR_TEST}" HAVE_ERROR)
+    if(NOT HAVE_ERROR)
+        include(CMakePushCheckState)
+        cmake_push_check_state()
+        set(CMAKE_REQUIRED_LIBRARIES error)
+        check_c_source_compiles("${ERROR_TEST}" HAVE_ERROR_LIB)
+        cmake_pop_check_state()
+    endif()
+endif()
+
+if(NOT HAVE_ERROR AND NOT HAVE_ERROR_LIB)
+    message(FATAL_ERROR "error() is unavailable")
 endif()
 
 # generated files
@@ -1569,6 +1589,56 @@ if(NOT NOBOX64)
         target_link_libraries(${BOX64} dynarec)
     endif()
     target_link_libraries(${BOX64} interpreter)
+
+    set(BOX64_MUSL FALSE)
+
+    if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+        if(CMAKE_C_COMPILER_TARGET MATCHES "musl")
+            set(BOX64_MUSL TRUE)
+            set(BOX64_LIBC_TARGET "${CMAKE_C_COMPILER_TARGET}")
+        else()
+            execute_process(
+                COMMAND "${CMAKE_C_COMPILER}" -dumpmachine
+                OUTPUT_VARIABLE BOX64_CC_MACHINE
+                OUTPUT_STRIP_TRAILING_WHITESPACE
+                ERROR_QUIET
+            )
+
+            if(BOX64_CC_MACHINE MATCHES "musl")
+                set(BOX64_MUSL TRUE)
+                set(BOX64_LIBC_TARGET "${BOX64_CC_MACHINE}")
+            endif()
+        endif()
+    endif()
+
+    if(BOX64_MUSL)
+        set(MUSL_COMPAT_LIBS
+            argp
+            obstack
+            fts
+            ucontext
+        )
+
+        if(HAVE_ERROR_LIB)
+            list(APPEND MUSL_COMPAT_LIBS error)
+        endif()
+
+        foreach(lib IN LISTS MUSL_COMPAT_LIBS)
+            string(TOUPPER "${lib}" LIB_UPPER)
+            set(LIB_VAR "MUSL_${LIB_UPPER}_LIBRARY")
+            
+            message(STATUS "Looking for lib${lib}")
+            find_library(${LIB_VAR} NAMES ${lib})
+
+            if(${LIB_VAR})
+                message(STATUS "Looking for lib${lib} - found: ${${LIB_VAR}}")
+            else()
+                message(FATAL_ERROR "Looking for lib${lib} - not found.")
+            endif()
+
+            target_link_libraries(${BOX64} "${MUSL_${LIB_UPPER}_LIBRARY}")
+        endforeach()
+    endif()
 
     if(${CMAKE_VERSION} VERSION_LESS "3.13")
         if(NOT NOLOADADDR)
