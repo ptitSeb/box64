@@ -52,8 +52,12 @@ static vFpi_t real_pthread_cleanup_pop_restore = NULL;
 static iFLi_t real_phtread_kill_old = NULL;
 static iFv_t real_pthread_yield = NULL;
 // those function can be used simply
-void _pthread_cleanup_push(void* buffer, void* routine, void* arg); // declare hidden functions
+#ifndef HAVE__PTHREAD_CLEANUP_PUSH
+void _pthread_cleanup_push(void* buffer, void* routine, void* arg);	// declare hidden functions
+#endif
+#ifndef HAVE__PTHREAD_CLEANUP_POP
 void _pthread_cleanup_pop(void* buffer, int exec);
+#endif
 
 typedef struct threadstack_s {
     void*  stack;

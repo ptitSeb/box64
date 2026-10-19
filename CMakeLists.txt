@@ -448,6 +448,8 @@ set(PROJECT_SYMBOL_CHECKS
     malloc_trim                         malloc.h
     mallinfo                            malloc.h
     mallinfo2                           malloc.h
+    _pthread_cleanup_push               pthread.h
+    _pthread_cleanup_pop                pthread.h
 )
 
 list(LENGTH PROJECT_SYMBOL_CHECKS checks_len)
