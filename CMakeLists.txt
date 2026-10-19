@@ -482,6 +482,25 @@ foreach(i RANGE 0 ${checks_last} 2)
     endif()
 endforeach()
 
+include(CheckFunctionExists)
+
+set(PROJECT_FUNCTION_CHECKS
+    __chk_fail
+)
+
+foreach(function IN LISTS PROJECT_FUNCTION_CHECKS)
+    string(MAKE_C_IDENTIFIER "${function}" function_ident)
+    string(TOUPPER "${function_ident}" function_ident)
+
+    set(var "HAVE_${function_ident}")
+
+    check_function_exists("${function}" "${var}")
+
+    if(${var})
+        add_compile_definitions("${var}=1")
+    endif()
+endforeach()
+
 include(CheckCSourceCompiles)
 
 check_c_source_compiles("#include <obstack.h>

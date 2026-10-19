@@ -2377,8 +2377,13 @@ EXPORT int32_t my32___cxa_thread_atexit_impl(x64emu_t* emu, void* dtor, void* ob
 extern void __chk_fail();
 EXPORT unsigned long int my32___fdelt_chk (unsigned long int d)
 {
-  if (d >= FD_SETSIZE)
+  if (d >= FD_SETSIZE) {
+#ifdef HAVE___CHK_FAIL
     __chk_fail ();
+#else
+    abort ();
+#endif
+  }
 
   return d / __NFDBITS;
 }
