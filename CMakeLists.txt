@@ -445,6 +445,7 @@ include(CheckSymbolExists)
 
 set(PROJECT_SYMBOL_CHECKS
     mallopt                         malloc.h
+    malloc_trim                     malloc.h
 )
 
 list(LENGTH PROJECT_SYMBOL_CHECKS checks_len)
