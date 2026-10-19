@@ -1156,7 +1156,7 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETGX_vector(v0, 1, VECTOR_SEW32);
             GETEX_vector(v1, 0, 1, VECTOR_SEW32);
             u8 = F8;
-            q0 = fpu_get_scratch(dyn);
+            q0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL1);
             d0 = fpu_get_scratch(dyn);
             d1 = fpu_get_scratch(dyn);
             if (cpuext.xtheadvector) { // lack of vrgatherei16.vv

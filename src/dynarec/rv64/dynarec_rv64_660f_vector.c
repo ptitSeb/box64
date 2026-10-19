@@ -1525,7 +1525,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
             GETEX_vector(q1, 0, 1, VECTOR_SEW64);
             GETGX_empty_vector(q0);
-            v0 = fpu_get_scratch(dyn);
+            v0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL1);
             tmp64u0 = F8;
             if (cpuext.xtheadvector) { // lack of vrgatherei16.vv
                 v1 = fpu_get_scratch(dyn);
