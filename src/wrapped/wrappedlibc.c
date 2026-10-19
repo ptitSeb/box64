@@ -100,6 +100,7 @@ extern const char *const sys_siglist[] __asm__("__sys_siglist");
 #include "cpumask.h"
 #include "x64tls.h"
 #include "libc_malloc.h"
+#include "libc_dirent.h"
 #ifndef LOG_INFO
 #define LOG_INFO 1
 #endif
