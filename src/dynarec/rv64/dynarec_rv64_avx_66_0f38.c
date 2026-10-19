@@ -2186,7 +2186,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
         case 0xDC:
             INST_NAME("VAESENC Gx, Vx, Ex");
             nextop = F8;
-            if (cpuext.zvkned && cpuext.vlen >= 32) {
+            if (cpuext.zvkned && cpuext.vlen >= 32 && !vex.l) {
                 gd = ((nextop & 0x38) >> 3) + (rex.r << 3);
                 SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW32);
                 v0 = fpu_get_scratch(dyn);
@@ -2258,7 +2258,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
         case 0xDD:
             INST_NAME("VAESENCLAST Gx, Vx, Ex");
             nextop = F8;
-            if (cpuext.zvkned && cpuext.vlen >= 32) {
+            if (cpuext.zvkned && cpuext.vlen >= 32 && !vex.l) {
                 gd = ((nextop & 0x38) >> 3) + (rex.r << 3);
                 SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW32);
                 v0 = fpu_get_scratch(dyn);
@@ -2333,7 +2333,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             if (vex.l) {
                 DEFAULT;
             }
-            if (cpuext.zvkned && cpuext.vlen >= 32) {
+            if (cpuext.zvkned && cpuext.vlen >= 32 && !vex.l) {
                 gd = ((nextop & 0x38) >> 3) + (rex.r << 3);
                 SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW32);
                 v1 = fpu_get_scratch(dyn);
@@ -2365,7 +2365,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
         case 0xDE:
             INST_NAME("VAESDEC Gx, Vx, Ex");
             nextop = F8;
-            if (cpuext.zvkned && cpuext.vlen >= 32) {
+            if (cpuext.zvkned && cpuext.vlen >= 32 && !vex.l) {
                 gd = ((nextop & 0x38) >> 3) + (rex.r << 3);
                 SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW32);
                 v0 = fpu_get_scratch(dyn);
@@ -2444,7 +2444,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
         case 0xDF:
             INST_NAME("VAESDECLAST Gx, Vx, Ex");
             nextop = F8;
-            if (cpuext.zvkned && cpuext.vlen >= 32) {
+            if (cpuext.zvkned && cpuext.vlen >= 32 && !vex.l) {
                 gd = ((nextop & 0x38) >> 3) + (rex.r << 3);
                 SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW32);
                 v0 = fpu_get_scratch(dyn);
