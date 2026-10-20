@@ -208,6 +208,7 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             avx_set_vector_width(dyn, ninst, x1, VECTOR_SEW8, 16);
             sse_forget_reg_vector(dyn, ninst, x1, gd);
             sse_set_pending_zero(dyn, gd, 0);
+            ymm_live_write(dyn, ninst, gd);
             ADDI(x1, xEmu, offsetof(x64emu_t, xmm[gd]));
             if (u8 & 1) {
                 VSE8_V(q0, x1, VECTOR_UNMASKED, VECTOR_NFIELD1);

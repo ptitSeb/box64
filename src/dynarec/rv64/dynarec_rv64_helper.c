@@ -2943,6 +2943,9 @@ void avx_sync_upper_vector(dynarec_rv64_t* dyn, int ninst, int s1, int next)
 {
     if (!cpuext.vlen || cpuext.vlen < 32)
         return;
+    #if STEP == 0
+    if (!next) dyn->insts[ninst].ymm_pending_materialized = 1;
+    #endif
     for (int i = 0; i < 16; ++i)
         if (dyn->e.ssecache[i].v != -1 && dyn->e.ssecache[i].vector)
             avx_flush_upper_vector(dyn, ninst, s1, i, dyn->e.ssecache[i].reg, next, 0);

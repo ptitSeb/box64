@@ -171,6 +171,7 @@ typedef struct instruction_rv64_s {
     uint16_t            ymm_upper_live;   // bitmask of YMM upper halves live after this instruction
     uint16_t            ymm_zero;         // bitmask of YMM upper halves deferred-zeroed by this instruction
     uint16_t            ymm_pending;      // bitmask of pending YMM upper-half zeros on entry to this instruction
+    uint8_t             ymm_pending_materialized; // pending YMM upper-half zeros are materialized before this instruction runs
 } instruction_rv64_t;
 
 typedef struct dynarec_rv64_s {
