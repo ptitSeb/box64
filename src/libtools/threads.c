@@ -940,6 +940,8 @@ EXPORT int my_pthread_getaffinity_np_old(x64emu_t* emu, pthread_t thread, void* 
 			cpumask_maxcpu(cpuset, 128, BOX64ENV(maxcpu));
 		}
 	}
+
+	return ret;
 }
 
 
