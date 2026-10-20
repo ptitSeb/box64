@@ -2140,7 +2140,17 @@ int dl_iterate_phdr_findsymbol(eh_obj_t* obj, search_symbol_t* s)
                 ++dyn;
             }
 
-            if (strtab && verdef && verdef_cnt) {
+#if defined(__GLIBC__) || defined (ANDROID)
+            int candidate = verdef && verdef_cnt;
+#else // MUSL
+            // glibc allows the usage of versioned symbols, musl provides only default symbols,
+            // -> verdef test would reject musl's libc. replace it with an address-based test
+            // to skip box64 itself (it exports its own dlsym/dlopen/dlclose):
+            // accept candidate if eh_check_addr returns that the address of this function
+            // lies not in obj, i.e. obj is not box64
+            int candidate = eh_check_addr(obj, (void*)dl_iterate_phdr_findsymbol) != 0;
+#endif
+            if (strtab && candidate) {
                 eh_find_sym(obj, s->name, &s->addr);
                 if (s->addr) {
                     eh_destroy_obj(obj);
