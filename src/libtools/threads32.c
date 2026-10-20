@@ -1064,7 +1064,14 @@ EXPORT int my32_pthread_mutex_init(pthread_mutex_t *m, pthread_mutexattr_t *att)
     fake->__kind = KIND_SIGN;
     fake->real_mutex = to_ptrv(createNewMutex());
     int ret = pthread_mutex_init(from_ptrv(fake->real_mutex), att);
+#ifdef __GLIBC__
     fake->i386__kind = ((struct __pthread_mutex_s*)from_ptrv(fake->real_mutex))->__kind;
+#else
+    // reads only the basic mutex type & fails silently
+    int kind = PTHREAD_MUTEX_NORMAL;
+    if(att) pthread_mutexattr_gettype(att, &kind);
+    fake->i386__kind = kind;
+#endif
     printf_log(LOG_DEBUG, "(init t%d %p) ", fake->i386__kind, from_ptrv(fake->real_mutex));
     return ret;
 }
