@@ -520,11 +520,15 @@ uintptr_t dynarec64_AVX_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t
             v2 = fpu_get_scratch(dyn);
             MOV64x(x4, (uint64_t)(u8 & 3) | ((uint64_t)((u8 >> 2) & 3) << 16) | ((uint64_t)((u8 >> 4) & 3) << 32) | ((uint64_t)((u8 >> 6) & 3) << 48));
             vector_vsetvli(dyn, ninst, x1, VECTOR_SEW64, VECTOR_LMUL1, 1);
-            VMV_V_X(q2, x4);
-            vector_vsetvli(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 1);
-            VID_V(VMASK, VECTOR_UNMASKED);
-            VMSGT_VI(VMASK, VMASK, 3, VECTOR_UNMASKED);
-            VOR_VI(q2, q2, 4, VECTOR_MASKED);
+            if (vex.l) {
+                VMV_V_X(q2, x4);
+                vector_vsetvli(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 1);
+                VID_V(VMASK, VECTOR_UNMASKED);
+                VMSGT_VI(VMASK, VMASK, 3, VECTOR_UNMASKED);
+                VOR_VI(q2, q2, 4, VECTOR_MASKED);
+            } else {
+                VMV_S_X(q2, x4);
+            }
             avx_set_vector_width(dyn, ninst, x1, VECTOR_SEW32, 16 << vex.l);
             VRGATHEREI16_VV(v1, q0, q2, VECTOR_UNMASKED);
             VRGATHEREI16_VV(v2, q1, q2, VECTOR_UNMASKED);
