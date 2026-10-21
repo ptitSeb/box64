@@ -1656,37 +1656,107 @@
         dyn->vector_sew = dyn->vector_eew;                                    \
     } while (0)
 
-#define AVX_SCALAR_OP_PROLOG(SEW)                                                                \
-    do {                                                                                         \
-        q0 = VREG(vex.v);                                                                        \
-        avx_load_reg_vector(dyn, ninst, x1, q0, vex.v, 16, (SEW));                               \
-        if (MODREG) {                                                                            \
-            ed = (nextop & 7) + (rex.b << 3);                                                    \
-            q1 = VREG(ed);                                                                       \
-            avx_load_reg_vector(dyn, ninst, x1, q1, ed, 16, (SEW));                              \
-        } else {                                                                                 \
-            q1 = fpu_get_scratch(dyn);                                                           \
-            SMREAD();                                                                            \
-            addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 0); \
-            avx_set_vector_width(dyn, ninst, x1, (SEW), 1 << (SEW));                             \
-            VLE_V(q1, ed, (SEW), VECTOR_UNMASKED, VECTOR_NFIELD1);                               \
-        }                                                                                        \
-        GETGY_empty_vector(v0);                                                                  \
-        if (v0 != q0) {                                                                          \
-            if (v0 == q1) {                                                                      \
-                int _t = fpu_get_scratch(dyn);                                                   \
-                avx_set_vector_width(dyn, ninst, x1, (SEW), 16);                                 \
-                VMV_V_V(_t, q1);                                                                 \
-                q1 = _t;                                                                         \
-            }                                                                                    \
-            avx_set_vector_width(dyn, ninst, x1, (SEW), 16);                                     \
-            VMV_V_V(v0, q0);                                                                     \
-        }                                                                                        \
-        SET_SCALAR_FP_WIDTH(x1, (SEW));                                                          \
+#define AVX_SCALAR_OP_PROLOG_D(SEW, D)                                                             \
+    do {                                                                                           \
+        q0 = VREG(vex.v);                                                                          \
+        avx_load_reg_vector(dyn, ninst, x1, q0, vex.v, 16, (SEW));                                 \
+        if (MODREG) {                                                                              \
+            ed = (nextop & 7) + (rex.b << 3);                                                      \
+            q1 = VREG(ed);                                                                         \
+            avx_load_reg_vector(dyn, ninst, x1, q1, ed, 16, (SEW));                                \
+        } else {                                                                                   \
+            q1 = fpu_get_scratch(dyn);                                                             \
+            SMREAD();                                                                              \
+            addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, (D)); \
+            avx_set_vector_width(dyn, ninst, x1, (SEW), 1 << (SEW));                               \
+            VLE_V(q1, ed, (SEW), VECTOR_UNMASKED, VECTOR_NFIELD1);                                 \
+        }                                                                                          \
+        GETGY_empty_vector(v0);                                                                    \
+        if (v0 != q0) {                                                                            \
+            if (v0 == q1) {                                                                        \
+                int _t = fpu_get_scratch(dyn);                                                     \
+                avx_set_vector_width(dyn, ninst, x1, (SEW), 16);                                   \
+                VMV_V_V(_t, q1);                                                                   \
+                q1 = _t;                                                                           \
+            }                                                                                      \
+            avx_set_vector_width(dyn, ninst, x1, (SEW), 16);                                       \
+            VMV_V_V(v0, q0);                                                                       \
+        }                                                                                          \
+        SET_SCALAR_FP_WIDTH(x1, (SEW));                                                            \
     } while (0)
+
+#define AVX_SCALAR_OP_PROLOG(SEW) AVX_SCALAR_OP_PROLOG_D(SEW, 0)
 
 #define AVX_SCALAR_OP_STORE(SEW) \
     avx_store_reg_vector(dyn, ninst, x1, v0, gd, 16, (SEW))
+
+#define AVX_CMP_ORDERED_MASK()                 \
+    do {                                       \
+        VMFEQ_VV(q2, q0, q0, VECTOR_UNMASKED); \
+        VMFEQ_VV(d0, q1, q1, VECTOR_UNMASKED); \
+        VMAND_MM(q2, q2, d0);                  \
+    } while (0)
+
+#define AVX_SCALAR_CMP(SEW)                                            \
+    do {                                                               \
+        AVX_SCALAR_OP_PROLOG_D(SEW, 1);                                \
+        u8 = F8;                                                       \
+        q2 = fpu_get_scratch(dyn);                                     \
+        d0 = fpu_get_scratch(dyn);                                     \
+        switch (u8 & 0xf) {                                            \
+            case 0x0: VMFEQ_VV(VMASK, q0, q1, VECTOR_UNMASKED); break; \
+            case 0x1: VMFLT_VV(VMASK, q0, q1, VECTOR_UNMASKED); break; \
+            case 0x2: VMFLE_VV(VMASK, q0, q1, VECTOR_UNMASKED); break; \
+            case 0x3:                                                  \
+                AVX_CMP_ORDERED_MASK();                                \
+                VMNAND_MM(VMASK, q2, q2);                              \
+                break;                                                 \
+            case 0x4:                                                  \
+                VMFEQ_VV(d0, q0, q1, VECTOR_UNMASKED);                 \
+                VMNAND_MM(VMASK, d0, d0);                              \
+                break;                                                 \
+            case 0x5:                                                  \
+                VMFLT_VV(d0, q0, q1, VECTOR_UNMASKED);                 \
+                VMNAND_MM(VMASK, d0, d0);                              \
+                break;                                                 \
+            case 0x6:                                                  \
+                VMFLE_VV(d0, q0, q1, VECTOR_UNMASKED);                 \
+                VMNAND_MM(VMASK, d0, d0);                              \
+                break;                                                 \
+            case 0x7:                                                  \
+                AVX_CMP_ORDERED_MASK();                                \
+                VMAND_MM(VMASK, q2, q2);                               \
+                break;                                                 \
+            case 0x8:                                                  \
+                AVX_CMP_ORDERED_MASK();                                \
+                VMFEQ_VV(d0, q0, q1, VECTOR_UNMASKED);                 \
+                VMNAND_MM(VMASK, q2, q2);                              \
+                VMOR_MM(VMASK, VMASK, d0);                             \
+                break;                                                 \
+            case 0x9:                                                  \
+                VMFLE_VV(d0, q1, q0, VECTOR_UNMASKED);                 \
+                VMNAND_MM(VMASK, d0, d0);                              \
+                break;                                                 \
+            case 0xa:                                                  \
+                VMFLT_VV(d0, q1, q0, VECTOR_UNMASKED);                 \
+                VMNAND_MM(VMASK, d0, d0);                              \
+                break;                                                 \
+            case 0xb: VMXOR_MM(VMASK, q2, q2); break;                  \
+            case 0xc:                                                  \
+                AVX_CMP_ORDERED_MASK();                                \
+                VMFEQ_VV(d0, q0, q1, VECTOR_UNMASKED);                 \
+                VMNAND_MM(VMASK, d0, d0);                              \
+                VMAND_MM(VMASK, VMASK, q2);                            \
+                break;                                                 \
+            case 0xd: VMFLE_VV(VMASK, q1, q0, VECTOR_UNMASKED); break; \
+            case 0xe: VMFLT_VV(VMASK, q1, q0, VECTOR_UNMASKED); break; \
+            case 0xf: VMXNOR_MM(VMASK, q2, q2); break;                 \
+        }                                                              \
+        VXOR_VV(q2, q2, q2, VECTOR_UNMASKED);                          \
+        VMERGE_VIM(q2, q2, 0x1f);                                      \
+        VMV_V_V(v0, q2);                                               \
+        AVX_SCALAR_OP_STORE(SEW);                                      \
+    } while (0)
 
 #define SET_CACHE_VECTOR_WIDTH(S1)                                                \
     do {                                                                          \

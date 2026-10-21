@@ -60,17 +60,29 @@ uintptr_t dynarec64_66F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
                     GETGD;
                     GETEW(x1, 0);
                     MV(x5, ed);
-                    ZEROUP(gd);
-                    MOV32w(x2, 0x82f63b78);
-                    for (int j = 0; j < 2; ++j) {
-                        SRLI(x6, x5, 8 * j);
-                        ANDI(x6, x6, 0xFF);
-                        XOR(gd, gd, x6);
-                        for (int i = 0; i < 8; i++) {
-                            SRLI((i & 1) ? gd : x4, (i & 1) ? x4 : gd, 1);
-                            ANDI(x6, (i & 1) ? x4 : gd, 1);
-                            BEQZ(x6, 4 + 4);
-                            XOR((i & 1) ? gd : x4, (i & 1) ? gd : x4, x2);
+                    if (cpuext.zbc) {
+                        ZEROUP(gd);
+                        XOR(x5, x5, gd);
+                        SLLI(x5, x5, 48);
+                        MOV64x(x2, 0x4869EC38DEA713F1ULL);
+                        CLMUL(x5, x5, x2);
+                        MOV64x(x2, 0x105EC76F1ULL);
+                        CLMULH(x5, x5, x2);
+                        SRLI(gd, gd, 16);
+                        XOR(gd, x5, gd);
+                    } else {
+                        ZEROUP(gd);
+                        MOV32w(x2, 0x82f63b78);
+                        for (int j = 0; j < 2; ++j) {
+                            SRLI(x6, x5, 8 * j);
+                            ANDI(x6, x6, 0xFF);
+                            XOR(gd, gd, x6);
+                            for (int i = 0; i < 8; i++) {
+                                SRLI((i & 1) ? gd : x4, (i & 1) ? x4 : gd, 1);
+                                ANDI(x6, (i & 1) ? x4 : gd, 1);
+                                BEQZ(x6, 4 + 4);
+                                XOR((i & 1) ? gd : x4, (i & 1) ? gd : x4, x2);
+                            }
                         }
                     }
                     break;
