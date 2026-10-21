@@ -1390,6 +1390,7 @@ uintptr_t dynarec64_AVX_66_0F38_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             avx_load_reg_vector(dyn, ninst, x1, q0, vex.v, 16, sew);
             GETGY_vector(q2, sew);
             GETGY_empty_vector(v0);
+            VEC_SRC_KEEP(q2, v0);
             if (MODREG) {
                 q1 = fpu_get_scratch(dyn);
                 avx_load_reg_vector(dyn, ninst, x1, q1, (nextop & 7) + (rex.b << 3), 16, sew);
@@ -1551,6 +1552,7 @@ uintptr_t dynarec64_AVX_66_0F38_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             avx_load_reg_vector(dyn, ninst, x1, q0, vex.v, 16, sew);
             GETGY_vector(q2, sew);
             GETGY_empty_vector(v0);
+            VEC_SRC_KEEP(q2, v0);
             if (MODREG) {
                 q1 = fpu_get_scratch(dyn);
                 avx_load_reg_vector(dyn, ninst, x1, q1, (nextop & 7) + (rex.b << 3), 16, sew);
@@ -1578,6 +1580,7 @@ uintptr_t dynarec64_AVX_66_0F38_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             avx_load_reg_vector(dyn, ninst, x1, q0, vex.v, 16, sew);
             GETGY_vector(q2, sew);
             GETGY_empty_vector(v0);
+            VEC_SRC_KEEP(q2, v0);
             if (MODREG) {
                 q1 = fpu_get_scratch(dyn);
                 avx_load_reg_vector(dyn, ninst, x1, q1, (nextop & 7) + (rex.b << 3), 16, sew);
