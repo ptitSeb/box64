@@ -164,6 +164,8 @@ typedef struct instruction_rv64_s {
     uint16_t            up32_skip;        // bitmask of GPRs where the implicit zero-up after a 32-bit write can be skipped
     uint16_t            up32_pending;     // bitmask of GPRs whose upper 32 bits are stale at entry to this instruction
     uint32_t            vec_used;         // bitmask of XMM/YMM registers touched by this instruction
+    uint16_t            vec_read;         // bitmask of XMM/YMM registers read by this instruction
+    uint16_t            vec_write_full;   // bitmask of XMM/YMM registers fully (both halves) written by this instruction
     uint32_t            preload_xmmymm;   // registers to preload at this instruction
     int                 preload_from;     // last instruction of the region that uses them
     uint16_t            ymm_upper_use;    // bitmask of YMM upper halves read by this instruction
@@ -171,6 +173,7 @@ typedef struct instruction_rv64_s {
     uint16_t            ymm_upper_live;   // bitmask of YMM upper halves live after this instruction
     uint16_t            ymm_zero;         // bitmask of YMM upper halves deferred-zeroed by this instruction
     uint16_t            ymm_pending;      // bitmask of pending YMM upper-half zeros on entry to this instruction
+    uint8_t             ymm_pending_materialized; // pending YMM upper-half zeros are materialized before this instruction runs
 } instruction_rv64_t;
 
 typedef struct dynarec_rv64_s {
@@ -217,6 +220,7 @@ typedef struct dynarec_rv64_s {
     uint8_t             vector_sew;     // current sew status
     uint8_t             vector_eew;     // current effective sew status, should only be used after SET_ELEMENT_WIDTH
     uint8_t             inst_sew;       // sew inside current instruction, for vsetvli elimination
+    uint16_t            purge_dead_vector; // SIMD regs whose value is dead at the purge target (skip write-back)
     uint8_t             inst_vl;        // vl inside current instruction, for vsetvli elimination
     uint8_t             inst_vlmul;     // vlmul inside current instruction
     uint8_t             is_file_mapped; // if the memory is a mapped file (probably binary, not a memory)

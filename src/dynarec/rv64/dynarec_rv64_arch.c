@@ -26,7 +26,7 @@
 
 typedef struct arch_flags_s
 {
-    uint8_t ignore:1;
+    uint8_t defered:1;  // deferred flags are authoritative at this instruction
 } arch_flags_t;
 
 #define X87_ST_D 0
@@ -90,6 +90,11 @@ typedef struct arch_build_s
 static int arch_build(dynarec_rv64_t* dyn, int ninst, arch_build_t* arch)
 {
     memset(arch, 0, sizeof(arch_build_t));
+    flagcache_t f = dyn->insts[ninst].f_entry;
+    if (f == status_set || f == status_unk) {
+        arch->flags = 1;
+        arch->flags_.defered = 1;
+    }
     // opcode can handle unaligned
     arch->unaligned = dyn->insts[ninst].unaligned;
     arch->rsp = dyn->insts[ninst].rsp_entry;
@@ -357,6 +362,8 @@ void adjust_arch(dynablock_t* db, x64emu_t* emu, ucontext_t* p, uintptr_t x64pc)
     }
     SUPER()
     #undef GO
+    flags = arch->flags ? (arch_flags_t*)((uintptr_t)arch + sizeof(arch_arch_t)) : NULL;
+    if (!flags || !flags->defered) emu->df = d_none;
     uint16_t up32 = arch->up32;
     while (up32) {
         int r = __builtin_ctz(up32);

@@ -1779,6 +1779,8 @@ void sse_forget_reg(dynarec_rv64_t* dyn, int ninst, int s1, int a)
 int sse_get_reg_vector(dynarec_rv64_t* dyn, int ninst, int s1, int a, int forwrite, int sew)
 {
     sse_mark_used(dyn, ninst, a);
+    if (ninst >= 0 && ninst < dyn->size)
+        dyn->insts[ninst].vec_read |= 1u << a;
     if (dyn->e.ssecache[a].v != -1) {
         if (dyn->e.ssecache[a].vector == 0) {
             // it's in the fpu, forget it first...
@@ -1916,7 +1918,8 @@ static void sse_purgecache(dynarec_rv64_t* dyn, int ninst, int next, int s1)
                 MESSAGE(LOG_DUMP, "\tPurge %sSSE Cache ------\n", next ? "locally " : "");
                 ++old;
             }
-            if (dyn->e.ssecache[i].vector) {
+            if (next && (dyn->purge_dead_vector & (1u << i))) {
+            } else if (dyn->e.ssecache[i].vector) {
                 vector_vsetvli(dyn, ninst, s1, VECTOR_SEW8, VECTOR_LMUL1, 1);
                 flushed8 = 1;
                 if (dyn->e.ssecache[i].write) {
@@ -1940,6 +1943,7 @@ static void sse_purgecache(dynarec_rv64_t* dyn, int ninst, int next, int s1)
 
     if (flushed8)
         vector_restore_vtype(dyn, ninst, s1, sew, vlmul, vl);
+    dyn->purge_dead_vector = 0;
     avx_flush_pending_zero_vector(dyn, ninst, s1, next);
     if (old != -1) {
         MESSAGE(LOG_DUMP, "\t------ Purge SSE Cache\n");
@@ -2496,25 +2500,56 @@ static void unloadCache(dynarec_rv64_t* dyn, int ninst, int stack_cnt, int s1, i
     cache->extcache[i].v = 0;
 }
 
+static uint16_t vectorDeadAtTarget(dynarec_rv64_t* dyn, int i2, int ninst)
+{
+    if (i2 <= 0 || i2 >= ninst)
+        return 0;
+    for (int i = i2; i < ninst; ++i) {
+        if (!dyn->insts[i].x64.has_next || dyn->insts[i].x64.has_callret)
+            return 0;
+        if (dyn->insts[i].x64.jmp) {
+            int t = dyn->insts[i].x64.jmp_insts;
+            if (t > i2 && t <= ninst)
+                return 0;
+        }
+    }
+    uint16_t live = 0, dead = 0, seen = 0;
+    for (int i = i2; i <= ninst; ++i) {
+        uint16_t r = dyn->insts[i].vec_read & (uint16_t)~seen;
+        live |= r;
+        seen |= r;
+        uint16_t w = dyn->insts[i].vec_write_full & (uint16_t)~seen;
+        dead |= w;
+        seen |= w;
+        uint16_t u = (uint16_t)dyn->insts[i].vec_used & (uint16_t)~seen;
+        live |= u;
+        seen |= u;
+    }
+    return dead;
+}
+
 static void fpuCacheTransform(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3)
 {
     int i2 = dyn->insts[ninst].x64.jmp_insts;
     if (i2 < 0)
         return;
+    uint16_t dead = vectorDeadAtTarget(dyn, i2, ninst);
     MESSAGE(LOG_DUMP, "\tCache Transform ---- ninst=%d -> %d\n", ninst, i2);
-    avx_sync_upper_vector(dyn, ninst, s1, 1);
     if ((!i2) || (dyn->insts[i2].x64.barrier & BARRIER_FLOAT)) {
         if (dyn->e.stack_next) {
+            dyn->purge_dead_vector = dead;
             fpu_purgecache(dyn, ninst, 1, s1, s2, s3);
             MESSAGE(LOG_DUMP, "\t---- Cache Transform\n");
             return;
         }
         for (int i = 0; i < 24; ++i)
             if (dyn->e.extcache[i].v) { // there is something at ninst for i
+                dyn->purge_dead_vector = dead;
                 fpu_purgecache(dyn, ninst, 1, s1, s2, s3);
                 MESSAGE(LOG_DUMP, "\t---- Cache Transform\n");
                 return;
             }
+        avx_sync_upper_vector(dyn, ninst, s1, 1);
         MESSAGE(LOG_DUMP, "\t---- Cache Transform\n");
         return;
     }
@@ -2527,11 +2562,13 @@ static void fpuCacheTransform(dynarec_rv64_t* dyn, int ninst, int s1, int s2, in
             if (cache_i2.extcache[i].v)
                 purge = 0;
         if (purge) {
+            dyn->purge_dead_vector = dead;
             fpu_purgecache(dyn, ninst, 1, s1, s2, s3);
             MESSAGE(LOG_DUMP, "\t---- Cache Transform\n");
             return;
         }
     }
+    avx_sync_upper_vector(dyn, ninst, s1, 1);
     int stack_cnt = dyn->e.stack_next;
     int s3_top = 0xffff;
     extcache_t cache = dyn->e;
@@ -2943,6 +2980,9 @@ void avx_sync_upper_vector(dynarec_rv64_t* dyn, int ninst, int s1, int next)
 {
     if (!cpuext.vlen || cpuext.vlen < 32)
         return;
+    #if STEP == 0
+    if (!next) dyn->insts[ninst].ymm_pending_materialized = 1;
+    #endif
     for (int i = 0; i < 16; ++i)
         if (dyn->e.ssecache[i].v != -1 && dyn->e.ssecache[i].vector)
             avx_flush_upper_vector(dyn, ninst, s1, i, dyn->e.ssecache[i].reg, next, 0);
@@ -2979,14 +3019,16 @@ void avx_load_reg_vector(dynarec_rv64_t* dyn, int ninst, int s1, int vreg, int a
             VXOR_VV(VMASK, VMASK, VMASK, VECTOR_UNMASKED);
             VSLIDEUP_VI(low, VMASK, 16 >> sew, VECTOR_UNMASKED);
         } else {
+            int sp = dyn->e.fpu_scratch;
+            int hi = fpu_get_scratch(dyn);
             dyn->inst_sew = VECTOR_SEWNA;
             dyn->inst_vl = 0; // real vtype here is unknown, never elide vsetvli
+            vector_vsetvli(dyn, ninst, s1, VECTOR_SEW8, VECTOR_LMUL1, 1);
+            ADDI(s1, xEmu, offsetof(x64emu_t, ymm[a]));
+            VLE8_V(hi, s1, VECTOR_UNMASKED, VECTOR_NFIELD1);
             vector_vsetvli(dyn, ninst, s1, VECTOR_SEW8, VECTOR_LMUL1, 2);
-            VECTOR_LOAD_VMASK(0xffff0000, s1, 2);
-            dyn->inst_vl = 0; // the mask load changed the real vl
-            vector_vsetvli(dyn, ninst, s1, VECTOR_SEW8, VECTOR_LMUL1, 2);
-            ADDI(s1, xEmu, offsetof(x64emu_t, ymm[a]) - 16);
-            VLE8_V(low, s1, VECTOR_MASKED, VECTOR_NFIELD1);
+            VSLIDEUP_VI(low, hi, 16, VECTOR_UNMASKED);
+            dyn->e.fpu_scratch = sp;
         }
         dyn->e.ssecache[a].ymm = 1;
     }
@@ -2998,6 +3040,8 @@ void avx_load_reg_vector(dynarec_rv64_t* dyn, int ninst, int s1, int vreg, int a
 void avx_store_reg_vector(dynarec_rv64_t* dyn, int ninst, int s1, int vreg, int a, int width, int sew)
 {
     sse_mark_used(dyn, ninst, a);
+    if (ninst >= 0 && ninst < dyn->size)
+        dyn->insts[ninst].vec_write_full |= 1u << a;
     int cache = sse_get_reg_empty_vector(dyn, ninst, s1, a);
     if (cache != vreg) {
         avx_set_vector_width(dyn, ninst, s1, VECTOR_SEW8, width);

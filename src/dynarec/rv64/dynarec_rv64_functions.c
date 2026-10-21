@@ -1171,7 +1171,8 @@ void updateUpperLiveness(dynarec_rv64_t* dyn)
             int j = inst->pred[p];
             const instruction_rv64_t* pred = &dyn->insts[j];
             merged_pending |= (pending_in[j] & (uint16_t)~pred->up32_write64) | pred->up32_skip;
-            merged_ymm |= (pend_ymm[j] & (uint16_t)~pred->ymm_upper_def) | (pred->ymm_zero & pred->ymm_upper_live);
+            uint16_t ymm_def = pred->ymm_pending_materialized ? UINT16_MAX : pred->ymm_upper_def;
+            merged_ymm |= (pend_ymm[j] & (uint16_t)~ymm_def) | (pred->ymm_zero & pred->ymm_upper_live);
         }
         if (inst->x64.barrier & BARRIER_FLOAT) merged_ymm = 0;
         if ((merged_pending != pending_in[i]) || (merged_ymm != pend_ymm[i])) {
