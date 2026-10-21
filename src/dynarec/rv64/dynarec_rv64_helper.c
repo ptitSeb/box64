@@ -2815,6 +2815,11 @@ void rv64_move64(dynarec_rv64_t* dyn, int ninst, int reg, int64_t val)
         rv64_move32(dyn, ninst, reg, val, 0);
         return;
     }
+    if (!(uval & (uval + 1))) {
+        ADDI(reg, xZR, -1);
+        SRLI(reg, reg, 64 - TrailingZeros64(~uval));
+        return;
+    }
 
     int64_t lo12 = (val << 52) >> 52;
     int64_t hi52 = (val + 0x800) >> 12;
