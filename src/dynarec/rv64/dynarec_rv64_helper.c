@@ -3103,20 +3103,23 @@ void fpu_propagate_stack(dynarec_rv64_t* dyn, int ninst)
 
 void avx_flush_upper_vector(dynarec_rv64_t* dyn, int ninst, int s1, int a, int reg, int next, int dead)
 {
-    uint8_t sew0, vlmul0, vl0;
-    vector_save_vtype(dyn, &sew0, &vlmul0, &vl0);
     if (dyn->e.ssecache[a].ymm0) {
         // the architectural upper half is zero: write it with scalar stores, no vector state needed
         SD(xZR, xEmu, offsetof(x64emu_t, ymm[a]) + 0);
         SD(xZR, xEmu, offsetof(x64emu_t, ymm[a]) + 8);
+        if (!next) dyn->e.ssecache[a].ymm = 0;
+        return;
     } else if (dyn->e.ssecache[a].ymm && dyn->e.ssecache[a].write) {
+        uint8_t sew0, vlmul0, vl0;
+        vector_save_vtype(dyn, &sew0, &vlmul0, &vl0);
         if (dead || dyn->e.fpu_scratch < 7) {
             int sp = dyn->e.fpu_scratch;
             int tmp = dead ? reg : fpu_get_scratch(dyn);
-            vector_vsetvli(dyn, ninst, s1, VECTOR_SEW8, VECTOR_LMUL1, 1);
-            VSLIDEDOWN_VI(tmp, reg, 16, VECTOR_UNMASKED);
+            int sew = sew0 <= VECTOR_SEW64 ? sew0 : VECTOR_SEW8;
+            vector_vsetvli(dyn, ninst, s1, sew, VECTOR_LMUL1, 1);
+            VSLIDEDOWN_VI(tmp, reg, 16 >> sew, VECTOR_UNMASKED);
             ADDI(s1, xEmu, offsetof(x64emu_t, ymm[a]));
-            VSE8_V(tmp, s1, VECTOR_UNMASKED, VECTOR_NFIELD1);
+            VSE_V(tmp, s1, sew, VECTOR_UNMASKED, VECTOR_NFIELD1);
             dyn->e.fpu_scratch = sp;
         } else {
             dyn->inst_sew = VECTOR_SEWNA;
@@ -3127,10 +3130,9 @@ void avx_flush_upper_vector(dynarec_rv64_t* dyn, int ninst, int s1, int a, int r
             VSE8_V(reg, s1, VECTOR_MASKED, VECTOR_NFIELD1);
             vector_vsetvli(dyn, ninst, s1, VECTOR_SEW8, VECTOR_LMUL1, 1);
         }
-    } else
-        return;
-    if (!next) dyn->e.ssecache[a].ymm = 0;
-    vector_restore_vtype(dyn, ninst, s1, sew0, vlmul0, vl0);
+        if (!next) dyn->e.ssecache[a].ymm = 0;
+        vector_restore_vtype(dyn, ninst, s1, sew0, vlmul0, vl0);
+    }
 }
 
 void avx_promote_upper(dynarec_rv64_t* dyn, int ninst, int s1, uint16_t mask)
