@@ -269,6 +269,7 @@ uintptr_t dynarec64_AVX_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int
                 UDF(0);
             } else {
                 INST_NAME("VMOVNTPS Ex, Gx");
+                NOLRCPC();
                 GETG;
                 v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
                 if(vex.l) {

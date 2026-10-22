@@ -3,6 +3,7 @@
 #define FINI
 #define MESSAGE(A, ...) do {} while (0)
 #define EMIT(A) do {} while (0)
+#define LEMIT(A)        do {dyn->insts[ninst].has_lrcpc = 1; EMIT(A);} while(0)
 
 // do not update dyn->f for SETFLAGS(..., SF_SET_PENDING) because it will use either DF_NONE or DF_SET anyway (similar to SF_SET_NODF)
 #define SETFLAGS(A,B)                                                   \
@@ -20,7 +21,9 @@
 
 #define INST_EPILOG                             \
         dyn->insts[ninst].n = dyn->n;           \
-        dyn->insts[ninst].f_exit = dyn->f
+        dyn->insts[ninst].f_exit = dyn->f;      \
+        if(dyn->insts[ninst].use_lrcpc && (!dyn->insts[ninst].has_lrcpc || is_addr_lrcpc(ip))) \
+            dyn->insts[ninst].use_lrcpc = 0
 
 #define INST_NAME(name)
 

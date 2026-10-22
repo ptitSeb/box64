@@ -244,6 +244,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
 
         case 0x2B:
             INST_NAME("VMOVNTPD Ex,Gx");
+            NOLRCPC();
             nextop = F8;
             GETG;
             if(MODREG) {
@@ -1784,6 +1785,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             break;
         case 0xE7:
             INST_NAME("VMOVNTDQ Ex,Gx");
+            NOLRCPC();
             nextop = F8;
             GETG;
             if(MODREG) {

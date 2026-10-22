@@ -22,4 +22,9 @@ void adjust_arch(dynablock_t* db, x64emu_t* emu, ucontext_t* p, uintptr_t x64pc)
 #endif
 // get if instruction can be regenerated for unaligned access
 int arch_unaligned(dynablock_t* db, uintptr_t x64pc);
+// get if instruction has lrcpc so it can be regenerated without
+int arch_lrcpc(dynablock_t* db, uintptr_t x64pc);
+void add_lrcpc_address(uintptr_t addr);
+int is_addr_lrcpc(uintptr_t addr);
+int mark_db_lrcpc(dynablock_t* db, uintptr_t x64pc);
 #endif // __DYNAREC_ARM_ARCH_H__

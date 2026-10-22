@@ -183,6 +183,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd, 
         volatile uint8_t* addr = (void*)(p->uc_mcontext.regs[dest] + offset);
         if(is32bits) addr = (uint8_t*)(((uintptr_t)addr)&0xffffffff);
         CHECK_ALIGNED(addr, size);
+        if(arch_lrcpc(db, x64pc)) mark_db_lrcpc(db, x64pc);    // regen dynablock without this lrcpc opcode
         uint64_t value = (val==xZR)?0:p->uc_mcontext.regs[val];
         if(size==8 && (((uintptr_t)addr)&3)==0) {
             for(int i=0; i<2; ++i)
@@ -263,6 +264,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd, 
         volatile uint8_t* addr = (void*)(p->uc_mcontext.regs[dest] + offset);
         if(is32bits) addr = (uint8_t*)(((uintptr_t)addr)&0xffffffff);
         CHECK_ALIGNED(addr, 1<<scale);
+        if(arch_lrcpc(db, x64pc)) mark_db_lrcpc(db, x64pc);
         __uint128_t value = fpsimd->vregs[val];
         if(scale>2 && (((uintptr_t)addr)&3)==0) {
             for(int i=0; i<(1<<(scale-2)); ++i)
@@ -345,6 +347,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd, 
         volatile uint8_t* addr = (void*)(p->uc_mcontext.regs[dest] + offset);
         if(is32bits) addr = (uint8_t*)(((uintptr_t)addr)&0xffffffff);
         CHECK_ALIGNED(addr, 1<<scale);
+        if(arch_lrcpc(db, x64pc)) mark_db_lrcpc(db, x64pc);
         __uint128_t value = 0;
         if(scale>2 && (((uintptr_t)addr)&3)==0) {
             for(int i=0; i<(1<<(scale-2)); ++i)
@@ -410,6 +413,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd, 
         volatile uint8_t* addr = (void*)(p->uc_mcontext.regs[dest] + offset);
         if(is32bits) addr = (uint8_t*)(((uintptr_t)addr)&0xffffffff);
         CHECK_ALIGNED(addr, size);
+        if(arch_lrcpc(db, x64pc)) mark_db_lrcpc(db, x64pc);
         uint64_t value = 0;
         if(size==8 && (((uintptr_t)addr)&3)==0) {
             for(int i=0; i<2; ++i)
@@ -432,6 +436,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd, 
         volatile uint8_t* addr = (void*)(p->uc_mcontext.regs[dest] + offset);
         if(is32bits) addr = (uint8_t*)(((uintptr_t)addr)&0xffffffff);
         CHECK_ALIGNED(addr, size);
+        if(arch_lrcpc(db, x64pc)) mark_db_lrcpc(db, x64pc);
         int32_t value = 0;
         for(int i=0; i<size; ++i)
             value |= ((int32_t)addr[i]) << (i*8);
@@ -449,6 +454,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd, 
         volatile uint8_t* addr = (void*)(p->uc_mcontext.regs[dest] + offset);
         if(is32bits) addr = (uint8_t*)(((uintptr_t)addr)&0xffffffff);
         CHECK_ALIGNED(addr, 2);
+        if(arch_lrcpc(db, x64pc)) mark_db_lrcpc(db, x64pc);
         uint16_t value = 0;
         for(int i=0; i<2; ++i)
             value |= ((uint16_t)addr[i]) << (i*8);
@@ -466,6 +472,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd, 
         volatile uint8_t* addr = (void*)(p->uc_mcontext.regs[dest] + offset);
         if(is32bits) addr = (uint8_t*)(((uintptr_t)addr)&0xffffffff);
         CHECK_ALIGNED(addr, 2);
+        if(arch_lrcpc(db, x64pc)) mark_db_lrcpc(db, x64pc);
         int16_t value = 0;
         for(int i=0; i<2; ++i)
             value |= ((int16_t)addr[i]) << (i*8);

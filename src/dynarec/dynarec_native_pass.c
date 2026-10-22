@@ -238,10 +238,29 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         } else if (dyn->insts[ninst].will_write) {
             WILLWRITE();
         }
-
+        #endif
         int is_opcode_volatile = /*box64_wine &&*/ VolatileRangesContains(ip) && VolatileOpcodesHas(ip);
-        if (is_opcode_volatile && !dyn->insts[ninst].lock && dyn->insts[ninst].will_write)
-            DMB_ISHST();
+        #if defined(ARM64) && STEP == 1
+        if(is_opcode_volatile && cpuext.lrcpc && cpuext.lrcpc2 && cpuext.uscat) dyn->insts[ninst].use_lrcpc = 1;
+        #endif
+        #if STEP > 1
+        #ifdef ARM64
+        if (is_opcode_volatile && dyn->insts[ninst].use_lrcpc && dyn->insts[ninst].lock)
+            NOLRCPC();
+        #endif
+        if (is_opcode_volatile && !dyn->insts[ninst].lock) {
+            #ifdef ARM64
+            if(!dyn->insts[ninst].use_lrcpc) {
+            #endif
+            if(dyn->insts[ninst].will_write)
+                DMB_ISHST();
+            #ifdef ARM64
+            } else {
+                SMEND();
+            }
+            #endif
+        }
+
         #endif
         if (BOX64DRENV(dynarec_dump) && (!BOX64ENV(dynarec_dump_range_end) || (ip >= BOX64ENV(dynarec_dump_range_start) && ip < BOX64ENV(dynarec_dump_range_end)))) {
             dyn->need_dump = BOX64DRENV(dynarec_dump) == 3 && STEP != 3 ? 0 : BOX64DRENV(dynarec_dump);
@@ -332,8 +351,16 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         #if STEP > 1
         if (dyn->insts[ninst].lock)
             DMB_ISH();
-        else if (is_opcode_volatile && dyn->insts[ninst].will_read)
-            DMB_ISHLD();
+        else if (is_opcode_volatile) {
+            #ifdef ARM64
+            if(!dyn->insts[ninst].use_lrcpc) {
+            #endif
+            if(dyn->insts[ninst].will_read)
+                DMB_ISHLD();
+            #ifdef ARM64
+            }
+            #endif
+        } 
         #endif
         #if defined(ARM64) || defined(LA64) || defined(RV64)
         if(dyn->insts[ninst].x64.has_next && dyn->insts[ninst+1].preload_xmmymm) {

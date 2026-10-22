@@ -768,7 +768,7 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
     }
 
     static char buf[8192];
-    int length = sprintf(buf, "barrier=%d state=%d/%s(%s->%s)/%c, set=%X/%X, use=%X, need=%X/%X, sm=%d(%d/%d/%d)",
+    int length = sprintf(buf, "barrier=%d state=%d/%s(%s->%s)/%c, set=%X/%X, use=%X, need=%X/%X, sm=%d(%d/%d/%d)%d",
         dyn->insts[ninst].x64.barrier,
         dyn->insts[ninst].x64.state_flags,
         df_status[dyn->f],
@@ -780,7 +780,11 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
         dyn->insts[ninst].x64.use_flags,
         dyn->insts[ninst].x64.need_before,
         dyn->insts[ninst].x64.need_after,
-        dyn->smwrite, dyn->insts[ninst].will_write, dyn->insts[ninst].last_write, dyn->insts[ninst].lock);
+        dyn->smwrite, dyn->insts[ninst].will_write, dyn->insts[ninst].last_write, dyn->insts[ninst].lock, 
+        dyn->insts[ninst].x64.strongmem);
+    if(dyn->insts[ninst].use_lrcpc || dyn->insts[ninst].has_lrcpc) {
+        length += sprintf(buf + length, " LRCPC:%d/%d", dyn->insts[ninst].use_lrcpc, dyn->insts[ninst].has_lrcpc);
+    }
     if (dyn->insts[ninst].nat_flags_op) {
         if (dyn->insts[ninst].nat_flags_op == NAT_FLAG_OP_TOUCH && dyn->insts[ninst].before_nat_flags)
             length += sprintf(buf + length, " NF:%d/read:%x", dyn->insts[ninst].nat_flags_op, dyn->insts[ninst].before_nat_flags);
