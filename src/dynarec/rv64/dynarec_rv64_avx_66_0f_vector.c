@@ -796,10 +796,20 @@ uintptr_t dynarec64_AVX_66_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
         case 0x6F:
             INST_NAME("VMOVDQA Gx, Ex");
             nextop = F8;
-            GETEY_vector(v1, 0, VECTOR_SEW8);
-            GETGY_empty_vector(v0);
-            VMV_V_V(v0, v1);
-            PUTGY_vector(v0, VECTOR_SEW8);
+            if (!MODREG) {
+                gd = ((nextop & 0x38) >> 3) + (rex.r << 3);
+                v0 = sse_get_reg_empty_vector(dyn, ninst, x1, gd);
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x3, x2, &fixedaddress, rex, NULL, 0, 0);
+                avx_set_vector_width(dyn, ninst, x1, VECTOR_SEW8, 16 << vex.l);
+                VLE8_V(v0, ed, VECTOR_UNMASKED, VECTOR_NFIELD1);
+                avx_store_reg_vector(dyn, ninst, x1, v0, gd, 16 << vex.l, VECTOR_SEW8);
+            } else {
+                GETEY_vector(v1, 0, VECTOR_SEW8);
+                GETGY_empty_vector(v0);
+                VMV_V_V(v0, v1);
+                PUTGY_vector(v0, VECTOR_SEW8);
+            }
             break;
         case 0x74:
             INST_NAME("VPCMPEQB Gx, Vx, Ex");
