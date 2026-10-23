@@ -354,15 +354,15 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             MARK;
             FLD(d0, x1, 0);
             FEQD(x4, d0, d0);
-            BNEZ(x4, BOX64ENV(dynarec_fastnan) ? 8 : (7 * 4));
+            BNEZ_MARK3(x4);
             if (!BOX64ENV(dynarec_fastnan)) {
                 FMVXD(x3, d0);
-                ADDI(x4, xZR, 1);
-                SLLI(x4, x4, 51);
+                MOV64x(x4, 1ULL << 51);
                 OR(x3, x3, x4);
                 FMVDX(d0, x3);
             }
             B_MARK2_nocond;
+            MARK3;
             FABSD(v1, d0);
             FLTD(x4, v1, d1);
             BNEZ(x4, 8);

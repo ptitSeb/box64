@@ -64,7 +64,7 @@ uintptr_t dynarec64_66F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
                         ZEROUP(gd);
                         XOR(x5, x5, gd);
                         SLLI(x5, x5, 48);
-                        MOV64x(x2, 0x4869EC38DEA713F1ULL);
+                        MOV64xs(x2, 0x4869EC38DEA713F1ULL, x3);
                         CLMUL(x5, x5, x2);
                         MOV64x(x2, 0x105EC76F1ULL);
                         CLMULH(x5, x5, x2);

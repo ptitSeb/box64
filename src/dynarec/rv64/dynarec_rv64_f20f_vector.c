@@ -435,10 +435,10 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             d1 = fpu_get_scratch(dyn);
             vector_vsetvli(dyn, ninst, x1, VECTOR_SEW64, VECTOR_LMUL1, 1);
             tmp64u0 = 0x0007000600050004ULL;
-            MOV64x(x5, tmp64u0);
+            MOV64xs(x5, tmp64u0, x3);
             VMV_S_X(d1, x5);
             tmp64u0 = ((((uint64_t)u8 >> 6) & 3) << 48) | ((((uint64_t)u8 >> 4) & 3) << 32) | (((u8 >> 2) & 3) << 16) | (u8 & 3);
-            MOV64x(x5, tmp64u0);
+            MOV64xs(x5, tmp64u0, x3);
             VSLIDE1UP_VX_SAFE(d0, d1, x5, VECTOR_UNMASKED);
             vector_vsetvli(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 1);
             if (v0 == v1) {

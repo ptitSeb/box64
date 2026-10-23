@@ -377,7 +377,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                     FRFLAGS(x5);
                     ANDI(x5, x5, (1 << FR_NV) | (1 << FR_OF));
                     BEQZ(x5, 4 + 4);
-                    LUI(x3, 0x80000000 >> 12);
+                    MOV64x(x3, (int64_t)INT32_MIN);
                 }
                 SW(x3, gback, gdoffset + i * 4);
             }
@@ -393,7 +393,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                         FRFLAGS(x5);
                         ANDI(x5, x5, (1 << FR_NV) | (1 << FR_OF));
                         BEQZ(x5, 4 + 4);
-                        LUI(x3, 0x80000000 >> 12);
+                        MOV64x(x3, (int64_t)INT32_MIN);
                     }
                     SW(x3, gback, gyoffset + i * 4);
                 }

@@ -687,7 +687,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 BNEZ_MARK(x3);
 
                 ANDI(x3, ed, 0b10);
-                LUI(x5, 0xffff0);
+                MOV64x(x5, 0xFFFFFFFFFFFF0000);
                 ZEXTH(x6, gd);
                 BNEZ_MARK3(x3);
 
@@ -850,7 +850,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
             POP1_16(x1);
             FLAGS_ADJUST_FROM11(x1, x1, x2);
-            LUI(x2, 0xffff0);
+            MOV64x(x2, 0xFFFFFFFFFFFF0000);
             AND(xFlags, xFlags, x2);
             OR(xFlags, xFlags, x1);
             MOV32w(x1, 0x3F7FF7);

@@ -1267,18 +1267,15 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0xBF:
             INST_NAME("MOV Reg, Id");
             gd = TO_NAT((opcode & 7) + (rex.b << 3));
-            SCRATCH_USAGE(0);
             MARKREGd(gd);
             if (rex.w) {
                 u64 = F64;
-                MOV64x(gd, u64);
+                MOV64xss(gd, u64, x1, x2);
             } else {
+                SCRATCH_USAGE(0);
                 u32 = F32;
                 MOV32w(gd, u32);
-                if ((int32_t)u32 >= 0)
-                    UP32_ZERO(gd);
-                else if (NEED_ZEROUP(gd))
-                    ZEROUP_RESULT(gd);
+                UP32_ZERO(gd);
             }
             break;
         default:

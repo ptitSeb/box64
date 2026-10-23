@@ -158,7 +158,7 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         ZEROUP(gd);
                         XOR(x5, x5, gd);
                         SLLI(x5, x5, 56);
-                        MOV64x(x2, 0x4869EC38DEA713F1ULL);
+                        MOV64xs(x2, 0x4869EC38DEA713F1ULL, x3);
                         CLMUL(x5, x5, x2);
                         MOV64x(x2, 0x105EC76F1ULL);
                         CLMULH(x5, x5, x2);
@@ -188,7 +188,7 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         ZEROUP(gd);
                         XOR(x5, x5, gd);
                         if (!rex.w) SLLI(x5, x5, 32);
-                        MOV64x(x2, 0x4869EC38DEA713F1ULL);
+                        MOV64xs(x2, 0x4869EC38DEA713F1ULL, x3);
                         CLMUL(x5, x5, x2);
                         MOV64x(x2, 0x105EC76F1ULL);
                         CLMULH(x5, x5, x2);
@@ -323,7 +323,7 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 SRLI(x4, x4, 29);
                 MOV32w(x5, 0x007fffff);
                 AND(x4, x4, x5);
-                LUI(x5, 0x7fc00);
+                MOV32w(x5, 0x7FC00000);
                 OR(x4, x4, x5);
                 OR(x4, x4, x6);
                 FMVWX(v0, x4);
@@ -773,7 +773,7 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 FCVTLD(x3, d0, RD_DYN);
                 SEXT_W(x5, x3);
                 BEQ(x5, x3, 8);
-                LUI(x3, 0x80000); // INT32_MIN
+                MOV64x(x3, (int64_t)INT32_MIN); // INT32_MIN
                 SW(x3, gback, gdoffset + 4 * i);
             }
             x87_restoreround(dyn, ninst, u8);
