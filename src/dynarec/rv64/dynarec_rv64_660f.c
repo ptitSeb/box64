@@ -304,7 +304,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         ed = x4;                                                                             \
     }                                                                                        \
     B##NO(x1, 4 + 3 * 4);                                                                    \
-    LUI(x3, 0xffff0);                                                                        \
+    MOV64x(x3, 0xFFFFFFFFFFFF0000);                                                          \
     AND(gd, gd, x3);                                                                         \
     OR(gd, gd, ed);
 
@@ -466,7 +466,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     SRLI(x3, x3, 29);
                     MOV32w(x5, 0x007fffff);
                     AND(x3, x3, x5);
-                    LUI(x5, 0x7fc00);
+                    MOV32w(x5, 0x7FC00000);
                     OR(x3, x3, x5);
                     OR(x3, x3, x4);
                     FMVWX(d0, x3);
@@ -490,7 +490,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 FCVTLS(x3, d0, RD_DYN);
                 SEXT_W(x5, x3);
                 BEQ(x5, x3, 8);
-                LUI(x3, 0x80000); // INT32_MIN
+                MOV64x(x3, (int64_t)INT32_MIN);
                 SW(x3, gback, gdoffset + 4 * i);
             }
             x87_restoreround(dyn, ninst, u8);
@@ -1580,7 +1580,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x4, &fixedaddress, rex, NULL, 1, 0);
                 LBU(x1, ed, fixedaddress);
             }
-            LUI(x5, 0xffff0);
+            MOV64x(x5, 0xFFFFFFFFFFFF0000);
             AND(gd, gd, x5);
             OR(gd, gd, x1);
             break;
@@ -1842,7 +1842,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x4, &fixedaddress, rex, NULL, 1, 0);
                 LB(x1, ed, fixedaddress);
             }
-            LUI(x5, 0xffff0);
+            MOV64x(x5, 0xFFFFFFFFFFFF0000);
             AND(gd, gd, x5);
             ANDN(x1, x1, x5, x5);
             OR(gd, gd, x1);
@@ -2104,7 +2104,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGDd;
             LD(x1, wback, fixedaddress + 8); // high part
             LD(x2, wback, fixedaddress + 0); // low part, also destroyed wback(x2)
-            MOV64x(x5, 0x8080808080808080);
+            MOV64xs(x5, 0x8080808080808080, x3);
             MOV64x(x6, 0x0002040810204081);
             AND(x2, x2, x5);
             MUL(x2, x2, x6);

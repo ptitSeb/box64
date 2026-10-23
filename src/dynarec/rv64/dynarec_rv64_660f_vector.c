@@ -1778,7 +1778,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 }
             } else {
                 tmp64u0 = ((tmp64u0 >> 6) << 48) | (((tmp64u0 >> 4) & 3) << 32) | (((tmp64u0 >> 2) & 3) << 16) | (tmp64u0 & 3);
-                VECTOR_SPLAT_IMM(v0, tmp64u0, x4);
+                VECTOR_SPLAT_IMM_S(v0, tmp64u0, x4, x3);
                 SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
                 if (q0 == q1) {
                     v1 = fpu_get_scratch(dyn);

@@ -162,7 +162,7 @@ uintptr_t dynarec64_AVX_F2_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
                 SRLI(x4, x4, 29);
                 MOV32w(x5, 0x007fffff);
                 AND(x4, x4, x5);
-                LUI(x5, 0x7fc00);
+                MOV32w(x5, 0x7FC00000);
                 OR(x4, x4, x5);
                 OR(x4, x4, x6);
                 FMVWX(d1, x4);
@@ -247,7 +247,7 @@ uintptr_t dynarec64_AVX_F2_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             u8 = F8;
             q0 = fpu_get_scratch(dyn);
             q2 = fpu_get_scratch(dyn);
-            MOV64x(x4, (uint64_t)(u8 & 3) | ((uint64_t)((u8 >> 2) & 3) << 16) | ((uint64_t)((u8 >> 4) & 3) << 32) | ((uint64_t)((u8 >> 6) & 3) << 48));
+            MOV64xs(x4, (uint64_t)(u8 & 3) | ((uint64_t)((u8 >> 2) & 3) << 16) | ((uint64_t)((u8 >> 4) & 3) << 32) | ((uint64_t)((u8 >> 6) & 3) << 48), x3);
             vector_vsetvli(dyn, ninst, x1, VECTOR_SEW64, VECTOR_LMUL1, 1);
             VMV_V_X(q0, x4);
             vector_vsetvli(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 1);
