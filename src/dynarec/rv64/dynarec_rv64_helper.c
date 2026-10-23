@@ -3355,11 +3355,22 @@ void vector_loadmask(dynarec_rv64_t* dyn, int ninst, int vreg, uint64_t imm, int
             abort();
     } else {
         uint8_t sv_sew, sv_vlmul, sv_vl;
+        if (sew > VECTOR_SEW64)
+            sew = VECTOR_SEW8;
+        int count = (int)((16 >> sew) * multiple);
+        if (count > 32)
+            count = 32;
+        imm &= (1ULL << count) - 1;
         vector_save_vtype(dyn, &sv_sew, &sv_vlmul, &sv_vl);
-        vector_vsetvli(dyn, ninst, s1, VECTOR_SEW64, VECTOR_LMUL1, 1);
+        int need_wrap = (sv_sew > VECTOR_SEW64 || sv_vlmul != VECTOR_LMUL1 || !sv_vl);
+        if ((sv_sew == VECTOR_SEW8 && count > 8) || (sv_sew == VECTOR_SEW16 && count > 16))
+            need_wrap |= 1;
+        if (need_wrap)
+            vector_vsetvli(dyn, ninst, s1, VECTOR_SEW64, VECTOR_LMUL1, 1);
         MOV64x(s1, imm);
         VMV_S_X(vreg, s1);
-        vector_restore_vtype(dyn, ninst, s1, sv_sew, sv_vlmul, sv_vl);
+        if (need_wrap)
+            vector_restore_vtype(dyn, ninst, s1, sv_sew, sv_vlmul, sv_vl);
     }
 #endif
 }
