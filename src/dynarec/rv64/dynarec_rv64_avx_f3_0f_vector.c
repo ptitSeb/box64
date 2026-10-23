@@ -78,13 +78,11 @@ uintptr_t dynarec64_AVX_F3_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             avx_load_reg_vector(dyn, ninst, x1, q0, gd, 16, VECTOR_SEW32);
             if (MODREG) {
                 ed = (nextop & 7) + (rex.b << 3);
-                q1 = fpu_get_scratch(dyn);
-                avx_load_reg_vector(dyn, ninst, x1, q1, ed, 16, VECTOR_SEW32);
                 q2 = fpu_get_scratch(dyn);
                 avx_load_reg_vector(dyn, ninst, x1, q2, vex.v, 16, VECTOR_SEW32);
                 VFMV_F_S(d0 = fpu_get_scratch(dyn), q0);
                 VFMV_S_F(q2, d0);
-                avx_store_reg_vector(dyn, ninst, x1, q2, ed, 32, VECTOR_SEW32);
+                avx_store_reg_vector(dyn, ninst, x1, q2, ed, 16, VECTOR_SEW32);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 0);
                 VFMV_F_S(d0 = fpu_get_scratch(dyn), q0);
