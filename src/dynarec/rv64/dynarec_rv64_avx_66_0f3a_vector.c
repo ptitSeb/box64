@@ -136,11 +136,11 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
                 int zero = j ? (u8 & 0x80) : (u8 & 0x08);
                 int mask = j ? 0xc : 0x3;
                 if (zero) {
-                    VECTOR_LOAD_VMASK(mask, x4, 1);
+                    VECTOR_LOAD_VMASK(mask, x4, 2);
                     VXOR_VV(v0, v0, v0, VECTOR_MASKED);
                 } else if (control != j) {
                     int src = (control & 2) ? q1 : q0;
-                    VECTOR_LOAD_VMASK(mask, x4, 1);
+                    VECTOR_LOAD_VMASK(mask, x4, 2);
                     if (((j == 0) && ((control & 1) == 0)) || ((j == 1) && ((control & 1) == 1))) {
                         VMERGE_VVM(v0, v0, src);
                     } else {
@@ -354,11 +354,11 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
                 int zero = j ? (u8 & 0x80) : (u8 & 0x08);
                 int mask = j ? 0xc : 0x3;
                 if (zero) {
-                    VECTOR_LOAD_VMASK(mask, x4, 1);
+                    VECTOR_LOAD_VMASK(mask, x4, 2);
                     VXOR_VV(v0, v0, v0, VECTOR_MASKED);
                 } else if (control != j) {
                     int src = (control & 2) ? q1 : q0;
-                    VECTOR_LOAD_VMASK(mask, x4, 1);
+                    VECTOR_LOAD_VMASK(mask, x4, 2);
                     if (((j == 0) && ((control & 1) == 0)) || ((j == 1) && ((control & 1) == 1))) {
                         VMERGE_VVM(v0, v0, src);
                     } else {
