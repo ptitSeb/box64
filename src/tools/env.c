@@ -143,6 +143,117 @@ static void parseRange(const char* s, uintptr_t* start, uintptr_t* end)
     sscanf(s, "%" PRIx64 "-%" PRIx64, start, end);
 }
 
+
+// BOX64_NODYNAREC ranges are stored in an rbtree (one node per range,
+// data is unused and always 1). Overlapping or adjacent ranges are
+// merged automatically by rb_set(), so there is no limit on the number
+// of ranges. box64env.nodynarec_start / nodynarec_end are kept as the
+// bounding box of all ranges, mainly as a "feature active" flag and a
+// cheap early-out; the tree is authoritative for membership tests.
+static rbtree_t* nodynarec_ranges = NULL;
+
+void ResetNoDynarecRanges(void)
+{
+    if (nodynarec_ranges) {
+        rbtree_delete(nodynarec_ranges);
+        nodynarec_ranges = NULL;
+    }
+    box64env.nodynarec_start = 0;
+    box64env.nodynarec_end = 0;
+}
+
+typedef struct nodynarec_stats_s {
+    size_t count;
+    uintptr_t min_start;
+    uintptr_t max_end;
+} nodynarec_stats_t;
+
+static void nodynarecStatsCB(uintptr_t start, uintptr_t end, uint64_t data, void* userdata)
+{
+    (void)data;
+    nodynarec_stats_t* stats = (nodynarec_stats_t*)userdata;
+    if (!stats->count || (start < stats->min_start))
+        stats->min_start = start;
+    if (!stats->count || (end > stats->max_end))
+        stats->max_end = end;
+    ++stats->count;
+}
+
+static void nodynarecPrintCB(uintptr_t start, uintptr_t end, uint64_t data, void* userdata)
+{
+    (void)data;
+    printf_log((int)(uintptr_t)userdata, "\tBOX64_NODYNAREC on range %p-%p\n", (void*)start, (void*)end);
+}
+
+static void parseNoDynarecRanges(const char* s)
+{
+    ResetNoDynarecRanges();
+    if (!s)
+        return;
+
+    const char* p = s;
+    while (*p) {
+        while (*p == ' ' || *p == '\t' || *p == ',')
+            ++p;
+        if (!*p)
+            break;
+
+        const char* comma = strchr(p, ',');
+        size_t len = comma ? (size_t)(comma - p) : strlen(p);
+        while (len && (p[len - 1] == ' ' || p[len - 1] == '\t'))
+            --len;
+
+        if (len) {
+            char token[128];
+            if (len >= sizeof(token)) {
+                printf_log(LOG_INFO,
+                    "Ignoring too long BOX64_NODYNAREC range\n");
+            } else {
+                memcpy(token, p, len);
+                token[len] = '\0';
+                uintptr_t start = 0;
+                uintptr_t end = 0;
+                parseRange(token, &start, &end);
+                if (end > start) {
+                    if (!nodynarec_ranges)
+                        nodynarec_ranges = rbtree_init("nodynarec");
+                    rb_set(nodynarec_ranges, start, end, 1);
+                } else {
+                    printf_log(LOG_INFO,
+                        "Ignoring invalid BOX64_NODYNAREC range '%s'\n",
+                        token);
+                }
+            }
+        }
+        if (!comma)
+            break;
+        p = comma + 1;
+    }
+
+    if (nodynarec_ranges) {
+        nodynarec_stats_t stats = { 0, 0, 0 };
+        rbtree_walk(nodynarec_ranges, nodynarecStatsCB, &stats);
+        if (stats.count) {
+            box64env.nodynarec_start = stats.min_start;
+            box64env.nodynarec_end = stats.max_end;
+        }
+        printf_log(LOG_INFO, "BOX64_NODYNAREC parsed %zu range(s)\n",
+            stats.count);
+    }
+}
+
+int IsNoDynarecAddress(uintptr_t addr)
+{
+    if (!nodynarec_ranges ||
+        box64env.nodynarec_end <= box64env.nodynarec_start)
+        return 0;
+    // cheap bounding-box early-out before walking the tree
+    if ((addr < box64env.nodynarec_start) ||
+        (addr >= box64env.nodynarec_end))
+        return 0;
+    return rb_get(nodynarec_ranges, addr) ? 1 : 0;
+}
+
 void AddNewLibs(const char* list);
 
 extern int box64_cycle_log_initialized;
@@ -203,7 +314,7 @@ static void applyCustomRules()
     }
 
     if (box64env.is_nodynarec_overridden)
-        parseRange(box64env.nodynarec, &box64env.nodynarec_start, &box64env.nodynarec_end);
+        parseNoDynarecRanges(box64env.nodynarec);
 
     if (box64env.is_dynarec_dump_range_overridden)
         parseRange(box64env.dynarec_dump_range, &box64env.dynarec_dump_range_start, &box64env.dynarec_dump_range_end);
@@ -787,8 +898,8 @@ void PrintEnvVariables(box64env_t* env, int level)
         else
             printf_log(level, "\tBOX64_DYNAREC_TEST activated\n");
     }
-    if(env->is_nodynarec_overridden && env->nodynarec_end)
-        printf_log(level, "\tBOX64_NODYNAREC on range %p-%p\n", (void*)box64env.nodynarec_start, (void*)box64env.nodynarec_end);
+    if(env->is_nodynarec_overridden && nodynarec_ranges)
+        rbtree_walk(nodynarec_ranges, nodynarecPrintCB, (void*)(uintptr_t)level);
 
 }
 
@@ -1027,9 +1138,7 @@ int IsAddrNeedReloc(uintptr_t addr)
     int test = env->is_dynacache_overridden?env->dynacache:box64env.dynacache;
     if(test!=1)
         return 0;
-    uintptr_t end = env->nodynarec_end?env->nodynarec_end:box64env.nodynarec_end;
-    uintptr_t start = env->nodynarec_start?env->nodynarec_start:box64env.nodynarec_start;
-    if(end && addr>=start && addr<end)
+    if(IsNoDynarecAddress(addr))
         return 0;
      // don't do serialize for program that needs dirty=1 or 2 (maybe 1 is ok?)
     if(env && env->is_dynarec_dirty_overridden && env->dynarec_dirty)
@@ -1037,8 +1146,8 @@ int IsAddrNeedReloc(uintptr_t addr)
     if((!env || !env->is_dynarec_dirty_overridden) && box64env.dynarec_dirty)
         return 0;
    #ifdef HAVE_TRACE
-    end = env->dynarec_test_end?env->dynarec_test_end:box64env.dynarec_test_end;
-    start = env->dynarec_test_start?env->dynarec_test_start:box64env.dynarec_test_start;
+    uintptr_t end = env->dynarec_test_end?env->dynarec_test_end:box64env.dynarec_test_end;
+    uintptr_t start = env->dynarec_test_start?env->dynarec_test_start:box64env.dynarec_test_start;
     if(end && addr>=start && addr<end)
         return 0;
     test = env->is_dynarec_trace_overridden?env->dynarec_trace:box64env.dynarec_trace;
