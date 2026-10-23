@@ -3055,7 +3055,7 @@ void avx_store_reg_vector(dynarec_rv64_t* dyn, int ninst, int s1, int vreg, int 
         dyn->insts[ninst].vec_write_full |= 1u << a;
     int cache = sse_get_reg_empty_vector(dyn, ninst, s1, a);
     if (cache != vreg) {
-        avx_set_vector_width(dyn, ninst, s1, VECTOR_SEW8, width);
+        avx_set_vector_width(dyn, ninst, s1, sew, width);
         VMV_V_V(cache, vreg);
     }
     if (cpuext.vlen >= 32) {

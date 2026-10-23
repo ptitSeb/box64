@@ -132,9 +132,8 @@ uintptr_t dynarec64_AVX_66_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             } else {
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
-                if (fixedaddress) { ADDI(x4, ed, fixedaddress); ed = x4; fixedaddress = 0; }
-                vector_vsetvli(dyn, ninst, x1, VECTOR_SEW64, VECTOR_LMUL1, 0.5);
-                VLE64_V(q1, ed, VECTOR_UNMASKED, VECTOR_NFIELD1);
+                LD(x4, ed, fixedaddress);
+                VMV_S_X(q1, x4);
             }
             GETGY_empty_vector(v0);
             avx_set_vector_width(dyn, ninst, x1, VECTOR_SEW64, 16);
