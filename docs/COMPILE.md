@@ -309,6 +309,19 @@ Add `-DWITH_MOLD=1` option when GNU ld is extremely slow. Then run `mold -run ma
 
 You can now build box64 statically linked, with `-DSTATICBUILD` to use inside of a x86_64 chroot. Note that this version of box64 will only have the minimal wrapped libs, such as libc, libm and libpthread. Other libs (like libGL or libvulkan, SDL2, etc...) will use x86_64 versions. A static build is intended to be used in a docker image, or in a headless server. It is highly experimental, but feedback is always welcome.
 
+
+#### Build with musl
+
+Building with musl needs additional libraries:
+
+| Library  | Alpine Linux        | Gentoo                        |
+| -------- | ------------------- | ----------------------------- |
+| argp     | `argp-standalone`   | `sys-libs/argp-standalone`    |
+| obstack  | `musl-obstack`      | `sys-libs/obstack-standalone` |
+| fts      | `musl-fts`          | `sys-libs/fts-standalone`     |
+| ucontext | `libucontext`       | `sys-libs/libucontext`        |
+| error    | `musl-legacy-error` | `sys-libs/error-standalone`   |
+
 ----
 
 ## Testing

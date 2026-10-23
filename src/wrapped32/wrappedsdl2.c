@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define _GNU_SOURCE /* See feature_test_macros(7) */
 #include <dlfcn.h>
 #include <sys/mman.h>
 #include "wrappedlibs.h"

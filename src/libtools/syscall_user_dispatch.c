@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: MIT
-#define _GNU_SOURCE
 #include <errno.h>
 #include <elf.h>
 #include <signal.h>

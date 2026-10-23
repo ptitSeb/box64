@@ -1,7 +1,4 @@
 // SPDX-License-Identifier: MIT
-#define _LARGEFILE_SOURCE 1
-#define _FILE_OFFSET_BITS 64
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
 #include <stdlib.h>
 #include <stdio.h>
 #include <stddef.h>
@@ -30,6 +27,7 @@
 #ifdef BOX32
 #include "myalign32.h"
 #endif
+#include "libc_obstack.h"
 
 typedef void    (*vFv_t)    ();
 typedef int32_t (*iFppp_t)  (void*, void*, void*);

@@ -568,8 +568,8 @@ struct i386_passwd
 {
   ptr_t pw_name; // char*
   ptr_t pw_passwd; // char*
-  __uid_t pw_uid;
-  __gid_t pw_gid;
+  uid_t pw_uid;
+  gid_t pw_gid;
   ptr_t pw_gecos; // char*
   ptr_t pw_dir; // char*
   ptr_t pw_shell; // char*
@@ -579,7 +579,7 @@ struct i386_group
 {
   ptr_t gr_name; // char *
   ptr_t gr_passwd; // char *
-  __gid_t gr_gid;
+  gid_t gr_gid;
   ptr_t gr_mem; // char **
 } __attribute__((packed, aligned(4)));
 

@@ -129,12 +129,12 @@ struct native_statvfs {
     unsigned long int f_bsize;
     unsigned long int f_frsize;
 #ifndef ANDROID
-    __fsblkcnt64_t f_blocks;
-    __fsblkcnt64_t f_bfree;
-    __fsblkcnt64_t f_bavail;
-    __fsfilcnt64_t f_files;
-    __fsfilcnt64_t f_ffree;
-    __fsfilcnt64_t f_favail;
+    fsblkcnt_t f_blocks;
+    fsblkcnt_t f_bfree;
+    fsblkcnt_t f_bavail;
+    fsfilcnt_t f_files;
+    fsfilcnt_t f_ffree;
+    fsfilcnt_t f_favail;
 #else
     fsblkcnt_t f_blocks;
     fsblkcnt_t f_bfree;

@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: MIT
-#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -433,7 +432,7 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
                 setProtection_elf((uintptr_t)p, asize, prot);
                 head->multiblocks[n].p = p;
                 if (file_read_size) {
-                    fseeko64(head->file, head->multiblocks[n].offs, SEEK_SET);
+                    fseeko(head->file, head->multiblocks[n].offs, SEEK_SET);
                     if(fread((void*)head->multiblocks[n].paddr, file_read_size, 1, head->file)!=1) {
                         printf_log(LOG_NONE, "Cannot read elf block (@%p 0x%zx/0x%zx) for elf \"%s\"\n", (void*)head->multiblocks[n].offs, head->multiblocks[n].asize, (box64_pagesize - 1), head->name);
                         return 1;
@@ -458,7 +457,7 @@ int AllocLoadElfMemory(box64context_t* context, elfheader_t* head, int mainbin)
             char* dest = (char*)(context->tlsdata+context->tlssize+head->tlsbase);
             printf_log(LOG_DEBUG, "Loading TLS block #%zu @%p (0x%zx/0x%zx)\n", i, dest, e->p_filesz, e->p_memsz);
             if(e->p_filesz) {
-                fseeko64(head->file, e->p_offset, SEEK_SET);
+                fseeko(head->file, e->p_offset, SEEK_SET);
                 if(fread(dest, e->p_filesz, 1, head->file)!=1) {
                     mutex_unlock(&context->mutex_tls);
                     printf_log(LOG_NONE, "Fail to read PT_TLS part #%zu (size=%zd)\n", i, e->p_filesz);
@@ -2141,7 +2140,17 @@ int dl_iterate_phdr_findsymbol(eh_obj_t* obj, search_symbol_t* s)
                 ++dyn;
             }
 
-            if (strtab && verdef && verdef_cnt) {
+#if defined(__GLIBC__) || defined (ANDROID)
+            int candidate = verdef && verdef_cnt;
+#else // MUSL
+            // glibc allows the usage of versioned symbols, musl provides only default symbols,
+            // -> verdef test would reject musl's libc. replace it with an address-based test
+            // to skip box64 itself (it exports its own dlsym/dlopen/dlclose):
+            // accept candidate if eh_check_addr returns that the address of this function
+            // lies not in obj, i.e. obj is not box64
+            int candidate = eh_check_addr(obj, (void*)dl_iterate_phdr_findsymbol) != 0;
+#endif
+            if (strtab && candidate) {
                 eh_find_sym(obj, s->name, &s->addr);
                 if (s->addr) {
                     eh_destroy_obj(obj);

@@ -163,7 +163,7 @@ void print_64(v128 v) {
 #define print_128 print_64
 void print_ps(v128 v) {
     for(int i=0; i<4; ++i)
-        if(isnanf(v.f32[i]))
+        if(isnan(v.f32[i]))
             printf("%cnan ", (v.u32[i]&0x80000000)?'-':'+');
         else
             printf("%g ", v.f32[i]);

@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: MIT
-#define _GNU_SOURCE
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -13,7 +12,7 @@
 #include <setjmp.h>
 #include <sys/mman.h>
 #include <pthread.h>
-#ifndef ANDROID
+#ifdef USE_BACKTRACE
 #include <execinfo.h>
 #endif
 
@@ -288,8 +287,8 @@ typedef struct __attribute__((packed, aligned(4))) my_siginfo32_s
     union {
 	    int _pad[128/sizeof(int)-3];
 	struct {
-	    __pid_t __si_pid;
-	    __uid_t __si_uid;
+	    pid_t __si_pid;
+	    uid_t __si_uid;
     } _kill;
 	struct {
 	    int si_tid;
@@ -297,13 +296,13 @@ typedef struct __attribute__((packed, aligned(4))) my_siginfo32_s
 	    my_sigval32_t si_sigval;
     } _timer;
 	struct {
-	    __pid_t __si_pid;
-	    __uid_t __si_uid;
+	    pid_t __si_pid;
+	    uid_t __si_uid;
 	    my_sigval32_t si_sigval;
     } _rt;
 	struct {
-	    __pid_t __si_pid;
-	    __uid_t __si_uid;
+	    pid_t __si_pid;
+	    uid_t __si_uid;
 	    int __si_status;
 	    int32_t __si_utime;
 	    int32_t __si_stime;
@@ -469,7 +468,7 @@ void convert_siginfo_to_32(void* d, void* s, int sig)
     dst->si_signo = src->si_signo;
     dst->si_errno = src->si_errno;
     dst->si_code = src->si_code;
-    memcpy(&dst->_sifields, &src->_sifields, sizeof(siginfo_t) - offsetof(siginfo_t, _sifields));
+    memcpy(&dst->_sifields, &src->SIGINFO_S_SIFIELDS, sizeof(siginfo_t) - offsetof(siginfo_t, SIGINFO_S_SIFIELDS));
     if(sig==X64_SIGILL || sig==X64_SIGFPE || sig==X64_SIGSEGV || sig==X64_SIGBUS)
         dst->_sifields._sigfault.__si_addr = to_ptr(((uintptr_t)src->si_addr)&0xffffffff);  // in case addr is not a 32bits value...
     if(sig==X64_SIGCHLD) {

@@ -384,6 +384,9 @@ endif()
 set(BOX64_ROOT ${CMAKE_SOURCE_DIR})
 
 add_definitions(-std=gnu11 -funwind-tables -fvisibility=hidden)
+add_definitions(-D_GNU_SOURCE=1)
+add_definitions(-D_FILE_OFFSET_BITS=64)
+list(APPEND CMAKE_REQUIRED_DEFINITIONS -D_GNU_SOURCE)
 
 if(USE_CCACHE)
     find_program(CCACHE_FOUND ccache)
@@ -414,6 +417,213 @@ add_custom_target(generate_dynacache_hashes
     BYPRODUCTS "${DYNACACHE_HASH_HEADER}"
     VERBATIM
 )
+
+include(CheckIncludeFile)
+
+set(PROJECT_HEADERS
+    execinfo.h
+    error.h
+)
+
+foreach(header IN LISTS PROJECT_HEADERS)
+    string(MAKE_C_IDENTIFIER "${header}" header_ident)
+    string(TOUPPER "${header_ident}" header_ident)
+
+    set(var "HAVE_${header_ident}")
+
+    check_include_file("${header}" "${var}")
+
+    if(${var})
+        add_compile_definitions("${var}=1")
+    endif()
+endforeach()
+
+if(HAVE_EXECINFO_H AND NOT ANDROID)
+    add_compile_definitions(USE_BACKTRACE)
+endif()
+
+include(CheckSymbolExists)
+
+set(PROJECT_SYMBOL_CHECKS
+    mallopt                             malloc.h
+    malloc_trim                         malloc.h
+    mallinfo                            malloc.h
+    mallinfo2                           malloc.h
+    _pthread_cleanup_push               pthread.h
+    _pthread_cleanup_pop                pthread.h
+    pthread_attr_getaffinity_np         pthread.h
+    pthread_attr_setaffinity_np         pthread.h
+    pthread_mutexattr_setprioceiling    pthread.h
+    dlvsym                              dlfcn.h
+    obstack_vprintf                     stdio.h
+    getprotobyname_r                    netdb.h
+    getprotobynumber_r                  netdb.h
+    scandirat                           dirent.h
+)
+
+list(LENGTH PROJECT_SYMBOL_CHECKS checks_len)
+math(EXPR checks_last "${checks_len} - 1")
+
+foreach(i RANGE 0 ${checks_last} 2)
+    math(EXPR j "${i} + 1")
+
+    list(GET PROJECT_SYMBOL_CHECKS ${i} symbol)
+    list(GET PROJECT_SYMBOL_CHECKS ${j} header)
+
+    string(MAKE_C_IDENTIFIER "${symbol}" symbol_ident)
+    string(TOUPPER "${symbol_ident}" symbol_ident)
+
+    set(var "HAVE_${symbol_ident}")
+
+    set(headers "${header}")
+    check_symbol_exists("${symbol}" "${headers}" "${var}")
+
+    if(${var})
+        add_compile_definitions("${var}=1")
+    endif()
+endforeach()
+
+include(CheckFunctionExists)
+
+set(PROJECT_FUNCTION_CHECKS
+    __chk_fail
+)
+
+foreach(function IN LISTS PROJECT_FUNCTION_CHECKS)
+    string(MAKE_C_IDENTIFIER "${function}" function_ident)
+    string(TOUPPER "${function_ident}" function_ident)
+
+    set(var "HAVE_${function_ident}")
+
+    check_function_exists("${function}" "${var}")
+
+    if(${var})
+        add_compile_definitions("${var}=1")
+    endif()
+endforeach()
+
+include(CheckCSourceCompiles)
+
+check_c_source_compiles("#include <obstack.h>
+int main(void){ struct obstack o = { .temp.tempptr = NULL }; return 0; }" OBSTACK_TEMP_TEMPPTR)
+check_c_source_compiles("#include <obstack.h>
+int main(void){ struct obstack o = { .temp.p = NULL }; return 0; }"       OBSTACK_TEMP_P)
+
+if(OBSTACK_TEMP_TEMPPTR) # glibc
+  add_compile_definitions("STRUCT_OBSTACK_TEMP=tempptr")
+  add_compile_definitions("STRUCT_OBSTACK_CHUNKFUN=chunkfun")
+  add_compile_definitions("STRUCT_OBSTACK_FREEFUN=freefun")
+elseif(OBSTACK_TEMP_P) # musl-obstack
+  add_compile_definitions("STRUCT_OBSTACK_TEMP=p")
+  add_compile_definitions("STRUCT_OBSTACK_CHUNKFUN=chunkfun.extra")
+  add_compile_definitions("STRUCT_OBSTACK_FREEFUN=freefun.extra")
+elseif(NOT ANDROID)
+  message(FATAL_ERROR "Unknown struct obstack layout!")
+endif()
+
+check_c_source_compiles("#include <signal.h>
+int main(void){ siginfo_t s = { ._sifields = { 0 } }; return 0; }"   SIGINFO_S__SIFIELDS)
+check_c_source_compiles("#include <signal.h>
+int main(void){ siginfo_t s = { .__si_fields = { 0 } }; return 0; }" SIGINFO_S___SI_FIELDS)
+
+if(SIGINFO_S__SIFIELDS) # glibc
+  add_compile_definitions("SIGINFO_S_SIFIELDS=_sifields")
+elseif(SIGINFO_S___SI_FIELDS) # musl
+  add_compile_definitions("SIGINFO_S_SIFIELDS=__si_fields")
+elseif(NOT ANDROID)
+  message(FATAL_ERROR "Unknown siginfo_t layout!")
+endif()
+
+check_c_source_compiles("#include <resolv.h>
+int main(void){ struct __res_state r = { .__glibc_unused_qhook = NULL }; return 0; }"  RES_STATE_GLIBC_UNUSED_QHOOK)
+check_c_source_compiles("#include <resolv.h>
+int main(void){ struct __res_state r = { .qhook = NULL }; return 0; }"                 RES_STATE_QHOOK)
+
+if(RES_STATE_GLIBC_UNUSED_QHOOK) # glibc
+  add_compile_definitions("RES_STATE_QHOOK=__glibc_unused_qhook")
+  add_compile_definitions("RES_STATE_RHOOK=__glibc_unused_rhook")
+elseif(RES_STATE_QHOOK) # musl
+  add_compile_definitions("RES_STATE_QHOOK=qhook")
+  add_compile_definitions("RES_STATE_RHOOK=rhook")
+elseif(NOT ANDROID)
+  message(FATAL_ERROR "Unknown res_state layout!")
+endif()
+
+check_c_source_compiles("#include <ctype.h>
+int main(void){ return &__ctype_b_loc == 0; }" CTYPE_B_LOC)
+check_c_source_compiles("#include <ctype.h>
+extern const unsigned short int **__ctype_b_loc(void);
+int main(void){ __ctype_b_loc(); return 0; }" CTYPE_B_LOC_EXT)
+
+if(CTYPE_B_LOC) # glibc
+  add_compile_definitions("HAVE_CTYPE_B_LOC")
+elseif(CTYPE_B_LOC_EXT) # musl
+  add_compile_definitions("HAVE_CTYPE_B_LOC")
+  add_compile_definitions("HAVE_CTYPE_B_LOC_EXT")
+endif()
+
+check_c_source_compiles("#include <glob.h>
+int main(void){ glob_t g = { .gl_flags = 0 }; return 0; }" GLOB_T_GL_FLAGS)
+check_c_source_compiles("#include <glob.h>
+int main(void){ glob_t g = { .__dummy1 = 0 }; return 0; }" GLOB_T_DUMMY)
+
+if(GLOB_T_GL_FLAGS) # glibc
+  add_compile_definitions("GLOB_T_GL_FLAGS=gl_flags")
+  add_compile_definitions("GLOB_T_GL_CLOSEDIR=gl_closedir")
+  add_compile_definitions("GLOB_T_GL_READDIR=gl_readdir")
+  add_compile_definitions("GLOB_T_GL_OPENDIR=gl_opendir")
+  add_compile_definitions("GLOB_T_GL_LSTAT=gl_lstat")
+  add_compile_definitions("GLOB_T_GL_STAT=gl_stat")
+elseif(GLOB_T_DUMMY) # musl
+  add_compile_definitions("GLOB_T_GL_FLAGS=__dummy1")
+  add_compile_definitions("GLOB_T_GL_CLOSEDIR=__dummy2[0]")
+  add_compile_definitions("GLOB_T_GL_READDIR=__dummy2[1]")
+  add_compile_definitions("GLOB_T_GL_OPENDIR=__dummy2[2]")
+  add_compile_definitions("GLOB_T_GL_LSTAT=__dummy2[3]")
+  add_compile_definitions("GLOB_T_GL_STAT=__dummy2[4]")
+elseif(NOT ANDROID)
+  message(FATAL_ERROR "Unknown glob_t layout!")
+endif()
+
+check_c_source_compiles("#include <spawn.h>
+int main(void){ posix_spawn_file_actions_t a = { .__allocated = 0 }; return 0; }" 
+    POSIX_SPAWN_FILE_ACTIONS_T__ALLOCATED)
+check_c_source_compiles("#include <spawn.h>
+int main(void){ posix_spawn_file_actions_t a = { .__pad0 = {0} }; return 0; }" 
+    POSIX_SPAWN_FILE_ACTIONS_T__PAD0)
+
+if(POSIX_SPAWN_FILE_ACTIONS_T__ALLOCATED) # glibc
+  add_compile_definitions("POSIX_SPAWN_FILE_ACTIONS_T__ALLOCATED=__allocated")
+  add_compile_definitions("POSIX_SPAWN_FILE_ACTIONS_T__USED=__used")
+  add_compile_definitions("POSIX_SPAWN_FILE_ACTIONS_T__ACTIONS=__actions")
+  add_compile_definitions("POSIX_SPAWN_FILE_ACTIONS_T__PAD=__pad")
+elseif(POSIX_SPAWN_FILE_ACTIONS_T__PAD0) # musl
+  add_compile_definitions("POSIX_SPAWN_FILE_ACTIONS_T__ALLOCATED=__pad0[0]")
+  add_compile_definitions("POSIX_SPAWN_FILE_ACTIONS_T__USED=__pad0[1]")
+  add_compile_definitions("POSIX_SPAWN_FILE_ACTIONS_T__ACTIONS=__actions")
+  add_compile_definitions("POSIX_SPAWN_FILE_ACTIONS_T__PAD=__pad")
+elseif(NOT ANDROID)
+  message(FATAL_ERROR "Unknown posix_spawn_file_actions_t layout!")
+endif()
+
+if(HAVE_ERROR_H)
+    set(ERROR_TEST [[
+        #include <error.h>
+        int main(void) { error(0, 0, "test"); return 0; }
+    ]])
+    check_c_source_compiles("${ERROR_TEST}" HAVE_ERROR)
+    if(NOT HAVE_ERROR)
+        include(CMakePushCheckState)
+        cmake_push_check_state()
+        set(CMAKE_REQUIRED_LIBRARIES error)
+        check_c_source_compiles("${ERROR_TEST}" HAVE_ERROR_LIB)
+        cmake_pop_check_state()
+    endif()
+endif()
+
+if(NOT HAVE_ERROR AND NOT HAVE_ERROR_LIB)
+    message(FATAL_ERROR "error() is unavailable")
+endif()
 
 # generated files
 set_source_files_properties(
@@ -474,6 +684,7 @@ set(ELFLOADER_SRC
     "${BOX64_ROOT}/src/libtools/syscall_user_dispatch.c"
     "${BOX64_ROOT}/src/libtools/decopcode.c"
     "${BOX64_ROOT}/src/libtools/threads.c"
+    "${BOX64_ROOT}/src/libtools/libc.c"
     "${BOX64_ROOT}/src/steamwebhelper.c"
     "${BOX64_ROOT}/src/tools/bitutils.c"
     "${BOX64_ROOT}/src/tools/box64stack.c"
@@ -1378,6 +1589,56 @@ if(NOT NOBOX64)
         target_link_libraries(${BOX64} dynarec)
     endif()
     target_link_libraries(${BOX64} interpreter)
+
+    set(BOX64_MUSL FALSE)
+
+    if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+        if(CMAKE_C_COMPILER_TARGET MATCHES "musl")
+            set(BOX64_MUSL TRUE)
+            set(BOX64_LIBC_TARGET "${CMAKE_C_COMPILER_TARGET}")
+        else()
+            execute_process(
+                COMMAND "${CMAKE_C_COMPILER}" -dumpmachine
+                OUTPUT_VARIABLE BOX64_CC_MACHINE
+                OUTPUT_STRIP_TRAILING_WHITESPACE
+                ERROR_QUIET
+            )
+
+            if(BOX64_CC_MACHINE MATCHES "musl")
+                set(BOX64_MUSL TRUE)
+                set(BOX64_LIBC_TARGET "${BOX64_CC_MACHINE}")
+            endif()
+        endif()
+    endif()
+
+    if(BOX64_MUSL)
+        set(MUSL_COMPAT_LIBS
+            argp
+            obstack
+            fts
+            ucontext
+        )
+
+        if(HAVE_ERROR_LIB)
+            list(APPEND MUSL_COMPAT_LIBS error)
+        endif()
+
+        foreach(lib IN LISTS MUSL_COMPAT_LIBS)
+            string(TOUPPER "${lib}" LIB_UPPER)
+            set(LIB_VAR "MUSL_${LIB_UPPER}_LIBRARY")
+            
+            message(STATUS "Looking for lib${lib}")
+            find_library(${LIB_VAR} NAMES ${lib})
+
+            if(${LIB_VAR})
+                message(STATUS "Looking for lib${lib} - found: ${${LIB_VAR}}")
+            else()
+                message(FATAL_ERROR "Looking for lib${lib} - not found.")
+            endif()
+
+            target_link_libraries(${BOX64} "${MUSL_${LIB_UPPER}_LIBRARY}")
+        endforeach()
+    endif()
 
     if(${CMAKE_VERSION} VERSION_LESS "3.13")
         if(NOT NOLOADADDR)
