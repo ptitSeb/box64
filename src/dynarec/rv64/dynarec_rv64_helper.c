@@ -1926,6 +1926,7 @@ static void sse_purgecache(dynarec_rv64_t* dyn, int ninst, int next, int s1)
     int old = -1;
     uint8_t sew, vlmul, vl;
     int flushed8 = 0;
+    uint32_t zeroed = 0;
     vector_save_vtype(dyn, &sew, &vlmul, &vl);
     dyn->inst_sew = VECTOR_SEWNA;
     dyn->inst_vl = 0;
@@ -1943,6 +1944,7 @@ static void sse_purgecache(dynarec_rv64_t* dyn, int ninst, int next, int s1)
                     ADDI(s1, xEmu, offsetof(x64emu_t, xmm[i]));
                     VSE8_V(dyn->e.ssecache[i].reg, s1, VECTOR_UNMASKED, VECTOR_NFIELD1);
                 }
+                if (dyn->e.ssecache[i].ymm0) zeroed |= 1u << i;
                 avx_flush_upper_vector(dyn, ninst, s1, i, dyn->e.ssecache[i].reg, next, !next);
             } else if (dyn->e.ssecache[i].single)
                 FSW(dyn->e.ssecache[i].reg, xEmu, offsetof(x64emu_t, xmm[i]));
@@ -1961,6 +1963,7 @@ static void sse_purgecache(dynarec_rv64_t* dyn, int ninst, int next, int s1)
     if (flushed8)
         vector_restore_vtype(dyn, ninst, s1, sew, vlmul, vl);
     dyn->purge_dead_vector = 0;
+    dyn->e.ymm0 &= ~zeroed;
     avx_flush_pending_zero_vector(dyn, ninst, s1, next);
     if (old != -1) {
         MESSAGE(LOG_DUMP, "\t------ Purge SSE Cache\n");
