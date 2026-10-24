@@ -4731,7 +4731,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             STPx_S7_preindex(x4, xRIP, xSP, -16);
                         }
                         if (rex.w) PUSH2(x5, xRIP); else PUSH2_32(x5, xRIP);
-                        STH(x3, xEmu, offsetof(x64emu_t, segs[_CS]));
+                        STRH_U12(x3, xEmu, offsetof(x64emu_t, segs[_CS]));
                         jump_to_next(dyn, 0, ed, ninst, rex.is32bits);
                         CALLRET_RET(can_continue);
                         if (BOX64DRENV(dynarec_callret) && !can_continue) {
@@ -4767,7 +4767,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         LDxw(x1, wback, 0);
                         ed = x1;
                         LDH(x3, wback, rex.w?8:4);
-                        STH(x3, xEmu, offsetof(x64emu_t, segs[_CS]));
+                        STRH_U12(x3, xEmu, offsetof(x64emu_t, segs[_CS]));
                         jump_to_next(dyn, 0, ed, ninst, rex.w?0:1);
                         *need_epilog = 0;
                         *ok = 0;
