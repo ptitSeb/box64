@@ -222,13 +222,38 @@ uintptr_t dynarec64_AVX_F3_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
                     LW(x4, ed, fixedaddress);
                 ed = x4;
             }
-            u8 = sse_setround(dyn, ninst, x5, x6);
+            LW(x5, xEmu, offsetof(x64emu_t, mxcsr));
+            SRLI(x5, x5, 13);
+            ANDI(x5, x5, 3);
             d0 = fpu_get_scratch(dyn);
+            BEQZ_MARK(x5);
+            ADDI(x6, xZR, 3);
+            BEQ_MARK2(x5, x6);
+            ADDI(x6, xZR, 2);
+            BEQ_MARK3(x5, x6);
             if (rex.w)
-                FCVTSL(d0, ed, RD_DYN);
+                FCVTSL(d0, ed, RD_RDN);
             else
-                FCVTSW(d0, ed, RD_DYN);
-            x87_restoreround(dyn, ninst, u8);
+                FCVTSW(d0, ed, RD_RDN);
+            B_MARK4_nocond;
+            MARK;
+            if (rex.w)
+                FCVTSL(d0, ed, RD_RNE);
+            else
+                FCVTSW(d0, ed, RD_RNE);
+            B_MARK4_nocond;
+            MARK2;
+            if (rex.w)
+                FCVTSL(d0, ed, RD_RTZ);
+            else
+                FCVTSW(d0, ed, RD_RTZ);
+            B_MARK4_nocond;
+            MARK3;
+            if (rex.w)
+                FCVTSL(d0, ed, RD_RUP);
+            else
+                FCVTSW(d0, ed, RD_RUP);
+            MARK4;
             GETGY_empty_vector(v0);
             if (v0 != q0) {
                 avx_set_vector_width(dyn, ninst, x1, VECTOR_SEW32, 16);
@@ -254,6 +279,51 @@ uintptr_t dynarec64_AVX_F3_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             }
             if (!BOX64ENV(dynarec_fastround)) FSFLAGSI(0);
             FCVTSxw(gd, d0, RD_RTZ);
+            if (!rex.w) ZEROUP(gd);
+            if (!BOX64ENV(dynarec_fastround)) {
+                FRFLAGS(x5);
+                ANDI(x5, x5, (1 << FR_NV) | (1 << FR_OF));
+                CBZ_NEXT(x5);
+                if (rex.w)
+                    MOV64x(gd, 0x8000000000000000LL);
+                else
+                    MOV32w(gd, 0x80000000);
+            }
+            break;
+        case 0x2D:
+            INST_NAME("VCVTSS2SI Gd, Ex");
+            nextop = F8;
+            GETGDd;
+            d0 = fpu_get_scratch(dyn);
+            if (MODREG) {
+                q0 = VREG((nextop & 7) + (rex.b << 3));
+                avx_load_reg_vector(dyn, ninst, x1, q0, (nextop & 7) + (rex.b << 3), 16, VECTOR_SEW32);
+                VFMV_F_S(d0, q0);
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 0);
+                FLW(d0, ed, fixedaddress);
+            }
+            if (!BOX64ENV(dynarec_fastround)) FSFLAGSI(0);
+            LW(x5, xEmu, offsetof(x64emu_t, mxcsr));
+            SRLI(x5, x5, 13);
+            ANDI(x5, x5, 3);
+            BEQZ_MARK(x5);
+            ADDI(x6, xZR, 3);
+            BEQ_MARK2(x5, x6);
+            ADDI(x6, xZR, 2);
+            BEQ_MARK3(x5, x6);
+            FCVTSxw(gd, d0, RD_RDN);
+            B_MARK4_nocond;
+            MARK;
+            FCVTSxw(gd, d0, RD_RNE);
+            B_MARK4_nocond;
+            MARK2;
+            FCVTSxw(gd, d0, RD_RTZ);
+            B_MARK4_nocond;
+            MARK3;
+            FCVTSxw(gd, d0, RD_RUP);
+            MARK4;
             if (!rex.w) ZEROUP(gd);
             if (!BOX64ENV(dynarec_fastround)) {
                 FRFLAGS(x5);

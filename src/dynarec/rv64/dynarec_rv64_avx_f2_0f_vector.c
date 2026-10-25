@@ -239,6 +239,51 @@ uintptr_t dynarec64_AVX_F2_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
                     MOV32w(gd, 0x80000000);
             }
             break;
+        case 0x2D:
+            INST_NAME("VCVTSD2SI Gd, Ex");
+            nextop = F8;
+            GETGDd;
+            d0 = fpu_get_scratch(dyn);
+            if (MODREG) {
+                q0 = VREG((nextop & 7) + (rex.b << 3));
+                avx_load_reg_vector(dyn, ninst, x1, q0, (nextop & 7) + (rex.b << 3), 16, VECTOR_SEW64);
+                VFMV_F_S(d0, q0);
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 0);
+                FLD(d0, ed, fixedaddress);
+            }
+            if (!BOX64ENV(dynarec_fastround)) FSFLAGSI(0);
+            LW(x5, xEmu, offsetof(x64emu_t, mxcsr));
+            SRLI(x5, x5, 13);
+            ANDI(x5, x5, 3);
+            BEQZ_MARK(x5);
+            ADDI(x6, xZR, 3);
+            BEQ_MARK2(x5, x6);
+            ADDI(x6, xZR, 2);
+            BEQ_MARK3(x5, x6);
+            FCVTLDxw(gd, d0, RD_RDN);
+            B_MARK4_nocond;
+            MARK;
+            FCVTLDxw(gd, d0, RD_RNE);
+            B_MARK4_nocond;
+            MARK2;
+            FCVTLDxw(gd, d0, RD_RTZ);
+            B_MARK4_nocond;
+            MARK3;
+            FCVTLDxw(gd, d0, RD_RUP);
+            MARK4;
+            if (!rex.w) ZEROUP(gd);
+            if (!BOX64ENV(dynarec_fastround)) {
+                FRFLAGS(x5);
+                ANDI(x5, x5, (1 << FR_NV) | (1 << FR_OF));
+                CBZ_NEXT(x5);
+                if (rex.w)
+                    MOV64x(gd, 0x8000000000000000LL);
+                else
+                    MOV32w(gd, 0x80000000);
+            }
+            break;
         case 0x70:
             INST_NAME("VPSHUFLW Gx, Ex, Ib");
             nextop = F8;
