@@ -402,8 +402,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
 
                 if (eb2) {
                     // load a mask to x3 (ffffffffffff00ff)
-                    LUI(x3, 0xffff0);
-                    ORI(x3, x3, 0xff);
+                    MOV64x(x3, 0xFFFFFFFFFFFF00FF);
                     // apply mask
                     AND(eb1, eb1, x3);
                     if (u8) {
@@ -1532,7 +1531,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             OR(xFlags, xFlags, x3);
                         }
                     }
-                    LUI(x2, 0xffff0);
+                    MOV64x(x2, 0xFFFFFFFFFFFF0000);
                     AND(xRAX, xRAX, x2);
                     ZEXTH(x1, x1);
                     OR(xRAX, xRAX, x1);
@@ -1561,7 +1560,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             OR(xFlags, xFlags, x3);
                         }
                     }
-                    LUI(x2, 0xffff0);
+                    MOV64x(x2, 0xFFFFFFFFFFFF0000);
                     AND(xRAX, xRAX, x2);
                     ZEXTH(x1, x1);
                     OR(xRAX, xRAX, x1);
@@ -1589,7 +1588,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     }
                     DIVUW(x3, x2, ed);
                     REMUW(x4, x2, ed);
-                    LUI(x5, 0xffff0);
+                    MOV64x(x5, 0xFFFFFFFFFFFF0000);
                     AND(xRAX, xRAX, x5);
                     ANDI(x3, x3, 0xff);
                     OR(xRAX, xRAX, x3);

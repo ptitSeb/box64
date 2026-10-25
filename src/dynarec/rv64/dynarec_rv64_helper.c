@@ -25,6 +25,23 @@
 #include "dynarec_rv64_private.h"
 #include "dynarec_rv64_functions.h"
 #include "../dynarec_helper.h"
+#include "rv64_mov_imm.h"
+
+typedef struct rv64_mov_dynctx_s {
+    dynarec_rv64_t* dyn;
+    int ninst;
+} rv64_mov_dynctx_t;
+
+static void rv64_mov_emit_word(void* p, uint32_t insn)
+{
+    rv64_mov_dynctx_t* c = (rv64_mov_dynctx_t*)p;
+    dynarec_rv64_t* dyn = c->dyn;
+    int ninst = c->ninst;
+    MAYUSE(dyn);
+    MAYUSE(ninst);
+    MAYUSE(insn);
+    EMIT(insn);
+}
 
 /* setup r2 to address pointed by ED, also fixaddress is an optionnal delta in the range [-absmax, +absmax], with delta&mask==0 to be added to ed for LDR/STR */
 uintptr_t geted(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, uint8_t* ed, uint8_t hint, uint8_t scratch, int64_t* fixaddress, rex_t rex, int* l, int i12, int delta)
@@ -918,7 +935,7 @@ void x87_purgecache(dynarec_rv64_t* dyn, int ninst, int next, int s1, int s2, in
         if (a > 0) {
             SLLI(s1, s1, a * 2);
         } else {
-            LUI(s3, 0xffff0);
+            MOV64x(s3, 0xFFFFFFFFFFFF0000);
             OR(s1, s1, s3);
             SRLI(s1, s1, -a * 2);
         }
@@ -2781,55 +2798,72 @@ void CacheTransform(dynarec_rv64_t* dyn, int ninst, int cacheupd, int s1, int s2
 }
 
 
-void rv64_move32(dynarec_rv64_t* dyn, int ninst, int reg, int32_t val, int zeroup)
+void rv64_move32(dynarec_rv64_t* dyn, int ninst, int reg, int32_t val)
 {
-    // Depending on val, the following insts are emitted.
-    // val == 0               -> ADDI
-    // lo12 != 0 && hi20 == 0 -> ADDI
-    // lo12 == 0 && hi20 != 0 -> LUI
-    // else                   -> LUI+ADDI
-    int32_t hi20 = (val + 0x800) >> 12 & 0xfffff;
-    int32_t lo12 = val & 0xfff;
+#if STEP == 1
+    (void)dyn;
+    (void)ninst;
+    (void)reg;
+    (void)val;
+    return;
+#endif
+#if STEP == 0
+    (void)ninst;
+    (void)reg;
+    (void)val;
+    for (int i = 0; i < RV64_MOV_MAXOPS; ++i)
+        EMIT(0);
+    return;
+#endif
+    rv64_mov_seq_t seq;
+    rv64_mov_dynctx_t ec = { dyn, ninst };
 
-    int src = xZR;
-    if (hi20) {
-        LUI(reg, hi20);
-        src = reg;
+    if (rv64_mov_cache_get((uint64_t)(uint32_t)val, 0, 1, &seq)) {
+        rv64_mov_emit_seq(reg, -1, -1, &seq, rv64_mov_emit_word, &ec);
+        return;
     }
-    if (lo12 || !hi20) ADDIW(reg, src, lo12);
-    if (zeroup && (val & 0x80000000)) {
-        ZEROUP(reg);
+
+    rv64_movctx_t ctx = { { cpuext.zba, cpuext.zbs, cpuext.zbb }, RV64_MOV_BUDGET };
+    if (rv64_mov_seq32(&ctx, (uint32_t)val, 0, &seq)) {
+        rv64_mov_cache_put((uint64_t)(uint32_t)val, 0, 1, &seq);
+        rv64_mov_emit_seq(reg, -1, -1, &seq, rv64_mov_emit_word, &ec);
     }
 }
 
-void rv64_move64(dynarec_rv64_t* dyn, int ninst, int reg, int64_t val)
+void rv64_move64(dynarec_rv64_t* dyn, int ninst, int reg, int64_t val, int s1, int s2)
 {
-    uint64_t uval = (uint64_t)val;
-    if (cpuext.zbs && uval && !(uval & (uval - 1))) {
-        BSETI_(reg, xZR, TrailingZeros64(uval));
+#if STEP == 1
+    (void)dyn;
+    (void)ninst;
+    (void)reg;
+    (void)val;
+    (void)s1;
+    (void)s2;
+    return;
+#endif
+#if STEP == 0
+    (void)ninst;
+    (void)reg;
+    (void)val;
+    (void)s1;
+    (void)s2;
+    for (int i = 0; i < RV64_MOV_MAXOPS; ++i)
+        EMIT(0);
+    return;
+#endif
+    rv64_mov_seq_t seq;
+    rv64_mov_dynctx_t ec = { dyn, ninst };
+    int nscratch = (s1 >= 0) + (s2 >= 0);
+
+    if (rv64_mov_cache_get((uint64_t)val, nscratch, 0, &seq)) {
+        rv64_mov_emit_seq(reg, s1, s2, &seq, rv64_mov_emit_word, &ec);
         return;
     }
 
-    if (((val << 32) >> 32) == val) {
-        // 32bits value
-        rv64_move32(dyn, ninst, reg, val, 0);
-        return;
-    }
-    if (!(uval & (uval + 1))) {
-        ADDI(reg, xZR, -1);
-        SRLI(reg, reg, 64 - TrailingZeros64(~uval));
-        return;
-    }
-
-    int64_t lo12 = (val << 52) >> 52;
-    int64_t hi52 = (val + 0x800) >> 12;
-    int shift = 12 + TrailingZeros64((uint64_t)hi52);
-    hi52 = ((hi52 >> (shift - 12)) << shift) >> shift;
-    rv64_move64(dyn, ninst, reg, hi52);
-    SLLI(reg, reg, shift);
-
-    if (lo12) {
-        ADDI(reg, reg, lo12);
+    rv64_movctx_t ctx = { { cpuext.zba, cpuext.zbs, cpuext.zbb }, RV64_MOV_BUDGET };
+    if (rv64_mov_seq64(&ctx, (uint64_t)val, 0, nscratch, &seq)) {
+        rv64_mov_cache_put((uint64_t)val, nscratch, 0, &seq);
+        rv64_mov_emit_seq(reg, s1, s2, &seq, rv64_mov_emit_word, &ec);
     }
 }
 

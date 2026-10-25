@@ -979,6 +979,8 @@
 #define GETMARK2    GETMARKi(1)
 #define MARK3       MARKi(2)
 #define GETMARK3    GETMARKi(2)
+#define MARK4       MARKi(3)
+#define GETMARK4    GETMARKi(3)
 
 #define MARKFi(i)    dyn->insts[ninst].markf[i] = dyn->native_size
 #define GETMARKFi(i) dyn->insts[ninst].markf[i]
@@ -1054,6 +1056,12 @@
 #define BEQZ_MARK2(reg) BEQ_MARK2(reg, xZR)
 // Branch to MARK3 if reg1==0 (use j64)
 #define BEQZ_MARK3(reg) BEQ_MARK3(reg, xZR)
+// Branch to MARK4 if reg1!=reg2 (use j64)
+#define BNE_MARK4(reg1, reg2) Bxx_gen(NE, MARK4, reg1, reg2)
+// Branch to MARK4 if reg1!=0 (use j64)
+#define BNEZ_MARK4(reg) BNE_MARK4(reg, xZR)
+// Branch to MARK4 instruction unconditionnal (use j64)
+#define B_MARK4_nocond Bxx_gen(__, MARK4, 0, 0)
 // Branch to MARK3 instruction unconditionnal (use j64)
 #define B_MARK3_nocond Bxx_gen(__, MARK3, 0, 0)
 // Branch to MARKLOCK if reg1!=reg2 (use j64)
@@ -1250,7 +1258,7 @@
     SLLI(xs, xs, 41);                      \
     SRLI(xs, xs, 41);                      \
     OR(xs, xs, xt);                        \
-    LUI(xt, 0x7fc00);                      \
+    MOV32w(xt, 0x7FC00000);                \
     OR(xs, xs, xt);                        \
     FMVWX(d, xs)
 #endif
@@ -1400,8 +1408,7 @@
 
 // Adjust the xFlags bit 5 -> bit 11, src and dst can be the same (and can be xFlags, but not s1)
 #define FLAGS_ADJUST_TO11(dst, src, s1) \
-    LUI(s1, 0xFFFFF);                   \
-    ADDIW(s1, s1, 0x7DF);               \
+    MOV64x(s1, 0xFFFFFFFFFFFFF7DF);     \
     AND(s1, src, s1);                   \
     ANDI(dst, src, 1 << 5);             \
     SLLI(dst, dst, 11 - 5);             \
@@ -2184,8 +2191,8 @@ int sse_setround(dynarec_rv64_t* dyn, int ninst, int s1, int s2);
 
 void CacheTransform(dynarec_rv64_t* dyn, int ninst, int cacheupd, int s1, int s2, int s3);
 
-void rv64_move64(dynarec_rv64_t* dyn, int ninst, int reg, int64_t val);
-void rv64_move32(dynarec_rv64_t* dyn, int ninst, int reg, int32_t val, int zeroup);
+void rv64_move64(dynarec_rv64_t* dyn, int ninst, int reg, int64_t val, int s1, int s2);
+void rv64_move32(dynarec_rv64_t* dyn, int ninst, int reg, int32_t val);
 
 int vector_vsetvli(dynarec_rv64_t* dyn, int ninst, int s1, int sew, int vlmul, float multiple);
 void vector_loadmask(dynarec_rv64_t* dyn, int ninst, int vreg, uint64_t imm, int s1, float multiple);
@@ -2526,11 +2533,10 @@ uintptr_t dynarec64_AVX_F3_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
     SLLI(s1, s2, 8);                                           \
     J(20); /* end */                                           \
     /* undefined/NaN */                                        \
-    LUI(s1, 4);                                                \
-    ADDI(s1, s1, 0b010100000000);                              \
+    MOV32w(s1, 0x4500);                                        \
     J(8); /* end */                                            \
     /* equal */                                                \
-    LUI(s1, 4);                                                \
+    MOV32w(s1, 0x4000);                                        \
     /* end */                                                  \
     OR(s3, s3, s1);                                            \
     SH(s3, xEmu, offsetof(x64emu_t, sw));
@@ -2668,6 +2674,18 @@ uintptr_t dynarec64_AVX_F3_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             VMV_V_I(vreg, imm);                         \
         } else {                                        \
             MOV64x(s1, imm);                            \
+            VMV_V_X(vreg, s1);                          \
+        }                                               \
+    } while (0)
+
+#define VECTOR_SPLAT_IMM_S(vreg, imm, s1, s2)           \
+    do {                                                \
+        if (imm == 0) {                                 \
+            VXOR_VV(vreg, vreg, vreg, VECTOR_UNMASKED); \
+        } else if ((imm & 0xf) == imm) {                \
+            VMV_V_I(vreg, imm);                         \
+        } else {                                        \
+            MOV64xs(s1, imm, s2);                       \
             VMV_V_X(vreg, s1);                          \
         }                                               \
     } while (0)

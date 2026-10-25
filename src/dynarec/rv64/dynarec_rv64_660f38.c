@@ -144,9 +144,8 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     INST_NAME("PHADDSW Gx, Ex");
                     nextop = F8;
                     GETGX();
-                    LUI(x6, 0xFFFF8); // -32768
-                    LUI(x7, 0x8);     // 32768
-                    ADDIW(x7, x7, -1);
+                    MOV64x(x6, -32768);
+                    MOV32w(x7, 0x7FFF);
                     for (int i = 0; i < 4; ++i) {
                         // tmp32s = GX->sw[i*2+0]+GX->sw[i*2+1];
                         // GX->sw[i] = sat(tmp32s);
@@ -178,9 +177,8 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     nextop = F8;
                     GETGX();
                     GETEX(x2, 0, 15);
-                    LUI(x6, 0xFFFF8); // -32768
-                    LUI(x7, 0x8);     // 32768
-                    ADDIW(x7, x7, -1);
+                    MOV64x(x6, -32768);
+                    MOV32w(x7, 0x7FFF);
                     for (int i = 0; i < 8; ++i) {
                         LBU(x3, gback, gdoffset + i * 2);
                         LB(x4, wback, fixedaddress + i * 2);
@@ -255,9 +253,8 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     INST_NAME("PHSUBSW Gx, Ex");
                     nextop = F8;
                     GETGX();
-                    LUI(x6, 0xFFFF8);
-                    LUI(x7, 0x8);
-                    ADDIW(x7, x7, -1);
+                    MOV64x(x6, -32768);
+                    MOV32w(x7, 0x7FFF);
                     for (int i = 0; i < 4; ++i) {
                         LH(x3, gback, gdoffset + 2 * (i * 2 + 0));
                         LH(x4, gback, gdoffset + 2 * (i * 2 + 1));
@@ -536,8 +533,7 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     nextop = F8;
                     GETGX();
                     GETEX(x2, 0, 12);
-                    LUI(x5, 0x10); // 65536
-                    ADDIW(x5, x5, -1);
+                    MOV32w(x5, 0xFFFF);
                     for (int i = 0; i < 4; ++i) {
                         LW(x3, gback, gdoffset + i * 4);
                         SATUw(x3, x5);
@@ -968,7 +964,7 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                         SRLI(x1, x1, 8);
                         OR(x1, x1, x2);
                     }
-                    LUI(x2, 0xffff0);
+                    MOV64x(x2, 0xFFFFFFFFFFFF0000);
                     AND(gd, gd, x2);
                     OR(gd, gd, x1);
                     break;
@@ -1081,16 +1077,16 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     // i = 0
                     FLD(d0, wback, fixedaddress);
                     FEQD(x4, d0, d0);
-                    BNEZ(x4, BOX64ENV(dynarec_fastnan) ? 8 : (7 * 4));
+                    BNEZ_MARK3(x4);
                     if (!BOX64ENV(dynarec_fastnan)) {
                         // sNaN -> qNaN, d0 |= (0x1 << 51)
                         FMVXD(x3, d0);
-                        ADDI(x4, xZR, 1);
-                        SLLI(x4, x4, 51);
+                        MOV64x(x4, 1ULL << 51);
                         OR(x3, x3, x4);
                         FMVDX(d0, x3);
                     }
                     B_MARK_nocond;
+                    MARK3;
                     // d0 is not nan
                     FABSD(v1, d0);
                     FLTD(x4, v1, d1);
@@ -1118,16 +1114,16 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     // i = 1
                     FLD(d0, wback, fixedaddress + 8);
                     FEQD(x4, d0, d0);
-                    BNEZ(x4, BOX64ENV(dynarec_fastnan) ? 8 : (7 * 4));
+                    BNEZ_MARK4(x4);
                     if (!BOX64ENV(dynarec_fastnan)) {
                         // sNaN -> qNaN, d0 |= (0x1 << 51)
                         FMVXD(x3, d0);
-                        ADDI(x4, xZR, 1);
-                        SLLI(x4, x4, 51);
+                        MOV64x(x4, 1ULL << 51);
                         OR(x3, x3, x4);
                         FMVDX(d0, x3);
                     }
                     B_MARK2_nocond;
+                    MARK4;
 
                     // d0 is not nan
                     FABSD(v1, d0);

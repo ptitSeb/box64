@@ -352,7 +352,7 @@ uintptr_t dynarec64_AVX_F3_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             u8 = F8;
             q0 = fpu_get_scratch(dyn);
             q2 = fpu_get_scratch(dyn);
-            MOV64x(x4, (uint64_t)(4 + (u8 & 3)) | ((uint64_t)(4 + ((u8 >> 2) & 3)) << 16) | ((uint64_t)(4 + ((u8 >> 4) & 3)) << 32) | ((uint64_t)(4 + ((u8 >> 6) & 3)) << 48));
+            MOV64xs(x4, (uint64_t)(4 + (u8 & 3)) | ((uint64_t)(4 + ((u8 >> 2) & 3)) << 16) | ((uint64_t)(4 + ((u8 >> 4) & 3)) << 32) | ((uint64_t)(4 + ((u8 >> 6) & 3)) << 48), x3);
             vector_vsetvli(dyn, ninst, x1, VECTOR_SEW64, VECTOR_LMUL1, 1);
             VMV_V_X(q0, x4);
             vector_vsetvli(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 1);

@@ -1252,7 +1252,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             s0 = fpu_get_scratch(dyn);
             s1 = fpu_get_scratch(dyn); // 1.0f
             v0 = fpu_get_scratch(dyn); // 0.0f
-            LUI(x3, 0x3f800);
+            MOV32w(x3, 0x3F800000);
             FMVWX(s1, x3); // 1.0f
             if (!BOX64ENV(dynarec_fastnan)) {
                 FCVTSW(v0, xZR, RD_DYN);
@@ -1293,7 +1293,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETEX(x2, 0, 12);
             d0 = fpu_get_scratch(dyn);
             d1 = fpu_get_scratch(dyn);
-            LUI(x3, 0x3f800);
+            MOV32w(x3, 0x3F800000);
             FMVWX(d0, x3); // 1.0f
             if (!BOX64ENV(dynarec_fastnan))
                 MOV32w(x6, 0x00400000);
@@ -2120,8 +2120,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             eb1 = TO_NAT(ed & 3);                                                                \
         }                                                                                        \
         if (eb2) {                                                                               \
-            LUI(tmp1, 0xffff0);                                                                  \
-            ORI(tmp1, tmp1, 0xff);                                                               \
+            MOV64x(tmp1, 0xFFFFFFFFFFFF00FF);                                                    \
             AND(eb1, eb1, tmp1);                                                                 \
             SLLI(tmp3, tmp3, 8);                                                                 \
         } else {                                                                                 \
