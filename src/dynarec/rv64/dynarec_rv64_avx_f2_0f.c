@@ -404,7 +404,7 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 SRLI(x4, x4, 29);
                 MOV32w(x5, 0x007fffff);
                 AND(x4, x4, x5);
-                LUI(x5, 0x7fc00);
+                MOV32w(x5, 0x7FC00000);
                 OR(x4, x4, x5);
                 OR(x4, x4, x6);
                 FMVWX(v0, x4);
@@ -932,7 +932,7 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 FCVTLD(x3, d0, RD_DYN);
                 SEXT_W(x5, x3);
                 BEQ(x5, x3, 8);
-                LUI(x3, 0x80000);
+                MOV64x(x3, (int64_t)INT32_MIN);
                 SW(x3, gback, gdoffset + 4 * i);
             }
             if (vex.l) {
@@ -942,7 +942,7 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                     FCVTLD(x3, d0, RD_DYN);
                     SEXT_W(x5, x3);
                     BEQ(x5, x3, 8);
-                    LUI(x3, 0x80000);
+                    MOV64x(x3, (int64_t)INT32_MIN);
                     SW(x3, gback, gdoffset + 8 + 4 * i);
                 }
             } else {

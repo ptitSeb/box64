@@ -239,7 +239,7 @@ uintptr_t dynarec64_AVX_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t
             GETEY_vector(v1, 0, VECTOR_SEW32);
             GETGY_empty_vector(v0);
             v2 = fpu_get_scratch(dyn);
-            LUI(x4, 0x3f800);
+            MOV32w(x4, 0x3F800000);
             VMV_V_X(v2, x4);
             VFSQRT_V(v0, v1, VECTOR_UNMASKED);
             VFDIV_VV(v0, v2, v0, VECTOR_UNMASKED);
@@ -252,7 +252,7 @@ uintptr_t dynarec64_AVX_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t
             GETEY_vector(v1, 0, VECTOR_SEW32);
             GETGY_empty_vector(v0);
             v2 = fpu_get_scratch(dyn);
-            LUI(x4, 0x3f800);
+            MOV32w(x4, 0x3F800000);
             VMV_V_X(v2, x4);
             VFDIV_VV(v0, v2, v1, VECTOR_UNMASKED);
             PUTGY_vector(v0, VECTOR_SEW32);
@@ -516,7 +516,7 @@ uintptr_t dynarec64_AVX_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t
             q2 = fpu_get_scratch(dyn);
             v1 = fpu_get_scratch(dyn);
             v2 = fpu_get_scratch(dyn);
-            MOV64x(x4, (uint64_t)(u8 & 3) | ((uint64_t)((u8 >> 2) & 3) << 16) | ((uint64_t)((u8 >> 4) & 3) << 32) | ((uint64_t)((u8 >> 6) & 3) << 48));
+            MOV64xs(x4, (uint64_t)(u8 & 3) | ((uint64_t)((u8 >> 2) & 3) << 16) | ((uint64_t)((u8 >> 4) & 3) << 32) | ((uint64_t)((u8 >> 6) & 3) << 48), x3);
             vector_vsetvli(dyn, ninst, x1, VECTOR_SEW64, VECTOR_LMUL1, 1);
             if (vex.l) {
                 VMV_V_X(q2, x4);

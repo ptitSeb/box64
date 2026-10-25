@@ -579,10 +579,7 @@ uintptr_t dynarec64_AVX_66_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
                 uint32_t sel_lo = (u8 & 3) | (((u8 >> 2) & 3) << 16);
                 uint32_t sel_hi = ((u8 >> 4) & 3) | (((u8 >> 6) & 3) << 16);
                 vector_vsetvli(dyn, ninst, x1, VECTOR_SEW64, VECTOR_LMUL1, 1);
-                MOV32w(x4, sel_hi);
-                SLLI(x4, x4, 32);
-                MOV32w(x5, sel_lo);
-                OR(x4, x4, x5); // x4 = lane0 selector (64-bit,4 halfword indices)
+                MOV64x(x4, ((uint64_t)sel_hi << 32) | sel_lo);
                 if (vex.l) {
                     int s = fpu_get_scratch(dyn);
                     MOV64x(x5, 0x0004000400040004LL);
@@ -1370,7 +1367,7 @@ uintptr_t dynarec64_AVX_66_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             selectors = 0;
             for (int i = 0; i < (2 << vex.l); ++i)
                 selectors |= (uint64_t)((i >> 1) * 2 + ((u8 >> i) & 1)) << (i * 16);
-            MOV64x(x4, selectors);
+            MOV64xs(x4, selectors, x3);
             SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW64);
             VMV_V_X(v1, x4);
             VRGATHEREI16_VV(q2, q0, v1, VECTOR_UNMASKED);

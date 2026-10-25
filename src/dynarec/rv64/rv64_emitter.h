@@ -11,8 +11,10 @@
 #define SPLIT12(A) ((A) & 0xfff)
 
 // MOV64x/MOV32w is quite complex, so use a function for this
-#define MOV64x(A, B) rv64_move64(dyn, ninst, A, B)
-#define MOV32w(A, B) rv64_move32(dyn, ninst, A, B, 1)
+#define MOV64x(A, B)           rv64_move64(dyn, ninst, A, B, -1, -1)
+#define MOV64xs(A, B, S1)      rv64_move64(dyn, ninst, A, B, S1, -1)
+#define MOV64xss(A, B, S1, S2) rv64_move64(dyn, ninst, A, B, S1, S2)
+#define MOV32w(A, B)           rv64_move32(dyn, ninst, A, (int32_t)(B))
 #define MOV64xw(A, B)     \
     do {                  \
         if (rex.w) {      \
@@ -1201,14 +1203,14 @@
     }
 
 // Insert low 16bits in rs to low 16bits of rd
-#define INSH(rd, rs, s1, s2, init_s1, zexth_rs) \
-    if (init_s1) LUI(s1, 0xffff0);              \
-    AND(rd, rd, s1);                            \
-    if (zexth_rs) {                             \
-        ZEXTH(s2, rs);                          \
-        OR(rd, rd, s2);                         \
-    } else {                                    \
-        OR(rd, rd, rs);                         \
+#define INSH(rd, rs, s1, s2, init_s1, zexth_rs)  \
+    if (init_s1) MOV64x(s1, 0xFFFFFFFFFFFF0000); \
+    AND(rd, rd, s1);                             \
+    if (zexth_rs) {                              \
+        ZEXTH(s2, rs);                           \
+        OR(rd, rd, s2);                          \
+    } else {                                     \
+        OR(rd, rd, rs);                          \
     }
 
 // Insert low 16bits in rs to low 16bits of rd
@@ -1291,7 +1293,7 @@
             OR(s1, s1, s3);            \
             OR(s1, s1, s4);            \
             SLLIW(s3, rs, 8);          \
-            LUI(s2, 0xff0);            \
+            MOV32w(s2, 0xFF0000);      \
             AND(s3, s3, s2);           \
             OR(rd, s1, s3);            \
         }                              \
@@ -1327,15 +1329,14 @@
 // Single-bit Set (Immediate)
 #define BSETI_(rd, rs1, imm) EMIT(R_type(0b0010100, imm, rs1, 0b001, rd, 0b0010011))
 // Single-bit Set (Immediate), with fallback (s0 is used as a scratch register)
-#define BSETI(rd, rs1, imm, s0)   \
-    do {                          \
-        if (cpuext.zbs)           \
-            BSETI_(rd, rs1, imm); \
-        else {                    \
-            ADDI(s0, xZR, 1);     \
-            SLLI(s0, s0, (imm));  \
-            OR(rd, rs1, s0);      \
-        }                         \
+#define BSETI(rd, rs1, imm, s0)        \
+    do {                               \
+        if (cpuext.zbs)                \
+            BSETI_(rd, rs1, imm);      \
+        else {                         \
+            MOV64x(s0, 1ULL << (imm)); \
+            OR(rd, rs1, s0);           \
+        }                              \
     } while (0)
 
 // Single-bit Extract (Register)

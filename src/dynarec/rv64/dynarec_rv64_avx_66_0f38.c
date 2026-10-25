@@ -111,9 +111,8 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             GETVX();
             GETGY();
             GETVY();
-            LUI(x6, 0xFFFF8); // -32768
-            LUI(x7, 0x8);     // 32768
-            ADDIW(x7, x7, -1);
+            MOV64x(x6, -32768);
+            MOV32w(x7, 0x7FFF);
             if (gd == ed) {
                 ADDI(x5, xEmu, offsetof(x64emu_t, scratch));
                 LD(x3, wback, fixedaddress + 0);
@@ -260,9 +259,8 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             GETVX();
             GETGY();
             GETVY();
-            LUI(x6, 0xFFFF8); // -32768
-            LUI(x7, 0x8);     // 32768
-            ADDIW(x7, x7, -1);
+            MOV64x(x6, -32768);
+            MOV32w(x7, 0x7FFF);
             for (int i = 0; i < 8; ++i) {
                 LBU(x3, vback, vxoffset + i * 2);
                 LB(x4, wback, fixedaddress + i * 2);
@@ -302,9 +300,8 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             GETVX();
             GETGY();
             GETVY();
-            LUI(x6, 0xFFFF8); // -32768
-            LUI(x7, 0x8);     // 32768
-            ADDIW(x7, x7, -1);
+            MOV64x(x6, -32768);
+            MOV32w(x7, 0x7FFF);
             if (gd == ed) {
                 ADDI(x5, xEmu, offsetof(x64emu_t, scratch));
                 LD(x3, wback, fixedaddress + 0);
@@ -1226,8 +1223,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             GETEX(x2, 0, vex.l ? 28 : 12);
             GETGX();
             GETGY();
-            LUI(x5, 0x10); // 65536
-            ADDIW(x5, x5, -1);
+            MOV32w(x5, 0xFFFF);
             if (MODREG && ed == vex.v) {
                 for (int i = 0; i < 4; ++i) {
                     LW(x3, vback, vxoffset + i * 4);
