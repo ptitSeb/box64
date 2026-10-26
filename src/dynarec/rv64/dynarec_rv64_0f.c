@@ -2489,11 +2489,12 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("CMPXCHG Ed, Gd");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
             nextop = F8;
-            GETGD;
-            MARKREGs(xRAX);
+            GETGDs;
+            MARKREGsd(xRAX);
             MVxw(x7, xRAX);
             if (MODREG) {
                 ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                MARKREGsd(ed);
                 MVxw(x1, ed);
                 wback = 0;
             } else {
