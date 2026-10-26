@@ -2452,14 +2452,9 @@ static void unloadCache(dynarec_rv64_t* dyn, int ninst, int stack_cnt, int s1, i
         case EXT_CACHE_XMMW:
         case EXT_CACHE_YMMW:
             MESSAGE(LOG_DUMP, "\t  - Unloading %s\n", getCacheName(t, n));
-            {
-                uint8_t sew, vlmul, vl;
-                vector_save_vtype(dyn, &sew, &vlmul, &vl);
-                vector_vsetvli(dyn, ninst, s1, VECTOR_SEW8, VECTOR_LMUL1, 1);
-                ADDI(s1, xEmu, offsetof(x64emu_t, xmm[n]));
-                VSE8_V(reg, s1, VECTOR_UNMASKED, VECTOR_NFIELD1);
-                vector_restore_vtype(dyn, ninst, s1, sew, vlmul, vl);
-            }
+            SET_CACHE_VECTOR_WIDTH(s1);
+            ADDI(s1, xEmu, offsetof(x64emu_t, xmm[n]));
+            VSE_V(reg, s1, dyn->vector_eew, VECTOR_UNMASKED, VECTOR_NFIELD1);
             if (t == EXT_CACHE_YMMW)
                 avx_flush_upper_vector(dyn, ninst, s1, n, reg, 1, 1);
             break;
