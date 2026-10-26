@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 #define INIT                      \
     do {                          \
-        if (!dyn->inline_leaf)    \
-            dyn->native_size = 0; \
+        dyn->native_size = 0;     \
     } while (0)
 #define ENDPREFIX                                        \
     dyn->prefixsize = dyn->native_size;                  \
