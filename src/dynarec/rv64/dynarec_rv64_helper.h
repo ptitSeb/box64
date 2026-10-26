@@ -526,9 +526,15 @@
     gback = xEmu;                               \
     gdoffset = offsetof(x64emu_t, xmm[gd])
 
-#define GETGY()                                 \
-    gd = ((nextop & 0x38) >> 3) + (rex.r << 3); \
-    /* TODO: forget */                          \
+#define GETGY()                                                                    \
+    gd = ((nextop & 0x38) >> 3) + (rex.r << 3);                                    \
+    if (dyn->e.ssecache[gd].v != -1 && dyn->e.ssecache[gd].vector)                 \
+        avx_flush_upper_vector(dyn, ninst, x3, gd, dyn->e.ssecache[gd].reg, 0, 0); \
+    if (dyn->e.ymm0 & (1 << gd)) {                                                 \
+        SD(xZR, xEmu, offsetof(x64emu_t, ymm[gd]) + 0);                            \
+        SD(xZR, xEmu, offsetof(x64emu_t, ymm[gd]) + 8);                            \
+        sse_set_pending_zero(dyn, gd, 0);                                          \
+    }                                                                              \
     gyoffset = offsetof(x64emu_t, ymm[gd])
 
 #define GETVX()                            \
@@ -536,8 +542,14 @@
     vback = xEmu;                          \
     vxoffset = offsetof(x64emu_t, xmm[vex.v])
 
-#define GETVY()        \
-    /* TODO: forget */ \
+#define GETVY()                                                                          \
+    if (dyn->e.ssecache[vex.v].v != -1 && dyn->e.ssecache[vex.v].vector)                 \
+        avx_flush_upper_vector(dyn, ninst, x3, vex.v, dyn->e.ssecache[vex.v].reg, 0, 0); \
+    if (dyn->e.ymm0 & (1 << vex.v)) {                                                    \
+        SD(xZR, xEmu, offsetof(x64emu_t, ymm[vex.v]) + 0);                               \
+        SD(xZR, xEmu, offsetof(x64emu_t, ymm[vex.v]) + 8);                               \
+        sse_set_pending_zero(dyn, vex.v, 0);                                             \
+    }                                                                                    \
     vyoffset = offsetof(x64emu_t, ymm[vex.v]);
 
 // Get Ex address in general register a, will purge SS or SD if it's reg and is loaded. May use x3. Use wback as load address!
@@ -554,14 +566,20 @@
     }
 
 
-#define GETEY()                                     \
-    if (MODREG) {                                   \
-        ed = (nextop & 7) + (rex.b << 3);           \
-        /* TODO: forget */                          \
-        wback = xEmu;                               \
-        fixedaddress = offsetof(x64emu_t, ymm[ed]); \
-    } else {                                        \
-        fixedaddress += 16;                         \
+#define GETEY()                                                                        \
+    if (MODREG) {                                                                      \
+        ed = (nextop & 7) + (rex.b << 3);                                              \
+        if (dyn->e.ssecache[ed].v != -1 && dyn->e.ssecache[ed].vector)                 \
+            avx_flush_upper_vector(dyn, ninst, x3, ed, dyn->e.ssecache[ed].reg, 0, 0); \
+        if (dyn->e.ymm0 & (1 << ed)) {                                                 \
+            SD(xZR, xEmu, offsetof(x64emu_t, ymm[ed]) + 0);                            \
+            SD(xZR, xEmu, offsetof(x64emu_t, ymm[ed]) + 8);                            \
+            sse_set_pending_zero(dyn, ed, 0);                                          \
+        }                                                                              \
+        wback = xEmu;                                                                  \
+        fixedaddress = offsetof(x64emu_t, ymm[ed]);                                    \
+    } else {                                                                           \
+        fixedaddress += 16;                                                            \
     }
 
 
