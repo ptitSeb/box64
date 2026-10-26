@@ -88,11 +88,11 @@
         dyn->insts[ninst - 1].x64.size = dyn->insts[ninst].x64.addr - dyn->insts[ninst - 1].x64.addr;\
     AREFLAGSNEEDED()
 
-#define INST_EPILOG                                      \
-    dyn->insts[ninst].f_exit = dyn->f;                   \
-    sse_sync_all_cache_types(&dyn->e);                   \
-    dyn->insts[ninst].e = dyn->e;                        \
-    dyn->insts[ninst].vector_sew_exit = dyn->vector_sew; \
+#define INST_EPILOG                                                    \
+    dyn->insts[ninst].f_exit = dyn->f;                                 \
+    if (dyn->insts[ninst].vec_used) sse_sync_all_cache_types(&dyn->e); \
+    dyn->insts[ninst].e = dyn->e;                                      \
+    dyn->insts[ninst].vector_sew_exit = dyn->vector_sew;               \
     dyn->insts[ninst].x64.has_next = (ok > 0) ? 1 : 0;
 #define INST_NAME(name)
 #define DEFAULT                                                                                                               \

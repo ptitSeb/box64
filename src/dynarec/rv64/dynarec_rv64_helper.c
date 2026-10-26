@@ -1777,6 +1777,7 @@ void sse_forget_reg(dynarec_rv64_t* dyn, int ninst, int s1, int a)
 {
     if (dyn->e.ssecache[a].v == -1)
         return;
+    sse_mark_used(dyn, ninst, a);
     if (dyn->e.ssecache[a].vector == 1)
         return sse_forget_reg_vector(dyn, ninst, s1, a);
     if (dyn->e.ssecache[a].single)
@@ -3025,6 +3026,8 @@ void avx_sync_upper_vector(dynarec_rv64_t* dyn, int ninst, int s1, int next)
 {
     if (!cpuext.vlen || cpuext.vlen < 32)
         return;
+    if (ninst >= 0 && ninst < dyn->size)
+        dyn->insts[ninst].vec_used |= 0xffff;
     #if STEP == 0
     if (!next) dyn->insts[ninst].ymm_pending_materialized = 1;
     #endif

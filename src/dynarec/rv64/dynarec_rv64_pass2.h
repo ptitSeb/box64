@@ -29,9 +29,9 @@
         dyn->insts[ninst].ymm0_pass2 = dyn->ymm_zero;                                                                                                                          \
     }                                                                                                                                                                          \
     AREFLAGSNEEDED()
-#define INST_EPILOG                              \
-    dyn->insts[ninst].epilog = dyn->native_size; \
-    sse_sync_all_cache_types(&dyn->e);           \
+#define INST_EPILOG                                                    \
+    dyn->insts[ninst].epilog = dyn->native_size;                       \
+    if (dyn->insts[ninst].vec_used) sse_sync_all_cache_types(&dyn->e); \
     dyn->vector_sew = dyn->insts[ninst].vector_sew_exit;
 #define INST_NAME(name)
 #define TABLE64(A, V)                                \
