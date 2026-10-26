@@ -640,7 +640,7 @@ uintptr_t dynarec64_AVX_66_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             nextop = F8;
             GETEY_vector(q1, 1, VECTOR_SEW32);
             GETGY_empty_vector(v0);
-            VEC_SRC_SAFE(q1, v0);
+            VEC_SRC_KEEP(q1, v0);
             u8 = F8;
             q2 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL1);
             {
