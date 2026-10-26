@@ -1167,12 +1167,8 @@ uintptr_t dynarec64_AVX_66_0F38_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             GETVY_vector(q0, sew);
             GETEY_vector(q1, 0, sew);
             GETGY_vector(q2, sew);
-            GETGY_empty_vector(v0);
-            VEC_SRC_KEEP(q0, v0);
-            VEC_SRC_KEEP(q1, v0);
-            VMV_V_V(v0, q2);
-            VFMACC_VV(v0, q0, q1, VECTOR_UNMASKED);
-            PUTGY_vector(v0, sew);
+            VFMACC_VV(q2, q0, q1, VECTOR_UNMASKED);
+            PUTGY_vector(q2, sew);
             break;
         case 0xB6:
             INST_NAME("VFMADDSUB231PS/D Gx, Vx, Ex");
