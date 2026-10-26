@@ -20,10 +20,10 @@
     dyn->e.barrier = 0;                                   \
     AREFLAGSNEEDED()
 
-#define INST_EPILOG                    \
-    sse_sync_all_cache_types(&dyn->e); \
-    dyn->insts[ninst].e = dyn->e;      \
-    dyn->insts[ninst].f_exit = dyn->f; \
+#define INST_EPILOG                                                    \
+    if (dyn->insts[ninst].vec_used) sse_sync_all_cache_types(&dyn->e); \
+    dyn->insts[ninst].e = dyn->e;                                      \
+    dyn->insts[ninst].f_exit = dyn->f;                                 \
     dyn->insts[ninst].vector_sew_exit = dyn->vector_sew;
 
 #define INST_NAME(name)
