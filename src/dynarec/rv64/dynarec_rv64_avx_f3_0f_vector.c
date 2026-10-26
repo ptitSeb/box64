@@ -74,7 +74,7 @@ uintptr_t dynarec64_AVX_F3_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             INST_NAME("VMOVSS Ex, [Vx,] Gx");
             nextop = F8;
             gd = ((nextop & 0x38) >> 3) + (rex.r << 3);
-            q0 = fpu_get_scratch(dyn);
+            q0 = VREG(gd);
             avx_load_reg_vector(dyn, ninst, x1, q0, gd, 16, VECTOR_SEW32);
             if (MODREG) {
                 ed = (nextop & 7) + (rex.b << 3);
@@ -85,8 +85,8 @@ uintptr_t dynarec64_AVX_F3_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
                 avx_store_reg_vector(dyn, ninst, x1, q2, ed, 16, VECTOR_SEW32);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 0);
-                VFMV_F_S(d0 = fpu_get_scratch(dyn), q0);
-                FSW(d0, ed, fixedaddress);
+                SET_SCALAR_FP_WIDTH(x1, VECTOR_SEW32);
+                VSE32_V(q0, ed, VECTOR_UNMASKED, VECTOR_NFIELD1);
                 SMWRITE2();
             }
             break;
