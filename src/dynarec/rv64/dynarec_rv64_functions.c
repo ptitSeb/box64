@@ -427,6 +427,19 @@ int sewNeedsTransform(dynarec_rv64_t* dyn, int ninst)
 
 void extcacheUnwind(extcache_t* cache)
 {
+    if (!cache->swapped && !cache->news && !cache->stack_push && !cache->stack_pop) {
+        int dirty = 0;
+        for (int i = 0; i < 16; ++i)
+            if (cache->olds[i].changed || cache->olds[i].purged) {
+                dirty = 1;
+                break;
+            }
+        if (!dirty) {
+            cache->barrier = 0;
+            cache->fpu_scratch = 0;
+            return;
+        }
+    }
     if (cache->swapped) {
         // unswap
         int a = -1;
