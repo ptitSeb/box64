@@ -435,8 +435,6 @@ static inline int comis_fuse_inverted(int condition)
 
 #define MARKREGd(r)                      \
     do {                                 \
-        if ((r) == xRSP)                 \
-            MARK_LEAF_RSP(LEAF_RSP_REF); \
         if (rex.w)                       \
             UP32_WRITE64(r);             \
         else                             \
@@ -445,8 +443,6 @@ static inline int comis_fuse_inverted(int condition)
 
 #define MARKREGdz(r)                     \
     do {                                 \
-        if ((r) == xRSP)                 \
-            MARK_LEAF_RSP(LEAF_RSP_REF); \
         if (!rex.is32bits)               \
             UP32_WRITE64(r);             \
         else                             \
@@ -455,15 +451,11 @@ static inline int comis_fuse_inverted(int condition)
 
 #define MARKREGs(r)                      \
     do {                                 \
-        if ((r) == xRSP)                 \
-            MARK_LEAF_RSP(LEAF_RSP_REF); \
         if (rex.w) UP32_READ(r);         \
     } while (0)
 
 #define MARKREGsz(r)                     \
     do {                                 \
-        if ((r) == xRSP)                 \
-            MARK_LEAF_RSP(LEAF_RSP_REF); \
         if (!rex.is32bits) UP32_READ(r); \
     } while (0)
 
@@ -1667,26 +1659,6 @@ static inline int comis_fuse_inverted(int condition)
 #ifndef SET_HASCALLRET
 #define SET_HASCALLRET()
 #endif
-#ifndef MARK_LEAF_CALL
-#define MARK_LEAF_CALL() \
-    do {                 \
-    } while (0)
-#endif
-#ifndef MARK_LEAF_CALL_TARGET
-#define MARK_LEAF_CALL_TARGET(T) \
-    do {                         \
-    } while (0)
-#endif
-#ifndef MARK_LEAF_RET
-#define MARK_LEAF_RET() \
-    do {                \
-    } while (0)
-#endif
-#ifndef MARK_LEAF_RSP
-#define MARK_LEAF_RSP(F) \
-    do {                 \
-    } while (0)
-#endif
 #ifndef CALLRET_RET
 #define CALLRET_RET(A)   do {if(BOX64DRENV(dynarec_callret)>1) {NOP();}} while(0)
 #endif
@@ -1797,9 +1769,6 @@ static inline int comis_fuse_inverted(int condition)
 
 #define native_pass STEPNAME(native_pass)
 #define updateflags_pass STEPNAME(updateflags_pass)
-
-#define emit_inline_leaf STEPNAME(emit_inline_leaf)
-void emit_inline_leaf(dynarec_la64_t* dyn, int ninst);
 
 #define dynarec64_00          STEPNAME(dynarec64_00)
 #define dynarec64_00_0        STEPNAME(dynarec64_00_0)

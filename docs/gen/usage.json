@@ -309,7 +309,7 @@
       },
       {
         "key": "3",
-        "description": "Same as 2, with leaf call analysis that tries to duplicate leaf bodies into their callers. Only available for LoongArch for now.",
+        "description": "Same as 2, but also track dynablock usage so blocks are not reclaimed while still in use.",
         "default": false
       }
     ]

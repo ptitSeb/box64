@@ -325,8 +325,10 @@ int FreeRangeDynablock(dynablock_t* db, uintptr_t addr, uintptr_t size)
 void dynablock_leave_runtime(dynablock_t* db)
 {
     if(!db) return;
-    if(BOX64ENV(dynarec_callret) < 2) return;
+#ifdef HAVE_IN_USED
+    if(BOX64ENV(dynarec_callret) < 3) return;
     __atomic_fetch_sub(&db->in_used, 1, __ATOMIC_ACQ_REL);
+#endif
 }
 
 dynablock_t* CreateDBnoAlt(x64emu_t* emu, uintptr_t addr, int is32bits)

@@ -349,7 +349,7 @@ void jump_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
     TABLE64C(x2, const_epilog);
     SMEND();
     CHECK_DFNONE(0);
-    if (BOX64DRENV(dynarec_callret) >= 2)
+    if (BOX64DRENV(dynarec_callret) >= 3)
         doLeaveBlock(dyn, ninst, x4, x5, x6);
     BR(x2);
 }
@@ -425,7 +425,7 @@ void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst, int is32
     if(reg!=x1) {
         MOVx_REG(x1, xRIP);
     }
-    if(BOX64DRENV(dynarec_callret) >= 2 && !dyn->insts[ninst].x64.has_callret)
+    if(BOX64DRENV(dynarec_callret) >= 3 && !dyn->insts[ninst].x64.has_callret)
         doLeaveBlock(dyn, ninst, x4, x5, x6);
     // #ifdef HAVE_TRACE
     // The BLR form is only for gdb backtraces, but it breaks the
@@ -451,7 +451,7 @@ void ret_to_next(dynarec_arm_t* dyn, uintptr_t ip, int ninst, rex_t rex)
         // pop the actual return address for ARM stack
         LDPx_S7_postindex(xLR, x6, xSP, 16);
         SUBx_REG(x6, x6, xRIP); // is it the right address?
-        if (BOX64DRENV(dynarec_callret) >= 2)
+        if (BOX64DRENV(dynarec_callret) >= 3)
             doLeaveBlock(dyn, ninst, x4, x5, x3);
         CBNZx(x6, 2*4);
         RET(xLR);
