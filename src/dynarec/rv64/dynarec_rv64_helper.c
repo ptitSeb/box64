@@ -3003,7 +3003,7 @@ void avx_flush_upper_vector(dynarec_rv64_t* dyn, int ninst, int s1, int a, int r
 }
 
 // materialize the deferred zeros of YMM registers that are not in the cache anymore
-void avx_flush_pending_zero_vector(dynarec_rv64_t* dyn, int ninst, int s1, int next)
+static void avx_flush_pending_zero_mask(dynarec_rv64_t* dyn, int ninst, int s1, int next, uint16_t mask)
 {
     if (!cpuext.vlen || cpuext.vlen < 32)
         return;
@@ -3013,12 +3013,17 @@ void avx_flush_pending_zero_vector(dynarec_rv64_t* dyn, int ninst, int s1, int n
         dyn->pending_zero_flushed = 1;
     }
     for (int i = 0; i < 16; ++i)
-        if ((dyn->e.ymm0 >> i) & 1) {
+        if ((mask >> i) & 1) {
             SD(xZR, xEmu, offsetof(x64emu_t, ymm[i]) + 0);
             SD(xZR, xEmu, offsetof(x64emu_t, ymm[i]) + 8);
             if (!next) sse_set_pending_zero(dyn, i, 0);
         }
     dyn->inst_vl = 0; // force the next vsetvli to be emited
+}
+
+void avx_flush_pending_zero_vector(dynarec_rv64_t* dyn, int ninst, int s1, int next)
+{
+    avx_flush_pending_zero_mask(dyn, ninst, s1, next, dyn->e.ymm0);
 }
 
 void avx_sync_upper_vector(dynarec_rv64_t* dyn, int ninst, int s1, int next)
@@ -3028,10 +3033,14 @@ void avx_sync_upper_vector(dynarec_rv64_t* dyn, int ninst, int s1, int next)
     #if STEP == 0
     if (!next) dyn->insts[ninst].ymm_pending_materialized = 1;
     #endif
+    uint16_t handled = 0;
     for (int i = 0; i < 16; ++i)
-        if (dyn->e.ssecache[i].v != -1 && dyn->e.ssecache[i].vector)
+        if (dyn->e.ssecache[i].v != -1 && dyn->e.ssecache[i].vector) {
+            if (dyn->e.ssecache[i].ymm0)
+                handled |= (uint16_t)(1 << i);
             avx_flush_upper_vector(dyn, ninst, s1, i, dyn->e.ssecache[i].reg, next, 0);
-    avx_flush_pending_zero_vector(dyn, ninst, s1, next);
+        }
+    avx_flush_pending_zero_mask(dyn, ninst, s1, next, dyn->e.ymm0 & ~handled);
 }
 
 void avx_set_vector_width(dynarec_rv64_t* dyn, int ninst, int s1, int sew, int width)
