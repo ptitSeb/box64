@@ -28,7 +28,8 @@ uintptr_t dynarec64_AVX_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t
     uint8_t nextop, u8;
     uint8_t gd, ed;
     int v0, v1, v2;
-    int q0, q1, q2, d0;
+    int q0, q1, q2, d0, d1;
+    int j64;
     uint64_t selectors;
     int64_t fixedaddress;
     rex_t rex = vex.rex;
@@ -38,6 +39,8 @@ uintptr_t dynarec64_AVX_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t
     MAYUSE(q1);
     MAYUSE(q2);
     MAYUSE(d0);
+    MAYUSE(d1);
+    MAYUSE(j64);
 
     switch (opcode) {
         case 0x10:
@@ -211,9 +214,54 @@ uintptr_t dynarec64_AVX_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t
             SMWRITE2();
             break;
         case 0x2E:
-            return 0;
         case 0x2F:
-            return 0;
+            if (opcode == 0x2F) {
+                INST_NAME("VCOMISS Gx, Ex");
+            } else {
+                INST_NAME("VUCOMISS Gx, Ex");
+            }
+            SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
+            SET_DFNONE();
+            nextop = F8;
+            gd = ((nextop & 0x38) >> 3) + (rex.r << 3);
+            q0 = fpu_get_scratch(dyn);
+            avx_load_reg_vector(dyn, ninst, x1, q0, gd, 16, VECTOR_SEW32);
+            d0 = fpu_get_scratch(dyn);
+            VFMV_F_S(d0, q0);
+            d1 = fpu_get_scratch(dyn);
+            if (MODREG) {
+                ed = (nextop & 7) + (rex.b << 3);
+                q1 = VREG(ed);
+                avx_load_reg_vector(dyn, ninst, x1, q1, ed, 16, VECTOR_SEW32);
+                VFMV_F_S(d1, q1);
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x3, x2, &fixedaddress, rex, NULL, 0, 0);
+                FLW(d1, ed, fixedaddress);
+            }
+            CLEAR_FLAGS();
+            IFX (X_ZF | X_PF | X_CF) {
+                FEQS(x3, d0, d0);
+                FEQS(x2, d1, d1);
+                AND(x2, x2, x3);
+                BNE_MARK(x2, xZR);
+                ORI(xFlags, xFlags, (1 << F_ZF) | (1 << F_PF) | (1 << F_CF));
+                B_NEXT_nocond;
+            }
+            MARK;
+            IFX (X_CF) {
+                FLTS(x2, d0, d1);
+                BEQ_MARK2(x2, xZR);
+                ORI(xFlags, xFlags, 1 << F_CF);
+                B_NEXT_nocond;
+            }
+            MARK2;
+            IFX (X_ZF) {
+                FEQS(x2, d0, d1);
+                CBZ_NEXT(x2);
+                ORI(xFlags, xFlags, 1 << F_ZF);
+            }
+            break;
         case 0x50:
             INST_NAME("VMOVMSKPS Gd, Ex");
             nextop = F8;
