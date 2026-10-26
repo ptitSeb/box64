@@ -42,13 +42,15 @@
 
 #if STEP == 1
 
-#define SMWRITE()                                                \
-    do {                                                         \
-        /* Mark that current sequence writes to guest memory. */ \
-        /* This will be used in SMEND for last_write. */         \
-        dyn->smwrite = 1;                                        \
-        /* Mark that current opcode writes to guest memory. */   \
-        dyn->insts[ninst].will_write = 1;                        \
+#define SMWRITE()                                                   \
+    do {                                                            \
+        if(STRONGMEM_LEVEL()) {                                     \
+            /* Mark that current sequence writes to guest memory. */\
+            /* This will be used in SMEND for last_write. */        \
+            dyn->smwrite = 1;                                       \
+            /* Mark that current opcode writes to guest memory. */  \
+            dyn->insts[ninst].will_write = 1;                       \
+        }                                                           \
     } while (0)
 
 #define SMWRITELOCK(lock)                   \
@@ -113,7 +115,7 @@
                 }                                                        \
             } else {                                                     \
                 /* Mark that current sequence writes to guest memory. */ \
-                dyn->smwrite = 1;                                        \
+                if(STRONGMEM_LEVEL()) dyn->smwrite = 1;                  \
             }                                                            \
         }                                                                \
     } while (0)

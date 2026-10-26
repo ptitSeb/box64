@@ -40,6 +40,9 @@
 #ifndef FEMIT
 #define FEMIT(A)    EMIT(A)
 #endif
+#ifndef LEMIT
+#define LEMIT(A)    EMIT(A)
+#endif
 #ifndef ENDPREFIX
 #define ENDPREFIX
 #endif

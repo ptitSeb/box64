@@ -884,6 +884,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             if(rex.rep) {
                 INST_NAME("REP MOVSW");
                 CBZx_NEXT(xRCX);
+                NOLRCPC();
                 if(rex.is67 && !rex.is32bits) {
                     MOVw_REG(xRDI, xRDI);
                     MOVw_REG(xRSI, xRSI);
@@ -908,8 +909,9 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MOVw_REG(xRSI, xRSI);
                 }
                 GETDIR(x3, 2);
-                LDRH_U12(x1, xRSI, 0);
-                STRH_U12(x1, xRDI, 0);
+                unscaled = 0;
+                LDH(x1, xRSI, 0);
+                STH(x1, xRDI, 0);
                 ADDy_REG(xRSI, xRSI, x3);
                 ADDy_REG(xRDI, xRDI, x3);
             }
@@ -928,6 +930,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 } else
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                 CBZx_NEXT(xRCX);
+                NOLRCPC();
                 if(rex.is67 && !rex.is32bits) {
                     MOVw_REG(xRDI, xRDI);
                     MOVw_REG(xRSI, xRSI);
@@ -981,6 +984,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             if(rex.rep) {
                 INST_NAME("REP STOSW");
                 CBZx_NEXT(xRCX);
+                NOLRCPC();
                 if(rex.is67 && !rex.is32bits) {
                     MOVw_REG(xRDI, xRDI);
                 }
@@ -1002,7 +1006,8 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     MOVw_REG(xRDI, xRDI);
                 }
                 GETDIR(x3, 2);
-                STRH_U12(xRAX, xRDI, 0);
+                unscaled = 0;
+                STH(xRAX, xRDI, 0);
                 ADDy_REG(xRDI, xRDI, x3);
             }
             SMWRITE();
@@ -1051,6 +1056,7 @@ uintptr_t dynarec64_66(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 } else
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                 CBZx_NEXT(xRCX);
+                NOLRCPC();
                 if(rex.is67 && !rex.is32bits) {
                     MOVw_REG(xRDI, xRDI);
                 }
