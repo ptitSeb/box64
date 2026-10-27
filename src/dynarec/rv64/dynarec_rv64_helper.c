@@ -3053,6 +3053,8 @@ void avx_set_vector_width(dynarec_rv64_t* dyn, int ninst, int s1, int sew, int w
 void avx_load_reg_vector(dynarec_rv64_t* dyn, int ninst, int s1, int vreg, int a, int width, int sew)
 {
     sse_mark_used(dyn, ninst, a);
+    if (ninst >= 0 && ninst < dyn->size)
+        dyn->insts[ninst].vec_read |= 1u << a;
     if (width == 32 && cpuext.vlen >= 32)
         ymm_live_read(dyn, ninst, a);
     if (dyn->e.ssecache[a].v != -1 && dyn->e.ssecache[a].vector && (width != 32 || dyn->e.ssecache[a].ymm)) {
