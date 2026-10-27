@@ -586,7 +586,7 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
         case 0x7D:
             INST_NAME("VHSUBPS Gx, Vx, Ex");
             nextop = F8;
-            GETEX(x2, 0, vex.l ? 24 : 8);
+            GETEX(x2, 0, vex.l ? 28 : 12);
             GETGX();
             GETGY();
             GETVX();
@@ -769,7 +769,7 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
         case 0x7C:
             INST_NAME("VHADDPS Gx, Vx, Ex");
             nextop = F8;
-            GETEX(x2, 0, vex.l ? 24 : 8);
+            GETEX(x2, 0, vex.l ? 28 : 12);
             GETGX();
             GETGY();
             GETVX();
