@@ -986,6 +986,8 @@ static void applyPreloadState(dynarec_rv64_t* dyn, int first, int first_use, int
         s->ymm = 0;
         s->ymm0 = (e->ymm0 >> reg) & 1;
         e->fpuused[EXTIDX(VREG(reg))] = 1;
+        e->extcache[EXTIDX(VREG(reg))].n = reg;
+        e->extcache[EXTIDX(VREG(reg))].y = 0;
         sse_sync_cache_type(e, reg);
     }
 }
