@@ -997,18 +997,10 @@ void updatePreloads(dynarec_rv64_t* dyn)
     for (int first = 0; first < dyn->size; ++first) {
         if (dyn->insts[first].preload_xmmymm)
             continue;
-        if (first) {
-            if (dyn->insts[first].pred_sz <= 1)
-                continue;
-            int has_linear = 0;
-            for (int j = 0; j < dyn->insts[first].pred_sz; ++j)
-                if (dyn->insts[first].pred[j] == first - 1)
-                    has_linear = 1;
-            if (!has_linear)
-                continue;
-        } else if (!dyn->insts[first].pred_sz) {
+        if (first)
+            break;
+        if (!dyn->insts[first].pred_sz)
             continue;
-        }
         int last = dyn->size + 1;
         for (int j = 0; j < dyn->insts[first].pred_sz; ++j) {
             int pred = dyn->insts[first].pred[j];
@@ -1081,22 +1073,43 @@ void updateUpperLiveness(dynarec_rv64_t* dyn)
 
     for (int i = 0; i < n; ++i) {
         instruction_rv64_t* inst = &dyn->insts[i];
+        inst->promote_ymm = 0;
         if (!inst->x64.alive || inst->pred_sz < 2 || (inst->x64.barrier & BARRIER_FLOAT))
             continue;
         const extcache_t* first = &dyn->insts[inst->pred[0]].e;
-        for (int p = 1; p < inst->pred_sz; ++p) {
+        uint16_t promote = 0;
+        int need_barrier = 0;
+        for (int p = 1; p < inst->pred_sz && !need_barrier; ++p) {
             const extcache_t* pe = &dyn->insts[inst->pred[p]].e;
-            int diff = (first->ymm0 != pe->ymm0);
-            for (int r = 0; r < 16 && !diff; ++r)
-                if (first->ssecache[r].v != -1 && pe->ssecache[r].v != -1
-                    && (first->ssecache[r].ymm != pe->ssecache[r].ymm
-                        || first->ssecache[r].ymm0 != pe->ssecache[r].ymm0))
-                    diff = 1;
-            if (diff) {
-                inst->x64.barrier |= BARRIER_FLOAT;
+            uint16_t mask_diff = (uint16_t)(first->ymm0 ^ pe->ymm0);
+            uint16_t resolved = 0;
+            for (int r = 0; r < 16; ++r) {
+                const sse_cache_t* a = &first->ssecache[r];
+                const sse_cache_t* b = &pe->ssecache[r];
+                int a_cached = (a->v != -1 && a->vector);
+                int b_cached = (b->v != -1 && b->vector);
+                if (!a_cached || !b_cached)
+                    continue;
+                if (a->ymm == b->ymm && a->ymm0 == b->ymm0)
+                    continue;
+                int a_ok = a->ymm || (!a->ymm && a->ymm0);
+                int b_ok = b->ymm || (!b->ymm && b->ymm0);
+                if (a_ok && b_ok) {
+                    if (!a->ymm) promote |= (uint16_t)(1u << r);
+                    if (!b->ymm) promote |= (uint16_t)(1u << r);
+                    resolved |= (uint16_t)(1u << r);
+                    continue;
+                }
+                need_barrier = 1;
                 break;
             }
+            if (mask_diff & (uint16_t)~resolved)
+                need_barrier = 1;
         }
+        if (need_barrier)
+            inst->x64.barrier |= BARRIER_FLOAT;
+        else
+            inst->promote_ymm = promote;
     }
 
     int sp = 0;
@@ -1188,6 +1201,7 @@ void updateUpperLiveness(dynarec_rv64_t* dyn)
             merged_ymm |= (pend_ymm[j] & (uint16_t)~ymm_def) | (pred->ymm_zero & pred->ymm_upper_live);
         }
         if (inst->x64.barrier & BARRIER_FLOAT) merged_ymm = 0;
+        merged_ymm &= (uint16_t)~inst->promote_ymm;
         if ((merged_pending != pending_in[i]) || (merged_ymm != pend_ymm[i])) {
             pending_in[i] = merged_pending;
             pend_ymm[i] = merged_ymm;
