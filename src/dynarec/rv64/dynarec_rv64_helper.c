@@ -2788,12 +2788,18 @@ static void sewTransform(dynarec_rv64_t* dyn, int ninst, int s1)
 
 void CacheTransform(dynarec_rv64_t* dyn, int ninst, int cacheupd, int s1, int s2, int s3)
 {
+    uint8_t sew = dyn->inst_sew;
+    uint8_t vlmul = dyn->inst_vlmul;
+    uint8_t vl = dyn->inst_vl;
     if (cacheupd & 2)
         fpuCacheTransform(dyn, ninst, s1, s2, s3);
     if (cacheupd & 1)
         flagsCacheTransform(dyn, ninst, s1);
     if (cacheupd & 4)
         sewTransform(dyn, ninst, s1);
+    dyn->inst_sew = sew;
+    dyn->inst_vlmul = vlmul;
+    dyn->inst_vl = vl;
 }
 
 
