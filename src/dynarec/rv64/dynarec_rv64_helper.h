@@ -1690,11 +1690,7 @@
             q1 = VREG(ed);                                                                         \
             avx_load_reg_vector(dyn, ninst, x1, q1, ed, 16, (SEW));                                \
         } else {                                                                                   \
-            q1 = fpu_get_scratch(dyn);                                                             \
-            SMREAD();                                                                              \
-            addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, (D)); \
-            avx_set_vector_width(dyn, ninst, x1, (SEW), 1 << (SEW));                               \
-            VLE_V(q1, ed, (SEW), VECTOR_UNMASKED, VECTOR_NFIELD1);                                 \
+            q1 = -1;                                                                               \
         }                                                                                          \
         GETGY_empty_vector(v0);                                                                    \
         if (v0 != q0) {                                                                            \
@@ -1706,6 +1702,13 @@
             }                                                                                      \
             avx_set_vector_width(dyn, ninst, x1, (SEW), 16);                                       \
             VMV_V_V(v0, q0);                                                                       \
+        }                                                                                          \
+        if (!MODREG) {                                                                             \
+            q1 = fpu_get_scratch(dyn);                                                             \
+            SMREAD();                                                                              \
+            addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, (D)); \
+            avx_set_vector_width(dyn, ninst, x1, (SEW), 1 << (SEW));                               \
+            VLE_V(q1, ed, (SEW), VECTOR_UNMASKED, VECTOR_NFIELD1);                                 \
         }                                                                                          \
         SET_SCALAR_FP_WIDTH(x1, (SEW));                                                            \
     } while (0)
