@@ -946,7 +946,7 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
         case 0x42:
             INST_NAME("VMPSADBW Gx, Vx, Ex, Ib");
             nextop = F8;
-            GETEX(x2, 1, vex.l ? 28 : 12);
+            GETEX(x2, 1, 22);
             GETVX();
             GETVY();
             GETGX();

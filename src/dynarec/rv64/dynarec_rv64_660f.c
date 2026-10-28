@@ -764,7 +764,7 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     SB(x3, gback, gdoffset + 2 * i + 1);
                 }
             } else {
-                GETEX(x2, 0, 7);
+                GETEX(x2, 0, 15);
                 for (int i = 0; i < 8; ++i) {
                     // GX->ub[2 * i + 1] = EX->ub[i + 8];
                     LBU(x3, wback, fixedaddress + i + 8);
