@@ -2495,6 +2495,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             if (MODREG) {
                 ed = TO_NAT((nextop & 7) + (rex.b << 3));
                 MARKREGsd(ed);
+                UP32_READ(ed);
                 MVxw(x1, ed);
                 wback = 0;
             } else {
@@ -3013,6 +3014,10 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     case 1:
                         if (rex.w) {
                             INST_NAME("CMPXCHG16B Gq, Eq");
+                            MARKREGsd(xRAX);
+                            MARKREGsd(xRDX);
+                            MARKREGs(xRBX);
+                            MARKREGs(xRCX);
                             SETFLAGS(X_ZF, SF_SUBSET, NAT_FLAGS_NOFUSION);
                             SET_DFNONE();
                             SMREAD();

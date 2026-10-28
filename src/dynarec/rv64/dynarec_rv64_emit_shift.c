@@ -1566,7 +1566,7 @@ void emit_rcl32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 {
     int64_t j64;
     SET_DFNONE();
-    UP32_WRITE32(s1); if (!rex.w && NEED_ZEROUP32(s1)) ZEROUP_RESULT(s1);
+    UP32_WRITE32(s1); if (!rex.w) ZEROUP_RESULT(s1);
 
     IFX (X_OF) {
         ANDI(xFlags, xFlags, ~(1UL << F_OF2));
@@ -1614,7 +1614,7 @@ void emit_rcr32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 {
     int64_t j64;
     SET_DFNONE();
-    UP32_WRITE32(s1); if (!rex.w && NEED_ZEROUP32(s1)) ZEROUP_RESULT(s1);
+    UP32_WRITE32(s1); if (!rex.w) ZEROUP_RESULT(s1);
 
     IFX (X_OF) {
         ANDI(xFlags, xFlags, ~(1UL << F_OF2));
