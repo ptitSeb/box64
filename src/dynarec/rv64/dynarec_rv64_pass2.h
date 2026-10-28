@@ -31,6 +31,10 @@
     AREFLAGSNEEDED()
 #define INST_EPILOG                                                    \
     dyn->insts[ninst].epilog = dyn->native_size;                       \
+    if (dyn->vtype_restore != VECTOR_SEWNA) {                          \
+        avx_set_vector_width(dyn, ninst, x1, dyn->vtype_restore, 16);  \
+        dyn->vtype_restore = VECTOR_SEWNA;                             \
+    }                                                                  \
     if (dyn->insts[ninst].vec_used) sse_sync_all_cache_types(&dyn->e); \
     dyn->vector_sew = dyn->insts[ninst].vector_sew_exit;
 #define INST_NAME(name)
