@@ -119,6 +119,7 @@ static void fpu_reset_reg_extcache(dynarec_rv64_t* dyn, extcache_t* e)
         e->extcache[i].v = 0;
     }
     dyn->vector_sew = VECTOR_SEWNA;
+    dyn->vtype_restore = VECTOR_SEWNA;
 }
 void fpu_reset_reg(dynarec_rv64_t* dyn)
 {
