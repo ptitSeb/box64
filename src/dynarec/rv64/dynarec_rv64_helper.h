@@ -1605,10 +1605,16 @@
 #define ARCH_INIT()                 \
     SMSTART();                      \
     dyn->vector_sew = VECTOR_SEWNA; \
+    dyn->inst_sew = VECTOR_SEWNA;   \
+    dyn->inst_vlmul = VECTOR_LMUL1; \
+    dyn->inst_vl = 0;               \
     dyn->e.ymm0 = 0;
 
-#define ARCH_RESET() \
-    dyn->vector_sew = VECTOR_SEWNA;
+#define ARCH_RESET()                \
+    dyn->vector_sew = VECTOR_SEWNA; \
+    dyn->inst_sew = VECTOR_SEWNA;   \
+    dyn->inst_vlmul = VECTOR_LMUL1; \
+    dyn->inst_vl = 0;
 
 #if STEP < 2
 #define GETIP(A, scratch)
