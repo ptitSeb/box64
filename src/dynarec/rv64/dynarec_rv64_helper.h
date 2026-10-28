@@ -2023,6 +2023,7 @@
 #define avx_load_reg_vector      STEPNAME(avx_load_reg_vector)
 #define avx_store_reg_vector     STEPNAME(avx_store_reg_vector)
 #define avx_flush_upper_vector        STEPNAME(avx_flush_upper_vector)
+#define avx_promote_upper             STEPNAME(avx_promote_upper)
 #define avx_sync_upper_vector         STEPNAME(avx_sync_upper_vector)
 #define doPreload                     STEPNAME(doPreload)
 #define avx_flush_pending_zero_vector STEPNAME(avx_flush_pending_zero_vector)
@@ -2291,6 +2292,7 @@ void sse_purge07cache(dynarec_rv64_t* dyn, int ninst, int s1);
 void sse_reflect_reg(dynarec_rv64_t* dyn, int ninst, int s1, int a);
 
 void avx_flush_upper_vector(dynarec_rv64_t* dyn, int ninst, int s1, int a, int reg, int next, int dead);
+void avx_promote_upper(dynarec_rv64_t* dyn, int ninst, int s1, uint16_t mask);
 void avx_sync_upper_vector(dynarec_rv64_t* dyn, int ninst, int s1, int next);
 void avx_flush_pending_zero_vector(dynarec_rv64_t* dyn, int ninst, int s1, int next);
 void doPreload(dynarec_rv64_t* dyn, int ninst);

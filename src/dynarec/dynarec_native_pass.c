@@ -373,6 +373,11 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
                 dyn->last_ip = 0;
             }
         }
+        #if defined(RV64)
+        if(dyn->insts[ninst].x64.has_next && dyn->insts[next].promote_ymm && !(dyn->insts[next].x64.barrier & BARRIER_FLOAT)) {
+            avx_promote_upper(dyn, ninst, x1, dyn->insts[next].promote_ymm);
+        }
+        #endif
         #endif
         #ifndef PROT_READ
         #define PROT_READ 1
