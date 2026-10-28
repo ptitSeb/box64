@@ -3086,6 +3086,7 @@ void avx_load_reg_vector(dynarec_rv64_t* dyn, int ninst, int s1, int vreg, int a
             dyn->e.fpu_scratch = sp;
         }
         dyn->e.ssecache[a].ymm = 1;
+        sse_set_pending_zero(dyn, a, 0);
     }
     if (low != vreg)
         VMV_V_V(vreg, low);
