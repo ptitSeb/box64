@@ -1964,7 +1964,7 @@ static void sse_purgecache(dynarec_rv64_t* dyn, int ninst, int next, int s1)
     if (flushed8)
         vector_restore_vtype(dyn, ninst, s1, sew, vlmul, vl);
     dyn->purge_dead_vector = 0;
-    dyn->e.ymm0 &= ~zeroed;
+    if (!next) dyn->e.ymm0 &= ~zeroed;
     avx_flush_pending_zero_vector(dyn, ninst, s1, next);
     if (old != -1) {
         MESSAGE(LOG_DUMP, "\t------ Purge SSE Cache\n");
