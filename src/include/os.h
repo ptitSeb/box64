@@ -94,16 +94,14 @@ const char* GetBridgeName(void* p);
 #define GET_JUMPBUFF(name) NULL
 #endif
 
+#ifndef PROT_READ
 #define PROT_READ  0x1
+#endif
+#ifndef PROT_WRITE
 #define PROT_WRITE 0x2
+#endif
+#ifndef PROT_EXEC
 #define PROT_EXEC  0x4
-
-#if defined(__clang__) && !defined(_WIN32)
-extern int isinff(float);
-extern int isnanf(float);
-#elif defined(_WIN32)
-#define isnanf isnan
-#define isinff isinf
 #endif
 
 void PrintfFtrace(int prefix, const char* fmt, ...);

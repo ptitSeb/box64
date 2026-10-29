@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: MIT
-#define _GNU_SOURCE
 #include <sys/syscall.h>
 #include <sched.h>
 #include <unistd.h>
@@ -143,7 +142,7 @@ const char* GetNativeName(void* p, int lib)
 void PersonalityAddrLimit32Bit(void)
 {
     personality(ADDR_LIMIT_32BIT);
-    #ifndef ANDROID
+    #if defined(HAVE_MALLOPT) && defined(M_ARENA_TEST) && defined(M_ARENA_MAX)
     /*struct rlimit l;
     if(getrlimit(RLIMIT_DATA, &l)<0) return;  // failed
     if(l.rlim_max>3*1024*1024*1024LL) {
@@ -210,6 +209,9 @@ static void checkFtrace()
 
 void PrintfFtrace(int prefix, const char* fmt, ...)
 {
+    // fallback for logs before init
+    if(!ftrace) ftrace = stderr;
+
     if (ftrace_name) {
         checkFtrace();
     } else if(trace_fd==-1)

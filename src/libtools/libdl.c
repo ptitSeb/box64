@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: MIT
-#define _GNU_SOURCE
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -66,6 +65,10 @@ static void* (*real_dlsym)(void*, const char*) = NULL;
 EXPORT void* dlopen(const char* path, int flags)
 {
     if (!real_dlopen) real_dlopen = GetNativeSymbolUnversioned(RTLD_NEXT, "dlopen");
+    if (!real_dlopen) {
+        printf_log(LOG_NONE, "Error: dlopen(%s, 0x%x) not found\n", path, flags);
+        abort();
+    }
 
     // will look only for libs loaded with full path (and only on 64bits for now)
     if(path && strchr(path, '/') && (/*(box64_is32bits && FileIsX86ELF(path)) ||*/ (!box64_is32bits && FileIsX64ELF(path)))) {
@@ -93,6 +96,10 @@ EXPORT void* dlopen(const char* path, int flags)
 EXPORT int dlclose(void* handle)
 {
     if (!real_dlclose) real_dlclose = GetNativeSymbolUnversioned(RTLD_NEXT, "dlclose");
+    if (!real_dlclose) {
+        printf_log(LOG_NONE, "Error: dlclose not found\n");
+        abort();
+    }
 
     if((uintptr_t)handle>=HOOKLIB && (uintptr_t)handle<HOOKLIB+hooked_size) {
         uint32_t i = (uintptr_t)handle-HOOKLIB;
@@ -108,6 +115,10 @@ EXPORT int dlclose(void* handle)
 EXPORT void* dlsym(void* handle, const char* symbol)
 {
     if (!real_dlsym) real_dlsym = GetNativeSymbolUnversioned(RTLD_NEXT, "dlsym");
+    if (!real_dlsym) {
+        printf_log(LOG_NONE, "Error: dlsym(%s) not found\n", symbol);
+        abort();
+    }
 
     if((uintptr_t)handle>=HOOKLIB && (uintptr_t)handle<HOOKLIB+hooked_size) {
         uint32_t i = (uintptr_t)handle-HOOKLIB;

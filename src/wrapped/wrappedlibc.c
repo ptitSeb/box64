@@ -1,7 +1,4 @@
 // SPDX-License-Identifier: MIT
-#define _LARGEFILE_SOURCE 1
-#define _FILE_OFFSET_BITS 64
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
 #if !defined(TERMUX) && !defined(ANDROID)
 # if defined(__has_include)
 #  if __has_include(<argp.h>)
@@ -67,6 +64,7 @@ extern const char *const sys_siglist[] __asm__("__sys_siglist");
 #include <sys/wait.h>
 #include <error.h>
 #include <sched.h>
+#include <dirent.h>
 #undef LOG_INFO
 #undef LOG_DEBUG
 
@@ -101,6 +99,9 @@ extern const char *const sys_siglist[] __asm__("__sys_siglist");
 #include "random.h"
 #include "cpumask.h"
 #include "x64tls.h"
+#include "libc_malloc.h"
+#include "libc_dirent.h"
+#include "libc_ctype.h"
 #ifndef LOG_INFO
 #define LOG_INFO 1
 #endif
@@ -133,6 +134,7 @@ typedef int32_t (*iFpp_t)(void*, void*);
 typedef int32_t (*iFpL_t)(void*, size_t);
 typedef int32_t (*iFiip_t)(int32_t, int32_t, void*);
 typedef int32_t (*iFipp_t)(int32_t, void*, void*);
+typedef int32_t (*iFcpcpp_t)(const void*, const void*, void*);
 typedef int32_t (*iFppi_t)(void*, void*, int32_t);
 typedef int32_t (*iFpup_t)(void*, uint32_t, void*);
 typedef int32_t (*iFpuu_t)(void*, uint32_t, uint32_t);
@@ -444,7 +446,7 @@ static void* findcompare_dirFct(void* fct)
 // filter64
 #define GO(A)   \
 static uintptr_t my_filter64_fct_##A = 0;                                   \
-static int my_filter64_##A(const struct dirent64* a)                        \
+static int my_filter64_##A(const struct dirent* a)                        \
 {                                                                           \
     return (int)RunFunctionFmt(my_filter64_fct_##A, "p", a);          \
 }
@@ -467,7 +469,7 @@ static void* findfilter64Fct(void* fct)
 // compare64
 #define GO(A)   \
 static uintptr_t my_compare64_fct_##A = 0;                                      \
-static int my_compare64_##A(const struct dirent64* a, const struct dirent64* b) \
+static int my_compare64_##A(const struct dirent* a, const struct dirent* b) \
 {                                                                               \
     return (int)RunFunctionFmt(my_compare64_fct_##A, "pp", a, b);         \
 }
@@ -1705,8 +1707,8 @@ EXPORT void my__ITM_deregisterTMCloneTable(x64emu_t* emu, void* p) { (void)emu; 
 EXPORT int my___fxstat(x64emu_t *emu, int vers, int fd, void* buf)
 {
     (void)emu; (void)vers;
-    struct stat64 st;
-    int r = fstat64(fd, buf?&st:buf);
+    struct stat st;
+    int r = fstat(fd, buf?&st:buf);
     if(buf && !r)
         UnalignStat64(&st, buf);
     return r;
@@ -1747,8 +1749,8 @@ EXPORT int my___xmknodat(x64emu_t* emu, int v, int dirfd, char* path, uint32_t m
 EXPORT int my___xstat(x64emu_t* emu, int v, void* path, void* buf)
 {
     (void)emu; (void)v;
-    struct stat64 st;
-    int r = stat64((const char*)path, buf?&st:buf);
+    struct stat st;
+    int r = stat((const char*)path, buf?&st:buf);
     if(buf && !r)
         UnalignStat64(&st, buf);
     return r;
@@ -1758,8 +1760,8 @@ EXPORT int my___xstat64(x64emu_t* emu, int v, void* path, void* buf) __attribute
 EXPORT int my___lxstat(x64emu_t* emu, int v, void* name, void* buf)
 {
     (void)emu; (void)v;
-    struct stat64 st;
-    int r = lstat64((const char*)name, buf?&st:buf);
+    struct stat st;
+    int r = lstat((const char*)name, buf?&st:buf);
     if(buf && !r)
         UnalignStat64(&st, buf);
     return r;
@@ -1769,8 +1771,8 @@ EXPORT int my___lxstat64(x64emu_t* emu, int v, void* name, void* buf) __attribut
 EXPORT int my___fxstatat(x64emu_t* emu, int v, int d, void* path, void* buf, int flags)
 {
     (void)emu; (void)v;
-    struct  stat64 st;
-    int r = fstatat64(d, path, &st, flags);
+    struct  stat st;
+    int r = fstatat(d, path, &st, flags);
     if(!r)
         UnalignStat64(&st, buf);
     return r;
@@ -1823,7 +1825,7 @@ EXPORT int my_fstatat64(x64emu_t *emu, int fd, const char* path, void* buf, int 
 
 EXPORT int my__IO_file_stat(x64emu_t* emu, void* f, void* buf)
 {
-    struct stat64 st;
+    struct stat st;
     int r = my->_IO_file_stat(f, &st);
     UnalignStat64(&st, buf);
     return r;
@@ -1832,25 +1834,25 @@ EXPORT int my__IO_file_stat(x64emu_t* emu, void* f, void* buf)
 #if 0
 EXPORT int my_fstatfs64(int fd, void* buf)
 {
-    struct statfs64 st;
-    int r = fstatfs64(fd, &st);
+    struct statfs st;
+    int r = fstatfs(fd, &st);
     UnalignStatFS64(&st, buf);
     return r;
 }
 
 EXPORT int my_statfs64(const char* path, void* buf)
 {
-    struct statfs64 st;
-    int r = statfs64(path, &st);
+    struct statfs st;
+    int r = statfs(path, &st);
     UnalignStatFS64(&st, buf);
     return r;
 }
 #endif
 
 #ifdef ANDROID
-typedef int (*__compar_d_fn_t)(const void*, const void*, void*);
+typedef int (*iFcpcpp_t)(const void*, const void*, void*);
 
-static size_t qsort_r_partition(void* base, size_t size, __compar_d_fn_t compar, void* arg, size_t lo, size_t hi)
+static size_t qsort_r_partition(void* base, size_t size, iFcpcpp_t compar, void* arg, size_t lo, size_t hi)
 {
     void* tmp = alloca(size);
     void* pivot = ((char*)base) + lo * size;
@@ -1875,7 +1877,7 @@ static size_t qsort_r_partition(void* base, size_t size, __compar_d_fn_t compar,
     return i;
 }
 
-static void qsort_r_helper(void* base, size_t size, __compar_d_fn_t compar, void* arg, ssize_t lo, ssize_t hi)
+static void qsort_r_helper(void* base, size_t size, iFcpcpp_t compar, void* arg, ssize_t lo, ssize_t hi)
 {
     if (lo < hi)
     {
@@ -1885,7 +1887,7 @@ static void qsort_r_helper(void* base, size_t size, __compar_d_fn_t compar, void
     }
 }
 
-static void qsort_r(void* base, size_t nmemb, size_t size, __compar_d_fn_t compar, void* arg)
+static void qsort_r(void* base, size_t nmemb, size_t size, iFcpcpp_t compar, void* arg)
 {
     return qsort_r_helper(base, size, compar, arg, 0, nmemb - 1);
 }
@@ -1906,13 +1908,13 @@ EXPORT void my_qsort(x64emu_t* emu, void* base, size_t nmemb, size_t size, void*
 {
     compare_r_t args;
     args.emu = emu; args.f = (uintptr_t)fnc; args.r = 0; args.data = NULL;
-    qsort_r(base, nmemb, size, (__compar_d_fn_t)my_compare_r_cb, &args);
+    qsort_r(base, nmemb, size, (iFcpcpp_t)my_compare_r_cb, &args);
 }
 EXPORT void my_qsort_r(x64emu_t* emu, void* base, size_t nmemb, size_t size, void* fnc, void* data)
 {
     compare_r_t args;
     args.emu = emu; args.f = (uintptr_t)fnc; args.r = 1; args.data = data;
-    qsort_r(base, nmemb, size, (__compar_d_fn_t)my_compare_r_cb, &args);
+    qsort_r(base, nmemb, size, (iFcpcpp_t)my_compare_r_cb, &args);
 }
 EXPORT void* my_bsearch(x64emu_t* emu, void* key, void* base, size_t nmemb, size_t size, void* fnc)
 {
@@ -2032,7 +2034,7 @@ EXPORT void* my_readdir(x64emu_t* emu, void* dirp)
 {
     if (BOX64ENV(fix_64bit_inodes))
     {
-        struct dirent64 *dp64 = readdir64((DIR *)dirp);
+        struct dirent *dp64 = readdir((DIR *)dirp);
         if (!dp64) return NULL;
         uint32_t ino32 = dp64->d_ino ^ (dp64->d_ino >> 32);
         int32_t off32 = dp64->d_off;
@@ -2057,7 +2059,7 @@ EXPORT void* my_readdir(x64emu_t* emu, void* dirp)
 
 EXPORT int32_t my_readdir_r(x64emu_t* emu, void* dirp, void* entry, void** result)
 {
-    struct dirent64 d64, *dp64;
+    struct dirent d64, *dp64;
     if (BOX64ENV(fix_64bit_inodes) && (sizeof(d64.d_name) > 1))
     {
         static iFppp_t f = NULL;
@@ -2068,7 +2070,7 @@ EXPORT int32_t my_readdir_r(x64emu_t* emu, void* dirp, void* entry, void** resul
                 *result = NULL;
                 return 0;
             }
-            f = (iFppp_t)dlsym(lib->w.lib, "readdir64_r");
+            f = (iFppp_t)dlsym(lib->w.lib, "readdir_r");
         }
 
         int r = f(dirp, &d64, &dp64);
@@ -2079,7 +2081,7 @@ EXPORT int32_t my_readdir_r(x64emu_t* emu, void* dirp, void* entry, void** resul
         }
 
         struct i386_dirent *dp32 = (struct i386_dirent *)entry;
-        int namelen = dp64->d_reclen - offsetof(struct dirent64, d_name);
+        int namelen = dp64->d_reclen - offsetof(struct dirent, d_name);
         if (namelen > sizeof(dp32->d_name))
         {
             *result = NULL;
@@ -2387,16 +2389,11 @@ enum {
 
 static int32_t open_func_fallback(char *pathname, int32_t flags, uint32_t open_mode, char *fopen_mode, int type, FILE **file)
 {
-    if (type == FOPEN64_TYPE) {
-        *file = fopen64(pathname, fopen_mode);
-        return 0;
-    } else if (type == FOPEN_TYPE) {
+   if (type == FOPEN_TYPE || type == FOPEN64_TYPE) {
         *file = fopen(pathname, fopen_mode);
         return 0;
-    } else if (type == OPEN_TYPE) {
+    } else if (type == OPEN_TYPE || type == OPEN64_TYPE) {
         return open(pathname, flags, open_mode);
-    } else if (type == OPEN64_TYPE) {
-        return open64(pathname, flags, open_mode);
     }
     return -1;
 }
@@ -2654,7 +2651,7 @@ EXPORT int32_t my_epoll_pwait2(x64emu_t* emu, int epfd, void* events, int maxeve
 EXPORT int32_t my_glob64(x64emu_t *emu, void* pat, int32_t flags, void* errfnc, void* pglob)
 {
     (void)emu;
-    return glob64(pat, flags, findgloberrFct(errfnc), pglob);
+    return glob(pat, flags, findgloberrFct(errfnc), pglob);
 }
 EXPORT int32_t my_glob(x64emu_t *emu, void* pat, int32_t flags, void* errfnc, void* pglob) __attribute__((alias("my_glob64")));
 #endif
@@ -2662,7 +2659,7 @@ EXPORT int32_t my_glob(x64emu_t *emu, void* pat, int32_t flags, void* errfnc, vo
 EXPORT int my_scandir64(x64emu_t *emu, void* dir, void* namelist, void* sel, void* comp)
 {
     (void)emu;
-    return scandir64(dir, namelist, findfilter64Fct(sel), findcompare64Fct(comp));
+    return scandir(dir, namelist, findfilter64Fct(sel), findcompare64Fct(comp));
 }
 EXPORT int my_scandir(x64emu_t *emu, void* dir, void* namelist, void* sel, void* comp) __attribute__((alias("my_scandir64")));
 
@@ -2675,20 +2672,20 @@ EXPORT int my_scandirat(x64emu_t *emu, int dirfd, void* dirp, void* namelist, vo
 EXPORT int my_scandirat64(x64emu_t *emu, int dirfd, void* dirp, void* namelist, void* sel, void* comp)
 {
     (void)emu;
-    return scandirat64(dirfd, dirp, namelist, findfilter64Fct(sel), findcompare64Fct(comp));
+    return scandirat(dirfd, dirp, namelist, findfilter64Fct(sel), findcompare64Fct(comp));
 }
 
 EXPORT int my_ftw64(x64emu_t* emu, void* filename, void* func, int descriptors)
 {
     (void)emu;
-    return ftw64(filename, findftw64Fct(func), descriptors);
+    return ftw(filename, findftw64Fct(func), descriptors);
 }
 EXPORT int my_ftw(x64emu_t* emu, void* filename, void* func, int descriptors) __attribute__((alias("my_ftw64")));
 
 EXPORT int32_t my_nftw64(x64emu_t* emu, void* pathname, void* B, int32_t nopenfd, int32_t flags)
 {
     (void)emu;
-    return nftw64(pathname, findnftw64Fct(B), nopenfd, flags);
+    return nftw(pathname, findnftw64Fct(B), nopenfd, flags);
 }
 EXPORT int my_nftw(x64emu_t* emu, void* pathname, void* B, int32_t nopenfd, int32_t flags) __attribute__((alias("my_nftw64")));
 
@@ -4168,6 +4165,7 @@ EXPORT int my_posix_madvise(x64emu_t* emu, void* addr, size_t length, int advice
 typedef struct mallinfo (*mallinfo_fnc)(void);
 EXPORT void* my_mallinfo(x64emu_t* emu, void* p)
 {
+#ifdef HAVE_MALLINFO
     static mallinfo_fnc f = NULL;
     static int inited = 0;
     if(!inited) {
@@ -4177,26 +4175,15 @@ EXPORT void* my_mallinfo(x64emu_t* emu, void* p)
     if(f)
         *(struct mallinfo*)p=f();
     else
+#endif
         memset(p, 0, sizeof(struct mallinfo));
     return p;
 }
 
-struct my_mallinfo2_s {
-    size_t arena;
-    size_t ordblks;
-    size_t smblks;
-    size_t hblks;
-    size_t hblkhd;
-    size_t usmblks;
-    size_t fsmblks;
-    size_t uordblks;
-    size_t fordblks;
-    size_t keepcost;
-};
-
-typedef struct my_mallinfo2_s (*mallinfo2_fnc)(void);
+typedef struct mallinfo2 (*mallinfo2_fnc)(void);
 EXPORT void* my_mallinfo2(x64emu_t* emu, void* p)
 {
+#ifdef HAVE_MALLINFO2
     static mallinfo2_fnc f = NULL;
     static int inited = 0;
     if(!inited) {
@@ -4204,9 +4191,10 @@ EXPORT void* my_mallinfo2(x64emu_t* emu, void* p)
         f = (mallinfo2_fnc)dlsym(my_lib->w.lib, "mallinfo2");
     }
     if(f)
-        *(struct my_mallinfo2_s*)p = f();
+        *(struct mallinfo2*)p = f();
     else
-        memset(p, 0, sizeof(struct my_mallinfo2_s));
+#endif
+        memset(p, 0, sizeof(struct mallinfo2));
     return p;
 }
 
@@ -4262,7 +4250,7 @@ static ssize_t my_cookie_write(void *p, const char *buf, size_t size)
     my_cookie_t* cookie = (my_cookie_t*)p;
     return (ssize_t)RunFunctionFmt(cookie->w, "ppL", cookie->cookie, buf, size)       ;
 }
-static int my_cookie_seek(void *p, off64_t *offset, int whence)
+static int my_cookie_seek(void *p, off_t *offset, int whence)
 {
     my_cookie_t* cookie = (my_cookie_t*)p;
     return RunFunctionFmt(cookie->s, "ppi", cookie->cookie, offset, whence)       ;
@@ -4382,10 +4370,10 @@ EXPORT int my_getrlimit(x64emu_t* emu, uint32_t resource, struct rlimit* rlim)
     return my___getrlimit(emu, resource, rlim);
 }
 
-EXPORT int my_getrlimit64(x64emu_t* emu, uint32_t resource, struct rlimit64* rlim)
+EXPORT int my_getrlimit64(x64emu_t* emu, uint32_t resource, struct rlimit* rlim)
 {
     (void)emu;
-    return check_getrlimit_buffer(rlim, sizeof(*rlim)) ? getrlimit64(resource, rlim) : -1;
+    return check_getrlimit_buffer(rlim, sizeof(*rlim)) ? getrlimit(resource, rlim) : -1;
 }
 
 EXPORT int my_setrlimit(x64emu_t* emu, int ressource, const struct rlimit *rlim)
@@ -4845,7 +4833,7 @@ EXPORT int my_stime(x64emu_t* emu, const time_t *t)
 }
 
 int GetTID();
-#ifdef ANDROID
+#if defined(ANDROID) || ! defined(__GLIBC__)
 void updateGlibcTidCache() {}
 #else
 struct glibc_pthread {

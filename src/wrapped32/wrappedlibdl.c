@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: MIT
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -20,7 +19,7 @@
 #include "elfloader.h"
 #include "elfs/elfloader_private.h"
 #include "x64emu.h"
-
+#include "mydlfcn.h"
 
 #define LIBNAME libdl
 #ifdef ANDROID
@@ -38,13 +37,6 @@ int my32_dladdr(x64emu_t* emu, void *addr, void *info) EXPORT;
 int my32_dladdr1(x64emu_t* emu, void *addr, void *info, void** extra_info, int flags) EXPORT;
 void* my_dlvsym(x64emu_t* emu, void *handle, void *symbol, const char *vername) EXPORT;
 int my32_dlinfo(x64emu_t* emu, void* handle, int request, void* info) EXPORT;
-
-#ifndef RTLD_DL_SYMENT
-#define RTLD_DL_SYMENT 1
-#endif
-#ifndef RTLD_DL_LINKMAP
-#define RTLD_DL_LINKMAP 2
-#endif
 
 void dl_clear_error();
 #define CLEARERR    dl_clear_error()
