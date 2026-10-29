@@ -1,178 +1,178 @@
 box64 (0.4.4) unstable; urgency=low
 
-This version adds a lot of refactor and speed improvements to the LoongArch backend, so more opcodes on the RISC-V backend, and many QoL new features!
-    => A new box64-configurator is now present (a python app) to help managing custom RCFILE profiles. It is available in both english and chinese.
-    => DynaCache is now enabled by default. It will compress the files and use up to 2GB of disk space.
-    => You can use box64-configurator on the special `[*]` profile to change default values
-    => More improvements on emulation accuracy that help running more DRM'd games
+  * This version adds a lot of refactor and speed improvements to the LoongArch backend, so more opcodes on the RISC-V backend, and many QoL new features!
+  *    => A new box64-configurator is now present (a python app) to help managing custom RCFILE profiles. It is available in both english and chinese.
+  *    => DynaCache is now enabled by default. It will compress the files and use up to 2GB of disk space.
+  *    => You can use box64-configurator on the special `[*]` profile to change default values
+  *    => More improvements on emulation accuracy that help running more DRM'd games
 
--- Sebastien Chevalier <ptitseb@box86.org>  Mon, 2 Aug 2026 10:30:33 -0100
+ -- Sebastien Chevalier <ptitseb@box86.org>  Mon, 2 Aug 2026 10:30:33 -0100
 
 box64 (0.4.2) unstable; urgency=low
 
-This version add lots on unconnected new things, like a PPC64LE backend, Vulkan overlay support or more Dynarec finetunning.
-    => Vulkan x64 overlay support. That means using the linux version of Steam, Fossilize & GameOverlayUI will work.
-    => Many dynarec refactors, especialy on ARM64 & LA64 with fixes to speed regression introduced with the the last 2 releases and improved compatibility.
-    => Support for SteamRT3 & new Proton 11
-    => New PCC64LE in the work. Not finished, but should be usable already (but the platform seems to use a 64k pagesize by default, so compatibility will suffer on this platformm). Note that main Box64 mainteners don't have access to relevent hardware, so support will be limited.
+  * This version add lots on unconnected new things, like a PPC64LE backend, Vulkan overlay support or more Dynarec finetunning.
+  *    => Vulkan x64 overlay support. That means using the linux version of Steam, Fossilize & GameOverlayUI will work.
+  *    => Many dynarec refactors, especialy on ARM64 & LA64 with fixes to speed regression introduced with the the last 2 releases and improved compatibility.
+  *    => Support for SteamRT3 & new Proton 11
+  *    => New PCC64LE in the work. Not finished, but should be usable already (but the platform seems to use a 64k pagesize by default, so compatibility will suffer on this platformm). Note that main Box64 mainteners don't have access to relevent hardware, so support will be limited.
 
--- Sebastien Chevalier <ptitseb@box86.org>  Mon, 20 Apr 2026 10:30:33 -0100
+ -- Sebastien Chevalier <ptitseb@box86.org>  Mon, 20 Apr 2026 10:30:33 -0100
 
 box64 (0.4.0) unstable; urgency=low
 
-This version added many important refactors: the opcode prefix decoder for Dynarec, libGL and Vulkan, the FSGSBASE support, making segments handling easier and faster.
-    => Improved compatibility accross all architecture, allowing more DRM protected game to run
-    => the prefix refactor helped removed lots of redundant source file, simplifying maintenance
-    => BOX32 is getting more and more stable, even if still not 100% ok. But Steam is more stable than before, runs on all architecture. And some gameoverlay UI works, on OpenGL games. gameoverlay (and fossilize) support for Vulkan is planned for later.
+  * This version added many important refactors: the opcode prefix decoder for Dynarec, libGL and Vulkan, the FSGSBASE support, making segments handling easier and faster.
+  *    => Improved compatibility accross all architecture, allowing more DRM protected game to run
+  *    => the prefix refactor helped removed lots of redundant source file, simplifying maintenance
+  *    => BOX32 is getting more and more stable, even if still not 100% ok. But Steam is more stable than before, runs on all architecture. And some gameoverlay UI works, on OpenGL games. gameoverlay (and fossilize) support for Vulkan is planned for later.
 
--- Sebastien Chevalier <ptitseb@box86.org>  Mon, 3 Jan 2026 10:30:33 -0100
+ -- Sebastien Chevalier <ptitseb@box86.org>  Mon, 3 Jan 2026 10:30:33 -0100
 
 box64 (0.3.8) unstable; urgency=low
 
-This version introduce DynaCache, a disk cache for the generated native code. It's not enabled by default for now (but it will use cache file if present by default). It can dramaticaly speedup the load of program (try with linux factorio for example). This version also improve in the volatile metadata handling. There is a massive compatiblity improvment for box32 and on all dynarec in general too. And few more function wrapping...
+  * This version introduce DynaCache, a disk cache for the generated native code. It's not enabled by default for now (but it will use cache file if present by default). It can dramaticaly speedup the load of program (try with linux factorio for example). This version also improve in the volatile metadata handling. There is a massive compatiblity improvment for box32 and on all dynarec in general too. And few more function wrapping...
 
-    => DynaCache for faster loading of program, and avoid runtime hicups
-    => Batter box32 compatibility (much less "Out of Memory" error)
-    => Unity3D games on Wayland are working now
-    => Volatile Metadata fully supported and handled, making games like Starfield to just work.
-    => More work on AVX support for RV64 & LA64. LA64 almost there, while RV64 has Scalar only support (no hardware vector support yet for AVX)
+  *    => DynaCache for faster loading of program, and avoid runtime hicups
+  *    => Batter box32 compatibility (much less "Out of Memory" error)
+  *    => Unity3D games on Wayland are working now
+  *    => Volatile Metadata fully supported and handled, making games like Starfield to just work.
+  *    => More work on AVX support for RV64 & LA64. LA64 almost there, while RV64 has Scalar only support (no hardware vector support yet for AVX)
 
--- Sebastien Chevalier <ptitseb@box86.org>  Mon, 10 Oct 2025 10:30:33 -0100
+ -- Sebastien Chevalier <ptitseb@box86.org>  Mon, 10 Oct 2025 10:30:33 -0100
 
 box64 (0.3.6) unstable; urgency=low
 
-This version introduces wowbox64.dll for Hangover; the ability to use the Volatile Metadata of Windows executables for x64 wine; and some better x87/SSE/AVX handling
+  * This version introduces wowbox64.dll for Hangover; the ability to use the Volatile Metadata of Windows executables for x64 wine; and some better x87/SSE/AVX handling
 
-    => WowBox64 can be built directly from Box64 repo, and can be found in the CI artifacts also
-    => it also supports a subset of BOX64_XXXX settings, which can be set from command line or via a setting file ".box64rc" in the Wine prefix home
-    => Volatile Metadata, when present, allows only applying strong memory ordering when needed, as marked by the compiler, giving overall better performances
-    => The precision control bit of x87 is now handled, allowing some older games to run correctly
-    => More work has been done in the handling of precise NaN and Round handling in SSE & AVX opcodes
+  *    => WowBox64 can be built directly from Box64 repo, and can be found in the CI artifacts also
+  *    => it also supports a subset of BOX64_XXXX settings, which can be set from command line or via a setting file ".box64rc" in the Wine prefix home
+  *    => Volatile Metadata, when present, allows only applying strong memory ordering when needed, as marked by the compiler, giving overall better performances
+  *    => The precision control bit of x87 is now handled, allowing some older games to run correctly
+  *    => More work has been done in the handling of precise NaN and Round handling in SSE & AVX opcodes
 
--- Sebastien Chevalier <ptitseb@box86.org>  Thu, 6 Jun 2025 10:30:33 -0100
+ -- Sebastien Chevalier <ptitseb@box86.org>  Thu, 6 Jun 2025 10:30:33 -0100
 
 box64 (0.3.4) unstable; urgency=low
 
-* This version is Faster and more compatible
-*    => The RV64 backend got faster and more stable, with lots of RVV 1.0 / xThreadVector support to emulate SSE/SSE2+ opcode (no AVX yet)
-*    => On ARM64, Box64 now support more DRM types than before.
-*    => BOX32 can run steam now. At least on ARM64 backend, it's still not working on RV64 and LA64 for now.
-* Please check CHAGELOG.md for more details
+  * This version is Faster and more compatible
+  *    => The RV64 backend got faster and more stable, with lots of RVV 1.0 / xThreadVector support to emulate SSE/SSE2+ opcode (no AVX yet)
+  *    => On ARM64, Box64 now support more DRM types than before.
+  *    => BOX32 can run steam now. At least on ARM64 backend, it's still not working on RV64 and LA64 for now.
+  * Please check CHAGELOG.md for more details
 
--- Sebastien Chevalier <ptitseb@box86.org>  Thu, 10 Mar 2025 10:30:33 -0100
+ -- Sebastien Chevalier <ptitseb@box86.org>  Thu, 10 Mar 2025 10:30:33 -0100
 
 box64 (0.3.2) unstable; urgency=low
 
-* Introduced Box32 to run 32bits apps on 64bits OS
-*   => Box32 is a build option for Box64, and is disabled by default
-*   => Optionnal binfmt integration available for Box32
-*   => Wrapped some basics libs, including graphics and sounds so a few games already works
-*   => Work In Progress, many issues remain to be fixed, but some Linux games are playable
-* Introduced Native Flags. Can be controled with BOX64_DYNAREC_NATIVEFLAGS, but enabled by default
-*   => Available on the 3 Dynarec backend, with different implementations
-*   => ARM64 Dynarec build have all AVX/AVX2 extensions enabled by default
-*   +> Can lead to large speedup on certain cases
-* Improved Strong Memory Model emulation, with better default options and a more efficiant emulation
-* Dynarec: RV64: using RVV (and XThreadVector) to implement SSEx opcodes, with some massive speedup when used!
-* Some bugfix and improvment in the Signal handler and internal memory tracking
-* Improvment to TRAP signal generation and Handling
-* Improved CPUID opcodes again, and the various virtual file in /proc that represent those data
-* Improved some x87 operations, like long double handling and infinity comparisons...
-* Dynarec: ARM64 fixes to a few opcodes
-* Dynarec: RV64 fixes to many opcodes
-* Dynarec: LA64 fixes to a few opcodes
-* Dynarec: RV64 fixes and improvments on LOCK prefixes opcodes
-* Dynarec: Many optimisation on some individual opcodes, an all 3 backends
-* WRAPPING: More libs and functions wrapped. Some wrapping fixes too
-* WREPPING: New wrapperhelper to help coding new wrapping & fixing/enhancing existing one
-* ElfLoader: Improved object fetching
-* New build profile for SD865 and ORYON
-* Changed the installation folder of x86 libs to avoid conflict with linux distro
-* Added a few syscalls
-* Some more Vulkan extensions wrapped
-* More work on build system, and github CI (generating WCP archive), with some fixes on the Android version (still not 100% operational)
+  * Introduced Box32 to run 32bits apps on 64bits OS
+  *   => Box32 is a build option for Box64, and is disabled by default
+  *   => Optionnal binfmt integration available for Box32
+  *   => Wrapped some basics libs, including graphics and sounds so a few games already works
+  *   => Work In Progress, many issues remain to be fixed, but some Linux games are playable
+  * Introduced Native Flags. Can be controled with BOX64_DYNAREC_NATIVEFLAGS, but enabled by default
+  *   => Available on the 3 Dynarec backend, with different implementations
+  *   => ARM64 Dynarec build have all AVX/AVX2 extensions enabled by default
+  *   +> Can lead to large speedup on certain cases
+  * Improved Strong Memory Model emulation, with better default options and a more efficiant emulation
+  * Dynarec: RV64: using RVV (and XThreadVector) to implement SSEx opcodes, with some massive speedup when used!
+  * Some bugfix and improvment in the Signal handler and internal memory tracking
+  * Improvment to TRAP signal generation and Handling
+  * Improved CPUID opcodes again, and the various virtual file in /proc that represent those data
+  * Improved some x87 operations, like long double handling and infinity comparisons...
+  * Dynarec: ARM64 fixes to a few opcodes
+  * Dynarec: RV64 fixes to many opcodes
+  * Dynarec: LA64 fixes to a few opcodes
+  * Dynarec: RV64 fixes and improvments on LOCK prefixes opcodes
+  * Dynarec: Many optimisation on some individual opcodes, an all 3 backends
+  * WRAPPING: More libs and functions wrapped. Some wrapping fixes too
+  * WREPPING: New wrapperhelper to help coding new wrapping & fixing/enhancing existing one
+  * ElfLoader: Improved object fetching
+  * New build profile for SD865 and ORYON
+  * Changed the installation folder of x86 libs to avoid conflict with linux distro
+  * Added a few syscalls
+  * Some more Vulkan extensions wrapped
+  * More work on build system, and github CI (generating WCP archive), with some fixes on the Android version (still not 100% operational)
 
--- Sebastien Chevalier <ptitseb@box86.org>  Thu, 6 Dec 2024 10:30:33 -0100
+ -- Sebastien Chevalier <ptitseb@box86.org>  Thu, 6 Dec 2024 10:30:33 -0100
 
 box64 (0.3.0) unstable; urgency=low
 
-* AVX and AVX2 implemented, along with BMI1, BMI2, ADX, FMA, F16C and RDANDR extension!
-* Introduced BOX64_AVX env. var. to enable/disable AVX extension:
-*   => BOX64_AVX=1 enable AVX, BMI1, F16C and VAES extension
-*   => BOX64_AVX=2 also enable AVX2, BMI2, FMA, ADX,VPCLMULQDQ and RDRAND
-* Dynarec: Implemented most AVX/AVX2 and friends in ARM64 Dynarec (using only NEON, so available on all ARM64 CPU)
-*   => ARM64 Dynarec build have all AVX/AVX2 extensions enabled by default
-* Improved CPUID opcodes, adding a few leaf, fixing same. Returnning an Haswell type of CPU now (was Pentium IV before)
-* Dynarec: Small optim in the emit_pf helper, on all 3 backends
-* Dynarec: ARM64 some fixes to a few opcodes
-* Dynarec: LA64 many new opcodes added, and fixes.
-* Dynarec: RV64 some new opcodes added, many fixes.
-* Dynarec: RV64 Adding some infrastructure to use RVV (if available) for SIMD emulation.
-* Dynarec: Many small changes and fixes around handling of x87, registers and internal jump.
-* WRAPPING: Added a workaround on SDL_GetThreadID to fix a race condition that was happening mostly on LA64 and broke many SDL games
-* WRAPPING: More libs and functions wrapped. Some wrapping fixes too (including a nasty error on some rare libGL functions)
-* WRAPPING: Wayland is now supported. Wine-wayland at least works now
-* Dynarec: LA64 improved LOCK CMPXCHG handling, and better 16Byte LOCK handling too (fixes many Unity3D games)
-* Dynarec: RV64 improved LOCK CMPXCHG handling
-* COSIM: Many fixes and improvment, to make BOX64_DYNAREC_TEST more usable
-* Detect when a Wine program use UnityPlayer.dll to atumaticaly use BOX64_DYNAREC_STRONGMEM=1 (unless it's already set), so more games just work
-* ElfLoader: Added a new type of relocation
+  * AVX and AVX2 implemented, along with BMI1, BMI2, ADX, FMA, F16C and RDANDR extension!
+  * Introduced BOX64_AVX env. var. to enable/disable AVX extension:
+  *   => BOX64_AVX=1 enable AVX, BMI1, F16C and VAES extension
+  *   => BOX64_AVX=2 also enable AVX2, BMI2, FMA, ADX,VPCLMULQDQ and RDRAND
+  * Dynarec: Implemented most AVX/AVX2 and friends in ARM64 Dynarec (using only NEON, so available on all ARM64 CPU)
+  *   => ARM64 Dynarec build have all AVX/AVX2 extensions enabled by default
+  * Improved CPUID opcodes, adding a few leaf, fixing same. Returnning an Haswell type of CPU now (was Pentium IV before)
+  * Dynarec: Small optim in the emit_pf helper, on all 3 backends
+  * Dynarec: ARM64 some fixes to a few opcodes
+  * Dynarec: LA64 many new opcodes added, and fixes.
+  * Dynarec: RV64 some new opcodes added, many fixes.
+  * Dynarec: RV64 Adding some infrastructure to use RVV (if available) for SIMD emulation.
+  * Dynarec: Many small changes and fixes around handling of x87, registers and internal jump.
+  * WRAPPING: Added a workaround on SDL_GetThreadID to fix a race condition that was happening mostly on LA64 and broke many SDL games
+  * WRAPPING: More libs and functions wrapped. Some wrapping fixes too (including a nasty error on some rare libGL functions)
+  * WRAPPING: Wayland is now supported. Wine-wayland at least works now
+  * Dynarec: LA64 improved LOCK CMPXCHG handling, and better 16Byte LOCK handling too (fixes many Unity3D games)
+  * Dynarec: RV64 improved LOCK CMPXCHG handling
+  * COSIM: Many fixes and improvment, to make BOX64_DYNAREC_TEST more usable
+  * Detect when a Wine program use UnityPlayer.dll to atumaticaly use BOX64_DYNAREC_STRONGMEM=1 (unless it's already set), so more games just work
+  * ElfLoader: Added a new type of relocation
 
--- Sebastien Chevalier <ptitseb@box86.org>  Thu, 9 Jul 2024 10:30:33 -0100
+ -- Sebastien Chevalier <ptitseb@box86.org>  Thu, 9 Jul 2024 10:30:33 -0100
 
 box64 (0.2.8) unstable; urgency=low
 
-* Wrapping: More libs and function wrapping (gtk3, vulkan...)
-* Reworked X11 Callback handling, for better stability
-* Reworked exit and the load/unload of libs and symbol resolution
-* Some more profiles in box64rc
-* Better way to rename executable (including wine ones) so driver like mesa can apply the correct profile
-* Reworked memory managment in the Dynarec, limiting amount of dynamic allocation
-* Improved memory tracking and managment. Also introduce BOX64_MMAP32 to force 32bits compatible mmap for external libs (like mesa)
-* => Allow Vulkan drvier on Wine/WOW64 games to allocate 32bits compatible memory, allowing dxvk on 32bits.
-* Reworked memory managment in the Dynarec, limiting amount of dynamic allocation
-* Lots of improvments in x87 handling (virtual stack, rounding, ffree, etc.)
-* => should improve games stability
-* Dynarec: ARM64 some opcodes optimisation, especialy shift and rotation ones
-* Dynarec: RV64 lots of opcoded added.
-* => Some games on linux now have a good speed. Game on Wine are still a bit slow, and dxvk still have issues
-* Dynarec: Added Loogarch backend! Note that Loongarch are 16K pagesize platform by default.
-* => Linux games are running, and with good speed, especialy on 3A6000 platforms. Games on Wine are not working yet due to 16k pagesize limitation
-* Dynarec: Better handling of large block in the dynarec
-* Dynarec: Lots of improvments and fixes to BOX86_DYNAREC_CALLRET optimisation.
-* => It can be used on more software now, and combine with BOX64_DYNAREC_BOGBLOCKS 2 or 3 can gives some good speed boosts.
+  * Wrapping: More libs and function wrapping (gtk3, vulkan...)
+  * Reworked X11 Callback handling, for better stability
+  * Reworked exit and the load/unload of libs and symbol resolution
+  * Some more profiles in box64rc
+  * Better way to rename executable (including wine ones) so driver like mesa can apply the correct profile
+  * Reworked memory managment in the Dynarec, limiting amount of dynamic allocation
+  * Improved memory tracking and managment. Also introduce BOX64_MMAP32 to force 32bits compatible mmap for external libs (like mesa)
+  * => Allow Vulkan drvier on Wine/WOW64 games to allocate 32bits compatible memory, allowing dxvk on 32bits.
+  * Reworked memory managment in the Dynarec, limiting amount of dynamic allocation
+  * Lots of improvments in x87 handling (virtual stack, rounding, ffree, etc.)
+  * => should improve games stability
+  * Dynarec: ARM64 some opcodes optimisation, especialy shift and rotation ones
+  * Dynarec: RV64 lots of opcoded added.
+  * => Some games on linux now have a good speed. Game on Wine are still a bit slow, and dxvk still have issues
+  * Dynarec: Added Loogarch backend! Note that Loongarch are 16K pagesize platform by default.
+  * => Linux games are running, and with good speed, especialy on 3A6000 platforms. Games on Wine are not working yet due to 16k pagesize limitation
+  * Dynarec: Better handling of large block in the dynarec
+  * Dynarec: Lots of improvments and fixes to BOX86_DYNAREC_CALLRET optimisation.
+  * => It can be used on more software now, and combine with BOX64_DYNAREC_BOGBLOCKS 2 or 3 can gives some good speed boosts.
 
--- Sebastien Chevalier <ptitseb@box86.org>  Thu, 31 May 2024 17:30:33 -0100
+ -- Sebastien Chevalier <ptitseb@box86.org>  Thu, 31 May 2024 17:30:33 -0100
 
 box64 (0.2.6) unstable; urgency=low
 
- * X64Libs: Updated libstdc++ & libgcc_s
- * X64Libs: Use x86_64 vrsion of libunwind (it's needed by wine)
- * Dynarec: More opcodes on ARM64 & RV64
- * Dynarec: Fixed some flags propagation issues inside blocks
- * Dynarec: Improved Strong Memory Model emulation, introducing a 3rd level
- * Dynarec: ARM64: reworked shift and bit opcodes flags handling
- * Dynarec: RV64: Many fixes, making Wow64 apps running
- * Dynarec: ARM64: Added support for SSE4.2 (with CRC32 if supported by CPU)
- * Dynarec: ARM64: Added support for SHA (with hardware support if CPU allows it)
- * Dynarec: ARM64: The CALLRET optimisation has been improved and is now default
- * CPU: Remoworked how INT, priviliged opcodes and teh Trace flags works
- * CPU: Added full support for SSE4.2
- * CPU: Added full support for SHA extension
- * ElfLoader: rework how elf memory is handled
- * Emulation: Added some more syscalls
- * Emulation: Better handling of Signal (also handling SIGMAX correctly)
- * Emulation: Better support for POKEUSER/PEEKUSER (helps Windows Unity games)
- * Wrapping: More libs and some fixes in function wrapping (gtk3, vulkan...)
- * Wrapping: Removed faked libunwind wrapping
- * Hardware: Added more profile, with support ADLink Ampere Altra, Qualcomm 8Gen3, and Pi5 machines
- * OS: Added profile to build for Android and Termux.
- * OS: New option to use mold for a high speed link
- * => More hadware support, more functions wrapped for an improve compatibity
- * => More CPU extension, with ARM64 hardware support when possible, and improved CALLRET optimisation for an improved speed of emulation
- * => Some work also to reduce the memory footprint
+  * X64Libs: Updated libstdc++ & libgcc_s
+  * X64Libs: Use x86_64 vrsion of libunwind (it's needed by wine)
+  * Dynarec: More opcodes on ARM64 & RV64
+  * Dynarec: Fixed some flags propagation issues inside blocks
+  * Dynarec: Improved Strong Memory Model emulation, introducing a 3rd level
+  * Dynarec: ARM64: reworked shift and bit opcodes flags handling
+  * Dynarec: RV64: Many fixes, making Wow64 apps running
+  * Dynarec: ARM64: Added support for SSE4.2 (with CRC32 if supported by CPU)
+  * Dynarec: ARM64: Added support for SHA (with hardware support if CPU allows it)
+  * Dynarec: ARM64: The CALLRET optimisation has been improved and is now default
+  * CPU: Remoworked how INT, priviliged opcodes and teh Trace flags works
+  * CPU: Added full support for SSE4.2
+  * CPU: Added full support for SHA extension
+  * ElfLoader: rework how elf memory is handled
+  * Emulation: Added some more syscalls
+  * Emulation: Better handling of Signal (also handling SIGMAX correctly)
+  * Emulation: Better support for POKEUSER/PEEKUSER (helps Windows Unity games)
+  * Wrapping: More libs and some fixes in function wrapping (gtk3, vulkan...)
+  * Wrapping: Removed faked libunwind wrapping
+  * Hardware: Added more profile, with support ADLink Ampere Altra, Qualcomm 8Gen3, and Pi5 machines
+  * OS: Added profile to build for Android and Termux.
+  * OS: New option to use mold for a high speed link
+  * => More hadware support, more functions wrapped for an improve compatibity
+  * => More CPU extension, with ARM64 hardware support when possible, and improved CALLRET optimisation for an improved speed of emulation
+  * => Some work also to reduce the memory footprint
 
--- Sebastien Chevalier <ptitseb@box86.org>  Thu, 15 Dec 2023 17:30:33 -0100
+ -- Sebastien Chevalier <ptitseb@box86.org>  Thu, 15 Dec 2023 17:30:33 -0100
 
 box64 (0.2.4) unstable; urgency=low
 
@@ -199,74 +199,74 @@ box64 (0.2.4) unstable; urgency=low
   * => Dynarec now support RISC-V, large speedup on RISC-V 64, were games are now playable (like Stardew Valley on a Vision Five 2)
   * => Improved compatibility with more fixes in elf handling, more wrapped libs and functiond, more fixed opcodes and refined profile
 
--- Sebastien Chevalier <ptitseb@box86.org>  Thu, 10 Mar 2023 10:20:33 -0500
+ -- Sebastien Chevalier <ptitseb@box86.org>  Thu, 10 Mar 2023 10:20:33 -0500
 
 box64 (0.2.2) unstable; urgency=low
 
- * Added a hacked version for overridden malloc/free functions, enabling libcef (and derivative) to work.
- * Added rcfile handling: box64 now read "/etc/box64.box64rc" and "~/.box64rc" and apply per process parameters
- * Added BOX64_DYNAREC_CALLRET to optimized CALL/RET opcode using semi-direct native CALL/RET (get more than 10% speedup)
- * Added BOX64_DYNAREC_FORWARD to allow bigger Dynarec block to be build (can get more then 30% of Speedup!)
- * Improved memory protection tracking and signal handling, again
- * Simplified mutex handling (faster, cleaner)
- * Reduce memory used by the memory tracking (memory almost divide by 4 is some critical use case)
- * Added d3dadaptor9 wrapping
- * More wrapped libs (especially on the gtk familly)
- * Improved/fixed some Syscall handling
- * Refactored Strong Memory Model emulation (faster and more accurate)
- * Added some more opcode to ARM64 Dynarec, and fixed some other
- * Some fixes to flags handling in the Dynarec on some special cases
- * Refactor library loading/unloading, with refcount.
- * Some special cases fixes for dlopen (fixes deadcells, maybe others too)
- * Improved mmap mapping, espcially with MAP_32BITS flag
- * More wrapped functions and syscalls
- * Lots of improvment in the Rounding of float & double (Dynarec and Interpreter), and proper handling of denormals when converting to/from 80 bits long double
- * Added specific suppport for RK3588 board (needed some hack in signal handling, probably due to the use of a non mainlined kernel)
- * More support on the RV64 port
- * More support to build under musl environment
+  * Added a hacked version for overridden malloc/free functions, enabling libcef (and derivative) to work.
+  * Added rcfile handling: box64 now read "/etc/box64.box64rc" and "~/.box64rc" and apply per process parameters
+  * Added BOX64_DYNAREC_CALLRET to optimized CALL/RET opcode using semi-direct native CALL/RET (get more than 10% speedup)
+  * Added BOX64_DYNAREC_FORWARD to allow bigger Dynarec block to be build (can get more then 30% of Speedup!)
+  * Improved memory protection tracking and signal handling, again
+  * Simplified mutex handling (faster, cleaner)
+  * Reduce memory used by the memory tracking (memory almost divide by 4 is some critical use case)
+  * Added d3dadaptor9 wrapping
+  * More wrapped libs (especially on the gtk familly)
+  * Improved/fixed some Syscall handling
+  * Refactored Strong Memory Model emulation (faster and more accurate)
+  * Added some more opcode to ARM64 Dynarec, and fixed some other
+  * Some fixes to flags handling in the Dynarec on some special cases
+  * Refactor library loading/unloading, with refcount.
+  * Some special cases fixes for dlopen (fixes deadcells, maybe others too)
+  * Improved mmap mapping, espcially with MAP_32BITS flag
+  * More wrapped functions and syscalls
+  * Lots of improvment in the Rounding of float & double (Dynarec and Interpreter), and proper handling of denormals when converting to/from 80 bits long double
+  * Added specific suppport for RK3588 board (needed some hack in signal handling, probably due to the use of a non mainlined kernel)
+  * More support on the RV64 port
+  * More support to build under musl environment
 
--- Sebastien Chevalier <ptitseb@box86.org>  Thu, 10 Mar 2023 10:20:33 -0500
+ -- Sebastien Chevalier <ptitseb@box86.org>  Thu, 10 Mar 2023 10:20:33 -0500
 
 box64 (0.2.0) unstable; urgency=low
 
- * Wrapped more vulkan function, dxvk 2.0 now works
- * Added support for overridden malloc/free functions
- * Refactor Dynarec memory management, reducing memory footprint (from 20% to 40% of Dynarec size)
- * Improved elf loader
- * Improved dlsym handling with RTLD_NEXT
- * Added BOX64_DYNAREC_SAFEFLAGS to allow finetuning Dynarec generated code handling of flags accross function calls and returns.
- * Added BOX64_BASH to setup x86_64 bash binary, so shell script can be run in x86_64 world
- * Added BOX64_ROLLING_LOG to have details log only on crash
- * Work on alignment for some of pthread structures
- * More wrapped libraries in the gtk family
- * Some fixes on the Dynarec x87 code (fixing a bunch of games like ut2004 or Piczle Puzzle)
- * Improved TLS Size handling (Unity3D games now works)
- * More PageSize Compile options
- * Improved execv family of function to have better box64 integration
- * Added support for wrapped libfuse so AppImage works
- * Adjusted the binfmt integration so AppImage are automaticaly picked
- * Improved FAudio, SDL2, GL (and more) wrapping
- * More wrapped libs, like libEGL.so, to helps emulated Qt4/5 libs to load
- * Improved Signal Handling and memory protection traking
- * Some signature fixes to some wrapped functions (in libc)
- * Added more syscalls
- * Added a lot of new opcodes to the ARM64 Dynarec
- * docs: add instructions for Debian-based Linux by @ryanfortner in #306
- * Fix typos and arch type string by @archanox in #321
- * Fix grammar by @Jai-JAP in #326
- * Enable 64k page size by @martinmanyhats in #334
- * Align address when call mprotect by @wannacu in #336
- * Add wrapped functions needed for 'ls -l'. by @stiltr in #294
- * add 18.04 tegra X1 github actions by @theofficialgman in #345
- * change order of matrix (to preview better under checkmark dropdown by @theofficialgman in #346
- * Backport SDL_DYNAPI_entry wrapper from box86. by @JohnnyonFlame in #374
- * Add SW64 base support by @wannacu in #382
- * fix overzealous replace in wrappers pathnames by @NobodyNada in #415
- * Create X64WINE.md by @WheezyE in #423
- * src: asm: Rename lr & fp registers to their x-equivalents by @fredldotme in #426
- * Malloc override by @ptitSeb in #437
- * Remove dynablocklist by @ptitSeb in #438
- * Fix Pkgbuilds by @Jai-JAP in #452
+  * Wrapped more vulkan function, dxvk 2.0 now works
+  * Added support for overridden malloc/free functions
+  * Refactor Dynarec memory management, reducing memory footprint (from 20% to 40% of Dynarec size)
+  * Improved elf loader
+  * Improved dlsym handling with RTLD_NEXT
+  * Added BOX64_DYNAREC_SAFEFLAGS to allow finetuning Dynarec generated code handling of flags accross function calls and returns.
+  * Added BOX64_BASH to setup x86_64 bash binary, so shell script can be run in x86_64 world
+  * Added BOX64_ROLLING_LOG to have details log only on crash
+  * Work on alignment for some of pthread structures
+  * More wrapped libraries in the gtk family
+  * Some fixes on the Dynarec x87 code (fixing a bunch of games like ut2004 or Piczle Puzzle)
+  * Improved TLS Size handling (Unity3D games now works)
+  * More PageSize Compile options
+  * Improved execv family of function to have better box64 integration
+  * Added support for wrapped libfuse so AppImage works
+  * Adjusted the binfmt integration so AppImage are automaticaly picked
+  * Improved FAudio, SDL2, GL (and more) wrapping
+  * More wrapped libs, like libEGL.so, to helps emulated Qt4/5 libs to load
+  * Improved Signal Handling and memory protection traking
+  * Some signature fixes to some wrapped functions (in libc)
+  * Added more syscalls
+  * Added a lot of new opcodes to the ARM64 Dynarec
+  * docs: add instructions for Debian-based Linux by @ryanfortner in #306
+  * Fix typos and arch type string by @archanox in #321
+  * Fix grammar by @Jai-JAP in #326
+  * Enable 64k page size by @martinmanyhats in #334
+  * Align address when call mprotect by @wannacu in #336
+  * Add wrapped functions needed for 'ls -l'. by @stiltr in #294
+  * add 18.04 tegra X1 github actions by @theofficialgman in #345
+  * change order of matrix (to preview better under checkmark dropdown by @theofficialgman in #346
+  * Backport SDL_DYNAPI_entry wrapper from box86. by @JohnnyonFlame in #374
+  * Add SW64 base support by @wannacu in #382
+  * fix overzealous replace in wrappers pathnames by @NobodyNada in #415
+  * Create X64WINE.md by @WheezyE in #423
+  * src: asm: Rename lr & fp registers to their x-equivalents by @fredldotme in #426
+  * Malloc override by @ptitSeb in #437
+  * Remove dynablocklist by @ptitSeb in #438
+  * Fix Pkgbuilds by @Jai-JAP in #452
 
  -- Sebastien Chevalier <ptitseb@box86.org>  Thu, 17 Nov 2022 11:20:33 -0500
 
