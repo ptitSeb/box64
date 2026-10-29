@@ -78,13 +78,13 @@ Preference of operating system packages that provide a library:
 2. DEBs from Debian 11 provide 5 years of updates.
 3. EOPKG from Solus provide old variants of obscure 32-bit libraries.
 4. XBPS from Void Linux provide updated variants of obscure 32-bit libraries.
-5. Other (whereever a library is packaged)
+5. Other (wherever a library is packaged)
 
 Some essential libraries will always be emulated and should be bundled. The full list can be found in the [in the core source code](https://github.com/ptitSeb/box64/blob/v0.4.0/src/core.c#L413).
 
 Some essential library files will never be emulated (only natively wrapped instead) and should not be bundled. This includes glibc, OpenGL, Vulkan, and X11/Xorg libraries. The full list can be found [in the library source code](https://github.com/ptitSeb/box64/blob/v0.4.0/src/librarian/library.c#L440). Other libraries with lots of dependencies, such as GTK, require all dependencies to be installed for emulation to work. This becomes dependency hell and should be avoided.
 
-For finding package names that contian a specific library file, use the [pkgs.org website](https://pkgs.org/). Otherwise, use one of these package manager commands on a x86_64 Linux distribution:
+For finding package names that contain a specific library file, use the [pkgs.org website](https://pkgs.org/). Otherwise, use one of these package manager commands on a x86_64 Linux distribution:
 - DEB
     - `apt-file <LIBRARY_FILE>`
 - EOPKG
