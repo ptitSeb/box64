@@ -2128,6 +2128,7 @@ static void fpuCacheTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2, int
     MESSAGE(LOG_DUMP, "\tFPU Cache Transform ---- ninst=%d -> %d\n", ninst, i2);
     uint32_t unneeded = dyn->insts[i2].n.xmm_unneeded | (dyn->insts[i2].n.ymm_unneeded<<16);
     if((!i2) || (dyn->insts[i2].x64.barrier&BARRIER_FLOAT)) {
+        unneeded &= ~dyn->insts[i2].preload_xmmymm;
         int need_purge = 0;
         if(dyn->n.stack_next)
             need_purge = 1;
