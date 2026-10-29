@@ -1548,8 +1548,9 @@ int sse_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int a)
         dyn->n.xmm_used |= 1<<a;
         return dyn->n.ssecache[a].reg;
     }
+    if(!(dyn->n.xmm_used&(1<<a)))
+        dyn->n.xmm_unneeded |= 1<<a;
     dyn->n.xmm_used |= 1<<a;
-    dyn->n.xmm_unneeded |= 1<<a;
     dyn->n.ssecache[a].reg = fpu_get_reg_xmm(dyn, NEON_CACHE_XMMW, a);
     dyn->n.ssecache[a].write = 1; // it will be write...
     return dyn->n.ssecache[a].reg;
