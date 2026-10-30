@@ -1573,12 +1573,17 @@ void addSSEPreload(dynarec_arm_t* dyn, int ninst, int i2, uint32_t preload)
     if(i2 && !dyn->insts[i2-1].x64.has_next)    // need a previous opcode to set the preload, unless it's the #0
         return;
     // check if there is jump out or outside this loop
+    int has_host_call = 0;
     for(int i=i2; i<ninst; ++i) {
         if(!dyn->insts[i].x64.has_next || (dyn->insts[i].x64.barrier&BARRIER_FLOAT))
             return;
         // for now, unneeded stop at first jump, so this should also stop there
         if(dyn->insts[i].x64.jmp/* && ((dyn->insts[i].x64.jmp_insts>ninst) || (dyn->insts[i].x64.jmp_insts<i2))*/)
             return;
+        if(dyn->insts[i].host_call_clobber)
+            return;
+        if(dyn->insts[i].host_call)
+            has_host_call = 1;
     }
     uint16_t ymm_mask = 0;
     for(int i=0; i<16; ++i) {
@@ -1617,9 +1622,9 @@ void addSSEPreload(dynarec_arm_t* dyn, int ninst, int i2, uint32_t preload)
         }
     }
     preload = (preload&0xffff) | (ymm_mask<<16);    // update ymm_mask
-    //TODO: should check native calls too?
     dyn->insts[i2].preload_xmmymm = preload;
     dyn->insts[i2].preload_from = ninst;
+    dyn->insts[i2].preload_host_call = has_host_call;
     dyn->insts[i2].n.xmm_unneeded |= preload&0xffff;
     dyn->insts[i2].n.ymm_unneeded |= ymm_mask;
 }
