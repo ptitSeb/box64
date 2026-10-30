@@ -2478,7 +2478,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 ed = TO_NAT((nextop & 7) + (rex.b << 3));
             } else {
                 SMREAD();
-                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff<<2, (1<<2)-1, rex, NULL, 0, 0);
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff<<1, (1<<1)-1, rex, NULL, 0, 0);
                 SBFXx(x1, gd, 4, 12);   // r1 = (gw>>4)
                 ADDx_REG_LSL(x3, wback, x1, 1); //(&ed)+=r1*2;
                 LDH(x1, x3, fixedaddress);
@@ -2539,7 +2539,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 ed = TO_NAT((nextop & 7) + (rex.b << 3));
                 wback = 0;
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff<<2, (1<<2)-1, rex, NULL, 0, 0);
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff<<1, (1<<1)-1, rex, NULL, 0, 0);
                 SBFXx(x4, gd, 4, 12);   // r1 = (gw>>4)
                 ADDx_REG_LSL(x3, wback, x4, 1); //(&ed)+=r1*2;
                 LDH(x4, x3, fixedaddress);
@@ -2665,7 +2665,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 wback = 0;
             } else {
                 SMREAD();
-                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff<<2, (1<<2)-1, rex, NULL, 0, 0);
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff<<1, (1<<1)-1, rex, NULL, 0, 0);
                 SBFXx(x4, gd, 4, 12);   // r1 = (gw>>4)
                 ADDx_REG_LSL(x3, wback, x4, 1); //(&ed)+=r1*2;
                 LDH(x4, x3, fixedaddress);
@@ -2810,7 +2810,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 wback = 0;
             } else {
                 SMREAD();
-                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff<<2, (1<<2)-1, rex, NULL, 0, 0);
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff<<1, (1<<1)-1, rex, NULL, 0, 0);
                 SBFXx(x4, gd, 4, 12);   // r1 = (gw>>4)
                 ADDx_REG_LSL(x3, wback, x4, 1); //(&ed)+=r1*2;
                 LDH(x4, x3, fixedaddress);
