@@ -23,6 +23,7 @@
 #include "alternate.h"
 #include "emit_signals.h"
 #include "mysignal.h"
+#include "signals.h"
 #if defined(BOX64EC) && !defined(TEST_INTERPRETER)
 #include "box64ec.h"
 #endif
@@ -2513,6 +2514,11 @@ x64emurun:
             goto fini;
         }
         R_RIP = addr;
+#ifndef TEST_INTERPRETER
+        // instruction boundary: deliver signals queued during this instruction
+        if(emu->deferred_signal_count && emu->run_depth==1)
+            process_deferred_signals(emu);
+#endif
     }
 
 

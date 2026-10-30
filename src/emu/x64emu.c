@@ -62,6 +62,7 @@ static void internalX64Setup(x64emu_t* emu, box64context_t *context, uintptr_t s
     emu->sbiidx[4] = &emu->zero;
     emu->x64emu_parity_tab = x86emu_parity_tab;
     emu->eflags.x64 = 0x202; // default flags?
+    emu->run_depth = 0;
     // own stack?
     emu->stack2free = (ownstack)?(void*)stack:NULL;
     emu->init_stack = (void*)stack;
