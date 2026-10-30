@@ -548,6 +548,7 @@ void iret_to_next(dynarec_arm_t* dyn, uintptr_t ip, int ninst, int is32bits, int
 void call_c(dynarec_arm_t* dyn, int ninst, arm64_consts_t fnc, int reg, int ret, int saveflags, int savereg)
 {
     MAYUSE(fnc);
+    dyn->insts[ninst].host_call = 1;
     CHECK_DFNONE(1);
     #if STEP == 0
     dyn->insts[ninst].nat_flags_op = NAT_FLAG_OP_UNUSABLE;
@@ -607,6 +608,7 @@ void call_c(dynarec_arm_t* dyn, int ninst, arm64_consts_t fnc, int reg, int ret,
 void call_d(dynarec_arm_t* dyn, int ninst, arm64_consts_t fnc, int ret, int arg1, int arg2, int sav1, int sav2)
 {
     MAYUSE(fnc);
+    dyn->insts[ninst].host_call = 1;
     CHECK_DFNONE(1);
     #if STEP == 0
     dyn->insts[ninst].nat_flags_op = NAT_FLAG_OP_UNUSABLE;
@@ -653,6 +655,8 @@ void call_d(dynarec_arm_t* dyn, int ninst, arm64_consts_t fnc, int ret, int arg1
 void call_n(dynarec_arm_t* dyn, int ninst, void* fnc, int w)
 {
     MAYUSE(fnc);
+    dyn->insts[ninst].host_call = 1;
+    dyn->insts[ninst].host_call_clobber = 1;
     CHECK_DFNONE(1);
     #if STEP == 0
     dyn->insts[ninst].nat_flags_op = NAT_FLAG_OP_UNUSABLE;
@@ -2129,6 +2133,8 @@ static void fpuCacheTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2, int
     MESSAGE(LOG_DUMP, "\tFPU Cache Transform ---- ninst=%d -> %d\n", ninst, i2);
     uint32_t unneeded = dyn->insts[i2].n.xmm_unneeded | (dyn->insts[i2].n.ymm_unneeded<<16);
     if((!i2) || (dyn->insts[i2].x64.barrier&BARRIER_FLOAT)) {
+        if(dyn->insts[i2].preload_host_call)
+            unneeded &= ~dyn->insts[i2].preload_xmmymm;
         int need_purge = 0;
         if(dyn->n.stack_next)
             need_purge = 1;

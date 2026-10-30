@@ -156,6 +156,9 @@ typedef struct instruction_arm64_s {
     unsigned            x87_used:1; // no fine tracking, just a global "any reg used"
     unsigned            fpu_used:1; // any xmm/ymm/x87/mmx reg used
     unsigned            fpupurge:1;   // this opcode will purge all fpu regs
+    unsigned            host_call:1;  // this opcode performs a native call
+    unsigned            host_call_clobber:1;  // native call does not preserve cached xmm0-7 (call_n)
+    unsigned            preload_host_call:1;  // preload range contains a host call, needs write-back at merge
     unsigned            use_lrcpc:1;// use the various lrcpc opcode here instead of regular LD/ST  + memory barrier
     unsigned            has_lrcpc:1;// set if the opcode has some lrcpc opcode in it
     flagcache_t         f_exit;     // flags status at end of instruction
