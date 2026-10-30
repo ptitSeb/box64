@@ -1563,10 +1563,13 @@ int sse_get_reg_empty(dynarec_arm_t* dyn, int ninst, int s1, int a)
 void sse_forget_reg(dynarec_arm_t* dyn, int ninst, int a)
 {
     dyn->n.xmm_used |= 1<<a;
-    if(dyn->n.ssecache[a].v==-1)
-        return;
-    if(dyn->n.neoncache[dyn->n.ssecache[a].reg].t == NEON_CACHE_XMMW) {
-        VSTR128_U12(dyn->n.ssecache[a].reg, xEmu, offsetof(x64emu_t, xmm[a]));
+    dyn->n.ymm_used |= 1<<a;
+    if(dyn->n.ssecache[a].v!=-1) {
+        if(dyn->n.neoncache[dyn->n.ssecache[a].reg].t == NEON_CACHE_XMMW) {
+            VSTR128_U12(dyn->n.ssecache[a].reg, xEmu, offsetof(x64emu_t, xmm[a]));
+        }
+        fpu_free_reg(dyn, dyn->n.ssecache[a].reg);
+        dyn->n.ssecache[a].v = -1;
     }
     // YMM part too
     if(is_avx_zero_unset(dyn, ninst, a)) {
@@ -1584,9 +1587,6 @@ void sse_forget_reg(dynarec_arm_t* dyn, int ninst, int a)
             fpu_free_reg(dyn, i);
 
     }
-    fpu_free_reg(dyn, dyn->n.ssecache[a].reg);
-    dyn->n.ssecache[a].v = -1;
-    return;
 }
 // purge the SSE cache for XMM0..XMM7 (to use before function native call)
 void sse_purge07cache(dynarec_arm_t* dyn, int ninst, int s1)
