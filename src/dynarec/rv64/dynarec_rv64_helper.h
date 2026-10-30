@@ -20,6 +20,10 @@
 #include "../emu/x64primop.h"
 #include "dynarec_rv64_consts.h"
 
+#ifndef ENDPREFIX
+#define ENDPREFIX
+#endif
+
 #define F8      *(uint8_t*)(addr++)
 #define F8S     *(int8_t*)(addr++)
 #define F16     *(uint16_t*)(addr += 2, addr - 2)

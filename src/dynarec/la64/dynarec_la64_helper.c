@@ -414,7 +414,7 @@ void doEnterBlock(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3)
     LD_D(s1, s1, 0); // load the dynablock pointer
     ADDI_D(s1, s1, offsetof(dynablock_t, in_used));
     MOV32w(s3, 1);
-    AMADD_W(s2, s3, s1);
+    AMADD_DB_W(s2, s3, s1);
 }
 
 void doLeaveBlock(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3)
@@ -426,7 +426,7 @@ void doLeaveBlock(dynarec_la64_t* dyn, int ninst, int s1, int s2, int s3)
     LD_D(s1, s1, 0); // load the dynablock pointer
     ADDI_D(s1, s1, offsetof(dynablock_t, in_used));
     MOV32w(s3, -1);
-    AMADD_W(s2, s3, s1);
+    AMADD_DB_W(s2, s3, s1);
 }
 
 

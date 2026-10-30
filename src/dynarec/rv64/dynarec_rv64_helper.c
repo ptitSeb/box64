@@ -443,7 +443,7 @@ void doEnterBlock(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3)
     LD(s1, s1, 0); // load the dynablock pointer
     ADDI(s1, s1, offsetof(dynablock_t, in_used));
     MOV32w(s3, 1);
-    AMOADD_W(s2, s3, s1, 0, 0);
+    AMOADD_W(s2, s3, s1, 0, 1);
 }
 
 void doLeaveBlock(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3)
@@ -455,7 +455,7 @@ void doLeaveBlock(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3)
     LD(s1, s1, 0); // load the dynablock pointer
     ADDI(s1, s1, offsetof(dynablock_t, in_used));
     MOV32w(s3, -1);
-    AMOADD_W(s2, s3, s1, 0, 0);
+    AMOADD_W(s2, s3, s1, 0, 1);
 }
 #ifdef JMPTABLE_SHIFT4
 #error TODO!
