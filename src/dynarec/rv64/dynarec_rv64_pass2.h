@@ -1,5 +1,9 @@
 // SPDX-License-Identifier: MIT
 #define INIT dyn->native_size = 0
+#define ENDPREFIX                                        \
+    dyn->prefixsize = dyn->native_size;                  \
+    dyn->insts[ninst].address = dyn->native_size;        \
+    dyn->insts[ninst].size = 0
 #define FINI                                                                                                                                                   \
     if (ninst) {                                                                                                                                               \
         dyn->insts[ninst].address = (dyn->insts[ninst - 1].address + dyn->insts[ninst - 1].size);                                                              \

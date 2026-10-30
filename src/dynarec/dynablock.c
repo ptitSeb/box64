@@ -111,6 +111,8 @@ dynablock_t* InvalidDynablock(dynablock_t* db, int need_lock)
     return db;
 }
 
+static void QueueZombieDynablock(dynablock_t* db);
+
 static void RetireOrphanDynablocks(void)
 {
     for (int i = 0; i < my_context->db_orphan_count; ) {
@@ -119,8 +121,11 @@ static void RetireOrphanDynablocks(void)
             ++i;
             continue;
         }
-        if (db) FreeDynarecMap((uintptr_t)db->actual_block);
         my_context->db_orphan[i] = my_context->db_orphan[--my_context->db_orphan_count];
+        // released by its last user: requeue it instead of freeing right away, a thread
+        // may still be running the last instructions of the block (and the enter/leave
+        // pair is not atomic with the code around it)
+        if (db) QueueZombieDynablock(db);
     }
 }
 
@@ -139,9 +144,8 @@ static void QueueOrphanDynablock(dynablock_t* db)
     my_context->db_orphan[my_context->db_orphan_count++] = db;
 }
 
-static void DeferFreeDynablockMap(dynablock_t* db)
+static void QueueZombieDynablock(dynablock_t* db)
 {
-    if (my_context->db_orphan_count) RetireOrphanDynablocks();
     // enq for a deferred free so any threads still running in this block has a better chance to finish.
     if (my_context->db_zombie_count == DB_ZOMBIE_SIZE) {
         // Queue full: free the oldest queued block that no running dynarec chain holds (in_used), compact the queue.
@@ -184,6 +188,12 @@ static void DeferFreeDynablockMap(dynablock_t* db)
         my_context->db_zombie_head = (my_context->db_zombie_head + 1) % DB_ZOMBIE_SIZE;
         my_context->db_zombie_count++;
     }
+}
+
+static void DeferFreeDynablockMap(dynablock_t* db)
+{
+    if (my_context->db_orphan_count) RetireOrphanDynablocks();
+    QueueZombieDynablock(db);
 }
 
 void DeferFreeDynablockClearRange(void* addr, size_t sz)

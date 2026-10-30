@@ -3985,6 +3985,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             MOV64x(x4, j64);
                         }
                         LDRx_U12(x4, x4, 0);
+                        if (BOX64DRENV(dynarec_callret) >= 3)
+                            doLeaveBlock(dyn, ninst, x1, x2, x3);
                         BR(x4);
                     }
                     CLEARIP();
@@ -4683,6 +4685,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         if(dyn->need_reloc) AddRelocTable64RetEndBlock(dyn, ninst, addr, STEP);
                         TABLE64_(x4, j64);
                         LDRx_U12(x4, x4, 0);
+                        if (BOX64DRENV(dynarec_callret) >= 3)
+                            doLeaveBlock(dyn, ninst, x1, x2, x3);
                         BR(x4);
                     }
                     CLEARIP();
@@ -4744,6 +4748,8 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             if(dyn->need_reloc) AddRelocTable64RetEndBlock(dyn, ninst, addr, STEP);
                             TABLE64_(x4, j64);
                             LDRx_U12(x4, x4, 0);
+                            if (BOX64DRENV(dynarec_callret) >= 3)
+                                doLeaveBlock(dyn, ninst, x1, x2, x3);
                             BR(x4);
                         }
                         CLEARIP();

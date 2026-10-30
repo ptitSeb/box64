@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 #define INIT
+#define ENDPREFIX dyn->insts[ninst].size2 = 0
 #define FINI                                                                                                \
     if (ninst)                                                                                              \
         addInst(dyn->instsize, &dyn->insts_size, dyn->insts[ninst-1].x64.size, dyn->insts[ninst-1].size/4); \
