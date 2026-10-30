@@ -704,7 +704,7 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
                 MOV32w(x2, vex.v); // vx
                 if(MODREG) {
                     ed = (nextop&7)+(rex.b<<3);
-                    sse_forget_reg(dyn, ninst, ed);
+                    sse_reflect_reg(dyn, ninst, ed);
                     MOV32w(x3, ed);
                 } else {
                     addr = geted(dyn, addr, ninst, nextop, &ed, x3, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 1);
