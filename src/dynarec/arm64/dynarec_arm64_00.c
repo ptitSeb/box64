@@ -37,6 +37,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
     int32_t i32, tmp;
     int64_t i64, j64;
     uint8_t u8;
+    uint8_t f_save;
     uint8_t gb1, gb2, eb1, eb2;
     uint16_t u16;
     uint32_t u32;
@@ -984,8 +985,10 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 B_NEXT_nocond;
                 MARK;
                 STORE_XEMU_CALL(xRIP);
+                f_save = dyn->f;
                 CALL_S(const_native_br, -1);
                 LOAD_XEMU_CALL(xRIP);
+                dyn->f = f_save;
             } else {
                 INST_NAME("Illegal 62");
                 if(BOX64DRENV(dynarec_safeflags)>1) {
