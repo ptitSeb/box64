@@ -93,11 +93,13 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGXSD(v0);
             GETED(0);
+            if (!BOX64ENV(dynarec_fastround)) u8 = sse_setround(dyn, ninst, x6, x4);
             if (rex.w) {
-                FCVTDL(v0, ed, RD_RNE);
+                FCVTDL(v0, ed, !BOX64ENV(dynarec_fastround) ? RD_DYN : RD_RNE);
             } else {
-                FCVTDW(v0, ed, RD_RNE);
+                FCVTDW(v0, ed, !BOX64ENV(dynarec_fastround) ? RD_DYN : RD_RNE);
             }
+            if (!BOX64ENV(dynarec_fastround)) x87_restoreround(dyn, ninst, u8);
             break;
         case 0x2C:
             INST_NAME("CVTTSD2SI Gd, Ex");
