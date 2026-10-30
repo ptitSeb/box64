@@ -1514,6 +1514,11 @@ void updateYmm0s(dynarec_arm_t* dyn, int ninst, int max_ninst_reached)
 }
 
 
+void sse_mark_used(dynarec_arm_t* dyn, int ninst, int a)
+{
+    dyn->n.xmm_used |= 1<<a;
+}
+
 // AVX helpers
 void avx_mark_zero(dynarec_arm_t* dyn, int ninst, int reg)
 {
