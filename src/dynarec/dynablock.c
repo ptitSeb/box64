@@ -385,12 +385,15 @@ dynablock_t* CreateDBnoAlt(x64emu_t* emu, uintptr_t addr, int is32bits)
     return NULL if block is not found / cannot be created. 
     Don't create if create==0
 */
-dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, int create, int need_lock, int is32bits, int is_new)
+dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, int create, int need_lock, int is32bits, int is_new, dynablock_t* block)
 {
     const uint32_t req_prot = (box64_pagesize==4096)?(PROT_EXEC|PROT_READ):PROT_READ;
     if(BOX64ENV(nodynarec_delay) && (addr>=BOX64ENV(nodynarec_start)) && (addr<BOX64ENV(nodynarec_end)))
         return NULL;
-    dynablock_t* block = getDB(addr);
+    if(!block)
+        block = getDB(addr);
+    if(block==SEARCHED_NO_DYNABLOCK)
+        block = NULL;
     if(block && block->to_delete) {
         // just delete the block then, so we can create a new one right away
         FreeDynablock(block, 1, 1);
@@ -500,8 +503,9 @@ void FlushZombieDynablocks(void)
 dynablock_t* DBGetBlock(x64emu_t* emu, uintptr_t addr, int create, int is32bits)
 {
     int is_inhotpage = isInHotPage(addr);
+    dynablock_t* db = NULL;
     if(!is_inhotpage && !BOX64ENV(dynarec_dirty)) {
-        dynablock_t* db = getDB(addr);
+        db = getDB(addr);
         if(db && db->x64_size) {
             uintptr_t dbstart = (uintptr_t)db->x64_addr;
             uintptr_t dbend = dbstart + db->x64_size;
@@ -513,10 +517,12 @@ dynablock_t* DBGetBlock(x64emu_t* emu, uintptr_t addr, int create, int is32bits)
                 }
             }
         }
+        if(!db)
+            db = SEARCHED_NO_DYNABLOCK;
     }
     if(is_inhotpage && !BOX64ENV(dynarec_dirty))
         return NULL;
-    dynablock_t *db = internalDBGetBlock(emu, addr, create, 1, is32bits, 1);
+    db = internalDBGetBlock(emu, addr, create, 1, is32bits, 1, db);
     if(db && db->done && db->block && getNeedTest(addr)) {
         //if (db->always_test) SchedYield(); // just calm down...
         uint32_t hash = X31_hash_code((void*)db->x64_readaddr, db->x64_size);
@@ -531,7 +537,7 @@ dynablock_t* DBGetBlock(x64emu_t* emu, uintptr_t addr, int create, int is32bits)
             dynarec_log(LOG_DEBUG, "Invalidating block %p from %p:%p (hash:%X, gone:%d, autocrc:%d, to_delete:%d) for %p\n", db, db->x64_addr, db->x64_addr + db->x64_size, db->hash, db->gone, db->autocrc, db->to_delete, (void*)addr);
             dynablock_t* old = InvalidDynablock(db, 0);
             FreeInvalidDynablock(old, 0);
-            db = internalDBGetBlock(emu, addr, 1, 0, is32bits, 0);
+            db = internalDBGetBlock(emu, addr, 1, 0, is32bits, 0, SEARCHED_NO_DYNABLOCK);
         } else {
             if(is_inhotpage) {
                 db->always_test = 2;
