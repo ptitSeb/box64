@@ -500,6 +500,20 @@ void FlushZombieDynablocks(void)
 dynablock_t* DBGetBlock(x64emu_t* emu, uintptr_t addr, int create, int is32bits)
 {
     int is_inhotpage = isInHotPage(addr);
+    if(!is_inhotpage && !BOX64ENV(dynarec_dirty)) {
+        dynablock_t* db = getDB(addr);
+        if(db && db->x64_size) {
+            uintptr_t dbstart = (uintptr_t)db->x64_addr;
+            uintptr_t dbend = dbstart + db->x64_size;
+            for(uintptr_t page = (dbstart&~(X86_PAGE_SIZE-1)); page < dbend; page += X86_PAGE_SIZE) {
+                if(page == (addr&~(X86_PAGE_SIZE-1))) continue; // skip the first page
+                if(checkInHotPage(page)) {
+                    is_inhotpage = 1;
+                    break;
+                }
+            }
+        }
+    }
     if(is_inhotpage && !BOX64ENV(dynarec_dirty))
         return NULL;
     dynablock_t *db = internalDBGetBlock(emu, addr, create, 1, is32bits, 1);
