@@ -291,9 +291,9 @@ static int is_signal_deferrable(int sig)
     return 1;
 }
 
-int defer_signal(x64emu_t* emu, int signum, siginfo_t* info)
+static int queue_signal(x64emu_t* emu, int signum, siginfo_t* info)
 {
-    if (!emu || signum < 0 || signum > MAX_SIGNAL || !is_signal_deferrable(signum) || emu->critical_section <= 0)
+    if (!emu || signum < 0 || signum > MAX_SIGNAL)
         return 0;
 
     if (info)
@@ -305,6 +305,13 @@ int defer_signal(x64emu_t* emu, int signum, siginfo_t* info)
         ++emu->deferred_signal_count;
     emu->deferred_signal_pending[signum] = 1;
     return 1;
+}
+
+int defer_signal(x64emu_t* emu, int signum, siginfo_t* info)
+{
+    if (!emu || signum < 0 || signum > MAX_SIGNAL || !is_signal_deferrable(signum) || emu->critical_section <= 0)
+        return 0;
+    return queue_signal(emu, signum, info);
 }
 
 void cancel_deferred_signal_processing(x64emu_t* emu)
@@ -320,12 +327,9 @@ void enter_critical_section()
     if (emu) ++emu->critical_section;
 }
 
-void leave_critical_section()
+static void process_queued_signals(x64emu_t* emu, int at_boundary)
 {
-    x64emu_t* emu = thread_get_emu_no_create();
-    if (!emu || emu->critical_section <= 0)
-        return;
-    if (--emu->critical_section || !emu->deferred_signal_count || emu->deferred_signal_processing)
+    if (emu->deferred_signal_processing)
         return;
 
     emu->deferred_signal_processing = 1;
@@ -334,18 +338,42 @@ void leave_critical_section()
         for (int sig = 1; sig <= MAX_SIGNAL; ++sig) {
             if (!emu->deferred_signal_pending[sig])
                 continue;
+            if (sig==X64_SIGURG) {
+                // SIGURG is used for async preemption: needs an instruction boundary
+                if (!at_boundary)
+                    continue;
+                if (!(getProtection(R_RIP) & PROT_EXEC) || isBridgeAddress(R_RIP))
+                    continue;   // not guest code, keep it pending
+                sigset_t mask;
+                if(!sigprocmask(SIG_SETMASK, NULL, &mask) && sigismember(&mask, SIGURG))
+                    continue;   // guest still blocks it
+            }
             siginfo_t info = emu->deferred_siginfo[sig];
             emu->deferred_signal_pending[sig] = 0;
             --emu->deferred_signal_count;
             handled = 1;
             my_sigactionhandler_oldcode(emu, sig, 0, &info, NULL, NULL, NULL, R_RIP);
         }
-        if (!handled) {
-            emu->deferred_signal_count = 0;
+        if (!handled)
             break;
-        }
     }
     emu->deferred_signal_processing = 0;
+}
+
+void process_deferred_signals(x64emu_t* emu)
+{
+    process_queued_signals(emu, 1);
+}
+
+void leave_critical_section()
+{
+    x64emu_t* emu = thread_get_emu_no_create();
+    if (!emu || emu->critical_section <= 0)
+        return;
+    if (--emu->critical_section || !emu->deferred_signal_count)
+        return;
+
+    process_queued_signals(emu, 0);
 }
 
 int my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, siginfo_t* info, void * ucntx, int* old_code, void* cur_db, uintptr_t x64pc)
@@ -710,7 +738,8 @@ int my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigin
         #endif
         exit(ret);
     }
-    if(restorer)
+    if(restorer && ucntx)
+        // synthetic delivery has no host signal frame for rt_sigreturn to unwind
         RunFunctionHandler(emu, &exits, 0, NULL, restorer, 0);
     relockMutex(Locks);
     return 0;
@@ -1390,6 +1419,10 @@ void my_sigactionhandler(int32_t sig, siginfo_t* info, void * ucntx)
     #endif
     dynablock_t* db = FindDynablockFromNativeAddress(pc);
     if (!emu) emu = thread_get_emu();
+    // SIGURG is used for async preemption: only deliver it at an instruction
+    // boundary, otherwise the context may describe a half-executed instruction
+    if(sig==X64_SIGURG && queue_signal(emu, sig, info))
+        return;
     uintptr_t x64pc = R_RIP;
     if(db)
         x64pc = getX64Address(db, (uintptr_t)pc);

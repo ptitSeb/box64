@@ -74,6 +74,7 @@ int my_syscall_rt_sigaction(x64emu_t* emu, int signum, const x64_sigaction_resto
 
 void enter_critical_section();
 void leave_critical_section();
+void process_deferred_signals(x64emu_t* emu);
 int defer_signal(x64emu_t* emu, int signum, siginfo_t* info);
 void cancel_deferred_signal_processing(x64emu_t* emu);
 

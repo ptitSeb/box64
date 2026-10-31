@@ -16,6 +16,7 @@
 #include "x64trace.h"
 #include "threads.h"
 #include "alternate.h"
+#include "signals.h"
 #ifdef DYNAREC
 #include "dynablock.h"
 #include "dynablock_private.h"
@@ -202,6 +203,8 @@ void EmuRun(x64emu_t* emu, int use_dynarec, int no_alt)
     uintptr_t old_savesp = emu->xSPSave;
     #endif
     int is32bits = (emu->segs[_CS]==0x23);
+    int run_depth = emu->run_depth;
+    ++emu->run_depth;
     while(!(emu->quit)) {
         if(!emu->jmpbuf || (emu->flags.need_jmpbuf && emu->jmpbuf!=jmpbuf)) {
             emu->jmpbuf = jmpbuf;
@@ -229,6 +232,9 @@ void EmuRun(x64emu_t* emu, int use_dynarec, int no_alt)
         }
         if(emu->flags.need_jmpbuf)
             emu->flags.need_jmpbuf = 0;
+        emu->run_depth = run_depth + 1;
+        if(!run_depth && emu->deferred_signal_count)
+            process_deferred_signals(emu);  // queued while in a dynablock
 #ifndef DYNAREC
         Run(emu, 0);
 #else
@@ -294,6 +300,7 @@ void EmuRun(x64emu_t* emu, int use_dynarec, int no_alt)
             emu->quit = 0;
     }
     // clear the setjmp
+    emu->run_depth = run_depth;
     emu->jmpbuf = old_jmpbuf;
     #if defined(RV64) || defined(PPC64LE)
     emu->xSPSave = old_savesp;
