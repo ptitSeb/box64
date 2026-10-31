@@ -511,7 +511,7 @@ int my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigin
         } else {
             sigcontext->uc_mcontext.gregs[X64_TRAPNO] = 14;
             sigcontext->uc_mcontext.gregs[X64_ERR] = 4|((sysmapped && !(real_prot&PROT_READ))?0:1);
-            if(write_opcode(sigcontext->uc_mcontext.gregs[X64_RIP], (uintptr_t)pc, (R_CS==0x23)))
+            if(write_opcode(sigcontext->uc_mcontext.gregs[X64_RIP], (uintptr_t)pc, (R_CS==0x23), ucntx))
                 sigcontext->uc_mcontext.gregs[X64_ERR] |= 2;
         }
         if(info->si_code == SEGV_ACCERR && old_code)
