@@ -401,33 +401,61 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                     ED=(reg64_t*)(((uintptr_t)(ED))+(tmp64s<<(rex.w?3:2)));
                     #endif
                     tmp8u&=rex.w?63:31;
-#if defined(DYNAREC) && !defined(TEST_INTERPRETER)
-                    if(rex.w)
-                        do {
-                            tmp64u = native_lock_read_dd(ED);
-                            if(tmp64u & (1LL<<tmp8u)) {
-                                SET_FLAG(F_CF);
-                                tmp64u ^= (1LL<<tmp8u);
-                                tmp32s = native_lock_write_dd(ED, tmp64u);
-                            } else {
-                                CLEAR_FLAG(F_CF);
-                                tmp32s = 0;
-                            }
-                        } while(tmp32s);
-                    else {
-                        do {
-                            tmp32u = native_lock_read_d(ED);
-                            if(tmp32u & (1<<tmp8u)) {
-                                SET_FLAG(F_CF);
-                                tmp32u ^= (1<<tmp8u);
-                                tmp32s = native_lock_write_d(ED, tmp32u);
-                            } else {
-                                CLEAR_FLAG(F_CF);
-                                tmp32s = 0;
-                            }
-                        } while(tmp32s);
+                    #if defined(DYNAREC) && !defined(TEST_INTERPRETER)
+                    if(rex.w) {
+                        if((uintptr_t)ED&7) {
+                            do {
+                                tmp32u = native_lock_read_b(&ED->byte[tmp8u>>3]);
+                                if(tmp32u & (1<<(tmp8u&7))) {
+                                    SET_FLAG(F_CF);
+                                    tmp32u ^= (1<<(tmp8u&7));
+                                    tmp32s = native_lock_write_b(&ED->byte[tmp8u>>3], tmp32u);
+                                } else {
+                                    CLEAR_FLAG(F_CF);
+                                    tmp32s = 0;
+                                }
+                            } while(tmp32s);
+                        } else {
+                            do {
+                                tmp64u = native_lock_read_dd(ED);
+                                if(tmp64u & (1LL<<tmp8u)) {
+                                    SET_FLAG(F_CF);
+                                    tmp64u ^= (1LL<<tmp8u);
+                                    tmp32s = native_lock_write_dd(ED, tmp64u);
+                                } else {
+                                    CLEAR_FLAG(F_CF);
+                                    tmp32s = 0;
+                                }
+                            } while(tmp32s);
+                        }
+                    } else {
+                        if((uintptr_t)ED&3) {
+                            do {
+                                tmp32u = native_lock_read_b(&ED->byte[tmp8u>>3]);
+                                if(tmp32u & (1<<(tmp8u&7))) {
+                                    SET_FLAG(F_CF);
+                                    tmp32u ^= (1<<(tmp8u&7));
+                                    tmp32s = native_lock_write_b(&ED->byte[tmp8u>>3], tmp32u);
+                                } else {
+                                    CLEAR_FLAG(F_CF);
+                                    tmp32s = 0;
+                                }
+                            } while(tmp32s);
+                        } else {
+                            do {
+                                tmp32u = native_lock_read_d(ED);
+                                if(tmp32u & (1<<tmp8u)) {
+                                    SET_FLAG(F_CF);
+                                    tmp32u ^= (1<<tmp8u);
+                                    tmp32s = native_lock_write_d(ED, tmp32u);
+                                } else {
+                                    CLEAR_FLAG(F_CF);
+                                    tmp32s = 0;
+                                }
+                            } while(tmp32s);
+                        }
                     }
-#else
+                    #else
                     pthread_mutex_lock(&my_context->mutex_lock);
                     if(rex.w) {
                         if(ED->q[0] & (1ULL<<tmp8u)) {
@@ -443,7 +471,7 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                             CLEAR_FLAG(F_CF);
                     }
                     pthread_mutex_unlock(&my_context->mutex_lock);
-#endif
+                    #endif
                     if(BOX64ENV(dynarec_test)) {
                         CLEAR_FLAG(F_OF);
                         CLEAR_FLAG(F_SF);
@@ -466,20 +494,34 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                                 CHECK_FLAGS(emu);
                                 GETED(1);
                                 tmp8u = F8;
-#if defined(DYNAREC) && !defined(TEST_INTERPRETER)
+                                #if defined(DYNAREC) && !defined(TEST_INTERPRETER)
                                 if(rex.w) {
                                     tmp8u&=63;
-                                    do {
-                                        tmp64u = native_lock_read_dd(ED);
-                                        if(tmp64u & (1LL<<tmp8u)) {
-                                            SET_FLAG(F_CF);
-                                            tmp32s = 0;
-                                        } else {
-                                            tmp64u ^= (1LL<<tmp8u);
-                                            tmp32s = native_lock_write_dd(ED, tmp64u);
-                                            CLEAR_FLAG(F_CF);
-                                        }
-                                    } while(tmp32s);
+                                    if((uintptr_t)ED&7) {
+                                        do {
+                                            tmp32u = native_lock_read_b(&ED->byte[tmp8u>>3]);
+                                            if(tmp32u & (1<<(tmp8u&7))) {
+                                                SET_FLAG(F_CF);
+                                                tmp32s = 0;
+                                            } else {
+                                                tmp32u ^= (1<<(tmp8u&7));
+                                                tmp32s = native_lock_write_b(&ED->byte[tmp8u>>3], tmp32u);
+                                                CLEAR_FLAG(F_CF);
+                                            }
+                                        } while(tmp32s);
+                                    } else {
+                                        do {
+                                            tmp64u = native_lock_read_dd(ED);
+                                            if(tmp64u & (1LL<<tmp8u)) {
+                                                SET_FLAG(F_CF);
+                                                tmp32s = 0;
+                                            } else {
+                                                tmp64u ^= (1LL<<tmp8u);
+                                                tmp32s = native_lock_write_dd(ED, tmp64u);
+                                                CLEAR_FLAG(F_CF);
+                                            }
+                                        } while(tmp32s);
+                                    }
                                 } else {
                                     tmp8u&=31;
                                     if((uintptr_t)ED&3) {
@@ -508,7 +550,7 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                                         } while(tmp32s);
                                     }
                                 }
-#else
+                                #else
                                 pthread_mutex_lock(&my_context->mutex_lock);
                                 if(rex.w) {
                                     tmp8u&=63;
@@ -528,7 +570,7 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                                     }
                                 }
                                 pthread_mutex_unlock(&my_context->mutex_lock);
-#endif
+                                #endif
                                 if(BOX64ENV(dynarec_test)) {
                                     CLEAR_FLAG(F_OF);
                                     CLEAR_FLAG(F_SF);
@@ -540,35 +582,63 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                                 CHECK_FLAGS(emu);
                                 GETED(1);
                                 tmp8u = F8;
-#if defined(DYNAREC) && !defined(TEST_INTERPRETER)
+                                #if defined(DYNAREC) && !defined(TEST_INTERPRETER)
                                 if(rex.w) {
-                                    do {
-                                        tmp8u&=63;
-                                        tmp64u = native_lock_read_dd(ED);
-                                        if(tmp64u & (1LL<<tmp8u)) {
-                                            SET_FLAG(F_CF);
-                                            tmp64u ^= (1LL<<tmp8u);
-                                            tmp32s = native_lock_write_dd(ED, tmp64u);
-                                        } else {
-                                            tmp32s = 0;
-                                            CLEAR_FLAG(F_CF);
-                                        }
-                                    } while(tmp32s);
+                                    tmp8u&=63;
+                                    if((uintptr_t)ED&7) {
+                                        do {
+                                            tmp32u = native_lock_read_b(&ED->byte[tmp8u>>3]);
+                                            if(tmp32u & (1<<(tmp8u&7))) {
+                                                SET_FLAG(F_CF);
+                                                tmp32u ^= (1<<(tmp8u&7));
+                                                tmp32s = native_lock_write_b(&ED->byte[tmp8u>>3], tmp32u);
+                                            } else {
+                                                CLEAR_FLAG(F_CF);
+                                                tmp32s = 0;
+                                            }
+                                        } while(tmp32s);
+                                    } else {
+                                        do {
+                                            tmp64u = native_lock_read_dd(ED);
+                                            if(tmp64u & (1LL<<tmp8u)) {
+                                                SET_FLAG(F_CF);
+                                                tmp64u ^= (1LL<<tmp8u);
+                                                tmp32s = native_lock_write_dd(ED, tmp64u);
+                                            } else {
+                                                tmp32s = 0;
+                                                CLEAR_FLAG(F_CF);
+                                            }
+                                        } while(tmp32s);
+                                    }
                                 } else {
                                     tmp8u&=31;
-                                    do {
-                                        tmp32u = native_lock_read_d(ED);
-                                        if(tmp32u & (1<<tmp8u)) {
-                                            SET_FLAG(F_CF);
-                                            tmp32u ^= (1<<tmp8u);
-                                            tmp32s = native_lock_write_d(ED, tmp32u);
-                                        } else {
-                                            CLEAR_FLAG(F_CF);
-                                            tmp32s = 0;
-                                        }
-                                    } while(tmp32s);
+                                    if((uintptr_t)ED&3) {
+                                        do {
+                                            tmp32u = native_lock_read_b(&ED->byte[tmp8u>>3]);
+                                            if(tmp32u & (1<<(tmp8u&7))) {
+                                                SET_FLAG(F_CF);
+                                                tmp32u ^= (1<<(tmp8u&7));
+                                                tmp32s = native_lock_write_b(&ED->byte[tmp8u>>3], tmp32u);
+                                            } else {
+                                                CLEAR_FLAG(F_CF);
+                                                tmp32s = 0;
+                                            }
+                                        } while(tmp32s);
+                                    } else {
+                                        do {
+                                            tmp32u = native_lock_read_d(ED);
+                                            if(tmp32u & (1<<tmp8u)) {
+                                                SET_FLAG(F_CF);
+                                                tmp32u ^= (1<<tmp8u);
+                                                tmp32s = native_lock_write_d(ED, tmp32u);
+                                            } else {
+                                                CLEAR_FLAG(F_CF);
+                                                tmp32s = 0;
+                                            }
+                                        } while(tmp32s);
+                                    }
                                 }
-#else
+                                #else
                                 pthread_mutex_lock(&my_context->mutex_lock);
                                 if(rex.w) {
                                     tmp8u&=63;
@@ -586,7 +656,7 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                                         CLEAR_FLAG(F_CF);
                                 }
                                 pthread_mutex_unlock(&my_context->mutex_lock);
-#endif
+                                #endif
                                 if(BOX64ENV(dynarec_test)) {
                                     CLEAR_FLAG(F_OF);
                                     CLEAR_FLAG(F_SF);
@@ -598,18 +668,30 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                                 CHECK_FLAGS(emu);
                                 GETED(1);
                                 tmp8u = F8;
-#if defined(DYNAREC) && !defined(TEST_INTERPRETER)
+                                #if defined(DYNAREC) && !defined(TEST_INTERPRETER)
                                 if(rex.w) {
                                     tmp8u&=63;
-                                    do {
-                                        tmp64u = native_lock_read_dd(ED);
-                                        if(tmp64u & (1LL<<tmp8u))
-                                            SET_FLAG(F_CF);
-                                        else
-                                            CLEAR_FLAG(F_CF);
-                                        tmp64u ^= (1LL<<tmp8u);
-                                        tmp32s = native_lock_write_dd(ED, tmp64u);
-                                    } while(tmp32s);
+                                    if((uintptr_t)ED&7) {
+                                        do {
+                                            tmp32u = native_lock_read_b(&ED->byte[tmp8u>>3]);
+                                            if(tmp32u & (1<<(tmp8u&7)))
+                                                SET_FLAG(F_CF);
+                                            else
+                                                CLEAR_FLAG(F_CF);
+                                            tmp32u ^= (1<<(tmp8u&7));
+                                            tmp32s = native_lock_write_b(&ED->byte[tmp8u>>3], tmp32u);
+                                        } while(tmp32s);
+                                    } else {
+                                        do {
+                                            tmp64u = native_lock_read_dd(ED);
+                                            if(tmp64u & (1LL<<tmp8u))
+                                                SET_FLAG(F_CF);
+                                            else
+                                                CLEAR_FLAG(F_CF);
+                                            tmp64u ^= (1LL<<tmp8u);
+                                            tmp32s = native_lock_write_dd(ED, tmp64u);
+                                        } while(tmp32s);
+                                    }
                                 } else {
                                     tmp8u&=31;
                                     if((uintptr_t)ED&3) {
@@ -634,7 +716,7 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                                         } while(tmp32s);
                                     }
                                 }
-#else
+                                #else
                                 pthread_mutex_lock(&my_context->mutex_lock);
                                 if(rex.w) {
                                     tmp8u&=63;
@@ -652,7 +734,7 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                                     ED->dword[0] ^= (1<<tmp8u);
                                 }
                                 pthread_mutex_unlock(&my_context->mutex_lock);
-#endif
+                                #endif
                                 if(BOX64ENV(dynarec_test)) {
                                     CLEAR_FLAG(F_OF);
                                     CLEAR_FLAG(F_SF);
@@ -687,31 +769,55 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                     ED=(reg64_t*)(((uintptr_t)(ED))+(tmp64s<<(rex.w?3:2)));
                     #endif
                     tmp8u&=rex.w?63:31;
-#if defined(DYNAREC) && !defined(TEST_INTERPRETER)
-                    if(rex.w)
-                        do {
-                            tmp64u = native_lock_read_dd(ED);
-                            if(tmp64u & (1LL<<tmp8u)) {
-                                SET_FLAG(F_CF);
-                            } else {
-                                CLEAR_FLAG(F_CF);
-                            }
-                            tmp64u ^= (1LL<<tmp8u);
-                            tmp32s = native_lock_write_dd(ED, tmp64u);
-                        } while(tmp32s);
-                    else {
-                        do {
-                            tmp32u = native_lock_read_d(ED);
-                            if(tmp32u & (1<<tmp8u)) {
-                                SET_FLAG(F_CF);
-                            } else {
-                                CLEAR_FLAG(F_CF);
-                            }
-                            tmp32u ^= (1<<tmp8u);
-                            tmp32s = native_lock_write_d(ED, tmp32u);
-                        } while(tmp32s);
+                    #if defined(DYNAREC) && !defined(TEST_INTERPRETER)
+                    if(rex.w) {
+                        if((uintptr_t)ED&7) {
+                            do {
+                                tmp32u = native_lock_read_b(&ED->byte[tmp8u>>3]);
+                                if(tmp32u & (1<<(tmp8u&7)))
+                                    SET_FLAG(F_CF);
+                                else
+                                    CLEAR_FLAG(F_CF);
+                                tmp32u ^= (1<<(tmp8u&7));
+                                tmp32s = native_lock_write_b(&ED->byte[tmp8u>>3], tmp32u);
+                            } while(tmp32s);
+                        } else {
+                            do {
+                                tmp64u = native_lock_read_dd(ED);
+                                if(tmp64u & (1LL<<tmp8u)) {
+                                    SET_FLAG(F_CF);
+                                } else {
+                                    CLEAR_FLAG(F_CF);
+                                }
+                                tmp64u ^= (1LL<<tmp8u);
+                                tmp32s = native_lock_write_dd(ED, tmp64u);
+                            } while(tmp32s);
+                        }
+                    } else {
+                        if((uintptr_t)ED&3) {
+                            do {
+                                tmp32u = native_lock_read_b(&ED->byte[tmp8u>>3]);
+                                if(tmp32u & (1<<(tmp8u&7)))
+                                    SET_FLAG(F_CF);
+                                else
+                                    CLEAR_FLAG(F_CF);
+                                tmp32u ^= (1<<(tmp8u&7));
+                                tmp32s = native_lock_write_b(&ED->byte[tmp8u>>3], tmp32u);
+                            } while(tmp32s);
+                        } else {
+                            do {
+                                tmp32u = native_lock_read_d(ED);
+                                if(tmp32u & (1<<tmp8u)) {
+                                    SET_FLAG(F_CF);
+                                } else {
+                                    CLEAR_FLAG(F_CF);
+                                }
+                                tmp32u ^= (1<<tmp8u);
+                                tmp32s = native_lock_write_d(ED, tmp32u);
+                            } while(tmp32s);
+                        }
                     }
-#else
+                    #else
                     pthread_mutex_lock(&my_context->mutex_lock);
                     if(rex.w) {
                         if(ED->q[0] & (1ULL<<tmp8u))
@@ -727,7 +833,7 @@ uintptr_t RunF0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                         ED->dword[0] ^= (1<<tmp8u);
                     }
                     pthread_mutex_unlock(&my_context->mutex_lock);
-#endif
+                    #endif
                     if(BOX64ENV(dynarec_test)) {
                         CLEAR_FLAG(F_OF);
                         CLEAR_FLAG(F_SF);
