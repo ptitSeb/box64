@@ -227,6 +227,7 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
         ret = hint;
     }
     if(rex.seg && !seg_done) {
+        scratch = (hint>0 && !IS_GPR(hint)) ? hint : x2;
         if(scratch==ret)
             scratch=ret+1;
         grab_segdata(dyn, addr, ninst, scratch, rex.seg);
