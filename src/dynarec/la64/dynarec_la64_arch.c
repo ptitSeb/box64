@@ -32,6 +32,7 @@ typedef struct arch_arch_s
     uint32_t x87_pos;       // vector register of each stack register, 3 bits each
     uint16_t x87_type;      // type of each cached x87 value, 2 bits each
     int8_t x87delta;        // pending x87 stack count at this instruction
+    uint8_t scalar[8];      // per scalar slot (reg 16..23): guest xmm | 0x10 if double, 0xFF if unused
 } arch_arch_t;
 
 typedef struct arch_build_s
@@ -50,6 +51,7 @@ typedef struct arch_build_s
     uint32_t x87_pos;
     uint16_t x87_type;
     int8_t x87delta;
+    uint8_t scalar[8];
 } arch_build_t;
 
 static int arch_build(dynarec_la64_t* dyn, int ninst, arch_build_t* arch)
@@ -68,6 +70,8 @@ static int arch_build(dynarec_la64_t* dyn, int ninst, arch_build_t* arch)
         if (dyn->insts[ninst].lsx.ssecache[i].v != -1) arch->xmm |= (uint16_t)(1 << i);
         if (dyn->insts[ninst].lsx.avxcache[i].v != -1) arch->ymm |= (uint16_t)(1 << i);
     }
+    for (int i = 0; i < 8; ++i) arch->scalar[i] = 0xFF;
+    int scalar_used = 0;
     for (int i = 16; i < 24; ++i) {
         int n = dyn->insts[ninst].lsx.lsxcache[i].n;
         if (dyn->insts[ninst].lsx.lsxcache[i].v) {
@@ -85,11 +89,16 @@ static int arch_build(dynarec_la64_t* dyn, int ninst, arch_build_t* arch)
                 case LSX_CACHE_MM:
                     if (i == 16 + n) arch->mmx |= (uint8_t)(1 << n);
                     break;
+                case LSX_CACHE_XMM_S:
+                case LSX_CACHE_XMM_D:
+                    arch->scalar[i - 16] = (uint8_t)((n & 0x0F) | ((dyn->insts[ninst].lsx.lsxcache[i].t == LSX_CACHE_XMM_D) ? 0x10 : 0));
+                    scalar_used = 1;
+                    break;
                 default: break;
             }
         }
     }
-    arch->vec = (arch->xmm || arch->ymm || arch->x87 || arch->mmx);
+    arch->vec = (arch->xmm || arch->ymm || arch->x87 || arch->mmx || scalar_used);
     return arch->unaligned || arch->host_call || arch->vec || arch->up32 || arch->ymm_zero ||
            arch->rsp || arch->x87delta;
 }
@@ -137,6 +146,7 @@ static void build_next(arch_arch_t* arch, arch_build_t* build)
     arch->x87_pos = build->x87_pos;
     arch->x87_type = build->x87_type;
     arch->x87delta = build->x87delta;
+    memcpy(arch->scalar, build->scalar, sizeof(arch->scalar));
 }
 
 void* populate_arch(dynarec_la64_t* dyn, void* p, size_t sz)
@@ -269,6 +279,16 @@ void adjust_arch(dynablock_t* db, x64emu_t* emu, ucontext_t* p, uintptr_t x64pc)
                             memcpy(&emu->ymm[i].u128, &vec[i * stride + 2], 16);
                     }
                 }
+            }
+            for (int i = 0; i < 8; ++i) {
+                uint8_t scalar = arch->scalar[i];
+                if (scalar == 0xFF) continue;
+                uint64_t raw = vec[(16 + i) * stride];
+                int guest = scalar & 0x0F;
+                if (scalar & 0x10)
+                    emu->xmm[guest].q[0] = raw;
+                else
+                    emu->xmm[guest].ud[0] = (uint32_t)raw;
             }
             uint8_t x87 = arch->x87;
             while (x87) {
