@@ -1864,12 +1864,9 @@ void emit_shrd16c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uin
     IFX (X_PEND) {
         if (c) {
             MOV64x(s3, c);
-            if (c > 16) {
-                SLLI(s4, s2, 16);
-                OR(s3, s3, s4);
-                SW(s3, xEmu, offsetof(x64emu_t, op2));
-            } else
-                SH(s3, xEmu, offsetof(x64emu_t, op2));
+            SLLI(s4, s2, 16);
+            OR(s3, s3, s4);
+            SW(s3, xEmu, offsetof(x64emu_t, op2));
         } else
             SH(xZR, xEmu, offsetof(x64emu_t, op2));
         SH(s1, xEmu, offsetof(x64emu_t, op1));
@@ -2095,12 +2092,9 @@ void emit_shld16c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uin
     IFX (X_PEND) {
         if (c) {
             MOV64x(s3, c);
-            if (c > 16) {
-                SLLI(s4, s2, 16);
-                OR(s3, s3, s4);
-                SW(s3, xEmu, offsetof(x64emu_t, op2));
-            } else
-                SH(s3, xEmu, offsetof(x64emu_t, op2));
+            SLLI(s4, s2, 16);
+            OR(s3, s3, s4);
+            SW(s3, xEmu, offsetof(x64emu_t, op2));
         } else
             SH(xZR, xEmu, offsetof(x64emu_t, op2));
         SH(s1, xEmu, offsetof(x64emu_t, op1));

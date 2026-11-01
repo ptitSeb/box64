@@ -1623,12 +1623,8 @@ void emit_shrd16c(dynarec_arm_t* dyn, int ninst, int s1, int s2, uint32_t c, int
     c&=0x1f;
     IFX(X_PEND) {
         MOV32w(s3, c);
-        if (c > 16) {
-            ORRw_REG_LSL(s3, s3, s2, 16);   // store fill in the upper half, needed for count > 16
-            STRw_U12(s3, xEmu, offsetof(x64emu_t, op2));
-        } else {
-            STRH_U12(s3, xEmu, offsetof(x64emu_t, op2));
-        }
+        ORRw_REG_LSL(s3, s3, s2, 16);   // store fill in the upper half, the deferred handler needs it for OF
+        STRw_U12(s3, xEmu, offsetof(x64emu_t, op2));
         STRH_U12(s1, xEmu, offsetof(x64emu_t, op1));
         SET_DF(s4, d_shrd16);
     } else {
@@ -1721,12 +1717,8 @@ void emit_shld16c(dynarec_arm_t* dyn, int ninst, int s1, int s2, uint32_t c, int
     c&=0x1f;
     IFX(X_PEND) {
         MOV32w(s3, c);
-        if (c > 16) {
-            ORRw_REG_LSL(s3, s3, s2, 16);   // store fill in the upper half, needed for count > 16
-            STRw_U12(s3, xEmu, offsetof(x64emu_t, op2));
-        } else {
-            STRH_U12(s3, xEmu, offsetof(x64emu_t, op2));
-        }
+        ORRw_REG_LSL(s3, s3, s2, 16);   // store fill in the upper half, the deferred handler needs it for OF
+        STRw_U12(s3, xEmu, offsetof(x64emu_t, op2));
         STRH_U12(s1, xEmu, offsetof(x64emu_t, op1));
         SET_DF(s4, d_shld16);
     } else {
