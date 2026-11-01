@@ -176,24 +176,22 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         GETGD;
                         addr = geted(dyn, addr, ninst, nextop, &wback, x3, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
                         if (rex.w)
-                            SRAI(x1, gd, 6);
+                            SRAI(x1, gd, 3);
                         else
-                            SRAIW(x1, gd, 5);
-                        if (!rex.w && !rex.is32bits) { ADDIW(x1, x1, 0); }
-                        ADDSLy(x3, wback, x1, 2 + rex.w, x1);
-                        ed = x1;
-                        wback = x3;
-                        MARKLOCK;
-                        LRxw(ed, wback, 1, 1);
-                        BEXT(x4, ed, gd, x2);
+                            SRAIW(x1, gd, 3);
+                        ADD(x2, wback, x1);
+                        ANDI(x4, gd, 7);
+                        ANDI(x5, x2, 0b11);
+                        SLLI(x5, x5, 3);
+                        OR(x4, x4, x5);
+                        ANDI(x2, x2, ~0b11);
+                        ADDI(x5, xZR, 1);
+                        SLL(x5, x5, x4);
+                        AMOOR_W(x6, x5, x2, 1, 1);
+                        SRL(x6, x6, x4);
+                        ANDI(x6, x6, 1);
                         ANDI(xFlags, xFlags, ~1);
-                        OR(xFlags, xFlags, x4);
-                        ADDI(x4, xZR, 1);
-                        ANDI(x2, gd, rex.w ? 0x3f : 0x1f);
-                        SLL(x4, x4, x2);
-                        OR(ed, ed, x4);
-                        SCxw(x7, ed, wback, 1, 1);
-                        BNEZ_MARKLOCK(x7);
+                        OR(xFlags, xFlags, x6);
                     }
                     break;
                 case 0xB0:
@@ -319,24 +317,55 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         GETGD;
                         addr = geted(dyn, addr, ninst, nextop, &wback, x3, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
                         if (rex.w)
-                            SRAI(x1, gd, 6);
+                            SRAI(x1, gd, 3);
                         else
-                            SRAIW(x1, gd, 5);
-                        if (!rex.w && !rex.is32bits) { ADDIW(x1, x1, 0); }
-                        ADDSLy(x3, wback, x1, 2 + rex.w, x1);
-                        ed = x1;
-                        wback = x3;
-                        MARKLOCK;
-                        LRxw(ed, wback, 1, 1);
-                        BEXT(x4, ed, gd, x2); // F_CF is 1
+                            SRAIW(x1, gd, 3);
+                        ADD(x2, wback, x1);
+                        ANDI(x4, gd, 7);
+                        ANDI(x5, x2, 0b11);
+                        SLLI(x5, x5, 3);
+                        OR(x4, x4, x5);
+                        ANDI(x2, x2, ~0b11);
+                        ADDI(x5, xZR, 1);
+                        SLL(x5, x5, x4);
+                        XORI(x5, x5, -1);
+                        AMOAND_W(x6, x5, x2, 1, 1);
+                        SRL(x6, x6, x4);
+                        ANDI(x6, x6, 1);
                         ANDI(xFlags, xFlags, ~1);
-                        OR(xFlags, xFlags, x4);
-                        ADDI(x4, xZR, 1);
-                        ANDI(x2, gd, rex.w ? 0x3f : 0x1f);
-                        SLL(x4, x4, x2);
-                        ANDN(ed, ed, x4, x4);
-                        SCxw(x7, ed, wback, 1, 1);
-                        BNEZ_MARKLOCK(x7);
+                        OR(xFlags, xFlags, x6);
+                    }
+                    break;
+                case 0xBB:
+                    nextop = F8;
+                    if (MODREG) {
+                        INST_NAME("Invalid LOCK");
+                        UDF();
+                        *need_epilog = 1;
+                        *ok = 0;
+                    } else {
+                        INST_NAME("LOCK BTC Ed, Gd");
+                        SETFLAGS(X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION);
+                        SET_DFNONE();
+                        GETGD;
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                        if (rex.w)
+                            SRAI(x1, gd, 3);
+                        else
+                            SRAIW(x1, gd, 3);
+                        ADD(x2, wback, x1);
+                        ANDI(x4, gd, 7);
+                        ANDI(x5, x2, 0b11);
+                        SLLI(x5, x5, 3);
+                        OR(x4, x4, x5);
+                        ANDI(x2, x2, ~0b11);
+                        ADDI(x5, xZR, 1);
+                        SLL(x5, x5, x4);
+                        AMOXOR_W(x6, x5, x2, 1, 1);
+                        SRL(x6, x6, x4);
+                        ANDI(x6, x6, 1);
+                        ANDI(xFlags, xFlags, ~1);
+                        OR(xFlags, xFlags, x6);
                     }
                     break;
                 case 0xBA:
@@ -367,27 +396,31 @@ uintptr_t dynarec64_F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
                                         u8 = F8;
                                         if (rex.w) u8 &= 63; else u8 &= 31;
-                                        ANDI(x3, wback, rex.w ? ~7 : ~3); // aligned word
                                         if (((nextop >> 3) & 7) == 4) {
                                             LDxw(x4, wback, 0);           // read only, no atomic needed
-                                        } else {
-                                            MOV64xw(x6, 1LL << u8);       // bit mask
-                                            MARKLOCK;
-                                            LRxw(x4, x3, 1, 1);
                                             BEXTI(x7, x4, u8);            // old bit
                                             ANDI(xFlags, xFlags, ~1);
                                             OR(xFlags, xFlags, x7);       // CF = old bit
-                                            SLLI(x7, x7, u8);             // old bit at position
+                                        } else {
+                                            ADDI(x2, wback, u8 >> 3);
+                                            ANDI(x4, x2, 0b11);
+                                            SLLI(x4, x4, 3);
+                                            ORI(x4, x4, u8 & 7);
+                                            ANDI(x2, x2, ~0b11);
+                                            ADDI(x5, xZR, 1);
+                                            SLL(x5, x5, x4);
                                             if (((nextop >> 3) & 7) == 5) {
-                                                XOR(x7, x6, x7);          // toggle only if bit was 0
-                                                XOR(x4, x4, x7);
+                                                AMOOR_W(x6, x5, x2, 1, 1);
                                             } else if (((nextop >> 3) & 7) == 6) {
-                                                XOR(x4, x4, x7);          // toggle only if bit was 1
+                                                XORI(x5, x5, -1);
+                                                AMOAND_W(x6, x5, x2, 1, 1);
                                             } else {
-                                                XOR(x4, x4, x6);          // always toggle
+                                                AMOXOR_W(x6, x5, x2, 1, 1);
                                             }
-                                            SCxw(x1, x4, x3, 1, 1);
-                                            BNEZ_MARKLOCK(x1);
+                                            SRL(x6, x6, x4);
+                                            ANDI(x6, x6, 1);
+                                            ANDI(xFlags, xFlags, ~1);
+                                            OR(xFlags, xFlags, x6);
                                         }
                                     }
                                     break;
