@@ -2650,22 +2650,34 @@ static void fpuCacheTransform(dynarec_rv64_t* dyn, int ninst, int s1, int s2, in
     uint16_t dead = vectorDeadAtTarget(dyn, i2, ninst);
     MESSAGE(LOG_DUMP, "\tCache Transform ---- ninst=%d -> %d\n", ninst, i2);
     if ((!i2) || (dyn->insts[i2].x64.barrier & BARRIER_FLOAT)) {
-        if (dyn->e.stack_next) {
-            dyn->purge_dead_vector = dead;
-            fpu_purgecache(dyn, ninst, 1, s1, s2, s3);
-            MESSAGE(LOG_DUMP, "\t---- Cache Transform\n");
-            return;
-        }
-        for (int i = 0; i < 24; ++i)
-            if (dyn->e.extcache[i].v) { // there is something at ninst for i
+        if (!i2) {
+            int any = 0;
+            for (int i = 0; i < 24 && !any; ++i)
+                if (dyn->insts[0].e.extcache[i].v) any = 1;
+            if (!any && !dyn->e.stack_next) {
                 dyn->purge_dead_vector = dead;
                 fpu_purgecache(dyn, ninst, 1, s1, s2, s3);
                 MESSAGE(LOG_DUMP, "\t---- Cache Transform\n");
                 return;
             }
-        avx_sync_upper_vector(dyn, ninst, s1, 1);
-        MESSAGE(LOG_DUMP, "\t---- Cache Transform\n");
-        return;
+        } else {
+            if (dyn->e.stack_next) {
+                dyn->purge_dead_vector = dead;
+                fpu_purgecache(dyn, ninst, 1, s1, s2, s3);
+                MESSAGE(LOG_DUMP, "\t---- Cache Transform\n");
+                return;
+            }
+            for (int i = 0; i < 24; ++i)
+                if (dyn->e.extcache[i].v) { // there is something at ninst for i
+                    dyn->purge_dead_vector = dead;
+                    fpu_purgecache(dyn, ninst, 1, s1, s2, s3);
+                    MESSAGE(LOG_DUMP, "\t---- Cache Transform\n");
+                    return;
+                }
+            avx_sync_upper_vector(dyn, ninst, s1, 1);
+            MESSAGE(LOG_DUMP, "\t---- Cache Transform\n");
+            return;
+        }
     }
     extcache_t cache_i2 = dyn->insts[i2].e;
     extcacheUnwind(&cache_i2);
