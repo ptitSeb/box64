@@ -884,30 +884,33 @@ SETMARK(d_ror64);
 SETMARK(d_shrd16);
     LDRH_U12(x1, xEmu, offsetof(x64emu_t, res));
     LDRH_U12(x2, xEmu, offsetof(x64emu_t, op1));
-    LDRH_U12(x3, xEmu, offsetof(x64emu_t, op2));
-    CBNZw(x3, 4+4);
+    LDRw_U12(x3, xEmu, offsetof(x64emu_t, op2));
+    ANDw_mask(x4, x3, 0, 4);    // count = op2 & 0x1f
+    CBNZw(x4, 4+4);
     RET(xLR);
+    LSRw(x5, x3, 16);           // fill = op2 >> 16
     if(BOX64ENV(cputype)) {
-        LSRw(x4, x1, 14);
-        EORw_REG_LSR(x4, x4, x4, 1);
-        BFIw(xFlags, x4, F_OF, 1);
+        LSRw(x3, x1, 14);
+        EORw_REG_LSR(x3, x3, x3, 1);
+        BFIw(xFlags, x3, F_OF, 1);
         ORRw_mask(xFlags, xFlags, 28, 0); // mask = 0x10
+        SUBw_U12(x3, x4, 1);
+        LSRw_REG(x3, x2, x3);
+        CMPSw_U12(x4, 16);
+        CSELw(x3, xZR, x3, cGT);
+        BFIw(xFlags, x3, F_CF, 1);
     } else {
-        ANDw_mask(x4, x3, 0, 3);    // mask = 0x0f
-        SUBw_U12(x4, x4, 16);
-        NEGw_REG(x4, x4);
-        LSRw_REG(x4, x1, x4);
-        EORw_REG_LSR(x4, x4, x2, 15);
-        BFIw(xFlags, x4, F_OF, 1);
+        EORw_REG_LSR(x3, x5, x2, 15);
+        BFIw(xFlags, x3, F_OF, 1);
         BFCw(xFlags, F_AF, 1);
+        CMPSw_U12(x4, 16);
+        SUBw_U12(x3, x4, 1);
+        LSRw_REG(x3, x2, x3);   // dest >> (count-1)
+        SUBw_U12(x4, x4, 17);
+        LSRw_REG(x5, x5, x4);   // fill >> (count-17)
+        CSELw(x3, x5, x3, cGT);
+        BFIw(xFlags, x3, F_CF, 1);
     }
-    SUBw_U12(x4, x3, 1);
-    LSRw_REG(x4, x2, x4);
-    if(BOX64ENV(cputype)) {
-        CMPSw_U12(x3, 15);
-        CSELw(x4, x4, xZR, cGT);
-    }
-    BFIw(xFlags, x4, F_CF, 1);
     LSRw(x4, x1, 15);
     BFIw(xFlags, x4, F_SF, 1);
     TSTw_mask(x1, 0, 15);
@@ -976,24 +979,37 @@ SETMARK(d_shrd64);
 SETMARK(d_shld16);
     LDRH_U12(x1, xEmu, offsetof(x64emu_t, res));
     LDRH_U12(x2, xEmu, offsetof(x64emu_t, op1));
-    LDRH_U12(x3, xEmu, offsetof(x64emu_t, op2));
-    CBNZw(x3, 4+4);
+    LDRw_U12(x3, xEmu, offsetof(x64emu_t, op2));
+    ANDw_mask(x4, x3, 0, 4);    // count = op2 & 0x1f
+    CBNZw(x4, 4+4);
     RET(xLR);
-    SUBw_U12(x4, x3, 16);
-    NEGw_REG(x4, x4);
-    LSRw_REG(x4, x2, x4);
-    BFIw(xFlags, x4, F_CF, 1);
+    LSRw(x5, x3, 16);           // fill = op2 >> 16
     if(BOX64ENV(cputype)) {
-        EORw_REG_LSR(x4, xFlags, x1, 15);
-        CMPSw_U12(x3, 15);
-        CSELw(x4, x4, xFlags, cGT);
-        BFIw(xFlags, x4, F_OF, 1);
+        MOV32w(x3, 16);
+        SUBw_REG(x3, x3, x4);
+        LSRw_REG(x3, x2, x3);   // dest >> (16-count)
+        CMPSw_U12(x4, 16);
+        CSELw(x3, xZR, x3, cGT);
+        BFIw(xFlags, x3, F_CF, 1);
+        EORw_REG_LSR(x3, xFlags, x1, 15);
+        CMPSw_U12(x4, 15);
+        CSELw(x3, xFlags, x3, cGT);
+        BFIw(xFlags, x3, F_OF, 1);
         ORRw_mask(xFlags, xFlags, 28, 0); // mask = 0x10
     } else {
-        LSRw(x4, x2, 14);
-        EORw_REG_LSR(x4, x4, x4, 1);
-        BFIw(xFlags, x4, F_OF, 1);
+        LSRw(x3, x2, 14);
+        EORw_REG_LSR(x3, x3, x3, 1);
+        BFIw(xFlags, x3, F_OF, 1);
         BFCw(xFlags, F_AF, 1);
+        CMPSw_U12(x4, 16);
+        MOV32w(x3, 16);
+        SUBw_REG(x3, x3, x4);
+        LSRw_REG(x3, x2, x3);   // dest >> (16-count)
+        MOV32w(x2, 32);
+        SUBw_REG(x2, x2, x4);
+        LSRw_REG(x5, x5, x2);   // fill >> (32-count)
+        CSELw(x3, x5, x3, cGT);
+        BFIw(xFlags, x3, F_CF, 1);
     }
     LSRw(x4, x1, 15);
     BFIw(xFlags, x4, F_SF, 1);
