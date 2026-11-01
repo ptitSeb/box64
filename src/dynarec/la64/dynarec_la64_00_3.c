@@ -1923,6 +1923,7 @@ uintptr_t dynarec64_00_3(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         MARKREGd(xRAX);
                         MARKREGd(xRDX);
                         SET_DFNONE();
+                        CHECK_DFNONE(1);
                         GETSED(0);
                         if (BOX64ENV(dynarec_div0)) {
                             BNE_MARK3(ed, xZR);
