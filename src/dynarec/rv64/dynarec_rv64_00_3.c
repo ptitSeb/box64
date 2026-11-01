@@ -1576,6 +1576,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     INST_NAME("DIV Eb");
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
+                    CHECK_DFNONE(1);
                     GETEB(x1, 0);
                     ZEXTH(x2, xRAX);
                     if (BOX64ENV(dynarec_div0)) {
@@ -1738,6 +1739,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     INST_NAME("DIV Ed");
                     SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
                     SET_DFNONE();
+                    CHECK_DFNONE(1);
                     MARKREGd(xRAX);
                     MARKREGd(xRDX);
                     MARKREGs(xRAX);
@@ -1829,6 +1831,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
                         SET_DFNONE();
                     }
+                    CHECK_DFNONE(1);
                     MARKREGd(xRAX);
                     MARKREGd(xRDX);
                     MARKREGs(xRAX);
