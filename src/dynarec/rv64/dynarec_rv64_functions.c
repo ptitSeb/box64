@@ -372,7 +372,7 @@ int fpuCacheNeedsTransform(dynarec_rv64_t* dyn, int ninst)
         // if the barrier as already been apply, no transform needed
         return ((dyn->insts[ninst].x64.barrier & BARRIER_FLOAT)) ? 0 : (isCacheEmpty(dyn, ninst) ? 0 : 1);
     int ret = 0;
-    if (!i2) { // just purge
+    if (!i2) { // restore the state the first instruction was emitted with
         if (dyn->insts[ninst].e.stack_next) {
             return 1;
         }
@@ -385,6 +385,9 @@ int fpuCacheNeedsTransform(dynarec_rv64_t* dyn, int ninst)
                         && dyn->insts[ninst].e.extcache[i].n < dyn->insts[ninst].e.stack_pop))
                     ret = 1;
             }
+        for (int i = 0; i < 24 && !ret; ++i)
+            if (dyn->insts[0].e.extcache[i].v)
+                ret = 1;
         return ret;
     }
     // Check if ninst can be compatible to i2
