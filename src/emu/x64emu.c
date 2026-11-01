@@ -1246,16 +1246,16 @@ void UpdateFlags(x64emu_t* emu)
                 CONDITIONAL_SET_FLAG(!emu->res.u16, F_ZF);
                 CONDITIONAL_SET_FLAG(emu->res.u16 & 0x8000, F_SF);
                 CONDITIONAL_SET_FLAG(PARITY(emu->res.u8), F_PF);
+                if BOX64ENV (cputype) {
+                    CONDITIONAL_SET_FLAG(XOR2(emu->res.u16 >> 14), F_OF);
+                } else {
+                    CONDITIONAL_SET_FLAG((((emu->op2.u64 >> 16) & 0xffff) ^ (emu->op1.u16 >> 15)) & 1, F_OF);
+                }
+                if (BOX64ENV(cputype))
+                    SET_FLAG(F_AF);
+                else
+                    CLEAR_FLAG(F_AF);
             }
-            if BOX64ENV (cputype) {
-                CONDITIONAL_SET_FLAG(XOR2(emu->res.u16 >> 14), F_OF);
-            } else {
-                CONDITIONAL_SET_FLAG(((emu->res.u16 >> (16 - (cnt & 15))) ^ (emu->op1.u16 >> 15)) & 1, F_OF);
-            }
-            if (BOX64ENV(cputype))
-                SET_FLAG(F_AF);
-            else
-                CLEAR_FLAG(F_AF);
             break;
         case d_shrd32:
             cnt = emu->op2.u32;
