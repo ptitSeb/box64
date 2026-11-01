@@ -664,10 +664,8 @@ void call_c(dynarec_rv64_t* dyn, int ninst, rv64_consts_t fnc, int reg, int ret,
         MV(ret, A0);
     }
 
-    // reinitialize sew, the native function may have changed vtype / vl
+    // the native function may have changed vtype / vl: force the cache-pop to re-emit it
     dyn->inst_vl = 0; // force emit, do not rely on tracked state
-    if (dyn->vector_sew != VECTOR_SEWNA)
-        vector_vsetvli(dyn, ninst, savereg, dyn->vector_sew, VECTOR_LMUL1, 1);
 
     LD(savereg, xSP, 0);
     ADDI(xSP, xSP, 16);
@@ -692,6 +690,11 @@ void call_c(dynarec_rv64_t* dyn, int ninst, rv64_consts_t fnc, int reg, int ret,
     if (savereg != x87pc && dyn->need_x87check)
         NATIVE_RESTORE_X87PC();
     // SET_NODF();
+    // this call can be on a conditional path (for example: IDIV),
+    // so the vtype is not known at the merge point, let later opcodes emit it again
+    dyn->vector_sew = VECTOR_SEWNA;
+    dyn->inst_sew = VECTOR_SEWNA;
+    dyn->inst_vl = 0;
     CLEARIP();
 }
 
@@ -724,14 +727,16 @@ void call_n(dynarec_rv64_t* dyn, int ninst, void* fnc, int w)
     }
     // all done, restore all regs
 
-    // reinitialize sew, the native function may have changed vtype / vl
+    // the native function may have changed vtype / vl: force the cache-pop to re-emit it
     dyn->inst_vl = 0; // force emit, do not rely on tracked state
-    if (dyn->vector_sew != VECTOR_SEWNA)
-        vector_vsetvli(dyn, ninst, x3, dyn->vector_sew, VECTOR_LMUL1, 1);
 
     fpu_popcache(dyn, ninst, x3, 1);
     NATIVE_RESTORE_X87PC();
     // SET_NODF();
+    // the call may be on a conditional path (IDIV), so do not assume the vtype is restored
+    dyn->vector_sew = VECTOR_SEWNA;
+    dyn->inst_sew = VECTOR_SEWNA;
+    dyn->inst_vl = 0;
 }
 
 void grab_segdata(dynarec_rv64_t* dyn, uintptr_t addr, int ninst, int reg, int segment)
