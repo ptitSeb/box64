@@ -2161,13 +2161,15 @@ void emit_shld16c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, uin
 {
     c &= 0x1f;
     IFX (X_PEND) {
-        if (c) {
+        if (c > 16) {
             // store fill in the upper half, as the deferred handler needs it for count > 16
             SLLI_D(s3, s2, 16);
             ORI(s3, s3, c);
             ST_W(s3, xEmu, offsetof(x64emu_t, op2));
-        } else
-            ST_W(xZR, xEmu, offsetof(x64emu_t, op2));
+        } else {
+            MOV64x(s3, c);
+            ST_H(s3, xEmu, offsetof(x64emu_t, op2));
+        }
         ST_H(s1, xEmu, offsetof(x64emu_t, op1));
         SET_DF(s4, d_shld16);
     } else IFXORNAT (X_ALL) {
@@ -2232,13 +2234,15 @@ void emit_shrd16c(dynarec_la64_t* dyn, int ninst, rex_t rex, int s1, int s2, uin
     c &= 0x1f;
 
     IFX (X_PEND) {
-        if (c) {
+        if (c > 16) {
             // store fill in the upper half, as the deferred handler needs it for count > 16
             SLLI_D(s3, s2, 16);
             ORI(s3, s3, c);
             ST_W(s3, xEmu, offsetof(x64emu_t, op2));
-        } else
-            ST_W(xZR, xEmu, offsetof(x64emu_t, op2));
+        } else {
+            MOV64x(s3, c);
+            ST_H(s3, xEmu, offsetof(x64emu_t, op2));
+        }
         ST_H(s1, xEmu, offsetof(x64emu_t, op1));
         SET_DF(s4, d_shrd16);
     } else IFXORNAT (X_ALL) {

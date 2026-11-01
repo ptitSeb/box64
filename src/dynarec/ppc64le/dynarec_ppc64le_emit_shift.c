@@ -1890,12 +1890,16 @@ void emit_shld16c(dynarec_ppc64le_t* dyn, int ninst, rex_t rex, int s1, int s2, 
     IFX (X_PEND) {
         if (c) {
             MOV64x(s3, c);
-            SLDI(s4, s2, 16);
-            OR(s3, s3, s4);
-            STW(s3, offsetof(x64emu_t, op2), xEmu);
+            if (c > 16) {
+                SLDI(s4, s2, 16);
+                OR(s3, s3, s4);
+                STW(s3, offsetof(x64emu_t, op2), xEmu);
+            } else {
+                STH(s3, offsetof(x64emu_t, op2), xEmu);
+            }
         } else {
             LI(s3, 0);
-            STW(s3, offsetof(x64emu_t, op2), xEmu);
+            STH(s3, offsetof(x64emu_t, op2), xEmu);
         }
         STH(s1, offsetof(x64emu_t, op1), xEmu);
         SET_DF(s4, d_shld16);
@@ -2026,12 +2030,16 @@ void emit_shrd16c(dynarec_ppc64le_t* dyn, int ninst, rex_t rex, int s1, int s2, 
     IFX (X_PEND) {
         if (c) {
             MOV64x(s3, c);
-            SLDI(s4, s2, 16);
-            OR(s3, s3, s4);
-            STW(s3, offsetof(x64emu_t, op2), xEmu);
+            if (c > 16) {
+                SLDI(s4, s2, 16);
+                OR(s3, s3, s4);
+                STW(s3, offsetof(x64emu_t, op2), xEmu);
+            } else {
+                STH(s3, offsetof(x64emu_t, op2), xEmu);
+            }
         } else {
             LI(s3, 0);
-            STW(s3, offsetof(x64emu_t, op2), xEmu);
+            STH(s3, offsetof(x64emu_t, op2), xEmu);
         }
         STH(s1, offsetof(x64emu_t, op1), xEmu);
         SET_DF(s4, d_shrd16);
