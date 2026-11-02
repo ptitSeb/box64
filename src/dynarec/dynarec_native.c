@@ -651,6 +651,8 @@ dynablock_t* FillBlock64(uintptr_t addr, int is32bits, int inst_max, int is_new,
                 if(state==BUILD_PASS0 && helper.size>1) {
                     --helper.size;
                     end = helper.insts[helper.size].x64.addr;
+                    if(interblock_flags_needed(&helper, end, is32bits))
+                        helper.insts[helper.size - 1].x64.need_after |= X_PEND;
                     printf_log(LOG_INFO, "FillBlock at %p triggered a segfault, truncating at %d(%p)\n", (void*)addr, helper.size, (void*)end);
                     state = BUILD_PASS1;
                 } else {
