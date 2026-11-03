@@ -880,28 +880,46 @@ int fpu_is_st_freed(dynarec_rv64_t* dyn, int ninst, int st)
     return (dyn->e.tags & (0b11 << (st * 2))) ? 1 : 0;
 }
 
+static int hasLinearPredecessor(const dynarec_rv64_t* dyn, int ninst);
+
 void updateNativeFlags(dynarec_rv64_t* dyn)
 {
     if (!BOX64ENV(dynarec_nativeflags))
         return;
-    for (int i = 1; i < dyn->size; ++i)
+    for (int i = 0; i < dyn->size; ++i)
         if (dyn->insts[i].nat_flags_fusion) {
             int j = i - 1;
             int found = 0;
-            if (dyn->insts[i].pred_sz == 1 && dyn->insts[i].pred[0] == j) {
+            int last_fused = 0;
+            if (hasLinearPredecessor(dyn, i)) {
                 while (j >= 0) {
                     if (dyn->insts[j].x64.set_flags && (dyn->insts[i].x64.use_flags & dyn->insts[j].x64.set_flags) == dyn->insts[i].x64.use_flags) {
+                        int needsign = (dyn->insts[i].x64.use_flags & X_SF) ? 1 : 0;
+                        int needunsigned = (dyn->insts[i].x64.use_flags & X_CF) ? 1 : 0;
+                        if (dyn->insts[j].nat_flags_fusion && ((needsign && dyn->insts[j].nat_flags_needunsigned) || (needunsigned && dyn->insts[j].nat_flags_needsign)))
+                            break; // not compatible, stop here
                         dyn->insts[j].nat_flags_fusion = 1;
-                        if (dyn->insts[i].x64.use_flags & X_SF) {
+                        if (needsign)
                             dyn->insts[j].nat_flags_needsign = 1;
-                        }
+                        if (needunsigned)
+                            dyn->insts[j].nat_flags_needunsigned = 1;
                         dyn->insts[i].x64.use_flags = 0;
-                        dyn->insts[j].nat_next_inst = i;
+                        if (last_fused) {
+                            dyn->insts[last_fused].nat_next_inst = i;
+                        } else {
+                            uint16_t* next = &dyn->insts[j].nat_next_inst;
+                            while (*next)
+                                next = &dyn->insts[*next].nat_next_inst;
+                            *next = i;
+                        }
                         dyn->insts[i].up32_read |= dyn->insts[j].up32_write32;
                         found = 1;
                         break;
-                    } else if (j && dyn->insts[j].pred_sz == 1 && dyn->insts[j].pred[0] == j - 1
-                        && dyn->insts[j].no_scratch_usage && !dyn->insts[j].x64.set_flags && !dyn->insts[j].x64.use_flags) {
+                    } else if (hasLinearPredecessor(dyn, j) && dyn->insts[j].nat_flags_fusion && dyn->insts[j].x64.jmp && !dyn->insts[j].x64.set_flags && !dyn->insts[j].x64.use_flags) {
+                        // already fused Jcc consumer
+                        if (!last_fused) last_fused = j;
+                        j -= 1;
+                    } else if (hasLinearPredecessor(dyn, j) && dyn->insts[j].no_scratch_usage && !dyn->insts[j].x64.set_flags && !dyn->insts[j].x64.use_flags) {
                         j -= 1;
                     } else
                         break;

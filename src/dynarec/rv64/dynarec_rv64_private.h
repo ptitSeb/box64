@@ -141,6 +141,7 @@ typedef struct instruction_rv64_s {
     uint8_t             nat_flags_carry:1;
     uint8_t             nat_flags_sign:1;
     uint8_t             nat_flags_needsign:1;
+    uint8_t             nat_flags_needunsigned:1;
     uint8_t             unaligned:1;    // this opcode can be re-generated for unaligned special case
     uint8_t             x87precision:1; // this opcode can handle x87pc
     uint8_t             no_scratch_usage:1; // this opcode does not use scratch register
