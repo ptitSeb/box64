@@ -232,17 +232,25 @@ void emit_cmp32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
     NAT_FLAGS_ENABLE_CARRY();
     NAT_FLAGS_ENABLE_SIGN();
     if (dyn->insts[ninst].nat_flags_fusion) {
-        if (rex.w) {
+        if (rex.w)
             NAT_FLAGS_OPS(s1, s2, s3, s4);
-        } else {
+        else {
+            int op1 = s3;
+            int op2 = s4;
             if (dyn->insts[ninst].nat_flags_needsign) {
                 SEXT_W(s3, s1);
                 SEXT_W(s4, s2);
             } else {
-                ZEXTW2(s3, s1);
-                ZEXTW2(s4, s2);
+                if (isUpper32Zero(dyn, ninst, s1))
+                    op1 = s1;
+                else
+                    ZEXTW2(s3, s1);
+                if (isUpper32Zero(dyn, ninst, s2))
+                    op2 = s2;
+                else
+                    ZEXTW2(s4, s2);
             }
-            NAT_FLAGS_OPS(s3, s4, s5, xZR);
+            NAT_FLAGS_OPS(op1, op2, s5, s6);
         }
     }
 }
