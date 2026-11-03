@@ -166,7 +166,7 @@ static int arch_build(dynarec_rv64_t* dyn, int ninst, arch_build_t* arch)
         arch->mmx = 1;
     if (arch->sse_.sse)
         arch->sse = 1;
-    return arch->flags + arch->x87 + arch->mmx + arch->sse + arch->ymm + arch->unaligned;
+    return arch->flags + arch->x87 + arch->mmx + arch->sse + arch->ymm + arch->unaligned + (arch->up32 != 0) + (arch->rsp != 0);
 }
 
 size_t get_size_arch(dynarec_rv64_t* dyn)
