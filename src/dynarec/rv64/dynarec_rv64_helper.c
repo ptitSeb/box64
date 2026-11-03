@@ -566,6 +566,8 @@ void ret_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int ninst, rex_t rex)
         ADDI(xSP, xSP, 16);   // pop
         if (BOX64DRENV(dynarec_callret) >= 3)
             doLeaveBlock(dyn, ninst, x4, x5, x7);
+        else if (!BOX64DRENV(dynarec_strongmem))
+            FENCE_W_W();
         BNE(x6, xRIP, 2 * 4); // is it the right address?
         BR(xRA);
         // not the correct return address, regular jump, but purge the stack first, it's unsync now...
