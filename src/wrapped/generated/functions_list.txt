@@ -4428,6 +4428,7 @@ wrappedcrypto3:
   - EVP_MD_do_all_provided
 - iFppp:
   - ASN1_i2d_bio
+  - CRYPTO_set_mem_functions
 - iFppV:
   - BIO_printf
 - pFppp:
