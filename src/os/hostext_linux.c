@@ -337,6 +337,14 @@ int DetectHostCpuFeatures(void)
                 p = strtok(NULL, ",");
             }
         }
+        if (!cpuext.vector) {
+            cpuext.vlen = 0;
+            cpuext.zvkned = 0;
+            cpuext.zvknha = 0;
+            cpuext.zvknhb = 0;
+            cpuext.zvbb = 0;
+            cpuext.zvfh = 0;
+        }
     }
 #elif defined(PPC64LE)
     unsigned long hwcap = real_getauxval(AT_HWCAP);
