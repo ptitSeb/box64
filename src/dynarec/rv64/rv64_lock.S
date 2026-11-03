@@ -26,6 +26,10 @@
 .global rv64_lock_get_b
 .global rv64_lock_get_d
 .global rv64_lock_get_dd
+.global rv64_crc
+.global rv64_crc_autocrc
+.global rv64_crc_zbc
+.global rv64_crc_autocrc_zbc
 
 rv64_lock_xchg_dd:
     // address is a0, value is a1, return old value in a0
@@ -270,4 +274,135 @@ rv64_lock_get_d:
 rv64_lock_get_dd:
     fence   rw, rw
     ld      a0, 0(a0)
+    ret
+
+rv64_crc:
+    // a0 = address, a1 = length, returns uint32_t hash in a0
+    li      a2, 0xcbf29ce484222325
+    li      a7, 0x100000001b3
+    li      a3, 8
+1:
+    bltu    a1, a3, 2f
+    ld      a4, 0(a0)
+    xor     a2, a2, a4
+    mul     a2, a2, a7
+    addi    a0, a0, 8
+    addi    a1, a1, -8
+    bnez    a1, 1b
+2:
+    beqz    a1, 3f
+    lbu     a4, 0(a0)
+    xor     a2, a2, a4
+    mul     a2, a2, a7
+    addi    a0, a0, 1
+    addi    a1, a1, -1
+    bnez    a1, 2b
+3:
+    mv      a0, a2
+    addiw   a0, a0, 0
+    ret
+
+rv64_crc_autocrc:
+    // t3 = address, t4 = length, t2 = hash, t6 is preserved
+    li      t2, 0xcbf29ce484222325
+    li      a7, 0x100000001b3
+    li      t5, 8
+1:
+    bltu    t4, t5, 2f
+    ld      t1, 0(t3)
+    xor     t2, t2, t1
+    mul     t2, t2, a7
+    addi    t3, t3, 8
+    addi    t4, t4, -8
+    bnez    t4, 1b
+2:
+    beqz    t4, 3f
+    lbu     t1, 0(t3)
+    xor     t2, t2, t1
+    mul     t2, t2, a7
+    addi    t3, t3, 1
+    addi    t4, t4, -1
+    bnez    t4, 2b
+3:
+    slli    t2, t2, 32
+    srli    t2, t2, 32
+    ret
+
+    .option arch, +zbc
+rv64_crc_zbc:
+    // a0 = address, a1 = length, returns uint32_t CRC32C in a0
+    li      a2, 0
+    li      a3, 8
+1:
+    bltu    a1, a3, 2f
+    slli    a2, a2, 32
+    srli    a2, a2, 32
+    ld      a4, 0(a0)
+    xor     a4, a4, a2
+    li      a7, 0x4869EC38DEA713F1
+    clmul   a4, a4, a7
+    li      a7, 0x105EC76F1
+    clmulh  a4, a4, a7
+    mv      a2, a4
+    addi    a0, a0, 8
+    addi    a1, a1, -8
+    bnez    a1, 1b
+2:
+    beqz    a1, 3f
+    slli    a2, a2, 32
+    srli    a2, a2, 32
+    lbu     a4, 0(a0)
+    xor     a4, a4, a2
+    slli    a4, a4, 56
+    li      a7, 0x4869EC38DEA713F1
+    clmul   a4, a4, a7
+    li      a7, 0x105EC76F1
+    clmulh  a4, a4, a7
+    srli    a3, a2, 8
+    xor     a2, a4, a3
+    addi    a0, a0, 1
+    addi    a1, a1, -1
+    bnez    a1, 2b
+3:
+    mv      a0, a2
+    addiw   a0, a0, 0
+    ret
+
+rv64_crc_autocrc_zbc:
+    // t3 = address, t4 = length, t2 = CRC32C, t6 is preserved
+    li      t2, 0
+    li      t5, 8
+1:
+    bltu    t4, t5, 2f
+    slli    t2, t2, 32
+    srli    t2, t2, 32
+    ld      t1, 0(t3)
+    xor     t1, t1, t2
+    li      a7, 0x4869EC38DEA713F1
+    clmul   t1, t1, a7
+    li      a7, 0x105EC76F1
+    clmulh  t1, t1, a7
+    mv      t2, t1
+    addi    t3, t3, 8
+    addi    t4, t4, -8
+    bnez    t4, 1b
+2:
+    beqz    t4, 3f
+    slli    t2, t2, 32
+    srli    t2, t2, 32
+    lbu     t1, 0(t3)
+    xor     t1, t1, t2
+    slli    t1, t1, 56
+    li      a7, 0x4869EC38DEA713F1
+    clmul   t1, t1, a7
+    li      a7, 0x105EC76F1
+    clmulh  t1, t1, a7
+    srli    t5, t2, 8
+    xor     t2, t1, t5
+    addi    t3, t3, 1
+    addi    t4, t4, -1
+    bnez    t4, 2b
+3:
+    slli    t2, t2, 32
+    srli    t2, t2, 32
     ret

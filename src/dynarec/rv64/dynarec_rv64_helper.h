@@ -1632,6 +1632,11 @@
     dyn->inst_vlmul = VECTOR_LMUL1; \
     dyn->inst_vl = 0;
 
+#undef PREFLAGSNEEDED
+#define PREFLAGSNEEDED()                                                    \
+    if (dyn->always_test && ninst && dyn->insts[ninst - 1].x64.has_callret) \
+        checkCRC(dyn, ninst);
+
 #if STEP < 2
 #define GETIP(A, scratch)
 #define GETIP_(A, scratch)
@@ -1893,6 +1898,7 @@
 #define jump_to_epilog_fast STEPNAME(jump_to_epilog_fast)
 #define jump_to_next        STEPNAME(jump_to_next)
 #define ret_to_next         STEPNAME(ret_to_next)
+#define checkCRC            STEPNAME(checkCRC)
 #define doEnterBlock        STEPNAME(doEnterBlock)
 #define doLeaveBlock        STEPNAME(doLeaveBlock)
 #define iret_to_next        STEPNAME(iret_to_next)
@@ -2092,6 +2098,7 @@ void doEnterBlock(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3);
 void doLeaveBlock(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3);
 void jump_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int reg, int ninst, int is32bits);
 void ret_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int ninst, rex_t rex);
+void checkCRC(dynarec_rv64_t* dyn, int ninst);
 void iret_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int ninst, int is32bits, int is64bits);
 void call_c(dynarec_rv64_t* dyn, int ninst, rv64_consts_t fnc, int reg, int ret, int saveflags, int savereg, int arg1, int arg2, int arg3, int arg4, int arg5, int arg6);
 void call_n(dynarec_rv64_t* dyn, int ninst, void* fnc, int w);

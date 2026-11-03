@@ -580,6 +580,22 @@ void ret_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int ninst, rex_t rex)
     CLEARIP();
 }
 
+void checkCRC(dynarec_rv64_t* dyn, int ninst)
+{
+    MAYUSE(ninst);
+    int delta = -(dyn->native_size + sizeof(void*));
+    AUIPC(x6, SPLIT20(delta));
+    LD(x6, x6, SPLIT12(delta));
+    LD(x3, x6, offsetof(dynablock_t, x64_addr));
+    LWU(x4, x6, offsetof(dynablock_t, x64_size));
+    TABLE64C(x1, cpuext.zbc ? const_rv64_crc_autocrc_zbc : const_rv64_crc_autocrc);
+    JALR(xRA, x1);
+    LWU(x1, x6, offsetof(dynablock_t, hash));
+    BEQ(x2, x1, 4 * 4);
+    TABLE64C(x1, const_native_next_invalid);
+    JALR(xZR, x1);
+}
+
 void iret_to_next(dynarec_rv64_t* dyn, uintptr_t ip, int ninst, int is32bits, int is64bits)
 {
     int64_t j64;

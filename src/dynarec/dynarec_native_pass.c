@@ -159,17 +159,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
             NATIVE_RESTORE_X87PC();
         }
         ip = addr;
-        #ifdef ARM64
-        if(!ninst) {
-            if (BOX64DRENV(dynarec_callret) >= 3)
-                doEnterBlock(dyn, 0, x1, x2, x3);
-            if(dyn->always_test)
-                checkCRC(dyn, 0);
-            if(dyn->insts[0].preload_xmmymm)
-                doPreload(dyn, 0);
-            ENDPREFIX;
-        }
-        #elif defined(LA64)
+        #if defined(ARM64) || defined(LA64) || defined(RV64)
         if(!ninst) {
             if (BOX64DRENV(dynarec_callret) >= 3)
                 doEnterBlock(dyn, 0, x1, x2, x3);
@@ -178,14 +168,6 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
             if(dyn->insts[0].preload_xmmymm) {
                 doPreload(dyn, 0);
             }
-            ENDPREFIX;
-        }
-        #elif defined(RV64)
-        if(!ninst) {
-            if (BOX64DRENV(dynarec_callret) >= 3)
-                doEnterBlock(dyn, 0, x1, x2, x3);
-            if (dyn->insts[0].preload_xmmymm)
-                doPreload(dyn, 0);
             ENDPREFIX;
         }
         #endif

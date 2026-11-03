@@ -129,6 +129,14 @@ extern void la64_next_invalid();
 #define ARCH_UNALIGNED(A, B) arch_unaligned(A, B)
 #define ARCH_HOST_CALL(A, B, C) 0
 
+extern uint32_t rv64_crc(void* p, uint32_t len);
+extern uint32_t rv64_crc_zbc(void* p, uint32_t len);
+extern void rv64_crc_autocrc();
+extern void rv64_crc_autocrc_zbc();
+#define ARCH_CRC(A, B)          return cpuext.zbc ? rv64_crc_zbc(A, B) : rv64_crc(A, B)
+#define ARCH_CRC_INLINE
+extern void rv64_next_invalid();
+
 #define ARCH_NOP    0b0010011
 #define ARCH_UDF    0xc0001073
 

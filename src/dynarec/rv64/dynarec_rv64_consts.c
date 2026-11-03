@@ -31,6 +31,9 @@ void PrintTrace() {}
 #endif
 
 void* create_updateflags();
+extern void rv64_next_invalid();
+extern void rv64_crc_autocrc();
+extern void rv64_crc_autocrc_zbc();
 
 uintptr_t getConst(rv64_consts_t which)
 {
@@ -140,6 +143,9 @@ uintptr_t getConst(rv64_consts_t which)
         case const_context: return (uintptr_t)my_context;
         case const_lead0tab: return (uintptr_t)lead0tab;
         case const_deBruijn64tab: return (uintptr_t)deBruijn64tab;
+        case const_native_next_invalid: return (uintptr_t)rv64_next_invalid;
+        case const_rv64_crc_autocrc: return (uintptr_t)rv64_crc_autocrc;
+        case const_rv64_crc_autocrc_zbc: return (uintptr_t)rv64_crc_autocrc_zbc;
 
         case const_last: dynarec_log(LOG_NONE, "Warning, const last used\n");
             return (uintptr_t)native_ud;
