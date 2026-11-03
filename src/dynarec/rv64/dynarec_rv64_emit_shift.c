@@ -839,8 +839,11 @@ void emit_shr32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
         SET_FLAGS_LTZ(s1, F_SF, s3, s4);
     }
     UP32_WRITE32(s1);
-    if (!rex.w && c == 0) {
-        ZEROUP_RESULT(s1);
+    if (!rex.w) {
+        if (c == 0)
+            ZEROUP_RESULT(s1);
+        else
+            UP32_ZERO(s1); // SRLIW with c>0 always clears bit 31
     }
     IFX (X_PEND) {
         SDxw(s1, xEmu, offsetof(x64emu_t, res));
