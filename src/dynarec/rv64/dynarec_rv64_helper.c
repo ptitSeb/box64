@@ -466,8 +466,10 @@ static int indirect_lookup(dynarec_rv64_t* dyn, int ninst, int is32bits, int s1,
     MAYUSE(dyn);
     if (cpuext.xtheadbb && cpuext.xtheadmemidx) {
         if (!is32bits) {
-            SRLI(s1, xRIP, 48);
-            BNEZ_safe(s1, (intptr_t)dyn->jmp_next - (intptr_t)dyn->block);
+            if (have48bits) {
+                SRLI(s1, xRIP, 48);
+                BNEZ_safe(s1, (intptr_t)dyn->jmp_next - (intptr_t)dyn->block);
+            }
             if (dyn->need_reloc) {
                 TABLE64C(s2, const_jmptbl48);
             } else {
@@ -484,8 +486,10 @@ static int indirect_lookup(dynarec_rv64_t* dyn, int ninst, int is32bits, int s1,
         TH_LRD(s1, s2, s1, 3);
     } else {
         if (!is32bits) {
-            SRLI(s1, xRIP, 48);
-            BNEZ_safe(s1, (intptr_t)dyn->jmp_next - (intptr_t)dyn->block);
+            if (have48bits) {
+                SRLI(s1, xRIP, 48);
+                BNEZ_safe(s1, (intptr_t)dyn->jmp_next - (intptr_t)dyn->block);
+            }
             MOV64x(s2, getConst(const_jmptbl48));
             SRLI(s1, xRIP, JMPTABL_START2);
             ADDSL(s2, s2, s1, 3, s1);
