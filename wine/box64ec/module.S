@@ -352,7 +352,7 @@ DispatchJump:
     mov     w17, #0x200
     movk    w17, #0xd63f, lsl #16        /* encoding of blr x16 */
     cmp     w16, w17
-    b.ne    1f
+    b.ne    2f
     mov     x16, sp
     tbz     x16, #3, 1f
     mov     x0, x9                       /* bad native continuation */
@@ -361,6 +361,11 @@ DispatchJump:
     brk     #0xec06
 1:
     br      x9
+2:
+    /* Adjustor entry thunks still carry x64 arguments and the original SP in x4. */
+    and     x16, x16, #~3
+    add     x16, x9, x16
+    br      x16
 
     /* __os_arm64x_dispatch_ret - return to x64 (addr in LR).
      * SP is already correct for post-CALL x64 (ExitFunctionEC popped the
