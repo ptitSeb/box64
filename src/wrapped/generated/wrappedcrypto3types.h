@@ -62,6 +62,7 @@ typedef void* (*pFpppppppp_t)(void*, void*, void*, void*, void*, void*, void*, v
 	GO(UI_method_set_writer, iFpp_t) \
 	GO(EVP_MD_do_all_provided, vFppp_t) \
 	GO(ASN1_i2d_bio, iFppp_t) \
+	GO(CRYPTO_set_mem_functions, iFppp_t) \
 	GO(BIO_printf, iFppV_t) \
 	GO(OPENSSL_sk_deep_copy, pFppp_t) \
 	GO(OSSL_PARAM_construct_int, pFppp_t) \
