@@ -1323,11 +1323,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     break;
                 case 1:
                     // this is call to next step, so just push the return address to the stack
-                    if (dyn->need_reloc) {
-                        TABLE64(x2, addr);
-                    } else {
-                        MOV64x(x2, addr);
-                    }
+                    GETRETADDR(addr, x2, x3);
                     PUSH1z(x2);
                     break;
                 default:
@@ -1337,11 +1333,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Hack to set flags to "dont'care" state
                     }
                     // regular call
-                    if (dyn->need_reloc) {
-                        TABLE64(x2, addr);
-                    } else {
-                        MOV64x(x2, addr);
-                    }
+                    GETRETADDR(addr, x2, x3);
                     BARRIER(BARRIER_FLOAT);
                     PUSH1z(x2);
                     int can_continue = (addr < (dyn->start + dyn->isize));

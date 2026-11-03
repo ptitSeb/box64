@@ -1623,6 +1623,7 @@
 #if STEP < 2
 #define GETIP(A, scratch)
 #define GETIP_(A, scratch)
+#define GETRETADDR(A, reg, scratch)
 #else
 #define GETIP_(A, scratch)                                        \
     do {                                                          \
@@ -1653,6 +1654,21 @@
 #define GETIP(A, scratch) \
     GETIP_(A, scratch);   \
     dyn->last_ip = (A);
+
+#define GETRETADDR(A, reg, scratch)                                   \
+    do {                                                              \
+        ssize_t _delta_ra = (ssize_t)(A) - (ssize_t)dyn->last_ip;     \
+        if (dyn->last_ip && _delta_ra >= -2048 && _delta_ra < 2048) { \
+            if (_delta_ra)                                            \
+                ADDI(reg, xRIP, _delta_ra);                           \
+            else                                                      \
+                MV(reg, xRIP);                                        \
+        } else if (dyn->need_reloc) {                                 \
+            TABLE64(reg, (A));                                        \
+        } else {                                                      \
+            MOV64x(reg, (A));                                         \
+        }                                                             \
+    } while (0)
 
 #endif
 #define CLEARIP() dyn->last_ip = 0
