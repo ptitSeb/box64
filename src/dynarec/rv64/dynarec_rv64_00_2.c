@@ -511,8 +511,9 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         ZEXTW2(gd, ed);
                     else
                         MVxw(gd, ed);
+                    if (!rex.w) UP32_ZERO(gd);
                 } else if (!rex.w && !rex.is32bits) {
-                    ZEROUP(gd); // truncate the higher 32bits as asked
+                    ZEROUP_RESULT(gd); // truncate the higher 32bits as asked
                 }
             }
             break;
