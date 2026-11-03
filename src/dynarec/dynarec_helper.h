@@ -110,7 +110,7 @@
             if (STRONGMEM_LEVEL() >= STRONGMEM_SEQ_WRITE) {              \
                 if (++dyn->smwrite >= 3 /* Every third memory write */   \
                     || STRONGMEM_LEVEL() >= STRONGMEM_QEMU) {            \
-                    DMB_ISH();                                           \
+                    DMB_TSO();                                           \
                     dyn->smwrite = 1;                                    \
                 }                                                        \
             } else {                                                     \
@@ -163,14 +163,14 @@
             if (BOX64ENV(dynarec_weakbarrier))                                                     \
                 DMB_ISHLD();                                                                       \
             else                                                                                   \
-                DMB_ISH();                                                                         \
+                DMB_TSO();                                                                         \
         } else if (STRONGMEM_LEVEL() >= STRONGMEM_LAST_WRITE && BOX64ENV(dynarec_weakbarrier) != 2 \
             && dyn->insts[ninst].last_write) {                                                     \
             /* Last write, put a barrier */                                                        \
             if (BOX64ENV(dynarec_weakbarrier))                                                     \
                 DMB_ISHST();                                                                       \
             else                                                                                   \
-                DMB_ISH();                                                                         \
+                DMB_TSO();                                                                         \
         }                                                                                          \
     } while (0)
 
@@ -200,7 +200,7 @@
                 if (BOX64ENV(dynarec_weakbarrier))                      \
                     DMB_ISHST();                                        \
                 else                                                    \
-                    DMB_ISH();                                          \
+                    DMB_TSO();                                          \
             }                                                           \
         }                                                               \
         dyn->smwrite = 0;                                               \
@@ -234,6 +234,10 @@ int is_addr_autosmc(uintptr_t addr);
 #include "ppc64le/dynarec_ppc64le_helper.h"
 #else
 #error Unsupported architecture
+#endif
+
+#ifndef DMB_TSO
+#define DMB_TSO() DMB_ISH()
 #endif
 
 #endif //__DYNAREC_HELPER__H_

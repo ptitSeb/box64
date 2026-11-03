@@ -603,10 +603,18 @@
 #define FENCE_R_RW()          EMIT(FENCE_gen(2, 3))
 #define FENCE_W_W()           EMIT(FENCE_gen(1, 1))
 #define FENCE_RW_RW()         EMIT(FENCE_gen(3, 3))
+#define FENCE_TSO()           EMIT(FENCE_gen(3, 3) | (8u << 28))
 
 #define DMB_ISH()   FENCE_RW_RW()
 #define DMB_ISHLD() FENCE_R_RW()
 #define DMB_ISHST() FENCE_W_W()
+#define DMB_TSO()                                  \
+    do {                                           \
+        if (cpuext.vector && !cpuext.xtheadvector) \
+            FENCE_TSO();                           \
+        else                                       \
+            FENCE_RW_RW();                         \
+    } while (0)
 
 #define FENCE_I_gen() ((0b001 << 12) | 0b0001111)
 #define FENCE_I()     EMIT(FENCE_I_gen())
