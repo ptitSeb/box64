@@ -1336,8 +1336,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     MOVx_REG(x2, xRDX);
                     MOVx_REG(x4, xRAX);
                     u8 = F8;
-                    MOV32w(x5, u8);
-                    MOV32w(x6, rex.w);
+                    MOV32w(x5, u8 | (rex.w << 8));  // REX.W in bit 8 of the imm8 argument
                     CALL(const_sse42_compare_string_explicit_len, x1);
                     q0 = sse_get_reg_empty(dyn, ninst, x2, 0);
                     if(u8&0b1000000) {
@@ -1531,8 +1530,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         MOVx_REG(x2, xRDX);
                         MOVx_REG(x4, xRAX);
                         u8 = F8;
-                        MOV32w(x5, u8);
-                        MOV32w(x6, rex.w);
+                        MOV32w(x5, u8 | (rex.w << 8));  // REX.W in bit 8 of the imm8 argument
                         CALL(const_sse42_compare_string_explicit_len, x1);
                     }
                     if(u8&0b1000000) {

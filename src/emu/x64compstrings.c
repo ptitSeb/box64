@@ -134,3 +134,9 @@ uint32_t sse42_compare_string_implicit_len(x64emu_t* emu, sse_regs_t* mem, sse_r
     }
     return sse42_compare_string_explicit_len(emu, mem, lmem, reg, lreg, imm8, 0);
 }
+
+// for the dynarec: REX.W is passed in bit 8 of imm8_w, to spare a register
+uint32_t sse42_compare_string_explicit_len_imm8w(x64emu_t* emu, sse_regs_t* mem, int64_t lmem, sse_regs_t* reg, int64_t lreg, uint32_t imm8_w)
+{
+    return sse42_compare_string_explicit_len(emu, mem, lmem, reg, lreg, imm8_w & 0xff, (imm8_w >> 8) & 1);
+}
