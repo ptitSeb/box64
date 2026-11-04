@@ -1184,7 +1184,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             if (rex.is32bits && rex.is67) {
                 ZEXTH(x3, xRCX);
                 ADDIW(x3, x3, -1);
-                INSH(xRCX, x3, x5, x6, 1, 0);
+                INSH(xRCX, x3, x5, x6, 1, 1);
                 ANDI(x1, xFlags, 1 << F_ZF);
                 CBNZ_NEXT(x1);
                 GO(0, x3);
@@ -1203,7 +1203,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             if (rex.is32bits && rex.is67) {
                 ZEXTH(x3, xRCX);
                 ADDIW(x3, x3, -1);
-                INSH(xRCX, x3, x5, x6, 1, 0);
+                INSH(xRCX, x3, x5, x6, 1, 1);
                 ANDI(x1, xFlags, 1 << F_ZF);
                 CBZ_NEXT(x1);
                 GO(0, x3);
@@ -1221,7 +1221,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             if (rex.is32bits && rex.is67) {
                 ZEXTH(x3, xRCX);
                 ADDIW(x3, x3, -1);
-                INSH(xRCX, x3, x5, x6, 1, 0);
+                INSH(xRCX, x3, x5, x6, 1, 1);
                 GO(0, x3);
             } else {
                 UP32_READ(xRCX);
