@@ -5,6 +5,7 @@ find_package(Python3 REQUIRED COMPONENTS Interpreter)
 
 set(BOX64_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../..")
 
+string(REPLACE "," ";" DYNAREC_PASS "${DYNAREC_PASS_STR}")
 string(REPLACE "," ";" INTERPRETER "${INTERPRETER_STR}")
 if(NOT INTERPRETER)
     message(FATAL_ERROR "Build Box64EC from the parent project with -DARM64EC=ON")
@@ -51,7 +52,28 @@ add_library(box64ec SHARED
     "${BOX64_ROOT}/external/musl/sqrt_data.c"
     "${BOX64_ROOT}/external/musl/sqrtf.c"
 )
-foreach(target box64ec box64ec_interpreter)
+set(BOX64EC_TARGETS box64ec box64ec_interpreter)
+
+# The Dynarec emitters are only compiled for now, the DLL does not link them yet.
+if(DYNAREC_PASS)
+    add_library(box64ec_dynarec_helpers OBJECT
+        "${BOX64_ROOT}/src/dynarec/arm64/arm64_immenc.c"
+        "${BOX64_ROOT}/src/dynarec/arm64/arm64_printer.c"
+        "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_arch.c"
+        "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_functions.c"
+        "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_jmpnext.c"
+        "${BOX64_ROOT}/src/dynarec/arm64/dynarec_arm64_consts.c"
+        "${BOX64_ROOT}/src/dynarec/arm64/updateflags_arm64.c")
+    target_compile_definitions(box64ec_dynarec_helpers PRIVATE DYNAREC)
+    list(APPEND BOX64EC_TARGETS box64ec_dynarec_helpers)
+    foreach(STEP_VALUE RANGE 3)
+        add_library(box64ec_dynarec_pass${STEP_VALUE} OBJECT ${DYNAREC_PASS})
+        target_compile_definitions(box64ec_dynarec_pass${STEP_VALUE} PRIVATE DYNAREC STEP=${STEP_VALUE})
+        list(APPEND BOX64EC_TARGETS box64ec_dynarec_pass${STEP_VALUE})
+    endforeach()
+endif()
+
+foreach(target ${BOX64EC_TARGETS})
     target_include_directories(${target} PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}"
         "${BOX64_ROOT}/src/include"
