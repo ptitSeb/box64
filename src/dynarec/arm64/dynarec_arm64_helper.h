@@ -578,15 +578,15 @@
 #define ALIGNED_ATOMICxw ((fixedaddress && !(fixedaddress&(((1<<(2+rex.w))-1)))) || BOX64ENV(dynarec_aligned_atomics))
 #define ALIGNED_ATOMICH ((fixedaddress && !(fixedaddress&1)) || BOX64ENV(dynarec_aligned_atomics))
 
-// CALL will use x7 for the call address. Return value can be put in ret (unless ret is -1)
+// CALL will use xLR for the call address. Return value can be put in ret (unless ret is -1)
 // R0 will not be pushed/popd if ret is -2
-#define CALL(F, ret) call_c(dyn, ninst, F, x87pc, ret, 1, 0)
-// CALL_ will use x7 for the call address. Return value can be put in ret (unless ret is -1)
+#define CALL(F, ret) call_c(dyn, ninst, F, xLR, ret, 1, 0)
+// CALL_ will use xLR for the call address. Return value can be put in ret (unless ret is -1)
 // R0 will not be pushed/popd if ret is -2
-#define CALL_(F, ret, reg) call_c(dyn, ninst, F, x87pc, ret, 1, reg)
-// CALL_S will use x7 for the call address. Return value can be put in ret (unless ret is -1)
+#define CALL_(F, ret, reg) call_c(dyn, ninst, F, xLR, ret, 1, reg)
+// CALL_S will use xLR for the call address. Return value can be put in ret (unless ret is -1)
 // R0 will not be pushed/popd if ret is -2. Flags are not save/restored
-#define CALL_S(F, ret) call_c(dyn, ninst, F, x87pc, ret, 0, 0)
+#define CALL_S(F, ret) call_c(dyn, ninst, F, xLR, ret, 0, 0)
 // CALL_D will use x7 for the call address. Use for function having 1 or 2 double args and returning 1 double
 // All regs are saved, including xmm0-7, will move arg1/arg2 to D0, D1, return D0 to ret (unless any is -1)
 #define CALL_D(F, ret, arg1, arg2, sav1, sav2) call_d(dyn, ninst, F, ret, arg1, arg2, sav1, sav2)

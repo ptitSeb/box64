@@ -572,12 +572,16 @@ void call_c(dynarec_arm_t* dyn, int ninst, arm64_consts_t fnc, int reg, int ret,
         STPx_S7_offset(xRSP, xRBP, xEmu, offsetof(x64emu_t, regs[_SP]));
         STPx_S7_offset(xRSI, xRDI, xEmu, offsetof(x64emu_t, regs[_SI]));
         STPx_S7_offset(xR8,  xR9,  xEmu, offsetof(x64emu_t, regs[_R8]));
+#ifdef BOX64EC
+        // R10 and R11 are not preserved by the C call in the EC map
+        STPx_S7_offset(xR10, xR11, xEmu, offsetof(x64emu_t, regs[_R10]));
+#endif
         fpu_pushcache(dyn, ninst, savereg, 0);
         for(int i=0; i<dyn->n.fpu_scratch; ++i)
             VSTR128_S9_preindex(SCRATCH0+i, xSP, -16);
     }
     #ifdef _WIN32
-    LDRx_U12(xR8, xEmu, offsetof(x64emu_t, win64_teb));
+    LDRx_U12(xTEB, xEmu, offsetof(x64emu_t, win64_teb));
     #endif
     TABLE64C(reg, fnc);
     BLR(reg);
@@ -600,15 +604,23 @@ void call_c(dynarec_arm_t* dyn, int ninst, arm64_consts_t fnc, int reg, int ret,
         GO(RSP, RBP);
         GO(RSI, RDI);
         GO(R8, R9);
+#ifdef BOX64EC
+        GO(R10, R11);
+#endif
         #undef GO
         fpu_popcache(dyn, ninst, savereg, 0);   // savereg will not be used
     }
     if(saveflags) {
         LDRx_U12(xFlags, xEmu, offsetof(x64emu_t, eflags));
     }
+#ifdef BOX64EC
+    // x87pc is x5, the pop above restored an argument: reload it
+    NATIVE_RESTORE_X87PC();
+#else
     if(savereg!=x87pc && dyn->need_x87check) {
         NATIVE_RESTORE_X87PC();
     }
+#endif
     //SET_NODF();
 }
 
@@ -629,11 +641,14 @@ void call_d(dynarec_arm_t* dyn, int ninst, arm64_consts_t fnc, int ret, int arg1
     STPx_S7_offset(xRSP, xRBP, xEmu, offsetof(x64emu_t, regs[_SP]));
     STPx_S7_offset(xRSI, xRDI, xEmu, offsetof(x64emu_t, regs[_SI]));
     STPx_S7_offset(xR8,  xR9,  xEmu, offsetof(x64emu_t, regs[_R8]));
+#ifdef BOX64EC
+    STPx_S7_offset(xR10, xR11, xEmu, offsetof(x64emu_t, regs[_R10]));   // not preserved by the C call, as in call_c
+#endif
     STRx_U12(xFlags, xEmu, offsetof(x64emu_t, eflags));
     fpu_pushcache(dyn, ninst, x87pc, 0);
 
     #ifdef _WIN32
-    LDRx_U12(xR8, xEmu, offsetof(x64emu_t, win64_teb));
+    LDRx_U12(xTEB, xEmu, offsetof(x64emu_t, win64_teb));
     #endif
     if(arg1!=-1)
         FMOVD(0, arg1);
@@ -653,6 +668,9 @@ void call_d(dynarec_arm_t* dyn, int ninst, arm64_consts_t fnc, int ret, int arg1
     GO(RSP, RBP);
     GO(RSI, RDI);
     GO(R8, R9);
+#ifdef BOX64EC
+    GO(R10, R11);
+#endif
     #undef GO
     LDRx_U12(xFlags, xEmu, offsetof(x64emu_t, eflags));
     fpu_popcache(dyn, ninst, x1, 0);   // savereg will not be used
@@ -3004,8 +3022,8 @@ void checkCRC(dynarec_arm_t* dyn, int ninst)
     // grab the dynablock address in x5, as this on will not be erased by crc functions
     int delta = -(dyn->native_size + sizeof(void*));
     LDRx_literal(x5, delta);
-    // move away xEMU to X6, should be safe there
-    MOVx_REG(x6, xEmu);
+    // move away xEMU to the stack, x6 is guest R9 on Box64EC
+    STPx_S7_preindex(xEmu, xZR, xSP, -16);
     // prepare and call the crc function
     TABLE64C(x3, cpuext.crc32?const_native_crc32:const_native_x31);
     LDRx_U12(xEmu, x5, offsetof(dynablock_t, x64_addr));
@@ -3013,10 +3031,14 @@ void checkCRC(dynarec_arm_t* dyn, int ninst)
     BLR(x3);
     // done, move away result and restore xEmu
     MOVw_REG(x1, xEmu);
-    MOVx_REG(xEmu, x6);
+    LDPx_S7_postindex(xEmu, xZR, xSP, 16);
     LDRw_U12(x2, x5, offsetof(dynablock_t, hash));
     SUBw_REG(x1, x1, x2);
     CBZw(x1, 4+2*4);
     TABLE64C(x3, const_native_next_invalidate);
     BLR(x3);
+#ifdef BOX64EC
+    // x5 held the dynablock, which is x87pc here
+    NATIVE_RESTORE_X87PC();
+#endif
 }
