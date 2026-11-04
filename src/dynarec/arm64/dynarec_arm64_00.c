@@ -1014,10 +1014,10 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 	            GETEW(x1, 0);
 	            GETGW(x2);
 	            // Extract RPL (low 2 bits)
-	            UBFXw(x6, ed, 0, 2);
+	            UBFXw(x5, ed, 0, 2);
 	            UBFXw(x4, gd, 0, 2);
 	            // need_update = (dst_rpl < src_rpl)
-	            CMPSw_REG(x6, x4);
+	            CMPSw_REG(x5, x4);
 	            CSETw(x5, cLT);
 	            // ZF = need_update
 	            BFIw(xFlags, x5, F_ZF, 1);
@@ -1480,7 +1480,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             nextop=F8;
             GETGD;
             GETED(0);
-            emit_test32(dyn, ninst, rex, ed, gd, x3, x5, x6);
+            emit_test32(dyn, ninst, rex, ed, gd, x3, x5, x4);
             break;
         case 0x86:
             INST_NAME("(LOCK)XCHG Eb, Gb");
@@ -3584,7 +3584,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     GETED(0);
                     if(!rex.w && !rex.is32bits && MODREG) {MOVw_REG(ed, ed);}
                     CBZw_NEXT(x3);
-                    emit_rcl32(dyn, ninst, rex, ed, x3, x5, x4, x6);
+                    emit_rcl32(dyn, ninst, rex, ed, x3, x5, x4);
                     WBACK;
                     break;
                 case 3:
@@ -3603,7 +3603,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     GETED(0);
                     if(!rex.w && !rex.is32bits && MODREG) {MOVw_REG(ed, ed);}
                     CBZw_NEXT(x3);
-                    emit_rcr32(dyn, ninst, rex, ed, x3, x5, x4, x6);
+                    emit_rcr32(dyn, ninst, rex, ed, x3, x5, x4);
                     WBACK;
                     break;
                 case 4:

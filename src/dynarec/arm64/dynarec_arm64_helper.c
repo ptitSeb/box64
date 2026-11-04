@@ -50,7 +50,7 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
     uint8_t scratch = x2;
     *fixaddress = 0;
     if(hint>0) ret = hint;
-    if(hint>0 && hint<xRAX) scratch = hint;
+    if(hint>0 && !IS_GPR(hint)) scratch = hint;
     int absmin = 0;
     if(s) absmin=-absmax;
     int seg_done = 0;
@@ -204,7 +204,7 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
                         }
                         ADDy_REG_LSL(ret, scratch, TO_NAT(sib_reg), (sib>>6));
                     } else {
-                        PASS3(int tmp = TO_NAT(sib & 0x07) + (rex.b << 3));
+                        PASS3(int tmp = TO_NAT((sib & 0x07) + (rex.b << 3)));
                         if(sub) {
                             SUBy_REG(ret, tmp, scratch);
                         } else {
@@ -229,7 +229,7 @@ uintptr_t geted(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop, u
     if(rex.seg && !seg_done) {
         scratch = (hint>0 && !IS_GPR(hint)) ? hint : x2;
         if(scratch==ret)
-            scratch=ret+1;
+            scratch = xLR;  // dead between opcodes, ret+1 can be a guest register
         grab_segdata(dyn, addr, ninst, scratch, rex.seg);
         //seg offset is 64bits, so no truncation here
         ADDx_REGy(hint, scratch, ret);
@@ -321,7 +321,7 @@ uintptr_t geted16(dynarec_arm_t* dyn, uintptr_t addr, int ninst, uint8_t nextop,
 
     if(rex.seg) {
         if(scratch==ret)
-            scratch=ret+1;
+            scratch = xLR;
         grab_segdata(dyn, addr, ninst, scratch, rex.seg);
         //seg offset is 64bits, so no truncation here
         if(IS_GPR(ret)) {
@@ -350,8 +350,10 @@ void jump_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
     TABLE64C(x2, const_epilog);
     SMEND();
     CHECK_DFNONE(0);
+#ifndef BOX64EC // no CALLRET on Box64EC yet
     if (BOX64DRENV(dynarec_callret) >= 3)
         doLeaveBlock(dyn, ninst, x4, x5, x6);
+#endif
     BR(x2);
 }
 
@@ -426,8 +428,10 @@ void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst, int is32
     if(reg!=x1) {
         MOVx_REG(x1, xRIP);
     }
+#ifndef BOX64EC // no CALLRET on Box64EC yet
     if(BOX64DRENV(dynarec_callret) >= 3 && !dyn->insts[ninst].x64.has_callret)
         doLeaveBlock(dyn, ninst, x4, x5, x6);
+#endif
     // #ifdef HAVE_TRACE
     // The BLR form is only for gdb backtraces, but it breaks the
     // return-address-stack prediction on every block-to-block jump, which is
@@ -448,6 +452,7 @@ void ret_to_next(dynarec_arm_t* dyn, uintptr_t ip, int ninst, rex_t rex)
     CHECK_DFNONE(0);
     MOVz_REG(x1, xRIP);
     SMEND();
+#ifndef BOX64EC // no CALLRET on Box64EC yet
     if(BOX64DRENV(dynarec_callret)) {
         // pop the actual return address for ARM stack
         LDPx_S7_postindex(xLR, x6, xSP, 16);
@@ -459,6 +464,7 @@ void ret_to_next(dynarec_arm_t* dyn, uintptr_t ip, int ninst, rex_t rex)
         // not the correct return address, regular jump, but purge the stack first, it's unsync now...
         SUBx_U12(xSP, xSavedSP, 16);
     }
+#endif
     NOTEST(x2);
     int dest = indirect_lookup(dyn, ninst, rex.is32bits, x2, x3);
     #ifdef HAVE_TRACE
@@ -2355,12 +2361,25 @@ static void flagsCacheTransform(dynarec_arm_t* dyn, int ninst)
             j64 = (GETMARKF2)-(dyn->native_size);
             CBZw(x1, j64);
         }
-        if(dyn->insts[ninst].need_nat_flags)
+        if(dyn->insts[ninst].need_nat_flags) {
+#ifdef BOX64EC
+            // updateflags uses x1 to x5 and x6 is guest R9: NZCV goes through the emu
+            MRS_nzcv(x1);
+            STRx_U12(x1, xEmu, offsetof(x64emu_t, scratch[0]));
+#else
             MRS_nzcv(x6);
+#endif
+        }
         TABLE64C(x1, const_updateflags_arm64);
         BLR(x1);
-        if(dyn->insts[ninst].need_nat_flags)
+        if(dyn->insts[ninst].need_nat_flags) {
+#ifdef BOX64EC
+            LDRx_U12(x1, xEmu, offsetof(x64emu_t, scratch[0]));
+            MSR_nzcv(x1);
+#else
             MSR_nzcv(x6);
+#endif
+        }
         MARKF2;
     }
     MESSAGE(LOG_DUMP, "\t---- Flags fetch\n");

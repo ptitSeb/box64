@@ -604,6 +604,26 @@
 #define MARKSEG     dyn->insts[ninst].markseg = dyn->native_size
 #define GETMARKSEG  dyn->insts[ninst].markseg
 #define MARKLOCK    dyn->insts[ninst].marklock = dyn->native_size
+#ifdef BOX64EC
+// x6 is guest R9 and x87pc is x5, so keep the flags in the emu across the retry loop
+#define MARKLOCK_SAVE_FLAGS() do {                                           \
+    STRx_U12(xFlags, xEmu, offsetof(x64emu_t, eflags));                      \
+    MRS_nzcv(x4);                                                            \
+    STRx_U12(x4, xEmu, offsetof(x64emu_t, scratch[0]));                      \
+    MARKLOCK;                                                                \
+    LDRx_U12(xFlags, xEmu, offsetof(x64emu_t, eflags));                      \
+    LDRx_U12(x4, xEmu, offsetof(x64emu_t, scratch[0]));                      \
+    MSR_nzcv(x4);                                                            \
+} while (0)
+#else
+#define MARKLOCK_SAVE_FLAGS() do {                                           \
+    MOVx_REG(x6, xFlags);                                                    \
+    MRS_nzcv(x87pc);                                                         \
+    MARKLOCK;                                                                \
+    MOVx_REG(xFlags, x6);                                                    \
+    MSR_nzcv(x87pc);                                                         \
+} while (0)
+#endif
 #define GETMARKLOCK dyn->insts[ninst].marklock
 
 // Branch to MARK if cond (use j64)
@@ -1029,8 +1049,8 @@
 #define READFLAGS(A) \
     if((A)!=X_PEND                                          \
     && (dyn->f==status_unk)) {                              \
-        TABLE64C(x6, const_updateflags_arm64);              \
-        BLR(x6);                                            \
+        TABLE64C(x5, const_updateflags_arm64);              \
+        BLR(x5);                                            \
         dyn->f = status_none;                               \
     } else if((A)==X_ALL) flushNative(dyn, ninst);
 #endif
@@ -1038,8 +1058,8 @@
 #define GRABFLAGS(A) \
     if((A)!=X_PEND                                          \
     && ((dyn->f==status_unk) || (dyn->f==status_set))) {    \
-        TABLE64C(x6, const_updateflags_arm64);              \
-        BLR(x6);                                            \
+        TABLE64C(x5, const_updateflags_arm64);              \
+        BLR(x5);                                            \
         dyn->f = status_none;                               \
     }
 
@@ -1483,8 +1503,8 @@ void emit_rcl16c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
 void emit_rcr16c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4);
 void emit_rcl32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4);
 void emit_rcr32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, int s3, int s4);
-void emit_rcl32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);
-void emit_rcr32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5);
+void emit_rcl32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4);
+void emit_rcr32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4);
 void emit_shrd32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, uint32_t c, int s3, int s4);
 void emit_shld32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, uint32_t c, int s3, int s4);
 void emit_shrd32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s5, int s3, int s4);
