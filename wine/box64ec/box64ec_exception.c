@@ -9,6 +9,17 @@
 #include "box64ec_syscalls.h"
 #include "emu/x64emu_private.h"
 #include "wine/compiler.h"
+#ifdef DYNAREC
+#include "custommem.h"
+#include "dynablock.h"
+#include "dynarec/arm64/dynarec_arm64_arch.h"
+#include "box64context.h"
+#include "os.h"
+
+extern int fillblock_active;
+extern void* current_helper;
+void adjustregs(x64emu_t* emu, void* pc);
+#endif
 
 /* Dispatch a host fault in Run with the guest state, on the guest stack. */
 static void rethrow_interpreter_fault(EXCEPTION_RECORD* record,
@@ -75,6 +86,36 @@ void WINAPI ResetToConsistentState(EXCEPTION_RECORD* record, CONTEXT* context,
         Box64EC_ContinueNative(arm_context, FALSE);
         return;
     }
+#ifdef DYNAREC
+    /* FillBlock64 can read past the guest code it was given: as the Linux
+     * signal handler does, go back into it to cut the block short. */
+    if (fillblock_active && current_helper &&
+        (uintptr_t)my_context->mutex_dyndump.OwningThread == (uintptr_t)GetTID())
+        cancelFillBlock();
+    /* In JIT code the guest registers are in the JIT map, and the deferred flags and
+     * cached SIMD registers are described by the block. */
+    dynablock_t* db = area->InSimulation ? FindDynablockFromNativeAddress((void*)(uintptr_t)arm_context->Pc) : NULL;
+    if (db) {
+        uintptr_t x64pc = getX64Address(db, arm_context->Pc);
+        jit_arm_context_to_emu(arm_context, emu);
+        R_RIP = x64pc ? x64pc : arm_context->X27;
+        if (x64pc) {
+            adjustregs(emu, (void*)(uintptr_t)arm_context->Pc);
+            adjust_arch(db, emu, arm_context, x64pc);
+        }
+        if (record->ExceptionCode == STATUS_ILLEGAL_INSTRUCTION) {
+            if (*(uint32_t*)(uintptr_t)arm_context->Pc == BOX64EC_JIT_SUSPEND_OPCODE) {
+                Box64EC_ResetAbandonedEmuRun(state, emu);
+                Box64EC_HandleSuspend(emu);
+                return;
+            }
+            if (Box64EC_IsPrivilegedInstruction((void*)(uintptr_t)R_RIP)) {
+                record->ExceptionCode = STATUS_PRIVILEGED_INSTRUCTION;
+                record->NumberParameters = 0;
+            }
+        }
+    }
+#endif
     if (area->InSimulation &&
         Box64EC_IsEmulatorStackAddress(arm_context->Sp)) {
         emu_to_context(emu, area->ContextAmd64);

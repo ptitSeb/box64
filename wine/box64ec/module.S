@@ -579,3 +579,38 @@ Box64EC_NtContinueNative:
     mov     x8, #0x43                    /* Windows NtContinue */
     svc     #0
     ret
+
+    /* ------------------------------------------------------------------ */
+    /* setjmp/longjmp for FillBlock64 (os.h). x0 = buffer of 18 slots.     */
+    /* Only the callee-saved registers ARM64EC code can use: x23, x24 and  */
+    /* x28 are never live in C here.                                       */
+    /* ------------------------------------------------------------------ */
+    .globl Box64EC_SetJmp
+Box64EC_SetJmp:
+    stp     x19, x20, [x0, #0x00]
+    stp     x21, x22, [x0, #0x10]
+    stp     x25, x26, [x0, #0x20]
+    stp     x27, x29, [x0, #0x30]
+    mov     x16, sp
+    stp     x30, x16, [x0, #0x40]
+    stp     d8,  d9,  [x0, #0x50]
+    stp     d10, d11, [x0, #0x60]
+    stp     d12, d13, [x0, #0x70]
+    stp     d14, d15, [x0, #0x80]
+    mov     w0, #0
+    ret
+
+    .globl Box64EC_LongJmp
+Box64EC_LongJmp:
+    ldp     x19, x20, [x0, #0x00]
+    ldp     x21, x22, [x0, #0x10]
+    ldp     x25, x26, [x0, #0x20]
+    ldp     x27, x29, [x0, #0x30]
+    ldp     x30, x16, [x0, #0x40]
+    ldp     d8,  d9,  [x0, #0x50]
+    ldp     d10, d11, [x0, #0x60]
+    ldp     d12, d13, [x0, #0x70]
+    ldp     d14, d15, [x0, #0x80]
+    mov     sp, x16
+    mov     w0, #1
+    ret

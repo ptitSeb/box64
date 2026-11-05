@@ -82,6 +82,12 @@ const char* GetBridgeName(void* p);
 #include <setjmp.h>
 #define LongJmp longjmp
 #define SigSetJmp sigsetjmp
+#elif defined(BOX64EC)
+// ResetToConsistentState leaves a fault in FillBlock64 this way, like the Linux signal handler (no signal mask here)
+int Box64EC_SetJmp(void* buf) __attribute__((returns_twice));
+void Box64EC_LongJmp(void* buf) __attribute__((noreturn));
+#define LongJmp(a, b) Box64EC_LongJmp(a)
+#define SigSetJmp(a, b) Box64EC_SetJmp(a)
 #else
 #define LongJmp(a, b)
 #define SigSetJmp(a, b) 0
@@ -98,6 +104,13 @@ const char* GetBridgeName(void* p);
 #define JUMPBUFF struct __jmp_buf_tag
 #define GET_JUMPBUFF(name) &name
 #endif
+#elif defined(BOX64EC)
+struct box64ec_jmpbuf_s { uint64_t regs[18]; };    // see Box64EC_SetJmp in module.S
+#define JUMPBUFF struct box64ec_jmpbuf_s
+// only FillBlock64 uses it, under mutex_dyndump
+#define NEW_JUMPBUFF(name) \
+    static JUMPBUFF name
+#define GET_JUMPBUFF(name) &name
 #else
 #define JUMPBUFF int
 #define NEW_JUMPBUFF(name)

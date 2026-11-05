@@ -278,8 +278,16 @@ void* populate_arch(dynarec_arm_t* dyn, void* p, size_t tot_sz)
 // NZCV V
 #define NZCV_V      28
 
-#ifndef _WIN32 // TODO: Implemented this for Win32
-void adjust_arch(dynablock_t* db, x64emu_t* emu, ucontext_t* p, uintptr_t x64pc)
+#if defined(BOX64EC)
+typedef ARM64_NT_CONTEXT arm_signal_context_t;
+#define PSTATE(p)   ((p)->Cpsr)
+#elif !defined(_WIN32) // TODO: Implemented this for Win32
+typedef ucontext_t arm_signal_context_t;
+#define PSTATE(p)   ((p)->uc_mcontext.pstate)
+#endif
+
+#if defined(BOX64EC) || !defined(_WIN32)
+void adjust_arch(dynablock_t* db, x64emu_t* emu, arm_signal_context_t* p, uintptr_t x64pc)
 {
     if(!db->arch_size || !db->arch)
         return;
@@ -317,32 +325,41 @@ void adjust_arch(dynablock_t* db, x64emu_t* emu, ucontext_t* p, uintptr_t x64pc)
     #undef GO
     if(flags) {
         dynarec_log_prefix(0, LOG_INFO, " flags[%s-%s%s%s%s] ", flags->defered?"defered":"", flags->nf?"S":"", flags->vf?"O":"", flags->eq?"Z":"", flags->cf?(flags->inv_cf?"C(inv)":"C"):"");
+#ifdef BOX64EC
+        // the native flags below are the live ones, a stale deferred df must not recompute over them
+        CHECK_FLAGS(emu);
+#else
         if(flags->defered) {
             CHECK_FLAGS(emu);
             //return;
         } else {
             emu->df = d_none;
         }
+#endif
         if(flags->nf) {
-            CONDITIONAL_SET_FLAG(p->uc_mcontext.pstate&(1<<NZCV_N), F_SF);
+            CONDITIONAL_SET_FLAG(PSTATE(p)&(1<<NZCV_N), F_SF);
         }
         if(flags->vf) {
-            CONDITIONAL_SET_FLAG(p->uc_mcontext.pstate&(1<<NZCV_V), F_OF);
+            CONDITIONAL_SET_FLAG(PSTATE(p)&(1<<NZCV_V), F_OF);
         }
         if(flags->eq) {
-            CONDITIONAL_SET_FLAG(p->uc_mcontext.pstate&(1<<NZCV_Z), F_ZF);
+            CONDITIONAL_SET_FLAG(PSTATE(p)&(1<<NZCV_Z), F_ZF);
         }
         if(flags->cf) {
             if(flags->inv_cf) {
-                CONDITIONAL_SET_FLAG((p->uc_mcontext.pstate&(1<<NZCV_C))==0, F_CF);
+                CONDITIONAL_SET_FLAG((PSTATE(p)&(1<<NZCV_C))==0, F_CF);
             } else {
-                CONDITIONAL_SET_FLAG(p->uc_mcontext.pstate&(1<<NZCV_C), F_CF);
+                CONDITIONAL_SET_FLAG(PSTATE(p)&(1<<NZCV_C), F_CF);
             }
         }
         if(flags->pf_v) {
-            CONDITIONAL_SET_FLAG(p->uc_mcontext.pstate&(1<<NZCV_V), F_PF);
+            CONDITIONAL_SET_FLAG(PSTATE(p)&(1<<NZCV_V), F_PF);
         }
     }
+#ifdef BOX64EC
+    // the NEON registers are part of the context
+    struct { __uint128_t* vregs; } fpsimd_ec = { (__uint128_t*)p->V }, *fpsimd = &fpsimd_ec;
+#else
     struct fpsimd_context *fpsimd = NULL;
     // find fpsimd struct
     {
@@ -354,6 +371,7 @@ void adjust_arch(dynablock_t* db, x64emu_t* emu, ucontext_t* p, uintptr_t x64pc)
                 ff = (struct _aarch64_ctx*)((uintptr_t)ff + ff->size);
         }
     }
+#endif
     if(sse) {
         dynarec_log_prefix(0, LOG_INFO, " sse[%x (fpsimd=%p)] ", sse->sse, fpsimd);
         for(int i=0; i<16; ++i)

@@ -35,6 +35,8 @@ typedef struct {
     uint64_t pc;
 } Box64EC_EntryFrame;
 
+#define BOX64EC_JIT_SUSPEND_OPCODE 0xec53  // UDF #0xec53 in JIT code, reached when the suspend doorbell is set
+
 struct x64emu_s;
 void Box64EC_EnterX64(uint64_t rip);
 void Box64EC_BeginSimulation(void) __attribute__((noreturn));

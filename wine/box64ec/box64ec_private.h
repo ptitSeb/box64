@@ -19,7 +19,6 @@ typedef struct {
     uintptr_t pending_exit;
     uintptr_t pending_native_sp;
     Box64EC_EntryFrame entry;
-    ULONG doorbell;
     int enter_depth;
     unsigned internal_map_depth;
     unsigned callback_depth;
@@ -39,6 +38,7 @@ extern box64context_t Box64EC_Context;
 void context_to_emu(ARM64EC_NT_CONTEXT* context, x64emu_t* emu);
 uint32_t Box64EC_GetEflags(x64emu_t* emu);
 void emu_to_context(x64emu_t* emu, ARM64EC_NT_CONTEXT* context);
+void jit_arm_context_to_emu(ARM64_NT_CONTEXT* context, x64emu_t* emu);
 void emu_to_arm64_ec_packed(x64emu_t* emu, ARM64_NT_CONTEXT* context);
 void merge_eflags_from_emu(x64emu_t* emu, ARM64EC_NT_CONTEXT* context);
 void merge_unmapped_context_from_emu(x64emu_t* emu, ARM64EC_NT_CONTEXT* context);
