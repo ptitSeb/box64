@@ -11,6 +11,14 @@
 #include "wine/compiler.h"
 #include "wine/debug.h"
 
+#ifdef BOX64EC
+extern void Box64EC_InternalMapEnter(void);
+extern void Box64EC_InternalMapLeave(void);
+NTSTATUS WINAPI NtAllocateVirtualMemoryEx(HANDLE, PVOID*, SIZE_T*, ULONG, ULONG, MEM_EXTENDED_PARAMETER*, ULONG);
+NTSTATUS WINAPI RtlAddGrowableFunctionTable(void**, PRUNTIME_FUNCTION, DWORD, DWORD, ULONG_PTR, ULONG_PTR);
+void WINAPI RtlDeleteGrowableFunctionTable(void*);
+#endif
+
 #define HandleToULong(h) ((ULONG)(ULONG_PTR)(h))
 
 NTSTATUS WINAPI NtYieldExecution(void);
@@ -212,7 +220,13 @@ int mprotect(void* addr, size_t len, int prot)
     NTSTATUS ntstatus;
     ULONG old_prot;
     SIZE_T allocsize = len;
+#ifdef BOX64EC
+    Box64EC_InternalMapEnter();
+#endif
     ntstatus = NtProtectVirtualMemory(NtCurrentProcess(), &addr, &allocsize, prot_unix_to_win32(prot), &old_prot);
+#ifdef BOX64EC
+    Box64EC_InternalMapLeave();
+#endif
     if (ntstatus != STATUS_SUCCESS) {
         return -1;
     }
@@ -241,15 +255,89 @@ void* mmap(void* addr, size_t length, int prot, int flags, int fd, off_t offset)
     else
         limit = 0;
 
+#ifdef BOX64EC
+    Box64EC_InternalMapEnter();
+#endif
     ntstatus = NtAllocateVirtualMemory(NtCurrentProcess(), &ret, limit, &sz, MEM_COMMIT | MEM_RESERVE, prot_unix_to_win32(prot));
+#ifdef BOX64EC
+    Box64EC_InternalMapLeave();
+#endif
     return ret;
 }
+
+#ifdef BOX64EC
+void* InternalMmapDynarec(size_t length)
+{
+    // Dynarec blocks are ARM64EC code, so the chunk is allocated as EC code
+    SIZE_T sz = length;
+    void* ret = NULL;
+    NTSTATUS ntstatus;
+    MEM_EXTENDED_PARAMETER param = { 0 };
+
+    param.Type = MemExtendedParameterAttributeFlags;
+    param.ULong64 = MEM_EXTENDED_PARAMETER_EC_CODE;
+    Box64EC_InternalMapEnter();
+    ntstatus = NtAllocateVirtualMemoryEx(NtCurrentProcess(), &ret, &sz, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE, &param, 1);
+    Box64EC_InternalMapLeave();
+    if (ntstatus != STATUS_SUCCESS)
+        return MAP_FAILED;
+    return ret;
+}
+
+int RegisterDynarecUnwind(void* code, size_t code_size, box64ec_dynarec_unwind_t* unwind, void** table)
+{
+    // Phantom parent prolog matching arm64_prolog_ec.S's 160-byte frame
+    static const uint8_t codes[] = {
+        0xe5, 0xe1,
+        0xd9, 0x90, 0xd9, 0x0e, 0xd8, 0x8c, 0xd8, 0x0a,
+        0xe7, 0x17, 0x09, 0xd2, 0x08, 0xc9, 0x86, 0xc8, 0x84,
+        0xc8, 0x02, 0x52, 0x0a, 0xe4, 0xe3, 0xe3, 0xe3, 0xe3,
+    };
+    const size_t max_function_size = ((1u << 18) - 1u) * 4u;
+    uintptr_t code_addr = (uintptr_t)code;
+    unsigned count = (unsigned)((code_size + max_function_size - 1) / max_function_size);
+    NTSTATUS status;
+
+    if ((code_size & 3) || !count || count > BOX64EC_DYNAREC_UNWIND_ENTRIES ||
+        (uintptr_t)&unwind->info[count - 1] < code_addr ||
+        (uintptr_t)&unwind->info[count - 1] - code_addr > UINT32_MAX)
+        return 0;
+
+    memset(unwind, 0, sizeof(*unwind));
+    for (unsigned i = 0; i < count; ++i) {
+        ARM64_RUNTIME_FUNCTION* function = (ARM64_RUNTIME_FUNCTION*)&unwind->functions[i];
+        size_t offset = i * max_function_size;
+        size_t length = code_size - offset;
+        if (length > max_function_size)
+            length = max_function_size;
+        function->BeginAddress = (uint32_t)offset;
+        function->UnwindData = (uint32_t)((uintptr_t)&unwind->info[i] - code_addr);
+        unwind->info[i][0] = (uint32_t)(length / 4) | (7u << 27);
+        memcpy(&unwind->info[i][1], codes, sizeof(codes));
+    }
+
+    status = RtlAddGrowableFunctionTable(table, (PRUNTIME_FUNCTION)unwind->functions, count, count, code_addr, code_addr + code_size);
+    return status == STATUS_SUCCESS;
+}
+
+void UnregisterDynarecUnwind(void* table)
+{
+    if (table)
+        RtlDeleteGrowableFunctionTable(table);
+}
+#endif
 
 int munmap(void* addr, size_t length)
 {
     int ret = 0;
+#ifdef BOX64EC
+    Box64EC_InternalMapEnter();
+#endif
     if (NtFreeVirtualMemory(NtCurrentProcess(), &addr, &length, MEM_RELEASE))
         ret = -1;
+#ifdef BOX64EC
+    Box64EC_InternalMapLeave();
+#endif
     return ret;
 }
 

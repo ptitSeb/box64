@@ -111,6 +111,10 @@ typedef struct blocklist_s {
     uint32_t            lowest;
     uint8_t             type;
     uint8_t             is32bits;
+#ifdef BOX64EC
+    void*                       unwind_table;
+    box64ec_dynarec_unwind_t    unwind;
+#endif
 } blocklist_t;
 
 #define MMAPSIZE (512*1024)     // allocate 512kb sized blocks
@@ -1651,6 +1655,9 @@ void DelMmaplist(mmaplist_t* list)
             // also need to include back the blocklist_t that is excluded from the blocklist tracking
             void* addr = list->chunks[i]->block - sizeof(blocklist_t);
             size_t size = list->chunks[i]->size + sizeof(blocklist_t);
+            #ifdef BOX64EC
+            UnregisterDynarecUnwind(list->chunks[i]->unwind_table);
+            #endif
             int isReserved = box64_is32bits && (uintptr_t)addr>0xffffffffLL;
             InternalMunmap(addr, size);
             // check if memory should be protected and alloced for box32
@@ -1750,8 +1757,13 @@ uintptr_t AllocDynarecMap(uintptr_t x64_addr, size_t size, int is_new)
         else printf_log(LOG_INFO, "Failed to allocated a dynarec memory block with HugeTLB (%s)\n", strerror(errno));
     }
     #endif
+    #ifdef BOX64EC
+    if(p==MAP_FAILED)
+        p = InternalMmapDynarec(allocsize);
+    #else
     if(p==MAP_FAILED)
         p = InternalMmap(NULL, allocsize, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+    #endif
     if(p==MAP_FAILED) {
         dynarec_log(LOG_INFO, "Cannot create dynamic map of %zu bytes (%s)\n", allocsize, strerror(errno));
         return 0;
@@ -1782,6 +1794,11 @@ uintptr_t AllocDynarecMap(uintptr_t x64_addr, size_t size, int is_new)
     blockmark_t* n = NEXT_BLOCK(m);
     n->next.x32 = 0;
     n->prev.x32 = m->next.x32;
+    #ifdef BOX64EC
+    list->chunks[i]->unwind_table = NULL;
+    if(!RegisterDynarecUnwind(list->chunks[i], allocsize + sizeof(blocklist_t), &list->chunks[i]->unwind, &list->chunks[i]->unwind_table))
+        printf_log(LOG_NONE, "Cannot register unwind info for the dynarec chunk %p, exceptions cannot be unwound through its blocks\n", (void*)list->chunks[i]);
+    #endif
     // alloc 1st block
     void* ret  = allocBlock(list->chunks[i]->block, p, size, &list->chunks[i]->first);
     list->chunks[i]->maxfree = getMaxFreeBlock(list->chunks[i]->block, list->chunks[i]->size, list->chunks[i]->first);
@@ -3302,6 +3319,9 @@ void fini_custommem_helper(box64context_t *ctx)
         mmaplist = NULL;
         if(head) {
             for (int i=0; i<head->size; ++i) {
+                #ifdef BOX64EC
+                UnregisterDynarecUnwind(head->chunks[i]->unwind_table);
+                #endif
                 InternalMunmap(head->chunks[i]->block-sizeof(blocklist_t), head->chunks[i]->size+sizeof(blocklist_t));
             }
             box_free(head->chunks);

@@ -43,6 +43,16 @@ void Box64WineUpdateProcessorInformation(struct _SYSTEM_CPU_INFORMATION* info,
 #endif
 
 void* InternalMmap(void* addr, unsigned long length, int prot, int flags, int fd, ssize_t offset);
+#ifdef BOX64EC
+void* InternalMmapDynarec(size_t length);
+#define BOX64EC_DYNAREC_UNWIND_ENTRIES 3
+typedef struct {
+    uint64_t functions[BOX64EC_DYNAREC_UNWIND_ENTRIES];
+    uint32_t info[BOX64EC_DYNAREC_UNWIND_ENTRIES][8];
+} box64ec_dynarec_unwind_t;
+int RegisterDynarecUnwind(void* code, size_t code_size, box64ec_dynarec_unwind_t* unwind, void** table);
+void UnregisterDynarecUnwind(void* table);
+#endif
 int InternalMunmap(void* addr, unsigned long length);
 
 int GetTID(void);

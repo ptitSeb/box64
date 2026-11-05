@@ -21,6 +21,7 @@ typedef struct {
     Box64EC_EntryFrame entry;
     ULONG doorbell;
     int enter_depth;
+    unsigned internal_map_depth;
     unsigned callback_depth;
     unsigned pending_callback_depth;
     uint64_t callback_seq;
