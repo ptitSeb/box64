@@ -276,7 +276,7 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     NOTEST(x5);
                     // the FLD is immediatly followed by an FSTP
                     LDRx_U12(x5, ed, 0);
-                    LDRH_U12(x6, ed, 8);
+                    LDRH_U12(x4, ed, 8);
                     // no persistant scratch register, so unrool both instruction here...
                     MESSAGE(LOG_DUMP, "\tHack: FSTP tbyte\n");
                     nextop = F8;    // 0xDB or rex
@@ -288,7 +288,7 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     nextop = F8;    //modrm
                     addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                     STRx_U12(x5, ed, 0);
-                    STRH_U12(x6, ed, 8);
+                    STRH_U12(x4, ed, 8);
                 } else {
                     if(BOX64ENV(x87_no80bits)) {
                         X87_PUSH_OR_FAIL(v1, dyn, ninst, x1, NEON_CACHE_ST_D);
@@ -357,11 +357,21 @@ uintptr_t dynarec64_DB(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         ORRx_mask(x5, x1, 1, 1, 0);    //0x8000000000000000 x5 = mantisse
                         B_MARK3_nocond;
                         // denormals
+#ifdef BOX64EC
+                        // no x6 (guest R9) and x2 can be the address: x3 is free here (exp11 == 0), at the cost of the MOV
+                        CLZx(x3, x1);
+                        ADDw_U12(x3, x3, 1);    // "one"
+                        SUBw_REG(x4, x4, x3);   // x4 = exp16
+                        ORRw_REG(x4, x4, x5);   // x4 = sign | exp16
+                        LSLx_REG(x5, x1, x3);   // x5 = mantisse
+                        MOVw_REG(x3, x4);
+#else
                         CLZx(x6, x1);
                         ADDw_U12(x6, x6, 1);    // "one"
                         SUBw_REG(x3, x4, x6);   // x3 = exp16
                         ORRw_REG(x3, x3, x5);   // x3 = sign | exp16
                         LSLx_REG(x5, x1, x6);   // x5 = mantisse
+#endif
                         MARK3;
                         STRx_U12(x5, wback, 0);
                         STRH_U12(x3, wback, 8);

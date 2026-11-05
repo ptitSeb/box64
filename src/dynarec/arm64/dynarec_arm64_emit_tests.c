@@ -310,8 +310,8 @@ void emit_cmp8_0(dynarec_arm_t* dyn, int ninst, int s1, int s3, int s4)
     }
 }
 
-// emit TEST32 instruction, from test s1, s2, using s3, s4 and s5 as scratch
-void emit_test32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5)
+// emit TEST32 instruction, from test s1, s2, using s3 and s4 as scratch
+void emit_test32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4)
 {
     MAYUSE(s1); MAYUSE(s2); MAYUSE(s3); MAYUSE(s4);
     IFX_PENDOR0 {
@@ -349,12 +349,12 @@ void emit_test32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
         }
     }
     IFX(X_PF) {
-        emit_pf(dyn, ninst, s3, s5);
+        emit_pf(dyn, ninst, s3, s4);
     }
 }
 
-// emit TEST32 instruction, from test s1, s2, using s3, s4 and s5 as scratch
-void emit_test32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s3, int s4, int s5)
+// emit TEST32 instruction, from test s1, s2, using s3 and s4 as scratch
+void emit_test32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int64_t c, int s3, int s4)
 {
     MAYUSE(s1); MAYUSE(s3); MAYUSE(s4);
     int mask = convert_bitmask_xw(c);
@@ -398,12 +398,12 @@ void emit_test32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int64_t c, i
         }
     }
     IFX(X_PF) {
-        emit_pf(dyn, ninst, s3, s5);
+        emit_pf(dyn, ninst, s3, s4);
     }
 }
 
-// emit TEST16 instruction, from test s1, s2, using s3, s4 and s5 as scratch
-void emit_test16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5)
+// emit TEST16 instruction, from test s1, s2, using s3 and s4 as scratch
+void emit_test16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 {
     MAYUSE(s1); MAYUSE(s2);
     IFX_PENDOR0 {
@@ -412,8 +412,8 @@ void emit_test16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
         SET_DFNONE();
     }
     IFX(X_CF|X_ZF|X_SF|X_OF) {
-        LSLw(s5, s1, 16);
-        ANDSw_REG_LSL(s5, s5, s2, 16);
+        LSLw(s3, s1, 16);
+        ANDSw_REG_LSL(s3, s3, s2, 16);
         IFX(X_ZF) {
             IFNATIVE(NF_EQ) {} else {
                 CSETw(s4, cEQ);
@@ -433,24 +433,24 @@ void emit_test16(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, 
             }
         }
         IFX(X_PF|X_PEND) {
-            LSRw(s5, s5, 16);
+            LSRw(s3, s3, 16);
         }
     } else {
-        ANDw_REG(s5, s1, s2);   // res = s1 & s2
+        ANDw_REG(s3, s1, s2);   // res = s1 & s2
     }
     IFX(X_AF) {
         BFCw(xFlags, F_AF, 1);
     }
     IFX_PENDOR0 {
-        STRH_U12(s5, xEmu, offsetof(x64emu_t, res));
+        STRH_U12(s3, xEmu, offsetof(x64emu_t, res));
     }
     IFX(X_PF) {
-        emit_pf(dyn, ninst, s5, s4);
+        emit_pf(dyn, ninst, s3, s4);
     }
 }
 
-// emit TEST16 instruction, from test s1, s2, using s3, s4 and s5 as scratch
-void emit_test16c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4, int s5)
+// emit TEST16 instruction, from test s1, s2, using s3 and s4 as scratch
+void emit_test16c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4)
 {
     MAYUSE(s1);
     int mask = 0;
@@ -460,13 +460,13 @@ void emit_test16c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int
         SET_DFNONE();
     }
     IFX(X_CF|X_ZF|X_SF|X_OF) {
-        LSLw(s5, s1, 16);
+        LSLw(s3, s1, 16);
         mask = convert_bitmask_w(c<<16);
         if(mask) {
-            ANDSw_mask(s5, s5, mask&0x3F, (mask>>6)&0x3F);
+            ANDSw_mask(s3, s3, mask&0x3F, (mask>>6)&0x3F);
         } else {
-            MOV32w(s3, c);
-            ANDSw_REG_LSL(s5, s5, s3, 16);
+            MOV32w(s4, c);
+            ANDSw_REG_LSL(s3, s3, s4, 16);
         }
         IFX(X_ZF) {
             IFNATIVE(NF_EQ) {} else {
@@ -487,30 +487,30 @@ void emit_test16c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int
             }
         }
         IFX(X_PF|X_PEND) {
-            LSRw(s5, s5, 16);
+            LSRw(s3, s3, 16);
         }
     } else {
         mask = convert_bitmask_w(c);
         if(mask) {
-            ANDw_mask(s5, s1, mask&0x3F, (mask>>6)&0x3F);
+            ANDw_mask(s3, s1, mask&0x3F, (mask>>6)&0x3F);
         } else {
-            MOV32w(s5, c);
-            ANDw_REG(s5, s1, s5);   // res = s1 & s2
+            MOV32w(s3, c);
+            ANDw_REG(s3, s1, s3);   // res = s1 & s2
         }
     }
     IFX(X_AF) {
         BFCw(xFlags, F_AF, 1);
     }
     IFX_PENDOR0 {
-        STRH_U12(s5, xEmu, offsetof(x64emu_t, res));
+        STRH_U12(s3, xEmu, offsetof(x64emu_t, res));
     }
     IFX(X_PF) {
-        emit_pf(dyn, ninst, s5, s4);
+        emit_pf(dyn, ninst, s3, s4);
     }
 }
 
-// emit TEST8 instruction, from test s1, s2, using s3, s4 and s5 as scratch
-void emit_test8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, int s5)
+// emit TEST8 instruction, from test s1, s2, using s3 and s4 as scratch
+void emit_test8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4)
 {
     MAYUSE(s1); MAYUSE(s2);
     IFX_PENDOR0 {
@@ -519,8 +519,8 @@ void emit_test8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
         SET_DFNONE();
     }
     IFX(X_CF|X_ZF|X_SF|X_OF) {
-        LSLw(s5, s1, 24);
-        ANDSw_REG_LSL(s5, s5, s2, 24);
+        LSLw(s3, s1, 24);
+        ANDSw_REG_LSL(s3, s3, s2, 24);
         IFX(X_ZF) {
             IFNATIVE(NF_EQ) {} else {
                 CSETw(s4, cEQ);
@@ -540,24 +540,24 @@ void emit_test8(dynarec_arm_t* dyn, int ninst, int s1, int s2, int s3, int s4, i
             }
         }
         IFX(X_PF|X_PEND) {
-            LSRw(s5, s5, 24);
+            LSRw(s3, s3, 24);
         }
     } else {
-        ANDw_REG(s5, s1, s2);   // res = s1 & s2
+        ANDw_REG(s3, s1, s2);   // res = s1 & s2
     }
     IFX(X_AF) {
         BFCw(xFlags, F_AF, 1);
     }
     IFX_PENDOR0 {
-        STRB_U12(s5, xEmu, offsetof(x64emu_t, res));
+        STRB_U12(s3, xEmu, offsetof(x64emu_t, res));
     }
     IFX(X_PF) {
-        emit_pf(dyn, ninst, s5, s4);
+        emit_pf(dyn, ninst, s3, s4);
     }
 }
 
 // emit TEST8 instruction, from test s1, s2, using s3, s4 and s5 as scratch
-void emit_test8c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4, int s5)
+void emit_test8c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int s4)
 {
     MAYUSE(s1);
     int mask = 0;
@@ -567,13 +567,13 @@ void emit_test8c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
         SET_DFNONE();
     }
     IFX(X_CF|X_ZF|X_SF|X_OF) {
-        LSLw(s5, s1, 24);
+        LSLw(s3, s1, 24);
         mask = convert_bitmask_w(c<<24);
         if(mask) {
-            ANDSw_mask(s5, s5, mask&0x3F, (mask>>6)&0x3F);
+            ANDSw_mask(s3, s3, mask&0x3F, (mask>>6)&0x3F);
         } else {
-            MOV32w(s3, c);
-            ANDSw_REG_LSL(s5, s5, s3, 24);
+            MOV32w(s4, c);
+            ANDSw_REG_LSL(s3, s3, s4, 24);
         }
         IFX(X_ZF) {
             IFNATIVE(NF_EQ) {} else {
@@ -594,24 +594,24 @@ void emit_test8c(dynarec_arm_t* dyn, int ninst, int s1, uint32_t c, int s3, int 
             }
         }
         IFX(X_PF|X_PEND) {
-            LSRw(s5, s5, 24);
+            LSRw(s3, s3, 24);
         }
     } else {
         mask = convert_bitmask_w(c);
         if(mask) {
-            ANDw_mask(s5, s1, mask&0x3F, (mask>>6)&0x3F);
+            ANDw_mask(s3, s1, mask&0x3F, (mask>>6)&0x3F);
         } else {
-            MOV32w(s5, c);
-            ANDw_REG(s5, s1, s5);   // res = s1 & s2
+            MOV32w(s3, c);
+            ANDw_REG(s3, s1, s3);   // res = s1 & s2
         }
     }
     IFX(X_AF) {
         BFCw(xFlags, F_AF, 1);
     }
     IFX_PENDOR0 {
-        STRB_U12(s5, xEmu, offsetof(x64emu_t, res));
+        STRB_U12(s3, xEmu, offsetof(x64emu_t, res));
     }
     IFX(X_PF) {
-        emit_pf(dyn, ninst, s5, s4);
+        emit_pf(dyn, ninst, s3, s4);
     }
 }

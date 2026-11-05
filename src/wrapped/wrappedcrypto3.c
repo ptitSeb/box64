@@ -627,6 +627,82 @@ static void* find_ECDH_KDF_Fct(void* fct)
     return NULL;
 }
 
+// mem_malloc
+#define GO(A)   \
+static uintptr_t my3_mem_malloc_fct_##A = 0;                                \
+static void* my3_mem_malloc_##A(size_t a, void* b, int c)                   \
+{                                                                           \
+    return (void*)RunFunctionFmt(my3_mem_malloc_fct_##A, "Lpi", a, b, c);   \
+}
+SUPER()
+#undef GO
+static void* find_mem_malloc_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my3_mem_malloc_fct_##A == (uintptr_t)fct) return my3_mem_malloc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my3_mem_malloc_fct_##A == 0) {my3_mem_malloc_fct_##A = (uintptr_t)fct; return my3_mem_malloc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libcrypto mem_malloc callback\n");
+    return NULL;
+}
+// mem_realloc
+#define GO(A)   \
+static uintptr_t my3_mem_realloc_fct_##A = 0;                                   \
+static void* my3_mem_realloc_##A(void* a, size_t b, void* c, int d)             \
+{                                                                               \
+    return (void*)RunFunctionFmt(my3_mem_realloc_fct_##A, "pLpi", a, b, c, d);  \
+}
+SUPER()
+#undef GO
+static void* find_mem_realloc_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my3_mem_realloc_fct_##A == (uintptr_t)fct) return my3_mem_realloc_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my3_mem_realloc_fct_##A == 0) {my3_mem_realloc_fct_##A = (uintptr_t)fct; return my3_mem_realloc_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libcrypto mem_realloc callback\n");
+    return NULL;
+}
+// mem_free
+#define GO(A)   \
+static uintptr_t my3_mem_free_fct_##A = 0;                              \
+static void my3_mem_free_##A(void* a, void* b, int c)                   \
+{                                                                       \
+    RunFunctionFmt(my3_mem_free_fct_##A, "ppi", a, b, c);               \
+}
+SUPER()
+#undef GO
+static void* find_mem_free_Fct(void* fct)
+{
+    if(!fct) return NULL;
+    void* p;
+    if((p = GetNativeFnc((uintptr_t)fct))) return p;
+    #define GO(A) if(my3_mem_free_fct_##A == (uintptr_t)fct) return my3_mem_free_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my3_mem_free_fct_##A == 0) {my3_mem_free_fct_##A = (uintptr_t)fct; return my3_mem_free_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for libcrypto mem_free callback\n");
+    return NULL;
+}
+
+EXPORT int my3_CRYPTO_set_mem_functions(x64emu_t* emu, void* m, void* r, void* f)
+{
+    (void)emu;
+    return my->CRYPTO_set_mem_functions(find_mem_malloc_Fct(m), find_mem_realloc_Fct(r), find_mem_free_Fct(f));
+}
+
 EXPORT int my3_CRYPTO_get_ex_new_index(x64emu_t* emu, int idx, long argl, void* argp, void* new_func, 
     void* dup_func, void* free_func) {
     (void)emu;

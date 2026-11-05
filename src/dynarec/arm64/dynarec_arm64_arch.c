@@ -13,6 +13,11 @@
 #include "dynarec_arm64_arch.h"
 #include "dynarec_arm64_functions.h"
 #include "dynarec_native.h"
+#include "custommem.h"
+#include "khash.h"
+
+KHASH_SET_INIT_INT64(lrcpc)
+static kh_lrcpc_t    *lrcpc = NULL;
 
 //order might be important, so define SUPER for the right one
 #define SUPER() \
@@ -68,6 +73,7 @@ typedef struct arch_arch_s
     SUPER()
     #undef GO
     uint16_t unaligned:1;
+    uint16_t lrcpc:1;
     uint16_t seq:10;    // how many instruction on the same values
 } arch_arch_t;
 
@@ -77,6 +83,7 @@ typedef struct arch_build_s
     SUPER()
     #undef GO
     uint8_t unaligned;
+    uint8_t lrcpc;
     #define GO(A) arch_##A##_t A##_;
     SUPER()
     #undef GO
@@ -102,6 +109,8 @@ static int arch_build(dynarec_arm_t* dyn, int ninst, arch_build_t* arch, int noa
     }
     // opcode can handle unaligned
     arch->unaligned = dyn->insts[ninst].unaligned;
+    // opcode has lrcpc opcode in it
+    arch->lrcpc = dyn->insts[ninst].has_lrcpc;
     if(!noarch) {
         // got through all naoncache to gather regs assignments
         if(dyn->use_x87 || dyn->use_mmx || dyn->use_xmm || dyn->use_ymm) {
@@ -163,7 +172,7 @@ static int arch_build(dynarec_arm_t* dyn, int ninst, arch_build_t* arch, int noa
             arch->x87_.delta = dyn->insts[ninst].n.x87stack;
         }
     }
-    return arch->flags + arch->x87 + arch->mmx + arch->sse + arch->ymm + arch->unaligned;
+    return arch->flags + arch->x87 + arch->mmx + arch->sse + arch->ymm + arch->unaligned + arch->lrcpc;
 }
 
 static int sizeof_arch(arch_arch_t* arch)
@@ -218,6 +227,7 @@ static void build_next(arch_arch_t* arch, arch_build_t* build)
     SUPER()
     #undef GO
     arch->unaligned = build->unaligned;
+    arch->lrcpc = build->lrcpc;
     arch->seq = 0;
     void* p = ((void*)arch)+sizeof(arch_arch_t);
     #define GO(A)                                           \
@@ -420,4 +430,54 @@ int arch_unaligned(dynablock_t* db, uintptr_t x64pc)
         next = (arch_arch_t*)((uintptr_t)next + sizeof_arch(arch));
     }
     return arch->unaligned;
+}
+
+int arch_lrcpc(dynablock_t* db, uintptr_t x64pc)
+{
+    if(!db)
+        return 0;
+    if(!db->arch_size || !db->arch)
+        return 0;
+    int ninst = getX64AddressInst(db, x64pc);
+    if(ninst<0) {
+        return 0;
+    }
+    // look for state at ninst
+    arch_arch_t* arch = db->arch;
+    arch_arch_t* next = arch;
+    int i = -1;
+    while(i<ninst) {
+        arch = next;
+        i += 1+arch->seq;
+        next = (arch_arch_t*)((uintptr_t)next + sizeof_arch(arch));
+    }
+    return arch->lrcpc;
+}
+
+void add_lrcpc_address(uintptr_t addr)
+{
+    if(!lrcpc)
+        lrcpc = kh_init(lrcpc);
+    khint_t k;
+    int ret;
+    k = kh_put(lrcpc, lrcpc, addr, &ret);    // just add
+}
+
+int is_addr_lrcpc(uintptr_t addr)
+{
+    if(!lrcpc)
+        return 0;
+    khint_t k = kh_get(lrcpc, lrcpc, addr);
+    return (k==kh_end(lrcpc))?0:1;
+}
+
+int mark_db_lrcpc(dynablock_t* db, uintptr_t x64pc)
+{
+    add_lrcpc_address(x64pc);
+    if(db->to_delete)
+        return 2;   // already marked
+    db->to_delete = 1; // mark block for deletion
+    MarkDynablock(db);      // and mark it as dirty
+if(BOX64ENV(showsegv)) printf_log(LOG_INFO, "Marked db %p as dirty, and address %p as avoid lrcpc\n", db, (void*)x64pc);
+    return 2;   // marked, exit handling...
 }

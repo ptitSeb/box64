@@ -586,11 +586,12 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
         case 0xE6:
             INST_NAME("VCVTPD2DQ Gx, Ex");
             nextop = F8;
-            u8 = sse_setround(dyn, ninst, x1, x2, x6);
             for(int l=0; l<1+vex.l; ++l) {
                 if(!l) {
                     GETEX_Y(v1, 0, 0);
                     GETGX_empty(v0);
+                    // after the address, so x2 can keep the old FPCR
+                    u8 = sse_setround(dyn, ninst, x4, x5, x2);
                     if(!BOX64ENV(dynarec_fastround) || vex.l)
                         d0 = fpu_get_scratch(dyn, ninst);
                 } else {

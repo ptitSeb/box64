@@ -510,17 +510,17 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             }
             u8 = F8;
             if(u8&4) {
-                s0 = sse_setround(dyn, ninst, x1, x2, x6);
+                s0 = sse_setround(dyn, ninst, x1, x2, x5);
             } else {
                 u8&=3;
                 if(u8==1) u8=2;
                 else if(u8==2) u8=1;
                 MRS_fpcr(x1);               // get fpscr
                 MOV32w(x2, u8);
-                MOVx_REG(x6, x1);
+                MOVx_REG(x5, x1);
                 BFIx(x1, x2, 22, 2);     // inject new round
                 MSR_fpcr(x1);               // put new fpscr
-                s0 = x6;
+                s0 = x5;
             }
             FCVTN16(v1, v0);
             if(vex.l) {

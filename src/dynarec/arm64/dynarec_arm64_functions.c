@@ -767,7 +767,7 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
     }
 
     static char buf[8192];
-    int length = sprintf(buf, "barrier=%d state=%d/%s(%s->%s)/%c, set=%X/%X, use=%X, need=%X/%X, sm=%d(%d/%d/%d)",
+    int length = sprintf(buf, "barrier=%d state=%d/%s(%s->%s)/%c, set=%X/%X, use=%X, need=%X/%X, sm=%d(%d/%d/%d)%d",
         dyn->insts[ninst].x64.barrier,
         dyn->insts[ninst].x64.state_flags,
         df_status[dyn->f],
@@ -779,7 +779,11 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
         dyn->insts[ninst].x64.use_flags,
         dyn->insts[ninst].x64.need_before,
         dyn->insts[ninst].x64.need_after,
-        dyn->smwrite, dyn->insts[ninst].will_write, dyn->insts[ninst].last_write, dyn->insts[ninst].lock);
+        dyn->smwrite, dyn->insts[ninst].will_write, dyn->insts[ninst].last_write, dyn->insts[ninst].lock, 
+        dyn->insts[ninst].x64.strongmem);
+    if(dyn->insts[ninst].use_lrcpc || dyn->insts[ninst].has_lrcpc) {
+        length += sprintf(buf + length, " LRCPC:%d/%d", dyn->insts[ninst].use_lrcpc, dyn->insts[ninst].has_lrcpc);
+    }
     if (dyn->insts[ninst].nat_flags_op) {
         if (dyn->insts[ninst].nat_flags_op == NAT_FLAG_OP_TOUCH && dyn->insts[ninst].before_nat_flags)
             length += sprintf(buf + length, " NF:%d/read:%x", dyn->insts[ninst].nat_flags_op, dyn->insts[ninst].before_nat_flags);
@@ -1509,6 +1513,11 @@ void updateYmm0s(dynarec_arm_t* dyn, int ninst, int max_ninst_reached)
 }
 
 
+void sse_mark_used(dynarec_arm_t* dyn, int ninst, int a)
+{
+    dyn->n.xmm_used |= 1<<a;
+}
+
 // AVX helpers
 void avx_mark_zero(dynarec_arm_t* dyn, int ninst, int reg)
 {
@@ -1568,12 +1577,17 @@ void addSSEPreload(dynarec_arm_t* dyn, int ninst, int i2, uint32_t preload)
     if(i2 && !dyn->insts[i2-1].x64.has_next)    // need a previous opcode to set the preload, unless it's the #0
         return;
     // check if there is jump out or outside this loop
+    int has_host_call = 0;
     for(int i=i2; i<ninst; ++i) {
         if(!dyn->insts[i].x64.has_next || (dyn->insts[i].x64.barrier&BARRIER_FLOAT))
             return;
         // for now, unneeded stop at first jump, so this should also stop there
         if(dyn->insts[i].x64.jmp/* && ((dyn->insts[i].x64.jmp_insts>ninst) || (dyn->insts[i].x64.jmp_insts<i2))*/)
             return;
+        if(dyn->insts[i].host_call_clobber)
+            return;
+        if(dyn->insts[i].host_call)
+            has_host_call = 1;
     }
     uint16_t ymm_mask = 0;
     for(int i=0; i<16; ++i) {
@@ -1612,9 +1626,9 @@ void addSSEPreload(dynarec_arm_t* dyn, int ninst, int i2, uint32_t preload)
         }
     }
     preload = (preload&0xffff) | (ymm_mask<<16);    // update ymm_mask
-    //TODO: should check native calls too?
     dyn->insts[i2].preload_xmmymm = preload;
     dyn->insts[i2].preload_from = ninst;
+    dyn->insts[i2].preload_host_call = has_host_call;
     dyn->insts[i2].n.xmm_unneeded |= preload&0xffff;
     dyn->insts[i2].n.ymm_unneeded |= ymm_mask;
 }

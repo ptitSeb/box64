@@ -51,6 +51,7 @@ uintptr_t dynarec64_66F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
 
     switch (opcode) {
         case 0xB8:
+            if (rex.w) return dynarec64_F30F(dyn, addr - 1, ip, ninst, rex, ok, need_epilog);
             INST_NAME("POPCNT Gw, Ew");
             SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
             SET_DFNONE();
@@ -91,6 +92,7 @@ uintptr_t dynarec64_66F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
             GWBACK;
             break;
         case 0xBC:
+            if (rex.w) return dynarec64_F30F(dyn, addr - 1, ip, ninst, rex, ok, need_epilog);
             INST_NAME("TZCNT Gw, Ew");
             if (!BOX64DRENV(dynarec_safeflags)) {
                 SETFLAGS(X_CF | X_ZF, SF_SUBSET, NAT_FLAGS_NOFUSION);
@@ -123,6 +125,7 @@ uintptr_t dynarec64_66F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
             GWBACK;
             break;
         case 0xBD:
+            if (rex.w) return dynarec64_F30F(dyn, addr - 1, ip, ninst, rex, ok, need_epilog);
             INST_NAME("LZCNT Gw, Ew");
             if (!BOX64DRENV(dynarec_safeflags)) {
                 SETFLAGS(X_CF | X_ZF, SF_SUBSET, NAT_FLAGS_NOFUSION);

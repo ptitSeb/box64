@@ -1023,33 +1023,37 @@ SETMARK(d_ror64);
 SETMARK(d_shrd16);
     LHU(x1, xEmu, offsetof(x64emu_t, res));
     LHU(x2, xEmu, offsetof(x64emu_t, op1));
-    LHU(x3, xEmu, offsetof(x64emu_t, op2));
-    BNEZ(x3, 8);
+    LWU(x3, xEmu, offsetof(x64emu_t, op2));
+    ANDI(x6, x3, 0x1f);
+    BNEZ(x6, 8);
     BR(xRA); // count == 0, nothing to do
+    SRLI(x5, x3, 16); // fill
     if (BOX64ENV(cputype)) {
         SRLI(x4, x1, 14);
-        SRLI(x5, x4, 1);
-        XOR(x4, x4, x5);
+        SRLI(x3, x4, 1);
+        XOR(x4, x4, x3);
         PUTFLAG(x4, F_OF2);
         ORI(xFlags, xFlags, 1 << F_AF);
+        ADDI(x4, x6, -1);
+        SRLW(x4, x2, x4); // CF = bit (count-1) of op1
+        SLTI(x3, x6, 17);
+        BNEZ(x3, 8);
+        MV(x4, xZR); // count > 16: CF = 0
+        PUTFLAG(x4, F_CF);
     } else {
-        ANDI(x4, x3, 0x0f);
-        ADDI(x4, x4, -16);
-        NEG(x4, x4);
-        SRL(x4, x1, x4);
-        SRLI(x5, x2, 15);
-        XOR(x4, x4, x5);
+        SRLI(x4, x2, 15);
+        XOR(x4, x5, x4); // OF = fill ^ (op1 >> 15)
         PUTFLAG(x4, F_OF2);
         ANDI(xFlags, xFlags, ~(1 << F_AF));
+        ADDI(x4, x6, -1);
+        SRLW(x4, x2, x4); // CF = bit (count-1) of op1
+        ADDI(x3, x6, -17);
+        SRLW(x5, x5, x3); // or bit (count-17) of fill
+        SLTI(x3, x6, 17);
+        BNEZ(x3, 8);
+        MV(x4, x5);
+        PUTFLAG(x4, F_CF);
     }
-    ADDI(x4, x3, -1);
-    SRLW(x4, x2, x4); // CF = bit (count-1) of op1
-    if (BOX64ENV(cputype)) {
-        SLTI(x5, x3, 16);
-        BNEZ(x5, 8);
-        MV(x4, xZR); // count > 15: CF = 0
-    }
-    PUTFLAG(x4, F_CF);
     SRLI(x4, x1, 15);
     PUTFLAG(x4, F_SF);
     SEQZ(x4, x1);
@@ -1125,27 +1129,42 @@ SETMARK(d_shrd64);
 SETMARK(d_shld16);
     LHU(x1, xEmu, offsetof(x64emu_t, res));
     LHU(x2, xEmu, offsetof(x64emu_t, op1));
-    LHU(x3, xEmu, offsetof(x64emu_t, op2));
-    BNEZ(x3, 8);
+    LWU(x3, xEmu, offsetof(x64emu_t, op2));
+    ANDI(x6, x3, 0x1f);
+    BNEZ(x6, 8);
     BR(xRA);
-    ADDI(x4, x3, -16);
-    NEG(x4, x4);
-    SRLW(x4, x2, x4); // CF = bit (16-count) of op1
-    PUTFLAG(x4, F_CF);
+    SRLI(x5, x3, 16); // fill
     if (BOX64ENV(cputype)) {
+        MOV32w(x4, 16);
+        SUBW(x4, x4, x6);
+        SRLW(x4, x2, x4); // CF = bit (16-count) of op1
+        SLTI(x3, x6, 17);
+        BNEZ(x3, 8);
+        MV(x4, xZR); // count > 16: CF = 0
+        PUTFLAG(x4, F_CF);
         SRLI(x4, x1, 15);
         XOR(x4, x4, xFlags);
-        SLTI(x5, x3, 16);
-        BNEZ(x5, 8);
+        SLTI(x3, x6, 16);
+        BNEZ(x3, 8);
         MV(x4, xFlags); // count > 15: OF = CF
         PUTFLAG(x4, F_OF2);
         ORI(xFlags, xFlags, 1 << F_AF);
     } else {
         SRLI(x4, x2, 14);
-        SRLI(x5, x4, 1);
-        XOR(x4, x4, x5);
+        SRLI(x3, x4, 1);
+        XOR(x4, x4, x3);
         PUTFLAG(x4, F_OF2);
         ANDI(xFlags, xFlags, ~(1 << F_AF));
+        MOV32w(x4, 16);
+        SUBW(x4, x4, x6);
+        SRLW(x4, x2, x4); // CF = bit (16-count) of op1
+        MOV32w(x3, 32);
+        SUBW(x3, x3, x6);
+        SRLW(x5, x5, x3); // or bit (32-count) of fill
+        SLTI(x3, x6, 17);
+        BNEZ(x3, 8);
+        MV(x4, x5);
+        PUTFLAG(x4, F_CF);
     }
     SRLI(x4, x1, 15);
     PUTFLAG(x4, F_SF);

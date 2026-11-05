@@ -214,9 +214,6 @@ typedef struct dynarec_la64_s {
     size_t               insts_size; // size of the instruction size array (calculated)
     int                  callret_size;   // size of the array
     callret_t*           callrets;   // array of callret return, with NOP / UDF depending if the block is clean or dirty
-    void*                leaf_embeddeds;
-    uintptr_t            inline_native_end;
-    int16_t              inline_rsp;
     uintptr_t            forward;    // address of the last end of code while testing forward
     uintptr_t            forward_to; // address of the next jump to (to check if everything is ok)
     int32_t              forward_size;   // size at the forward point
@@ -231,8 +228,6 @@ typedef struct dynarec_la64_s {
     uint8_t              use_ymm:1;
     uint8_t              no_scalar_renaming:1;
     uint8_t              is_file_mapped:1;
-    uint8_t              inline_leaf:1;
-    uint8_t              inline_is32bits:1;
     void*                gdbjit_block;
     uint32_t             need_x87check; // x87 low precision check
     int                  x87round_active; // we are in the middle of x87_setround and x87_restoreround

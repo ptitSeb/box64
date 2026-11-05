@@ -20,7 +20,7 @@ These use cases are **permitted** when making a contribution with the help of AI
     - Formatting code for consistency and readability (but do not overload code with comments)
     - Completing code segments based on established patterns
     - Drafting documentation for project components with which the contributor is already familiar
-    - Writting Wrappers Callback handling and/or wrappers structures conversion when needed
+    - Writing Wrappers Callback handling and/or wrappers structures conversion when needed
 
 AI-generated code that has undergone extensive human editing may be accepted, provided you (1) fully understand the AI's initial output, (2) can debug any issues independently (with or without further AI assistance), and (3) are prepared to discuss it directly with human reviewers.
 

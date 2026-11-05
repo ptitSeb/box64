@@ -19,7 +19,7 @@
 #define READFLAGS_FUSION(A, s1, s2, s3, s4, s5)                                                                \
     if (BOX64ENV(dynarec_nativeflags) && ninst > 0) {                                                          \
         int prev = ninst - 1;                                                                                  \
-        while (prev && dyn->insts[prev].no_scratch_usage)                                                      \
+        while (prev && (dyn->insts[prev].no_scratch_usage || dyn->insts[prev].nat_flags_fusion))               \
             prev -= 1;                                                                                         \
         if (!dyn->insts[prev].nat_flags_nofusion) {                                                            \
             if ((A) == (X_ZF))                                                                                 \
@@ -88,11 +88,12 @@
         dyn->insts[ninst - 1].x64.size = dyn->insts[ninst].x64.addr - dyn->insts[ninst - 1].x64.addr;\
     AREFLAGSNEEDED()
 
-#define INST_EPILOG                                      \
-    dyn->insts[ninst].f_exit = dyn->f;                   \
-    sse_sync_all_cache_types(&dyn->e);                   \
-    dyn->insts[ninst].e = dyn->e;                        \
-    dyn->insts[ninst].vector_sew_exit = dyn->vector_sew; \
+#define INST_EPILOG                                                    \
+    dyn->insts[ninst].f_exit = dyn->f;                                 \
+    dyn->vtype_restore = VECTOR_SEWNA;                                 \
+    if (dyn->insts[ninst].vec_used) sse_sync_all_cache_types(&dyn->e); \
+    dyn->insts[ninst].e = dyn->e;                                      \
+    dyn->insts[ninst].vector_sew_exit = dyn->vector_sew;               \
     dyn->insts[ninst].x64.has_next = (ok > 0) ? 1 : 0;
 #define INST_NAME(name)
 #define DEFAULT                                                                                                               \

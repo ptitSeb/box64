@@ -244,6 +244,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
 
         case 0x2B:
             INST_NAME("VMOVNTPD Ex,Gx");
+            NOLRCPC();
             nextop = F8;
             GETG;
             if(MODREG) {
@@ -442,7 +443,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
         case 0x5B:
             INST_NAME("VCVTPS2DQ Gx, Ex");
             nextop = F8;
-            u8 = sse_setround(dyn, ninst, x1, x2, x6);
+            u8 = sse_setround(dyn, ninst, x3, x2, x4);  // the address below can use x2 and x3, x4 keeps the old FPCR
             if(!BOX64ENV(dynarec_fastround) && !cpuext.frintts) {
                 d0 = fpu_get_scratch(dyn, ninst);
                 d1 = fpu_get_scratch(dyn, ninst);
@@ -1784,6 +1785,7 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             break;
         case 0xE7:
             INST_NAME("VMOVNTDQ Ex,Gx");
+            NOLRCPC();
             nextop = F8;
             GETG;
             if(MODREG) {

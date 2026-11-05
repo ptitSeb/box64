@@ -118,6 +118,7 @@ static void fpu_reset_reg_extcache(dynarec_rv64_t* dyn, extcache_t* e)
         e->extcache[i].v = 0;
     }
     dyn->vector_sew = VECTOR_SEWNA;
+    dyn->vtype_restore = VECTOR_SEWNA;
 }
 void fpu_reset_reg(dynarec_rv64_t* dyn)
 {
@@ -370,7 +371,7 @@ int fpuCacheNeedsTransform(dynarec_rv64_t* dyn, int ninst)
         // if the barrier as already been apply, no transform needed
         return ((dyn->insts[ninst].x64.barrier & BARRIER_FLOAT)) ? 0 : (isCacheEmpty(dyn, ninst) ? 0 : 1);
     int ret = 0;
-    if (!i2) { // just purge
+    if (!i2) { // restore the state the first instruction was emitted with
         if (dyn->insts[ninst].e.stack_next) {
             return 1;
         }
@@ -383,6 +384,9 @@ int fpuCacheNeedsTransform(dynarec_rv64_t* dyn, int ninst)
                         && dyn->insts[ninst].e.extcache[i].n < dyn->insts[ninst].e.stack_pop))
                     ret = 1;
             }
+        for (int i = 0; i < 24 && !ret; ++i)
+            if (dyn->insts[0].e.extcache[i].v)
+                ret = 1;
         return ret;
     }
     // Check if ninst can be compatible to i2
@@ -426,6 +430,19 @@ int sewNeedsTransform(dynarec_rv64_t* dyn, int ninst)
 
 void extcacheUnwind(extcache_t* cache)
 {
+    if (!cache->swapped && !cache->news && !cache->stack_push && !cache->stack_pop) {
+        int dirty = 0;
+        for (int i = 0; i < 16; ++i)
+            if (cache->olds[i].changed || cache->olds[i].purged) {
+                dirty = 1;
+                break;
+            }
+        if (!dirty) {
+            cache->barrier = 0;
+            cache->fpu_scratch = 0;
+            return;
+        }
+    }
     if (cache->swapped) {
         // unswap
         int a = -1;
@@ -720,7 +737,7 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
     }
     if (!dyn->need_dump && !BOX64ENV(dynarec_gdbjit) && !BOX64ENV(dynarec_perf_map)) return;
 
-    static char buf[4096];
+    static char buf[65536];
     int length = sprintf(buf, "barrier=%d state=%d/%s(%s->%s), set=%X/%X, use=%X, need=%X/%X, fuse=%d/%d, sm=%d(%d/%d), sew@entry=%d, sew@exit=%d",
         dyn->insts[ninst].x64.barrier,
         dyn->insts[ninst].x64.state_flags,
@@ -862,28 +879,46 @@ int fpu_is_st_freed(dynarec_rv64_t* dyn, int ninst, int st)
     return (dyn->e.tags & (0b11 << (st * 2))) ? 1 : 0;
 }
 
+static int hasLinearPredecessor(const dynarec_rv64_t* dyn, int ninst);
+
 void updateNativeFlags(dynarec_rv64_t* dyn)
 {
     if (!BOX64ENV(dynarec_nativeflags))
         return;
-    for (int i = 1; i < dyn->size; ++i)
+    for (int i = 0; i < dyn->size; ++i)
         if (dyn->insts[i].nat_flags_fusion) {
             int j = i - 1;
             int found = 0;
-            if (dyn->insts[i].pred_sz == 1 && dyn->insts[i].pred[0] == j) {
+            int last_fused = 0;
+            if (hasLinearPredecessor(dyn, i)) {
                 while (j >= 0) {
                     if (dyn->insts[j].x64.set_flags && (dyn->insts[i].x64.use_flags & dyn->insts[j].x64.set_flags) == dyn->insts[i].x64.use_flags) {
+                        int needsign = (dyn->insts[i].x64.use_flags & X_SF) ? 1 : 0;
+                        int needunsigned = (dyn->insts[i].x64.use_flags & X_CF) ? 1 : 0;
+                        if (dyn->insts[j].nat_flags_fusion && ((needsign && dyn->insts[j].nat_flags_needunsigned) || (needunsigned && dyn->insts[j].nat_flags_needsign)))
+                            break; // not compatible, stop here
                         dyn->insts[j].nat_flags_fusion = 1;
-                        if (dyn->insts[i].x64.use_flags & X_SF) {
+                        if (needsign)
                             dyn->insts[j].nat_flags_needsign = 1;
-                        }
+                        if (needunsigned)
+                            dyn->insts[j].nat_flags_needunsigned = 1;
                         dyn->insts[i].x64.use_flags = 0;
-                        dyn->insts[j].nat_next_inst = i;
+                        if (last_fused) {
+                            dyn->insts[last_fused].nat_next_inst = i;
+                        } else {
+                            uint16_t* next = &dyn->insts[j].nat_next_inst;
+                            while (*next)
+                                next = &dyn->insts[*next].nat_next_inst;
+                            *next = i;
+                        }
                         dyn->insts[i].up32_read |= dyn->insts[j].up32_write32;
                         found = 1;
                         break;
-                    } else if (j && dyn->insts[j].pred_sz == 1 && dyn->insts[j].pred[0] == j - 1
-                        && dyn->insts[j].no_scratch_usage && !dyn->insts[j].x64.set_flags && !dyn->insts[j].x64.use_flags) {
+                    } else if (hasLinearPredecessor(dyn, j) && dyn->insts[j].nat_flags_fusion && dyn->insts[j].x64.jmp && !dyn->insts[j].x64.set_flags && !dyn->insts[j].x64.use_flags) {
+                        // already fused Jcc consumer
+                        if (!last_fused) last_fused = j;
+                        j -= 1;
+                    } else if (hasLinearPredecessor(dyn, j) && dyn->insts[j].no_scratch_usage && !dyn->insts[j].x64.set_flags && !dyn->insts[j].x64.use_flags) {
                         j -= 1;
                     } else
                         break;
@@ -972,6 +1007,8 @@ static void applyPreloadState(dynarec_rv64_t* dyn, int first, int first_use, int
         s->ymm = 0;
         s->ymm0 = (e->ymm0 >> reg) & 1;
         e->fpuused[EXTIDX(VREG(reg))] = 1;
+        e->extcache[EXTIDX(VREG(reg))].n = reg;
+        e->extcache[EXTIDX(VREG(reg))].y = 0;
         sse_sync_cache_type(e, reg);
     }
 }
@@ -983,18 +1020,10 @@ void updatePreloads(dynarec_rv64_t* dyn)
     for (int first = 0; first < dyn->size; ++first) {
         if (dyn->insts[first].preload_xmmymm)
             continue;
-        if (first) {
-            if (dyn->insts[first].pred_sz <= 1)
-                continue;
-            int has_linear = 0;
-            for (int j = 0; j < dyn->insts[first].pred_sz; ++j)
-                if (dyn->insts[first].pred[j] == first - 1)
-                    has_linear = 1;
-            if (!has_linear)
-                continue;
-        } else if (!dyn->insts[first].pred_sz) {
+        if (first)
+            break;
+        if (!dyn->insts[first].pred_sz)
             continue;
-        }
         int last = dyn->size + 1;
         for (int j = 0; j < dyn->insts[first].pred_sz; ++j) {
             int pred = dyn->insts[first].pred[j];
@@ -1067,22 +1096,43 @@ void updateUpperLiveness(dynarec_rv64_t* dyn)
 
     for (int i = 0; i < n; ++i) {
         instruction_rv64_t* inst = &dyn->insts[i];
+        inst->promote_ymm = 0;
         if (!inst->x64.alive || inst->pred_sz < 2 || (inst->x64.barrier & BARRIER_FLOAT))
             continue;
         const extcache_t* first = &dyn->insts[inst->pred[0]].e;
-        for (int p = 1; p < inst->pred_sz; ++p) {
+        uint16_t promote = 0;
+        int need_barrier = 0;
+        for (int p = 1; p < inst->pred_sz && !need_barrier; ++p) {
             const extcache_t* pe = &dyn->insts[inst->pred[p]].e;
-            int diff = (first->ymm0 != pe->ymm0);
-            for (int r = 0; r < 16 && !diff; ++r)
-                if (first->ssecache[r].v != -1 && pe->ssecache[r].v != -1
-                    && (first->ssecache[r].ymm != pe->ssecache[r].ymm
-                        || first->ssecache[r].ymm0 != pe->ssecache[r].ymm0))
-                    diff = 1;
-            if (diff) {
-                inst->x64.barrier |= BARRIER_FLOAT;
+            uint16_t mask_diff = (uint16_t)(first->ymm0 ^ pe->ymm0);
+            uint16_t resolved = 0;
+            for (int r = 0; r < 16; ++r) {
+                const sse_cache_t* a = &first->ssecache[r];
+                const sse_cache_t* b = &pe->ssecache[r];
+                int a_cached = (a->v != -1 && a->vector);
+                int b_cached = (b->v != -1 && b->vector);
+                if (!a_cached || !b_cached)
+                    continue;
+                if (a->ymm == b->ymm && a->ymm0 == b->ymm0)
+                    continue;
+                int a_ok = a->ymm || (!a->ymm && a->ymm0);
+                int b_ok = b->ymm || (!b->ymm && b->ymm0);
+                if (a_ok && b_ok) {
+                    if (!a->ymm) promote |= (uint16_t)(1u << r);
+                    if (!b->ymm) promote |= (uint16_t)(1u << r);
+                    resolved |= (uint16_t)(1u << r);
+                    continue;
+                }
+                need_barrier = 1;
                 break;
             }
+            if (mask_diff & (uint16_t)~resolved)
+                need_barrier = 1;
         }
+        if (need_barrier)
+            inst->x64.barrier |= BARRIER_FLOAT;
+        else
+            inst->promote_ymm = promote;
     }
 
     int sp = 0;
@@ -1170,9 +1220,11 @@ void updateUpperLiveness(dynarec_rv64_t* dyn)
             int j = inst->pred[p];
             const instruction_rv64_t* pred = &dyn->insts[j];
             merged_pending |= (pending_in[j] & (uint16_t)~pred->up32_write64) | pred->up32_skip;
-            merged_ymm |= (pend_ymm[j] & (uint16_t)~pred->ymm_upper_def) | (pred->ymm_zero & pred->ymm_upper_live);
+            uint16_t ymm_def = pred->ymm_pending_materialized ? UINT16_MAX : pred->ymm_upper_def;
+            merged_ymm |= (pend_ymm[j] & (uint16_t)~ymm_def) | (pred->ymm_zero & pred->ymm_upper_live);
         }
         if (inst->x64.barrier & BARRIER_FLOAT) merged_ymm = 0;
+        merged_ymm &= (uint16_t)~inst->promote_ymm;
         if ((merged_pending != pending_in[i]) || (merged_ymm != pend_ymm[i])) {
             pending_in[i] = merged_pending;
             pend_ymm[i] = merged_ymm;

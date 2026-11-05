@@ -103,6 +103,7 @@ PROFILE_SETTINGS = {
         ("BOX64_DYNAREC_BIGBLOCK", "0"),
         ("BOX64_DYNAREC_SAFEFLAGS", "2"),
         ("BOX64_DYNAREC_STRONGMEM", "2"),
+        ("BOX64_DYNAREC_CALLRET", "3"),
     ),
     "safe": (
         ("BOX64_DYNAREC_BIGBLOCK", "0"),

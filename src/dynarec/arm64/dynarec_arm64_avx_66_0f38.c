@@ -643,6 +643,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip
             break;
         case 0x2A:
             INST_NAME("VMOVNTDQA Gx, Ex");
+            NOLRCPC();
             nextop = F8;
             GETG;
             if(MODREG) {

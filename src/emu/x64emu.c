@@ -1235,23 +1235,27 @@ void UpdateFlags(x64emu_t* emu)
         case d_shrd16:
             cnt = emu->op2.u16;
             if (cnt > 0) {
-                cc = emu->op1.u16 & (1 << (cnt - 1));
-                if (cnt > 15 && BOX64ENV(cputype))
+                // fill operand is stored in the upper half of op2
+                if (cnt > 16)
+                    cc = (emu->op2.u64 >> 16) & 0xffff & (1u << (cnt - 17));
+                else
+                    cc = emu->op1.u16 & (1 << (cnt - 1));
+                if (cnt > 16 && BOX64ENV(cputype))
                     cc = 0;
                 CONDITIONAL_SET_FLAG(cc, F_CF);
                 CONDITIONAL_SET_FLAG(!emu->res.u16, F_ZF);
                 CONDITIONAL_SET_FLAG(emu->res.u16 & 0x8000, F_SF);
                 CONDITIONAL_SET_FLAG(PARITY(emu->res.u8), F_PF);
+                if BOX64ENV (cputype) {
+                    CONDITIONAL_SET_FLAG(XOR2(emu->res.u16 >> 14), F_OF);
+                } else {
+                    CONDITIONAL_SET_FLAG((((emu->op2.u64 >> 16) & 0xffff) ^ (emu->op1.u16 >> 15)) & 1, F_OF);
+                }
+                if (BOX64ENV(cputype))
+                    SET_FLAG(F_AF);
+                else
+                    CLEAR_FLAG(F_AF);
             }
-            if BOX64ENV (cputype) {
-                CONDITIONAL_SET_FLAG(XOR2(emu->res.u16 >> 14), F_OF);
-            } else {
-                CONDITIONAL_SET_FLAG(((emu->res.u16 >> (16 - (cnt & 15))) ^ (emu->op1.u16 >> 15)) & 1, F_OF);
-            }
-            if (BOX64ENV(cputype))
-                SET_FLAG(F_AF);
-            else
-                CLEAR_FLAG(F_AF);
             break;
         case d_shrd32:
             cnt = emu->op2.u32;
@@ -1294,7 +1298,12 @@ void UpdateFlags(x64emu_t* emu)
         case d_shld16:
             cnt = emu->op2.u16;
             if (cnt > 0) {
-                cc = emu->op1.u16 & (1 << (16 - cnt));
+                if (cnt > 16)
+                    cc = (emu->op2.u64 >> 16) & 0xffff & (1u << (32 - cnt));
+                else
+                    cc = emu->op1.u16 & (1 << (16 - cnt));
+                if (cnt > 16 && BOX64ENV(cputype))
+                    cc = 0;
                 CONDITIONAL_SET_FLAG(cc, F_CF);
                 CONDITIONAL_SET_FLAG(!emu->res.u16, F_ZF);
                 CONDITIONAL_SET_FLAG(emu->res.u16 & 0x8000, F_SF);

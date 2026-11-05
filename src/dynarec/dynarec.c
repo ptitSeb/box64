@@ -103,12 +103,14 @@ void* LinkNextInvalid(x64emu_t* emu, uintptr_t addr, void* x2, uintptr_t* x3)
     int is32bits = (R_CS == 0x23);
     dynablock_t* db = getDB(addr);
     if(db) {
+        // the caller entered this block before running the check that failed here
+        dynablock_leave_runtime(db);
         mutex_lock(&my_context->mutex_dyndump);
         db->done = 0;
         dynarec_log(LOG_DEBUG, "Invalidating block %p from %p:%p (hash:%X, gone:%d, autocrc:%d, to_delete:%d) for %p\n", db, db->x64_addr, db->x64_addr+db->x64_size, db->hash, db->gone, db->autocrc, db->to_delete, (void*)addr);
         dynablock_t* old = InvalidDynablock(db, 0);
         FreeInvalidDynablock(old, 0);
-        db = internalDBGetBlock(emu, addr, 1, 0, is32bits, 0);
+        db = internalDBGetBlock(emu, addr, 1, 0, is32bits, 0, SEARCHED_NO_DYNABLOCK);
         mutex_unlock(&my_context->mutex_dyndump);
         if(db && db->done && db->block && (uintptr_t)db->x64_addr == addr)
             return db->block;

@@ -238,6 +238,7 @@ static void applyCustomRules()
             SET_BOX64ENV_IF_EMPTY(dynarec_bigblock, 0);
             SET_BOX64ENV_IF_EMPTY(dynarec_safeflags, 2);
             SET_BOX64ENV_IF_EMPTY(dynarec_strongmem, 2);
+            SET_BOX64ENV_IF_EMPTY(dynarec_callret, 3);
         } else if (!strcasecmp(box64env.profile, "safe")) {
             SET_BOX64ENV_IF_EMPTY(dynarec_bigblock, 0);
             SET_BOX64ENV_IF_EMPTY(dynarec_safeflags, 2);

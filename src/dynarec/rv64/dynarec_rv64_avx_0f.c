@@ -389,7 +389,7 @@ uintptr_t dynarec64_AVX_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
             s0 = fpu_get_scratch(dyn);
             s1 = fpu_get_scratch(dyn); // 1.0f
             v0 = fpu_get_scratch(dyn); // 0.0f
-            LUI(x3, 0x3f800);
+            MOV32w(x3, 0x3F800000);
             FMVWX(s1, x3); // 1.0f
             if (!BOX64ENV(dynarec_fastnan)) {
                 FMVWX(v0, xZR);
@@ -462,7 +462,7 @@ uintptr_t dynarec64_AVX_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
             GETGY();
             d0 = fpu_get_scratch(dyn);
             d1 = fpu_get_scratch(dyn);
-            LUI(x3, 0x3f800);
+            MOV32w(x3, 0x3F800000);
             FMVWX(d0, x3); // 1.0f
             if (!BOX64ENV(dynarec_fastnan))
                 MOV32w(x6, 0x00400000);

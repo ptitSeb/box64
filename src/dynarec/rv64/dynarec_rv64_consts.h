@@ -108,6 +108,9 @@ typedef enum rv64_consts_s {
     const_context,
     const_lead0tab,
     const_deBruijn64tab,
+    const_native_next_invalid,
+    const_rv64_crc_autocrc,
+    const_rv64_crc_autocrc_zbc,
 
     const_last
 } rv64_consts_t;

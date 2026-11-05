@@ -1252,7 +1252,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             s0 = fpu_get_scratch(dyn);
             s1 = fpu_get_scratch(dyn); // 1.0f
             v0 = fpu_get_scratch(dyn); // 0.0f
-            LUI(x3, 0x3f800);
+            MOV32w(x3, 0x3F800000);
             FMVWX(s1, x3); // 1.0f
             if (!BOX64ENV(dynarec_fastnan)) {
                 FCVTSW(v0, xZR, RD_DYN);
@@ -1293,7 +1293,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             GETEX(x2, 0, 12);
             d0 = fpu_get_scratch(dyn);
             d1 = fpu_get_scratch(dyn);
-            LUI(x3, 0x3f800);
+            MOV32w(x3, 0x3F800000);
             FMVWX(d0, x3); // 1.0f
             if (!BOX64ENV(dynarec_fastnan))
                 MOV32w(x6, 0x00400000);
@@ -2120,8 +2120,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             eb1 = TO_NAT(ed & 3);                                                                \
         }                                                                                        \
         if (eb2) {                                                                               \
-            LUI(tmp1, 0xffff0);                                                                  \
-            ORI(tmp1, tmp1, 0xff);                                                               \
+            MOV64x(tmp1, 0xFFFFFFFFFFFF00FF);                                                    \
             AND(eb1, eb1, tmp1);                                                                 \
             SLLI(tmp3, tmp3, 8);                                                                 \
         } else {                                                                                 \
@@ -2183,7 +2182,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 WBACK;
             } else {
                 FAKEED;
-                if (!rex.w && !rex.is32bits && MODREG) { if (NEED_ZEROUP(ed)) ZEROUP_RESULT(ed); }
+                if (!rex.w && MODREG) { if (NEED_ZEROUP(ed)) ZEROUP_RESULT(ed); }
                 F8;
             }
             break;
@@ -2197,7 +2196,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION); // some flags are left undefined
             GETGD;
             GETEDsd(0);
-            if (!rex.w && !rex.is32bits && MODREG) { if (NEED_ZEROUP(ed)) ZEROUP_RESULT(ed); }
+            if (!rex.w && MODREG) { if (NEED_ZEROUP(ed)) ZEROUP_RESULT(ed); }
             ANDI(x3, xRCX, rex.w ? 0x3f : 0x1f);
             BEQ_NEXT(x3, xZR);
             emit_shld32(dyn, ninst, rex, ed, gd, x3, x4, x5, x6);
@@ -2257,7 +2256,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 WBACK;
             } else {
                 FAKEED;
-                if (!rex.w && !rex.is32bits && MODREG) { if (NEED_ZEROUP(ed)) ZEROUP_RESULT(ed); }
+                if (!rex.w && MODREG) { if (NEED_ZEROUP(ed)) ZEROUP_RESULT(ed); }
                 F8;
             }
             break;
@@ -2271,7 +2270,7 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                 SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
             GETGD;
             GETEDsd(0);
-            if (!rex.w && !rex.is32bits && MODREG) { if (NEED_ZEROUP(ed)) ZEROUP_RESULT(ed); }
+            if (!rex.w && MODREG) { if (NEED_ZEROUP(ed)) ZEROUP_RESULT(ed); }
             ANDI(x3, xRCX, rex.w ? 0x3f : 0x1f);
             BEQ_NEXT(x3, xZR);
             emit_shrd32(dyn, ninst, rex, ed, gd, x3, x5, x4, x6);
@@ -2490,11 +2489,13 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             INST_NAME("CMPXCHG Ed, Gd");
             SETFLAGS(X_ALL, SF_SET_PENDING, NAT_FLAGS_NOFUSION);
             nextop = F8;
-            GETGD;
-            MARKREGs(xRAX);
+            GETGDs;
+            MARKREGsd(xRAX);
             MVxw(x7, xRAX);
             if (MODREG) {
                 ed = TO_NAT((nextop & 7) + (rex.b << 3));
+                MARKREGsd(ed);
+                UP32_READ(ed);
                 MVxw(x1, ed);
                 wback = 0;
             } else {
@@ -3013,6 +3014,10 @@ uintptr_t dynarec64_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                     case 1:
                         if (rex.w) {
                             INST_NAME("CMPXCHG16B Gq, Eq");
+                            MARKREGsd(xRAX);
+                            MARKREGsd(xRDX);
+                            MARKREGs(xRBX);
+                            MARKREGs(xRCX);
                             SETFLAGS(X_ZF, SF_SUBSET, NAT_FLAGS_NOFUSION);
                             SET_DFNONE();
                             SMREAD();

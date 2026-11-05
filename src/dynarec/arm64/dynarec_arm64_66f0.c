@@ -115,7 +115,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         INST_NAME("LOCK CMPXCHG Ew, Gw");
                         SETFLAGS(X_ALL, SF_SET_PENDING);
                         GETGD;
-                        UXTHw(x6, xRAX);
+                        UXTHw(x5, xRAX);
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
                         if(!ALIGNED_ATOMICH) {
                             if(cpuext.uscat) {
@@ -129,12 +129,12 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         }
                         // Aligned version
                         if(cpuext.atomics) {
-                            MOVw_REG(x1, x6);
+                            MOVw_REG(x1, x5);
                             CASALH(x1, gd, wback);
                         } else {
                             MARKLOCK;
                             LDAXRH(x1, wback);
-                            CMPSw_REG(x6, x1);
+                            CMPSw_REG(x5, x1);
                             B_MARK(cNE);
                             // EAX == Ed
                             STLXRH(x4, gd, wback);
@@ -149,7 +149,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                             LDAXRB(x3, wback); // dummy read, to arm the write...
                             SUBw_UXTB(x3, x3, x1);
                             CBNZw_MARK3(x3);
-                            CMPSw_REG(x6, x1);
+                            CMPSw_REG(x5, x1);
                             B_MARK(cNE);
                             // EAX == Ed
                             STLXRB(x4, gd, wback);
@@ -158,7 +158,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         }
                         MARK;
                         // Common part (and fallback for EAX != Ed)
-                        UFLAG_IF {emit_cmp16(dyn, ninst, x6, x1, x3, x4, x5);}
+                        UFLAG_IF {emit_cmp16(dyn, ninst, x5, x1, x3, x4, x2);}
                         BFIx(xRAX, x1, 0, 16);
                     }
                     break;
@@ -211,11 +211,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 SETFLAGS(X_ALL, SF_SET_PENDING);
                 GETGW(x5);
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, 0);
-                MOVx_REG(x6, xFlags);
-                MRS_nzcv(x87pc);
-                MARKLOCK;
-                MOVx_REG(xFlags, x6);
-                MSR_nzcv(x87pc);
+                MARKLOCK_SAVE_FLAGS();
                 LDAXRH(x1, wback);
                 emit_adc16(dyn, ninst, x1, x5, x3, x4);
                 STLXRH(x3, x1, wback);
@@ -362,11 +358,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, (opcode==0x81)?2:1);
                         if(opcode==0x81) i16 = F16S; else i16 = F8S;
                         MOV32w(x5, (uint16_t)i16);
-                        MOVx_REG(x6, xFlags);
-                        MRS_nzcv(x87pc);
-                        MARKLOCK;
-                        MOVx_REG(xFlags, x6);
-                        MSR_nzcv(x87pc);
+                        MARKLOCK_SAVE_FLAGS();
                         LDAXRH(x1, wback);
                         emit_adc16(dyn, ninst, x1, x5, x3, x4);
                         STLXRH(x3, x1, wback);
@@ -387,11 +379,7 @@ uintptr_t dynarec64_66F0(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, &fixedaddress, NULL, 0, 0, rex, LOCK_LOCK, 0, (opcode==0x81)?2:1);
                         if(opcode==0x81) i16 = F16S; else i16 = F8S;
                         MOV32w(x5, (uint16_t)i16);
-                        MOVx_REG(x6, xFlags);
-                        MRS_nzcv(x87pc);
-                        MARKLOCK;
-                        MOVx_REG(xFlags, x6);
-                        MSR_nzcv(x87pc);
+                        MARKLOCK_SAVE_FLAGS();
                         LDAXRH(x1, wback);
                         emit_sbb16(dyn, ninst, x1, x5, x3, x4);
                         STLXRH(x3, x1, wback);

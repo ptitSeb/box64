@@ -56,7 +56,7 @@ uintptr_t dynarec64_AVX(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int n
             retaddr = dynarec64_AVX_0F_vector(dyn, addr, ip, ninst, vex, ok, need_epilog);
             if (retaddr) {
                 if (dyn->vector_sew != VECTOR_SEWNA)
-                    avx_set_vector_width(dyn, ninst, x1, dyn->vector_sew, 16);
+                    dyn->vtype_restore = dyn->vector_sew;
             } else {
                 addr = vaddr;
                 BARRIER(BARRIER_FLOAT);
@@ -70,7 +70,7 @@ uintptr_t dynarec64_AVX(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int n
             retaddr = dynarec64_AVX_66_0F_vector(dyn, addr, ip, ninst, vex, ok, need_epilog);
             if (retaddr) {
                 if (dyn->vector_sew != VECTOR_SEWNA)
-                    avx_set_vector_width(dyn, ninst, x1, dyn->vector_sew, 16);
+                    dyn->vtype_restore = dyn->vector_sew;
             } else {
                 addr = vaddr;
                 BARRIER(BARRIER_FLOAT);
@@ -84,7 +84,7 @@ uintptr_t dynarec64_AVX(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int n
             retaddr = dynarec64_AVX_F2_0F_vector(dyn, addr, ip, ninst, vex, ok, need_epilog);
             if (retaddr) {
                 if (dyn->vector_sew != VECTOR_SEWNA)
-                    avx_set_vector_width(dyn, ninst, x1, dyn->vector_sew, 16);
+                    dyn->vtype_restore = dyn->vector_sew;
             } else {
                 addr = vaddr;
                 BARRIER(BARRIER_FLOAT);
@@ -98,7 +98,7 @@ uintptr_t dynarec64_AVX(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int n
             retaddr = dynarec64_AVX_F3_0F_vector(dyn, addr, ip, ninst, vex, ok, need_epilog);
             if (retaddr) {
                 if (dyn->vector_sew != VECTOR_SEWNA)
-                    avx_set_vector_width(dyn, ninst, x1, dyn->vector_sew, 16);
+                    dyn->vtype_restore = dyn->vector_sew;
             } else {
                 addr = vaddr;
                 BARRIER(BARRIER_FLOAT);
@@ -112,7 +112,7 @@ uintptr_t dynarec64_AVX(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int n
             retaddr = dynarec64_AVX_66_0F38_vector(dyn, addr, ip, ninst, vex, ok, need_epilog);
             if (retaddr) {
                 if (dyn->vector_sew != VECTOR_SEWNA)
-                    avx_set_vector_width(dyn, ninst, x1, dyn->vector_sew, 16);
+                    dyn->vtype_restore = dyn->vector_sew;
             } else {
                 addr = vaddr;
                 BARRIER(BARRIER_FLOAT);
@@ -135,7 +135,7 @@ uintptr_t dynarec64_AVX(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int n
             retaddr = dynarec64_AVX_66_0F3A_vector(dyn, addr, ip, ninst, vex, ok, need_epilog);
             if (retaddr) {
                 if (dyn->vector_sew != VECTOR_SEWNA)
-                    avx_set_vector_width(dyn, ninst, x1, dyn->vector_sew, 16);
+                    dyn->vtype_restore = dyn->vector_sew;
             } else {
                 addr = vaddr;
                 BARRIER(BARRIER_FLOAT);

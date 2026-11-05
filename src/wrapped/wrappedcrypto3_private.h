@@ -918,7 +918,7 @@ GOM(CRYPTO_set_locking_callback, vFEp)
 //GO(CRYPTO_set_mem_debug_functions, 
 //GO(CRYPTO_set_mem_debug_options, 
 //GO(CRYPTO_set_mem_ex_functions, 
-//GOM(CRYPTO_set_mem_functions, iFEppp)
+GOM(CRYPTO_set_mem_functions, iFEppp)
 GO(CRYPTO_strdup, pFppi)
 //GO(CRYPTO_thread_id, 
 //GO(CRYPTO_THREADID_cmp, 

@@ -148,7 +148,7 @@ uintptr_t dynarec64_D9(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
                         if (i2 >= 0) {
                             LHU(x3, xEmu, offsetof(x64emu_t, fpu_tags));
                             if (i2 > 0) {
-                                LUI(x5, 0xffff0);
+                                MOV64x(x5, 0xFFFFFFFFFFFF0000);
                                 OR(x3, x3, x5);
                                 SRLI(x3, x3, i2 * 2);
                             }

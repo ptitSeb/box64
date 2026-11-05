@@ -552,7 +552,7 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETEX_vector(v0, 0, 0, VECTOR_SEW32);
             GETGX_empty_vector(v1);
             v2 = fpu_get_scratch(dyn);
-            LUI(x4, 0x3f800);
+            MOV32w(x4, 0x3F800000);
             VMV_V_X(v2, x4); // 1.0f broadcast
             VFSQRT_V(v1, v0, VECTOR_UNMASKED);
             VFDIV_VV(v1, v2, v1, VECTOR_UNMASKED); // 1.0/sqrt(x)
@@ -565,7 +565,7 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETEX_vector(v0, 0, 0, VECTOR_SEW32);
             GETGX_empty_vector(v1);
             v2 = fpu_get_scratch(dyn);
-            LUI(x4, 0x3f800);
+            MOV32w(x4, 0x3F800000);
             VMV_V_X(v2, x4);                       // 1.0f broadcast
             VFDIV_VV(v1, v2, v0, VECTOR_UNMASKED); // 1.0/x
             break;
@@ -659,7 +659,9 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
             GETEX_vector(q0, 0, 0, VECTOR_SEW32);
             GETGX_empty_vector(v0);
+            if (!BOX64ENV(dynarec_fastround)) u8 = sse_setround(dyn, ninst, x6, x4);
             VFCVT_F_X_V(v0, q0, VECTOR_UNMASKED);
+            if (!BOX64ENV(dynarec_fastround)) x87_restoreround(dyn, ninst, u8);
             break;
         case 0x5C:
             if (!BOX64ENV(dynarec_fastnan)) return 0;

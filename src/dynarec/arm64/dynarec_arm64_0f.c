@@ -298,6 +298,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             } else {
                 IF_UNALIGNED(ip) {
                     MESSAGE(LOG_DEBUG, "\tUnaligned path");
+                    NOLRCPC();
                     addr = geted(dyn, addr, ninst, nextop, &wback, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                     if(wback!=x1) {
                         MOVx_REG(x1, wback);
@@ -502,6 +503,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 UDF(0);
             } else {
                 INST_NAME("MOVNTPS Ex,Gx");
+                NOLRCPC();
                 GETG;
                 v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, &unscaled, 0xfff<<4, 15, rex, NULL, 0, 0);
@@ -2594,6 +2596,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             break;
         case 0xC3:
             INST_NAME("MOVNTI Ed, Gd");
+            NOLRCPC();
             nextop=F8;
             GETGD;
             if(MODREG) {   // reg <= reg
@@ -2989,6 +2992,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
 
         case 0xE7:
             INST_NAME("MOVNTQ Em, Gm");
+            NOLRCPC();
             nextop = F8;
             gd = (nextop&0x38)>>3;
             if(MODREG) {

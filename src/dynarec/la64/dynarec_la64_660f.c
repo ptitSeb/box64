@@ -804,8 +804,13 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 case 0xDB:
                     INST_NAME("AESIMC Gx, Ex"); // AES-NI
                     nextop = F8;
-                    GETEX_AES(q1, 0, 0);
-                    GETGX_empty(q0);
+                    if (MODREG) {
+                        GETEX_AES(q1, 0, 0);
+                        GETGX_empty(q0);
+                    } else {
+                        GETGX_empty(q0);
+                        GETEX_AES(q1, 0, 0);
+                    }
                     if (q0 != q1) {
                         VOR_V(q0, q1, q1);
                     }
@@ -815,8 +820,8 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     INST_NAME("AESENC Gx, Ex"); // AES-NI
                     nextop = F8;
                     GETG;
-                    GETEX_AES(q1, 0, 0);
                     GETGX(q0, 1);
+                    GETEX_AES(q1, 0, 0);
                     if (MODREG && (gd == (nextop & 7) + (rex.b << 3))) {
                         d0 = SCRATCH;
                         VOR_V(d0, q1, q1);
@@ -843,8 +848,8 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     INST_NAME("AESDEC Gx, Ex"); // AES-NI
                     nextop = F8;
                     GETG;
-                    GETEX_AES(q1, 0, 0);
                     GETGX(q0, 1);
+                    GETEX_AES(q1, 0, 0);
                     if (MODREG && (gd == (nextop & 7) + (rex.b << 3))) {
                         d0 = SCRATCH;
                         VOR_V(d0, q1, q1);
@@ -857,8 +862,8 @@ uintptr_t dynarec64_660F(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     INST_NAME("AESDECLAST Gx, Ex"); // AES-NI
                     nextop = F8;
                     GETG;
-                    GETEX_AES(q1, 0, 0);
                     GETGX(q0, 1);
+                    GETEX_AES(q1, 0, 0);
                     if (MODREG && (gd == (nextop & 7) + (rex.b << 3))) {
                         d0 = SCRATCH;
                         VOR_V(d0, q1, q1);

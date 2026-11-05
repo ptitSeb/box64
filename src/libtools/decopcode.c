@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: MIT
 #include <stdint.h>
 #include <sys/mman.h>
+#if defined(__aarch64__)
+#include <signal.h>
+#include <ucontext.h>
+#endif
 
 #include "debug.h"
 #include "x64emu.h"
@@ -382,8 +386,21 @@ int decode_opcode(uintptr_t rip, int is32bits)
     return 0;
 }
 
-int write_opcode(uintptr_t rip, uintptr_t native_ip, int is32bits)
+int write_opcode(uintptr_t rip, uintptr_t native_ip, int is32bits, void* uctx)
 {
-    // TODO, on ARM64, RiSCV and LoongArch, it would be easier to analyse the opcode at the native IP instead, as opcode that write to memory are more limited in quantity
+    #if defined(__aarch64__)
+    if(uctx) {
+        struct _aarch64_ctx* ff = (struct _aarch64_ctx*)((ucontext_t*)uctx)->uc_mcontext.__reserved;
+        while(ff->magic && ff->size && ff->magic!=ESR_MAGIC)
+            ff = (struct _aarch64_ctx*)((uintptr_t)ff + ff->size);
+        if(ff->magic==ESR_MAGIC) {
+            uint64_t esr = ((struct esr_context*)ff)->esr;
+            if(((esr>>26)==0x24) && !(esr&(1<<8)))
+                // Data abort from EL0 with WnR set, not a cache maintenance operation (bit 8)
+                return(esr&(1<<6))?1:0;
+        }
+    }
+    #endif
+    // TODO, on RiSCV and LoongArch, it would be easier to analyse the opcode at the native IP instead, as opcode that write to memory are more limited in quantity
     return (decode_opcode(rip, is32bits)&OPCODE_WRITE)?1:0;
 }

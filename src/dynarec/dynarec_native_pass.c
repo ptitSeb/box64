@@ -119,11 +119,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
     fpu_reset(dyn);
     ARCH_INIT();
     int reset_n = -1; // -1 no reset; -2 reset to 0; else reset to the state of reset_n
-    #if defined(HAVE_LEAFCALL)
-    dyn->last_ip = (dyn->inline_leaf || alternate || (dyn->insts && dyn->insts[0].pred_sz)) ? 0 : ip; // RIP is always set at start of ordinary blocks unless there is a predecessor!
-    #else
     dyn->last_ip = (alternate || (dyn->insts && dyn->insts[0].pred_sz)) ? 0 : ip; // RIP is always set at start of block unless there is a predecessor!
-    #endif
     int stopblock = 2 + !dyn->is_file_mapped;                          // if block is in elf memory or file mapped memory, it can be extended with BOX64DRENV(dynarec_bigblock)==2, else it needs 3
     // ok, go now
     INIT;
@@ -131,10 +127,6 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
     uintptr_t cur_page = ALIGN_DOWN(addr);
     #endif
     while(ok) {
-        #if STEP > 0 && defined(HAVE_LEAFCALL)
-        if (dyn->inline_leaf)
-            addr = dyn->insts[ninst].x64.addr;
-        #endif
         #if STEP == 0
         int stop_for_guard = 0;
         if(cur_page != (ALIGN_DOWN(addr))) {
@@ -167,19 +159,9 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
             NATIVE_RESTORE_X87PC();
         }
         ip = addr;
-        #ifdef ARM64
+        #if defined(ARM64) || defined(LA64) || defined(RV64)
         if(!ninst) {
-            if (BOX64DRENV(dynarec_callret) >= 2)
-                doEnterBlock(dyn, 0, x1, x2, x3);
-            if(dyn->always_test)
-                checkCRC(dyn, 0);
-            if(dyn->insts[0].preload_xmmymm)
-                doPreload(dyn, 0);
-            ENDPREFIX;
-        }
-        #elif defined(LA64)
-        if(!ninst) {
-            if (BOX64DRENV(dynarec_callret) >= 2)
+            if (BOX64DRENV(dynarec_callret) >= 3)
                 doEnterBlock(dyn, 0, x1, x2, x3);
             if(dyn->always_test)
                 checkCRC(dyn, 0);
@@ -187,13 +169,6 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
                 doPreload(dyn, 0);
             }
             ENDPREFIX;
-        }
-        #elif defined(RV64)
-        if(!ninst) {
-            if (BOX64DRENV(dynarec_callret) >= 2)
-                doEnterBlock(dyn, 0, x1, x2, x3);
-            if (dyn->insts[0].preload_xmmymm)
-                doPreload(dyn, 0);
         }
         #endif
         fpu_propagate_stack(dyn, ninst);
@@ -238,10 +213,29 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         } else if (dyn->insts[ninst].will_write) {
             WILLWRITE();
         }
-
+        #endif
         int is_opcode_volatile = /*box64_wine &&*/ VolatileRangesContains(ip) && VolatileOpcodesHas(ip);
-        if (is_opcode_volatile && !dyn->insts[ninst].lock && dyn->insts[ninst].will_write)
-            DMB_ISHST();
+        #if defined(ARM64) && STEP == 1
+        if(is_opcode_volatile && cpuext.lrcpc && cpuext.lrcpc2 && cpuext.uscat) dyn->insts[ninst].use_lrcpc = 1;
+        #endif
+        #if STEP > 1
+        #ifdef ARM64
+        if (is_opcode_volatile && dyn->insts[ninst].use_lrcpc && dyn->insts[ninst].lock)
+            NOLRCPC();
+        #endif
+        if (is_opcode_volatile && !dyn->insts[ninst].lock) {
+            #ifdef ARM64
+            if(!dyn->insts[ninst].use_lrcpc) {
+            #endif
+            if(dyn->insts[ninst].will_write)
+                DMB_ISHST();
+            #ifdef ARM64
+            } else {
+                SMEND();
+            }
+            #endif
+        }
+
         #endif
         if (BOX64DRENV(dynarec_dump) && (!BOX64ENV(dynarec_dump_range_end) || (ip >= BOX64ENV(dynarec_dump_range_start) && ip < BOX64ENV(dynarec_dump_range_end)))) {
             dyn->need_dump = BOX64DRENV(dynarec_dump) == 3 && STEP != 3 ? 0 : BOX64DRENV(dynarec_dump);
@@ -323,17 +317,19 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
             return ip;
         INST_EPILOG;
 
-        #if STEP == 0 && defined(HAVE_LEAFCALL)
-        if (!dyn->peeking_flags && BOX64DRENV(dynarec_callret) >= 3 && dyn->insts[ninst].x64.leaf_kind == LEAF_KIND_CALL && dyn->insts[ninst].x64.leaf_target) {
-            dyn->insts[ninst].x64.leaf_call = 1;
-        }
-        #endif
-
         #if STEP > 1
         if (dyn->insts[ninst].lock)
             DMB_ISH();
-        else if (is_opcode_volatile && dyn->insts[ninst].will_read)
-            DMB_ISHLD();
+        else if (is_opcode_volatile) {
+            #ifdef ARM64
+            if(!dyn->insts[ninst].use_lrcpc) {
+            #endif
+            if(dyn->insts[ninst].will_read)
+                DMB_ISHLD();
+            #ifdef ARM64
+            }
+            #endif
+        } 
         #endif
         #if defined(ARM64) || defined(LA64) || defined(RV64)
         if(dyn->insts[ninst].x64.has_next && dyn->insts[ninst+1].preload_xmmymm) {
@@ -360,6 +356,11 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
                 dyn->last_ip = 0;
             }
         }
+        #if defined(RV64)
+        if(dyn->insts[ninst].x64.has_next && dyn->insts[next].promote_ymm && !(dyn->insts[next].x64.barrier & BARRIER_FLOAT)) {
+            avx_promote_upper(dyn, ninst, x1, dyn->insts[next].promote_ymm);
+        }
+        #endif
         #endif
         #ifndef PROT_READ
         #define PROT_READ 1
@@ -553,60 +554,3 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
     MESSAGE(LOG_DUMP, "---- END OF BLOCK ---- (%d)\n", dyn->size);
     return addr;
 }
-
-#ifdef HAVE_LEAFCALL
-void emit_inline_leaf(dynarec_native_t* parent, int parent_ninst)
-{
-    dynarec_native_t* leaf = dynarec_get_leaf_embedded(parent, parent_ninst);
-    if (!leaf) {
-        parent->abort = 1;
-        return;
-    }
-
-    leaf->block = parent->block;
-    leaf->native_start = parent->native_start;
-    leaf->native_size = parent->native_size;
-    leaf->table64 = parent->table64;
-    leaf->table64size = parent->table64size;
-    leaf->table64cap = parent->table64cap;
-    leaf->tablestart = parent->tablestart;
-    leaf->jmp_next = parent->jmp_next;
-    leaf->dynablock = parent->dynablock;
-    leaf->callrets = parent->callrets;
-    leaf->callret_size = parent->callret_size;
-    leaf->need_dump = parent->need_dump;
-    leaf->need_reloc = parent->need_reloc;
-    leaf->relocs = parent->relocs;
-    leaf->reloc_size = parent->reloc_size;
-    leaf->inline_native_end = parent->insts[parent_ninst].mark[2];
-    leaf->insts_size = 0;
-    leaf->abort = 0;
-
-    size_t native_start = leaf->native_size;
-    native_pass(leaf, leaf->start, 0, leaf->inline_is32bits, leaf->size);
-    size_t native_delta = leaf->native_size - native_start;
-
-    parent->block = leaf->block;
-    parent->native_size = leaf->native_size;
-    parent->table64size = leaf->table64size;
-    parent->callret_size = leaf->callret_size;
-    parent->reloc_size = leaf->reloc_size;
-    parent->abort |= leaf->abort;
-
-    #if STEP == 1
-    POSTUPDATE_SPECIFICS(leaf);
-    #elif STEP == 2
-    parent->insts[parent_ninst].size += native_delta;
-    if (leaf->insts_size > LEAFCALL_INSTSIZE_SCRATCH)
-        parent->abort = 1;
-    #elif STEP == 3
-    parent->insts[parent_ninst].size2 += native_delta;
-    for (int i = 0; i < leaf->size; ++i) {
-        if (!leaf->insts[i].x64.alive)
-            continue;
-        if (leaf->insts[i].size2 != leaf->insts[i].size)
-            parent->abort = 1;
-    }
-    #endif
-}
-#endif

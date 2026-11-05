@@ -1324,6 +1324,8 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         ed = (nextop&7)+(rex.b<<3);
                         if(ed>7)
                             sse_reflect_reg(dyn, ninst, ed);
+                        else
+                            sse_mark_used(dyn, ninst, ed);
                         ADDx_U12(x1, xEmu, offsetof(x64emu_t, xmm[ed]));
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 1);
@@ -1334,8 +1336,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     MOVx_REG(x2, xRDX);
                     MOVx_REG(x4, xRAX);
                     u8 = F8;
-                    MOV32w(x5, u8);
-                    MOV32w(x6, rex.w);
+                    MOV32w(x5, u8 | (rex.w << 8));  // REX.W in bit 8 of the imm8 argument
                     CALL(const_sse42_compare_string_explicit_len, x1);
                     q0 = sse_get_reg_empty(dyn, ninst, x2, 0);
                     if(u8&0b1000000) {
@@ -1413,6 +1414,11 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                             VMOVBto(x2, d0, 0);
                             BFIw(x1, x2, 8, 8); // insert
                         }
+#ifdef BOX64EC
+                        int lreg = x2;  // no x6 (guest R9): lreg is lost in min(lmem, lreg) and recomputed for SF
+#else
+                        int lreg = x6;
+#endif
                         // get abs of eax / edx and find min
                         ADDSxw_U12(x2, xRAX, 0);
                         Bcond(cPL, 4+4);
@@ -1425,20 +1431,20 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                             CMPSx_REG(x3, x4);
                             CSELx(x3, x3, x4, cLO); // x3 is lmem
                             CMPSx_REG(x2, x4);
-                            CSELx(x6, x2, x4, cLO); // x6 is lreg
+                            CSELx(lreg, x2, x4, cLO);
                         } else {
                             CMPSw_REG(x3, x4);
                             CSELw(x3, x3, x4, cLO); // x3 is lmem
                             CMPSw_REG(x2, x4);
-                            CSELw(x6, x2, x4, cLO); // x6 is lreg
+                            CSELw(lreg, x2, x4, cLO);
                         }
-                        CMPSw_REG(x6, x3);
-                        CSELw(x5, x3, x6, cLT); // x5 is max(lmem, lreg)
-                        CSELw(x2, x6, x3, cLT); // x2 is min(lmem, lreg)
+                        CMPSw_REG(lreg, x3);
+                        CSELw(x5, x3, lreg, cLT); // x5 is max(lmem, lreg)
+                        CSELw(x2, lreg, x3, cLT); // x2 is min(lmem, lreg)
                         // x2 is min length 0-n_packed
                         MVNw_REG(x4, xZR);
-                        LSLw_REG(x87pc, x4, x2);
-                        BICw_REG(x1, x1, x87pc);
+                        LSLw_REG(x2, x4, x2);
+                        BICw_REG(x1, x1, x2);
                         LSLw_REG(x4, x4, x5);
                         ORRw_REG(x1, x1, x4);
                         ANDw_mask(x1, x1, 0, (u8&1)?7:15);
@@ -1470,8 +1476,17 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                                     BFIw(xFlags, x5, F_ZF, 1);
                                 }
                                 IFX(X_SF) {
+#ifdef BOX64EC
+                                    // lreg was overwritten by min(lmem, lreg), recompute it from abs(RAX)
+                                    ADDSxw_U12(x2, xRAX, 0);
+                                    Bcond(cPL, 4+4);
+                                    NEGxw_REG(x2, x2);
+                                    CMPSxw_REG(x2, x4);
+                                    CSETw(x5, cLO);
+#else
                                     CMPSw_REG(x6, x4);
                                     CSETw(x5, cLT);
+#endif
                                     BFIw(xFlags, x5, F_SF, 1);
                                 }
                             }
@@ -1496,11 +1511,15 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         SETFLAGS(X_ALL, SF_SET_DF);
                         if(gd>7)    // no need to reflect cache as xmm0-xmm7 will be saved before the function call anyway
                             sse_reflect_reg(dyn, ninst, gd);
+                        else
+                            sse_mark_used(dyn, ninst, gd);
                         ADDx_U12(x3, xEmu, offsetof(x64emu_t, xmm[gd]));
                         if(MODREG) {
                             ed = (nextop&7)+(rex.b<<3);
                             if(ed>7)
                                 sse_reflect_reg(dyn, ninst, ed);
+                            else
+                                sse_mark_used(dyn, ninst, ed);
                             ADDx_U12(x1, xEmu, offsetof(x64emu_t, xmm[ed]));
                         } else {
                             addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 1);
@@ -1511,8 +1530,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         MOVx_REG(x2, xRDX);
                         MOVx_REG(x4, xRAX);
                         u8 = F8;
-                        MOV32w(x5, u8);
-                        MOV32w(x6, rex.w);
+                        MOV32w(x5, u8 | (rex.w << 8));  // REX.W in bit 8 of the imm8 argument
                         CALL(const_sse42_compare_string_explicit_len, x1);
                     }
                     if(u8&0b1000000) {
@@ -1540,6 +1558,8 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         ed = (nextop&7)+(rex.b<<3);
                         if(ed>7)
                             sse_reflect_reg(dyn, ninst, ed);
+                        else
+                            sse_mark_used(dyn, ninst, ed);
                         ADDx_U12(x1, xEmu, offsetof(x64emu_t, xmm[ed]));
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 1);
@@ -1589,11 +1609,15 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     GETG;
                     if(gd>7)
                         sse_reflect_reg(dyn, ninst, gd);
+                    else
+                        sse_mark_used(dyn, ninst, gd);
                     ADDx_U12(x2, xEmu, offsetof(x64emu_t, xmm[gd]));
                     if(MODREG) {
                         ed = (nextop&7)+(rex.b<<3);
                         if(ed>7)
                             sse_reflect_reg(dyn, ninst, ed);
+                        else
+                            sse_mark_used(dyn, ninst, ed);
                         ADDx_U12(x1, xEmu, offsetof(x64emu_t, xmm[ed]));
                     } else {
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 1);
@@ -2466,7 +2490,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 ed = TO_NAT((nextop & 7) + (rex.b << 3));
             } else {
                 SMREAD();
-                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff<<2, (1<<2)-1, rex, NULL, 0, 0);
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff<<1, (1<<1)-1, rex, NULL, 0, 0);
                 SBFXx(x1, gd, 4, 12);   // r1 = (gw>>4)
                 ADDx_REG_LSL(x3, wback, x1, 1); //(&ed)+=r1*2;
                 LDH(x1, x3, fixedaddress);
@@ -2510,7 +2534,14 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             UFLAG_IF {
                 CBZw_NEXT(x4);
             }
+#ifdef BOX64EC
+            // x1 to x5 are all in use and x6 is guest R9, so the address in x3 goes through the emu
+            if(wback==x3) STRx_U12(x3, xEmu, offsetof(x64emu_t, scratch[0]));
+            emit_shld16(dyn, ninst, ed, gd, x4, x5, x3);
+            if(wback==x3) LDRx_U12(x3, xEmu, offsetof(x64emu_t, scratch[0]));
+#else
             emit_shld16(dyn, ninst, ed, gd, x4, x5, x6);
+#endif
             EWBACK;
             break;
 
@@ -2527,7 +2558,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 ed = TO_NAT((nextop & 7) + (rex.b << 3));
                 wback = 0;
             } else {
-                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff<<2, (1<<2)-1, rex, NULL, 0, 0);
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff<<1, (1<<1)-1, rex, NULL, 0, 0);
                 SBFXx(x4, gd, 4, 12);   // r1 = (gw>>4)
                 ADDx_REG_LSL(x3, wback, x4, 1); //(&ed)+=r1*2;
                 LDH(x4, x3, fixedaddress);
@@ -2580,7 +2611,14 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 CBZw_NEXT(x4);
             } else {
             }
+#ifdef BOX64EC
+            // as SHLD, the address in x3 goes through the emu
+            if(wback==x3) STRx_U12(x3, xEmu, offsetof(x64emu_t, scratch[0]));
+            emit_shrd16(dyn, ninst, ed, gd, x4, x5, x3);
+            if(wback==x3) LDRx_U12(x3, xEmu, offsetof(x64emu_t, scratch[0]));
+#else
             emit_shrd16(dyn, ninst, ed, gd, x4, x5, x6);
+#endif
             EWBACK;
             break;
         case 0xAE:
@@ -2653,7 +2691,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 wback = 0;
             } else {
                 SMREAD();
-                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff<<2, (1<<2)-1, rex, NULL, 0, 0);
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff<<1, (1<<1)-1, rex, NULL, 0, 0);
                 SBFXx(x4, gd, 4, 12);   // r1 = (gw>>4)
                 ADDx_REG_LSL(x3, wback, x4, 1); //(&ed)+=r1*2;
                 LDH(x4, x3, fixedaddress);
@@ -2798,7 +2836,7 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                 wback = 0;
             } else {
                 SMREAD();
-                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff<<2, (1<<2)-1, rex, NULL, 0, 0);
+                addr = geted(dyn, addr, ninst, nextop, &wback, x3, &fixedaddress, &unscaled, 0xfff<<1, (1<<1)-1, rex, NULL, 0, 0);
                 SBFXx(x4, gd, 4, 12);   // r1 = (gw>>4)
                 ADDx_REG_LSL(x3, wback, x4, 1); //(&ed)+=r1*2;
                 LDH(x4, x3, fixedaddress);
@@ -2939,10 +2977,12 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             GETGW(x1);
             GETEW(x2, 0);
             u8 = TO_NAT(((nextop & 0x38) >> 3) + (rex.r << 3));
-            if (!(MODREG && wback == u8)) MOVx_REG(x6, ed);
             emit_add16(dyn, ninst, ed, gd, x4, x5);
             EWBACK;
-            if (!(MODREG && wback == u8)) BFIx(u8, x6, 0, 16);
+            if (!(MODREG && wback == u8)) {
+                SUBw_REG(gd, ed, gd);   // the old Ew is the sum minus Gw
+                BFIx(u8, gd, 0, 16);
+            }
             break;
         case 0xC2:
             INST_NAME("CMPPD Gx, Ex, Ib");

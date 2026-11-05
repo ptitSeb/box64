@@ -105,7 +105,6 @@ uintptr_t dynarec64_00_0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             emit_add32c(dyn, ninst, rex, xRAX, i64, x3, x4, x5, x6);
             break;
         case 0x06:
-            MARK_LEAF_RSP(LEAF_RSP_PUSHPOP);
             if (rex.is32bits) {
                 INST_NAME("PUSH ES");
                 LD_HU(x1, xEmu, offsetof(x64emu_t, segs[_ES]));
@@ -126,7 +125,6 @@ uintptr_t dynarec64_00_0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             }
             break;
         case 0x07:
-            MARK_LEAF_RSP(LEAF_RSP_PUSHPOP);
             if (rex.is32bits) {
                 INST_NAME("POP ES");
                 SMREAD();
@@ -195,7 +193,6 @@ uintptr_t dynarec64_00_0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             emit_or32c(dyn, ninst, rex, xRAX, i64, x3, x4);
             break;
         case 0x0E:
-            MARK_LEAF_RSP(LEAF_RSP_PUSHPOP);
             if (rex.is32bits) {
                 INST_NAME("PUSH CS");
                 LD_HU(x1, xEmu, offsetof(x64emu_t, segs[_CS]));
@@ -283,7 +280,6 @@ uintptr_t dynarec64_00_0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             emit_adc32(dyn, ninst, rex, xRAX, x1, x3, x4, x5, x6);
             break;
         case 0x16:
-            MARK_LEAF_RSP(LEAF_RSP_PUSHPOP);
             if (rex.is32bits) {
                 INST_NAME("PUSH SS");
                 LD_HU(x1, xEmu, offsetof(x64emu_t, segs[_SS]));
@@ -304,7 +300,6 @@ uintptr_t dynarec64_00_0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             }
             break;
         case 0x17:
-            MARK_LEAF_RSP(LEAF_RSP_PUSHPOP);
             if (rex.is32bits) {
                 INST_NAME("POP SS");
                 SMREAD();
@@ -380,7 +375,6 @@ uintptr_t dynarec64_00_0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             emit_sbb32(dyn, ninst, rex, xRAX, x2, x3, x4, x5);
             break;
         case 0x1E:
-            MARK_LEAF_RSP(LEAF_RSP_PUSHPOP);
             if (rex.is32bits) {
                 INST_NAME("PUSH DS");
                 LD_HU(x1, xEmu, offsetof(x64emu_t, segs[_DS]));
@@ -401,7 +395,6 @@ uintptr_t dynarec64_00_0(dynarec_la64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             }
             break;
         case 0x1F:
-            MARK_LEAF_RSP(LEAF_RSP_PUSHPOP);
             if (rex.is32bits) {
                 INST_NAME("POP DS");
                 SMREAD();

@@ -1,0 +1,5 @@
+mov r64, imm64: 69154 values ok
+mov r32, imm32: 83538 values ok
+mov r64, imm32: 83538 values ok
+mov qword [rdi+disp], imm32: 66154 values ok
+move immediate: PASS

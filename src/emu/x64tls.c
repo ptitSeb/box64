@@ -137,7 +137,7 @@ uint32_t my_modify_ldt(x64emu_t* emu, int op, thread_area_32_t* td, int size)
 
 static const char* arch_prctl_param(int code)
 {
-    static char ret[10] = {0};
+    static char ret[12] = {0};
     switch (code) {
         case 0x1001: return "ARCH_SET_GS";
         case 0x1002: return "ARCH_SET_FS";

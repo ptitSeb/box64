@@ -839,8 +839,11 @@ void emit_shr32c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, 
         SET_FLAGS_LTZ(s1, F_SF, s3, s4);
     }
     UP32_WRITE32(s1);
-    if (!rex.w && c == 0) {
-        ZEROUP_RESULT(s1);
+    if (!rex.w) {
+        if (c == 0)
+            ZEROUP_RESULT(s1);
+        else
+            UP32_ZERO(s1); // SRLIW with c>0 always clears bit 31
     }
     IFX (X_PEND) {
         SDxw(s1, xEmu, offsetof(x64emu_t, res));
@@ -1566,7 +1569,7 @@ void emit_rcl32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 {
     int64_t j64;
     SET_DFNONE();
-    UP32_WRITE32(s1); if (!rex.w && NEED_ZEROUP32(s1)) ZEROUP_RESULT(s1);
+    UP32_WRITE32(s1); if (!rex.w) ZEROUP_RESULT(s1);
 
     IFX (X_OF) {
         ANDI(xFlags, xFlags, ~(1UL << F_OF2));
@@ -1614,7 +1617,7 @@ void emit_rcr32(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, int s
 {
     int64_t j64;
     SET_DFNONE();
-    UP32_WRITE32(s1); if (!rex.w && NEED_ZEROUP32(s1)) ZEROUP_RESULT(s1);
+    UP32_WRITE32(s1); if (!rex.w) ZEROUP_RESULT(s1);
 
     IFX (X_OF) {
         ANDI(xFlags, xFlags, ~(1UL << F_OF2));
@@ -1864,7 +1867,9 @@ void emit_shrd16c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uin
     IFX (X_PEND) {
         if (c) {
             MOV64x(s3, c);
-            SH(s3, xEmu, offsetof(x64emu_t, op2));
+            SLLI(s4, s2, 16);
+            OR(s3, s3, s4);
+            SW(s3, xEmu, offsetof(x64emu_t, op2));
         } else
             SH(xZR, xEmu, offsetof(x64emu_t, op2));
         SH(s1, xEmu, offsetof(x64emu_t, op1));
@@ -2090,7 +2095,9 @@ void emit_shld16c(dynarec_rv64_t* dyn, int ninst, rex_t rex, int s1, int s2, uin
     IFX (X_PEND) {
         if (c) {
             MOV64x(s3, c);
-            SH(s3, xEmu, offsetof(x64emu_t, op2));
+            SLLI(s4, s2, 16);
+            OR(s3, s3, s4);
+            SW(s3, xEmu, offsetof(x64emu_t, op2));
         } else
             SH(xZR, xEmu, offsetof(x64emu_t, op2));
         SH(s1, xEmu, offsetof(x64emu_t, op1));
@@ -2158,7 +2165,9 @@ void emit_shld16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4,
     CLEAR_FLAGS();
     IFX (X_PEND) {
         SH(s1, xEmu, offsetof(x64emu_t, op1));
-        SH(s3, xEmu, offsetof(x64emu_t, op2));
+        SLLI(s5, s2, 16);
+        OR(s5, s5, s3);
+        SW(s5, xEmu, offsetof(x64emu_t, op2));
         SET_DF(s4, d_shld16);
     } else IFXORNAT (X_ALL) {
         SET_DFNONE();
@@ -2220,7 +2229,9 @@ void emit_shrd16(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3, int s4,
     CLEAR_FLAGS();
     IFX (X_PEND) {
         SH(s1, xEmu, offsetof(x64emu_t, op1));
-        SH(s3, xEmu, offsetof(x64emu_t, op2));
+        SLLI(s5, s2, 16);
+        OR(s5, s5, s3);
+        SW(s5, xEmu, offsetof(x64emu_t, op2));
         SET_DF(s4, d_shrd16);
     } else IFXORNAT (X_ALL) {
         SET_DFNONE();

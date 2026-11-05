@@ -265,8 +265,9 @@ elseif(LARCH64)
     set(ASMFLAGS  -pipe -march=loongarch64)
 elseif(RV64)
     add_definitions(-DRV64)
-    set(CFLAGS -pipe -march=rv64gc)
+    set(CFLAGS -pipe -march=rv64gc -fno-tree-vectorize)
     set(ASMFLAGS  -pipe -march=rv64gc)
+    add_compile_options(-fno-tree-vectorize)
 elseif(PPC64LE)
     add_definitions(-DPPC64LE)
     set(CFLAGS -pipe -mcpu=power9)
@@ -1105,6 +1106,7 @@ if(RV64_DYNAREC)
         "${BOX64_ROOT}/src/dynarec/rv64/rv64_printer.c"
         "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_jmpnext.c"
         "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_consts.c"
+        "${BOX64_ROOT}/src/dynarec/rv64/rv64_mov_imm.c"
         "${BOX64_ROOT}/src/dynarec/rv64/updateflags_rv64.c"
         )
     set(DYNAREC_ASM
@@ -1677,6 +1679,7 @@ if(ARM64EC)
         SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/wine/box64ec"
         CMAKE_ARGS
             -DCMAKE_TOOLCHAIN_FILE=${CMAKE_CURRENT_SOURCE_DIR}/wine/toolchain_mingw_arm64ec.cmake
+            -DDYNAREC_PASS_STR=${DYNAREC_PASS_STR}
             -DINTERPRETER_STR=${INTERPRETER_STR}
             -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
         INSTALL_COMMAND ""

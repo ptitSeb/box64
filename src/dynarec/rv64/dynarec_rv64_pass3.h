@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 #define INIT
+#define ENDPREFIX dyn->insts[ninst].size2 = 0
 #define FINI                                                                                                \
     if (ninst)                                                                                              \
         addInst(dyn->instsize, &dyn->insts_size, dyn->insts[ninst-1].x64.size, dyn->insts[ninst-1].size/4); \
@@ -30,9 +31,13 @@
         addInst(dyn->instsize, &dyn->insts_size, dyn->insts[ninst - 1].x64.size, dyn->insts[ninst - 1].size / 4); \
         dyn->insts[ninst].ymm0_pass3 = dyn->ymm_zero;                                                             \
     }                                                                                                             \
-    sse_sync_all_cache_types(&dyn->e);                                                                            \
+    if (ninst && dyn->insts[ninst - 1].vec_used) sse_sync_all_cache_types(&dyn->e);                               \
     AREFLAGSNEEDED()
-#define INST_EPILOG \
+#define INST_EPILOG                                                   \
+    if (dyn->vtype_restore != VECTOR_SEWNA) {                         \
+        avx_set_vector_width(dyn, ninst, x1, dyn->vtype_restore, 16); \
+        dyn->vtype_restore = VECTOR_SEWNA;                            \
+    }                                                                 \
     dyn->vector_sew = dyn->insts[ninst].vector_sew_exit;
 #define INST_NAME(name) inst_name_pass3(dyn, ninst, name, rex)
 
