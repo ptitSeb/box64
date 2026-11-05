@@ -26,11 +26,6 @@ typedef struct box64env_s box64env_t;
 #define EXT_CACHE_YMMW   11
 #define EXT_CACHE_YMMR   12
 
-#define EXT_CACHE_OLD_SD   0
-#define EXT_CACHE_OLD_SS   1
-#define EXT_CACHE_OLD_XMMW 2
-#define EXT_CACHE_OLD_XMMR 3
-
 typedef union ext_cache_s {
     int16_t v;
     struct {
@@ -60,16 +55,6 @@ typedef union sse_cache_s {
     };
 } sse_cache_t;
 
-typedef union sse_old_s {
-    int8_t      v;
-    struct {
-        uint8_t     changed:1;
-        uint8_t     purged:1;
-        uint8_t     reg:4;
-        uint8_t     type:2;
-    };
-} sse_old_t;
-
 typedef struct extcache_s {
     // ext cache
     ext_cache_t         extcache[32];
@@ -84,7 +69,7 @@ typedef struct extcache_s {
     uint8_t             pushed;         // positive pushed value (to check for overflow)
     uint8_t             poped;          // positive poped value (to check for underflow)
     uint32_t            news;           // bitmask, wich neoncache are new for this opcode
-    sse_old_t           olds[16];       // SSE regs has changed or has been removed
+    ext_cache_t         olds[16];       // SSE caches descriptors changed or removed by this instruction
     // fpu cache
     int8_t              x87cache[8];    // cache status for the 8 x87 register behind the fpu stack
     int8_t              x87reg[8];      // reg used for x87cache entry
