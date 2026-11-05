@@ -145,6 +145,9 @@ void protectDBJumpTable(uintptr_t addr, size_t size, void* jump, void* ref);
 void unprotectDB(uintptr_t addr, size_t size, int mark);    // if mark==0, the blocks are not marked as potentially dirty
 void neverprotectDB(uintptr_t addr, size_t size, int mark);
 int isprotectedDB(uintptr_t addr, size_t size);
+#ifdef BOX64EC
+uint32_t getUnprotectGeneration(void);
+#endif
 #endif
 void* find32bitBlock(size_t size);
 void* find31bitBlockNearHint(void* hint, size_t size, uintptr_t mask);

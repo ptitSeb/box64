@@ -194,6 +194,28 @@ void jit_arm_context_to_emu(ARM64_NT_CONTEXT* context, x64emu_t* emu)
     emu->eflags.x64 = context->X7;
 }
 
+void emu_to_jit_arm_context(x64emu_t* emu, ARM64_NT_CONTEXT* context)
+{
+    context->X10 = R_RAX;
+    context->X11 = R_RCX;
+    context->X12 = R_RDX;
+    context->X8  = R_RBX;
+    context->X20 = R_RSP;
+    context->X21 = R_RBP;
+    context->X16 = R_RSI;
+    context->X17 = R_RDI;
+    context->X15 = R_R8;
+    context->X6  = R_R9;
+    context->X23 = R_R10;
+    context->X9  = R_R11;
+    context->X22 = R_R12;
+    context->X25 = R_R13;
+    context->X26 = R_R14;
+    context->X19 = R_R15;
+    context->X7  = emu->eflags.x64;
+    context->X27 = R_RIP;
+}
+
 void emu_to_context(x64emu_t* emu, ARM64EC_NT_CONTEXT* context)
 {
     void* ymm;

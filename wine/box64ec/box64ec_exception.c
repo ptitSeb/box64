@@ -12,13 +12,75 @@
 #ifdef DYNAREC
 #include "custommem.h"
 #include "dynablock.h"
+#include "dynarec/dynablock_private.h"
 #include "dynarec/arm64/dynarec_arm64_arch.h"
 #include "box64context.h"
 #include "os.h"
 
+#include "khash.h"
+
 extern int fillblock_active;
 extern void* current_helper;
 void adjustregs(x64emu_t* emu, void* pc);
+extern void arm64_epilog(void);
+
+// x64 addresses of opcodes that wrote into their own block: the next blocks stop before them
+KHASH_SET_INIT_INT64(autosmc)
+static kh_autosmc_t* autosmc = NULL;
+
+int is_addr_autosmc(uintptr_t addr)
+{
+    return autosmc && kh_get(autosmc, autosmc, addr) != kh_end(autosmc);
+}
+
+/* A write to guest code the Dynarec write-protected, from any code: drop the
+ * blocks of the page and retry the write, as the Linux signal handler does.
+ * Returns if the fault is not one of those. */
+static void handle_smc_write(EXCEPTION_RECORD* record, ARM64_NT_CONTEXT* arm_context,
+                             CHPE_V2_CPU_AREA_INFO* area, x64emu_t* emu)
+{
+    uintptr_t addr = record->ExceptionInformation[1];
+    uint32_t prot;
+    dynablock_t* db;
+
+    if (record->ExceptionCode != STATUS_ACCESS_VIOLATION || record->NumberParameters < 2 ||
+        record->ExceptionInformation[0] != 1)
+        return;
+    prot = getProtection(addr);
+    if (prot & PROT_DYNAREC) {
+        CheckHotPage(addr, prot);
+        unprotectDB(addr, 1, 1);
+    } else if (!(prot & PROT_WRITE))
+        return;     // not a write to protected guest code (or another thread already unprotected it)
+    db = (area && emu && area->InSimulation) ? FindDynablockFromNativeAddress((void*)(uintptr_t)arm_context->Pc) : NULL;
+    if (db) {
+        uintptr_t x64pc = getX64Address(db, arm_context->Pc);
+        int own = addr >= (uintptr_t)db->x64_addr && addr < (uintptr_t)db->x64_addr + db->x64_size;
+        int same_page = (addr & ~(uintptr_t)0xfff) == ((uintptr_t)db->x64_addr & ~(uintptr_t)0xfff);
+        if (x64pc && (own || (same_page && !is_addr_autosmc(x64pc)) || getNeedTest((uintptr_t)db->x64_addr))) {
+            /* the rest of the block can be stale: leave it through the epilog, the
+             * write is then done again from the next block */
+            jit_arm_context_to_emu(arm_context, emu);
+            R_RIP = x64pc;
+            adjustregs(emu, (void*)(uintptr_t)arm_context->Pc);
+            adjust_arch(db, emu, arm_context, x64pc);
+            if (own) {
+                int ret;
+                mutex_lock(&my_context->mutex_dyndump);     // native_pass reads it under this lock
+                if (!autosmc)
+                    autosmc = kh_init(autosmc);
+                kh_put(autosmc, autosmc, x64pc, &ret);
+                mutex_unlock(&my_context->mutex_dyndump);
+                db->to_delete = 1;
+                MarkDynablock(db);
+            }
+            emu_to_jit_arm_context(emu, arm_context);
+            arm_context->X0 = (uintptr_t)emu;
+            arm_context->Pc = (uintptr_t)arm64_epilog;
+        }
+    }
+    Box64EC_ContinueNative(arm_context, FALSE);
+}
 #endif
 
 /* Dispatch a host fault in Run with the guest state, on the guest stack. */
@@ -64,7 +126,12 @@ void WINAPI ResetToConsistentState(EXCEPTION_RECORD* record, CONTEXT* context,
     x64emu_t* emu = area ? area->EmulatorData[EC_DATA_EMU] : NULL;
     box64ec_thr_t* state = Box64EC_GetThreadState();
 
-    if (!record || !arm_context || !emu || !state || !context)
+    if (!record || !arm_context)
+        return;
+#ifdef DYNAREC
+    handle_smc_write(record, arm_context, area, emu);
+#endif
+    if (!emu || !state || !context)
         return;
     if (InterlockedCompareExchange(&state->guest_exception_pending, 1, 1) == 1 &&
         record->ExceptionCode == state->guest_exception_code &&

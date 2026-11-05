@@ -538,6 +538,12 @@ dynablock_t* DBGetBlock(x64emu_t* emu, uintptr_t addr, int create, int is32bits)
     db = internalDBGetBlock(emu, addr, create, 1, is32bits, 1, db);
     if(db && db->done && db->block && getNeedTest(addr)) {
         //if (db->always_test) SchedYield(); // just calm down...
+        #ifdef BOX64EC
+        // protect the code before hashing it: a write that lands after the hash then faults and bumps the generation
+        uint32_t gen = getUnprotectGeneration();
+        if(!is_inhotpage && !db->always_test)
+            protectDB((uintptr_t)db->x64_addr, db->x64_size);
+        #endif
         uint32_t hash = X31_hash_code((void*)db->x64_readaddr, db->x64_size);
         mutex_lock(&my_context->mutex_dyndump)?1:0;
         if(hash!=db->hash) {
@@ -573,7 +579,16 @@ dynablock_t* DBGetBlock(x64emu_t* emu, uintptr_t addr, int create, int is32bits)
                         ClearCache(db->block, db->size);
                     }
                     #endif
+                    #ifdef BOX64EC
+                    if(gen == getUnprotectGeneration()) {   // else it stays tested at each entry
+                    #endif
                     protectDBJumpTable((uintptr_t)db->x64_addr, db->x64_size, db->block, db->jmpnext);
+                    #ifdef BOX64EC
+                        // a write fault right before the publication may have unlinked it already
+                        if(gen != getUnprotectGeneration())
+                            MarkDynablock(db);
+                    }
+                    #endif
                 }
             }
         }
