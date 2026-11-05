@@ -25,3 +25,18 @@ int Box64EC_IsEcCode(uintptr_t address)
         return result;
     }
 }
+
+// Box64's own mappings are not reported back to it, see NotifyMemoryFree
+void Box64EC_InternalMapEnter(void)
+{
+    box64ec_thr_t* thread = Box64EC_GetThreadState();
+    if (thread)
+        ++thread->internal_map_depth;
+}
+
+void Box64EC_InternalMapLeave(void)
+{
+    box64ec_thr_t* thread = Box64EC_GetThreadState();
+    if (thread && thread->internal_map_depth)
+        --thread->internal_map_depth;
+}
