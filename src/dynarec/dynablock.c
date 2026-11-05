@@ -22,6 +22,9 @@
 #include "dynarec_native.h"
 #include "dynarec_arch.h"
 #include "native_lock.h"
+#ifdef BOX64EC
+#include "box64ec.h"
+#endif
 
 #include "custommem.h"
 #include "khash.h"
@@ -388,6 +391,11 @@ dynablock_t* CreateDBnoAlt(x64emu_t* emu, uintptr_t addr, int is32bits)
 dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, int create, int need_lock, int is32bits, int is_new, dynablock_t* block)
 {
     const uint32_t req_prot = (box64_pagesize==4096)?(PROT_EXEC|PROT_READ):PROT_READ;
+    #ifdef BOX64EC
+    // never build a block from ARM64EC code, the JIT memory is ARM64EC code too
+    if(Box64EC_IsEcCode(addr))
+        return NULL;
+    #endif
     if(BOX64ENV(nodynarec_delay) && (addr>=BOX64ENV(nodynarec_start)) && (addr<BOX64ENV(nodynarec_end)))
         return NULL;
     if(!block)
@@ -445,7 +453,12 @@ dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, int create, int n
             return block;
         }
     }
+    #ifdef BOX64EC
+    // a fault while filling the block would leave mutex_dyndump locked, the interpreter raises it instead
+    block = Box64EC_IsExecutable(addr) ? FillBlock64(addr, is32bits, MAX_INSTS, is_new, 0) : NULL;
+    #else
     block = FillBlock64(addr, is32bits, MAX_INSTS, is_new, 0);
+    #endif
     if(!block) {
         dynarec_log(LOG_DEBUG, "Fillblock of block %p for %p returned an error\n", block, (void*)addr);
     }

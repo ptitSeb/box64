@@ -42,6 +42,7 @@ void Box64EC_FinishBeginSimulation(ARM64EC_NT_CONTEXT* context,
                                   uintptr_t target, uintptr_t native_sp)
     __attribute__((noreturn));
 int Box64EC_IsEcCode(uintptr_t address);
+int Box64EC_IsExecutable(uintptr_t address);
 void Box64EC_RequestExitToNative(struct x64emu_s* emu, uintptr_t address);
 uintptr_t Box64EC_TakePendingNativeExit(uintptr_t* native_sp);
 uintptr_t Box64EC_ResolveNoPendingExit(uintptr_t rip);

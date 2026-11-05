@@ -24,6 +24,9 @@
 #include "custommem.h"
 #include "x64test.h"
 #endif
+#ifdef BOX64EC
+#include "box64ec.h"
+#endif
 #ifdef HAVE_TRACE
 #include "elfloader.h"
 #endif
@@ -40,6 +43,13 @@ void* LinkNext(x64emu_t* emu, uintptr_t addr, void* x2, uintptr_t* x3)
     if(new_addr!=addr) {
         *x3 = new_addr;
         addr = new_addr;
+    }
+    #endif
+    #ifdef BOX64EC
+    // ARM64EC code runs natively, after leaving the JIT
+    if(Box64EC_IsEcCode(addr)) {
+        Box64EC_RequestExitToNative(emu, addr);
+        return native_epilog;
     }
     #endif
     #ifdef HAVE_TRACE
