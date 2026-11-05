@@ -283,7 +283,11 @@ void native_wineint(x64emu_t* emu, int num)
 #endif
 void native_int3(x64emu_t* emu)
 {
+    #ifdef BOX64EC
+    EmuInt3(emu, &R_RIP);   // RIP is after the INT3, as for the interpreter
+    #else
     EmitSignal(emu, X64_SIGTRAP, NULL, 3);
+    #endif
 }
 
 void native_div0(x64emu_t* emu)

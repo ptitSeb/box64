@@ -28,6 +28,22 @@ int Box64EC_IsEcCode(uintptr_t address)
     }
 }
 
+int Box64EC_IsExecutable(uintptr_t address)
+{
+    MEMORY_BASIC_INFORMATION info;
+
+    if (NtQueryVirtualMemory(NtCurrentProcess(), (void*)address, MemoryBasicInformation, &info, sizeof(info), NULL) ||
+        info.State != MEM_COMMIT || (info.Protect & PAGE_GUARD))
+        return 0;
+    switch (info.Protect & 0xff) {
+        case PAGE_EXECUTE_READ:
+        case PAGE_EXECUTE_READWRITE:
+        case PAGE_EXECUTE_WRITECOPY:
+            return 1;
+    }
+    return 0;
+}
+
 // Box64's own mappings are not reported back to it, see the Notify hooks
 void Box64EC_InternalMapEnter(void)
 {
