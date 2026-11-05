@@ -3236,11 +3236,12 @@ void avx_load_reg_vector(dynarec_rv64_t* dyn, int ninst, int s1, int vreg, int a
             int hi = fpu_get_scratch(dyn);
             dyn->inst_sew = VECTOR_SEWNA;
             dyn->inst_vl = 0; // real vtype here is unknown, never elide vsetvli
-            vector_vsetvli(dyn, ninst, s1, VECTOR_SEW8, VECTOR_LMUL1, 1);
+            int sew0 = sew <= VECTOR_SEW64 ? sew : VECTOR_SEW8;
+            vector_vsetvli(dyn, ninst, s1, sew0, VECTOR_LMUL1, 1);
             ADDI(s1, xEmu, offsetof(x64emu_t, ymm[a]));
-            VLE8_V(hi, s1, VECTOR_UNMASKED, VECTOR_NFIELD1);
-            vector_vsetvli(dyn, ninst, s1, VECTOR_SEW8, VECTOR_LMUL1, 2);
-            VSLIDEUP_VI(low, hi, 16, VECTOR_UNMASKED);
+            VLE_V(hi, s1, sew0, VECTOR_UNMASKED, VECTOR_NFIELD1);
+            vector_vsetvli(dyn, ninst, s1, sew0, VECTOR_LMUL1, 2);
+            VSLIDEUP_VI(low, hi, 16 >> sew0, VECTOR_UNMASKED);
             dyn->e.fpu_scratch = sp;
         }
         dyn->e.ssecache[a].ymm = 1;
