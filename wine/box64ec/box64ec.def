@@ -6,7 +6,13 @@ EXPORTS
   RetToEntryThunk DATA
   BeginSimulation DATA
   ResetToConsistentState
+  BTCpu64FlushInstructionCache
   BTCpu64IsProcessorFeaturePresent
+  BTCpu64NotifyMemoryDirty
+  BTCpu64NotifyReadFile
+  NotifyMemoryFree
+  NotifyMemoryProtect
+  NotifyUnmapViewOfSection
   ProcessInit
   ThreadInit
   ThreadTerm
