@@ -1472,7 +1472,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             nextop=F8;
             GETEB(x1, 0);
             GETGB(x2);
-            emit_test8(dyn, ninst, x1, x2, x3, x4, x5);
+            emit_test8(dyn, ninst, x1, x2, x3, x4);
             break;
         case 0x85:
             INST_NAME("TEST Ed, Gd");
@@ -1480,7 +1480,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             nextop=F8;
             GETGD;
             GETED(0);
-            emit_test32(dyn, ninst, rex, ed, gd, x3, x5, x4);
+            emit_test32(dyn, ninst, rex, ed, gd, x3, x5);
             break;
         case 0x86:
             INST_NAME("(LOCK)XCHG Eb, Gb");
@@ -2258,14 +2258,13 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
             SETFLAGS(X_ALL, SF_SET_PENDING);
             UXTBx(x1, xRAX);
             u8 = F8;
-            MOV32w(x2, u8);
-            emit_test8(dyn, ninst, x1, x2, x3, x4, x5);
+            emit_test8c(dyn, ninst, x1, u8, x3, x4);
             break;
         case 0xA9:
             INST_NAME("TEST EAX, Id");
             SETFLAGS(X_ALL, SF_SET_PENDING);
             i64 = F32S;
-            emit_test32c(dyn, ninst, rex, xRAX, i64, x3, x4, x5);
+            emit_test32c(dyn, ninst, rex, xRAX, i64, x3, x4);
             break;
         case 0xAA:
             if(rex.rep) {
@@ -4125,8 +4124,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     GETEB(x1, 1);
                     u8 = F8;
-                    MOV32w(x2, u8);
-                    emit_test8(dyn, ninst, x1, x2, x3, x4, x5);
+                    emit_test8c(dyn, ninst, x1, u8, x3, x4);
                     break;
                 case 2:
                     INST_NAME("NOT Eb");
@@ -4291,7 +4289,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     SETFLAGS(X_ALL, SF_SET_PENDING);
                     GETEDH(x1, 4);
                     i64 = F32S;
-                    emit_test32c(dyn, ninst, rex, ed, i64, x3, x4, x5);
+                    emit_test32c(dyn, ninst, rex, ed, i64, x3, x4);
                     break;
                 case 2:
                     INST_NAME("NOT Ed");
