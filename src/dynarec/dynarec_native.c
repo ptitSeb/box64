@@ -580,6 +580,9 @@ dynablock_t* FillBlock64(uintptr_t addr, int is32bits, int inst_max, int is_new,
         dynarec_log(LOG_INFO, "Warning: some static area curruption appeared (current=%p, redundant=%p)\n", current_helper, redundant_helper);
     }
     // protect the 1st page
+    #ifdef BOX64EC
+    uint32_t unprotect_gen = getUnprotectGeneration();
+    #endif
     protectDB(addr, 1);
     if(box64_pagesize>4096)
         prot = getProtection_fast(addr);    // update protection as it might got a NEVERCLEAN tag because of the protectDB for large pagesize
@@ -1030,7 +1033,12 @@ dynablock_t* FillBlock64(uintptr_t addr, int is32bits, int inst_max, int is_new,
     if(insts_rsize/sizeof(instsize_t)<helper.insts_size) {
         printf_log(LOG_NONE, "Warning, insts_size difference in block between pass2 (%zu) and pass3 (%zu), allocated: %zu\n", oldinstsize, helper.insts_size, insts_rsize/sizeof(instsize_t));
     }
+    #ifdef BOX64EC
+    // also when it was unprotected and protected again meanwhile
+    if(!is_inhotpage && (!isprotectedDB(addr, end-addr) || unprotect_gen != getUnprotectGeneration())) {
+    #else
     if(!is_inhotpage && !isprotectedDB(addr, end-addr)) {
+    #endif
         dynarec_log(LOG_INFO, "Warning, block unprotected while being processed %p:%ld, marking as need_test\n", block->x64_addr, block->x64_size);
         block->dirty = 1;
         //protectDB(addr, end-addr);

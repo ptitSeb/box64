@@ -2409,6 +2409,14 @@ void protectDB(uintptr_t addr, uintptr_t size)
     UNLOCK_PROT();
 }
 
+#ifdef BOX64EC
+// bumped each time guest code loses its write protection, see DBGetBlock
+static uint32_t unprotect_generation;
+uint32_t getUnprotectGeneration(void)
+{
+    return __atomic_load_n(&unprotect_generation, __ATOMIC_ACQUIRE);
+}
+#endif
 // Add the Write flag from an adress range, and mark all block as dirty
 void unprotectDB(uintptr_t addr, size_t size, int mark)
 {
@@ -2435,6 +2443,9 @@ void unprotectDB(uintptr_t addr, size_t size, int mark)
         if (!(prot & PROT_NEVERPROT) || (prot & PROT_NEVERCLEAN_MIXED)) {
             if(prot&PROT_DYNAREC) {
                 prot&=~PROT_DYN;
+                #ifdef BOX64EC
+                __atomic_add_fetch(&unprotect_generation, 1, __ATOMIC_RELEASE);
+                #endif
                 if(mark)
                     cleanDBFromAddressRange(cur, bend-cur, 0);
                 liftWriteProtection_locked(cur, bend, prot);
@@ -2480,6 +2491,9 @@ void neverprotectDB(uintptr_t addr, size_t size, int mark)
         if(!(prot&PROT_NEVERPROT)) {
             if(prot&PROT_DYNAREC) {
                 prot&=~PROT_DYN;
+                #ifdef BOX64EC
+                __atomic_add_fetch(&unprotect_generation, 1, __ATOMIC_RELEASE);
+                #endif
                 if(mark)
                     cleanDBFromAddressRange(cur, bend-cur, (mark==2)?2:0);
                 liftWriteProtection_locked(cur, bend, prot);
