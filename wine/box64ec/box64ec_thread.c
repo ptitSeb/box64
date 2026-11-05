@@ -56,7 +56,7 @@ NTSTATUS WINAPI ThreadInit(void)
         return STATUS_NO_MEMORY;
     }
     area->EmulatorData[EC_DATA_THR] = thr;
-    area->SuspendDoorbell = &thr->doorbell;
+    area->SuspendDoorbell = (ULONG*)&emu->suspend_doorbell;
 
     emu->context = &Box64EC_Context;
     for (int i = 0; i < 16; ++i)

@@ -172,6 +172,28 @@ void context_to_emu(ARM64EC_NT_CONTEXT* context, x64emu_t* emu)
     emu->segs_offs[_GS] = (uintptr_t)emu->win64_teb;
 }
 
+// the guest registers of a fault in JIT code are in the JIT register map
+void jit_arm_context_to_emu(ARM64_NT_CONTEXT* context, x64emu_t* emu)
+{
+    R_RAX = context->X10;
+    R_RCX = context->X11;
+    R_RDX = context->X12;
+    R_RBX = context->X8;
+    R_RSP = context->X20;
+    R_RBP = context->X21;
+    R_RSI = context->X16;
+    R_RDI = context->X17;
+    R_R8  = context->X15;
+    R_R9  = context->X6;
+    R_R10 = context->X23;
+    R_R11 = context->X9;
+    R_R12 = context->X22;
+    R_R13 = context->X25;
+    R_R14 = context->X26;
+    R_R15 = context->X19;
+    emu->eflags.x64 = context->X7;
+}
+
 void emu_to_context(x64emu_t* emu, ARM64EC_NT_CONTEXT* context)
 {
     void* ymm;

@@ -982,3 +982,58 @@ void dynarec_stopped(uintptr_t ip, int is32bits)
     PrintFunctionAddr(ip, " => ");
     dynarec_log_prefix(0, LOG_NONE, "\n");
 }
+
+void adjustregs(x64emu_t* emu, void* pc)
+{
+    if(!pc) return;
+// tests some special cases
+    uint8_t* mem = (uint8_t*)R_RIP;
+    rex_t rex = {0};
+    int rep = 0;
+    int is66 = 0;
+    int idx = 0;
+    rex.is32bits = (R_CS==0x0023);
+    while ((mem[idx]>=0x40 && mem[idx]<=0x4f && !rex.is32bits) || mem[idx]==0xF2 || mem[idx]==0xF3 || mem[idx]==0x66) {
+        switch(mem[idx]) {
+            case 0x40 ... 0x4f:
+                rex.rex = mem[idx];
+                break;
+            case 0xF2:
+            case 0xF3:
+                rep = mem[idx]-0xF1;
+                break;
+            case 0x66:
+                is66 = 1;
+                break;
+        }
+        ++idx;
+    }
+    dynarec_log(LOG_INFO, "Checking opcode: at %p rex=%02hhx is32bits=%d, rep=%d is66=%d %02hhX %02hhX %02hhX %02hhX\n", (void*)R_RIP, rex.rex, rex.is32bits, rep, is66, mem[idx+0], mem[idx+1], mem[idx+2], mem[idx+3]);
+#ifdef DYNAREC
+#ifdef ARM64
+    if(mem[idx+0]==0xA4 || mem[idx+0]==0xA5) {
+        uint32_t opcode = *(uint32_t*)pc;
+        // (rep) movsX, read done, write not... so opcode is a STR?_S9_postindex(A, B, C) with C to be substracted to RSI
+        // xx111000000iiiiiiiii01nnnnnttttt xx = size, iiiiiiiii = signed offset, t = value, n = address
+        if((opcode & 0b00111111111000000000110000000000)==0b00111000000000000000010000000000) {
+            int offset = (opcode>>12)&0b111111111;
+            offset<<=31-9;
+            offset>>=31-9;  // sign extend
+            dynarec_log(LOG_INFO, "\tAdjusting RSI: %d\n", -offset);
+            R_RSI -= offset;
+        }
+        return;
+    }
+    if(mem[idx+0]==0x8F && (mem[idx+1]&0xc0)!=0xc0) {
+        // POP Ed, issue on write address, restore RSP as in before the pop
+        dynarec_log(LOG_INFO, "\tAdjusting RSP: %d\n", -(is66?2:(rex.is32bits?4:8)));
+        R_RSP -= is66?2:(rex.is32bits?4:8);
+    }
+#elif defined(LA64)
+#elif defined(RV64)
+#elif defined(PPC64LE)
+#else
+#error  Unsupported architecture
+#endif
+#endif
+}

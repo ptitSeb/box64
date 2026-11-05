@@ -13,7 +13,11 @@
 size_t get_size_arch(dynarec_arm_t* dyn);
 //populate the array
 void* populate_arch(dynarec_arm_t* dyn, void* p, size_t sz);
-#ifndef _WIN32
+#ifdef BOX64EC
+#include <winnt.h>
+//adjust flags and cached SIMD/x87 state after an ARM64EC JIT fault
+void adjust_arch(dynablock_t* db, x64emu_t* emu, ARM64_NT_CONTEXT* p, uintptr_t x64pc);
+#elif !defined(_WIN32)
 #include <ucontext.h>
 //adjust flags and more
 void adjust_arch(dynablock_t* db, x64emu_t* emu, ucontext_t* p, uintptr_t x64pc);

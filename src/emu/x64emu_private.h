@@ -131,6 +131,9 @@ typedef struct x64emu_s {
     #ifdef _WIN32
     uint64_t    win64_teb;
     #endif
+    #ifdef BOX64EC
+    volatile uint32_t suspend_doorbell;  // set by Wine to suspend the thread, polled by the JIT
+    #endif
     // local selector handling
     base_segment_t  segldt[16];
     base_segment_t  seggdt[16];  // hacky
