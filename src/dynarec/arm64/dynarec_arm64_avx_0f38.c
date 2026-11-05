@@ -254,15 +254,15 @@ uintptr_t dynarec64_AVX_0F38(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, i
             GETGD;
             GETED(0);
             GETVD;
-            UXTBw(x6, vd);
-            CMPSw_U12(x6, rex.w ? 64 : 32);
+            UXTBw(x5, vd);
+            CMPSw_U12(x5, rex.w ? 64 : 32);
             CSETMxw(x2, cPL);
             IFX(X_CF) {
                 BFIw(xFlags, x2, F_CF, 1);
             }
             MVNxw_REG(x2, x2); //prepare mask
             B_MARK(cPL);
-            LSLxw_REG(x2, x2, x6);
+            LSLxw_REG(x2, x2, x5);
             MARK;
             need_tst = 0;
             IFX(X_ZF) need_tst = 1;

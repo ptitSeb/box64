@@ -125,7 +125,7 @@ uintptr_t getConst(arm64_consts_t which)
         case const_fpu_xrstor: return (uintptr_t)fpu_xrstor;
         case const_fpu_fbld: return (uintptr_t)fpu_fbld;
         case const_fpu_fbst: return (uintptr_t)fpu_fbst;
-        case const_sse42_compare_string_explicit_len: return (uintptr_t)sse42_compare_string_explicit_len;
+        case const_sse42_compare_string_explicit_len: return (uintptr_t)sse42_compare_string_explicit_len_imm8w;
         case const_sse42_compare_string_implicit_len: return (uintptr_t)sse42_compare_string_implicit_len;
         case const_x64test_step: return (uintptr_t)x64test_step;
         case const_printtrace: return (uintptr_t)PrintTrace;

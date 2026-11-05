@@ -1275,9 +1275,14 @@ void emit_rcr32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, uint32_t c, i
 }
 
 // emit RCL32/RCL64 instruction, from s1 , shift s2 (destroyed), store result in s1 using s3 and s4 as scratch
-void emit_rcl32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5)
+void emit_rcl32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4)
 {
     MAYUSE(s1); MAYUSE(s3); MAYUSE(s4);
+#ifdef BOX64EC
+    int s5 = s3;    // no x6 (guest R9), so s3 is reused and the new CF waits in F_res2
+#else
+    int s5 = x6;
+#endif
 
     if(BOX64ENV(cputype)) {
         IFX(X_OF|X_CF) {
@@ -1292,6 +1297,11 @@ void emit_rcl32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
             LSRxw_REG(s3, s1, s4);
         }
     }
+#ifdef BOX64EC
+    IFX(BOX64ENV(cputype)?(X_OF|X_CF):X_CF) {
+        BFIw(xFlags, s3, F_res2, 1);
+    }
+#endif
     if(!BOX64ENV(cputype))
         IFX(X_OF) {
             LSRxw(s4, s1, rex.w?62:30);
@@ -1319,15 +1329,27 @@ void emit_rcl32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
         ORRxw_REG(s1, s1, s4);
     }
     IFX(X_CF) {
+#ifdef BOX64EC
+        BFXILw(xFlags, xFlags, F_res2, 1);
+#else
         BFIw(xFlags, s3, F_CF, 1);
+#endif
     }
     IFX2(X_OF, && BOX64ENV(cputype)) {
+#ifdef BOX64EC
+        UBFXw(s3, xFlags, F_res2, 1);
+#endif
         EORxw_REG_LSR(s3, s3, s1, rex.w?63:31);
         BFIw(xFlags, s3, F_OF, 1);
     }
+#ifdef BOX64EC
+    IFX(BOX64ENV(cputype)?(X_OF|X_CF):X_CF) {
+        BFCw(xFlags, F_res2, 1);
+    }
+#endif
 }
-// emit RCR32/RCR64 instruction, from s1 , shift s2, store result in s1 using s3 and s4 as scratch
-void emit_rcr32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4, int s5)
+// emit RCR32/RCR64 instruction, from s1 , shift s2 (destroyed), store result in s1 using s3 and s4 as scratch
+void emit_rcr32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3, int s4)
 {
     MAYUSE(s1); MAYUSE(s3); MAYUSE(s4);
 
@@ -1349,15 +1371,15 @@ void emit_rcr32(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int s2, int s3
     } 
     /*else*/
     {
-        LSRxw_REG(s5, s1, s2);
-        UBFXw(s4, xFlags, 0, 1);
+        LSRxw_REG(s4, s1, s2);
         MOVZw(s3, (rex.w?64:32));
         SUBx_REG(s3, s3, s2);
-        LSLxw_REG(s4, s4, s3);
-        ORRxw_REG(s5, s5, s4);
+        UBFXw(s2, xFlags, 0, 1);    // s2 is not needed anymore
+        LSLxw_REG(s2, s2, s3);
+        ORRxw_REG(s4, s4, s2);
         ADDx_U12(s3, s3, 1);
         LSLxw_REG(s1, s1, s3);
-        ORRxw_REG(s1, s1, s5);
+        ORRxw_REG(s1, s1, s4);
     }
     IFX(X_CF) {
         BFXILw(xFlags, xFlags, F_res2, 1);

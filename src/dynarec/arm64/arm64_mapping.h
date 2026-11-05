@@ -39,6 +39,32 @@ p0-p3 are used to pass scalable predicate arguments to a subroutine and to retur
 */
 
 // x86 Register mapping
+#ifdef BOX64EC
+// x18 is the TEB and x6 is guest R9, the other scratch registers are x1 to x5
+#define xRAX    10
+#define xRCX    11
+#define xRDX    12
+#define xRBX    8
+#define xRSP    20
+#define xRBP    21
+#define xRSI    16
+#define xRDI    17
+#define xR8     15
+#define xR9     6
+#define xR10    23
+#define xR11    9
+#define xR12    22
+#define xR13    25
+#define xR14    26
+#define xR15    19
+#define xFlags  7
+#define xRIP    27
+
+// convert a x86 register to native according to the register mapping
+#define TO_NAT(A) (((uint8_t[]){10, 11, 12, 8, 20, 21, 16, 17, 15, 6, 23, 9, 22, 25, 26, 19})[(A)])
+#define IS_GPR(A) (((uint8_t[]){0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, \
+                                1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 0})[(A)])
+#else
 #define xRAX    10
 #define xRCX    11
 #define xRDX    12
@@ -62,6 +88,9 @@ p0-p3 are used to pass scalable predicate arguments to a subroutine and to retur
 // convert a x86 register to native according to the register mapping
 #define TO_NAT(A) (xRAX + (A))
 #define IS_GPR(A) ((A)>=xRAX && (A)<=xRIP)
+#endif
+// the Windows platform register, reloaded with the TEB after C calls
+#define xTEB    18
 
 // 32bits version
 #define wEAX    xRAX
@@ -87,8 +116,14 @@ p0-p3 are used to pass scalable predicate arguments to a subroutine and to retur
 #define x3      3
 #define x4      4
 #define x5      5
+#ifdef BOX64EC
+#define x6      BOX64EC_x6_IS_GUEST_R9_USE_xR9
+// x87pc is x5, a normal scratch: BOX64_DYNAREC_X87DOUBLE=2 precision tracking is not supported on Box64EC
+#define x87pc   5
+#else
 #define x6      6
 #define x87pc   7
+#endif
 // x87 can be a scratch, but check if it's used as x87 PC and restore if needed in that case
 // 32bits version of scratch
 #define w1      x1
@@ -96,7 +131,11 @@ p0-p3 are used to pass scalable predicate arguments to a subroutine and to retur
 #define w3      x3
 #define w4      x4
 #define w5      x5
+#ifdef BOX64EC
+#define w6      BOX64EC_w6_IS_GUEST_R9_USE_wR9
+#else
 #define w6      x6
+#endif
 #define w87pc   x87pc
 // emu is r0
 #define xEmu    0
