@@ -97,6 +97,13 @@ void Box64EC_FatalEnterJit(unsigned reason)
     RtlExitUserProcess(STATUS_ILLEGAL_INSTRUCTION);
 }
 
+#ifdef DYNAREC
+// the Dynarec does not inline native calls yet
+typedef void (*wrapper_t)(x64emu_t* emu, uintptr_t fnc);
+int isSimpleWrapper(wrapper_t fun) { return 0; }
+int isRetX87Wrapper(wrapper_t fun) { return 0; }
+#endif
+
 static void run_emu(x64emu_t* emu)
 {
     if (Box64EC_PollSuspend()) {
@@ -105,7 +112,12 @@ static void run_emu(x64emu_t* emu)
     }
 
     Box64EC_ApplyLiveMxcsr(emu);
-    Run(emu, 0);
+#ifdef DYNAREC
+    if (BOX64ENV(dynarec))
+        DynaRun(emu);
+    else
+#endif
+        Run(emu, 0);
 }
 
 void Box64EC_ResetAbandonedEmuRun(box64ec_thr_t* state, x64emu_t* emu)
