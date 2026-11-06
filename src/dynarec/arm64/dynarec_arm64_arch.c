@@ -99,13 +99,13 @@ static int arch_build(dynarec_arm_t* dyn, int ninst, arch_build_t* arch, int noa
         arch->flags = 1;
         arch->flags_.defered = (dyn->insts[ninst].f_entry!=status_none && dyn->insts[ninst].f_entry!=status_none_pending);
         uint8_t flags = dyn->insts[ninst].need_nat_flags | dyn->insts[ninst].before_nat_flags;
-        arch->flags_.vf = flags&NF_VF;
-        arch->flags_.nf = flags&NF_SF;
-        arch->flags_.eq = flags&NF_EQ;
-        arch->flags_.cf = flags&NF_CF;
+        arch->flags_.vf = !!(flags&NF_VF);
+        arch->flags_.nf = !!(flags&NF_SF);
+        arch->flags_.eq = !!(flags&NF_EQ);
+        arch->flags_.cf = !!(flags&NF_CF);
         if(arch->flags_.cf)
             arch->flags_.inv_cf = !dyn->insts[ninst].normal_carry;
-        arch->flags_.pf_v = flags&NF_PF_V;
+        arch->flags_.pf_v = !!(flags&NF_PF_V);
     }
     // opcode can handle unaligned
     arch->unaligned = dyn->insts[ninst].unaligned;
@@ -320,6 +320,10 @@ void adjust_arch(dynablock_t* db, x64emu_t* emu, ucontext_t* p, uintptr_t x64pc)
         if(flags->defered) {
             CHECK_FLAGS(emu);
             //return;
+        } else {
+            // flags are in x26 and NZCV; SET_DFNONE doesn't store, so emu->df may hold an
+            // older record, which the caller's CHECK_FLAGS would apply over the bits below
+            emu->df = d_none;
         }
         if(flags->nf) {
             CONDITIONAL_SET_FLAG(p->uc_mcontext.pstate&(1<<NZCV_N), F_SF);
