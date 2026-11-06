@@ -2034,11 +2034,13 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         addr = geted(dyn, addr, ninst, nextop, &ed, x1, &fixedaddress, NULL, 0, 0, rex, NULL, 0, 0);
                         if(ed!=x1) {MOVx_REG(x1, ed);}
                         CALL(rex.is32bits?const_fpu_fxrstor32:const_fpu_fxrstor64, -1);
+                        SYNC_FPCR_ROUND(x1, x2);
                         break;
                     case 2:
                         INST_NAME("LDMXCSR Md");
                         GETED(0);
                         STRw_U12(ed, xEmu, offsetof(x64emu_t, mxcsr));
+                        SYNC_FPCR_ROUND(x2, x3);
                         if(BOX64ENV(sse_flushto0)) {
                             MRS_fpcr(x2);                   // get fpscr
                             LSRw_IMM(x3, ed, 15);           // get FZ bit
@@ -2104,6 +2106,7 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                         if(ed!=x1) {MOVx_REG(x1, ed);}
                         MOV32w(x2, rex.is32bits);
                         CALL(const_fpu_xrstor, -1);
+                        SYNC_FPCR_ROUND(x1, x2);
                         break;
                     case 7:
                         INST_NAME("CLFLUSH Ed");
