@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #ifndef _WIN32
 #include <pthread.h>
+#include <signal.h>
 #endif
 #include <stddef.h>
 #include <fcntl.h>
@@ -43,10 +44,12 @@ int MmaplistIsDirty(mmaplist_t* list);
 static rbtree_t* envmap = NULL;
 // envmap is changed under mutex_dyndump (RecordEnvMappings, RemoveMapping) but also read from other
 // threads without it (munmap, block building); lookups take this shared, changes take it exclusive.
-// It's only filled outside Windows.
+// Signals are blocked while it's held exclusive, so a handler can never ask for it on the thread that
+// holds it (glibc would return EDEADLK, other libcs may deadlock). It's only filled outside Windows.
 #ifndef _WIN32
 static pthread_rwlock_t envmap_rw = PTHREAD_RWLOCK_INITIALIZER;
-// returns 1 if taken: a reader that is the writer (signal during a change) gets EDEADLK and must not unlock
+static __thread sigset_t envmap_oldmask; // the writer's mask, put back on unlock
+// returns 1 if taken (0 on an error such as EAGAIN, then the reader must not unlock)
 static int envmap_rdlock(void)
 {
     return pthread_rwlock_rdlock(&envmap_rw) == 0;
@@ -57,11 +60,21 @@ static void envmap_rdunlock(int locked)
 }
 static void envmap_wrlock(void)
 {
+    sigset_t set;
+    sigfillset(&set);
+    // leave the synchronous ones deliverable, as internalDBGetBlock does
+    sigdelset(&set, SIGSEGV);
+    sigdelset(&set, SIGILL);
+    sigdelset(&set, SIGBUS);
+    sigdelset(&set, SIGFPE);
+    sigdelset(&set, SIGABRT);
+    pthread_sigmask(SIG_BLOCK, &set, &envmap_oldmask);
     pthread_rwlock_wrlock(&envmap_rw);
 }
 static void envmap_wrunlock(void)
 {
     pthread_rwlock_unlock(&envmap_rw);
+    pthread_sigmask(SIG_SETMASK, &envmap_oldmask, NULL);
 }
 #else
 static int envmap_rdlock(void) { return 0; }
