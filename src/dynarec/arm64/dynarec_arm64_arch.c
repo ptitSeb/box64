@@ -321,8 +321,6 @@ void adjust_arch(dynablock_t* db, x64emu_t* emu, ucontext_t* p, uintptr_t x64pc)
             CHECK_FLAGS(emu);
             //return;
         } else {
-            // flags are in x26 and NZCV; SET_DFNONE doesn't store, so emu->df may hold an
-            // older record, which the caller's CHECK_FLAGS would apply over the bits below
             emu->df = d_none;
         }
         if(flags->nf) {
