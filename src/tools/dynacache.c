@@ -48,7 +48,13 @@ void add_unaligned_address(uintptr_t addr);
 
 const char* GetDynacacheFolder(mapping_t* mapping)
 {
+    // per thread: MmapDynaCache runs on any thread that maps a new file, outside mutex_dyndump
+    // (not on WIN32, which links without TLS support, as DumpCPURegs)
+    #ifdef WIN32
     static char folder[4096] = { 0 };
+    #else
+    static __thread char folder[4096] = { 0 };
+    #endif
     if(mapping && mapping->env && mapping->env->is_dynacache_folder_overridden && mapping->env->dynacache_folder) {
         if (FileExist(mapping->env->dynacache_folder, 0) || MakeDir(mapping->env->dynacache_folder)) {
             strcpy(folder, mapping->env->dynacache_folder);
@@ -222,7 +228,11 @@ char* MmaplistName(const char* filename, uint64_t dynarec_settings, const char* 
     // names are FOLDER/filename-YYYYY-XXXXX.box64
     // Where XXXXX is the hash of the full name
     // and YYYY is the Dynarec optim (in hex)
+    #ifdef WIN32
     static char mapname[4096];
+    #else
+    static __thread char mapname[4096];   // per thread, as GetDynacacheFolder
+    #endif
     snprintf(mapname, 4095-6, "%s-%" PRIx64 "-%u", filename, dynarec_settings, __ac_X31_hash_string(fullname));
     strcat(mapname, ".box64");
     return mapname;
