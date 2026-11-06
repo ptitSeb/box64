@@ -62,6 +62,10 @@ NTSTATUS WINAPI ProcessInit(void)
 #endif
 
     InitializeSystemInfo();
+    // as computeRDTSC on Linux: RDTSC reports the slow hardware counter at 2 GHz or more, and CPUID with it
+    while ((box64_sysinfo.frequency << box64_rdtsc_shift) < 2000000000 && box64_rdtsc_shift < 31)
+        ++box64_rdtsc_shift;
+    box64_sysinfo.frequency <<= box64_rdtsc_shift;
 #ifdef DYNAREC
     if (!DetectHostCpuFeatures()) {
         printf_log(LOG_INFO, "Minimum CPU requirements not met, disabling DynaRec\n");
