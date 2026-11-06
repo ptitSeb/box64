@@ -622,6 +622,14 @@ int my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigin
     emu->eflags.x64 = old_eflags;
 
     if(memcmp(sigcontext, &sigcontext_copy, sizeof(x64_ucontext_t))) {
+        // The exits below resume the interrupted code without going back through
+        // my_sigactionhandler_oldcode, which is where the emu state the handler clobbered gets
+        // restored. Do the part of that restore they need here, as sigreturn would: the FPU/SSE/AVX
+        // state comes from the frame (keeping any change the handler made there), and the
+        // deferred flags are dropped, since the frame's eflags (resolved before the handler ran)
+        // is the truth and is loaded from the context below.
+        fpu_xrstor_mask(emu, xstate, 0, 0b111);
+        emu->df = d_none;
         #if defined(DYNAREC)
         if(db || emu->jmpbuf)
             mctx2emu(emu, &sigcontext->uc_mcontext);
