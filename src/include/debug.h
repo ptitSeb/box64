@@ -12,7 +12,7 @@ typedef struct box64context_s box64context_t;
 extern box64env_t box64env;
 extern box64env_t* cur_box64env;
 
-#define X86_PAGE_SIZE 4096UL
+#define X86_PAGE_SIZE 4096ULL
 
 #define ALIGN(p) (((p)+box64_pagesize-1)&~(box64_pagesize-1))
 #define ALIGN_DOWN(p) ((p)&~(box64_pagesize-1))
