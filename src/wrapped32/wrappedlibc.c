@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: MIT
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
 #include <stdlib.h>
 #include <stdio.h>
 #include <stddef.h>
@@ -49,6 +48,7 @@
 #endif
 #include <sys/wait.h>
 #include <sched.h>
+#include <dirent.h>
 
 #include "wrappedlibs.h"
 
@@ -207,7 +207,7 @@ struct i386_stat {
 	uint32_t  __unused5;
 } __attribute__((packed));
 
-static int FillStatFromStat64(int vers, const struct stat64 *st64, void *st32)
+static int FillStatFromStat64(int vers, const struct stat *st64, void *st32)
 {
     struct i386_stat *i386st = (struct i386_stat *)st32;
 
@@ -434,7 +434,7 @@ static void* findgloberrFct(void* fct)
 // filter_dir
 #define GO(A)   \
 static uintptr_t my32_filter_dir_fct_##A = 0;                       \
-static int my32_filter_dir_##A(const struct dirent64* a)            \
+static int my32_filter_dir_##A(const struct dirent* a)            \
 {                                                                   \
     static struct i386_dirent d = {0};                              \
     UnalignDirent_32(a, &d);                                        \
@@ -473,7 +473,7 @@ static void* findcompare_dirFct(void* fct)
 {
     if(!fct) return NULL;
     void* p;
-    if((p = GetNativeFnc((uintptr_t)fct))) { if(p==my32_alphasort64) return alphasort64; else return p; }
+    if((p = GetNativeFnc((uintptr_t)fct))) { if(p==my32_alphasort64) return alphasort; else return p; }
     #define GO(A) if(my32_compare_dir_fct_##A == (uintptr_t)fct) return my32_compare_dir_##A;
     SUPER()
     #undef GO
@@ -486,7 +486,7 @@ static void* findcompare_dirFct(void* fct)
 // filter64
 #define GO(A)   \
 static uintptr_t my32_filter64_fct_##A = 0;                                 \
-static int my32_filter64_##A(const struct dirent64* a)                      \
+static int my32_filter64_##A(const struct dirent* a)                      \
 {                                                                           \
     return (int)RunFunctionFmt(my32_filter64_fct_##A, "p", a);  \
 }
@@ -509,7 +509,7 @@ static void* findfilter64Fct(void* fct)
 // compare64
 #define GO(A)   \
 static uintptr_t my32_compare64_fct_##A = 0;                                        \
-static int my32_compare64_##A(const struct dirent64* a, const struct dirent64* b)   \
+static int my32_compare64_##A(const struct dirent* a, const struct dirent* b)   \
 {                                                                                   \
     return (int)RunFunctionFmt(my32_compare64_fct_##A, "pp", a, b);                 \
 }
@@ -519,7 +519,7 @@ static void* findcompare64Fct(void* fct)
 {
     if(!fct) return NULL;
     void* p;
-    if((p = GetNativeFnc((uintptr_t)fct))) { if(p==my32_alphasort64) return alphasort64; else return p; }
+    if((p = GetNativeFnc((uintptr_t)fct))) { if(p==my32_alphasort64) return alphasort; else return p; }
     #define GO(A) if(my32_compare64_fct_##A == (uintptr_t)fct) return my32_compare64_##A;
     SUPER()
     #undef GO
@@ -598,9 +598,9 @@ EXPORT int my32_fstatvfs(x64emu_t* emu, int fd, void* r)
 
 EXPORT int my32_fstatat(x64emu_t* emu, int fd, void* name, void* buff, int flags)
 {
-    struct stat64 s = {0};
-    struct stat64* p = buff?&s:NULL;
-    int ret = fstatat64(fd, name, p, flags);
+    struct stat s = {0};
+    struct stat* p = buff?&s:NULL;
+    int ret = fstatat(fd, name, p, flags);
     if(buff)
         FillStatFromStat64(3, &s, buff);
     return ret;
@@ -608,9 +608,9 @@ EXPORT int my32_fstatat(x64emu_t* emu, int fd, void* name, void* buff, int flags
 
 EXPORT int my32_fstatat64(x64emu_t* emu, int fd, void* name, void* buff, int flags)
 {
-    struct stat64 s = {0};
-    struct stat64* p = buff?&s:NULL;
-    int ret = fstatat64(fd, name, p, flags);
+    struct stat s = {0};
+    struct stat* p = buff?&s:NULL;
+    int ret = fstatat(fd, name, p, flags);
     if(buff)
         UnalignStat64_32(&s, buff);
     return ret;
@@ -618,9 +618,9 @@ EXPORT int my32_fstatat64(x64emu_t* emu, int fd, void* name, void* buff, int fla
 
 EXPORT int my32___stat64_time64(x64emu_t* emu, void* f, void* r)
 {
-    struct stat64 s = {0};
-    struct stat64* p = r?&s:NULL;
-    int ret = stat64(f, p);
+    struct stat s = {0};
+    struct stat* p = r?&s:NULL;
+    int ret = stat(f, p);
     if(r)
         UnalignStat64_32_t64(&s, r);
     return ret;
@@ -628,9 +628,9 @@ EXPORT int my32___stat64_time64(x64emu_t* emu, void* f, void* r)
 
 EXPORT int my32___lstat64_time64(x64emu_t* emu, void* f, void* r)
 {
-    struct stat64 s = {0};
-    struct stat64* p = r?&s:NULL;
-    int ret = lstat64(f, p);
+    struct stat s = {0};
+    struct stat* p = r?&s:NULL;
+    int ret = lstat(f, p);
     if(r)
         UnalignStat64_32_t64(&s, r);
     return ret;
@@ -638,9 +638,9 @@ EXPORT int my32___lstat64_time64(x64emu_t* emu, void* f, void* r)
 
 EXPORT int my32___fstat64_time64(x64emu_t* emu, int fd, void* r)
 {
-    struct stat64 s = {0};
-    struct stat64* p = r?&s:NULL;
-    int ret = fstat64(fd, p);
+    struct stat s = {0};
+    struct stat* p = r?&s:NULL;
+    int ret = fstat(fd, p);
     if(r)
         UnalignStat64_32_t64(&s, r);
     return ret;
@@ -1230,32 +1230,32 @@ EXPORT void my32__ITM_deregisterTMCloneTable(x64emu_t* emu, void* p) {}
 
 EXPORT int my32_stat(char* path, void* buf)
 {
-    struct stat64 st;
-    int r = stat64(path, &st);
+    struct stat st;
+    int r = stat(path, &st);
     FillStatFromStat64(3, &st, buf);
     return r;
 }
 
 EXPORT int my32_fstat(int fd, void* buf)
 {
-    struct stat64 st;
-    int r = fstat64(fd, &st);
+    struct stat st;
+    int r = fstat(fd, &st);
     FillStatFromStat64(3, &st, buf);
     return r;
 }
 
 EXPORT int my32_lstat(char* path, void* buf)
 {
-    struct stat64 st;
-    int r = lstat64(path, &st);
+    struct stat st;
+    int r = lstat(path, &st);
     FillStatFromStat64(3, &st, buf);
     return r;
 }
 
 EXPORT int my32___fxstat(x64emu_t *emu, int vers, int fd, void* buf)
 {
-    struct stat64 st;
-    int r = fstat64(fd, &st);
+    struct stat st;
+    int r = fstat(fd, &st);
     if (r) return r;
     r = FillStatFromStat64(vers, &st, buf);
     return r;
@@ -1263,8 +1263,8 @@ EXPORT int my32___fxstat(x64emu_t *emu, int vers, int fd, void* buf)
 
 EXPORT int my32___fxstat64(x64emu_t *emu, int vers, int fd, void* buf)
 {
-    struct stat64 st;
-    int r = fstat64(fd, &st);
+    struct stat st;
+    int r = fstat(fd, &st);
     //int r = syscall(__NR_stat64, fd, &st);
     UnalignStat64_32(&st, buf);
     return r;
@@ -1293,30 +1293,30 @@ EXPORT int my32_statx(x64emu_t* emu, int dirfd, void* path, int flags, uint32_t 
 
 EXPORT int my32_stat64(void* path, void* buf)
 {
-    struct stat64 st;
-    int r = stat64(path, &st);
+    struct stat st;
+    int r = stat(path, &st);
     UnalignStat64_32(&st, buf);
     return r;
 }
 EXPORT int my32_lstat64(void* path, void* buf)
 {
-    struct stat64 st;
-    int r = lstat64(path, &st);
+    struct stat st;
+    int r = lstat(path, &st);
     UnalignStat64_32(&st, buf);
     return r;
 }
 EXPORT int my32_fstat64(int fd, void* buf)
 {
-    struct stat64 st;
-    int r = fstat64(fd, &st);
+    struct stat st;
+    int r = fstat(fd, &st);
     UnalignStat64_32(&st, buf);
     return r;
 }
 
 EXPORT int my32___xstat(x64emu_t* emu, int v, void* path, void* buf)
 {
-    struct stat64 st;
-    int r = stat64((const char*)path, &st);
+    struct stat st;
+    int r = stat((const char*)path, &st);
     if (r) return r;
     r = FillStatFromStat64(v, &st, buf);
     return r;
@@ -1324,16 +1324,16 @@ EXPORT int my32___xstat(x64emu_t* emu, int v, void* path, void* buf)
 
 EXPORT int my32___xstat64(x64emu_t* emu, int v, void* path, void* buf)
 {
-    struct stat64 st;
-    int r = stat64((const char*)path, &st);
+    struct stat st;
+    int r = stat((const char*)path, &st);
     UnalignStat64_32(&st, buf);
     return r;
 }
 
 EXPORT int my32___lxstat(x64emu_t* emu, int v, void* name, void* buf)
 {
-    struct stat64 st;
-    int r = lstat64((const char*)name, &st);
+    struct stat st;
+    int r = lstat((const char*)name, &st);
     if (r) return r;
     r = FillStatFromStat64(v, &st, buf);
     return r;
@@ -1341,16 +1341,16 @@ EXPORT int my32___lxstat(x64emu_t* emu, int v, void* name, void* buf)
 
 EXPORT int my32___lxstat64(x64emu_t* emu, int v, void* name, void* buf)
 {
-    struct stat64 st;
-    int r = lstat64((const char*)name, &st);
+    struct stat st;
+    int r = lstat((const char*)name, &st);
     UnalignStat64_32(&st, buf);
     return r;
 }
 #if 0
 EXPORT int my32___fxstatat(x64emu_t* emu, int v, int d, void* path, void* buf, int flags)
 {
-    struct  stat64 st;
-    int r = fstatat64(d, path, &st, flags);
+    struct  stat st;
+    int r = fstatat(d, path, &st, flags);
     if (r) return r;
     r = FillStatFromStat64(v, &st, buf);
     return r;
@@ -1358,15 +1358,15 @@ EXPORT int my32___fxstatat(x64emu_t* emu, int v, int d, void* path, void* buf, i
 #endif
 EXPORT int my32___fxstatat64(x64emu_t* emu, int v, int d, void* path, void* buf, int flags)
 {
-    struct  stat64 st;
-    int r = fstatat64(d, path, &st, flags);
+    struct  stat st;
+    int r = fstatat(d, path, &st, flags);
     UnalignStat64_32(&st, buf);
     return r;
 }
 #if 0
 EXPORT int my32__IO_file_stat(x64emu_t* emu, void* f, void* buf)
 {
-    struct stat64 st;
+    struct stat st;
     libc_my32_t *my = (libc_my32_t *)emu->context->libclib->priv.w.p2;
     int r = my->_IO_file_stat(f, &st);
     UnalignStat64(&st, buf);
@@ -1375,30 +1375,30 @@ EXPORT int my32__IO_file_stat(x64emu_t* emu, void* f, void* buf)
 #endif
 EXPORT int my32_fstatfs(int fd, void* buf)
 {
-    struct statfs64 st;
-    int r = fstatfs64(fd, &st);
+    struct statfs st;
+    int r = fstatfs(fd, &st);
     UnalignStatFS_32(&st, buf);
     return r;
 }
 EXPORT int my32_fstatfs64(int fd, void* buf)
 {
-    struct statfs64 st;
-    int r = fstatfs64(fd, &st);
+    struct statfs st;
+    int r = fstatfs(fd, &st);
     UnalignStatFS64_32(&st, buf);
     return r;
 }
 
 EXPORT int my32_statfs(const char* path, void* buf)
 {
-    struct statfs64 st;
-    int r = statfs64(path, &st);
+    struct statfs st;
+    int r = statfs(path, &st);
     UnalignStatFS_32(&st, buf);
     return r;
 }
 EXPORT int my32_statfs64(const char* path, void* buf)
 {
-    struct statfs64 st;
-    int r = statfs64(path, &st);
+    struct statfs st;
+    int r = statfs(path, &st);
     UnalignStatFS64_32(&st, buf);
     return r;
 }
@@ -1497,7 +1497,7 @@ EXPORT void* my32_fts_open(x64emu_t* emu, void* path, int options, void* c)
 
 EXPORT void* my32_readdir(x64emu_t* emu, void* dirp)
 {
-    struct dirent64 *dp64 = readdir64((DIR *)dirp);
+    struct dirent *dp64 = readdir((DIR *)dirp);
     if (!dp64) return NULL;
     static struct i386_dirent dp32 = {0};
     uint32_t ino32 = dp64->d_ino ^ (dp64->d_ino >> 32);
@@ -1513,7 +1513,7 @@ EXPORT void* my32_readdir(x64emu_t* emu, void* dirp)
 
 EXPORT int32_t my32_readdir_r(x64emu_t* emu, void* dirp, void* entry, void** result)
 {
-    struct dirent64 d64, *dp64;
+    struct dirent d64, *dp64;
     if (BOX64ENV(fix_64bit_inodes) && (sizeof(d64.d_name) > 1))
     {
         static iFppp_t f = NULL;
@@ -1524,7 +1524,7 @@ EXPORT int32_t my32_readdir_r(x64emu_t* emu, void* dirp, void* entry, void** res
                 *result = NULL;
                 return 0;
             }
-            f = (iFppp_t)dlsym(lib->priv.w.lib, "readdir64_r");
+            f = (iFppp_t)dlsym(lib->priv.w.lib, "readdir_r");
         }
 
         int r = f(dirp, &d64, &dp64);
@@ -1535,7 +1535,7 @@ EXPORT int32_t my32_readdir_r(x64emu_t* emu, void* dirp, void* entry, void** res
         }
 
         struct i386_dirent *dp32 = (struct i386_dirent *)entry;
-        int namelen = dp64->d_reclen - offsetof(struct dirent64, d_name);
+        int namelen = dp64->d_reclen - offsetof(struct dirent, d_name);
         if (namelen > sizeof(dp32->d_name))
         {
             *result = NULL;
@@ -1695,18 +1695,18 @@ EXPORT int my32_mkstemps64(x64emu_t* emu, char* template, int suffixlen)
         sprintf(num, "%06d", rand()%999999);
         memcpy(fname+strlen(fname)-suffixlen-6, num, 6);
     } while(!FileExist(fname, -1));
-    int ret = open64(fname, O_EXCL);
+    int ret = open(fname, O_EXCL);
     free(fname);
     return ret;
 }
 
 EXPORT int32_t my32_ftw(x64emu_t* emu, void* pathname, void* B, int32_t nopenfd)
 {
-    return ftw64(pathname, findftwFct(B), nopenfd);
+    return ftw(pathname, findftwFct(B), nopenfd);
 }
 EXPORT int32_t my32_nftw(x64emu_t* emu, void* pathname, void* B, int32_t nopenfd, int32_t flags)
 {
-    return nftw64(pathname, findnftwFct(B), nopenfd, flags);
+    return nftw(pathname, findnftwFct(B), nopenfd, flags);
 }
 
 EXPORT void* my32_ldiv(x64emu_t* emu, void* p, int32_t num, int32_t den)
@@ -1752,7 +1752,7 @@ typedef struct my_glob_32_s
     ptr_t   gl_lstat;       //int (*gl_lstat) (const char *__restrict, struct stat *__restrict);
     ptr_t   gl_stat;        //int (*gl_stat) (const char *__restrict, struct stat *__restrict);
 } my_glob_32_t;
-// glob64 is identical, except function are 64bits versions
+// glob is identical, except function are 64bits versions
 
 static void convert_glob_to_32(void* d, void* s, int is64)
 {
@@ -1783,54 +1783,54 @@ static void convert_glob_to_64(void* d, void* s, int is64)
 
 EXPORT int32_t my32_glob(x64emu_t *emu, void* pat, int32_t flags, void* errfnc, void* pglob)
 {
-    glob64_t glob_l = {0};
+    glob_t glob_l = {0};
     if(flags & GLOB_ALTDIRFUNC) printf_log(LOG_NONE, "Error: using unsupport GLOB_ALTDIRFUNC in glob\n");
     if(flags&(1<<5))    // GLOB_APPEND is used, so convert also before
         convert_glob_to_64(&glob_l, pglob, 0);
-    int ret = glob64(pat, flags, findgloberrFct(errfnc), &glob_l);
+    int ret = glob(pat, flags, findgloberrFct(errfnc), &glob_l);
     convert_glob_to_32(pglob, &glob_l, 0);
     return ret;
 }
 EXPORT void my32_globfree(x64emu_t* emu, void* pglob)
 {
-    glob64_t glob_l = {0};
+    glob_t glob_l = {0};
     convert_glob_to_64(&glob_l, pglob, 0);
-    globfree64(&glob_l);
+    globfree(&glob_l);
 }
 #ifndef ANDROID
 EXPORT int32_t my32_glob64(x64emu_t *emu, void* pat, int32_t flags, void* errfnc, void* pglob)
 {
-    glob64_t glob_l = {0};
+    glob_t glob_l = {0};
     if(flags & GLOB_ALTDIRFUNC) printf_log(LOG_NONE, "Error: using unsupport GLOB_ALTDIRFUNC in glob64\n");
     if(flags&(1<<5))    // GLOB_APPEND is used, so convert also before
         convert_glob_to_64(&glob_l, pglob, 1);
-    int ret = glob64(pat, flags, findgloberrFct(errfnc), &glob_l);
+    int ret = glob(pat, flags, findgloberrFct(errfnc), &glob_l);
     convert_glob_to_32(pglob, &glob_l, 1);
     return ret;
 }
 EXPORT void my32_globfree64(x64emu_t* emu, void* pglob)
 {
-    glob64_t glob_l = {0};
+    glob_t glob_l = {0};
     convert_glob_to_64(&glob_l, pglob, 1);
-    globfree64(&glob_l);
+    globfree(&glob_l);
 }
 #endif
 EXPORT int my32_scandir(x64emu_t *emu, void* dir, ptr_t* namelist, void* sel, void* comp)
 {
-    struct dirent64** list = NULL;
-    int ret = scandir64(dir, &list, findfilter_dirFct(sel), findcompare_dirFct(comp));
+    struct dirent** list = NULL;
+    int ret = scandir(dir, &list, findfilter_dirFct(sel), findcompare_dirFct(comp));
     *namelist = to_ptrv(list);
     if (ret>0) {
         // adjust the array of dirent... inplace adjust of listname and inplace of dirent too
         for(int i=0; i<ret; ++i) {
-            struct dirent64* dp64 = list[i];
+            struct dirent* dp64 = list[i];
             struct i386_dirent *dp32 = (struct i386_dirent*)dp64;
             // inplace shrink dirent
             uint32_t ino32 = dp64->d_ino ^ (dp64->d_ino >> 32);
             int32_t off32 = dp64->d_off;
             dp32->d_ino = ino32;
             dp32->d_off = off32;
-            dp32->d_reclen = dp64->d_reclen-(offsetof(struct dirent64, d_name)-offsetof(struct i386_dirent, d_name));
+            dp32->d_reclen = dp64->d_reclen-(offsetof(struct dirent, d_name)-offsetof(struct i386_dirent, d_name));
             dp32->d_type = dp64->d_type;
             memmove(dp32->d_name, dp64->d_name, dp32->d_reclen-offsetof(struct i386_dirent, d_name));
             // inplace shrink pointer to
@@ -1841,8 +1841,8 @@ EXPORT int my32_scandir(x64emu_t *emu, void* dir, ptr_t* namelist, void* sel, vo
 }
 EXPORT int my32_scandir64(x64emu_t *emu, void* dir, ptr_t* namelist, void* sel, void* comp)
 {
-    struct dirent64** list;
-    int ret = scandir64(dir, &list, findfilter64Fct(sel), findcompare64Fct(comp));
+    struct dirent** list;
+    int ret = scandir(dir, &list, findfilter64Fct(sel), findcompare64Fct(comp));
     if(ret>=0)
         *namelist = to_ptrv(list);
     if (ret>0) {
@@ -1898,12 +1898,12 @@ EXPORT long my32_readv(x64emu_t* emu, int fd, struct i386_iovec* iov, int niov)
 
 EXPORT int my32_ftw64(x64emu_t* emu, void* filename, void* func, int descriptors)
 {
-    return ftw64(filename, findftw64Fct(func), descriptors);
+    return ftw(filename, findftw64Fct(func), descriptors);
 }
 
 EXPORT int32_t my32_nftw64(x64emu_t* emu, void* pathname, void* B, int32_t nopenfd, int32_t flags)
 {
-    return nftw64(pathname, findnftw64Fct(B), nopenfd, flags);
+    return nftw(pathname, findnftw64Fct(B), nopenfd, flags);
 }
 
 EXPORT ptr_t my32_environ = 0; //char**
@@ -2370,8 +2370,8 @@ EXPORT unsigned long int my32___fdelt_chk (unsigned long int d)
 
 EXPORT int my32_getrlimit(x64emu_t* emu, int what, uint32_t* pr)
 {
-    struct rlimit64 l = {0};
-    int ret = getrlimit64(what, &l);
+    struct rlimit l = {0};
+    int ret = getrlimit(what, &l);
     if(pr) {
         pr[0] = (l.rlim_cur<0x100000000LL)?l.rlim_cur:0xffffffff;
         pr[1] = (l.rlim_max<0x100000000LL)?l.rlim_max:0xffffffff;
@@ -2380,10 +2380,10 @@ EXPORT int my32_getrlimit(x64emu_t* emu, int what, uint32_t* pr)
 }
 EXPORT int my32_setrlimit(x64emu_t* emu, int what, uint32_t* pr)
 {
-    struct rlimit64 l = {0};
+    struct rlimit l = {0};
     l.rlim_cur = (pr[0]!=0xffffffff)?pr[0]:0xffffffffffffffffLL;
     l.rlim_max = (pr[1]!=0xffffffff)?pr[1]:0xffffffffffffffffLL;
-    return setrlimit64(what, &l);
+    return setrlimit(what, &l);
 }
 
 EXPORT void* my32___localtime64(x64emu_t* emu, void* t)
@@ -2788,13 +2788,13 @@ EXPORT int my32_getopt_long_only(int argc, char* const argv[], const char* optst
 
 EXPORT int my32_alphasort64(x64emu_t* emu, ptr_t* d1_, ptr_t* d2_)
 {
-    const struct dirent64* d1 = NULL;
-    const struct dirent64* d2 = NULL;
-    if(d1_) d1 = (struct dirent64*)from_ptrv(*d1_);
-    if(d2_) d2 = (struct dirent64*)from_ptrv(*d2_);
-    const struct dirent64** e1 = d1_?(&d1):NULL;
-    const struct dirent64** e2 = d2_?(&d2):NULL;
-    return alphasort64(e1, e2);
+    const struct dirent* d1 = NULL;
+    const struct dirent* d2 = NULL;
+    if(d1_) d1 = (struct dirent*)from_ptrv(*d1_);
+    if(d2_) d2 = (struct dirent*)from_ptrv(*d2_);
+    const struct dirent** e1 = d1_?(&d1):NULL;
+    const struct dirent** e2 = d2_?(&d2):NULL;
+    return alphasort(e1, e2);
 }
 
 #ifndef ANDROID
@@ -3202,7 +3202,7 @@ static ssize_t my32_cookie_write(void *p, const char *buf, size_t size)
     my32_cookie_t* cookie = (my32_cookie_t*)p;
     return (ssize_t)RunFunction(my_context, cookie->w, 3, cookie->cookie, buf, size);
 }
-static int my32_cookie_seek(void *p, off64_t *offset, int whence)
+static int my32_cookie_seek(void *p, off_t *offset, int whence)
 {
     my32_cookie_t* cookie = (my32_cookie_t*)p;
     return RunFunction(my_context, cookie->s, 3, cookie->cookie, offset, whence);

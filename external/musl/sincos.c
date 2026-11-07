@@ -10,7 +10,6 @@
  * ====================================================
  */
 
-#define _GNU_SOURCE
 #include "libm.h"
 
 void __cdecl sincos(double x, double *sin, double *cos)

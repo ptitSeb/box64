@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 #include <stdlib.h>
 #include <string.h>
-#define _GNU_SOURCE         /* See feature_test_macros(7) */
 #include <dlfcn.h>
 #include <stdarg.h>
 #define __STDC_WANT_LIB_EXT2__ 1 // for vasprintf
