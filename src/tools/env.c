@@ -2,6 +2,10 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#ifndef _WIN32
+#include <pthread.h>
+#include <signal.h>
+#endif
 #include <stddef.h>
 #include <fcntl.h>
 #include <string.h>
@@ -38,6 +42,42 @@ int MmaplistIsDirty(mmaplist_t* list);
 #endif
 
 static rbtree_t* envmap = NULL;
+#ifndef _WIN32
+static pthread_rwlock_t envmap_rw = PTHREAD_RWLOCK_INITIALIZER;
+static __thread sigset_t envmap_oldmask; // the writer's mask, put back on unlock
+// returns 1 if taken (0 on an error such as EAGAIN, then the reader must not unlock)
+static int envmap_rdlock(void)
+{
+    return pthread_rwlock_rdlock(&envmap_rw) == 0;
+}
+static void envmap_rdunlock(int locked)
+{
+    if (locked) pthread_rwlock_unlock(&envmap_rw);
+}
+static void envmap_wrlock(void)
+{
+    sigset_t set;
+    sigfillset(&set);
+    // leave the synchronous ones deliverable, as internalDBGetBlock does
+    sigdelset(&set, SIGSEGV);
+    sigdelset(&set, SIGILL);
+    sigdelset(&set, SIGBUS);
+    sigdelset(&set, SIGFPE);
+    sigdelset(&set, SIGABRT);
+    pthread_sigmask(SIG_BLOCK, &set, &envmap_oldmask);
+    pthread_rwlock_wrlock(&envmap_rw);
+}
+static void envmap_wrunlock(void)
+{
+    pthread_rwlock_unlock(&envmap_rw);
+    pthread_sigmask(SIG_SETMASK, &envmap_oldmask, NULL);
+}
+#else
+static int envmap_rdlock(void) { return 0; }
+static void envmap_rdunlock(int locked) { (void)locked; }
+static void envmap_wrlock(void) { }
+static void envmap_wrunlock(void) { }
+#endif
 
 static const char default_rcfile[] =
 "[bash]\n"
@@ -803,9 +843,11 @@ void RecordEnvMappings(uintptr_t addr, size_t length, int fd)
     if(!mapping_entries) mapping_entries = kh_init(mapping_entry);
 
     char* filename = NULL;
-    static char fullname[4096];
+    // per thread: this runs on any thread that maps a file, before mutex_dyndump is taken
+    static __thread char fullname[4096];
+    fullname[0] = 0;
     if (fd > 0) {
-        static char buf[128];
+        char buf[128];
         sprintf(buf, "/proc/self/fd/%d", fd);
         ssize_t r = readlink(buf, fullname, sizeof(fullname) - 1);
         if (r != -1) fullname[r] = 0;
@@ -862,7 +904,9 @@ void RecordEnvMappings(uintptr_t addr, size_t length, int fd)
                 dynarec_log(LOG_INFO, "Enlarging Mapping %s (%s) %p-%p from %p\n", fullname, lowercase_filename, (void*)(mapping->start), (void*)(addr+length), (void*)end);
             }
     }
+    envmap_wrlock();
     rb_set_64(envmap, addr, addr + length, (uint64_t)mapping);
+    envmap_wrunlock();
     mutex_unlock(&my_context->mutex_dyndump);
     if(new_mapping) {
         // First time we see this file
@@ -888,14 +932,15 @@ void WillRemoveMapping(uintptr_t addr, size_t length)
 {
     #ifdef DYNAREC
     if(!envmap) return;
+    mutex_lock(&my_context->mutex_dyndump);   // RemoveMapping frees mappings under it
+    int locked = envmap_rdlock();
     mapping_t* mapping = (mapping_t*)rb_get_64(envmap, addr);
+    envmap_rdunlock(locked);
     if(mapping) {
-        if(MmaplistHasNew(mapping->mmaplist, 1)) {
-            mutex_lock(&my_context->mutex_dyndump);
+        if(MmaplistHasNew(mapping->mmaplist, 1))
             SerializeMmaplist(mapping);
-            mutex_unlock(&my_context->mutex_dyndump);
-        }
     }
+    mutex_unlock(&my_context->mutex_dyndump);
     #endif
 }
 
@@ -906,11 +951,13 @@ void RemoveMapping(uintptr_t addr, size_t length)
     mmaplist_t* list = NULL;
     #endif
     mutex_lock(&my_context->mutex_dyndump);
+    envmap_wrlock();
     mapping_t* mapping = (mapping_t*)rb_get_64(envmap, addr);
     rb_unset(envmap, addr, addr+length);
     // quick check at next address
     if(mapping) {
         if(mapping == (mapping_t*)rb_get_64(envmap, addr+length)) {
+            envmap_wrunlock();
             mutex_unlock(&my_context->mutex_dyndump);
             return; // still present, don't purge mapping
         }
@@ -921,6 +968,7 @@ void RemoveMapping(uintptr_t addr, size_t length)
         do {
             rb_get_end_64(envmap, start, &val, &end);
             if((mapping_t*)val==mapping) {
+                envmap_wrunlock();
                 mutex_unlock(&my_context->mutex_dyndump);
                 return; // found more occurance, exiting
             }
@@ -938,6 +986,7 @@ void RemoveMapping(uintptr_t addr, size_t length)
         box_free(mapping->fullname);
         box_free(mapping);
     }
+    envmap_wrunlock();
     mutex_unlock(&my_context->mutex_dyndump);
     #ifdef DYNAREC
     if(list) DelMmaplist(list);
@@ -960,9 +1009,10 @@ void SerializeAllMapping()
 box64env_t* GetCurEnvByAddr(uintptr_t addr)
 {
     if (!envmap) return &box64env;
+    int locked = envmap_rdlock();
     mapping_t* mapping = ((mapping_t*)rb_get_64(envmap, addr));
-    if(!mapping) return &box64env;
-    box64env_t* env = mapping->env;
+    box64env_t* env = mapping?mapping->env:NULL;
+    envmap_rdunlock(locked);
     if(!env) return &box64env;
     return env;
 }
@@ -971,11 +1021,13 @@ mmaplist_t* GetMmaplistByAddr(uintptr_t addr)
 {
     #ifdef DYNAREC
     if (!envmap) return NULL;
+    int locked = envmap_rdlock();
     mapping_t* mapping = ((mapping_t*)rb_get_64(envmap, addr));
-    if(!mapping) return NULL;
+    if(!mapping) { envmap_rdunlock(locked); return NULL; }
     mmaplist_t* list = mapping->mmaplist;
     if(!list)
         list = mapping->mmaplist = NewMmaplist();
+    envmap_rdunlock(locked);
     return list;
     #else
     return NULL;
@@ -986,14 +1038,16 @@ mmaplist_t* GetMmaplistByAddr(uintptr_t addr)
 int IsAddrFileMapped(uintptr_t addr, const char** filename, uintptr_t* start)
 {
     if(!envmap) return 0;
+    int locked = envmap_rdlock();
     mapping_t* mapping = ((mapping_t*)rb_get_64(envmap, addr));
-    if(!mapping) return 0;
-    if(mapping->fullname) {
+    int ret = 0;
+    if(mapping && mapping->fullname) {
         if(filename) *filename = mapping->fullname;
         if(start) *start = mapping->start;
-        return 1;
+        ret = 1;
     }
-    return 0;
+    envmap_rdunlock(locked);
+    return ret;
 }
 
 int IsAddrFileMappedNoMemFD(uintptr_t addr)
@@ -1013,12 +1067,15 @@ size_t SizeFileMapped(uintptr_t addr)
     if(!envmap) return 0;
     uint64_t val = 0;
     uintptr_t end = 0;
+    size_t ret = 0;
+    int locked = envmap_rdlock();
     if(rb_get_end_64(envmap, addr, &val, &end)) {
         mapping_t* mapping = (mapping_t*)val;
         if(mapping && (mapping->start<end))
-            return end - mapping->start;
+            ret = end - mapping->start;
     }
-    return 0;
+    envmap_rdunlock(locked);
+    return ret;
 }
 
 int IsAddrNeedReloc(uintptr_t addr)
@@ -1053,11 +1110,11 @@ int IsAddrMappingLoadAndClean(uintptr_t addr)
 {
     #ifdef DYNAREC
     if(!envmap) return 0;
+    int locked = envmap_rdlock();
     mapping_t* mapping = ((mapping_t*)rb_get_64(envmap, addr));
-    if(!mapping) return 0;
-    if(!mapping->mmaplist) return 0;
-    if(MmaplistIsDirty(mapping->mmaplist)) return 0;
-    return 1;
+    int ret = (mapping && mapping->mmaplist && !MmaplistIsDirty(mapping->mmaplist))?1:0;
+    envmap_rdunlock(locked);
+    return ret;
     #else
     return 0;
     #endif

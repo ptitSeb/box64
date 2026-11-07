@@ -4020,12 +4020,13 @@ EXPORT int my_munmap(x64emu_t* emu, void* addr, size_t length)
         }
     }
 
+    #ifdef DYNAREC
+    WillRemoveMapping((uintptr_t)addr, length);
+    #endif
+    RemoveMapping((uintptr_t)addr, length);
     int ret = unmap_length ? box_munmap((void*)unmap_start, unmap_length) : 0;
     int e = errno;
     #ifdef DYNAREC
-    if(!ret) {
-        WillRemoveMapping((uintptr_t)addr, length);
-    }
     if(!ret && BOX64ENV(dynarec) && length) {
         if(last_mmap_0_len && last_mmap_0_addr==addr && last_mmap_0_len==length)
         {} else // ignore this one
@@ -4047,7 +4048,6 @@ EXPORT int my_munmap(x64emu_t* emu, void* addr, size_t length)
                 freeGuestProtection(unmap_start, unmap_length);
         } else
             freeGuestProtection(start, length);
-        RemoveMapping((uintptr_t)addr, length);
     }
     errno = e;  // preseve errno
     return ret;
