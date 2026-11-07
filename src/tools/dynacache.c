@@ -48,8 +48,6 @@ void add_unaligned_address(uintptr_t addr);
 
 const char* GetDynacacheFolder(mapping_t* mapping)
 {
-    // per thread: MmapDynaCache runs on any thread that maps a new file, outside mutex_dyndump
-    // (not on WIN32, which links without TLS support, as DumpCPURegs)
     #ifdef WIN32
     static char folder[4096] = { 0 };
     #else

@@ -42,10 +42,6 @@ int MmaplistIsDirty(mmaplist_t* list);
 #endif
 
 static rbtree_t* envmap = NULL;
-// envmap is changed under mutex_dyndump (RecordEnvMappings, RemoveMapping) but also read from other
-// threads without it (munmap, block building); lookups take this shared, changes take it exclusive.
-// Signals are blocked while it's held exclusive, so a handler can never ask for it on the thread that
-// holds it (glibc would return EDEADLK, other libcs may deadlock). It's only filled outside Windows.
 #ifndef _WIN32
 static pthread_rwlock_t envmap_rw = PTHREAD_RWLOCK_INITIALIZER;
 static __thread sigset_t envmap_oldmask; // the writer's mask, put back on unlock

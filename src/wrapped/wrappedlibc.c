@@ -4020,8 +4020,6 @@ EXPORT int my_munmap(x64emu_t* emu, void* addr, size_t length)
         }
     }
 
-    // Drop the file-mapping record before the range is unmapped: once it is, another thread's mmap can get the
-    // same addresses back and record its own mapping there, which RemoveMapping would then remove and free.
     #ifdef DYNAREC
     WillRemoveMapping((uintptr_t)addr, length);
     #endif
