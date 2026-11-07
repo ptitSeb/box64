@@ -79,6 +79,8 @@ typedef struct needed_libs_s {
     library_t** libs;
     path_collection_t* rpath;
     int         nb_done;
+    char**      nonstaticnames;
+    int         ns_size;
 } needed_libs_t;
 
 void free_neededlib(needed_libs_t* needed);
@@ -88,6 +90,7 @@ void add1_neededlib(needed_libs_t* needed);
 void add1lib_neededlib(needed_libs_t* needed, library_t* lib, const char* name);
 void add1lib_neededlib_name(needed_libs_t* needed, library_t* lib, const char* name);
 void add1libref_neededlib(needed_libs_t* needed, library_t* lib);
+char* add1nsname(needed_libs_t* needed, char* nsname);
 
 typedef struct base_segment_s {
     uintptr_t       base;

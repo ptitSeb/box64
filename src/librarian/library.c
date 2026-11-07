@@ -1323,6 +1323,13 @@ void free_neededlib(needed_libs_t* needed)
         FreeCollection(needed->rpath);
         box_free(needed->rpath);
     }
+    if(needed->nonstaticnames) {
+        for(int i=0; i<needed->ns_size; ++i)
+            box_free(needed->nonstaticnames[i]);
+        box_free(needed->nonstaticnames);
+        needed->ns_size = 0;
+        needed->nonstaticnames = NULL;
+    }
     box_free(needed);
 }
 void add1_neededlib(needed_libs_t* needed)
@@ -1406,7 +1413,29 @@ needed_libs_t* copy_neededlib(needed_libs_t* needed)
     ret->names = (char**)box_calloc(ret->cap, sizeof(char*));
     memcpy(ret->libs, needed->libs, ret->size*sizeof(library_t*));
     memcpy(ret->names, needed->names, ret->size*sizeof(char*));
+    if(needed->nonstaticnames) {
+        ret->ns_size = needed->ns_size;
+        ret->nonstaticnames = (char**)box_malloc(ret->ns_size*sizeof(char*));
+        for(int i=0; i<ret->ns_size; ++i)
+            ret->nonstaticnames[i] = box_strdup(needed->nonstaticnames[i]);
+    }
     return ret;
+}
+char* add1nsname(needed_libs_t* needed, char* nsname)
+{
+    if(!needed->ns_size) {
+        needed->ns_size = 1;
+        needed->nonstaticnames = (char**)box_malloc(needed->ns_size*sizeof(char*));
+        needed->nonstaticnames[0] = nsname;
+        return needed->nonstaticnames[0];
+    }
+    for(int i=0; i<needed->ns_size; ++i)
+        if(!strcmp(needed->nonstaticnames[i], nsname))
+            return needed->nonstaticnames[i];
+    int i = needed->ns_size++;
+    needed->nonstaticnames = (char**)box_realloc(needed->nonstaticnames, (i+1)*sizeof(char*));
+    needed->nonstaticnames[i] = nsname;
+    return needed->nonstaticnames[i];
 }
 
 void setNeededLibs(library_t* lib, int n, ...)

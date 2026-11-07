@@ -54,6 +54,7 @@ uintptr_t GetEntryPoint(lib_t* maplib, elfheader_t* h);
 uintptr_t GetLastByte(elfheader_t* h);
 void AddSymbols(lib_t *maplib, elfheader_t* h);
 int NeededLibs(elfheader_t* h);
+char* ExpandNeededLibs(elfheader_t* h, char* rpath);
 int LoadNeededLibs(elfheader_t* h, lib_t *maplib, int local, int bindnow, int deepbind, box64context_t *box64, x64emu_t* emu);
 needed_libs_t* GetELfNeededLibs(elfheader_t* h);
 uintptr_t GetElfInit(elfheader_t* h);

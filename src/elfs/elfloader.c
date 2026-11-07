@@ -1138,6 +1138,81 @@ $PLATFORM – Expands to the processor type of the current machine (see the
 uname(1) man page description of the -i option). For more details of this token
 expansion, see “System Specific Shared Objects”
 */
+char* ExpandNeededLibs(elfheader_t* h, char* rpath)
+{
+    if(!rpath || !h) return rpath;
+    char* rpathref = rpath;
+    while(strstr(rpath, "$$ORIGIN")) {
+        char* origin = box_strdup(h->path);
+        char* p = strrchr(origin, '/');
+        if(p) *p = '\0';    // remove file name to have only full path, without last '/'
+        char* tmp = (char*)box_calloc(1, strlen(rpath)-strlen("$$ORIGIN")+strlen(origin)+1);
+        p = strstr(rpath, "$$ORIGIN");
+        memcpy(tmp, rpath, p-rpath);
+        strcat(tmp, origin);
+        strcat(tmp, p+strlen("$$ORIGIN"));
+        if(rpath!=rpathref)
+            box_free(rpath);
+        rpath = tmp;
+        box_free(origin);
+    }
+    while(strstr(rpath, "$ORIGIN")) {
+        char* origin = box_strdup(h->path);
+        char* p = strrchr(origin, '/');
+        if(p) *p = '\0';    // remove file name to have only full path, without last '/'
+        char* tmp = (char*)box_calloc(1, strlen(rpath)-strlen("$ORIGIN")+strlen(origin)+1);
+        p = strstr(rpath, "$ORIGIN");
+        memcpy(tmp, rpath, p-rpath);
+        strcat(tmp, origin);
+        strcat(tmp, p+strlen("$ORIGIN"));
+        if(rpath!=rpathref)
+            box_free(rpath);
+        rpath = tmp;
+        box_free(origin);
+    }
+    while(strstr(rpath, "${ORIGIN}")) {
+        char* origin = box_strdup(h->path);
+        char* p = strrchr(origin, '/');
+        if(p) *p = '\0';    // remove file name to have only full path, without last '/'
+        char* tmp = (char*)box_calloc(1, strlen(rpath)-strlen("${ORIGIN}")+strlen(origin)+1);
+        p = strstr(rpath, "${ORIGIN}");
+        memcpy(tmp, rpath, p-rpath);
+        strcat(tmp, origin);
+        strcat(tmp, p+strlen("${ORIGIN}"));
+        if(rpath!=rpathref)
+            box_free(rpath);
+        rpath = tmp;
+        box_free(origin);
+        if(!FileExist(rpath, 0) && strstr(rpath, "/../../")) {
+            tmp = (char*)box_calloc(1, strlen(rpath)+1);
+            strcpy(tmp, rpath);
+            // check if one "/.." could be removed for the folder to exist
+            char* p = strstr(tmp, "/../../");
+            memmove(p, p+3, strlen(p+3)+1);
+            if(FileExist(tmp, 0)) {
+                if(rpath!=rpathref)
+                    box_free(rpath);
+                rpath = tmp;
+            } else
+                box_free(tmp);
+        }
+    }
+    while(strstr(rpath, "${PLATFORM}")) {
+        char* platform = box_strdup("x86_64");
+        char* p = strrchr(platform, '/');
+        if(p) *p = '\0';    // remove file name to have only full path, without last '/'
+        char* tmp = (char*)box_calloc(1, strlen(rpath)-strlen("${PLATFORM}")+strlen(platform)+1);
+        p = strstr(rpath, "${PLATFORM}");
+        memcpy(tmp, rpath, p-rpath);
+        strcat(tmp, platform);
+        strcat(tmp, p+strlen("${PLATFORM}"));
+        if(rpath!=rpathref)
+            box_free(rpath);
+        rpath = tmp;
+        box_free(platform);
+    }
+    return rpath;
+}
 int LoadNeededLibs(elfheader_t* h, lib_t *maplib, int local, int bindnow, int deepbind, box64context_t *box64, x64emu_t* emu)
 {
     if(h->needed)   // already done
@@ -1150,75 +1225,7 @@ int LoadNeededLibs(elfheader_t* h, lib_t *maplib, int local, int bindnow, int de
         if(tag==DT_RPATH || tag==DT_RUNPATH) {
             char *rpathref = h->DynStrTab+h->delta+(box64_is32bits?h->Dynamic._32[i].d_un.d_val:h->Dynamic._64[i].d_un.d_val);
             char* rpath = rpathref;
-            while(strstr(rpath, "$$ORIGIN")) {
-                char* origin = box_strdup(h->path);
-                char* p = strrchr(origin, '/');
-                if(p) *p = '\0';    // remove file name to have only full path, without last '/'
-                char* tmp = (char*)box_calloc(1, strlen(rpath)-strlen("$$ORIGIN")+strlen(origin)+1);
-                p = strstr(rpath, "$$ORIGIN");
-                memcpy(tmp, rpath, p-rpath);
-                strcat(tmp, origin);
-                strcat(tmp, p+strlen("$$ORIGIN"));
-                if(rpath!=rpathref)
-                    box_free(rpath);
-                rpath = tmp;
-                box_free(origin);
-            }
-            while(strstr(rpath, "$ORIGIN")) {
-                char* origin = box_strdup(h->path);
-                char* p = strrchr(origin, '/');
-                if(p) *p = '\0';    // remove file name to have only full path, without last '/'
-                char* tmp = (char*)box_calloc(1, strlen(rpath)-strlen("$ORIGIN")+strlen(origin)+1);
-                p = strstr(rpath, "$ORIGIN");
-                memcpy(tmp, rpath, p-rpath);
-                strcat(tmp, origin);
-                strcat(tmp, p+strlen("$ORIGIN"));
-                if(rpath!=rpathref)
-                    box_free(rpath);
-                rpath = tmp;
-                box_free(origin);
-            }
-            while(strstr(rpath, "${ORIGIN}")) {
-                char* origin = box_strdup(h->path);
-                char* p = strrchr(origin, '/');
-                if(p) *p = '\0';    // remove file name to have only full path, without last '/'
-                char* tmp = (char*)box_calloc(1, strlen(rpath)-strlen("${ORIGIN}")+strlen(origin)+1);
-                p = strstr(rpath, "${ORIGIN}");
-                memcpy(tmp, rpath, p-rpath);
-                strcat(tmp, origin);
-                strcat(tmp, p+strlen("${ORIGIN}"));
-                if(rpath!=rpathref)
-                    box_free(rpath);
-                rpath = tmp;
-                box_free(origin);
-                if(!FileExist(rpath, 0) && strstr(rpath, "/../../")) {
-                    tmp = (char*)box_calloc(1, strlen(rpath)+1);
-                    strcpy(tmp, rpath);
-                    // check if one "/.." could be removed for the folder to exist
-                    char* p = strstr(tmp, "/../../");
-                    memmove(p, p+3, strlen(p+3)+1);
-                    if(FileExist(tmp, 0)) {
-                        if(rpath!=rpathref)
-                            box_free(rpath);
-                        rpath = tmp;
-                    } else
-                        box_free(tmp);
-                }
-            }
-            while(strstr(rpath, "${PLATFORM}")) {
-                char* platform = box_strdup("x86_64");
-                char* p = strrchr(platform, '/');
-                if(p) *p = '\0';    // remove file name to have only full path, without last '/'
-                char* tmp = (char*)box_calloc(1, strlen(rpath)-strlen("${PLATFORM}")+strlen(platform)+1);
-                p = strstr(rpath, "${PLATFORM}");
-                memcpy(tmp, rpath, p-rpath);
-                strcat(tmp, platform);
-                strcat(tmp, p+strlen("${PLATFORM}"));
-                if(rpath!=rpathref)
-                    box_free(rpath);
-                rpath = tmp;
-                box_free(platform);
-            }
+            rpath = ExpandNeededLibs(h, rpath);
             if(strchr(rpath, '$')) {
                 printf_log(LOG_INFO, "Warning, RPATH with $ variable not supported yet (%s)\n", rpath);
             } else {
@@ -1255,8 +1262,13 @@ int LoadNeededLibs(elfheader_t* h, lib_t *maplib, int local, int bindnow, int de
         my_context->neededlibs = h->needed;
     int j=0;
     for (size_t i=0; i<h->numDynamic; ++i)
-        if((box64_is32bits?h->Dynamic._32[i].d_tag:h->Dynamic._64[i].d_tag)==DT_NEEDED)
-            h->needed->names[j++] = h->DynStrTab+h->delta+(box64_is32bits?h->Dynamic._32[i].d_un.d_val:h->Dynamic._64[i].d_un.d_val);
+        if((box64_is32bits?h->Dynamic._32[i].d_tag:h->Dynamic._64[i].d_tag)==DT_NEEDED) {
+            char* path = h->DynStrTab+h->delta+(box64_is32bits?h->Dynamic._32[i].d_un.d_val:h->Dynamic._64[i].d_un.d_val);
+            char* newpath = ExpandNeededLibs(h, path);
+            if(path!=newpath)
+                path = add1nsname(h->needed, newpath);
+            h->needed->names[j++] = path;
+        }
     #ifndef ANDROID
     if(box64_is32bits && strstr(h->name, "lsteamclient.dll.so"))
         h->needed->names[j++] = "libgcc_s.so.1";
