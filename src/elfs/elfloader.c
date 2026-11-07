@@ -1937,9 +1937,11 @@ void CreateMemorymapFile(box64context_t* context, int fd)
             elfheader_t* h = FindElfAddress(my_context, start);
             int l = strlen(line);
             if(h && l<73) {
+                line[strcspn(line, "\n")] = '\0';
                 sprintf(buff, "%s%*s\n", line, 74-l, h->name);
                 dummy = write(fd, buff, strlen(buff));
             } else if(start==(uintptr_t)my_context->stack) {
+                line[strcspn(line, "\n")] = '\0';
                 sprintf(buff, "%s%*s\n", line, 74-l, "[stack]");
                 dummy = write(fd, buff, strlen(buff));
             } else if (strstr(line, "[stack]")) {
