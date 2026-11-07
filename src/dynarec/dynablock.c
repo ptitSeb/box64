@@ -22,6 +22,9 @@
 #include "dynarec_native.h"
 #include "dynarec_arch.h"
 #include "native_lock.h"
+#ifdef BOX64EC
+#include "box64ec.h"
+#endif
 
 #include "custommem.h"
 #include "khash.h"
@@ -388,6 +391,11 @@ dynablock_t* CreateDBnoAlt(x64emu_t* emu, uintptr_t addr, int is32bits)
 dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, int create, int need_lock, int is32bits, int is_new, dynablock_t* block)
 {
     const uint32_t req_prot = (box64_pagesize==4096)?(PROT_EXEC|PROT_READ):PROT_READ;
+    #ifdef BOX64EC
+    // never build a block from ARM64EC code, the JIT memory is ARM64EC code too
+    if(Box64EC_IsEcCode(addr))
+        return NULL;
+    #endif
     if(BOX64ENV(nodynarec_delay) && (addr>=BOX64ENV(nodynarec_start)) && (addr<BOX64ENV(nodynarec_end)))
         return NULL;
     if(!block)
@@ -445,7 +453,12 @@ dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, int create, int n
             return block;
         }
     }
+    #ifdef BOX64EC
+    // a fault while filling the block would leave mutex_dyndump locked, the interpreter raises it instead
+    block = Box64EC_IsExecutable(addr) ? FillBlock64(addr, is32bits, MAX_INSTS, is_new, 0) : NULL;
+    #else
     block = FillBlock64(addr, is32bits, MAX_INSTS, is_new, 0);
+    #endif
     if(!block) {
         dynarec_log(LOG_DEBUG, "Fillblock of block %p for %p returned an error\n", block, (void*)addr);
     }
@@ -525,6 +538,12 @@ dynablock_t* DBGetBlock(x64emu_t* emu, uintptr_t addr, int create, int is32bits)
     db = internalDBGetBlock(emu, addr, create, 1, is32bits, 1, db);
     if(db && db->done && db->block && getNeedTest(addr)) {
         //if (db->always_test) SchedYield(); // just calm down...
+        #ifdef BOX64EC
+        // protect the code before hashing it: a write that lands after the hash then faults and bumps the generation
+        uint32_t gen = getUnprotectGeneration();
+        if(!is_inhotpage && !db->always_test)
+            protectDB((uintptr_t)db->x64_addr, db->x64_size);
+        #endif
         uint32_t hash = X31_hash_code((void*)db->x64_readaddr, db->x64_size);
         mutex_lock(&my_context->mutex_dyndump)?1:0;
         if(hash!=db->hash) {
@@ -560,7 +579,16 @@ dynablock_t* DBGetBlock(x64emu_t* emu, uintptr_t addr, int create, int is32bits)
                         ClearCache(db->block, db->size);
                     }
                     #endif
+                    #ifdef BOX64EC
+                    if(gen == getUnprotectGeneration()) {   // else it stays tested at each entry
+                    #endif
                     protectDBJumpTable((uintptr_t)db->x64_addr, db->x64_size, db->block, db->jmpnext);
+                    #ifdef BOX64EC
+                        // a write fault right before the publication may have unlinked it already
+                        if(gen != getUnprotectGeneration())
+                            MarkDynablock(db);
+                    }
+                    #endif
                 }
             }
         }

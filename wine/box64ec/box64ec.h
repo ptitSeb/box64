@@ -35,6 +35,8 @@ typedef struct {
     uint64_t pc;
 } Box64EC_EntryFrame;
 
+#define BOX64EC_JIT_SUSPEND_OPCODE 0xec53  // UDF #0xec53 in JIT code, reached when the suspend doorbell is set
+
 struct x64emu_s;
 void Box64EC_EnterX64(uint64_t rip);
 void Box64EC_BeginSimulation(void) __attribute__((noreturn));
@@ -42,6 +44,7 @@ void Box64EC_FinishBeginSimulation(ARM64EC_NT_CONTEXT* context,
                                   uintptr_t target, uintptr_t native_sp)
     __attribute__((noreturn));
 int Box64EC_IsEcCode(uintptr_t address);
+int Box64EC_IsExecutable(uintptr_t address);
 void Box64EC_RequestExitToNative(struct x64emu_s* emu, uintptr_t address);
 uintptr_t Box64EC_TakePendingNativeExit(uintptr_t* native_sp);
 uintptr_t Box64EC_ResolveNoPendingExit(uintptr_t rip);

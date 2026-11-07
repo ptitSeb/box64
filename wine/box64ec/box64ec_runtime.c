@@ -97,6 +97,13 @@ void Box64EC_FatalEnterJit(unsigned reason)
     RtlExitUserProcess(STATUS_ILLEGAL_INSTRUCTION);
 }
 
+#ifdef DYNAREC
+// the Dynarec does not inline native calls yet
+typedef void (*wrapper_t)(x64emu_t* emu, uintptr_t fnc);
+int isSimpleWrapper(wrapper_t fun) { return 0; }
+int isRetX87Wrapper(wrapper_t fun) { return 0; }
+#endif
+
 static void run_emu(x64emu_t* emu)
 {
     if (Box64EC_PollSuspend()) {
@@ -105,7 +112,12 @@ static void run_emu(x64emu_t* emu)
     }
 
     Box64EC_ApplyLiveMxcsr(emu);
-    Run(emu, 0);
+#ifdef DYNAREC
+    if (BOX64ENV(dynarec))
+        DynaRun(emu);
+    else
+#endif
+        Run(emu, 0);
 }
 
 void Box64EC_ResetAbandonedEmuRun(box64ec_thr_t* state, x64emu_t* emu)
@@ -200,8 +212,9 @@ void Box64EC_BeginSimulation(void)
         t->pending_callback_seq = 0;
     }
     area->InSimulation = TRUE;
-    /* Wine filled ContextAmd64; merge sticky EFlags from prior emu state. */
-    merge_eflags_from_emu(emu, area->ContextAmd64);
+    /* Wine filled ContextAmd64 from an ARM64 context, which cannot carry the
+     * x87 control/status/tag words nor all EFlags: keep them from the emu. */
+    merge_unmapped_context_from_emu(emu, area->ContextAmd64);
     context_to_emu(area->ContextAmd64, emu);
     emu->quit = 0;
     run_emu(emu);

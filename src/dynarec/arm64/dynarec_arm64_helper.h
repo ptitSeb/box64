@@ -586,7 +586,28 @@
 #define CALL_(F, ret, reg) call_c(dyn, ninst, F, xLR, ret, 1, reg)
 // CALL_S will use xLR for the call address. Return value can be put in ret (unless ret is -1)
 // R0 will not be pushed/popd if ret is -2. Flags are not save/restored
+#ifdef BOX64EC
+// a privileged instruction traps, so the guest exception gets the native context
+#define CALL_S(F, ret) do {                                                \
+    if ((F) == const_native_priv) UDF(0);                                  \
+    else call_c(dyn, ninst, F, xLR, ret, 0, 0);                            \
+} while (0)
+#else
 #define CALL_S(F, ret) call_c(dyn, ninst, F, xLR, ret, 0, 0)
+#endif
+// FPCR rounding follows emu->mxcsr while x64 code runs on ARM64EC: redo it each time the guest loads MXCSR
+#ifdef BOX64EC
+#define SYNC_FPCR_ROUND(s1, s2) do {                                       \
+    LDRw_U12(s1, xEmu, offsetof(x64emu_t, mxcsr));                         \
+    RBITw(s1, s1);              /* round is on bits 13-14 on x64, */       \
+    LSRw(s1, s1, 17);           /* but we want the reverse of that */      \
+    MRS_fpcr(s2);                                                          \
+    BFIx(s2, s1, 22, 2);                                                   \
+    MSR_fpcr(s2);                                                          \
+} while (0)
+#else
+#define SYNC_FPCR_ROUND(s1, s2)
+#endif
 // CALL_D will use x7 for the call address. Use for function having 1 or 2 double args and returning 1 double
 // All regs are saved, including xmm0-7, will move arg1/arg2 to D0, D1, return D0 to ret (unless any is -1)
 #define CALL_D(F, ret, arg1, arg2, sav1, sav2) call_d(dyn, ninst, F, ret, arg1, arg2, sav1, sav2)

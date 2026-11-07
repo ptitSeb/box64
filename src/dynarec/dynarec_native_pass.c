@@ -23,6 +23,9 @@
 
 #include "dynarec_arch.h"
 #include "dynarec_helper.h"
+#ifdef BOX64EC
+#include "box64ec.h"
+#endif
 
 #ifndef STEP
 #error No STEP defined
@@ -199,6 +202,15 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         #endif
         MESSAGE(LOG_DUMP, "New Instruction %s:%p, native:%p\n", is32bits?"x86":"x64",(void*)addr, (void*)dyn->block);
         NEW_INST;
+        #if defined(BOX64EC) && STEP > 1
+        // linked blocks and backward jumps can loop without leaving the JIT: check the suspend doorbell at
+        // block entry and before backward jumps (not inside a SEVL/WFE pair), x1 is free between opcodes
+        if (!dyn->insts[ninst].wfe && (!ninst || (dyn->insts[ninst].x64.jmp && dyn->insts[ninst].x64.jmp <= ip))) {
+            LDRw_U12(x1, xEmu, offsetof(x64emu_t, suspend_doorbell));
+            CBZw(x1, 8);
+            UDF(BOX64EC_JIT_SUSPEND_OPCODE);
+        }
+        #endif
         #ifdef ARCH_NOP
         if(dyn->insts[ninst].x64.alive && dyn->insts[ninst].x64.self_loop)
             CALLRET_LOOP();
