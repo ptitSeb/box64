@@ -3679,6 +3679,13 @@ static int can_copy_pe_mmap(int fd, size_t size, ssize_t offset)
     return size <= (uint64_t)(st.st_size - offset) && is_pe_file(fd);
 }
 
+static int can_copy_mmap(int fd, size_t size, ssize_t offset)
+{
+    struct stat st;
+    if(offset < 0 || fstat(fd, &st) || !S_ISREG(st.st_mode) || st.st_size < offset) return 0;
+    return size <= (uint64_t)(st.st_size - offset);
+}
+
 static int pread_mmap(int fd, void* addr, size_t size, ssize_t offset)
 {
     size_t done = 0;
@@ -3731,13 +3738,15 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, size_t length, int prot, int f
     uint32_t first_edge_prot = 0;
     uint32_t last_edge_prot = 0;
 
-    // For Wine: a guest MAP_FIXED mapping may only partially cover its first or last host page.
+    // A guest MAP_FIXED mapping may only partially cover its first or last host page.
     // replace all complete host pages normally, but preserve unrelated guest pages at the edges.
     // the edge host pages retain the union of their old and new protections because the kernel cannot protect
     // their 4k guest pages independently
     if(box64_pagesize > X86_PAGE_SIZE && addr && length && end > start && mapped_end >= end &&
-       !(start & (X86_PAGE_SIZE - 1)) && (flags & MAP_FIXED) && (flags & MAP_ANONYMOUS) &&
-       (flags & MAP_PRIVATE) && !(flags & MAP_SHARED) && !offset && host_end &&
+       !(start & (X86_PAGE_SIZE - 1)) && (flags & MAP_FIXED) &&
+       (flags & MAP_PRIVATE) && !(flags & MAP_SHARED) && host_end &&
+       ((flags & MAP_ANONYMOUS) ? !offset :
+        (fd >= 0 && !(offset & (X86_PAGE_SIZE - 1)) && mapped_end == end && can_copy_mmap(fd, length, offset))) &&
        (start != host_start || mapped_end != host_end) &&
        (start == host_start || (memExist(host_start) && memExist(host_start + box64_pagesize - 1))) &&
        (mapped_end == host_end || (memExist(host_end - box64_pagesize) && memExist(host_end - 1)))) {
@@ -3773,14 +3782,14 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, size_t length, int prot, int f
         }
 
         if(!failed && full_start < full_end &&
-           box_mmap((void*)full_start, full_end - full_start, prot, flags, fd, offset) == MAP_FAILED) {
+           box_mmap((void*)full_start, full_end - full_start, prot, flags, fd, offset + (ssize_t)(full_start - start)) == MAP_FAILED) {
             failed = 1;
             saved_errno = errno;
         }
 
-        // Wine restores reserved ranges with PROT_NONE | MAP_NORESERVE.
-        // Do not zero the edge: it may still be MAP_SHARED, and memset would modify its backing object.
-        if(!failed && (!box64_wine || prot || !(flags & MAP_NORESERVE))) {
+        if(!failed && (flags & MAP_ANONYMOUS) && (!box64_wine || prot || !(flags & MAP_NORESERVE))) {
+            // Wine restores reserved ranges with PROT_NONE | MAP_NORESERVE.
+            // Do not zero the edge: it may still be MAP_SHARED, and memset would modify its backing object.
             if(emulated_first_edge) {
                 uintptr_t edge_end = mapped_end < host_start + box64_pagesize ? mapped_end : host_start + box64_pagesize;
                 memset((void*)start, 0, edge_end - start);
@@ -3788,6 +3797,21 @@ EXPORT void* my_mmap64(x64emu_t* emu, void *addr, size_t length, int prot, int f
             if(mapped_end != host_end && (!emulated_first_edge || last_edge_page != first_edge_page)) {
                 uintptr_t edge_start = start > last_edge_page ? start : last_edge_page;
                 memset((void*)edge_start, 0, mapped_end - edge_start);
+            }
+        } else if(!failed && !(flags & MAP_ANONYMOUS)) {
+            if(emulated_first_edge) {
+                uintptr_t edge_end = mapped_end < host_start + box64_pagesize ? mapped_end : host_start + box64_pagesize;
+                if(pread_mmap(fd, (void*)start, edge_end - start, offset)) {
+                    failed = 1;
+                    saved_errno = errno;
+                }
+            }
+            if(!failed && emulated_last_edge && (!emulated_first_edge || last_edge_page != first_edge_page)) {
+                uintptr_t edge_start = start > last_edge_page ? start : last_edge_page;
+                if(pread_mmap(fd, (void*)edge_start, mapped_end - edge_start, offset + (ssize_t)(edge_start - start))) {
+                    failed = 1;
+                    saved_errno = errno;
+                }
             }
         }
 
