@@ -25,7 +25,7 @@ typedef struct wine_prereserve_32_s
 #include "box32.h"
 #endif
 // only the prereseve argument is reserved, not the other zone that wine-preloader reserve
-static wine_prereserve_t my_wine_reserve[] = {{(void*)0x00010000, 0x00008000}, {(void*)0x00110000, 0x30000000}, {(void*)0x7f000000, 0x03000000}, {0, 0}, {0, 0}};
+static wine_prereserve_t my_wine_reserve[] = {{(void*)0x00010000, 0x00010000}, {(void*)0x00110000, 0x30000000}, {(void*)0x7f000000, 0x03000000}, {0, 0}, {0, 0}};
 
 int wine_preloaded = 0;
 
