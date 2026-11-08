@@ -1179,6 +1179,9 @@ GO(vkCmdBeginCustomResolveEXT, vFpp)
 // VK_NV_compute_occupancy_priority
 GO(vkCmdSetComputeOccupancyPriorityNV, vFpp)
 
+// VK_EXT_cooperative_matrix_maintenance1
+GO(vkGetPhysicalDeviceCooperativeMatrixProperties2EXT, iFpppp)
+
 // Layer stuffs
 GO(vk_icdNegotiateLoaderICDInterfaceVersion, iFp)
 //GO(vkNegotiateLoaderLayerInterfaceVersion, iFp)
