@@ -2163,6 +2163,17 @@ static long isProcMem(const char* path)
 }
 
 #define MAX_PATH_LENGTH 4096
+static int isPathPageReadable(uintptr_t page)
+{
+#ifdef __NR_process_vm_readv
+    char c;
+    struct iovec local = { &c, 1 };
+    struct iovec remote = { (void*)page, 1 };
+    return syscall(__NR_process_vm_readv, getpid(), &local, 1, &remote, 1, 0) == 1;
+#else
+    return 0;
+#endif
+}
 static int isPathValid(const char* path)
 {
     if(!path)
@@ -2173,7 +2184,7 @@ static int isPathValid(const char* path)
         uintptr_t page = ALIGN_DOWN(p + i);
         if(page != cache_page) {
             cache_page = page;
-            if(!(getProtection_fast(cache_page) & PROT_READ))
+            if(!(getProtection_fast(cache_page) & PROT_READ) && !isPathPageReadable(cache_page))
                 return 0;
         }
         if(!path[i])
