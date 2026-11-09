@@ -73,6 +73,7 @@
 #define NEW_INST                                                                                                        \
     ++dyn->size;                                                                                                        \
     dyn->insts[ninst].x64.addr = ip;                                                                                    \
+    dyn->insts[ninst].rsp_class = 0;                                                                                    \
     dyn->lsx.combined1 = dyn->lsx.combined2 = 0;                                                                        \
     dyn->lsx.swapped = 0;                                                                                               \
     dyn->lsx.barrier = 0;                                                                                               \
