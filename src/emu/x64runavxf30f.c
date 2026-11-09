@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: MIT
-#define _GNU_SOURCE
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -140,13 +139,13 @@ uintptr_t RunAVX_F30F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETEX(0);
             GETGD;
             if (rex.w) {
-                if(isnanf(EX->f[0]) || isinff(EX->f[0]) || EX->f[0]>=(float)0x7fffffffffffffffLL) {
+                if(isnan(EX->f[0]) || isinf(EX->f[0]) || EX->f[0]>=(float)0x7fffffffffffffffLL) {
                     mxcsr_raise_invalid(emu);
                     GD->q[0] = 0x8000000000000000LL;
                 } else
                     GD->sq[0] = EX->f[0];
             } else {
-                if(isnanf(EX->f[0]) || isinff(EX->f[0]) || EX->f[0]>=(float)0x7fffffff) {
+                if(isnan(EX->f[0]) || isinf(EX->f[0]) || EX->f[0]>=(float)0x7fffffff) {
                     mxcsr_raise_invalid(emu);
                     GD->dword[0] = 0x80000000;
                 } else
@@ -159,7 +158,7 @@ uintptr_t RunAVX_F30F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETEX(0);
             GETGD;
             if(rex.w) {
-                if(isnanf(EX->f[0]) || isinff(EX->f[0]) || EX->f[0]>=(float)0x7fffffffffffffffLL) {
+                if(isnan(EX->f[0]) || isinf(EX->f[0]) || EX->f[0]>=(float)0x7fffffffffffffffLL) {
                     mxcsr_raise_invalid(emu);
                     GD->q[0] = 0x8000000000000000LL;
                 } else
@@ -182,7 +181,7 @@ uintptr_t RunAVX_F30F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                             break;
                     }
             } else {
-                if(isnanf(EX->f[0]))
+                if(isnan(EX->f[0]))
                     tmp64s = INT32_MIN;
                 else
                     switch(emu->mxcsr.f.MXCSR_RC) {
@@ -220,7 +219,7 @@ uintptr_t RunAVX_F30F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             int oldround = mxcsr_setround(emu);
             if(EX->f[0]<0.0 )
                 GX->f[0] = -NAN;
-            else if(isnanf(EX->f[0]))
+            else if(isnan(EX->f[0]))
                 GX->ud[0] = EX->ud[0] | 0x00400000;
             else
                 GX->f[0] = sqrt(EX->f[0]);
@@ -271,9 +270,9 @@ uintptr_t RunAVX_F30F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETVX;
             GETGY;
             int oldround = mxcsr_setround(emu);
-            if(isnanf(VX->f[0])) GX->ud[0] = VX->ud[0] | 0x00400000;
-            else if(isnanf(EX->f[0])) GX->ud[0] = EX->ud[0] | 0x00400000;
-            else { GX->f[0] = VX->f[0] + EX->f[0]; if(isnanf(GX->f[0])) GX->ud[0] |= 0x80000000; }
+            if(isnan(VX->f[0])) GX->ud[0] = VX->ud[0] | 0x00400000;
+            else if(isnan(EX->f[0])) GX->ud[0] = EX->ud[0] | 0x00400000;
+            else { GX->f[0] = VX->f[0] + EX->f[0]; if(isnan(GX->f[0])) GX->ud[0] |= 0x80000000; }
             if(GX!=VX) {
                 GX->ud[1] = VX->ud[1];
                 GX->q[1] = VX->q[1];
@@ -289,9 +288,9 @@ uintptr_t RunAVX_F30F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETVX;
             GETGY;
             int oldround = mxcsr_setround(emu);
-            if(isnanf(VX->f[0])) GX->ud[0] = VX->ud[0] | 0x00400000;
-            else if(isnanf(EX->f[0])) GX->ud[0] = EX->ud[0] | 0x00400000;
-            else { GX->f[0] = VX->f[0] * EX->f[0]; if(isnanf(GX->f[0])) GX->ud[0] |= 0x80000000; }
+            if(isnan(VX->f[0])) GX->ud[0] = VX->ud[0] | 0x00400000;
+            else if(isnan(EX->f[0])) GX->ud[0] = EX->ud[0] | 0x00400000;
+            else { GX->f[0] = VX->f[0] * EX->f[0]; if(isnan(GX->f[0])) GX->ud[0] |= 0x80000000; }
             if(GX!=VX) {
                 GX->ud[1] = VX->ud[1];
                 GX->q[1] = VX->q[1];
@@ -307,7 +306,7 @@ uintptr_t RunAVX_F30F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETVX;
             GETGY;
             #ifdef RV64
-            if(isnanf(EX->f[0]))
+            if(isnan(EX->f[0]))
                 GX->q[0] = ((uint64_t)(EX->ud[0] & 0x80000000) << 32)
                          | ((uint64_t)(EX->ud[0] & 0x007fffff) << 29)
                          | 0x7ff8000000000000ULL;
@@ -325,7 +324,7 @@ uintptr_t RunAVX_F30F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETGX;
             GETGY;
             for(int i=0; i<4; ++i) {
-                if(isnanf(EX->f[i]))
+                if(isnan(EX->f[i]))
                     tmp64s = INT32_MIN;
                 else
                     tmp64s = EX->f[i];
@@ -339,7 +338,7 @@ uintptr_t RunAVX_F30F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             if(vex.l) {
                 GETEY;
                 for(int i=0; i<4; ++i) {
-                    if(isnanf(EY->f[i]))
+                    if(isnan(EY->f[i]))
                         tmp64s = INT32_MIN;
                     else
                         tmp64s = EY->f[i];
@@ -360,9 +359,9 @@ uintptr_t RunAVX_F30F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETVX;
             GETGY;
             int oldround = mxcsr_setround(emu);
-            if(isnanf(VX->f[0])) GX->ud[0] = VX->ud[0] | 0x00400000;
-            else if(isnanf(EX->f[0])) GX->ud[0] = EX->ud[0] | 0x00400000;
-            else { GX->f[0] = VX->f[0] - EX->f[0]; if(isnanf(GX->f[0])) GX->ud[0] |= 0x80000000; }
+            if(isnan(VX->f[0])) GX->ud[0] = VX->ud[0] | 0x00400000;
+            else if(isnan(EX->f[0])) GX->ud[0] = EX->ud[0] | 0x00400000;
+            else { GX->f[0] = VX->f[0] - EX->f[0]; if(isnan(GX->f[0])) GX->ud[0] |= 0x80000000; }
             if(GX!=VX) {
                 GX->ud[1] = VX->ud[1];
                 GX->q[1] = VX->q[1];
@@ -395,9 +394,9 @@ uintptr_t RunAVX_F30F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             GETVX;
             GETGY;
             int oldround = mxcsr_setround(emu);
-            if(isnanf(VX->f[0])) GX->ud[0] = VX->ud[0] | 0x00400000;
-            else if(isnanf(EX->f[0])) GX->ud[0] = EX->ud[0] | 0x00400000;
-            else { GX->f[0] = VX->f[0] / EX->f[0]; if(isnanf(GX->f[0])) GX->ud[0] |= 0x80000000; }
+            if(isnan(VX->f[0])) GX->ud[0] = VX->ud[0] | 0x00400000;
+            else if(isnan(EX->f[0])) GX->ud[0] = EX->ud[0] | 0x00400000;
+            else { GX->f[0] = VX->f[0] / EX->f[0]; if(isnan(GX->f[0])) GX->ud[0] |= 0x80000000; }
             if(GX!=VX) {
                 GX->ud[1] = VX->ud[1];
                 GX->q[1] = VX->q[1];
