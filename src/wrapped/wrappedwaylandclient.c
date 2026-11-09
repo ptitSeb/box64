@@ -74,6 +74,29 @@ static void* find_wl_log_func_t_Fct(void* fct)
     return NULL;
 }
 
+//wl_dispatcher_func_t
+#define GO(A)                                                           \
+static uintptr_t my_wl_dispatcher_func_t_fct_##A = 0;                   \
+static int my_wl_dispatcher_func_t_##A(const void* user_data, void* target, uint32_t opcode, const void* msg, void* args) \
+{                                                                       \
+    return (int)RunFunctionFmt(my_wl_dispatcher_func_t_fct_##A, "ppupp", user_data, target, opcode, msg, args); \
+}
+SUPER()
+#undef GO
+static void* find_wl_dispatcher_func_t_Fct(void* fct)
+{
+    if(!fct) return fct;
+    if(GetNativeFnc((uintptr_t)fct))  return GetNativeFnc((uintptr_t)fct);
+    #define GO(A) if(my_wl_dispatcher_func_t_fct_##A == (uintptr_t)fct) return my_wl_dispatcher_func_t_##A;
+    SUPER()
+    #undef GO
+    #define GO(A) if(my_wl_dispatcher_func_t_fct_##A == 0) {my_wl_dispatcher_func_t_fct_##A = (uintptr_t)fct; return my_wl_dispatcher_func_t_##A; }
+    SUPER()
+    #undef GO
+    printf_log(LOG_NONE, "Warning, no more slot for wayland-client wl_dispatcher_func_t callback\n");
+    return NULL;
+}
+
 // wl_registry_listener ...
 typedef struct my_wl_registry_listener_s {
     uintptr_t   global; //vFppupu
@@ -1632,6 +1655,12 @@ static void* find_gtk_surface1_listener_Fct(void* fct)
     return NULL;
 }
 #undef SUPER
+
+EXPORT int my_wl_proxy_add_dispatcher(x64emu_t* emu, void* proxy, void* dispatcher_func, void* dispatcher_data, void* data)
+{
+    if (!proxy) return -1;
+    return my->wl_proxy_add_dispatcher(proxy, find_wl_dispatcher_func_t_Fct(dispatcher_func), dispatcher_data, data);
+}
 
 EXPORT int my_wl_proxy_add_listener(x64emu_t* emu, void* proxy, void** l, void* data)
 {

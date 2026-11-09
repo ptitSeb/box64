@@ -7743,6 +7743,8 @@ wrappedwaylandclient:
   - wl_log_set_handler_client
 - iFppp:
   - wl_proxy_add_listener
+- iFpppp:
+  - wl_proxy_add_dispatcher
 wrappedwaylandcursor:
 wrappedwaylandegl:
 wrappedxinerama:

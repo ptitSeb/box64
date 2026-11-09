@@ -14,9 +14,11 @@
 
 typedef void (*vFp_t)(void*);
 typedef int32_t (*iFppp_t)(void*, void*, void*);
+typedef int32_t (*iFpppp_t)(void*, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
 	GO(wl_log_set_handler_client, vFp_t) \
-	GO(wl_proxy_add_listener, iFppp_t)
+	GO(wl_proxy_add_listener, iFppp_t) \
+	GO(wl_proxy_add_dispatcher, iFpppp_t)
 
 #endif // __wrappedwaylandclientTYPES_H_
