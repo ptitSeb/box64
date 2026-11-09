@@ -1079,35 +1079,6 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     }
     #endif
 
-    path_collection_t ld_preload = {0};
-    if(getenv("BOX64_LD_PRELOAD")) {
-        char* p = getenv("BOX64_LD_PRELOAD");
-        ParseList(p, &ld_preload, 0);
-        if (ld_preload.size && BOX64ENV(log)) {
-            printf_log(LOG_INFO, "BOX64 trying to Preload ");
-            for (int i=0; i<ld_preload.size; ++i)
-                printf_log_prefix(0, LOG_INFO, "%s ", ld_preload.paths[i]);
-            printf_log_prefix(0, LOG_INFO, "\n");
-        }
-    }
-    if(getenv("LD_PRELOAD")) {
-        char* p = getenv("LD_PRELOAD");
-        if(strstr(p, "libtcmalloc_minimal.so.0"))
-            box64_tcmalloc_minimal = 1;
-        if(strstr(p, "libtcmalloc_minimal.so.4"))
-            box64_tcmalloc_minimal = 1;
-        if(strstr(p, "libtcmalloc_minimal_debug.so.4"))
-            box64_tcmalloc_minimal = 1;
-        if(strstr(p, "libasan.so"))
-            box64_tcmalloc_minimal = 1; // it seems Address Sanitizer doesn't handle dlsym'd malloc very well
-        AppendList(&ld_preload, p, 0);
-        if (ld_preload.size && BOX64ENV(log)) {
-            printf_log(LOG_INFO, "BOX64 trying to Preload ");
-            for (int i=0; i<ld_preload.size; ++i)
-                printf_log_prefix(0, LOG_INFO, "%s ", ld_preload.paths[i]);
-            printf_log_prefix(0, LOG_INFO, "\n");
-        }
-    }
     // print PATH and LD_LIB used
     PrintCollection(&my_context->box64_ld_lib, "Library search path");
     PrintCollection(&my_context->box64_path, "Binary search path");
@@ -1145,13 +1116,6 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         box64_guest_name = prog;
     else
         ++box64_guest_name;
-    if(box64_wine) {
-        #ifdef ANDROID
-            AddPath("libdl.so", &ld_preload, 0);
-        #else
-            AddPath("libdl.so.2", &ld_preload, 0);
-        #endif
-    }
     // special case for zoom
     if (strstr(box64_guest_name, "zoom") == box64_guest_name) {
         printf_log(LOG_INFO, "Zoom detected, Trying to use system libturbojpeg if possible\n");
@@ -1189,6 +1153,42 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     if (applied) {
         printf_log(LOG_INFO, "Applied settings from rcfile\n");
         displayMiscInfo();
+    }
+    path_collection_t ld_preload = {0};
+    if(BOX64ENV(ld_preload)) {
+        char* p = BOX64ENV(ld_preload);
+        ParseList(p, &ld_preload, 0);
+        if (ld_preload.size && BOX64ENV(log)) {
+            printf_log(LOG_INFO, "BOX64 trying to Preload ");
+            for (int i=0; i<ld_preload.size; ++i)
+                printf_log_prefix(0, LOG_INFO, "%s ", ld_preload.paths[i]);
+            printf_log_prefix(0, LOG_INFO, "\n");
+        }
+    }
+    if(getenv("LD_PRELOAD")) {
+        char* p = getenv("LD_PRELOAD");
+        if(strstr(p, "libtcmalloc_minimal.so.0"))
+            box64_tcmalloc_minimal = 1;
+        if(strstr(p, "libtcmalloc_minimal.so.4"))
+            box64_tcmalloc_minimal = 1;
+        if(strstr(p, "libtcmalloc_minimal_debug.so.4"))
+            box64_tcmalloc_minimal = 1;
+        if(strstr(p, "libasan.so"))
+            box64_tcmalloc_minimal = 1; // it seems Address Sanitizer doesn't handle dlsym'd malloc very well
+        AppendList(&ld_preload, p, 0);
+        if (ld_preload.size && BOX64ENV(log)) {
+            printf_log(LOG_INFO, "BOX64 trying to Preload ");
+            for (int i=0; i<ld_preload.size; ++i)
+                printf_log_prefix(0, LOG_INFO, "%s ", ld_preload.paths[i]);
+            printf_log_prefix(0, LOG_INFO, "\n");
+        }
+    }
+    if(box64_wine) {
+        #ifdef ANDROID
+            AddPath("libdl.so", &ld_preload, 0);
+        #else
+            AddPath("libdl.so.2", &ld_preload, 0);
+        #endif
     }
     if (BOX64ENV(ondemand_steamui) && (!strcmp(box64_guest_name, "steam") || !strcmp(box64_guest_name, "steamwebhelper")))
         StartOnDemandSteamUI();
