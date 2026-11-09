@@ -446,6 +446,9 @@ BOX64_DYNAREC_DIV0=1
 [trine3_linux_64bit]
 BOX64_DYNAREC_STRONGMEM=1
 
+[wemeetapp]
+BOX64_LD_PRELOAD=libwemeet_unlock_shim.so
+
 [weixin]
 BOX64_MALLOC_HACK=2
 BOX64_NOSANDBOX=1
