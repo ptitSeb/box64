@@ -760,6 +760,7 @@ Enable or disable EMM (i.e. MMX) trace output.
 Send all log and trace to a file instead of `stdout`.
 
  * XXXX: Send all log and trace to file XXXX.
+ * XXXX%name: Send all log and trace to file XXXX with executable name appended.
  * XXXX%pid: Send all log and trace to file XXXX with pid appended.
  * stderr: Send all log and trace to `stderr`. [Default]
  * stdout: Send all log and trace to `stdout`.
