@@ -254,6 +254,14 @@ static inline void sse_sync_all_cache_types(extcache_t* cache)
         sse_sync_cache_type(cache, i);
 }
 
+static inline void sse_restore_entry_ymm0(dynarec_rv64_t* dyn, extcache_t* cache, int ninst)
+{
+    cache->ymm0 = dyn->insts[ninst].ymm_pending;
+    for (int i = 0; i < 16; ++i)
+        if (cache->ssecache[i].v != -1)
+            cache->ssecache[i].ymm0 = (cache->ymm0 >> i) & 1;
+}
+
 void add_next(dynarec_rv64_t *dyn, uintptr_t addr);
 uintptr_t get_closest_next(dynarec_rv64_t *dyn, uintptr_t addr);
 void add_jump(dynarec_rv64_t *dyn, int ninst);

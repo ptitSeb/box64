@@ -395,6 +395,7 @@ int fpuCacheNeedsTransform(dynarec_rv64_t* dyn, int ninst)
     }
     extcache_t cache_i2 = dyn->insts[i2].e;
     extcacheUnwind(&cache_i2);
+    sse_restore_entry_ymm0(dyn, &cache_i2, i2);
 
     for (int i = 0; i < 24; ++i) {
         if (dyn->insts[ninst].e.extcache[i].v) { // there is something at ninst for i
@@ -473,8 +474,11 @@ void extcacheUnwind(extcache_t* cache)
     }
     // add/change bad regs
     for (int i = 0; i < 16; ++i) {
-        if (cache->olds[i].v)
+        if (cache->olds[i].v) {
             cache->extcache[i] = cache->olds[i];
+            // the undo log has been applied, don't reapply it on a second unwind
+            cache->olds[i].v = 0;
+        }
     }
 
     if (cache->stack_push) {
