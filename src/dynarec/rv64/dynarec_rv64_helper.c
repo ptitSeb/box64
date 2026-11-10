@@ -2677,6 +2677,7 @@ static void fpuCacheTransform(dynarec_rv64_t* dyn, int ninst, int s1, int s2, in
     }
     extcache_t cache_i2 = dyn->insts[i2].e;
     extcacheUnwind(&cache_i2);
+    sse_restore_entry_ymm0(dyn, &cache_i2, i2);
 
     if (!cache_i2.stack) {
         int purge = 1;
@@ -3095,6 +3096,8 @@ void fpu_propagate_stack(dynarec_rv64_t* dyn, int ninst)
     dyn->e.news = 0;
     dyn->e.stack_push = 0;
     dyn->e.swapped = 0;
+    for (int i = 0; i < 16; ++i)
+        dyn->e.olds[i].v = 0;
 }
 
 void avx_flush_upper_vector(dynarec_rv64_t* dyn, int ninst, int s1, int a, int reg, int next, int dead)
