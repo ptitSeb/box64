@@ -1456,9 +1456,10 @@ typedef struct compare_r_s {
     int       r;
 } compare_r_t;
 
-static int my32_compare_r_cb(void* a, void* b, compare_r_t* arg)
+static int my32_compare_r_cb(const void* a, const void* b, void* userdata)
 {
-    return (int)RunFunctionWithEmu(arg->emu, 0, arg->f, 2+arg->r, a, b, arg->data);
+    compare_r_t* arg = userdata;
+    return (int)RunFunctionWithEmu(arg->emu, 0, arg->f, 2+arg->r, (void*)a, (void*)b, arg->data);
 }
 
 #ifndef ANDROID
@@ -1466,13 +1467,13 @@ EXPORT void my32_qsort(x64emu_t* emu, void* base, size_t nmemb, size_t size, voi
 {
     compare_r_t args;
     args.emu = emu; args.f = (uintptr_t)fnc; args.r = 0; args.data = NULL;
-    qsort_r(base, nmemb, size, (__compar_d_fn_t)my32_compare_r_cb, &args);
+    qsort_r(base, nmemb, size, my32_compare_r_cb, &args);
 }
 EXPORT void my32_qsort_r(x64emu_t* emu, void* base, size_t nmemb, size_t size, void* fnc, void* data)
 {
     compare_r_t args;
     args.emu = emu; args.f = (uintptr_t)fnc; args.r = 1; args.data = data;
-    qsort_r(base, nmemb, size, (__compar_d_fn_t)my32_compare_r_cb, &args);
+    qsort_r(base, nmemb, size, my32_compare_r_cb, &args);
 }
 #endif
 
