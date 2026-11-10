@@ -286,11 +286,13 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             u8 = F8;
             int q3 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
             int q4 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-            int q2 = fpu_borrow_reg(dyn, ninst, x1, x2, 8);
-            int q5 = fpu_borrow_reg(dyn, ninst, x1, x2, 9);
-            int q6 = fpu_borrow_reg(dyn, ninst, x1, x2, 10);
-            int q7 = fpu_borrow_reg(dyn, ninst, x1, x2, 11);
-            int q8 = fpu_borrow_reg(dyn, ninst, x1, x2, 12);
+            int tmp[5];
+            fpu_borrow_regs(dyn, ninst, x1, x2, tmp, 5, 8);
+            int q2 = tmp[0];
+            int q5 = tmp[1];
+            int q6 = tmp[2];
+            int q7 = tmp[3];
+            int q8 = tmp[4];
 
             for (int pass = 0; pass < (vex.l ? 2 : 1); ++pass) {
                 vector_vsetvli(dyn, ninst, x1, VECTOR_SEW8, VECTOR_LMUL1, 2);
