@@ -69,7 +69,7 @@ typedef struct extcache_s {
     uint8_t             pushed;         // positive pushed value (to check for overflow)
     uint8_t             poped;          // positive poped value (to check for underflow)
     uint32_t            news;           // bitmask, wich neoncache are new for this opcode
-    ext_cache_t         olds[16];       // SSE caches descriptors changed or removed by this instruction
+    ext_cache_t         olds[24];       // cache descriptors changed or removed by this instruction
     // fpu cache
     int8_t              x87cache[8];    // cache status for the 8 x87 register behind the fpu stack
     int8_t              x87reg[8];      // reg used for x87cache entry
