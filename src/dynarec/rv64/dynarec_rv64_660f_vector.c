@@ -1155,10 +1155,12 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     {
                         int m3 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
                         int m4 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-                        int m5 = fpu_borrow_reg(dyn, ninst, x1, x2, 9);
-                        int m6 = fpu_borrow_reg(dyn, ninst, x1, x2, 10);
-                        int m7 = fpu_borrow_reg(dyn, ninst, x1, x2, 11);
-                        int m8 = fpu_borrow_reg(dyn, ninst, x1, x2, 12);
+                        int tmp[4];
+                        fpu_borrow_regs(dyn, ninst, x1, x2, tmp, 4, 9);
+                        int m5 = tmp[0];
+                        int m6 = tmp[1];
+                        int m7 = tmp[2];
+                        int m8 = tmp[3];
                         vector_vsetvli(dyn, ninst, x1, VECTOR_SEW8, VECTOR_LMUL1, 2);
                         VMV_V_V(m7, q0);
                         VMV_V_V(m8, q1);

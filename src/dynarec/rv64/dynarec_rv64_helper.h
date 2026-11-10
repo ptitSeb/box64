@@ -2044,6 +2044,7 @@
 #define mmx_get_reg_empty            STEPNAME(mmx_get_reg_empty)
 #define mmx_forget_reg               STEPNAME(mmx_forget_reg)
 #define fpu_borrow_reg               STEPNAME(fpu_borrow_reg)
+#define fpu_borrow_regs              STEPNAME(fpu_borrow_regs)
 #define mmx_flush_reg_preserve_vtype STEPNAME(mmx_flush_reg_preserve_vtype)
 #define sse_get_reg                  STEPNAME(sse_get_reg)
 #define sse_get_reg_empty            STEPNAME(sse_get_reg_empty)
@@ -2308,6 +2309,7 @@ int mmx_get_reg_empty_vector(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int
 // forget float register for a MMX reg, create the entry if needed
 void mmx_forget_reg(dynarec_rv64_t* dyn, int ninst, int s1, int a);
 int fpu_borrow_reg(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int reg);
+void fpu_borrow_regs(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int* regs, int count, int first);
 void mmx_flush_reg_preserve_vtype(dynarec_rv64_t* dyn, int ninst, int s1, int a);
 
 // SSE/SSE2 helpers

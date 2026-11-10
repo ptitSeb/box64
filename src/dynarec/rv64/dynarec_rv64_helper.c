@@ -1514,6 +1514,29 @@ int fpu_borrow_reg(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int reg)
     return reg;
 }
 
+// Borrow count scratch vector registers, preferring x87/MMX slots that do not hold a cached value.
+void fpu_borrow_regs(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int* regs, int count, int first)
+{
+    int used[16] = {0};
+    int n = 0, r;
+
+    for (r = 8; r < 16 && n < count; ++r)
+        if (!dyn->e.extcache[EXTIDX(r)].v) {
+            regs[n++] = r;
+            used[r] = 1;
+        }
+    for (; n < count; ++n) {
+        for (r = first; r < 16; ++r)
+            if (!used[r]) break;
+        if (r >= 16)
+            for (r = 8; r < 16; ++r)
+                if (!used[r]) break;
+        if (r >= 16) r = first + n;
+        regs[n] = fpu_borrow_reg(dyn, ninst, s1, s2, r);
+        used[r] = 1;
+    }
+}
+
 void mmx_flush_reg_preserve_vtype(dynarec_rv64_t* dyn, int ninst, int s1, int a)
 {
     if (dyn->e.mmxcache[a].v == -1)
