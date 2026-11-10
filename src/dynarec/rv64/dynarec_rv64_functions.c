@@ -433,7 +433,7 @@ void extcacheUnwind(extcache_t* cache)
 {
     if (!cache->swapped && !cache->news && !cache->stack_push && !cache->stack_pop) {
         int dirty = 0;
-        for (int i = 0; i < 16; ++i)
+        for (int i = 0; i < 24; ++i)
             if (cache->olds[i].v) {
                 dirty = 1;
                 break;
@@ -473,7 +473,7 @@ void extcacheUnwind(extcache_t* cache)
         cache->news = 0;
     }
     // add/change bad regs
-    for (int i = 0; i < 16; ++i) {
+    for (int i = 0; i < 24; ++i) {
         if (cache->olds[i].v) {
             cache->extcache[i] = cache->olds[i];
             // the undo log has been applied, don't reapply it on a second unwind

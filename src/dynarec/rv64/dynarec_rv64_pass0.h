@@ -76,7 +76,7 @@
     dyn->e.combined1 = dyn->e.combined2 = 0;                     \
     dyn->e.swapped = 0;                                          \
     dyn->e.barrier = 0;                                          \
-    for (int i = 0; i < 16; ++i)                                 \
+    for (int i = 0; i < 24; ++i)                                 \
         dyn->e.olds[i].v = 0;                                    \
     dyn->insts[ninst].f_entry = dyn->f;                          \
     dyn->insts[ninst].vector_sew_entry = dyn->vector_sew;        \

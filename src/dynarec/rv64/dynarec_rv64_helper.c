@@ -1537,6 +1537,15 @@ void fpu_borrow_regs(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int* regs, 
     }
 }
 
+static void mmx_save_old(dynarec_rv64_t* dyn, int idx)
+{
+    if (dyn->e.news & (1u << idx))
+        return;
+    if (dyn->e.olds[idx].v)
+        return;
+    dyn->e.olds[idx] = dyn->e.extcache[idx];
+}
+
 void mmx_flush_reg_preserve_vtype(dynarec_rv64_t* dyn, int ninst, int s1, int a)
 {
     if (dyn->e.mmxcache[a].v == -1)
@@ -1549,6 +1558,7 @@ void mmx_flush_reg_preserve_vtype(dynarec_rv64_t* dyn, int ninst, int s1, int a)
         vector_restore_vtype(dyn, ninst, s1, sew, vlmul, vl);
     }
     FSD(dyn->e.mmxcache[a].reg, xEmu, offsetof(x64emu_t, mmx[a]));
+    mmx_save_old(dyn, EXTIDX(dyn->e.mmxcache[a].reg));
     fpu_free_reg(dyn, dyn->e.mmxcache[a].reg);
     dyn->e.mmxcache[a].v = -1;
     return;
@@ -1559,6 +1569,7 @@ static void mmx_transfer_reg(dynarec_rv64_t* dyn, int ninst, int s1, int a)
     if (dyn->e.mmxcache[a].v == -1)
         return;
 
+    mmx_save_old(dyn, EXTIDX(dyn->e.mmxcache[a].reg));
     uint8_t sew, vlmul, vl;
     vector_save_vtype(dyn, &sew, &vlmul, &vl);
     vector_vsetvli(dyn, ninst, s1, VECTOR_SEW64, VECTOR_LMUL1, 1);
