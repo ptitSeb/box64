@@ -335,11 +335,36 @@ uintptr_t dynarec64_AVX_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t
             PUTGY_vector(v0, VECTOR_SEW32);
             break;
         case 0x58:
-            if (!BOX64ENV(dynarec_fastnan)) return 0;
             INST_NAME("VADDPS Gx, Vx, Ex");
             nextop = F8;
-            GETGY_empty_VYEY_vector(v0, q0, q1, VECTOR_SEW32);
+            if (BOX64ENV(dynarec_fastnan))
+                GETGY_empty_VYEY_vector(v0, q0, q1, VECTOR_SEW32);
+            else
+                GETGY_empty_VYEY_vector_safe(v0, q0, q1, VECTOR_SEW32);
             VFADD_VV(v0, q0, q1, VECTOR_UNMASKED);
+            if (!BOX64ENV(dynarec_fastnan)) {
+                q2 = fpu_get_scratch(dyn);
+                d0 = fpu_get_scratch(dyn);
+                d1 = fpu_get_scratch(dyn);
+                MOV32w(x4, 0x00400000);
+                VOR_VX(d0, q0, x4, VECTOR_UNMASKED);          // quiet(Vx)
+                VMFNE_VV(q2, q0, q0, VECTOR_UNMASKED);        // Vx is NaN
+                VMFNE_VV(d1, q1, q1, VECTOR_UNMASKED);        // Ex is NaN
+                VMAND_MM(VMASK, d1, d1);
+                VMERGE_VVM(v0, v0, q1);                       // Ex NaN, quieted below
+                VMAND_MM(VMASK, q2, q2);
+                VMERGE_VVM(v0, v0, d0);                       // Vx NaN wins
+                VMOR_MM(d1, q2, d1);                          // either input NaN
+                VMAND_MM(VMASK, d1, d1);
+                VOR_VX(v0, v0, x4, VECTOR_MASKED);            // quiet the Ex NaNs
+                VMFNE_VV(q2, v0, v0, VECTOR_UNMASKED);        // result is NaN
+                VMNAND_MM(d1, d1, d1);                        // no input was NaN
+                VMAND_MM(q2, q2, d1);                         // invalid operation
+                MOV32w(x4, 0xffc00000);
+                VMV_V_X(d0, x4);
+                VMAND_MM(VMASK, q2, q2);
+                VMERGE_VVM(v0, v0, d0);
+            }
             PUTGY_vector(v0, VECTOR_SEW32);
             break;
         case 0x59:
