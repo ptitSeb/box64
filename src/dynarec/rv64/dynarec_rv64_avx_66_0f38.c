@@ -1291,6 +1291,62 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             } else
                 YMM0(gd);
             break;
+        case 0x2C:
+            INST_NAME("VMASKMOVPS Gx, Vx, Ex");
+            nextop = F8;
+            if (MODREG) return 0;
+            addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, vex.l ? 28 : 12, 0);
+            GETVX();
+            GETVY();
+            GETGX();
+            GETGY();
+            for (int i = 0; i < 4; ++i) {
+                ADDI(x3, xZR, 0);
+                LW(x4, vback, vxoffset + 4 * i);
+                BGE(x4, xZR, 8);
+                LWU(x3, wback, fixedaddress + 4 * i);
+                SW(x3, gback, gdoffset + 4 * i);
+            }
+            if (vex.l) {
+                GETEY();
+                for (int i = 0; i < 4; ++i) {
+                    ADDI(x3, xZR, 0);
+                    LW(x4, vback, vyoffset + 4 * i);
+                    BGE(x4, xZR, 8);
+                    LWU(x3, wback, fixedaddress + 4 * i);
+                    SW(x3, gback, gyoffset + 4 * i);
+                }
+            } else
+                YMM0(gd);
+            break;
+        case 0x2D:
+            INST_NAME("VMASKMOVPD Gx, Vx, Ex");
+            nextop = F8;
+            if (MODREG) return 0;
+            addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, vex.l ? 24 : 8, 0);
+            GETVX();
+            GETVY();
+            GETGX();
+            GETGY();
+            for (int i = 0; i < 2; ++i) {
+                ADDI(x3, xZR, 0);
+                LD(x4, vback, vxoffset + 8 * i);
+                BGE(x4, xZR, 8);
+                LD(x3, wback, fixedaddress + 8 * i);
+                SD(x3, gback, gdoffset + 8 * i);
+            }
+            if (vex.l) {
+                GETEY();
+                for (int i = 0; i < 2; ++i) {
+                    ADDI(x3, xZR, 0);
+                    LD(x4, vback, vyoffset + 8 * i);
+                    BGE(x4, xZR, 8);
+                    LD(x3, wback, fixedaddress + 8 * i);
+                    SD(x3, gback, gyoffset + 8 * i);
+                }
+            } else
+                YMM0(gd);
+            break;
         case 0x2E:
             INST_NAME("VMASKMOVPS Ex, Vx, Gx");
             nextop = F8;

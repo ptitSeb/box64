@@ -1067,7 +1067,28 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0xAD:
             UP32_READ(xRSI);
             if (rex.rep) {
-                DEFAULT;
+                INST_NAME("REP LODSW");
+                UP32_READ(xRCX);
+                CBZ_NEXT(xRCX);
+                if (rex.is67 && !rex.is32bits) {
+                    ZEROUP(xRSI);
+                }
+                ANDI(x1, xFlags, 1 << F_DF);
+                BNEZ_MARK2(x1);
+                MARK; // Part with DF==0
+                LHU(x2, xRSI, 0);
+                INSHz(xRAX, x2, x3, x4, 1, 0);
+                ADDI(xRSI, xRSI, 2);
+                SUBI(xRCX, xRCX, 1);
+                BNEZ_MARK(xRCX);
+                B_MARKLOCK_nocond;
+                MARK2; // Part with DF==1
+                LHU(x2, xRSI, 0);
+                INSHz(xRAX, x2, x3, x4, 1, 0);
+                SUBI(xRSI, xRSI, 2);
+                SUBI(xRCX, xRCX, 1);
+                BNEZ_MARK2(xRCX);
+                MARKLOCK;
             } else {
                 INST_NAME("LODSW");
                 GETDIR(x1, x2, 2);

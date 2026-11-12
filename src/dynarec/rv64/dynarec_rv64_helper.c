@@ -1829,9 +1829,9 @@ int sse_get_reg_size_changed(dynarec_rv64_t* dyn, int ninst, int s1, int a, int 
 // forget ext register for a SSE reg, does nothing if the regs is not loaded
 void sse_forget_reg(dynarec_rv64_t* dyn, int ninst, int s1, int a)
 {
+    sse_mark_used(dyn, ninst, a);
     if (dyn->e.ssecache[a].v == -1)
         return;
-    sse_mark_used(dyn, ninst, a);
     if (dyn->e.ssecache[a].vector == 1)
         return sse_forget_reg_vector(dyn, ninst, s1, a);
     sse_save_entry_cache(dyn, a);

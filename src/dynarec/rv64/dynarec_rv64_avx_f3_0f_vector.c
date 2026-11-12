@@ -334,11 +334,36 @@ uintptr_t dynarec64_AVX_F3_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             }
             break;
         case 0x51:
-            if (!BOX64ENV(dynarec_fastnan)) return 0;
             INST_NAME("VSQRTSS Gx, Vx, Ex");
             nextop = F8;
             AVX_SCALAR_OP_PROLOG(VECTOR_SEW32);
-            VFSQRT_V(v0, q1, VECTOR_UNMASKED);
+            if (BOX64ENV(dynarec_fastnan)) {
+                VFSQRT_V(v0, q1, VECTOR_UNMASKED);
+            } else {
+                vector_vsetvli(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL1, 1);
+                v1 = fpu_get_scratch(dyn);
+                d0 = fpu_get_scratch(dyn);
+                VID_V(d0, VECTOR_UNMASKED);
+                VMSEQ_VX(v1, d0, xZR, VECTOR_UNMASKED);
+                v2 = fpu_get_scratch(dyn);
+                q2 = fpu_get_scratch(dyn);
+                VMFNE_VV(v2, q1, q1, VECTOR_UNMASKED);
+                VMAND_MM(v2, v2, v1);
+                MOV32w(x4, 0x00400000);
+                VOR_VX(q2, q1, x4, VECTOR_UNMASKED);
+                VMAND_MM(VMASK, v1, v1);
+                VFSQRT_V(v0, q1, VECTOR_MASKED);
+                VMAND_MM(VMASK, v2, v2);
+                VMERGE_VVM(v0, v0, q2);
+                VMFNE_VV(d0, v0, v0, VECTOR_UNMASKED);
+                VMNAND_MM(d1, v2, v2);
+                VMAND_MM(d0, d0, d1);
+                VMAND_MM(d0, d0, v1);
+                MOV32w(x4, 0xffc00000);
+                VMV_V_X(q2, x4);
+                VMAND_MM(VMASK, d0, d0);
+                VMERGE_VVM(v0, v0, q2);
+            }
             AVX_SCALAR_OP_STORE(VECTOR_SEW32);
             break;
         case 0x58:
@@ -365,7 +390,7 @@ uintptr_t dynarec64_AVX_F3_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             GETGY_empty_vector(v0);
             v1 = fpu_get_scratch(dyn);
             VFCVT_RTZ_X_F_V(v1, q1, VECTOR_UNMASKED);
-            // out of range (>= 2^31) gives 0x80000000
+            // out of range (>= 2^31 or < -2^31) gives 0x80000000
             q2 = fpu_get_scratch(dyn);
             MOV32w(x4, 0x80000000);
             VMV_V_X(q2, x4);
@@ -373,6 +398,10 @@ uintptr_t dynarec64_AVX_F3_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             MOV32w(x4, 0x4f000000); // 2^31.0f
             FMVWX(d0, x4);
             VMFGE_VF(VMASK, q1, d0, VECTOR_UNMASKED);
+            VMERGE_VVM(v1, v1, q2);
+            MOV32w(x4, 0xcf000000); // -2^31.0f
+            FMVWX(d0, x4);
+            VMFLE_VF(VMASK, q1, d0, VECTOR_UNMASKED);
             VMERGE_VVM(v1, v1, q2);
             // NaN gives 0x80000000 too
             VMFEQ_VV(VMASK, q1, q1, VECTOR_UNMASKED);

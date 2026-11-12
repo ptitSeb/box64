@@ -937,6 +937,210 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             }
             PUTGY_vector(v0, VECTOR_SEW8);
             break;
+        case 0x60:
+            INST_NAME("VPCMPESTRM Gx, Ex, Ib");
+            nextop = F8;
+            if (vex.l) {
+                DEFAULT_VECTOR;
+            }
+            SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
+            gd = ((nextop & 0x38) >> 3) + (rex.r << 3);
+            if (ninst >= 0 && ninst < dyn->size) dyn->insts[ninst].vec_read |= 1u << gd;
+            sse_forget_reg(dyn, ninst, x6, gd);
+            ADDI(x3, xEmu, offsetof(x64emu_t, xmm[gd]));
+            if (MODREG) {
+                ed = (nextop & 7) + (rex.b << 3);
+                if (ninst >= 0 && ninst < dyn->size) dyn->insts[ninst].vec_read |= 1u << ed;
+                sse_forget_reg(dyn, ninst, x6, ed);
+                ADDI(x1, xEmu, offsetof(x64emu_t, xmm[ed]));
+                ed = x1;
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 1);
+            }
+            MV(x2, xRDX);
+            MV(x4, xRAX);
+            u8 = F8;
+            ADDI(x5, xZR, u8);
+            ADDI(x7, xZR, rex.w);
+            CALL6(const_sse42_compare_string_explicit_len, x1, ed, x2, x3, x4, x5, x7);
+            ZEROUP(x1);
+            sse_forget_reg(dyn, ninst, x3, 0);
+            if (u8 & 0b1000000) {
+                if (u8 & 1) {
+                    for (int i = 0; i < 8; ++i) {
+                        BEXTI(x2, x1, i);
+                        SUB(x2, xZR, x2);
+                        SH(x2, xEmu, offsetof(x64emu_t, xmm[0]) + 2 * i);
+                    }
+                } else {
+                    for (int i = 0; i < 16; ++i) {
+                        BEXTI(x2, x1, i);
+                        SUB(x2, xZR, x2);
+                        SB(x2, xEmu, offsetof(x64emu_t, xmm[0]) + i);
+                    }
+                }
+            } else {
+                SD(xZR, xEmu, offsetof(x64emu_t, xmm[0]));
+                SD(xZR, xEmu, offsetof(x64emu_t, xmm[0]) + 8);
+                SH(x1, xEmu, offsetof(x64emu_t, xmm[0]));
+            }
+            YMM0(0);
+            break;
+        case 0x61:
+            INST_NAME("VPCMPESTRI Gx, Ex, Ib");
+            MARKREGs(xRAX);
+            MARKREGs(xRDX);
+            nextop = F8;
+            if (vex.l) {
+                DEFAULT_VECTOR;
+            }
+            SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
+            gd = ((nextop & 0x38) >> 3) + (rex.r << 3);
+            if (ninst >= 0 && ninst < dyn->size) dyn->insts[ninst].vec_read |= 1u << gd;
+            sse_forget_reg(dyn, ninst, x6, gd);
+            ADDI(x3, xEmu, offsetof(x64emu_t, xmm[gd]));
+            if (MODREG) {
+                ed = (nextop & 7) + (rex.b << 3);
+                if (ninst >= 0 && ninst < dyn->size) dyn->insts[ninst].vec_read |= 1u << ed;
+                sse_forget_reg(dyn, ninst, x6, ed);
+                ADDI(x1, xEmu, offsetof(x64emu_t, xmm[ed]));
+                ed = x1;
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 1);
+            }
+            MV(x2, xRDX);
+            MV(x4, xRAX);
+            u8 = F8;
+            ADDI(x5, xZR, u8);
+            ADDI(x7, xZR, rex.w);
+            CALL6(const_sse42_compare_string_explicit_len, x1, ed, x2, x3, x4, x5, x7);
+            ZEROUP(x1);
+            BNEZ_MARK(x1);
+            MOV32w(xRCX, (u8 & 1) ? 8 : 16);
+            B_NEXT_nocond;
+            MARK;
+            if (u8 & 0b1000000) {
+                CLZxw(xRCX, x1, 0, x2, x3, x4);
+                ADDI(x2, xZR, 31);
+                SUB(xRCX, x2, xRCX);
+            } else {
+                CTZxw(xRCX, x1, 0, x2, x3);
+            }
+            break;
+        case 0x62:
+            INST_NAME("VPCMPISTRM Gx, Ex, Ib");
+            nextop = F8;
+            if (vex.l) {
+                DEFAULT_VECTOR;
+            }
+            SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
+            gd = ((nextop & 0x38) >> 3) + (rex.r << 3);
+            if (ninst >= 0 && ninst < dyn->size) dyn->insts[ninst].vec_read |= 1u << gd;
+            sse_forget_reg(dyn, ninst, x6, gd);
+            ADDI(x2, xEmu, offsetof(x64emu_t, xmm[gd]));
+            if (MODREG) {
+                ed = (nextop & 7) + (rex.b << 3);
+                if (ninst >= 0 && ninst < dyn->size) dyn->insts[ninst].vec_read |= 1u << ed;
+                sse_forget_reg(dyn, ninst, x6, ed);
+                ADDI(x1, xEmu, offsetof(x64emu_t, xmm[ed]));
+                ed = x1;
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, x5, &fixedaddress, rex, NULL, 0, 1);
+            }
+            u8 = F8;
+            MOV32w(x3, u8);
+            CALL4(const_sse42_compare_string_implicit_len, x1, ed, x2, x3, 0);
+            ZEROUP(x1);
+            sse_forget_reg(dyn, ninst, x6, 0);
+            if (u8 & 0b1000000) {
+                switch (u8 & 1) {
+                    case 0b00:
+                        for (int i = 0; i < 16; ++i) {
+                            BEXTI(x3, x1, i);
+                            NEG(x3, x3);
+                            SB(x3, xEmu, offsetof(x64emu_t, xmm[0]) + i);
+                        }
+                        break;
+                    case 0b01:
+                        for (int i = 0; i < 8; ++i) {
+                            BEXTI(x3, x1, i);
+                            NEG(x3, x3);
+                            SH(x3, xEmu, offsetof(x64emu_t, xmm[0]) + i * 2);
+                        }
+                        break;
+                }
+            } else {
+                SW(x1, xEmu, offsetof(x64emu_t, xmm[0]));
+                SW(xZR, xEmu, offsetof(x64emu_t, xmm[0]) + 4);
+                SD(xZR, xEmu, offsetof(x64emu_t, xmm[0]) + 8);
+            }
+            YMM0(0);
+            break;
+        case 0x63:
+            INST_NAME("VPCMPISTRI Gx, Ex, Ib");
+            MARKREGs(xRAX);
+            MARKREGs(xRDX);
+            nextop = F8;
+            if (vex.l) {
+                DEFAULT_VECTOR;
+            }
+            SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
+            gd = ((nextop & 0x38) >> 3) + (rex.r << 3);
+            if (ninst >= 0 && ninst < dyn->size) dyn->insts[ninst].vec_read |= 1u << gd;
+            sse_forget_reg(dyn, ninst, x6, gd);
+            ADDI(x2, xEmu, offsetof(x64emu_t, xmm[gd]));
+            if (MODREG) {
+                ed = (nextop & 7) + (rex.b << 3);
+                if (ninst >= 0 && ninst < dyn->size) dyn->insts[ninst].vec_read |= 1u << ed;
+                sse_forget_reg(dyn, ninst, x6, ed);
+                ADDI(x1, xEmu, offsetof(x64emu_t, xmm[ed]));
+                ed = x1;
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x1, x5, &fixedaddress, rex, NULL, 0, 1);
+            }
+            u8 = F8;
+            MOV32w(x3, u8);
+            CALL4(const_sse42_compare_string_implicit_len, x1, ed, x2, x3, 0);
+            ZEROUP(x1);
+            BNEZ_MARK(x1);
+            MOV32w(xRCX, (u8 & 1) ? 8 : 16);
+            B_NEXT_nocond;
+            MARK;
+            if (u8 & 0b1000000) {
+                CLZxw(xRCX, x1, 0, x2, x3, x4);
+                ADDI(x2, xZR, 31);
+                SUB(xRCX, x2, xRCX);
+            } else {
+                CTZxw(xRCX, x1, 0, x2, x3);
+            }
+            break;
+        case 0xDF:
+            INST_NAME("VAESKEYGENASSIST Gx, Ex, Ib");
+            nextop = F8;
+            GETG;
+            sse_forget_reg(dyn, ninst, x6, gd);
+            MOV32w(x1, gd);
+            if (MODREG) {
+                ed = (nextop & 7) + (rex.b << 3);
+                sse_forget_reg(dyn, ninst, x6, ed);
+                MOV32w(x2, ed);
+                MOV32w(x3, 0);
+            } else {
+                MOV32w(x2, 0);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x3, x5, &fixedaddress, rex, NULL, 0, 1);
+                if (ed != x3) {
+                    MV(x3, ed);
+                }
+            }
+            u8 = F8;
+            MOV32w(x4, u8);
+            CALL4(const_native_aeskeygenassist, -1, x1, x2, x3, x4);
+            YMM0(gd);
+            break;
         default:
             DEFAULT_VECTOR;
     }

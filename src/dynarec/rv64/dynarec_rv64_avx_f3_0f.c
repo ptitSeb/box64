@@ -363,42 +363,60 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
         case 0x5B:
             INST_NAME("VCVTTPS2DQ Gx, Ex");
             nextop = F8;
-            GETEX(x2, 0, vex.l ? 28 : 12);
             GETGX();
             GETGY();
+            GETEX(x2, 0, vex.l ? 28 : 12);
             v0 = fpu_get_scratch(dyn);
-            for (int i = 0; i < 4; ++i) {
-                if (!BOX64ENV(dynarec_fastround)) {
-                    FSFLAGSI(0);
-                }
-                FLW(v0, wback, fixedaddress + i * 4);
-                FCVTWS(x3, v0, RD_RTZ);
-                if (!BOX64ENV(dynarec_fastround)) {
-                    FRFLAGS(x5);
-                    ANDI(x5, x5, (1 << FR_NV) | (1 << FR_OF));
-                    BEQZ(x5, 4 + 4);
-                    MOV64x(x3, (int64_t)INT32_MIN);
-                }
-                SW(x3, gback, gdoffset + i * 4);
-            }
-            if (vex.l) {
-                GETEY();
+            if (BOX64ENV(dynarec_fastround)) {
                 for (int i = 0; i < 4; ++i) {
-                    if (!BOX64ENV(dynarec_fastround)) {
-                        FSFLAGSI(0);
-                    }
                     FLW(v0, wback, fixedaddress + i * 4);
-                    FCVTWS(x3, v0, RD_RTZ);
-                    if (!BOX64ENV(dynarec_fastround)) {
-                        FRFLAGS(x5);
-                        ANDI(x5, x5, (1 << FR_NV) | (1 << FR_OF));
-                        BEQZ(x5, 4 + 4);
-                        MOV64x(x3, (int64_t)INT32_MIN);
-                    }
-                    SW(x3, gback, gyoffset + i * 4);
+                    FCVTWS(x1, v0, RD_RTZ);
+                    SW(x1, gback, gdoffset + i * 4);
                 }
-            } else
-                YMM0(gd);
+                if (vex.l) {
+                    GETEY();
+                    for (int i = 0; i < 4; ++i) {
+                        FLW(v0, wback, fixedaddress + i * 4);
+                        FCVTWS(x1, v0, RD_RTZ);
+                        SW(x1, gback, gyoffset + i * 4);
+                    }
+                } else
+                    YMM0(gd);
+            } else {
+                MOV32w(x6, 0x80000000); // indefinite integer result
+                MV(x4, xZR);
+                for (int i = 0; i < 4; ++i) {
+                    FSFLAGSI(0); // reset all bits
+                    FLW(v0, wback, fixedaddress + i * 4);
+                    FCVTWS(x1, v0, RD_RTZ);
+                    FRFLAGS(x5); // get back FPSR to check the invalid bit
+                    ANDI(x5, x5, (1 << FR_NV) | (1 << FR_OF));
+                    SNEZ(x5, x5);
+                    OR(x4, x4, x5);
+                    BEQZ(x5, 4 + 4); // skip the MV
+                    MV(x1, x6);
+                    SW(x1, gback, gdoffset + i * 4);
+                }
+                if (vex.l) {
+                    GETEY();
+                    for (int i = 0; i < 4; ++i) {
+                        FSFLAGSI(0); // reset all bits
+                        FLW(v0, wback, fixedaddress + i * 4);
+                        FCVTWS(x1, v0, RD_RTZ);
+                        FRFLAGS(x5); // get back FPSR to check the invalid bit
+                        ANDI(x5, x5, (1 << FR_NV) | (1 << FR_OF));
+                        SNEZ(x5, x5);
+                        OR(x4, x4, x5);
+                        BEQZ(x5, 4 + 4); // skip the MV
+                        MV(x1, x6);
+                        SW(x1, gback, gyoffset + i * 4);
+                    }
+                } else
+                    YMM0(gd);
+                BEQZ_MARK(x4);
+                emit_mxcsr_raise_invalid(x5);
+                MARK;
+            }
             break;
         case 0x5C:
             INST_NAME("VSUBSS Gx, Vx, Ex");
