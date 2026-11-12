@@ -1611,8 +1611,7 @@ void addSSEPreload(dynarec_arm_t* dyn, int ninst, int i2, uint32_t preload)
         }
         if(preload&(1<<(16+i))) {
             int v = ymm_preload_reg(dyn, i2?(i2-1):0, ninst, i);
-            if(v!=-1) {
-                ymm_mask |= 1<<i;
+            if (v != -1) {
                 // propagate until not needed
                 int i3 = i2;
                 while(i3<ninst) {
@@ -1621,6 +1620,7 @@ void addSSEPreload(dynarec_arm_t* dyn, int ninst, int i2, uint32_t preload)
                     else {
                         dyn->insts[i3].n.neoncache[v].t = NEON_CACHE_YMMR;
                         dyn->insts[i3].n.neoncache[v].n = i;
+                        if (i3 == i2) ymm_mask |= 1 << i;
                         ++i3;
                     }
                 }
