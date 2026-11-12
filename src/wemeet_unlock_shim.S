@@ -8,7 +8,7 @@
 # Preserve the two guest registers around the real call.
 #
 # Build:
-#   x86_64-linux-gnu-gcc -shared -nostdlib -fPIC -Wl,-soname,libwemeet_unlock_shim.so -o libwemeet_unlock_shim.so wemeet_unlock_shim.S
+#   x86_64-linux-gnu-gcc -shared -nostdlib -fPIC -Wl,-soname,libwemeet_unlock_shim.so.1 -o libwemeet_unlock_shim.so.1 wemeet_unlock_shim.S
 #
 # The [wemeetapp] profile in system/box64.box64rc loads it through BOX64_LD_PRELOAD.
 
