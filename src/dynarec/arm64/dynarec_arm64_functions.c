@@ -1590,6 +1590,8 @@ void addSSEPreload(dynarec_arm_t* dyn, int ninst, int i2, uint32_t preload)
             has_host_call = 1;
     }
     uint16_t ymm_mask = 0;
+    uint16_t ymm_preload = 0;
+    uint16_t xmm_mask = 0;
     for(int i=0; i<16; ++i) {
         if(preload&(1<<i)) {
             int v = xmm_preload_reg(dyn, i2?(i2-1):0, ninst, i);
@@ -1603,14 +1605,15 @@ void addSSEPreload(dynarec_arm_t* dyn, int ninst, int i2, uint32_t preload)
                     dyn->insts[i3].n.ssecache[i].reg = v;
                     dyn->insts[i3].n.neoncache[v].t = NEON_CACHE_XMMR;
                     dyn->insts[i3].n.neoncache[v].n = i;
+                    if (i3 == i2) xmm_mask |= 1 << i;
                     ++i3;
                 }
             }
         }
         if(preload&(1<<(16+i))) {
             int v = ymm_preload_reg(dyn, i2?(i2-1):0, ninst, i);
-            if(v!=-1) {
-                ymm_mask |= 1<<i;
+            if (v != -1) {
+                ymm_preload |= 1 << i;
                 // propagate until not needed
                 int i3 = i2;
                 while(i3<ninst) {
@@ -1619,16 +1622,17 @@ void addSSEPreload(dynarec_arm_t* dyn, int ninst, int i2, uint32_t preload)
                     else {
                         dyn->insts[i3].n.neoncache[v].t = NEON_CACHE_YMMR;
                         dyn->insts[i3].n.neoncache[v].n = i;
+                        if (i3 == i2) ymm_mask |= 1 << i;
                         ++i3;
                     }
                 }
             }
         }
     }
-    preload = (preload&0xffff) | (ymm_mask<<16);    // update ymm_mask
+    preload = (preload & 0xffff) | (ymm_preload << 16); // update ymm_mask
     dyn->insts[i2].preload_xmmymm = preload;
     dyn->insts[i2].preload_from = ninst;
     dyn->insts[i2].preload_host_call = has_host_call;
-    dyn->insts[i2].n.xmm_unneeded |= preload&0xffff;
+    dyn->insts[i2].n.xmm_unneeded |= xmm_mask;
     dyn->insts[i2].n.ymm_unneeded |= ymm_mask;
 }

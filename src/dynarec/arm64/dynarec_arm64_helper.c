@@ -2815,7 +2815,7 @@ int fpu_get_reg_ymm(dynarec_arm_t* dyn, int ninst, int t, int ymm, int k1, int k
         if(!dyn->n.fpuused[i+j]) {
             // should a test be done to check if ymm is already in the purge list?
             if(!is_ymm_to_keep(dyn, i+j, k1, k2, k3) && (dyn->n.neoncache[i+j].t==NEON_CACHE_YMMR)) {
-                dyn->n.neoncache[i+j].v = 0;
+                fpu_free_reg(dyn, i+j);
                 int ret = internal_mark_ymm(dyn, t, ymm, i+j);
                 if(ret>=0) return ret;
             }
@@ -2824,7 +2824,7 @@ int fpu_get_reg_ymm(dynarec_arm_t* dyn, int ninst, int t, int ymm, int k1, int k
     i = SCRATCH0;
     for(int j=dyn->n.fpu_scratch; j<8; ++j) {
         if(!is_ymm_to_keep(dyn, i+j, k1, k2, k3) && (dyn->n.neoncache[i+j].t==NEON_CACHE_YMMR)) {
-            dyn->n.neoncache[i+j].v = 0;
+            fpu_free_reg(dyn, i+j);
             int ret = internal_mark_ymm(dyn, t, ymm, i+j);
             if(ret>=0) return ret;
         }
@@ -2836,7 +2836,7 @@ int fpu_get_reg_ymm(dynarec_arm_t* dyn, int ninst, int t, int ymm, int k1, int k
                 // Save the reg and recycle it
                 dyn->n.ymm_used|=(1<<dyn->n.neoncache[i+j].n);
                 VSTR128_U12(i+j, xEmu, offsetof(x64emu_t, ymm[dyn->n.neoncache[i+j].n]));
-                dyn->n.neoncache[i+j].v = 0;
+                fpu_free_reg(dyn, i+j);
                 int ret = internal_mark_ymm(dyn, t, ymm, i+j);
                 if(ret>=0) return ret;
             }
@@ -2849,7 +2849,7 @@ int fpu_get_reg_ymm(dynarec_arm_t* dyn, int ninst, int t, int ymm, int k1, int k
             if((dyn->n.neoncache[i+j].t==NEON_CACHE_YMMW) && !is_ymm_to_keep(dyn, i+j, k1, k2, k3)) {
                 dyn->n.ymm_used|=(1<<dyn->n.neoncache[i+j].n);
                 VSTR128_U12(i+j, xEmu, offsetof(x64emu_t, ymm[dyn->n.neoncache[i+j].n]));
-                dyn->n.neoncache[i+j].v = 0;
+                fpu_free_reg(dyn, i+j);
                 int ret = internal_mark_ymm(dyn, t, ymm, i+j);
                 if(ret>=0) return ret;
             }
