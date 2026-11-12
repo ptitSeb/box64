@@ -42,7 +42,7 @@
 typedef void (*vFppp_t)(void*, void*, void*);
 typedef void (*vFpi_t)(void*, int);
 typedef int  (*iFv_t)(void);
-typedef int  (*iFLi_t)(unsigned long, int);
+typedef int  (*iFLi_t)(pthread_t, int);
 //starting with glibc 2.34+, those 2 functions are in libc.so as versioned symbol only
 // So use dlsym to get the symbol unversioned, as simple link will not work.
 static vFppp_t real_pthread_cleanup_push_defer = NULL;
@@ -692,8 +692,8 @@ EXPORT int my32_pthread_attr_init(x64emu_t* emu, void* attr)
 EXPORT int my32_pthread_getattr_np(x64emu_t* emu, uintptr_t th, void* attr)
 {
     (void)emu;
-    int ret = pthread_getattr_np(th, get_attr(attr));
-    if(!ret && th==pthread_self()) {
+    int ret = pthread_getattr_np((pthread_t) th, get_attr(attr));
+    if(!ret && (pthread_t) th == pthread_self()) {
         if(!emu->context->stacksizes) {
             emu->context->stacksizes = kh_init(threadstack);
         }

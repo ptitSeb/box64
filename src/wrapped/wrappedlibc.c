@@ -1896,21 +1896,22 @@ typedef struct compare_r_s {
     int       r;
 } compare_r_t;
 
-static int my_compare_r_cb(void* a, void* b, compare_r_t* arg)
+static int my_compare_r_cb(const void* a, const void* b, void* userdata)
 {
-    return (int)RunFunctionWithEmu(arg->emu, 0, arg->f, 2+arg->r, a, b, arg->data);
+    compare_r_t* arg = userdata;
+    return (int)RunFunctionWithEmu(arg->emu, 0, arg->f, 2+arg->r, (void*)a, (void*)b, arg->data);
 }
 EXPORT void my_qsort(x64emu_t* emu, void* base, size_t nmemb, size_t size, void* fnc)
 {
     compare_r_t args;
     args.emu = emu; args.f = (uintptr_t)fnc; args.r = 0; args.data = NULL;
-    qsort_r(base, nmemb, size, (__compar_d_fn_t)my_compare_r_cb, &args);
+    qsort_r(base, nmemb, size, my_compare_r_cb, &args);
 }
 EXPORT void my_qsort_r(x64emu_t* emu, void* base, size_t nmemb, size_t size, void* fnc, void* data)
 {
     compare_r_t args;
     args.emu = emu; args.f = (uintptr_t)fnc; args.r = 1; args.data = data;
-    qsort_r(base, nmemb, size, (__compar_d_fn_t)my_compare_r_cb, &args);
+    qsort_r(base, nmemb, size, my_compare_r_cb, &args);
 }
 EXPORT void* my_bsearch(x64emu_t* emu, void* key, void* base, size_t nmemb, size_t size, void* fnc)
 {
@@ -4849,7 +4850,7 @@ EXPORT int my_stime(x64emu_t* emu, const time_t *t)
 }
 
 int GetTID();
-#ifdef ANDROID
+#if defined(ANDROID) || ! defined(__GLIBC__)
 void updateGlibcTidCache() {}
 #else
 struct glibc_pthread {
