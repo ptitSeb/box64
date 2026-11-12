@@ -1590,6 +1590,7 @@ void addSSEPreload(dynarec_arm_t* dyn, int ninst, int i2, uint32_t preload)
             has_host_call = 1;
     }
     uint16_t ymm_mask = 0;
+    uint16_t ymm_preload = 0;
     uint16_t xmm_mask = 0;
     for(int i=0; i<16; ++i) {
         if(preload&(1<<i)) {
@@ -1612,6 +1613,7 @@ void addSSEPreload(dynarec_arm_t* dyn, int ninst, int i2, uint32_t preload)
         if(preload&(1<<(16+i))) {
             int v = ymm_preload_reg(dyn, i2?(i2-1):0, ninst, i);
             if (v != -1) {
+                ymm_preload |= 1 << i;
                 // propagate until not needed
                 int i3 = i2;
                 while(i3<ninst) {
@@ -1627,7 +1629,7 @@ void addSSEPreload(dynarec_arm_t* dyn, int ninst, int i2, uint32_t preload)
             }
         }
     }
-    preload = (xmm_mask & 0xffff) | (ymm_mask << 16); // update masks
+    preload = (preload & 0xffff) | (ymm_preload << 16); // update ymm_mask
     dyn->insts[i2].preload_xmmymm = preload;
     dyn->insts[i2].preload_from = ninst;
     dyn->insts[i2].preload_host_call = has_host_call;
