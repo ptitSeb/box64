@@ -1459,6 +1459,17 @@ static void mmx_reflectcache(dynarec_la64_t* dyn, int ninst, int s1)
 }
 
 // SSE / SSE2 helpers
+
+static void sse_save_entry_cache(dynarec_la64_t* dyn, int a)
+{
+    if (a < 0 || a >= 16) return;
+    int slot = dyn->lsx.avxcache[a].v != -1 ? dyn->lsx.avxcache[a].reg : (dyn->lsx.ssecache[a].v != -1 ? dyn->lsx.ssecache[a].reg : -1);
+    if (slot < 0 || slot >= 24) return;
+    if (dyn->lsx.olds[slot].v) return;
+    if (dyn->lsx.news & (1u << slot)) return;
+    dyn->lsx.olds[slot] = dyn->lsx.lsxcache[slot];
+}
+
 void sse_merge_all(dynarec_la64_t* dyn, int ninst)
 {
     for (int i = 0; i < 16; ++i)
@@ -1469,6 +1480,7 @@ void sse_merge_all(dynarec_la64_t* dyn, int ninst)
 int sse_get_reg(dynarec_la64_t* dyn, int ninst, int s1, int a, int forwrite)
 {
     dyn->lsx.xmm_used |= 1 << a;
+    sse_save_entry_cache(dyn, a);
     if (dyn->lsx.ssecache[a].v != -1) {
         xmm_scalar_merge(dyn, ninst, a);
         if (forwrite) {
@@ -1490,6 +1502,7 @@ int sse_get_reg_scalar(dynarec_la64_t* dyn, int ninst, int s1, int a, int forwri
 {
     MAYUSE(forwrite);
     dyn->lsx.xmm_used |= 1 << a;
+    sse_save_entry_cache(dyn, a);
     if (dyn->lsx.scalarcache[a] != -1) {
         int reg = dyn->lsx.scalarcache[a];
         if (dyn->lsx.lsxcache[reg].t == (kind == XMM_SCALAR_SS ? LSX_CACHE_XMM_S : LSX_CACHE_XMM_D)) return reg;
@@ -1515,6 +1528,7 @@ int sse_get_reg_scalar(dynarec_la64_t* dyn, int ninst, int s1, int a, int forwri
 int sse_get_reg_empty(dynarec_la64_t* dyn, int ninst, int s1, int a)
 {
     dyn->lsx.xmm_used |= 1 << a;
+    sse_save_entry_cache(dyn, a);
     if (dyn->lsx.ssecache[a].v != -1) {
         xmm_scalar_discard(dyn, a);
         dyn->lsx.ssecache[a].write = 1;
@@ -1534,6 +1548,7 @@ int sse_get_reg_empty(dynarec_la64_t* dyn, int ninst, int s1, int a)
 void sse_forget_reg(dynarec_la64_t* dyn, int ninst, int a)
 {
     dyn->lsx.xmm_used |= 1 << a;
+    sse_save_entry_cache(dyn, a);
     if (dyn->lsx.ssecache[a].v == -1)
         return;
     xmm_scalar_merge(dyn, ninst, a);
@@ -1631,6 +1646,7 @@ static void sse_reflectcache(dynarec_la64_t* dyn, int ninst, int s1)
 int avx_get_reg(dynarec_la64_t* dyn, int ninst, int s1, int a, int forwrite, int width)
 {
     dyn->lsx.ymm_used |= 1 << a;
+    sse_save_entry_cache(dyn, a);
     if (width == LSX_AVX_WIDTH_256) {
         ymm_live_read(dyn, ninst, a);
         if (forwrite) ymm_live_write(dyn, ninst, a);
@@ -1671,6 +1687,7 @@ int avx_get_reg(dynarec_la64_t* dyn, int ninst, int s1, int a, int forwrite, int
 int avx_get_reg_empty(dynarec_la64_t* dyn, int ninst, int s1, int a, int width)
 {
     dyn->lsx.ymm_used |= 1 << a;
+    sse_save_entry_cache(dyn, a);
     if (width == LSX_AVX_WIDTH_128)
         ymm_live_zero(dyn, ninst, a);
     else
@@ -1696,6 +1713,7 @@ int avx_get_reg_empty(dynarec_la64_t* dyn, int ninst, int s1, int a, int width)
 void avx_reflect_reg_upper128(dynarec_la64_t* dyn, int ninst, int a, int forwrite)
 {
     dyn->lsx.ymm_used |= 1 << a;
+    sse_save_entry_cache(dyn, a);
     if (dyn->lsx.avxcache[a].v == -1 || forwrite == 0)
         return;
     if (dyn->lsx.lsxcache[dyn->lsx.avxcache[a].reg].t == LSX_CACHE_YMMW) {
@@ -1713,6 +1731,7 @@ void avx_reflect_reg_upper128(dynarec_la64_t* dyn, int ninst, int a, int forwrit
 void avx_forget_reg(dynarec_la64_t* dyn, int ninst, int a)
 {
     dyn->lsx.ymm_used |= 1 << a;
+    sse_save_entry_cache(dyn, a);
     if (dyn->lsx.avxcache[a].v == -1)
         return;
     if (dyn->lsx.lsxcache[dyn->lsx.avxcache[a].reg].t == LSX_CACHE_YMMW) {
@@ -1732,6 +1751,7 @@ void avx_forget_reg(dynarec_la64_t* dyn, int ninst, int a)
 void avx_reflect_reg(dynarec_la64_t* dyn, int ninst, int a)
 {
     dyn->lsx.ymm_used |= 1 << a;
+    sse_save_entry_cache(dyn, a);
     if (dyn->lsx.avxcache[a].v == -1)
         return;
     if (dyn->lsx.lsxcache[dyn->lsx.avxcache[a].reg].t == LSX_CACHE_YMMW) {
@@ -1988,6 +2008,7 @@ void fpu_propagate_stack(dynarec_la64_t* dyn, int ninst)
     }
     dyn->lsx.stack = dyn->lsx.stack_next;
     dyn->lsx.news = 0;
+    for (int i = 0; i < 24; ++i) dyn->lsx.olds[i].v = 0;
     dyn->lsx.stack_push = 0;
     dyn->lsx.swapped = 0;
 }

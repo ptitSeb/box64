@@ -144,6 +144,7 @@ static void fpu_reset_reg_lsxcache(lsxcache_t* lsx)
 void fpu_reset_reg(dynarec_la64_t* dyn)
 {
     fpu_reset_reg_lsxcache(&dyn->lsx);
+    for (int i = 0; i < 24; ++i) dyn->lsx.olds[i].v = 0;
 }
 
 
@@ -435,6 +436,10 @@ void lsxcacheUnwind(lsxcache_t* cache)
                 cache->lsxcache[i].v = 0;
         cache->news = 0;
     }
+    // restore the entries this opcode changed or removed
+    for (int i = 0; i < 24; ++i)
+        if (cache->olds[i].v)
+            cache->lsxcache[i] = cache->olds[i];
     if (cache->stack_push) {
         // unpush
         for (int j = 0; j < 24; ++j) {
@@ -1135,6 +1140,7 @@ static int tryApplyPreloadCache(dynarec_la64_t* dyn, int first, int last, int re
         cache->lsxcache[reg].n = reg;
         cache->fpuused[reg] = 1;
         cache->news &= ~(1u << reg);
+        cache->olds[reg].v = 0;
         if (ymm) {
             cache->ssecache[reg].v = -1;
             cache->avxcache[reg].reg = reg;
