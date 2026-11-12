@@ -361,7 +361,21 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 VFCVT_X_F_V(v0, v1, VECTOR_UNMASKED);
                 FSRM(xZR, x4);
             } else {
+                q0 = fpu_get_scratch(dyn);
+                d0 = fpu_get_scratch(dyn);
+                MOV32w(x4, 0x80000000);
+                VMV_V_X(q0, x4);
+                MOV32w(x4, 0x4f000000); // 2^31.0f
+                FMVWX(d0, x4);
+                VMFGE_VF(VMASK, v1, d0, VECTOR_UNMASKED); // v1 >= 2^31
                 VFCVT_RTZ_X_F_V(v0, v1, VECTOR_UNMASKED);
+                VMERGE_VVM(v0, v0, q0);
+                MOV32w(x4, 0xcf000000); // -2^31.0f
+                FMVWX(d0, x4);
+                VMFLE_VF(VMASK, v1, d0, VECTOR_UNMASKED); // v1 <= -2^31
+                VMERGE_VVM(v0, v0, q0);
+                VMFEQ_VV(VMASK, v1, v1, VECTOR_UNMASKED); // NaN
+                VMERGE_VVM(v0, q0, v0);
             }
             break;
         case 0x5C:
@@ -637,6 +651,17 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             VFWCVT_F_X_V(d0, v1, VECTOR_UNMASKED);
             vector_vsetvli(dyn, ninst, x1, VECTOR_SEW64, VECTOR_LMUL1, 1);
             VMV_V_V(v0, d0);
+            break;
+        case 0xD6:
+            INST_NAME("MOVQ2DQ Gx, Em");
+            nextop = F8;
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+            GETEM_vector(q0, 0);
+            GETGX_empty_vector(v0);
+            VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
+            VECTOR_LOAD_VMASK(0b01, x4, 1);
+            VMERGE_VVM(v0, v0, q0);
             break;
         default:
             DEFAULT_VECTOR;

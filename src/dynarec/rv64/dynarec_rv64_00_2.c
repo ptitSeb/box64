@@ -1071,7 +1071,30 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0xAC:
             UP32_READ(xRSI);
             if (rex.rep) {
-                DEFAULT;
+                INST_NAME("REP LODSB");
+                UP32_READ(xRCX);
+                CBZ_NEXT(xRCX);
+                if (rex.is67 && !rex.is32bits) {
+                    ZEROUP(xRSI);
+                }
+                ANDI(x1, xFlags, 1 << F_DF);
+                BNEZ_MARK2(x1);
+                MARK; // Part with DF==0
+                LBU(x2, xRSI, 0);
+                ANDI(xRAX, xRAX, ~0xff);
+                OR(xRAX, xRAX, x2);
+                ADDI(xRSI, xRSI, 1);
+                SUBI(xRCX, xRCX, 1);
+                BNEZ_MARK(xRCX);
+                B_MARKLOCK_nocond;
+                MARK2; // Part with DF==1
+                LBU(x2, xRSI, 0);
+                ANDI(xRAX, xRAX, ~0xff);
+                OR(xRAX, xRAX, x2);
+                SUBI(xRSI, xRSI, 1);
+                SUBI(xRCX, xRCX, 1);
+                BNEZ_MARK2(xRCX);
+                MARKLOCK;
             } else {
                 INST_NAME("LODSB");
                 GETDIR(x1, x2, 1);
@@ -1087,7 +1110,26 @@ uintptr_t dynarec64_00_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0xAD:
             UP32_READ(xRSI);
             if (rex.rep) {
-                DEFAULT;
+                INST_NAME("REP LODSD");
+                UP32_READ(xRCX);
+                CBZ_NEXT(xRCX);
+                if (rex.is67 && !rex.is32bits) {
+                    ZEROUP(xRSI);
+                }
+                ANDI(x1, xFlags, 1 << F_DF);
+                BNEZ_MARK2(x1);
+                MARK; // Part with DF==0
+                LDxw(xRAX, xRSI, 0);
+                ADDI(xRSI, xRSI, rex.w ? 8 : 4);
+                SUBI(xRCX, xRCX, 1);
+                BNEZ_MARK(xRCX);
+                B_MARKLOCK_nocond;
+                MARK2; // Part with DF==1
+                LDxw(xRAX, xRSI, 0);
+                SUBI(xRSI, xRSI, rex.w ? 8 : 4);
+                SUBI(xRCX, xRCX, 1);
+                BNEZ_MARK2(xRCX);
+                MARKLOCK;
             } else {
                 INST_NAME("LODSD");
                 GETDIR(x1, x2, rex.w ? 8 : 4);

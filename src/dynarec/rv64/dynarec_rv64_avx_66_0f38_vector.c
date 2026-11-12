@@ -1252,6 +1252,32 @@ uintptr_t dynarec64_AVX_66_0F38_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             VFNMACC_VV(v0, q0, q1, VECTOR_UNMASKED);
             PUTGY_vector(v0, sew);
             break;
+        case 0xDB:
+            if (!cpuext.zvkned) {
+                BARRIER(BARRIER_FLOAT);
+                return 0;
+            }
+            if (vex.l) {
+                DEFAULT_VECTOR;
+            }
+            INST_NAME("VAESIMC Gx, Ex");
+            nextop = F8;
+            gd = ((nextop & 0x38) >> 3) + (rex.r << 3);
+            SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW32);
+            v1 = fpu_get_scratch(dyn);
+            if (MODREG) {
+                avx_load_reg_vector(dyn, ninst, x1, v1, (nextop & 7) + (rex.b << 3), 16, VECTOR_SEW32);
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x3, x2, &fixedaddress, rex, NULL, 0, 0);
+                VLE32_V(v1, ed, VECTOR_UNMASKED, VECTOR_NFIELD1);
+            }
+            v2 = fpu_get_scratch(dyn);
+            MOV32w(x4, 0x63636363);
+            VMV_V_X(v2, x4);
+            VAESDM_VV(v2, v1);
+            avx_store_reg_vector(dyn, ninst, x1, v2, gd, 16, VECTOR_SEW32);
+            break;
         case 0xDC:
             if (!cpuext.zvkned) {
                 BARRIER(BARRIER_FLOAT);

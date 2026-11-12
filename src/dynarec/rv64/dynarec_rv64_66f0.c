@@ -46,6 +46,71 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x0F:
             opcode = F8;
             switch (opcode) {
+                case 0xAB:
+                    nextop = F8;
+                    if (MODREG) {
+                        INST_NAME("Invalid LOCK");
+                        UDF();
+                        *need_epilog = 1;
+                        *ok = 0;
+                    } else {
+                        INST_NAME("LOCK BTS Ew, Gw");
+                        SETFLAGS(X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION);
+                        SET_DFNONE();
+                        GETGD;
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, x2, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                        SEXTH(x1, gd); // bit index is a signed 16bits value
+                        SRAIW(x1, x1, 4);
+                        SLLI(x1, x1, 1); // word index -> byte offset
+                        ADD(x2, wback, x1);
+                        ANDI(x4, gd, 0x0f);
+                        ANDI(x5, x2, 0b11);
+                        SLLI(x5, x5, 3);
+                        OR(x4, x4, x5);
+                        ANDI(x2, x2, ~0b11);
+                        ADDI(x5, xZR, 1);
+                        SLL(x5, x5, x4);
+                        AMOOR_W(x6, x5, x2, 1, 1);
+                        SRL(x6, x6, x4);
+                        ANDI(x6, x6, 1);
+                        ANDI(xFlags, xFlags, ~1);
+                        OR(xFlags, xFlags, x6);
+                    }
+                    break;
+                case 0xB3:
+                    nextop = F8;
+                    if (MODREG) {
+                        INST_NAME("Invalid LOCK");
+                        UDF();
+                        *need_epilog = 1;
+                        *ok = 0;
+                    } else {
+                        INST_NAME("LOCK BTR Ew, Gw");
+                        SETFLAGS(X_CF, SF_SUBSET, NAT_FLAGS_NOFUSION);
+                        SET_DFNONE();
+                        GETGD;
+                        addr = geted(dyn, addr, ninst, nextop, &wback, x3, x2, &fixedaddress, rex, LOCK_LOCK, 0, 0);
+                        SEXTH(x1, gd); // bit index is a signed 16bits value
+                        SRAIW(x1, x1, 4);
+                        SLLI(x1, x1, 1); // word index -> byte offset
+                        ADD(x2, wback, x1);
+                        ANDI(x4, gd, 0x0f);
+                        ANDI(x5, x2, 0b11);
+                        SLLI(x5, x5, 3);
+                        OR(x4, x4, x5);
+                        ANDI(x2, x2, ~0b11);
+                        ADDI(x5, xZR, 1);
+                        SLL(x5, x5, x4);
+                        NOT(x6, x5);
+                        AMOAND_W(x6, x6, x2, 1, 1);
+                        IFX (X_CF) {
+                            SRL(x6, x6, x4);
+                            ANDI(x6, x6, 1);
+                            ANDI(xFlags, xFlags, ~1);
+                            OR(xFlags, xFlags, x6);
+                        }
+                    }
+                    break;
                 case 0xB1:
                     nextop = F8;
                     if (MODREG) {
