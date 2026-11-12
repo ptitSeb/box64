@@ -4363,9 +4363,14 @@ void obstackSetup() {
 void obstackSetup();
 #endif
 
+extern void* my1_calloc(size_t n, size_t s);
 EXPORT void* my_malloc(unsigned long size)
 {
+#if !defined(TERMUX) && !defined(ANDROID) && !defined(STATICBUILD)
+    return my1_calloc(1, size);
+#else
     return calloc(1, size);
+#endif
 }
 
 static int check_getrlimit_buffer(void* rlim, size_t size)
