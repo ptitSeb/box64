@@ -24,6 +24,21 @@
 #include "rbtree.h"
 #include "mysignal.h"
 #include "mypthread.h"
+
+// Android (SELinux execheap) refuses PROT_EXEC on the brk heap: mprotect() fails with EACCES and
+// the pages keep their old protection. Guest code never runs natively (interpreter/dynarec only
+// read it), so the host mapping does not need PROT_EXEC: retry without it. The guest-visible
+// protection is tracked separately (memprot). Seen with Miles Sound System (GoldSrc), which
+// loads its codecs into valloc() memory made RWX.
+int box_mprotect_noexec_fallback(void* addr, size_t len, int prot)
+{
+    int ret = mprotect(addr, len, prot);
+    if(ret && errno==EACCES && (prot&PROT_EXEC))
+        ret = mprotect(addr, len, prot&~PROT_EXEC);
+    return ret;
+}
+#define mprotect(A, B, C) box_mprotect_noexec_fallback(A, B, C)
+
 #ifdef DYNAREC
 #include "dynablock.h"
 #include "dynarec/dynablock_private.h"

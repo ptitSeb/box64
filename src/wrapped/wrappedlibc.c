@@ -4058,6 +4058,7 @@ EXPORT int my_munmap(x64emu_t* emu, void* addr, size_t length)
     return ret;
 }
 
+int box_mprotect_noexec_fallback(void* addr, size_t len, int prot);   // custommem.c
 EXPORT int my_mprotect(x64emu_t* emu, void *addr, unsigned long len, int prot)
 {
     #ifdef DYNAREC
@@ -4070,7 +4071,8 @@ EXPORT int my_mprotect(x64emu_t* emu, void *addr, unsigned long len, int prot)
         prot|=PROT_READ;    // PROT_READ is implicit with PROT_WRITE on x86_64
     uintptr_t start = (uintptr_t)addr;
     if(box64_pagesize == X86_PAGE_SIZE) {
-        int ret = mprotect(addr, len, prot);
+        // falls back to a non-executable host mapping where Android denies PROT_EXEC (brk heap)
+        int ret = box_mprotect_noexec_fallback(addr, len, prot);
         if(!ret && len) {
             updateProtection(start, len, prot);
             setGuestProtection(start, len, prot, 0);
