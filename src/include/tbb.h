@@ -13,19 +13,16 @@ static inline int TBBTSOAddElf(elfheader_t* h)
     return 0;
 }
 
-static inline int TBBTSORangesContains(uintptr_t ip)
+static inline void TBBTSOScanMainElf(void)
 {
-    (void)ip;
-    return 0;
 }
 #else
-// Scan one loaded ELF for oneTBB and add the TSO ranges it needs.
+// Scan one loaded ELF for oneTBB and register the TSO ranges it needs.
 // Returns the number of ranges added.
 int TBBTSOAddElf(elfheader_t* h);
 
-// Non-zero if ip belongs to a detected oneTBB code range that needs x86 TSO
-// (strongmem=4) emulation.
-int TBBTSORangesContains(uintptr_t ip);
+// Scan the main executable once for statically linked oneTBB.
+void TBBTSOScanMainElf(void);
 #endif
 
 #endif

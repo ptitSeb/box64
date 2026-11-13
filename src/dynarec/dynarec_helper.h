@@ -3,7 +3,7 @@
 #define __DYNAREC_HELPER__H_
 
 #include "env.h"
-#include "pe_tools.h"
+#include "volatile_fences.h"
 #include "debug.h"
 
 /* Box64 Strong Memory Model Emulation
