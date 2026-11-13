@@ -1515,7 +1515,7 @@ int MmaplistAddBlock_internal(mmaplist_t* list, void* map, void* orig, size_t si
     }
     int i = list->size++;
     #ifdef MADV_HUGEPAGE
-    madvise(map, size, MADV_HUGEPAGE);
+    { int olderr = errno; madvise(map, size, MADV_HUGEPAGE); errno = olderr; }   // EINVAL without THP
     #endif
     setProtection_box((uintptr_t)map, size, PROT_READ | PROT_WRITE | PROT_EXEC);
     list->chunks[i] = map;
@@ -1769,7 +1769,7 @@ uintptr_t AllocDynarecMap(uintptr_t x64_addr, size_t size, int is_new)
         return 0;
     }
     #ifdef MADV_HUGEPAGE
-    madvise(p, allocsize, MADV_HUGEPAGE);
+    { int olderr = errno; madvise(p, allocsize, MADV_HUGEPAGE); errno = olderr; }   // EINVAL without THP
     #endif
 #ifdef TRACE_MEMSTAT
     dynarec_allocated += allocsize;

@@ -837,7 +837,20 @@ static pthread_mutex_t mutex_dynarec_prot = PTHREAD_ERRORCHECK_MUTEX_INITIALIZER
 extern int box64_quit;
 extern int box64_exit_code;
 
+static void my_box64signalhandler_impl(int32_t sig, siginfo_t* info, void * ucntx);
+// errno is shared between Box64 and the emulated program (wrapped libc). Box64's own work between
+// two guest instructions (building a dynarec block: mmap/mprotect, madvise(MADV_HUGEPAGE) that
+// fails with EINVAL on kernels without THP; host signal handlers) must not change it: the guest
+// would read Box64's error instead of the one its last libc call returned. Seen with the Steam
+// client: semget() = -1/EEXIST, then a new dynarec chunk was allocated before the client read
+// errno, and it got EINVAL ("threadtools.cpp (2526) : Assertion Failed: Invalid argument").
 void my_box64signalhandler(int32_t sig, siginfo_t* info, void * ucntx)
+{
+    int olderr = errno;
+    my_box64signalhandler_impl(sig, info, ucntx);
+    errno = olderr;
+}
+static void my_box64signalhandler_impl(int32_t sig, siginfo_t* info, void * ucntx)
 {
     sig = signal_to_x64(sig);
     // sig==X64_SIGSEGV || sig==X64_SIGBUS || sig==X64_SIGILL || sig==X64_SIGABRT here!
@@ -1378,7 +1391,20 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "%04d|Repeated SIGSEGV with Access error on %
     }
 }
 
+static void my_sigactionhandler_impl(int32_t sig, siginfo_t* info, void * ucntx);
+// errno is shared between Box64 and the emulated program (wrapped libc). Box64's own work between
+// two guest instructions (building a dynarec block: mmap/mprotect, madvise(MADV_HUGEPAGE) that
+// fails with EINVAL on kernels without THP; host signal handlers) must not change it: the guest
+// would read Box64's error instead of the one its last libc call returned. Seen with the Steam
+// client: semget() = -1/EEXIST, then a new dynarec chunk was allocated before the client read
+// errno, and it got EINVAL ("threadtools.cpp (2526) : Assertion Failed: Invalid argument").
 void my_sigactionhandler(int32_t sig, siginfo_t* info, void * ucntx)
+{
+    int olderr = errno;
+    my_sigactionhandler_impl(sig, info, ucntx);
+    errno = olderr;
+}
+static void my_sigactionhandler_impl(int32_t sig, siginfo_t* info, void * ucntx)
 {
     sig = signal_to_x64(sig);
     x64emu_t* emu = thread_get_emu_no_create();

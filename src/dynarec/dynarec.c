@@ -107,7 +107,21 @@ void* LinkNext(x64emu_t* emu, uintptr_t addr, void* x2, uintptr_t* x3)
     //dynablock_t *father = block->father?block->father:block;
     return jblock;
 }
+static void* LinkNextInvalid_impl(x64emu_t* emu, uintptr_t addr, void* x2, uintptr_t* x3);
+// errno is shared between Box64 and the emulated program (wrapped libc). Box64's own work between
+// two guest instructions (building a dynarec block: mmap/mprotect, madvise(MADV_HUGEPAGE) that
+// fails with EINVAL on kernels without THP; host signal handlers) must not change it: the guest
+// would read Box64's error instead of the one its last libc call returned. Seen with the Steam
+// client: semget() = -1/EEXIST, then a new dynarec chunk was allocated before the client read
+// errno, and it got EINVAL ("threadtools.cpp (2526) : Assertion Failed: Invalid argument").
 void* LinkNextInvalid(x64emu_t* emu, uintptr_t addr, void* x2, uintptr_t* x3)
+{
+    int olderr = errno;
+    void* ret = LinkNextInvalid_impl(emu, addr, x2, x3);
+    errno = olderr;
+    return ret;
+}
+static void* LinkNextInvalid_impl(x64emu_t* emu, uintptr_t addr, void* x2, uintptr_t* x3)
 {
     // like LinkNext, but invalidate the db found first
     int is32bits = (R_CS == 0x23);

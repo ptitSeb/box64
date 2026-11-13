@@ -388,7 +388,21 @@ dynablock_t* CreateDBnoAlt(x64emu_t* emu, uintptr_t addr, int is32bits)
     return NULL if block is not found / cannot be created. 
     Don't create if create==0
 */
+static dynablock_t* internalDBGetBlock_impl(x64emu_t* emu, uintptr_t addr, int create, int need_lock, int is32bits, int is_new, dynablock_t* block);
+// errno is shared between Box64 and the emulated program (wrapped libc). Box64's own work between
+// two guest instructions (building a dynarec block: mmap/mprotect, madvise(MADV_HUGEPAGE) that
+// fails with EINVAL on kernels without THP; host signal handlers) must not change it: the guest
+// would read Box64's error instead of the one its last libc call returned. Seen with the Steam
+// client: semget() = -1/EEXIST, then a new dynarec chunk was allocated before the client read
+// errno, and it got EINVAL ("threadtools.cpp (2526) : Assertion Failed: Invalid argument").
 dynablock_t* internalDBGetBlock(x64emu_t* emu, uintptr_t addr, int create, int need_lock, int is32bits, int is_new, dynablock_t* block)
+{
+    int olderr = errno;
+    dynablock_t* ret = internalDBGetBlock_impl(emu, addr, create, need_lock, is32bits, is_new, block);
+    errno = olderr;
+    return ret;
+}
+static dynablock_t* internalDBGetBlock_impl(x64emu_t* emu, uintptr_t addr, int create, int need_lock, int is32bits, int is_new, dynablock_t* block)
 {
     const uint32_t req_prot = (box64_pagesize==4096)?(PROT_EXEC|PROT_READ):PROT_READ;
     #ifdef BOX64EC
@@ -513,7 +527,21 @@ void FlushZombieDynablocks(void)
     my_context->db_zombie_count = 0;
 }
 
+static dynablock_t* DBGetBlock_impl(x64emu_t* emu, uintptr_t addr, int create, int is32bits);
+// errno is shared between Box64 and the emulated program (wrapped libc). Box64's own work between
+// two guest instructions (building a dynarec block: mmap/mprotect, madvise(MADV_HUGEPAGE) that
+// fails with EINVAL on kernels without THP; host signal handlers) must not change it: the guest
+// would read Box64's error instead of the one its last libc call returned. Seen with the Steam
+// client: semget() = -1/EEXIST, then a new dynarec chunk was allocated before the client read
+// errno, and it got EINVAL ("threadtools.cpp (2526) : Assertion Failed: Invalid argument").
 dynablock_t* DBGetBlock(x64emu_t* emu, uintptr_t addr, int create, int is32bits)
+{
+    int olderr = errno;
+    dynablock_t* ret = DBGetBlock_impl(emu, addr, create, is32bits);
+    errno = olderr;
+    return ret;
+}
+static dynablock_t* DBGetBlock_impl(x64emu_t* emu, uintptr_t addr, int create, int is32bits)
 {
     int is_inhotpage = isInHotPage(addr);
     dynablock_t* db = NULL;
