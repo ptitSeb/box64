@@ -12,6 +12,7 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef int32_t (*iEp_t)(void*);
 typedef uint64_t (*UEs_t)(void*);
 typedef float (*fEf_t)(float);
 typedef double (*dEd_t)(double);
@@ -25,6 +26,8 @@ typedef double (*KEKp_t)(double, void*);
 typedef uint64_t (*UEsvvs_t)(void*, void, void, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
+	GO(fesetenv, iEp_t) \
+	GO(feupdateenv, iEp_t) \
 	GO(cacosf, UEs_t) \
 	GO(cacoshf, UEs_t) \
 	GO(casinf, UEs_t) \

@@ -5,6 +5,7 @@
 #include <dlfcn.h>
 #include <complex.h>
 #include <math.h>
+#include <fenv.h>
 
 #include "wrappedlibs.h"
 
@@ -139,6 +140,37 @@ F1D(log)
 #undef F1D
 #undef F1F
 #undef FINITE
+
+// i386 FE_DFL_ENV is ((const fenv_t *) -1) and FE_NOMASK_ENV is ((const fenv_t *) -2): sentinels,
+// not pointers. A 32-bit guest passes them as 0xffffffff / 0xfffffffe, which the native libm
+// would dereference (SIGSEGV in fesetenv; seen with Unity 2018 32-bit players). Same translation
+// as the 64-bit wrapper (x86_to_native_fenv in wrapped/wrappedlibm.c).
+static const fenv_t* x86_to_native_fenv32(void* envp)
+{
+    uint32_t v = (uint32_t)(uintptr_t)envp;
+    if(v == 0xffffffffu)
+        return FE_DFL_ENV;
+#ifdef FE_NOMASK_ENV
+    if(v == 0xfffffffeu)
+        return FE_NOMASK_ENV;
+#else
+    if(v == 0xfffffffeu)
+        return FE_DFL_ENV;
+#endif
+    return (const fenv_t*)envp;
+}
+
+EXPORT int my32_fesetenv(x64emu_t* emu, void* envp)
+{
+    (void)emu;
+    return fesetenv(x86_to_native_fenv32(envp));
+}
+
+EXPORT int my32_feupdateenv(x64emu_t* emu, void* envp)
+{
+    (void)emu;
+    return feupdateenv(x86_to_native_fenv32(envp));
+}
 
 #define PRE_INIT\
     if(1)                                                           \

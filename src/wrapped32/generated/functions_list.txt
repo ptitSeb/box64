@@ -2946,6 +2946,9 @@ wrappedlibglxnvidia:
 - vFppupui:
   - glMultiModeDrawElementsIBM
 wrappedlibm:
+- iEp:
+  - fesetenv
+  - feupdateenv
 - UEs:
   - cacosf
   - cacoshf
