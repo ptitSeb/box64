@@ -606,6 +606,7 @@ int FinalizeLibrary(library_t* lib, lib_t* local_maplib, int bindnow, int deepbi
             printf_log(LOG_NONE, "Error: relocating Plt symbols in elf %s\n", lib->name);
             return 1;
         }
+#ifdef DYNAREC
         if (BOX64ENV(dynarec_tbb) && lib->name && strstr(lib->name, "libtbb.so")) {
             if (TBBTSOAddElf(elf_header)) {
                 printf_log(LOG_INFO, "libtbb detected, applying safe StrongMem emulation to its code range\n");
@@ -614,6 +615,7 @@ int FinalizeLibrary(library_t* lib, lib_t* local_maplib, int bindnow, int deepbi
                 SET_BOX64ENV(dynarec_strongmem, 1);
             }
         }
+#endif
 #ifdef HAVE_TRACE
         if(trace_func) {
             int weak;
