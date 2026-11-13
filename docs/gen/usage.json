@@ -772,19 +772,19 @@
   },
   {
     "name": "BOX64_DYNAREC_TBB",
-    "description": "Enable or disable libtbb detection.",
+    "description": "Detect oneTBB (statically linked or libtbb) and emulate x86 TSO for its scheduler code range.",
     "category": "Compatibility",
     "wine": false,
     "configurator": false,
     "options": [
       {
         "key": "0",
-        "description": "Do not detect libtbb.",
+        "description": "Do not detect oneTBB.",
         "default": false
       },
       {
         "key": "1",
-        "description": "Detect libtbb and apply conservative settings.",
+        "description": "Detect oneTBB and apply strongmem=4 to its scheduler code range.",
         "default": true
       }
     ]

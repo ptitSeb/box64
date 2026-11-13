@@ -1033,6 +1033,7 @@ if(DYNAREC)
         "${BOX64_ROOT}/src/dynarec/dynarec_native_functions.c"
         "${BOX64_ROOT}/src/dynarec/dynacache_reloc.c"
         "${BOX64_ROOT}/src/dynarec/dynacache_compress.c"
+        "${BOX64_ROOT}/src/dynarec/tbb.c"
         "${BOX64_ROOT}/src/emu/x64test.c"
     )
 endif()

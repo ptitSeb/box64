@@ -308,10 +308,10 @@ Skip N first CPU cores (Is apply before MAXCPU) 在 WowBox64 中可用。
 
 ### BOX64_DYNAREC_TBB
 
-启用或禁用 libtbb 检测。
+检测 oneTBB（静态链接或 libtbb），并为其调度器代码范围模拟 x86 TSO。
 
- * 0: 不检测 libtbb。
- * 1: 检测 libtbb 并应用保守设置。 [默认值]
+ * 0: 不检测 oneTBB。
+ * 1: 检测 oneTBB 并对其调度器代码范围应用 strongmem=4。 [默认值]
 
 ### BOX64_DYNAREC_X87DOUBLE
 
