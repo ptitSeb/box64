@@ -3153,6 +3153,11 @@ static void atfork_child_custommem(void)
     // (re)init mutex if it was lock before the fork
     init_mutexes();
 }
+// for a process created with a raw clone(): no pthread_atfork handler runs there
+void custommem_reset_after_fork(void)
+{
+    atfork_child_custommem();
+}
 void preserve_highest32()
 {
     // reserve area close to 0xffffffff too, to avoid roll over on some opcodes...

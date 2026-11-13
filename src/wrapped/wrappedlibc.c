@@ -4889,11 +4889,17 @@ typedef struct clone_arg_s {
  int flags;
  void* tls;
  int new_process;
+ int new_vm;    // no CLONE_VM: the child is a copy of the process
 } clone_arg_t;
+void box64_clone_lock_stdio(void);
+void box64_clone_unlock_stdio(void);
+void box64_reset_locks_in_new_process(void);
 void init_mutexes(box64context_t* context);
 static int clone_fn(void* p)
 {
     clone_arg_t* arg = (clone_arg_t*)p;
+    if(arg->new_vm)
+        box64_reset_locks_in_new_process();
     updateGlibcTidCache();  // update cache tid if needed
     x64emu_t *emu = arg->emu;
     R_RSP = arg->stack;
@@ -4974,8 +4980,12 @@ EXPORT int my_clone(x64emu_t* emu, void* fn, void* stack, int flags, void* args,
         box_free(arg);
         return pid;
     }
+    { void log_raw_clone(const char* where, uint64_t flags); log_raw_clone("libc", (uint32_t)flags); }
     flags &=~ CLONE_SETTLS;   // guest TLS is applied to the emulated FS base in clone_fn
+    int new_vm = arg->new_vm = !(flags & CLONE_VM);
+    if(new_vm) box64_clone_lock_stdio();
     int64_t ret = clone(clone_fn, (void*)((uintptr_t)mystack+1024*1024), flags, arg, parent, NULL, child);
+    if(new_vm) box64_clone_unlock_stdio();
     return (uintptr_t)ret;
 }
 

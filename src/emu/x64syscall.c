@@ -507,11 +507,21 @@ typedef struct clone_s {
     void* stack2free;
     void* tls;
     int set_tls;
+    int new_vm;     // no CLONE_VM: the child is a copy of the process, see box64_reset_locks_in_new_process()
 } clone_t;
+
+void box64_clone_lock_stdio(void);
+void box64_clone_unlock_stdio(void);
+void box64_reset_locks_in_new_process(void);
+void updateGlibcTidCache(void);
 
 static int clone_fn_syscall(void* arg)
 {
     clone_t* args = arg;
+    if(args->new_vm) {
+        box64_reset_locks_in_new_process();
+        updateGlibcTidCache();
+    }
     x64emu_t *emu = args->emu;
     thread_forget_emu();
     thread_set_emu(emu);
@@ -539,6 +549,14 @@ int is_fork_like_clone(uint64_t flags)
 {
     const uint64_t allowed = CSIGNAL | CLONE_SETTLS | CLONE_PARENT_SETTID | CLONE_CHILD_SETTID | CLONE_CHILD_CLEARTID;
     return !(flags & ~allowed) && (flags & CSIGNAL) == SIGCHLD;
+}
+
+// A clone that creates a process (no CLONE_THREAD) without going through fork(): worth a line in
+// the log, the child may inherit locked mutexes (see is_fork_like_clone).
+void log_raw_clone(const char* where, uint64_t flags)
+{
+    if(!(flags & CLONE_THREAD))
+        printf_log(LOG_INFO, "clone(%s): process-creating clone not done with fork(), flags=0x%lx\n", where, (unsigned long)flags);
 }
 
 // Returns the child pid in the parent, 0 in the child (which resumes the emulated code on `stack`
@@ -802,6 +820,7 @@ void EXPORT x64Syscall_linux(x64emu_t *emu)
                 if(S_RAX==-1)
                     S_RAX = -errno;
             } else {
+                log_raw_clone("syscall", R_RDI);
                 if(R_RSI)
                 {
                     uint64_t flags = R_RDI;
@@ -814,6 +833,7 @@ void EXPORT x64Syscall_linux(x64emu_t *emu)
                     clone_t* args = box_calloc(1, sizeof(clone_t));
                     newemu->regs[_SP].q[0] = sp;  // setup new stack pointer
                     args->emu = newemu;
+                    args->new_vm = !(flags & CLONE_VM);
                     if(flags & CLONE_SETTLS) {
                         args->tls = (void*)R_R8;
                         args->set_tls = 1;
@@ -828,7 +848,10 @@ void EXPORT x64Syscall_linux(x64emu_t *emu)
                         my_context->stack_clone_used = 1;
                     }
                     flags&=~CLONE_SETTLS;   // to be handled differently
+                    int new_vm = args->new_vm;
+                    if(new_vm) box64_clone_lock_stdio();
                     int64_t ret = clone(clone_fn_syscall, (void*)((uintptr_t)mystack+1024*1024), flags, args, R_RDX, NULL, R_R10);
+                    if(new_vm) box64_clone_unlock_stdio();
                     S_RAX = ret;
                 }
                 else
@@ -1259,6 +1282,7 @@ long EXPORT my_syscall(x64emu_t *emu)
             }
             if(is_fork_like_clone(R_RSI))
                 return fork_like_clone(emu, R_RSI, R_RDX, (int*)R_RCX, (int*)R_R8, (void*)R_R9);
+            log_raw_clone("syscall()", R_RSI);
             if(R_RDX)
             {
                 uint64_t flags = R_RSI;
@@ -1288,6 +1312,7 @@ long EXPORT my_syscall(x64emu_t *emu)
                 newemu->regs[_SP].q[0] = sp;  // setup new stack pointer
                 clone_t* args = box_calloc(1, sizeof(clone_t));
                 args->emu = newemu;
+                args->new_vm = !(flags & CLONE_VM);
                 if(flags & CLONE_SETTLS) {
                     args->tls = (void*)R_R9;
                     args->set_tls = 1;
@@ -1303,7 +1328,10 @@ long EXPORT my_syscall(x64emu_t *emu)
                 }
                 // x86_64 raw clone is long clone(unsigned long flags, void *stack, int *parent_tid, int *child_tid, unsigned long tls);
                 flags &= ~CLONE_SETTLS;   // guest TLS is applied to the emulated FS base in clone_fn_syscall
+                int new_vm = args->new_vm;
+                if(new_vm) box64_clone_lock_stdio();
                 long ret = clone(clone_fn_syscall, (void*)((uintptr_t)mystack+1024*1024), flags, args, R_RCX, NULL, R_R8);
+                if(new_vm) box64_clone_unlock_stdio();
                 return ret;
             }
             else

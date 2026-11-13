@@ -145,6 +145,38 @@ static void atfork_child_box64context(void)
     #endif
 }
 
+// A clone() without CLONE_VM that cannot be done with fork() (CLONE_FILES, CLONE_FS, no exit
+// signal, ...: Breakpad writes its minidumps from such a child, flags 0x800600, and the parent
+// waits for it with __WALL) gives a single-threaded copy of the process, like fork(), but no
+// pthread_atfork handler runs. Every Box64 mutex another thread held at that moment would stay
+// locked forever in the child: it hung on mutex_dyndump at its first new dynarec block, and the
+// parent thread never came back from waitpid() (Steam client: "Illegal termination of worker
+// thread", then the main loop stalled). The child calls this first; stdio locks are held around
+// the clone() by the parent (box64_clone_lock_stdio) so that no other thread owns them in the copy.
+// Not covered: glibc's own malloc arena locks, which only fork() can reset.
+void custommem_reset_after_fork(void);
+extern FILE* ftrace;
+void box64_clone_lock_stdio(void)
+{
+    flockfile(stdout);
+    flockfile(stderr);
+    if(ftrace && ftrace!=stdout && ftrace!=stderr)
+        flockfile(ftrace);
+}
+void box64_clone_unlock_stdio(void)
+{
+    if(ftrace && ftrace!=stdout && ftrace!=stderr)
+        funlockfile(ftrace);
+    funlockfile(stderr);
+    funlockfile(stdout);
+}
+void box64_reset_locks_in_new_process(void)
+{
+    atfork_child_box64context();
+    custommem_reset_after_fork();
+    box64_clone_unlock_stdio();
+}
+
 int box64_cycle_log_initialized = 0;
 
 void freeCycleLog(box64context_t* ctx)
