@@ -111,8 +111,8 @@
 #() pFi -> pFi
 #() pFI -> pFI
 #() pFW -> pFW
-#() pFu -> pFu
 #() pEu -> pEu
+#() pFu -> pFu
 #() pFU -> pFU
 #() pEl -> pEl
 #() pFl -> pFl
@@ -875,6 +875,7 @@
 #() vFpbpu_u -> vFpBu
 #() vFpbpu_p -> vFpBp
 #() iFLbpi_i -> iFLBi
+#() iEpirLL_ -> iEpiB
 #() iFpibpu_ -> iFpiB
 #() iFpibpp_ -> iFpiB
 #() iFpubpu_ -> iFpuB
@@ -3156,7 +3157,6 @@ wrappedlibpthread:
   - pthread_cond_wait@GLIBC_2.0
   - pthread_key_create
   - pthread_mutex_init
-  - pthread_mutex_timedlock
   - pthread_once
   - pthread_rwlock_init
   - sem_getvalue
@@ -3166,6 +3166,7 @@ wrappedlibpthread:
 - iEhp:
   - pthread_getattr_np
 - iEprLL_:
+  - pthread_mutex_timedlock
   - sem_timedwait
 - vEppp:
   - _pthread_cleanup_push
@@ -3186,6 +3187,8 @@ wrappedlibpthread:
   - pthread_setaffinity_np
 - pEpOM:
   - sem_open
+- iEpirLL_:
+  - pthread_mutex_clocklock
 - iEpprLL_:
   - pthread_cond_timedwait
   - pthread_cond_timedwait@GLIBC_2.0

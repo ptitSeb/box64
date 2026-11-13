@@ -116,7 +116,8 @@ GOM(pthread_mutex_init, iEpp)      //%noE
 GOM(__pthread_mutex_lock, iEp)     //%noE
 GOM(pthread_mutex_lock, iEp)       //%noE
 // pthread_mutex_setprioceiling
-GOM(pthread_mutex_timedlock, iEpp) //%noE
+GOM(pthread_mutex_clocklock, iEpirLL_) //%noE
+GOM(pthread_mutex_timedlock, iEprLL_) //%noE
 GOM(__pthread_mutex_trylock, iEp)  //%noE
 GOM(pthread_mutex_trylock, iEp)    //%noE
 GOM(__pthread_mutex_unlock, iEp)   //%noE

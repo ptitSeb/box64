@@ -1073,6 +1073,13 @@ EXPORT int my32_pthread_mutex_timedlock(pthread_mutex_t *m, const struct timespe
     return pthread_mutex_timedlock(getAlignedMutex(m), t);
 }
 
+// glibc 2.30+; imported by the 32-bit steamclient.so since the 2026-11 Steam client: without it
+// the library does not load at all and SteamAPI_Init() fails in every 32-bit game
+EXPORT int my32_pthread_mutex_clocklock(pthread_mutex_t *m, int clockid, const struct timespec * t)
+{
+    return pthread_mutex_clocklock(getAlignedMutex(m), clockid, t);
+}
+
 EXPORT int my32_pthread_mutex_trylock(pthread_mutex_t *m)
 {
     return pthread_mutex_trylock(getAlignedMutex(m));

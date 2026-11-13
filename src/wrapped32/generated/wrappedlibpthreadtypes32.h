@@ -31,6 +31,7 @@ typedef int32_t (*iEppL_t)(void*, void*, uintptr_t);
 typedef int32_t (*iEppp_t)(void*, void*, void*);
 typedef int32_t (*iEhup_t)(uintptr_t, uint32_t, void*);
 typedef void* (*pEpOM_t)(void*, int32_t, ...);
+typedef int32_t (*iEpirLL__t)(void*, int32_t, struct_LL_t*);
 typedef int32_t (*iEpprLL__t)(void*, void*, struct_LL_t*);
 typedef int32_t (*iEpppp_t)(void*, void*, void*, void*);
 
@@ -96,13 +97,13 @@ typedef int32_t (*iEpppp_t)(void*, void*, void*, void*);
 	GO(pthread_cond_wait@GLIBC_2.0, iEpp_t) \
 	GO(pthread_key_create, iEpp_t) \
 	GO(pthread_mutex_init, iEpp_t) \
-	GO(pthread_mutex_timedlock, iEpp_t) \
 	GO(pthread_once, iEpp_t) \
 	GO(pthread_rwlock_init, iEpp_t) \
 	GO(sem_getvalue, iEpp_t) \
 	GO(pthread_kill, iEhi_t) \
 	GO(pthread_kill@GLIBC_2.0, iEhi_t) \
 	GO(pthread_getattr_np, iEhp_t) \
+	GO(pthread_mutex_timedlock, iEprLL__t) \
 	GO(sem_timedwait, iEprLL__t) \
 	GO(_pthread_cleanup_push, vEppp_t) \
 	GO(_pthread_cleanup_push_defer, vEppp_t) \
@@ -116,6 +117,7 @@ typedef int32_t (*iEpppp_t)(void*, void*, void*, void*);
 	GO(pthread_getaffinity_np, iEhup_t) \
 	GO(pthread_setaffinity_np, iEhup_t) \
 	GO(sem_open, pEpOM_t) \
+	GO(pthread_mutex_clocklock, iEpirLL__t) \
 	GO(pthread_cond_timedwait, iEpprLL__t) \
 	GO(pthread_cond_timedwait@GLIBC_2.0, iEpprLL__t) \
 	GO(pthread_create, iEpppp_t)

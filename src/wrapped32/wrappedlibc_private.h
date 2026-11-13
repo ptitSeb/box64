@@ -230,7 +230,7 @@ GOW2(dl_iterate_phdr, iEEpp, my_dl_iterate_phdr) //%%
 // _dl_vsym
 GOW(dn_expand, iFppppi)
 //GOW(dngettext, pEpppu)
-//GOM(dprintf, iEEipV)
+GOM(dprintf, iEEipV) //%%
 GOM(__dprintf_chk, iEEiipV)	//%%
 GO(drand48, dEv)
 // drand48_r
