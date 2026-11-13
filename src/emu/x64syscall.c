@@ -529,6 +529,39 @@ static int clone_fn_syscall(void* arg)
     _exit(ret);
 }
 
+// A fork-like clone (own address space, SIGCHLD on exit, no thread/namespace flags) is done with
+// fork() instead of clone(): fork() runs the pthread_atfork handlers, which reset Box64's own
+// mutexes (mutex_dyndump, custommem's mutex_blocks/mutex_prot, ...) and glibc's malloc locks in
+// the child. clone() leaves a lock that another thread held at that moment locked forever, and the
+// child deadlocks on its first dynarec block or malloc (Chromium's ForkWithFlags, steamwebhelper).
+// Like the kernel, no x86 atfork handlers run for a raw clone.
+int is_fork_like_clone(uint64_t flags)
+{
+    const uint64_t allowed = CSIGNAL | CLONE_SETTLS | CLONE_PARENT_SETTID | CLONE_CHILD_SETTID | CLONE_CHILD_CLEARTID;
+    return !(flags & ~allowed) && (flags & CSIGNAL) == SIGCHLD;
+}
+
+// Returns the child pid in the parent, 0 in the child (which resumes the emulated code on `stack`
+// if given, with the guest TLS applied), -1 with errno on failure.
+static long fork_like_clone(x64emu_t* emu, uint64_t flags, uintptr_t stack, int* ptid, int* ctid, void* tls)
+{
+    pid_t pid = fork();
+    if(pid < 0)
+        return -1;
+    if(!pid) {
+        if((flags & CLONE_CHILD_SETTID) && ctid)
+            *ctid = syscall(__NR_gettid);
+        if(flags & CLONE_CHILD_CLEARTID)
+            syscall(__NR_set_tid_address, ctid);
+        if(stack)
+            R_RSP = stack;
+        if(flags & CLONE_SETTLS)
+            SetFSBaseEmu(emu, tls);
+    } else if((flags & CLONE_PARENT_SETTID) && ptid)
+        *ptid = pid;
+    return pid;
+}
+
 void EXPORT x64Syscall(x64emu_t *emu)
 {
     // check if it's a wine process, then filter the syscall (simulate SECCMP)
@@ -762,6 +795,10 @@ void EXPORT x64Syscall_linux(x64emu_t *emu)
             if((R_EDI&~0xff)==0x4100) {
                 // this is a case of vfork...
                 S_RAX = my_vfork(emu);
+                if(S_RAX==-1)
+                    S_RAX = -errno;
+            } else if(is_fork_like_clone(R_RDI)) {
+                S_RAX = fork_like_clone(emu, R_RDI, R_RSI, (int*)R_RDX, (int*)R_R10, (void*)R_R8);
                 if(S_RAX==-1)
                     S_RAX = -errno;
             } else {
@@ -1220,6 +1257,8 @@ long EXPORT my_syscall(x64emu_t *emu)
                 errno = EPERM;
                 return -1;
             }
+            if(is_fork_like_clone(R_RSI))
+                return fork_like_clone(emu, R_RSI, R_RDX, (int*)R_RCX, (int*)R_R8, (void*)R_R9);
             if(R_RDX)
             {
                 uint64_t flags = R_RSI;

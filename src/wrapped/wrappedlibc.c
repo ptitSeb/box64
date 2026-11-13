@@ -4952,6 +4952,28 @@ EXPORT int my_clone(x64emu_t* emu, void* fn, void* stack, int flags, void* args,
             arg->new_process = 1;
         }
     }
+    // fork-like: use fork() so the atfork handlers reset Box64's and glibc's locks in the child
+    // (see is_fork_like_clone() in x64syscall.c); the callback runs on the native stack copy.
+    int is_fork_like_clone(uint64_t flags);
+    if(is_fork_like_clone((uint32_t)flags)) {
+        if(arg->stack_clone_used) {
+            my_context->stack_clone_used = 0;
+            arg->stack_clone_used = 0;
+        }
+        pid_t pid = fork();
+        if(!pid) {
+            if((flags & CLONE_CHILD_SETTID) && child)
+                *(int*)child = syscall(__NR_gettid);
+            if(flags & CLONE_CHILD_CLEARTID)
+                syscall(__NR_set_tid_address, child);
+            _exit(clone_fn(arg));
+        }
+        if(pid > 0 && (flags & CLONE_PARENT_SETTID) && parent)
+            *(int*)parent = pid;
+        FreeX64Emu(&newemu);
+        box_free(arg);
+        return pid;
+    }
     flags &=~ CLONE_SETTLS;   // guest TLS is applied to the emulated FS base in clone_fn
     int64_t ret = clone(clone_fn, (void*)((uintptr_t)mystack+1024*1024), flags, arg, parent, NULL, child);
     return (uintptr_t)ret;
