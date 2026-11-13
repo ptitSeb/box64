@@ -2175,7 +2175,7 @@ static void fpuCacheTransform(dynarec_arm_t* dyn, int ninst, int s1, int s2, int
         return;
     }
     neoncache_t cache_i2 = dyn->insts[i2].n;
-    neoncacheUnwind(&cache_i2);
+    neoncacheUnwind(&cache_i2, dyn->insts[i2].preload_xmmymm);
     uint8_t cache_i2_st, cache_i2_mm;
     uint16_t cache_i2_xmm, cache_i2_ymm;
     buildCacheMasks(&cache_i2, &cache_i2_st, &cache_i2_mm, &cache_i2_xmm, &cache_i2_ymm);
@@ -2669,7 +2669,7 @@ void fpu_reset_cache(dynarec_arm_t* dyn, int ninst, int reset_n)
     // for STEP 2 & 3, just need to refresh with current, and undo the changes (push & swap)
     dyn->n = dyn->insts[ninst].n;
     dyn->ymm_zero = dyn->insts[ninst].ymm0_in;
-    neoncacheUnwind(&dyn->n);
+    neoncacheUnwind(&dyn->n, dyn->insts[ninst].preload_xmmymm);
     #else
     dyn->n = dyn->insts[reset_n].n;
     dyn->ymm_zero = dyn->insts[reset_n].ymm0_out;
@@ -2862,26 +2862,31 @@ int fpu_get_reg_ymm(dynarec_arm_t* dyn, int ninst, int t, int ymm, int k1, int k
 }
 
 // Get an XMM quad reg and preload it (or do nothing if not possible)
-static int xmm_preload_reg(dynarec_arm_t* dyn, int ninst, int last, int xmm)
+static int xmm_preload_reg(dynarec_arm_t* dyn, int ninst, int last, int xmm, int w)
 {
-    dyn->n.ssecache[xmm].reg = fpu_get_reg_xmm(dyn, NEON_CACHE_XMMR, xmm);
+    dyn->n.ssecache[xmm].reg = fpu_get_reg_xmm(dyn, w?NEON_CACHE_XMMW:NEON_CACHE_XMMR, xmm);
     int ret =  dyn->n.ssecache[xmm].reg;
-    dyn->n.ssecache[xmm].write = 0;
+    dyn->n.ssecache[xmm].write = w;
     VLDR128_U12(ret, xEmu, offsetof(x64emu_t, xmm[xmm]));
     return ret;
 }
 
 // Get an YMM quad reg and preload it (or do nothing if not possible)
-static int ymm_preload_reg(dynarec_arm_t* dyn, int ninst, int last, int ymm)
+static int ymm_preload_reg(dynarec_arm_t* dyn, int ninst, int last, int ymm, int w)
 {
     int i = -1;
+    int ymm0 = (dyn->ymm_zero>>ymm)&1;
     // search for when it will be loaded the first time
     for(int ii=0; ii<32 && i==-1; ++ii)
         if(dyn->insts[last].n.neoncache[ii].n==ymm && (dyn->insts[last].n.neoncache[ii].t==NEON_CACHE_YMMR || dyn->insts[last].n.neoncache[ii].t==NEON_CACHE_YMMW))
             i = ii;
     if(i!=-1) {
-        VLDR128_U12(i, xEmu, offsetof(x64emu_t, ymm[ymm]));
-        dyn->n.neoncache[i].t = NEON_CACHE_YMMR;
+        if(ymm0) {
+            VEORQ(i, i, i);
+            dyn->ymm_zero&=~(1<<ymm);
+        } else
+            VLDR128_U12(i, xEmu, offsetof(x64emu_t, ymm[ymm]));
+        dyn->n.neoncache[i].t = w?NEON_CACHE_YMMW:NEON_CACHE_YMMR;
         dyn->n.neoncache[i].n = ymm;
     }
     return i;
@@ -2893,14 +2898,15 @@ void doPreload(dynarec_arm_t* dyn, int ninst)
     uint32_t preload = dyn->insts[ninst].preload_xmmymm;
     int from = dyn->insts[ninst].preload_from;
     if(!preload) return;
+    uint32_t preloadw = dyn->insts[ninst].preloadw_xmmymm;
     // preload XMM
-    MESSAGE(LOG_INFO, "Preload XMM/YMM -------- %x\n", preload);
+    MESSAGE(LOG_INFO, "Preload XMM/YMM -------- %x(%x)\n", preload, preloadw);
     for(int i=0; i<16; ++i) {
         if(preload&(1<<i)) {
-            xmm_preload_reg(dyn, n, from, i);
+            xmm_preload_reg(dyn, n, from, i, (preloadw>>i)&1);
         }
         if(preload&(1<<(16+i))) {
-            ymm_preload_reg(dyn, n, from, i);
+            ymm_preload_reg(dyn, n, from, i, (preloadw>>(i+16))&1);
         }
     }
     MESSAGE(LOG_INFO, "-------- Preload XMM/YMM\n");

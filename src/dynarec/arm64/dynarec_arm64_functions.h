@@ -67,7 +67,7 @@ int nativeFlagsNeedsTransform(dynarec_arm_t* dyn, int ninst);
 int fpuCacheNeedsTransform(dynarec_arm_t* dyn, int ninst);
 
 // Undo the changes of a neoncache to get the status before the instruction
-void neoncacheUnwind(neoncache_t* cache);
+void neoncacheUnwind(neoncache_t* cache, uint32_t preload);
 void fpu_save_and_unwind(dynarec_arm_t* dyn, int ninst, neoncache_t* cache);
 void fpu_unwind_restore(dynarec_arm_t* dyn, int ninst, neoncache_t* cache);
 

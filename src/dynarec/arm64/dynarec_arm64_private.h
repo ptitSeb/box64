@@ -166,6 +166,7 @@ typedef struct instruction_arm64_s {
     flagcache_t         f_entry;    // flags status before the instruction begin
     int                 cacheupd;
     uint32_t            preload_xmmymm;
+    uint32_t            preloadw_xmmymm;
     int                 preload_from;
 } instruction_arm64_t;
 
