@@ -2571,18 +2571,20 @@ void doPreload(dynarec_la64_t* dyn, int ninst)
     MESSAGE(LOG_INFO, "Preload XMM/YMM -------- %x\n", preload);
     for (int i = 0; i < 16; ++i) {
         if (preload & (1u << i)) {
+            int t = dyn->insts[ninst].lsx.lsxcache[i].t == LSX_CACHE_XMMW ? LSX_CACHE_XMMW : LSX_CACHE_XMMR;
             dyn->lsx.avxcache[i].v = -1;
-            dyn->lsx.ssecache[i].reg = fpu_get_reg_xmm(dyn, LSX_CACHE_XMMR, i);
-            dyn->lsx.ssecache[i].write = 0;
+            dyn->lsx.ssecache[i].reg = fpu_get_reg_xmm(dyn, t, i);
+            dyn->lsx.ssecache[i].write = (t == LSX_CACHE_XMMW);
             if (!dyn->lsx.ssecache[i].v) dyn->lsx.ssecache[i].write = 1;
             VLD(dyn->lsx.ssecache[i].reg, xEmu, offsetof(x64emu_t, xmm[i]));
         }
         if (preload & (1u << (16 + i))) {
+            int t = dyn->insts[ninst].lsx.lsxcache[i].t == LSX_CACHE_YMMW ? LSX_CACHE_YMMW : LSX_CACHE_YMMR;
             dyn->lsx.ssecache[i].v = -1;
             dyn->lsx.avxcache[i].v = 0;
-            dyn->lsx.avxcache[i].reg = fpu_get_reg_ymm(dyn, LSX_CACHE_YMMR, i);
+            dyn->lsx.avxcache[i].reg = fpu_get_reg_ymm(dyn, t, i);
             dyn->lsx.avxcache[i].upper_zero_pending = 0;
-            dyn->lsx.avxcache[i].write = 0;
+            dyn->lsx.avxcache[i].write = (t == LSX_CACHE_YMMW);
             if (!dyn->lsx.avxcache[i].v) dyn->lsx.avxcache[i].write = 1;
             VLD(dyn->lsx.avxcache[i].reg, xEmu, offsetof(x64emu_t, xmm[i]));
             VLD(SCRATCH, xEmu, offsetof(x64emu_t, ymm[i]));

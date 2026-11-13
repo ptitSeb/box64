@@ -1127,16 +1127,20 @@ static int tryApplyPreloadCache(dynarec_la64_t* dyn, int first, int last, int re
 
     lsx_cache_t first_cache = dyn->insts[first_use].lsx.lsxcache[reg];
     if (first_cache.n != reg) return 0;
+    int dirty = 0;
     if (ymm) {
         if (first_cache.t != LSX_CACHE_YMMR && first_cache.t != LSX_CACHE_YMMW)
             return 0;
+        dirty = first_cache.t == LSX_CACHE_YMMW;
     } else if (first_cache.t != LSX_CACHE_XMMR && first_cache.t != LSX_CACHE_XMMW) {
         return 0;
+    } else {
+        dirty = first_cache.t == LSX_CACHE_XMMW;
     }
 
     for (int i = first; i < first_use; ++i) {
         lsxcache_t* cache = &dyn->insts[i].lsx;
-        cache->lsxcache[reg].t = ymm ? LSX_CACHE_YMMR : LSX_CACHE_XMMR;
+        cache->lsxcache[reg].t = ymm ? (dirty ? LSX_CACHE_YMMW : LSX_CACHE_YMMR) : (dirty ? LSX_CACHE_XMMW : LSX_CACHE_XMMR);
         cache->lsxcache[reg].n = reg;
         cache->fpuused[reg] = 1;
         cache->news &= ~(1u << reg);
@@ -1145,12 +1149,12 @@ static int tryApplyPreloadCache(dynarec_la64_t* dyn, int first, int last, int re
             cache->ssecache[reg].v = -1;
             cache->avxcache[reg].reg = reg;
             cache->avxcache[reg].upper_zero_pending = 0;
-            cache->avxcache[reg].write = 0;
+            cache->avxcache[reg].write = dirty;
             if (!cache->avxcache[reg].v) cache->avxcache[reg].write = 1;
         } else {
             cache->avxcache[reg].v = -1;
             cache->ssecache[reg].reg = reg;
-            cache->ssecache[reg].write = 0;
+            cache->ssecache[reg].write = dirty;
             if (!cache->ssecache[reg].v) cache->ssecache[reg].write = 1;
         }
     }
