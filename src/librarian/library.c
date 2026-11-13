@@ -27,6 +27,7 @@
 #include "symbols.h"
 #include "elfs/elfloader_private.h"
 #include "library_inner.h"
+#include "tbb.h"
 
 #include "wrappedlibs.h"
 // create the native lib list
@@ -381,11 +382,6 @@ static int loadEmulatedLib(const char* libname, library_t *lib, box64context_t* 
             SET_BOX64ENV(unity, 1);
             env_changed = 1;
         }
-        if(libname && BOX64ENV(dynarec_tbb) && strstr(libname, "libtbb.so")) {
-            printf_dump(LOG_INFO, "libtbb detected, enable Dynarec StrongMem\n");
-            SET_BOX64ENV(dynarec_strongmem, 1);
-            env_changed = 1;
-        }
         #endif
         if(libname && BOX64ENV(jvm) && strstr(libname, "libjvm.so")) {
             #ifdef DYNAREC
@@ -609,6 +605,14 @@ int FinalizeLibrary(library_t* lib, lib_t* local_maplib, int bindnow, int deepbi
         if(RelocateElfPlt(my_context->maplib, local_maplib, bindnow, deepbind, elf_header)) {
             printf_log(LOG_NONE, "Error: relocating Plt symbols in elf %s\n", lib->name);
             return 1;
+        }
+        if (BOX64ENV(dynarec_tbb) && lib->name && strstr(lib->name, "libtbb.so")) {
+            if (TBBTSOAddElf(elf_header)) {
+                printf_log(LOG_INFO, "libtbb detected, applying safe StrongMem emulation to its code range\n");
+            } else {
+                printf_log(LOG_INFO, "libtbb detected but oneTBB pattern matching failed, falling back to conservative but inaccurate StrongMem emulation settings\n");
+                SET_BOX64ENV(dynarec_strongmem, 1);
+            }
         }
 #ifdef HAVE_TRACE
         if(trace_func) {

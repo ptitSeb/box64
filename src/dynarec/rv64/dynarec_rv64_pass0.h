@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: MIT
 
+#include "tbb.h"
+
 #define INIT uintptr_t sav_addr = addr
 #define FINI                           \
     dyn->isize = addr - sav_addr;      \
@@ -69,23 +71,25 @@
     } else                                         \
         dyn->insts[ninst].barrier_maybe = 1
 #define SET_HASCALLRET() dyn->insts[ninst].x64.has_callret = 1
-#define NEW_INST                                                 \
-    ++dyn->size;                                                 \
-    memset(&dyn->insts[ninst], 0, sizeof(instruction_native_t)); \
-    dyn->insts[ninst].x64.addr = ip;                             \
-    dyn->e.combined1 = dyn->e.combined2 = 0;                     \
-    dyn->e.swapped = 0;                                          \
-    dyn->e.barrier = 0;                                          \
-    for (int i = 0; i < 24; ++i)                                 \
-        dyn->e.olds[i].v = 0;                                    \
-    dyn->insts[ninst].f_entry = dyn->f;                          \
-    dyn->insts[ninst].vector_sew_entry = dyn->vector_sew;        \
-    dyn->inst_sew = dyn->vector_sew;                             \
-    dyn->inst_vlmul = VECTOR_LMUL1;                              \
-    dyn->inst_vl = 0;                                            \
-    dyn->insts[ninst].x64.strongmem = ((box64_wine && VolatileRangesContains(ip)) ? 0 : BOX64DRENV(dynarec_strongmem));\
-    if (ninst)                                                   \
-        dyn->insts[ninst - 1].x64.size = dyn->insts[ninst].x64.addr - dyn->insts[ninst - 1].x64.addr;\
+#define NEW_INST                                                                                      \
+    ++dyn->size;                                                                                      \
+    memset(&dyn->insts[ninst], 0, sizeof(instruction_native_t));                                      \
+    dyn->insts[ninst].x64.addr = ip;                                                                  \
+    dyn->e.combined1 = dyn->e.combined2 = 0;                                                          \
+    dyn->e.swapped = 0;                                                                               \
+    dyn->e.barrier = 0;                                                                               \
+    for (int i = 0; i < 24; ++i)                                                                      \
+        dyn->e.olds[i].v = 0;                                                                         \
+    dyn->insts[ninst].f_entry = dyn->f;                                                               \
+    dyn->insts[ninst].vector_sew_entry = dyn->vector_sew;                                             \
+    dyn->inst_sew = dyn->vector_sew;                                                                  \
+    dyn->inst_vlmul = VECTOR_LMUL1;                                                                   \
+    dyn->inst_vl = 0;                                                                                 \
+    dyn->insts[ninst].x64.strongmem = ((box64_wine && VolatileRangesContains(ip))                     \
+            ? 0                                                                                       \
+            : (TBBTSORangesContains(ip) ? 4 : BOX64DRENV(dynarec_strongmem)));                        \
+    if (ninst)                                                                                        \
+        dyn->insts[ninst - 1].x64.size = dyn->insts[ninst].x64.addr - dyn->insts[ninst - 1].x64.addr; \
     AREFLAGSNEEDED()
 
 #define INST_EPILOG                                                    \

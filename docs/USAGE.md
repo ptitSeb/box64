@@ -321,10 +321,10 @@ Enable or disable the generation of division-by-zero exception. Available in Wow
 
 ### BOX64_DYNAREC_TBB
 
-Enable or disable libtbb detection.
+Detect oneTBB (statically linked or libtbb) and emulate x86 TSO for its scheduler code range.
 
- * 0: Do not detect libtbb.
- * 1: Detect libtbb and apply conservative settings. [Default]
+ * 0: Do not detect oneTBB.
+ * 1: Detect oneTBB and apply strongmem=4 to its scheduler code range. [Default]
 
 ### BOX64_DYNAREC_X87DOUBLE
 

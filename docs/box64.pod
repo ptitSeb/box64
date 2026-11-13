@@ -351,10 +351,10 @@ Enable the emulation of x86 strong memory model. Available in WowBox64.
 
 =item B<BOX64_DYNAREC_TBB> =I<0|1>
 
-Enable or disable libtbb detection.
+Detect oneTBB (statically linked or libtbb) and emulate x86 TSO for its scheduler code range.
 
- * 0 : Do not detect libtbb. 
- * 1 : Detect libtbb and apply conservative settings. [Default]
+ * 0 : Do not detect oneTBB. 
+ * 1 : Detect oneTBB and apply strongmem=4 to its scheduler code range. [Default]
 
 
 =item B<BOX64_DYNAREC_TEST> =I<0|1|0xXXXXXXXX-0xYYYYYYYY>

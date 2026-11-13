@@ -70,7 +70,7 @@ extern char* ftrace_name;
     BOOLEAN(BOX64_DYNAREC_PERFMAP, dynarec_perf_map, 0, 0, 0)                    \
     INTEGER(BOX64_DYNAREC_SAFEFLAGS, dynarec_safeflags, 1, 0, 2, 1, 2)           \
     INTEGER(BOX64_DYNAREC_STRONGMEM, dynarec_strongmem, 0, 0, 4, 1, 3)           \
-    BOOLEAN(BOX64_DYNAREC_TBB, dynarec_tbb, 1, 0, 0)                             \
+    BOOLEAN(BOX64_DYNAREC_TBB, dynarec_tbb, 1, 0, 1)                             \
     STRING(BOX64_DYNAREC_TEST, dynarec_test_str, 1, 0)                           \
     BOOLEAN(BOX64_DYNAREC_TEST_NODUP, dynarec_test_nodup, 0, 1, 0)               \
     BOOLEAN(BOX64_DYNAREC_TEST_NODUMP, dynarec_test_nodump, 1, 1, 0)             \
