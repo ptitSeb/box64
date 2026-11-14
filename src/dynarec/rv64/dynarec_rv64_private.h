@@ -151,6 +151,8 @@ typedef struct instruction_rv64_s {
     uint16_t            up32_pending;     // bitmask of GPRs whose upper 32 bits are stale at entry to this instruction
     uint32_t            vec_used;         // bitmask of XMM/YMM registers touched by this instruction
     uint16_t            vec_read;         // bitmask of XMM/YMM registers read by this instruction
+    uint16_t            vec_load;         // bitmask of XMM/YMM registers loaded from memory by this instruction
+    uint16_t            vec_ymm_load;     // bitmask of YMM registers loaded as a full 256bits from memory by this instruction
     uint16_t            vec_write_full;   // bitmask of XMM/YMM registers fully (both halves) written by this instruction
     uint32_t            preload_xmmymm;   // registers to preload at this instruction
     int                 preload_from;     // last instruction of the region that uses them
@@ -260,6 +262,16 @@ static inline void sse_restore_entry_ymm0(dynarec_rv64_t* dyn, extcache_t* cache
     for (int i = 0; i < 16; ++i)
         if (cache->ssecache[i].v != -1)
             cache->ssecache[i].ymm0 = (cache->ymm0 >> i) & 1;
+}
+
+static inline void sse_preload_unwind(extcache_t* cache, uint32_t preload)
+{
+    if (!(preload & 0xffff))
+        return;
+    for (int i = 0; i < 24; ++i)
+        if (cache->extcache[i].v && cache->extcache[i].t == EXT_CACHE_XMMW
+            && (preload & (1u << cache->extcache[i].n)))
+            cache->extcache[i].t = EXT_CACHE_XMMR;
 }
 
 void add_next(dynarec_rv64_t *dyn, uintptr_t addr);
