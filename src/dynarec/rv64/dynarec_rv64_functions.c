@@ -791,7 +791,7 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
     if (BOX64ENV(dynarec_gdbjit)) {
         static char buf2[4096 + 64];
         if (BOX64ENV(dynarec_gdbjit) > 1) {
-            snprintf(buf2, sizeof(buf2), "; %d: %d opcodes, %s", ninst, dyn->insts[ninst].size / 4, buf);
+            snprintf(buf2, sizeof(buf2), "; %d: %d opcodes, %.*s", ninst, dyn->insts[ninst].size / 4, (int)sizeof(buf2) - 64, buf);
             dyn->gdbjit_block = GdbJITBlockAddLine(dyn->gdbjit_block, (dyn->native_start + dyn->insts[ninst].address), buf2);
         }
         zydis_dec_t* dec = rex.is32bits ? my_context->dec32 : my_context->dec;
