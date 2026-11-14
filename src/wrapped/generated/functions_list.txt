@@ -6266,10 +6266,17 @@ wrappedlibm:
   - __powl_finite
 wrappedlibmvec:
 - vFv:
+  - _ZGVbN2v_acos
   - _ZGVbN2v_cos
+  - _ZGVbN2v_cosh
+  - _ZGVbN2v_erf
   - _ZGVbN2v_exp
   - _ZGVbN2v_log
+  - _ZGVbN2v_log10
   - _ZGVbN2v_sin
+  - _ZGVbN2v_sinh
+  - _ZGVbN2v_tanh
+  - _ZGVbN2vv_atan2
   - _ZGVbN2vv_pow
   - _ZGVbN4v_cosf
   - _ZGVbN4v_expf
