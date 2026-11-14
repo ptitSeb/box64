@@ -396,6 +396,7 @@ int fpuCacheNeedsTransform(dynarec_rv64_t* dyn, int ninst)
     extcache_t cache_i2 = dyn->insts[i2].e;
     extcacheUnwind(&cache_i2);
     sse_restore_entry_ymm0(dyn, &cache_i2, i2);
+    sse_preload_unwind(&cache_i2, dyn->insts[i2].preload_xmmymm);
 
     for (int i = 0; i < 24; ++i) {
         if (dyn->insts[ninst].e.extcache[i].v) { // there is something at ninst for i
@@ -972,38 +973,151 @@ int isUpper32Zero(dynarec_rv64_t* dyn, int ninst, int reg)
     return 0;
 }
 
-static uint32_t getUsedVectorMask(const dynarec_rv64_t* dyn, int first, int last)
+static uint32_t getFullXYMMMask(const dynarec_rv64_t* dyn, int ninst)
 {
+    if (ninst < 0 || ninst >= dyn->size)
+        return 0;
     uint32_t ret = 0;
-    for (int i = first; i <= last && i < dyn->size; ++i)
-        ret |= dyn->insts[i].vec_used;
+    for (int i = 0; i < 16; ++i) {
+        const sse_cache_t* c = &dyn->insts[ninst].e.ssecache[i];
+        if (c->v == -1 || !c->vector)
+            continue;
+        if (c->ymm && cpuext.vlen >= 32)
+            ret |= 1u << (16 + i);
+        else
+            ret |= 1u << i;
+    }
     return ret;
 }
 
-static int getFirstVectorUse(const dynarec_rv64_t* dyn, int first, int last, int reg)
+static uint32_t getCachedVectorMask(const dynarec_rv64_t* dyn, int ninst)
 {
-    for (int i = first; i <= last && i < dyn->size; ++i)
-        if (dyn->insts[i].vec_used & (1u << reg))
-            return i;
-    return -1;
+    if (ninst < 0 || ninst >= dyn->size)
+        return 0;
+    uint32_t ret = 0;
+    for (int i = 0; i < 16; ++i) {
+        const sse_cache_t* c = &dyn->insts[ninst].e.ssecache[i];
+        if (c->v != -1 && c->vector && c->reg == VREG(i))
+            ret |= 1u << i;
+    }
+    return ret;
 }
 
-static void applyPreloadState(dynarec_rv64_t* dyn, int first, int first_use, int reg)
+static uint32_t filterPreloadLoads(const dynarec_rv64_t* dyn, int first, int last, uint32_t preload)
 {
-    for (int i = first; i < first_use; ++i) {
+    uint16_t pending_xmm = (uint16_t)preload;
+    uint16_t pending_ymm = (uint16_t)(preload >> 16);
+    uint32_t ret = 0;
+    for (int i = first; i <= last && (pending_xmm || pending_ymm); ++i) {
+        const instruction_rv64_t* inst = &dyn->insts[i];
+        uint16_t touched = (uint16_t)(inst->vec_used & 0xffff);
+        uint16_t first_xmm = pending_xmm & touched;
+        uint16_t first_ymm = pending_ymm & touched;
+        ret |= first_xmm & inst->vec_load;
+        ret |= (uint32_t)(first_ymm & inst->vec_ymm_load) << 16;
+        pending_xmm &= (uint16_t)~touched;
+        pending_ymm &= (uint16_t)~touched;
+    }
+    return ret;
+}
+
+static void applyPreloadState(dynarec_rv64_t* dyn, int first, int first_use, int reg, int ymm, int write)
+{
+    int idx = EXTIDX(VREG(reg));
+    int from = first > 0 ? first - 1 : first;
+    for (int i = from; i < first_use; ++i) {
         extcache_t* e = &dyn->insts[i].e;
         sse_cache_t* s = &e->ssecache[reg];
         s->reg = VREG(reg);
         s->vector = 1;
         s->single = 0;
-        s->write = 0;
-        s->ymm = 0;
-        s->ymm0 = (e->ymm0 >> reg) & 1;
-        e->fpuused[EXTIDX(VREG(reg))] = 1;
-        e->extcache[EXTIDX(VREG(reg))].n = reg;
-        e->extcache[EXTIDX(VREG(reg))].y = 0;
+        s->write = write;
+        s->ymm = ymm;
+        s->ymm0 = ymm ? 0 : ((e->ymm0 >> reg) & 1);
+        e->fpuused[idx] = 1;
+        e->extcache[idx].n = reg;
+        e->extcache[idx].y = ymm;
+        if (ymm)
+            e->ymm0 &= (uint16_t)~(1u << reg);
+        e->news &= ~(1u << idx);
+        e->olds[idx].v = 0;
         sse_sync_cache_type(e, reg);
     }
+    dyn->insts[first_use].e.news &= ~(1u << idx);
+    dyn->insts[first_use].e.olds[idx].v = 0;
+}
+
+static int tryApplyPreload(dynarec_rv64_t* dyn, int first, int last, int reg, int ymm)
+{
+    uint16_t bit = (uint16_t)(1u << reg);
+    int first_use = -1;
+    for (int i = first; i <= last; ++i) {
+        if (dyn->insts[i].vec_used & bit) {
+            first_use = i;
+            break;
+        }
+    }
+    if (first_use < 0)
+        return 0;
+    int idx = EXTIDX(VREG(reg));
+    for (int i = first; i < first_use; ++i)
+        if (dyn->insts[i].e.fpuused[idx])
+            return 0;
+    const sse_cache_t* use = &dyn->insts[first_use].e.ssecache[reg];
+    if (use->v == -1 || !use->vector || use->reg != VREG(reg))
+        return 0;
+    int type = dyn->insts[first_use].e.extcache[idx].t;
+    int write = 0;
+    if (ymm) {
+        if (type != EXT_CACHE_YMMR && type != EXT_CACHE_YMMW)
+            return 0;
+        for (int p = 0; p < dyn->insts[first].pred_sz; ++p) {
+            const sse_cache_t* c = &dyn->insts[dyn->insts[first].pred[p]].e.ssecache[reg];
+            if (c->v == -1 || !c->vector)
+                continue;
+            if (c->ymm0)
+                return 0;
+            if (c->ymm && c->write) {
+                if (c->reg != VREG(reg) || type != EXT_CACHE_YMMW)
+                    return 0;
+                write = 1;
+            }
+        }
+        for (int i = first; i <= first_use; ++i)
+            if (dyn->insts[i].e.ymm0 & bit)
+                return 0;
+    } else if (type != EXT_CACHE_XMMR && type != EXT_CACHE_XMMW
+        && type != EXT_CACHE_YMMR && type != EXT_CACHE_YMMW) {
+        return 0;
+    }
+    applyPreloadState(dyn, first, first_use, reg, ymm, write);
+    return 1;
+}
+
+static void addSSEPreload(dynarec_rv64_t* dyn, int last, int first, uint32_t preload)
+{
+    if (first < 0 || first > last || !preload || dyn->insts[first].preload_xmmymm)
+        return;
+    if (first && !dyn->insts[first - 1].x64.has_next)
+        return;
+    for (int i = first; i < last; ++i) {
+        const instruction_rv64_t* inst = &dyn->insts[i];
+        if (!inst->x64.has_next || (inst->x64.barrier & BARRIER_FLOAT)
+            || inst->x64.jmp || inst->x64.has_callret)
+            return;
+    }
+
+    uint32_t accepted = 0;
+    for (int reg = 0; reg < 16; ++reg) {
+        if ((preload & (1u << reg)) && tryApplyPreload(dyn, first, last, reg, 0))
+            accepted |= 1u << reg;
+        if ((preload & (1u << (16 + reg))) && tryApplyPreload(dyn, first, last, reg, 1))
+            accepted |= 1u << (16 + reg);
+    }
+    if (!accepted)
+        return;
+    dyn->insts[first].preload_xmmymm = accepted;
+    dyn->insts[first].preload_from = last;
 }
 
 void updatePreloads(dynarec_rv64_t* dyn)
@@ -1011,11 +1125,7 @@ void updatePreloads(dynarec_rv64_t* dyn)
     if (!cpuext.vector)
         return;
     for (int first = 0; first < dyn->size; ++first) {
-        if (dyn->insts[first].preload_xmmymm)
-            continue;
-        if (first)
-            break;
-        if (!dyn->insts[first].pred_sz)
+        if ((first && dyn->insts[first].pred_sz <= 1) || (!first && !dyn->insts[first].pred_sz))
             continue;
         int last = dyn->size + 1;
         for (int j = 0; j < dyn->insts[first].pred_sz; ++j) {
@@ -1025,43 +1135,19 @@ void updatePreloads(dynarec_rv64_t* dyn)
         }
         if (last > dyn->size || last <= first)
             continue;
-        if (first && !dyn->insts[first - 1].x64.has_next)
+        int prev = getNominalPred(dyn, first);
+        if (first && prev != first - 1)
             continue;
-        int straight = 1;
-        for (int i = first; i < last && straight; ++i) {
-            const instruction_rv64_t* inst = &dyn->insts[i];
-            if (!inst->x64.has_next || (inst->x64.barrier & BARRIER_FLOAT)
-                || inst->x64.has_callret)
-                straight = 0;
-        }
-        if (!straight)
+        if (dyn->insts[first].preload_xmmymm)
             continue;
-        uint32_t preload = getUsedVectorMask(dyn, first, last);
-        if (!preload)
-            continue;
-        uint32_t accepted = 0;
-        for (int reg = 0; reg < 16; ++reg) {
-            if (!(preload & (1u << reg)))
-                continue;
-            int first_use = getFirstVectorUse(dyn, first, last, reg);
-            if (first_use < 0)
-                continue;
-            int ok = 1;
-            int prev = first - 1;
-            if (prev >= 0 && dyn->insts[prev].e.ssecache[reg].v != -1)
-                ok = 0;
-            for (int i = first; i < first_use && ok; ++i)
-                if (dyn->insts[i].e.ssecache[reg].v != -1)
-                    ok = 0;
-            if (ok && dyn->insts[first_use].e.ssecache[reg].v == -1)
-                ok = 0;
-            if (!ok)
-                continue;
-            applyPreloadState(dyn, first, first_use, reg);
-            accepted |= 1u << reg;
-        }
-        if (accepted)
-            dyn->insts[first].preload_xmmymm = accepted;
+
+        uint32_t preload = getFullXYMMMask(dyn, last);
+        uint16_t occupied = (uint16_t)getCachedVectorMask(dyn, prev);
+        preload &= ~(uint32_t)occupied;
+        preload &= ~((uint32_t)occupied << 16);
+        preload = filterPreloadLoads(dyn, first, last, preload);
+        if (preload)
+            addSSEPreload(dyn, last, first, preload);
     }
 }
 
@@ -1104,8 +1190,16 @@ void updateUpperLiveness(dynarec_rv64_t* dyn)
                 const sse_cache_t* b = &pe->ssecache[r];
                 int a_cached = (a->v != -1 && a->vector);
                 int b_cached = (b->v != -1 && b->vector);
-                if (!a_cached || !b_cached)
+                if (!a_cached || !b_cached) {
+                    if (a_cached != b_cached) {
+                        const sse_cache_t* c = a_cached ? a : b;
+                        if (c->ymm0)
+                            need_barrier = 1;
+                        else
+                            resolved |= (uint16_t)(1u << r);
+                    }
                     continue;
+                }
                 if (a->ymm == b->ymm && a->ymm0 == b->ymm0)
                     continue;
                 int a_ok = a->ymm || (!a->ymm && a->ymm0);
