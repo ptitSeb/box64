@@ -49,8 +49,12 @@ typedef struct emuthread_s emuthread_t;
 static vFppp_t real_pthread_cleanup_push_defer = NULL;
 static vFpi_t real_pthread_cleanup_pop_restore = NULL;
 static iFppip_t real_pthread_cond_clockwait = NULL;
+#ifndef HAVE__PTHREAD_CLEANUP_PUSH
 void _pthread_cleanup_push(void* buffer, void* routine, void* arg);	// declare hidden functions
+#endif
+#ifndef HAVE__PTHREAD_CLEANUP_POP
 void _pthread_cleanup_pop(void* buffer, int exec);
+#endif
 // with glibc 2.34+, pthread_kill changed behaviour and might break some program, so using old version if possible
 // it will be pthread_kill@GLIBC_2.17 on aarch64, but it's GLIBC_2.2.5 on x86_64
 static iFli_t real_phtread_kill_old = NULL;
@@ -474,7 +478,7 @@ EXPORT int my_pthread_attr_init(x64emu_t* emu, pthread_attr_t* attr)
 	PTHREAD_ATTR_UNALIGN(attr);
 	return ret;
 }
-#ifndef ANDROID
+#ifdef HAVE_PTHREAD_ATTR_GETAFFINITY_NP
 EXPORT int my_pthread_attr_getaffinity_np(x64emu_t* emu, pthread_attr_t* attr, size_t cpusize, void* cpuset)
 {
 	(void)emu;
@@ -487,6 +491,8 @@ EXPORT int my_pthread_attr_getaffinity_np(x64emu_t* emu, pthread_attr_t* attr, s
 	}
 	return ret;
 }
+#endif
+#ifdef HAVE_PTHREAD_ATTR_SETAFFINITY_NP
 EXPORT int my_pthread_attr_setaffinity_np(x64emu_t* emu, pthread_attr_t* attr, size_t cpusize, void* cpuset)
 {
 	(void)emu;
@@ -1089,7 +1095,7 @@ EXPORT int my_pthread_mutexattr_setkind_np(x64emu_t* emu, my_mutexattr_t *attr, 
 }
 EXPORT int my_pthread_mutexattr_setprioceiling(x64emu_t* emu, my_mutexattr_t *attr, int p)
 {
-#if !defined(TERMUX) && !defined(ANDROID)
+#ifdef HAVE_PTHREAD_MUTEXATTR_SETPRIOCEILING
 	(void)emu;
 	my_mutexattr_t mattr = {0};
 	mattr.x86 = attr->x86;
@@ -1451,6 +1457,7 @@ void init_pthread_helper()
 
 	// search for older symbol for pthread_kill
 	{
+#ifdef HAVE_DLVSYM
 		char buff[50];
 		for(int i=0; i<34 && !real_phtread_kill_old; ++i) {
 			snprintf(buff, 50, "GLIBC_2.%d", i);
@@ -1461,6 +1468,7 @@ void init_pthread_helper()
 		real_phtread_kill_old = (iFli_t)dlvsym(NULL, "pthread_kill", "GLIBC_2.2.5");
 	if(!real_phtread_kill_old) {
 		printf_log(LOG_INFO, "Warning, older then 2.34 pthread_kill not found, using current one\n");
+#endif
 		real_phtread_kill_old = (iFli_t)pthread_kill;
 	}
 
