@@ -141,8 +141,8 @@ static void openFTrace(void)
             else
                 sprintf(pid, "%d", GetTID());
             strcat(tmp, pid);
-            c = strstr(p, "\%pid") + strlen("\%pid");
-            strcat(tmp, c);
+            const char* rest = strstr(p, "\%pid") + strlen("\%pid");
+            strcat(tmp, rest);
             ++next;
         } while (FileExist(tmp, IS_FILE) && !append);
         p = tmp;
