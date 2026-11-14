@@ -40,6 +40,7 @@ add_library(box64ec SHARED
     "${BOX64_ROOT}/src/tools/cpumask.c"
     "${BOX64_ROOT}/src/tools/bitutils.c"
     "${BOX64_ROOT}/src/tools/rbtree.c"
+    "${BOX64_ROOT}/src/tools/volatile_fences.c"
     "${BOX64_ROOT}/external/musl/__math_divzero.c"
     "${BOX64_ROOT}/external/musl/__math_invalid.c"
     "${BOX64_ROOT}/external/musl/expm1.c"

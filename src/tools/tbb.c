@@ -6,7 +6,7 @@
 // On x86 the release store is a plain MOV, and TSO store->store ordering makes the task's vptr visible before the publication.
 // RISC architectures does not, so a thief can read the pointer but stale stack bytes at [task] and crash in task->execute().
 // Detect oneTBB by its RTTI and emulate x86 TSO (strongmem=4) on its code range only.
-// This is a self-maintained range list, similar to the volatile metadata ranges.
+// The detected ranges are registered with the volatile fence registry.
 
 #include <stdint.h>
 #include <string.h>
@@ -15,18 +15,13 @@
 #include "elfs/elfloader_private.h"
 #include "debug.h"
 #include "env.h"
+#include "volatile_fences.h"
 #include "tbb.h"
 
-#define TBB_MAX_RANGES   8
 #define TBB_MAX_CODE     64
 #define TBB_MAX_SEGS     16
 #define TBB_CLUSTER_GAP  0x10000ULL
 #define TBB_RANGE_MARGIN 0x20000ULL
-
-typedef struct tbb_range_s {
-    uintptr_t start;
-    uintptr_t end;
-} tbb_range_t;
 
 typedef struct tbb_seg_s {
     uintptr_t start;
@@ -34,8 +29,6 @@ typedef struct tbb_seg_s {
     uint32_t flags;
 } tbb_seg_t;
 
-static tbb_range_t tbb_ranges[TBB_MAX_RANGES];
-static int tbb_nranges = 0;
 static int tbb_main_scanned = 0;
 static int tbb_lock = 0;
 
@@ -215,24 +208,6 @@ static int tbb_collect_code(elfheader_t* h, const char* name, uintptr_t* code, i
     return 0;
 }
 
-static void tbb_add_range(uintptr_t start, uintptr_t end)
-{
-    start = TBB_ALIGN_DOWN(start, 0x1000);
-    end = TBB_ALIGN_UP(end, 0x1000);
-    if (end <= start)
-        return;
-    int nranges = __atomic_load_n(&tbb_nranges, __ATOMIC_RELAXED);
-    for (int i = 0; i < nranges; ++i)
-        if (start >= tbb_ranges[i].start && end <= tbb_ranges[i].end)
-            return;
-    if (nranges >= TBB_MAX_RANGES)
-        return;
-    tbb_ranges[nranges].start = start;
-    tbb_ranges[nranges].end = end;
-    __atomic_store_n(&tbb_nranges, nranges + 1, __ATOMIC_RELEASE);
-    printf_log(LOG_DEBUG, "TBB detected, applying strongmem=4 to %p-%p\n", (void*)start, (void*)end);
-}
-
 static int tbb_add_cluster_ranges(uintptr_t* code, int ncode)
 {
     if (ncode < 2)
@@ -255,9 +230,9 @@ static int tbb_add_cluster_ranges(uintptr_t* code, int ncode)
         if (j > i) {
             uintptr_t start = code[i] > TBB_RANGE_MARGIN ? code[i] - TBB_RANGE_MARGIN : 0;
             uintptr_t end = code[j] + TBB_RANGE_MARGIN;
-            int nranges = __atomic_load_n(&tbb_nranges, __ATOMIC_RELAXED);
-            tbb_add_range(start, end);
-            if (__atomic_load_n(&tbb_nranges, __ATOMIC_RELAXED) > nranges)
+            start = TBB_ALIGN_DOWN(start, 0x1000);
+            end = TBB_ALIGN_UP(end, 0x1000);
+            if (VolatileFenceAddRange(VOLATILE_RANGE_TSO, start, end))
                 ++added;
         }
         i = j + 1;
@@ -289,10 +264,10 @@ int TBBTSOAddElf(elfheader_t* h)
     return added;
 }
 
-int TBBTSORangesContains(uintptr_t ip)
+void TBBTSOScanMainElf(void)
 {
     if (!BOX64ENV(dynarec_tbb))
-        return 0;
+        return;
 
     // Lazily scan the main executable once for static oneTBB.
     // A dynamically loaded libtbb is added by TBBTSOAddElf when it is loaded.
@@ -306,10 +281,4 @@ int TBBTSORangesContains(uintptr_t ip)
         }
         tbb_lock_release();
     }
-
-    int nranges = __atomic_load_n(&tbb_nranges, __ATOMIC_ACQUIRE);
-    for (int i = 0; i < nranges; ++i)
-        if (ip >= tbb_ranges[i].start && ip < tbb_ranges[i].end)
-            return 1;
-    return 0;
 }

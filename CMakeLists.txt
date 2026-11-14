@@ -493,6 +493,7 @@ set(ELFLOADER_SRC
     "${BOX64_ROOT}/src/tools/dynacache.c"
     "${BOX64_ROOT}/src/tools/wine_tools.c"
     "${BOX64_ROOT}/src/tools/pe_tools.c"
+    "${BOX64_ROOT}/src/tools/volatile_fences.c"
     "${BOX64_ROOT}/src/wrapped/generated/wrapper.c"
 )
 if(NOT STATICBUILD)
@@ -1033,7 +1034,7 @@ if(DYNAREC)
         "${BOX64_ROOT}/src/dynarec/dynarec_native_functions.c"
         "${BOX64_ROOT}/src/dynarec/dynacache_reloc.c"
         "${BOX64_ROOT}/src/dynarec/dynacache_compress.c"
-        "${BOX64_ROOT}/src/dynarec/tbb.c"
+        "${BOX64_ROOT}/src/tools/tbb.c"
         "${BOX64_ROOT}/src/emu/x64test.c"
     )
 endif()

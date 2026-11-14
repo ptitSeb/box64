@@ -384,16 +384,6 @@ void free(void* ptr)
     RtlFreeHeap(GetProcessHeap(), 0, ptr);
 }
 
-int VolatileRangesContains(uintptr_t addr)
-{
-    return 0;
-}
-
-int VolatileOpcodesHas(uintptr_t addr)
-{
-    return 0;
-}
-
 void PrintfFtrace(int prefix, const char* fmt, ...)
 {
     static char buf[1024] = { 0 };

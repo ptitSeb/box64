@@ -7,8 +7,7 @@
 #include <stddef.h>
 
 #include "debug.h"
-#include "khash.h"
-#include "rbtree.h"
+#include "volatile_fences.h"
 
 typedef uint8_t BYTE;
 typedef uint16_t WORD;
@@ -185,12 +184,6 @@ typedef struct _IMAGE_VOLATILE_RANGE_METADATA {
     ULONG Size;
 } IMAGE_VOLATILE_RANGE_METADATA, *PIMAGE_VOLATILE_RANGE_METADATA;
 
-KHASH_SET_INIT_STR(string);
-KHASH_SET_INIT_INT64(volatileopcode);
-
-static kh_volatileopcode_t* volatileOpcodes = NULL; // never freed
-static rbtree_t* volatileRanges = NULL; // never freed
-
 DWORD RVAToFileOffset(PIMAGE_SECTION_HEADER sections, DWORD numberOfSections, DWORD rva, BYTE* fileBuffer, size_t fileSize)
 {
     for (DWORD i = 0; i < numberOfSections; i++) {
@@ -207,9 +200,6 @@ DWORD RVAToFileOffset(PIMAGE_SECTION_HEADER sections, DWORD numberOfSections, DW
 
 void ParseVolatileMetadata(char* filename, void* addr)
 {
-    if (!volatileOpcodes) volatileOpcodes = kh_init(volatileopcode);
-    if (!volatileRanges) volatileRanges = rbtree_init("volatileRanges");
-
     char* baseName = strrchr(filename, '/');
     if (!baseName)
         return;
@@ -287,8 +277,7 @@ void ParseVolatileMetadata(char* filename, void* addr)
 
         for (DWORD i = 0; i < numEntries; i++) {
             ULONGLONG entry = volatileAccessTable[i].Rva + (ULONGLONG)addr;
-            int ret;
-            khint_t _ = kh_put(volatileopcode, volatileOpcodes, entry, &ret);
+            VolatileFenceAddMetadataPoint((uintptr_t)entry);
             printf_log(LOG_DEBUG, "Volatile access table [%d]: %08lx\n", i, entry);
         }
     }
@@ -306,22 +295,10 @@ void ParseVolatileMetadata(char* filename, void* addr)
         for (DWORD i = 0; i < numEntries; i++) {
             ULONGLONG rva = volatileRangeMetadata[i].Rva + (ULONGLONG)addr;
             ULONGLONG size = volatileRangeMetadata[i].Size;
-            rb_set(volatileRanges, rva, rva + size, 1);
+            VolatileFenceAddRange(VOLATILE_RANGE_METADATA, (uintptr_t)rva, (uintptr_t)(rva + size));
             printf_log(LOG_DEBUG, "Volatile range metadata [%d]: %08lx-%08lx\n", i, rva, rva + size);
         }
     }
     munmap(buffer, msize);
     return;
-}
-
-int VolatileRangesContains(uintptr_t addr)
-{
-    if (!volatileRanges) return 0;
-    return rb_get(volatileRanges, addr) != 0;
-}
-
-int VolatileOpcodesHas(uintptr_t addr)
-{
-    if (!volatileOpcodes) return 0;
-    return kh_get(volatileopcode, volatileOpcodes, addr) != kh_end(volatileOpcodes);
 }

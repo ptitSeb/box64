@@ -1620,7 +1620,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                     // gd restored after that
                 } else {
                     addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff << (2 + rex.w), (1 << (2 + rex.w)) - 1, rex, &lock, 0, 0);
-                    if(!lock && !dyn->insts[ninst].use_lrcpc && BOX64ENV(unity) && !VolatileRangesContains(ip) && ((fixedaddress==0x80) || (fixedaddress==0x84) || (fixedaddress==0xc0) || (fixedaddress==0xc4))) {
+                    if(!lock && !dyn->insts[ninst].use_lrcpc && VolatileFenceNeedsUnityFence(ip, fixedaddress)) {
                         if(!dyn->insts[ninst].x64.strongmem && cpuext.lrcpc && cpuext.lrcpc2 && cpuext.uscat)
                             dyn->insts[ninst].use_lrcpc = 1;
                         else {
@@ -1675,7 +1675,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 MOVxw_REG(gd, TO_NAT((nextop & 7) + (rex.b << 3)));
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, &fixedaddress, &unscaled, 0xfff<<(2+rex.w), (1<<(2+rex.w))-1, rex, &lock, 0, 0);
-                if(!lock && !dyn->insts[ninst].use_lrcpc && BOX64ENV(unity) && !VolatileRangesContains(ip) && ((fixedaddress==0x80) || (fixedaddress==0x84) || (fixedaddress==0xc0) || (fixedaddress==0xc4))) {
+                if(!lock && !dyn->insts[ninst].use_lrcpc && VolatileFenceNeedsUnityFence(ip, fixedaddress)) {
                     if(!dyn->insts[ninst].x64.strongmem && cpuext.lrcpc && cpuext.lrcpc2 && cpuext.uscat)
                         dyn->insts[ninst].use_lrcpc = 1;
                     else
