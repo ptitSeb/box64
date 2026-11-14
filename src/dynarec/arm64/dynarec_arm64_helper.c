@@ -2038,7 +2038,10 @@ static void loadCache(dynarec_arm_t* dyn, int ninst, int stack_cnt, int s1, int 
                 MESSAGE(LOG_DUMP, "\t  - ignoring unneeded %s\n", getCacheName(t, n));
             } else {
                 MESSAGE(LOG_DUMP, "\t  - Loading %s\n", getCacheName(t, n));
-                VLDR128_U12(i, xEmu, offsetof(x64emu_t, ymm[n]));
+                if(is_avx_zero_unset(dyn, ninst, n))
+                    VEORQ(i, i, i);
+                else
+                    VLDR128_U12(i, xEmu, offsetof(x64emu_t, ymm[n]));
             }
             break;
         case NEON_CACHE_MM:
