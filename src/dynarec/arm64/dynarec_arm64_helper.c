@@ -2883,6 +2883,8 @@ static int ymm_preload_reg(dynarec_arm_t* dyn, int ninst, int last, int ymm, int
     if(i!=-1) {
         if(ymm0) {
             VEORQ(i, i, i);
+            if(!w) // write back the Ymm0 if needed
+                VSTR128_U12(i, xEmu, offsetof(x64emu_t, ymm[ymm]));
             dyn->ymm_zero&=~(1<<ymm);
         } else
             VLDR128_U12(i, xEmu, offsetof(x64emu_t, ymm[ymm]));
