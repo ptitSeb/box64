@@ -49,6 +49,7 @@
 #include <sys/wait.h>
 #include <sched.h>
 #include <dirent.h>
+#include <malloc.h>
 
 #include "wrappedlibs.h"
 
@@ -77,6 +78,10 @@
 #include "box32_inputevent.h"
 #include "syscall_user_dispatch.h"
 #include "cpumask.h"
+#include "libc_malloc.h"
+#include "libc_ctype.h"
+#include "libc_glob.h"
+#include "libc_select.h"
 
 // need to undef all read / read64 stuffs!
 #undef pread
@@ -1748,7 +1753,7 @@ typedef struct my_glob_32_s
     ulong_t gl_offs;
     int     gl_flags;
     ptr_t   gl_closedir;    //void (*gl_closedir) (void *);
-    ptr_t   gl_readir;      //struct dirent *(*gl_readdir) (void *);
+    ptr_t   gl_readdir;     //struct dirent *(*gl_readdir) (void *);
     ptr_t   gl_opendir;     //void *(*gl_opendir) (const char *);
     ptr_t   gl_lstat;       //int (*gl_lstat) (const char *__restrict, struct stat *__restrict);
     ptr_t   gl_stat;        //int (*gl_stat) (const char *__restrict, struct stat *__restrict);
@@ -1765,8 +1770,13 @@ static void convert_glob_to_32(void* d, void* s, int is64)
     dst->gl_pathc = to_ulong(src->gl_pathc);
     dst->gl_pathv = to_ptrv(src->gl_pathv);
     dst->gl_offs = to_ulong(src->gl_offs);
-    dst->gl_flags = src->gl_flags;
+    dst->gl_flags = src->GLOB_T_GL_FLAGS;
     // TODO: functions pointers
+    // dst->gl_closedir = to_ptrv(src->GLOB_T_GL_CLOSEDIR);
+    // dst->gl_readdir = to_ptrv(src->GLOB_T_GL_READDIR);
+    // dst->gl_opendir = to_ptrv(src->GLOB_T_GL_OPENDIR);
+    // dst->gl_lstat = to_ptrv(src->GLOB_T_GL_LSTAT);
+    // dst->gl_stat = to_ptrv(src->GLOB_T_GL_STAT);
 }
 static void convert_glob_to_64(void* d, void* s, int is64)
 {
@@ -1776,10 +1786,15 @@ static void convert_glob_to_64(void* d, void* s, int is64)
     dst->gl_pathc = from_ulong(src->gl_pathc);
     dst->gl_pathv = from_ptrv(src->gl_pathv);
     dst->gl_offs = from_ulong(src->gl_offs);
-    dst->gl_flags = src->gl_flags;
+    dst->GLOB_T_GL_FLAGS = src->gl_flags;
     for(ulong_t i=dst->gl_pathc; i--;)
         dst->gl_pathv[i] = from_ptrv(((ptr_t*)dst->gl_pathv)[i]);
     // TODO: functions pointers
+    // dst->GLOB_T_GL_CLOSEDIR = from_ptrv(src->gl_closedir);
+    // dst->GLOB_T_GL_READDIR = from_ptrv(src->gl_readdir);
+    // dst->GLOB_T_GL_OPENDIR = from_ptrv(src->gl_opendir);
+    // dst->GLOB_T_GL_LSTAT = from_ptrv(src->gl_lstat);
+    // dst->GLOB_T_GL_STAT = from_ptrv(src->gl_stat);
 }
 
 EXPORT int32_t my32_glob(x64emu_t *emu, void* pat, int32_t flags, void* errfnc, void* pglob)
@@ -2194,17 +2209,17 @@ void convert_file_action_to_32(void* d, void* s)
 {
     posix_spawn_file_actions_32_t* dst = d;
     posix_spawn_file_actions_t* src = s;
-    dst->__allocated = src->__allocated;
-    dst->__used = src->__used;
-    dst->__actions = to_ptrv(src->__actions);
+    dst->__allocated = src->POSIX_SPAWN_FILE_ACTIONS_T__ALLOCATED;
+    dst->__used = src->POSIX_SPAWN_FILE_ACTIONS_T__USED;
+    dst->__actions = to_ptrv(src->POSIX_SPAWN_FILE_ACTIONS_T__ACTIONS);
 }
 void convert_file_action_to_64(void* d, void* s)
 {
     posix_spawn_file_actions_t* dst = d;
     posix_spawn_file_actions_32_t* src = s;
-    dst->__actions = from_ptrv(src->__actions);
-    dst->__used = src->__used;
-    dst->__allocated = src->__allocated;
+    dst->POSIX_SPAWN_FILE_ACTIONS_T__ACTIONS = from_ptrv(src->__actions);
+    dst->POSIX_SPAWN_FILE_ACTIONS_T__USED = src->__used;
+    dst->POSIX_SPAWN_FILE_ACTIONS_T__ALLOCATED = src->__allocated;
 }
 
 EXPORT int my32_posix_spawn_file_actions_init(x64emu_t* emu, posix_spawn_file_actions_32_t* action)
@@ -2362,8 +2377,13 @@ EXPORT int32_t my32___cxa_thread_atexit_impl(x64emu_t* emu, void* dtor, void* ob
 extern void __chk_fail();
 EXPORT unsigned long int my32___fdelt_chk (unsigned long int d)
 {
-  if (d >= FD_SETSIZE)
+  if (d >= FD_SETSIZE) {
+#ifdef HAVE___CHK_FAIL
     __chk_fail ();
+#else
+    abort ();
+#endif
+  }
 
   return d / __NFDBITS;
 }
@@ -2500,27 +2520,21 @@ EXPORT int my32_utimensat(int dirfd, void* name, void* times, int flags)
     return utimensat(dirfd, name, times ? times_l : NULL, flags);
 }
 
-#ifndef ANDROID
-struct mallinfo {
-    int arena;
-    int ordblks;
-    int smblks;
-    int hblks;
-    int hblkhd;
-    int usmblks;
-    int fsmblks;
-    int uordblks;
-    int fordblks;
-    int keepcost;
-};
-#endif
-
+typedef struct mallinfo (*mallinfo_fnc)(void);
 EXPORT void* my32_mallinfo(x86emu_t* emu, void* p)
 {
-    (void)emu;
-    static struct mallinfo(*p_mallinfo)() = NULL;
-    if(!p_mallinfo) p_mallinfo = dlsym(NULL, "mallinfo");
-    *((struct mallinfo*)p) = p_mallinfo();
+#ifdef HAVE_MALLINFO
+    static mallinfo_fnc f = NULL;
+    static int inited = 0;
+    if(!inited) {
+        inited = 1;
+        f = (mallinfo_fnc)dlsym(my_lib->w.lib, "mallinfo");
+    }
+    if(f)
+        *(struct mallinfo*)p=f();
+    else
+#endif
+        memset(p, 0, sizeof(struct mallinfo));
     return p;
 }
 
