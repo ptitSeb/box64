@@ -52,8 +52,12 @@ static vFpi_t real_pthread_cleanup_pop_restore = NULL;
 static iFLi_t real_phtread_kill_old = NULL;
 static iFv_t real_pthread_yield = NULL;
 // those function can be used simply
-void _pthread_cleanup_push(void* buffer, void* routine, void* arg); // declare hidden functions
+#ifndef HAVE__PTHREAD_CLEANUP_PUSH
+void _pthread_cleanup_push(void* buffer, void* routine, void* arg);	// declare hidden functions
+#endif
+#ifndef HAVE__PTHREAD_CLEANUP_POP
 void _pthread_cleanup_pop(void* buffer, int exec);
+#endif
 
 typedef struct threadstack_s {
     void*  stack;
@@ -883,6 +887,7 @@ EXPORT int my32_pthread_setaffinity_np(x64emu_t* emu, pthread_t thread, int cpus
     return ret;
 }
 
+#ifdef HAVE_PTHREAD_ATTR_SETAFFINITY_NP
 EXPORT int my32_pthread_attr_setaffinity_np(x64emu_t* emu, void* attr, uint32_t cpusetsize, void* cpuset)
 {
     if(cpusetsize>0x1000) {
@@ -904,6 +909,8 @@ EXPORT int my32_pthread_attr_setaffinity_np(x64emu_t* emu, void* attr, uint32_t 
 
     return ret;
 }
+#endif
+#ifdef HAVE_PTHREAD_ATTR_GETAFFINITY_NP
 EXPORT int my32_pthread_attr_getaffinity_np(x64emu_t* emu, void* attr, uint32_t cpusetsize, void* cpuset)
 {
     if(cpusetsize>0x1000) {
@@ -918,6 +925,7 @@ EXPORT int my32_pthread_attr_getaffinity_np(x64emu_t* emu, void* attr, uint32_t 
 	}
 	return ret;
 }
+#endif
 
 #endif
 
@@ -1056,7 +1064,14 @@ EXPORT int my32_pthread_mutex_init(pthread_mutex_t *m, pthread_mutexattr_t *att)
     fake->__kind = KIND_SIGN;
     fake->real_mutex = to_ptrv(createNewMutex());
     int ret = pthread_mutex_init(from_ptrv(fake->real_mutex), att);
+#ifdef __GLIBC__
     fake->i386__kind = ((struct __pthread_mutex_s*)from_ptrv(fake->real_mutex))->__kind;
+#else
+    // reads only the basic mutex type & fails silently
+    int kind = PTHREAD_MUTEX_NORMAL;
+    if(att) pthread_mutexattr_gettype(att, &kind);
+    fake->i386__kind = kind;
+#endif
     printf_log(LOG_DEBUG, "(init t%d %p) ", fake->i386__kind, from_ptrv(fake->real_mutex));
     return ret;
 }
@@ -1101,6 +1116,7 @@ void init_pthread_helper_32()
 
     // search for older symbol for pthread_kill
     {
+#ifdef HAVE_DLVSYM
         char buff[50];
         for(int i=0; i<34 && !real_phtread_kill_old; ++i) {
             snprintf(buff, 50, "GLIBC_2.%d", i);
@@ -1109,6 +1125,7 @@ void init_pthread_helper_32()
     }
     if(!real_phtread_kill_old) {
         printf_log(LOG_INFO, "Warning, older than 2.34 pthread_kill not found, using current one\n");
+#endif
         real_phtread_kill_old = (iFLi_t)pthread_kill;
     }
     // pthread_yield (or sched_yield if not found)

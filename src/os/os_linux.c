@@ -142,7 +142,7 @@ const char* GetNativeName(void* p, int lib)
 void PersonalityAddrLimit32Bit(void)
 {
     personality(ADDR_LIMIT_32BIT);
-    #ifndef ANDROID
+    #if defined(HAVE_MALLOPT) && defined(M_ARENA_TEST) && defined(M_ARENA_MAX)
     /*struct rlimit l;
     if(getrlimit(RLIMIT_DATA, &l)<0) return;  // failed
     if(l.rlim_max>3*1024*1024*1024LL) {
