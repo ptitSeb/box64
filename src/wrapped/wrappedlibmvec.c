@@ -31,9 +31,16 @@ typedef v4sf (*v4sf_v4sf_func_t)(v4sf, v4sf);
 
 static v2df_func_t native_v2d_sin = NULL;
 static v2df_func_t native_v2d_cos = NULL;
+static v2df_func_t native_v2d_cosh = NULL;
+static v2df_func_t native_v2d_tanh = NULL;
+static v2df_func_t native_v2d_acos = NULL;
+static v2df_func_t native_v2d_erf = NULL;
+static v2df_func_t native_v2d_log10 = NULL;
+static v2df_func_t native_v2d_sinh = NULL;
 static v2df_func_t native_v2d_exp = NULL;
 static v2df_func_t native_v2d_log = NULL;
 static v2df_v2df_func_t native_v2d_pow = NULL;
+static v2df_v2df_func_t native_v2d_atan2 = NULL;
 
 static v4sf_func_t native_v4f_acosf = NULL;
 static v4sf_func_t native_v4f_sinf = NULL;
@@ -48,6 +55,13 @@ static v4sf_v4sf_func_t native_v4f_powf = NULL;
 #ifdef ARM64
 #define NATIVE_SIN_NAME "_ZGVnN2v_sin"
 #define NATIVE_COS_NAME "_ZGVnN2v_cos"
+#define NATIVE_COSH_NAME "_ZGVnN2v_cosh"
+#define NATIVE_TANH_NAME "_ZGVnN2v_tanh"
+#define NATIVE_ACOS_NAME "_ZGVnN2v_acos"
+#define NATIVE_ERF_NAME "_ZGVnN2v_erf"
+#define NATIVE_LOG10_NAME "_ZGVnN2v_log10"
+#define NATIVE_SINH_NAME "_ZGVnN2v_sinh"
+#define NATIVE_ATAN2_NAME "_ZGVnN2vv_atan2"
 #define NATIVE_EXP_NAME "_ZGVnN2v_exp"
 #define NATIVE_LOG_NAME "_ZGVnN2v_log"
 #define NATIVE_POW_NAME "_ZGVnN2vv_pow"
@@ -60,6 +74,13 @@ static v4sf_v4sf_func_t native_v4f_powf = NULL;
 #else
 #define NATIVE_SIN_NAME "_ZGVbN2v_sin"
 #define NATIVE_COS_NAME "_ZGVbN2v_cos"
+#define NATIVE_COSH_NAME "_ZGVbN2v_cosh"
+#define NATIVE_TANH_NAME "_ZGVbN2v_tanh"
+#define NATIVE_ACOS_NAME "_ZGVbN2v_acos"
+#define NATIVE_ERF_NAME "_ZGVbN2v_erf"
+#define NATIVE_LOG10_NAME "_ZGVbN2v_log10"
+#define NATIVE_SINH_NAME "_ZGVbN2v_sinh"
+#define NATIVE_ATAN2_NAME "_ZGVbN2vv_atan2"
 #define NATIVE_EXP_NAME "_ZGVbN2v_exp"
 #define NATIVE_LOG_NAME "_ZGVbN2v_log"
 #define NATIVE_POW_NAME "_ZGVbN2vv_pow"
@@ -148,6 +169,91 @@ EXPORT void my__ZGVbN2v_cos(x64emu_t* emu)
         memcpy(&emu->xmm[0], &result, sizeof(v2df));
     } else {
         apply_v2d_unary(emu, cos);
+    }
+}
+
+EXPORT void my__ZGVbN2v_cosh(x64emu_t* emu)
+{
+    if (native_v2d_cosh) {
+        v2df input, result;
+        memcpy(&input, &emu->xmm[0], sizeof(v2df));
+        result = native_v2d_cosh(input);
+        memcpy(&emu->xmm[0], &result, sizeof(v2df));
+    } else {
+        apply_v2d_unary(emu, cosh);
+    }
+}
+
+EXPORT void my__ZGVbN2v_tanh(x64emu_t* emu)
+{
+    if (native_v2d_tanh) {
+        v2df input, result;
+        memcpy(&input, &emu->xmm[0], sizeof(v2df));
+        result = native_v2d_tanh(input);
+        memcpy(&emu->xmm[0], &result, sizeof(v2df));
+    } else {
+        apply_v2d_unary(emu, tanh);
+    }
+}
+
+EXPORT void my__ZGVbN2v_acos(x64emu_t* emu)
+{
+    if (native_v2d_acos) {
+        v2df input, result;
+        memcpy(&input, &emu->xmm[0], sizeof(v2df));
+        result = native_v2d_acos(input);
+        memcpy(&emu->xmm[0], &result, sizeof(v2df));
+    } else {
+        apply_v2d_unary(emu, acos);
+    }
+}
+
+EXPORT void my__ZGVbN2v_erf(x64emu_t* emu)
+{
+    if (native_v2d_erf) {
+        v2df input, result;
+        memcpy(&input, &emu->xmm[0], sizeof(v2df));
+        result = native_v2d_erf(input);
+        memcpy(&emu->xmm[0], &result, sizeof(v2df));
+    } else {
+        apply_v2d_unary(emu, erf);
+    }
+}
+
+EXPORT void my__ZGVbN2v_log10(x64emu_t* emu)
+{
+    if (native_v2d_log10) {
+        v2df input, result;
+        memcpy(&input, &emu->xmm[0], sizeof(v2df));
+        result = native_v2d_log10(input);
+        memcpy(&emu->xmm[0], &result, sizeof(v2df));
+    } else {
+        apply_v2d_unary(emu, log10);
+    }
+}
+
+EXPORT void my__ZGVbN2v_sinh(x64emu_t* emu)
+{
+    if (native_v2d_sinh) {
+        v2df input, result;
+        memcpy(&input, &emu->xmm[0], sizeof(v2df));
+        result = native_v2d_sinh(input);
+        memcpy(&emu->xmm[0], &result, sizeof(v2df));
+    } else {
+        apply_v2d_unary(emu, sinh);
+    }
+}
+
+EXPORT void my__ZGVbN2vv_atan2(x64emu_t* emu)
+{
+    if (native_v2d_atan2) {
+        v2df y, x, result;
+        memcpy(&y, &emu->xmm[0], sizeof(v2df));
+        memcpy(&x, &emu->xmm[1], sizeof(v2df));
+        result = native_v2d_atan2(y, x);
+        memcpy(&emu->xmm[0], &result, sizeof(v2df));
+    } else {
+        apply_v2d_binary(emu, atan2);
     }
 }
 
@@ -332,6 +438,13 @@ EXPORT void my__ZGVdN8vv_powf(x64emu_t* emu)
             lib->w.lib = native;                                                    \
             native_v2d_sin = (v2df_func_t)dlsym(native, NATIVE_SIN_NAME);           \
             native_v2d_cos = (v2df_func_t)dlsym(native, NATIVE_COS_NAME);           \
+            native_v2d_cosh = (v2df_func_t)dlsym(native, NATIVE_COSH_NAME);         \
+            native_v2d_tanh = (v2df_func_t)dlsym(native, NATIVE_TANH_NAME);         \
+            native_v2d_acos = (v2df_func_t)dlsym(native, NATIVE_ACOS_NAME);         \
+            native_v2d_erf = (v2df_func_t)dlsym(native, NATIVE_ERF_NAME);           \
+            native_v2d_log10 = (v2df_func_t)dlsym(native, NATIVE_LOG10_NAME);       \
+            native_v2d_sinh = (v2df_func_t)dlsym(native, NATIVE_SINH_NAME);         \
+            native_v2d_atan2 = (v2df_v2df_func_t)dlsym(native, NATIVE_ATAN2_NAME);  \
             native_v2d_exp = (v2df_func_t)dlsym(native, NATIVE_EXP_NAME);           \
             native_v2d_log = (v2df_func_t)dlsym(native, NATIVE_LOG_NAME);           \
             native_v2d_pow = (v2df_v2df_func_t)dlsym(native, NATIVE_POW_NAME);      \

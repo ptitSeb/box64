@@ -15,10 +15,17 @@
 typedef void (*vFv_t)(void);
 
 #define SUPER() ADDED_FUNCTIONS() \
+	GO(_ZGVbN2v_acos, vFv_t) \
 	GO(_ZGVbN2v_cos, vFv_t) \
+	GO(_ZGVbN2v_cosh, vFv_t) \
+	GO(_ZGVbN2v_erf, vFv_t) \
 	GO(_ZGVbN2v_exp, vFv_t) \
 	GO(_ZGVbN2v_log, vFv_t) \
+	GO(_ZGVbN2v_log10, vFv_t) \
 	GO(_ZGVbN2v_sin, vFv_t) \
+	GO(_ZGVbN2v_sinh, vFv_t) \
+	GO(_ZGVbN2v_tanh, vFv_t) \
+	GO(_ZGVbN2vv_atan2, vFv_t) \
 	GO(_ZGVbN2vv_pow, vFv_t) \
 	GO(_ZGVbN4v_cosf, vFv_t) \
 	GO(_ZGVbN4v_expf, vFv_t) \
