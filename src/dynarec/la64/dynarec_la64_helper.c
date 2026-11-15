@@ -2485,6 +2485,8 @@ static void flagsCacheTransform(dynarec_la64_t* dyn, int ninst, int s1)
     int jmp = dyn->insts[ninst].x64.jmp_insts;
     if (jmp < 0)
         return;
+    if (flags_overwritten_before_use(dyn, jmp))
+        return;
     if (dyn->insts[ninst].f_exit == dyn->insts[jmp].f_entry) // flags will be fully known, nothing we can do more
         return;
     MESSAGE(LOG_DUMP, "\tFlags fetch ---- ninst=%d -> %d\n", ninst, jmp);

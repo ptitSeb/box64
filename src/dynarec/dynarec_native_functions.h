@@ -94,6 +94,7 @@ void x64disas_add_register_mapping_annotations(char* buf, const char* disas, con
 void dynarec_stopped(uintptr_t x64addr, int is32bits);
 
 int interblock_flags_needed(dynarec_native_t* dyn, uintptr_t addr, int is32bits);
+int flags_overwritten_before_use(dynarec_native_t* dyn, int start);
 
 ADDITIONNAL_DEFINITION()
 

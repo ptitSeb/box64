@@ -501,6 +501,24 @@ int interblock_flags_needed(dynarec_native_t* dyn, uintptr_t addr, int is32bits)
     return 1;
 }
 
+int flags_overwritten_before_use(dynarec_native_t* dyn, int start)
+{
+    if (start < 0)
+        return 0;
+    int end = start + PEEK_FLAGS_INSTS;
+    if (end > dyn->size) end = dyn->size;
+    for (int k = start; k < end; ++k) {
+        instruction_x64_t* inst = &dyn->insts[k].x64;
+        if (!inst->alive)
+            return 0;
+        if ((inst->barrier & BARRIER_FLAGS) || inst->use_flags || inst->jmp || inst->has_callret || !inst->has_next || inst->may_set)
+            return 0;
+        if (inst->set_flags == X_ALL && (inst->state_flags == SF_SET || inst->state_flags == SF_SET_NODF))
+            return 1;
+    }
+    return 0;
+}
+
 dynablock_t* CreateEmptyBlock(uintptr_t addr, int is32bits, int is_new) {
     size_t sz = JMPNEXT_SIZE + sizeof(dynablock_t);
     void* actual_p = (void*)AllocDynarecMap(addr, sz, is_new);
