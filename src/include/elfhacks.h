@@ -159,6 +159,14 @@ __PUBLIC int eh_iterate_obj(eh_iterate_obj_callback_func callback, void *arg);
 __PUBLIC int eh_find_sym(eh_obj_t *obj, const char *name, void **to);
 
 /**
+ * \brief Checks if address is inside one of object's PT_LOAD segments.
+ * \param obj elfhacks program object
+ * \param addr address to check
+ * \return 0 if address is inside object otherwise EINVAL
+*/
+__PUBLIC int eh_check_addr(eh_obj_t *obj, const void *addr);
+
+/**
  * \brief Walk through list of symbols in object
  * \param obj elfhacks program object
  * \param callback callback function

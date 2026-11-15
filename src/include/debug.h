@@ -120,7 +120,7 @@ void init_malloc_hook(void);
 #define box_strdup      strdup
 #define box_realpath    realpath
 #else
-extern size_t (*box_malloc_usable_size)(void*);
+#ifdef __GLIBC__
 extern void* __libc_malloc(size_t);
 extern void* __libc_realloc(void*, size_t);
 extern void* __libc_calloc(size_t, size_t);
@@ -131,10 +131,19 @@ extern void* __libc_memalign(size_t, size_t);
 #define box_calloc      __libc_calloc
 #define box_free        __libc_free
 #define box_memalign    __libc_memalign
+#else // ! __GLIBC__
+// no __libc_* on musl: call libc's own functions through dlsym
+void* box_malloc(size_t s);
+void* box_realloc(void* p, size_t s);
+void* box_calloc(size_t n, size_t s);
+void  box_free(void* p);
+void* box_memalign(size_t align, size_t s);
+#endif // __GLIBC__
+extern size_t (*box_malloc_usable_size)(void*);
 extern char* box_strdup(const char* s);
 extern char* box_realpath(const char* path, char* ret);
-#endif
-#else
+#endif // ANDROID || STATICBUILD
+#else // _WIN32
 #define box_malloc  WinMalloc
 #define box_realloc WinRealloc
 #define box_calloc  WinCalloc
