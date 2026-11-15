@@ -1122,6 +1122,7 @@ static void addSSEPreload(dynarec_rv64_t* dyn, int last, int first, uint32_t pre
 
 void updatePreloads(dynarec_rv64_t* dyn)
 {
+    propagate_nodf(dyn);
     if (!cpuext.vector)
         return;
     for (int first = 0; first < dyn->size; ++first) {
