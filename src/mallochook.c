@@ -196,7 +196,9 @@ void* box32_calloc(size_t n, size_t s)
     void* ret = box_calloc(n, s);
     if(ret && FITS_IN_32BIT(ret, n * s)) return ret;
     box_free(ret);
+#ifdef HAVE_MALLOC_TRIM
     malloc_trim(0);
+#endif
     ret = box_calloc(n, s);
     if(ret && FITS_IN_32BIT(ret, n * s)) return ret;
     box_free(ret);
@@ -207,7 +209,9 @@ void* box32_malloc(size_t s)
     void* ret = box_malloc(s);
     if(ret && FITS_IN_32BIT(ret, s)) return ret;
     box_free(ret);
+#ifdef HAVE_MALLOC_TRIM
     malloc_trim(0);
+#endif
     ret = box_malloc(s);
     if(ret && FITS_IN_32BIT(ret, s)) return ret;
     box_free(ret);
@@ -220,7 +224,9 @@ void* box32_realloc(void* p, size_t s)
     void* ret = box_realloc(p, s);
     if(!ret) return NULL;
     if(FITS_IN_32BIT(ret, s)) return ret;
+#ifdef HAVE_MALLOC_TRIM
     malloc_trim(0);
+#endif
     void* newret = customMalloc32(s);
     memcpy(newret, ret, s);
     box_free(ret);
@@ -238,7 +244,9 @@ void* box32_memalign(size_t align, size_t s)
     void* ret = box_memalign(align, s);
     if(ret && FITS_IN_32BIT(ret, s)) return ret;
     box_free(ret);
+#ifdef HAVE_MALLOC_TRIM
     malloc_trim(0);
+#endif
     return customMemAligned32(align, s);
 }
 size_t box32_malloc_usable_size(void* p)
