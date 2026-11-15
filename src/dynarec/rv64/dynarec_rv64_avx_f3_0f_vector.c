@@ -388,25 +388,35 @@ uintptr_t dynarec64_AVX_F3_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW32);
             GETEY_vector(q1, 0, VECTOR_SEW32);
             GETGY_empty_vector(v0);
-            v1 = fpu_get_scratch(dyn);
-            VFCVT_RTZ_X_F_V(v1, q1, VECTOR_UNMASKED);
-            // out of range (>= 2^31 or < -2^31) gives 0x80000000
-            q2 = fpu_get_scratch(dyn);
-            MOV32w(x4, 0x80000000);
-            VMV_V_X(q2, x4);
-            d0 = fpu_get_scratch(dyn);
-            MOV32w(x4, 0x4f000000); // 2^31.0f
-            FMVWX(d0, x4);
-            VMFGE_VF(VMASK, q1, d0, VECTOR_UNMASKED);
-            VMERGE_VVM(v1, v1, q2);
-            MOV32w(x4, 0xcf000000); // -2^31.0f
-            FMVWX(d0, x4);
-            VMFLE_VF(VMASK, q1, d0, VECTOR_UNMASKED);
-            VMERGE_VVM(v1, v1, q2);
-            // NaN gives 0x80000000 too
-            VMFEQ_VV(VMASK, q1, q1, VECTOR_UNMASKED);
-            VMERGE_VVM(v1, q2, v1);
-            VMV_V_V(v0, v1);
+            if (BOX64ENV(dynarec_fastround)) {
+                VFCVT_RTZ_X_F_V(v0, q1, VECTOR_UNMASKED);
+            } else {
+                FSFLAGSI(0);
+                v1 = fpu_get_scratch(dyn);
+                VFCVT_RTZ_X_F_V(v1, q1, VECTOR_UNMASKED);
+                // out of range (>= 2^31 or < -2^31) gives 0x80000000
+                q2 = fpu_get_scratch(dyn);
+                MOV32w(x4, 0x80000000);
+                VMV_V_X(q2, x4);
+                d0 = fpu_get_scratch(dyn);
+                MOV32w(x4, 0x4f000000); // 2^31.0f
+                FMVWX(d0, x4);
+                VMFGE_VF(VMASK, q1, d0, VECTOR_UNMASKED);
+                VMERGE_VVM(v1, v1, q2);
+                MOV32w(x4, 0xcf000000); // -2^31.0f
+                FMVWX(d0, x4);
+                VMFLE_VF(VMASK, q1, d0, VECTOR_UNMASKED);
+                VMERGE_VVM(v1, v1, q2);
+                // NaN gives 0x80000000 too
+                VMFEQ_VV(VMASK, q1, q1, VECTOR_UNMASKED);
+                VMERGE_VVM(v1, q2, v1);
+                FRFLAGS(x5);
+                ANDI(x5, x5, (1 << FR_NV) | (1 << FR_OF));
+                BEQ_MARK(x5, xZR);
+                emit_mxcsr_raise_invalid(x4);
+                MARK;
+                VMV_V_V(v0, v1);
+            }
             PUTGY_vector(v0, VECTOR_SEW32);
             break;
         case 0x5C:

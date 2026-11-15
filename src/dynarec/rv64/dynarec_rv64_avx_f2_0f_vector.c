@@ -262,26 +262,10 @@ uintptr_t dynarec64_AVX_F2_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
                 FLD(d0, ed, fixedaddress);
             }
             if (BOX64ENV(dynarec_fastround)) {
-                LW(x5, xEmu, offsetof(x64emu_t, mxcsr));
-                SRLI(x5, x5, 13);
-                ANDI(x5, x5, 3);
-                BEQZ_MARK(x5);
-                ADDI(x6, xZR, 3);
-                BEQ_MARK2(x5, x6);
-                ADDI(x6, xZR, 2);
-                BEQ_MARK3(x5, x6);
-                FCVTLDxw(gd, d0, RD_RDN);
-                B_MARK4_nocond;
-                MARK;
-                FCVTLDxw(gd, d0, RD_RNE);
-                B_MARK4_nocond;
-                MARK2;
-                FCVTLDxw(gd, d0, RD_RTZ);
-                B_MARK4_nocond;
-                MARK3;
-                FCVTLDxw(gd, d0, RD_RUP);
-                MARK4;
+                u8 = sse_setround(dyn, ninst, x2, x3);
+                FCVTLDxw(gd, d0, RD_DYN);
                 if (!rex.w) ZEROUP(gd);
+                x87_restoreround(dyn, ninst, u8);
             } else {
                 FSFLAGSI(0); // reset all bits
                 u8 = sse_setround(dyn, ninst, x6, x4);
@@ -456,6 +440,7 @@ uintptr_t dynarec64_AVX_F2_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
                 x87_restoreround(dyn, ninst, u8);
                 VMV_V_V(v0, q2);
             } else {
+                FSFLAGSI(0);
                 u8 = sse_setround(dyn, ninst, x6, x4);
                 VFCVT_X_F_V(d0, d0, VECTOR_UNMASKED);
                 x87_restoreround(dyn, ninst, u8);
