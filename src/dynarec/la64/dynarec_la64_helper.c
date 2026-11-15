@@ -1106,13 +1106,13 @@ void x87_do_pop(dynarec_la64_t* dyn, int ninst, int s1)
 
 void x87_purgecache(dynarec_la64_t* dyn, int ninst, int next, int s1, int s2, int s3)
 {
-    dyn->insts[ninst].x87_used = 1;
     int ret = 0;
     for (int i = 0; i < 8 && !ret; ++i)
         if (dyn->lsx.x87cache[i] != -1)
             ret = 1;
     if (!ret && !dyn->lsx.x87stack) // nothing to do
         return;
+    dyn->insts[ninst].x87_used = 1;
     MESSAGE(LOG_DUMP, "\tPurge %sx87 Cache and Synch Stackcount (%+d)---\n", next ? "locally " : "", dyn->lsx.x87stack);
     int a = dyn->lsx.x87stack;
     if (a != 0) {
