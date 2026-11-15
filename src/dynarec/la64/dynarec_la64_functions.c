@@ -135,6 +135,7 @@ int fpu_get_reg_ymm(dynarec_la64_t* dyn, int t, int ymm)
 // Reset fpu regs counter
 static void fpu_reset_reg_lsxcache(lsxcache_t* lsx)
 {
+    lsx->upper_clear_pending = 0;
     for (int i = 0; i < 24; ++i) {
         lsx->fpuused[i] = 0;
         lsx->lsxcache[i].v = 0;
