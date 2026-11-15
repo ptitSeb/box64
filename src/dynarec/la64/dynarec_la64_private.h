@@ -75,6 +75,7 @@ typedef struct lsxcache_s {
     sse_cache_t     ssecache[16];   // cache status for the 16 SSE(2) registers
     avx_cache_t     avxcache[16];   // cache status for the 16 YMM registers
     int8_t          scalarcache[16]; // pending "scalar" register for each XMM
+    uint16_t        upper_clear_pending; // XMM upper lanes still to be cleared on merge
     int8_t          fpuused[24];    // all 0..24 double reg from fpu, used by x87, sse and mmx
     int8_t          x87stack;       // cache stack counter
     int8_t          mmxcount;       // number of mmx register used (not both mmx and x87 at the same time)
