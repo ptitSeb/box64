@@ -2483,6 +2483,8 @@ static void flagsCacheTransform(dynarec_la64_t* dyn, int ninst, int s1)
         return;
     if (dyn->insts[ninst].f_exit == dyn->insts[jmp].f_entry) // flags will be fully known, nothing we can do more
         return;
+    if (dyn->insts[jmp].df_notneeded)
+        return;
     MESSAGE(LOG_DUMP, "\tFlags fetch ---- ninst=%d -> %d\n", ninst, jmp);
     int go_fetch = 0;
     switch (dyn->insts[jmp].f_entry) {

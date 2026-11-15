@@ -1191,6 +1191,7 @@ static void addSSEPreload(dynarec_la64_t* dyn, int last, int first, uint32_t pre
 
 void updatePreloads(dynarec_la64_t* dyn)
 {
+    propagate_nodf(dyn);
     if (!dyn->use_xmm && !dyn->use_ymm)
         return;
     for (int first = 0; first < dyn->size; ++first) {

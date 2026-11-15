@@ -39,10 +39,8 @@
     do {                                                                                                \
         dyn->insts[ninst].x64.set_flags = A;                                                            \
         dyn->insts[ninst].x64.state_flags = (B) & ~SF_DF;                                               \
-        if (((B) & SF_SET_PENDING) != SF_SET_PENDING) {                                                 \
-            dyn->f = ((B) & SF_SET) ? (((B) == SF_SET_NODF) ? dyn->f : status_none_pending)             \
-                                    : ((dyn->f == status_none) ? status_none : status_none_pending);    \
-        }                                                                                               \
+        dyn->f = ((B) & SF_SET) ? (((B) == SF_SET_NODF) ? dyn->f : status_none_pending)                 \
+                                : (((B) & SF_SET_PENDING) ? status_set : status_none_pending);          \
         if (!BOX64ENV(dynarec_df)) {                                                                    \
             dyn->f = status_none;                                                                       \
             if ((A) == SF_PENDING) {                                                                    \

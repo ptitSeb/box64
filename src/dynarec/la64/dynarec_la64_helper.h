@@ -1644,7 +1644,7 @@ static inline int comis_fuse_inverted(int condition)
             GRABFLAGS(((dyn->insts[ninst].x64.gen_flags & X_PEND) ? X_ALL : dyn->insts[ninst].x64.gen_flags) & (~(A))); \
         if (dyn->insts[ninst].x64.gen_flags) switch (B) {                                                               \
                 case SF_SET_DF: dyn->f = status_set; break;                                                             \
-                case SF_SET_NODF: SET_DFNONE(); break;                                                                  \
+                case SF_SET_NODF: break;                                                                                \
                 case SF_SUBSET:                                                                                         \
                 case SF_SUBSET_PENDING:                                                                                 \
                 case SF_SET:                                                                                            \
@@ -1653,7 +1653,7 @@ static inline int comis_fuse_inverted(int condition)
                     SET_DFNONE();                                                                                       \
                     break;                                                                                              \
             }                                                                                                           \
-        else                                                                                                            \
+        else if ((B) != SF_SET_NODF)                                                                                    \
             SET_DFNONE();                                                                                               \
         dyn->insts[ninst].nat_flags_nofusion = (FUSION);                                                                \
     } while (0)
