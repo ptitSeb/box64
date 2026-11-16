@@ -3,9 +3,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-#include <sys/mman.h>
+#ifndef _WIN32
 #include <sys/syscall.h>
 #include <sched.h>
+#endif
 
 #include "os.h"
 #include "backtrace.h"
@@ -3035,6 +3036,7 @@ static void catchup_brk_protection(void)
     }
 }
 
+#ifndef _WIN32
 static uintptr_t guest_brk_base = 0;
 static uintptr_t guest_brk_end = 0;
 static uintptr_t guest_brk_cur = 0;
@@ -3128,6 +3130,31 @@ void* guest_sbrk(intptr_t inc)
                                          __ATOMIC_RELAXED, __ATOMIC_RELAXED));
     return (void*)old;
 }
+#else
+int guest_brk_is_active(void)
+{
+    return 0;
+}
+
+int guest_brk_set(uintptr_t addr, uintptr_t* ret)
+{
+    (void)addr;
+    if(ret)
+        *ret = 0;
+    return -1;
+}
+
+uintptr_t guest_syscall_brk(uintptr_t addr)
+{
+    return addr;
+}
+
+void* guest_sbrk(intptr_t inc)
+{
+    (void)inc;
+    return (void*)-1;
+}
+#endif
 
 void* find31bitBlockNearHint(void* hint_, size_t size, uintptr_t mask)
 {
