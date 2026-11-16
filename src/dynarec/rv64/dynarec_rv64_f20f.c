@@ -93,13 +93,13 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGXSD(v0);
             GETED(0);
-            if (!BOX64ENV(dynarec_fastround)) u8 = sse_setround(dyn, ninst, x6, x4);
+            if (BOX64ENV(dynarec_fastround) < 2) u8 = sse_setround(dyn, ninst, x6, x4);
             if (rex.w) {
-                FCVTDL(v0, ed, !BOX64ENV(dynarec_fastround) ? RD_DYN : RD_RNE);
+                FCVTDL(v0, ed, BOX64ENV(dynarec_fastround) < 2 ? RD_DYN : RD_RNE);
             } else {
-                FCVTDW(v0, ed, !BOX64ENV(dynarec_fastround) ? RD_DYN : RD_RNE);
+                FCVTDW(v0, ed, BOX64ENV(dynarec_fastround) < 2 ? RD_DYN : RD_RNE);
             }
-            if (!BOX64ENV(dynarec_fastround)) x87_restoreround(dyn, ninst, u8);
+            if (BOX64ENV(dynarec_fastround) < 2) x87_restoreround(dyn, ninst, u8);
             break;
         case 0x2C:
             INST_NAME("CVTTSD2SI Gd, Ex");
@@ -308,7 +308,9 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     FEQD(x3, v0, v0);
                     FMVXD(x4, v0);
                 }
+                if (BOX64ENV(dynarec_fastround) < 2) u8 = sse_setround(dyn, ninst, x5, x6);
                 FCVTSD(v0, v0);
+                if (BOX64ENV(dynarec_fastround) < 2) x87_restoreround(dyn, ninst, u8);
             } else {
                 GETEXSD(v1, 0);
                 GETGXSS_empty(v0);
@@ -316,7 +318,9 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     FEQD(x3, v1, v1);
                     FMVXD(x4, v1);
                 }
+                if (BOX64ENV(dynarec_fastround) < 2) u8 = sse_setround(dyn, ninst, x5, x6);
                 FCVTSD(v0, v1);
+                if (BOX64ENV(dynarec_fastround) < 2) x87_restoreround(dyn, ninst, u8);
             }
             if (!BOX64ENV(dynarec_fastnan)) {
                 BNEZ_MARK(x3);
