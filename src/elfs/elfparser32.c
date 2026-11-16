@@ -122,6 +122,7 @@ elfheader_t* ParseElfHeader32(FILE* f, const char* name, int exec)
     h->numSHEntries = header.e_shnum;
     h->SHIdx = header.e_shstrndx;
     h->e_type = header.e_type;
+    h->e_phoff = header.e_phoff;
     if(header.e_shentsize && header.e_shnum) {
         // special cases for nums
         if(h->numSHEntries == 0) {

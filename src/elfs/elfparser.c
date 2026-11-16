@@ -192,6 +192,7 @@ elfheader_t* ParseElfHeader64(FILE* f, const char* name, int exec)
     h->numSHEntries = header.e_shnum;
     h->SHIdx = header.e_shstrndx;
     h->e_type = header.e_type;
+    h->e_phoff = header.e_phoff;
     // special cases for nums
     if(header.e_shentsize && !h->numSHEntries && header.e_shoff) {
         printf_dump(LOG_DEBUG, "Read number of Sections in 1st Section\n");

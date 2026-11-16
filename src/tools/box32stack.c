@@ -29,6 +29,22 @@ static void Push32_32(x64emu_t *emu, uint32_t v)
     *((uint32_t*)from_ptr(R_ESP)) = v;
 }
 
+static uintptr_t GetATPhdr32(elfheader_t* main)
+{
+    if (!main || !main->image || !main->PHEntries._32 || !main->e_phoff)
+        return 0;
+    uintptr_t phoff = main->e_phoff;
+    uintptr_t phend = phoff + (uintptr_t)main->numPHEntries * sizeof(Elf32_Phdr);
+    for (size_t i = 0; i < main->numPHEntries; ++i) {
+        Elf32_Phdr* p = &main->PHEntries._32[i];
+        if (p->p_type != PT_LOAD)
+            continue;
+        if (phoff >= p->p_offset && phend <= p->p_offset + p->p_filesz)
+            return (uintptr_t)main->image + (p->p_vaddr - main->vaddr) + (phoff - p->p_offset);
+    }
+    return 0;
+}
+
 
 EXPORTDYN
 void SetupInitialStack32(x64emu_t *emu)
@@ -99,7 +115,9 @@ void SetupInitialStack32(x64emu_t *emu)
    elfheader_t* main = my_context->elfs[0];
     Push32_32(emu, 0); Push32_32(emu, 0);                            //AT_NULL(0)=0
     Push32_32(emu, main->fileno); Push32_32(emu, 2);   //AT_EXECFD=file desciptor of program
-    Push32_32(emu, (uintptr_t)main->PHEntries._32); Push32_32(emu, 3);  //AT_PHDR(3)=address of the PH of the executable
+    uintptr_t at_phdr = GetATPhdr32(main);
+    Push32_32(emu, at_phdr ? at_phdr : (uintptr_t)main->PHEntries._32);
+    Push32_32(emu, 3);                                                  // AT_PHDR(3)=address of the PH of the executable
     Push32_32(emu, sizeof(Elf32_Phdr)); Push32_32(emu, 4);              //AT_PHENT(4)=size of PH entry
     Push32_32(emu, main->numPHEntries); Push32_32(emu, 5);              //AT_PHNUM(5)=number of elf headers
     Push32_32(emu, X86_PAGE_SIZE); Push32_32(emu, 6);                   //AT_PAGESZ(6)

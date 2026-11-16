@@ -68,6 +68,7 @@ typedef struct elfheader_s {
     }           VerDef;
     int         szVerDef;
     int         e_type;
+    uintptr_t   e_phoff;
     uint32_t    flags;
     uintptr_t   hash;
     uintptr_t   gnu_hash;
