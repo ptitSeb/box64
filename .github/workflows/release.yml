@@ -301,7 +301,7 @@ jobs:
         if: matrix.platform == 'RISCV' && steps.early-exit.outcome == 'failure'
         id: get-xuantie-qemu-cache-key
         run: |
-          echo "key=f2dfdd13014d51f957c7172acc2e791cb42dc400" >> $GITHUB_OUTPUT
+          echo "key=3f0cc2d6069e6872954a117f867f23787377387f" >> $GITHUB_OUTPUT
 
       - name: "Cache XuanTie QEMU"
         if: matrix.platform == 'RISCV' && steps.early-exit.outcome == 'failure'
@@ -315,9 +315,9 @@ jobs:
         if: matrix.platform == 'RISCV' && steps.cache-xuantie-qemu.outputs.cache-hit != 'true' && steps.early-exit.outcome == 'failure'
         uses: actions/checkout@v3
         with:
-          repository: revyos/qemu
+          repository: ksco/qemu
           path: xuantie_qemu
-          ref: f2dfdd13014d51f957c7172acc2e791cb42dc400
+          ref: 3f0cc2d6069e6872954a117f867f23787377387f
 
       - name: "Build XuanTie QEMU for XTheadVector"
         if: matrix.platform == 'RISCV' && steps.cache-xuantie-qemu.outputs.cache-hit != 'true' && steps.early-exit.outcome == 'failure'
