@@ -22,12 +22,12 @@ static void create_lib_symlink(const char* lib)
     char file[MAX_PATH] = {0};
     char folder[MAX_PATH] = {0};
     char tmp[MAX_PATH] = {0};
-    char* p = strrchr(lib, '/');
+    const char* p = strrchr(lib, '/');
     if(!p) return;  // no folder?
     strcpy(file, p+1);
-    p = strrchr(file, '.');
-    if(!p) return; //no '.' in name?
-    *p = '\0';
+    char* q = strrchr(file, '.');
+    if(!q) return; //no '.' in name?
+    *q = '\0';
     strcpy(folder, lib);
     *(strrchr(folder, '/')) = '\0';
     snprintf(tmp, sizeof(tmp), "%s/%s", folder, file);
