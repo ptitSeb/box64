@@ -109,7 +109,7 @@ extern sysinfo_t box64_sysinfo;
 
 #ifndef _WIN32 // TODO: better wow64 support?
 #ifndef STATICBUILD
-void init_malloc_hook(void);
+void init_guestalloc(void);
 #endif
 #if defined(ANDROID) || defined(STATICBUILD)
 #define box_malloc      malloc

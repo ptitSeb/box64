@@ -1323,25 +1323,6 @@
     ]
   },
   {
-    "name": "BOX64_LIBCEF",
-    "description": "Detect libcef and apply BOX64_MALLOC_HACK settings.",
-    "category": "Compatibility",
-    "wine": false,
-    "configurator": false,
-    "options": [
-      {
-        "key": "0",
-        "description": "Does nothing.",
-        "default": true
-      },
-      {
-        "key": "1",
-        "description": "Detect libcef, and apply BOX64_MALLOC_HACK=2 if detected.",
-        "default": false
-      }
-    ]
-  },
-  {
     "name": "BOX64_LIBGL",
     "description": "Set the name for libGL.",
     "category": "Libraries",
@@ -1399,30 +1380,6 @@
       {
         "key": "3",
         "description": "Enable verbose level Box64 logs.",
-        "default": false
-      }
-    ]
-  },
-  {
-    "name": "BOX64_MALLOC_HACK",
-    "description": "Behaviour when hooking malloc operators.",
-    "category": "Compatibility",
-    "wine": false,
-    "configurator": true,
-    "options": [
-      {
-        "key": "0",
-        "description": "Don't allow malloc operator to be redirected, rewriting code to use regular function.",
-        "default": true
-      },
-      {
-        "key": "1",
-        "description": "Allow malloc operator to be redirected.",
-        "default": false
-      },
-      {
-        "key": "2",
-        "description": "Like 0, but track special mmap/free (some redirected functions are inlined and cannot be redirected).",
         "default": false
       }
     ]

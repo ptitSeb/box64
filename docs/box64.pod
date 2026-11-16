@@ -577,14 +577,6 @@ Force loading libraries with the binary.
  * XXXX:YYYY : Force the loading of libraries XXXX and YYYY. 
 
 
-=item B<BOX64_LIBCEF> =I<0|1>
-
-Detect libcef and apply BOX64_MALLOC_HACK settings.
-
- * 0 : Does nothing. [Default]
- * 1 : Detect libcef, and apply BOX64_MALLOC_HACK=2 if detected. 
-
-
 =item B<BOX64_LIBGL> =I<libXXXX|/path/to/libXXXX>
 
 Set the name for libGL.
@@ -608,15 +600,6 @@ Enable or disable Box64 logs, default value is 0 if stdout is not terminal, 1 ot
  * 1 : Enable minimal Box64 logs. 
  * 2 : Enable debug level Box64 logs. 
  * 3 : Enable verbose level Box64 logs. 
-
-
-=item B<BOX64_MALLOC_HACK> =I<0|1|2>
-
-Behaviour when hooking malloc operators.
-
- * 0 : Don't allow malloc operator to be redirected, rewriting code to use regular function. [Default]
- * 1 : Allow malloc operator to be redirected. 
- * 2 : Like 0, but track special mmap/free (some redirected functions are inlined and cannot be redirected). 
 
 
 =item B<BOX64_MAXCPU> =I<0|XXXX>

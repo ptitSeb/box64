@@ -4,6 +4,7 @@
 #include "box64cpu.h"
 #include "box64cpu_util.h"
 #include "elfloader.h"
+#include "guestalloc.h"
 #include "box32.h"
 
 #ifdef ANDROID
@@ -35,8 +36,7 @@ EXPORT int32_t my___libc_start_main(x64emu_t* emu, int (*main) (int, char * *, c
 {
     (void)argc; (void)ubp_av; (void)fini; (void)rtld_fini; (void)stack_end;
 
-    if(my_context->elfs[0])
-        MallocHookRun(my_context->elfs[0]);
+    guest_alloc_run();
 
     if(init) {
         uintptr_t old_rsp = GetRSP(emu);
@@ -114,8 +114,7 @@ int32_t EXPORT my32___libc_start_main(x64emu_t* emu, int *(main) (int, char * *,
     Push_32(emu, my_context->envv32);
     Push_32(emu, my_context->argv32);
     Push_32(emu, my_context->argc);
-    if(my_context->elfs[0])
-        MallocHookRun(my_context->elfs[0]);
+    guest_alloc_run();
     if(init) {
         PushExit_32(emu);
         R_EIP=to_ptrv(*init);

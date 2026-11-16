@@ -376,21 +376,6 @@ Detect libjvm and apply conservative settings.
  * 0: Does nothing.
  * 1: Detect libjvm, and apply BOX64_DYNAREC_BIGBLOCK=0 BOX64_DYNAREC_STRONGMEM=1 BOX64_SSE42=0 when detected. [Default]
 
-### BOX64_LIBCEF
-
-Detect libcef and apply BOX64_MALLOC_HACK settings.
-
- * 0: Does nothing. [Default]
- * 1: Detect libcef, and apply BOX64_MALLOC_HACK=2 if detected.
-
-### BOX64_MALLOC_HACK
-
-Behaviour when hooking malloc operators.
-
- * 0: Don't allow malloc operator to be redirected, rewriting code to use regular function. [Default]
- * 1: Allow malloc operator to be redirected.
- * 2: Like 0, but track special mmap/free (some redirected functions are inlined and cannot be redirected).
-
 ### BOX64_MAXCPU
 
 Maximum CPU cores exposed. Available in WowBox64.

@@ -302,6 +302,7 @@ void thread_set_emu(x64emu_t* emu);
 void thread_forget_emu();
 x64emu_t* thread_get_emu_no_create(void);
 x64emu_t* thread_get_emu(void);
+int thread_emu_ready(void);
 
 // relock the muxtex that were unlocked
 void relockMutex(int locks);

@@ -714,7 +714,7 @@ void setupTrace()
 #endif
 }
 #ifndef STATICBUILD
-void endMallocHook();
+void guest_alloc_fini(void);
 #endif
 
 void finiPendingDLOpenedNoUnload(x64emu_t* emu);
@@ -767,7 +767,7 @@ void endBox64()
             DecRefCount(&needed->libs[i], emu);
     // all done, free context
     #ifndef STATICBUILD
-    endMallocHook();
+    guest_alloc_fini();
     #endif
     SerializeAllMapping();   // to be safe
     FreeBox64Context(&my_context);
@@ -819,7 +819,7 @@ extern char** environ;
 int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elfheader_t** elfheader, int exec)
 {
 #ifndef STATICBUILD
-    init_malloc_hook();
+    init_guestalloc();
 #endif
     init_auxval(argc, argv, environ?environ:env);
     // analogue to QEMU_VERSION in qemu-user-mode emulation

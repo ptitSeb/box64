@@ -1,0 +1,17 @@
+strdup guest=1
+strndup guest=1 val=abc
+wcsdup guest=1
+asprintf guest=1 val=asprintf-42
+getline guest=1 len=11 val=abcdefghij
+getcwd guest=1 same=1
+curdir guest=1
+canon guest=1
+realpath guest=1
+tempnam guest=1
+memstream guest=1 len=9 val=memstream
+scandir n=3 guest=1 names=abc
+backtrace guest=1
+sbrk ok=1 same=1
+mix1=OK
+mix2=OK
+threads=OK

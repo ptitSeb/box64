@@ -22,7 +22,7 @@
 //GO(posix_memalign, 
 //GO(pvalloc, 
 //GO(realloc, 
-GO2(__TBB_malloc_proxy, pFL, my_malloc)
+GO2(__TBB_malloc_proxy, pFL, my_tbb_malloc_proxy)
 //GO(valloc, 
 GOM(_ZdaPv, vFp)                //%noE
 GOM(_ZdaPvRKSt9nothrow_t, vFpp) //%noE
@@ -38,5 +38,3 @@ GOM(__TBB_call_with_my_server_info, vFpp)   //%noE
 GOM(__TBB_make_rml_server, iFppp)   //%noE
 GOM(__RML_close_factory, vFp)   //%noE
 GOM(__RML_open_factory, iFppi)  //%noE
-
-GO(dummy_pFpLLp, pFpLLp)    // dummy to have pFpLLp for mallochook

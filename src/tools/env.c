@@ -57,7 +57,6 @@ static const char default_rcfile[] =
 "\n"
 "[heroic]\n"
 "BOX64_NOSANDBOX=1\n"
-"BOX64_MALLOC_HACK=2\n"
 "\n"
 "[LotCG.x86_64]\n"
 "BOX64_DYNAREC_FASTROUND=0\n"

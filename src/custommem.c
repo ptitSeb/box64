@@ -3,6 +3,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#ifndef _WIN32
+#include <sys/syscall.h>
+#include <sched.h>
+#endif
 
 #include "os.h"
 #include "backtrace.h"
@@ -86,6 +90,9 @@ static int inited = 0;
 void lockMmapMutex(void)   { mutex_lock(&mutex_mmap);   }
 void unlockMmapMutex(void) { mutex_unlock(&mutex_mmap); }
 
+#define MEM_GUEST_BIT   64
+#define MEM_GUEST       (MEM_GUEST_BIT | MEM_ALLOCATED)
+
 typedef enum {
     MEM_UNUSED = 0,
     MEM_ALLOCATED = 1,
@@ -94,7 +101,8 @@ typedef enum {
     MEM_BOX = 5,
     MEM_STACK = 9,
     MEM_EXTERNAL = 17,
-    MEM_ELF = 33
+    MEM_ELF = 33,
+    MEM_GUEST_FLAG = MEM_GUEST
 } mem_flag_t;
 rbtree_t*  mapallmem = NULL;
 static rbtree_t*  blockstree = NULL;
@@ -2777,6 +2785,16 @@ void setProtection_mmap(uintptr_t addr, size_t size, uint32_t prot)
     setProtection_generic(addr, size, prot, MEM_MMAP);
 }
 
+void setProtection_guest(uintptr_t addr, size_t size, uint32_t prot)
+{
+    setProtection_generic(addr, size, prot, MEM_GUEST_FLAG);
+}
+
+void setProtection_flag(uintptr_t addr, size_t size, uint32_t prot, uint32_t flag)
+{
+    setProtection_generic(addr, size, prot, (mem_flag_t)flag);
+}
+
 void setProtection_box(uintptr_t addr, size_t size, uint32_t prot)
 {
     setProtection_generic(addr, size, prot, MEM_BOX);
@@ -2985,6 +3003,12 @@ int getMmapped(uintptr_t addr)
     return (rb_get(mapallmem, addr)&MEM_MMAP) == MEM_MMAP;
 }
 
+int isGuestHeap(uintptr_t addr)
+{
+    uint32_t f = rb_get(mapallmem, addr);
+    return (f & MEM_GUEST_BIT) || (f == MEM_MMAP);
+}
+
 int getMAllocated(uintptr_t addr)
 {
     return (rb_get(mapallmem, addr)&MEM_ALLOCATED);
@@ -3011,6 +3035,126 @@ static void catchup_brk_protection(void)
             setProtection(prev, old_brk-prev, PROT_READ|PROT_WRITE);
     }
 }
+
+#ifndef _WIN32
+static uintptr_t guest_brk_base = 0;
+static uintptr_t guest_brk_end = 0;
+static uintptr_t guest_brk_cur = 0;
+static int guest_brk_state = 0;
+static volatile int guest_brk_initializing = 0;
+
+static void init_guest_brk(void)
+{
+    if(guest_brk_state)
+        return;
+    if(box64_is32bits) {
+        guest_brk_state = -1;
+        return;
+    }
+    if(__atomic_exchange_n(&guest_brk_initializing, 1, __ATOMIC_ACQ_REL)) {
+        while(!__atomic_load_n(&guest_brk_state, __ATOMIC_ACQUIRE))
+            sched_yield();
+        return;
+    }
+    uintptr_t size = (uintptr_t)1 << 30;
+    void* p = box_mmap(NULL, size, PROT_READ|PROT_WRITE,
+                       MAP_PRIVATE|MAP_ANONYMOUS|MAP_NORESERVE, -1, 0);
+    if(p==MAP_FAILED || !p) {
+        printf_log(LOG_INFO, "Warning: cannot reserve guest brk arena (%s), using host program break\n", strerror(errno));
+        __atomic_store_n(&guest_brk_state, -1, __ATOMIC_RELEASE);
+        return;
+    }
+    guest_brk_base = (uintptr_t)p;
+    guest_brk_end = guest_brk_base + size;
+    guest_brk_cur = guest_brk_base;
+    setProtection_guest(guest_brk_base, size, PROT_READ|PROT_WRITE);
+    printf_log(LOG_DEBUG, "Guest brk arena %p-%p\n", (void*)guest_brk_base, (void*)guest_brk_end);
+    __atomic_store_n(&guest_brk_state, 1, __ATOMIC_RELEASE);
+}
+
+int guest_brk_is_active(void)
+{
+    if(!guest_brk_state)
+        init_guest_brk();
+    return guest_brk_state == 1;
+}
+
+int guest_brk_set(uintptr_t addr, uintptr_t* ret)
+{
+    if(!guest_brk_is_active())
+        return -1;
+    if(!addr) {
+        if(ret) *ret = __atomic_load_n(&guest_brk_cur, __ATOMIC_RELAXED);
+        return 0;
+    }
+    if(addr < guest_brk_base || addr > guest_brk_end)
+        return -1;
+    __atomic_store_n(&guest_brk_cur, addr, __ATOMIC_RELAXED);
+    if(ret) *ret = addr;
+    return 0;
+}
+
+uintptr_t guest_syscall_brk(uintptr_t addr)
+{
+    uintptr_t ret;
+    if(guest_brk_is_active()) {
+        if(guest_brk_set(addr, &ret))
+            return __atomic_load_n(&guest_brk_cur, __ATOMIC_RELAXED);
+        return ret;
+    }
+    return (uintptr_t)syscall(__NR_brk, addr);
+}
+
+void* guest_sbrk(intptr_t inc)
+{
+    if(!guest_brk_is_active())
+        return sbrk(inc);
+    uintptr_t old, newc;
+    do {
+        old = __atomic_load_n(&guest_brk_cur, __ATOMIC_RELAXED);
+        if(inc >= 0) {
+            if((uintptr_t)inc > guest_brk_end - old) {
+                errno = ENOMEM;
+                return (void*)-1;
+            }
+            newc = old + (uintptr_t)inc;
+        } else {
+            uintptr_t dec = (uintptr_t)(-(inc+1)) + 1;
+            if(old < guest_brk_base + dec) {
+                errno = ENOMEM;
+                return (void*)-1;
+            }
+            newc = old - dec;
+        }
+    } while(!__atomic_compare_exchange_n(&guest_brk_cur, &old, newc, 0,
+                                         __ATOMIC_RELAXED, __ATOMIC_RELAXED));
+    return (void*)old;
+}
+#else
+int guest_brk_is_active(void)
+{
+    return 0;
+}
+
+int guest_brk_set(uintptr_t addr, uintptr_t* ret)
+{
+    (void)addr;
+    if(ret)
+        *ret = 0;
+    return -1;
+}
+
+uintptr_t guest_syscall_brk(uintptr_t addr)
+{
+    return addr;
+}
+
+void* guest_sbrk(intptr_t inc)
+{
+    (void)inc;
+    return (void*)-1;
+}
+#endif
 
 void* find31bitBlockNearHint(void* hint_, size_t size, uintptr_t mask)
 {
