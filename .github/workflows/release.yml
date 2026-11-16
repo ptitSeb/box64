@@ -75,7 +75,7 @@ jobs:
             os: ubuntu-latest
 
           - platform: RISCV
-            os: ubuntu-latest
+            os: ubuntu-24.04
 
           - platform: RK3588
             os: ubuntu-22.04-arm
@@ -309,7 +309,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ github.workspace }}/xuantie_qemu_install
-          key: ${{ runner.os }}-${{ steps.get-xuantie-qemu-cache-key.outputs.key }}-xuantie-qemu
+          key: ${{ runner.os }}-${{ matrix.os }}-${{ steps.get-xuantie-qemu-cache-key.outputs.key }}-xuantie-qemu
 
       - name: "Checkout XuanTie QEMU"
         if: matrix.platform == 'RISCV' && steps.cache-xuantie-qemu.outputs.cache-hit != 'true' && steps.early-exit.outcome == 'failure'
