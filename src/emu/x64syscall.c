@@ -379,15 +379,16 @@ static const scwrap_t syscallwrap[] = {
     // TODO: implement fallback if __NR_statx is not defined
     [332] = {__NR_statx, 5},
     #endif
-    #ifdef __NR_io_uring_setup
-    [425] = {__NR_io_uring_setup, 2},
-    #endif
-    #ifdef __NR_io_uring_enter
-    [426] = {__NR_io_uring_enter, 6},
-    #endif
-    #ifdef __NR_io_uring_register
-    [427] = {__NR_io_uring_register, 4},
-    #endif
+    // io_uring is not tivial to wrap, return ENOSYS so applications fall back to regular syscalls.
+    // #ifdef __NR_io_uring_setup
+    // [425] = {__NR_io_uring_setup, 2},
+    // #endif
+    // #ifdef __NR_io_uring_enter
+    // [426] = {__NR_io_uring_enter, 6},
+    // #endif
+    // #ifdef __NR_io_uring_register
+    // [427] = {__NR_io_uring_register, 4},
+    // #endif
     #ifdef __NR_pidfd_open
     [434] = {__NR_pidfd_open, 2},
     #endif
