@@ -363,21 +363,6 @@ Skip N first CPU cores (Is apply before MAXCPU) 在 WowBox64 中可用。
  * 0: 不执行任何操作。
  * 1: 检测 libjvm，并在检测到时应用 BOX64_DYNAREC_BIGBLOCK=0 BOX64_DYNAREC_STRONGMEM=1 BOX64_SSE42=0。 [默认值]
 
-### BOX64_LIBCEF
-
-检测 libcef 并应用 BOX64_MALLOC_HACK 设置。
-
- * 0: 不执行任何操作。 [默认值]
- * 1: 检测 libcef，并在检测到时应用 BOX64_MALLOC_HACK=2。
-
-### BOX64_MALLOC_HACK
-
-挂钩 malloc 操作符时的行为。
-
- * 0: 不允许重定向 malloc 操作符，重写代码使用常规函数。 [默认值]
- * 1: 允许重定向 malloc 操作符。
- * 2: 与 0 类似，但追踪特殊的 mmap/free（某些内联的重定向函数无法被重定向）。
-
 ### BOX64_MAXCPU
 
 暴露的最大 CPU 核心数。 在 WowBox64 中可用。

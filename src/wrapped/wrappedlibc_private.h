@@ -18,7 +18,7 @@ GO(__adjtimex, iFp)
 GOW(adjtimex, iFp)
 //GOW(advance, 
 GO(alarm, uFu)
-GO(aligned_alloc, pFLL)
+GOM(aligned_alloc, pFELL)
 GOW(alphasort, iFpp)
 GOW(alphasort64, iFpp)
 //GO(__arch_prctl, 
@@ -83,7 +83,7 @@ GOW(bind, iFipu)
 GO(bindresvport, iFip)
 GOW(bindtextdomain, pFpp)
 GOW(bind_textdomain_codeset, pFpp)
-GOW(brk, iFp)
+GOWM(brk, iFEp)
 //GO(__bsd_getpgrp, 
 GO2(bsd_signal, pFEip, my_signal)
 GOM(bsearch, pFEppLLp)
@@ -97,10 +97,10 @@ GOW(c32rtomb, LFpup)
 #else
 GOM(call_once, vFEpp)
 #endif
-GOW(calloc, pFLL)
+GOWM(calloc, pFELL)
 //GOM(callrpc, iFpiiipppp)
 //GO(__call_tls_dtors, vFv)
-GOW(canonicalize_file_name, pFp)
+GOWM(canonicalize_file_name, pFEp)
 GO(capget, iFpp)
 GO(capset, iFpp)
 GO(catclose, iFp)
@@ -114,7 +114,7 @@ GO(cbc_crypt, iFppuup)
 GO(cfgetispeed, uFp)
 GO(cfgetospeed, uFp)
 GO(cfmakeraw, vFp)
-GO(cfree, vFp)
+GOM(cfree, vFEp)
 GO(cfsetispeed, iFpu)
 GO(cfsetospeed, iFpu)
 GO(cfsetspeed, iFpu)
@@ -483,13 +483,13 @@ GO(__fread_chk, LFpLLLp)
 GO(__freading, iFp)
 GO(fread_unlocked, LFpLLS)
 GO(__fread_unlocked_chk, LFpLLLp)
-GO(free, vFp)
+GOM(free, vFEp)
 #ifdef STATICBUILD
 //GO(free_aligned_sized, vFpLL)
 //GO(free_sized, vFpL)
 #else
-GO(free_aligned_sized, vFpLL)
-GO(free_sized, vFpL)
+GOM(free_aligned_sized, vFEpLL)
+GOM(free_sized, vFEpL)
 #endif
 GO(freeaddrinfo, vFp)
 GOW(freeifaddrs, vFp)
@@ -578,14 +578,14 @@ GO(getchar_unlocked, iFv)
 GOWM(getcontext, iFEp)
 GOW(getcpu, iFpp)
 GOW(getc_unlocked, iFS)
-GO(get_current_dir_name, pFv)
-GO(getcwd, pFpL)
-GO(__getcwd_chk, pFpLL)
+GOM(get_current_dir_name, pFEv)
+GOM(getcwd, pFEpL)
+GOM(__getcwd_chk, pFEpLL)
 GO(getdate, pFp)
 //DATAB(getdate_err, 4)
 GOW(getdate_r, iFpp)
-GOW(__getdelim, lFppiS)
-GO(getdelim, lFppiS)
+GOWM(__getdelim, lFEppiS)
+GOM(getdelim, lFEppiS)
 GO(getdents64, lFipL)
 GO(getdirentries, lFipLp)
 GO(getdirentries64, lFipLp)
@@ -632,7 +632,7 @@ GOW(getitimer, iFup)
 #else
 //GO(get_kernel_syms, 
 #endif
-GO(getline, lFppS)
+GOM(getline, lFEppS)
 GO(getloadavg, iFpi)
 GO(getlogin, pFv)
 GOW(getlogin_r, iFpL)
@@ -1196,7 +1196,7 @@ GO(lgetxattr, lFpppL)
 //GO(__libc_alloc_buffer_copy_bytes, 
 //GO(__libc_alloc_buffer_copy_string, 
 //GO(__libc_alloc_buffer_create_failure, 
-GO(__libc_calloc, pFLL)
+GOM(__libc_calloc, pFELL)
 //GO(__libc_clntudp_bufcreate, 
 GO(__libc_current_sigrtmax, iFv)
 //GO(__libc_current_sigrtmax_private, 
@@ -1214,23 +1214,23 @@ GOM(__libc_dlsym, pFEpp)
 //GO(__libc_fatal, 
 //GO(__libc_fcntl64, 
 //GO(__libc_fork, 
-GO(__libc_free, vFp)
+GOM(__libc_free, vFEp)
 //GO(__libc_freeres, 
 //GO(__libc_ifunc_impl_list, 
 //GO(__libc_init_first, 
 //GO(__libc_longjmp, 
 //GO(__libc_mallinfo, 
-GO(__libc_malloc, pFL)
+GOM(__libc_malloc, pFEL)
 //GO(__libc_mallopt, 
-GO(__libc_memalign, pFLL)
+GOM(__libc_memalign, pFELL)
 //GO(__libc_msgrcv, 
 //GO(__libc_msgsnd, 
 //GO(__libc_pread, 
 //GO(__libc_pthread_init, 
-GO(__libc_pvalloc, pFL)
+GOM(__libc_pvalloc, pFEL)
 //GO(__libc_pwrite, 
 //GO(__libc_readline_unlocked, 
-GO(__libc_realloc, pFpL)
+GOM(__libc_realloc, pFEpL)
 //GO(__libc_reallocarray, 
 //GO(__libc_rpc_getport, 
 //GO(__libc_sa_len, 
@@ -1246,7 +1246,7 @@ GOM(__libc_start_main, iFEpippppp)
 GO(__libc_system, iFp)
 #endif
 //GO(__libc_thread_freeres, 
-GO(__libc_valloc, pFL)
+GOM(__libc_valloc, pFEL)
 //GO(__libc_vfork, 
 GOW(link, iFpp)
 GO(linkat, iFipipi)
@@ -1287,13 +1287,13 @@ GOWM(madvise, iFEpLi)
 GOWM(makecontext, vFEppiV)
 GOWM(mallinfo, pFEp)
 GOWM(mallinfo2, pFEp)
-GO(malloc, pFL)
+GOM(malloc, pFEL)
 //GO(malloc_get_state, 
 GOW(malloc_info, iFiS)
 //GO(malloc_set_state, 
 GOW(malloc_stats, vFv)
 GO(malloc_trim, iFL)
-GO(malloc_usable_size, LFp)
+GOM(malloc_usable_size, LFEp)
 GOW(mallopt, iFii)
 //DATAB(mallwatch, 
 GO(mblen, iFpL)
@@ -1317,7 +1317,7 @@ GO(mcheck_check_all, vFv)
 GO(_mcleanup, vFv)
 GO(_mcount, vFpp)
 GO2(mcount, vFpp, _mcount)
-GO(memalign, pFLL)
+GOM(memalign, pFELL)
 GO(memccpy, pFppiL)
 GO(memchr, pFpiL)
 GO(memcmp, iFppL)
@@ -1502,7 +1502,11 @@ GOW(open_tree, iFipu)
 //GO(__open_catalog, 
 GOW(opendir, pFp)
 GO(openlog, vFpii)
-GOW(open_memstream, SFpp)
+#ifdef ANDROID
+GO(open_memstream, SFpp)
+#else
+GOWM(open_memstream, SFEpp)
+#endif
 //GO(__open_nocancel, 
 GO(open_wmemstream, SFpp)
 DATA(optarg, 8)
@@ -1557,7 +1561,7 @@ GO(posix_fallocate, iFill)
 GO(posix_fallocate64, iFiII)
 //GO(__posix_getopt, 
 GOM(posix_madvise, iFEpLi)
-GO(posix_memalign, iFpLL)
+GOM(posix_memalign, iFEpLL)
 GOW(posix_openpt, iFi)
 GOM(posix_spawn, iFEpppppp)
 GO(posix_spawn_file_actions_addclosefrom_np, iFpi)
@@ -1650,7 +1654,7 @@ GO(putwc, uFiS)
 GO(putwchar, uFi)
 GO(putwchar_unlocked, uFi)
 GO(putwc_unlocked, uFiS)
-GO(pvalloc, pFL)
+GOM(pvalloc, pFEL)
 GO(pwrite, lFipLl)
 //GOW(__pwrite64, 
 GO(pwrite64, lFipLI)
@@ -1692,8 +1696,8 @@ GOM(__readlinkat_chk, lFEippLL)
 GOM(__readlink_chk, lFEppLL)
 //GO(__read_nocancel, 
 GOW(readv, lFipi)
-GO(realloc, pFpL)
-GO(reallocarray, pFpLL)
+GOM(realloc, pFEpL)
+GOM(reallocarray, pFEpLL)
 GOM(realpath, pFEpp)
 GO2(__realpath_chk, pFEppv, my_realpath)
 GO(reboot, iFi)
@@ -1785,8 +1789,8 @@ GO(rtime, iFppp)
 GO(ruserok, iFpipp)
 GO(ruserok_af, iFpippW)
 //GO(ruserpass, 
-GO(__sbrk, pFl)
-GO(sbrk, pFl)
+GOM(__sbrk, pFEl)
+GOM(sbrk, pFEl)
 GOWM(scandir, iFEpppp)
 GOWM(scandir64, iFEpppp)
 GOWM(scandirat, iFEipppp)
@@ -2024,8 +2028,8 @@ GO(strcspn, LFpp)
 //GO(__strcspn_c1, 
 //GO(__strcspn_c2, 
 //GO(__strcspn_c3, 
-GO(__strdup, pFp)
-GOW(strdup, pFp)
+GOM(__strdup, pFEp)
+GOWM(strdup, pFEp)
 GO(strerror, pFi)
 GOW(strerrorname_np, pFi)
 GOW(strerrordesc_np, pFi)
@@ -2062,8 +2066,8 @@ GO(__strncat_chk, pFppLL)
 GO(strncmp, iFppL)
 GO(strncpy, pFppL)
 GO(__strncpy_chk, pFppLL)
-GO(__strndup, pFpL)
-GO(strndup, pFpL)
+GOM(__strndup, pFEpL)
+GOM(strndup, pFEpL)
 GO(strnlen, LFpL)
 GO(strpbrk, pFpp)
 //GO(__strpbrk_c2, 
@@ -2260,7 +2264,11 @@ GOWM(tdelete, pFEppp)
 GOWM(tdestroy, vFEpp)
 GO(tee, lFiiLu)
 GO(telldir, lFp)
+#ifdef ANDROID
 GO(tempnam, pFpp)
+#else
+GOM(tempnam, pFEpp)
+#endif
 GOW(textdomain, pFp)
 //GO(__tfind, 
 GOWM(tfind, pFEppp)
@@ -2380,7 +2388,7 @@ GO(utimensat, iFippi)
 GOW(utimes, iFpp)
 GOW(utmpname, iFp)
 GO(utmpxname, iFp)
-GO(valloc, pFL)
+GOM(valloc, pFEL)
 GOWM(vasprintf, iFEppA)
 GOM(__vasprintf_chk, iFEpipp)
 GOM(vdprintf, iFEipA)
@@ -2451,7 +2459,7 @@ GOW(wcscoll_l, iFppp)
 GO(wcscpy, pFpp)
 GO(__wcscpy_chk, pFppL)
 GO(wcscspn, LFpp)
-GO(wcsdup, pFp)
+GOM(wcsdup, pFEp)
 GO(wcsftime, LFpLpp)
 GO(__wcsftime_l, LFpLppp)
 GO(wcsftime_l, LFpLppp)

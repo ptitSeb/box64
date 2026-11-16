@@ -43,6 +43,7 @@
 #include "x64int_private.h"
 #include "syscall_user_dispatch.h"
 #include "cpumask.h"
+#include "custommem.h"
 
 typedef struct x64_sigaction_s x64_sigaction_t;
 typedef struct x64_stack_s x64_stack_t;
@@ -111,7 +112,6 @@ static const scwrap_t syscallwrap[] = {
     //[9] = {__NR_mmap, 6},       // wrapped to track mmap
     //[10] = {__NR_mprotect, 3},  // same
     //[11] = {__NR_munmap, 2},    // same
-    [12] = {__NR_brk, 1},
     //[13] = {__NR_rt_sigaction, 4},   // wrapped to use my_ version
     [14] = {__NR_rt_sigprocmask, 4},
     [15] = {__NR_rt_sigreturn, 1},
@@ -672,6 +672,9 @@ void EXPORT x64Syscall_linux(x64emu_t *emu)
             if(S_RAX==-1)
                 S_RAX = -errno;
             break;
+        case 12:
+            R_RAX = guest_syscall_brk(R_RDI);
+            break;
         case 13: // sys_rt_sigaction
             #if 1
             S_RAX = my_syscall_rt_sigaction(emu, S_EDI, (const x64_sigaction_restorer_t *)R_RSI, (x64_sigaction_restorer_t *)R_RDX, (size_t)R_R10);
@@ -1158,6 +1161,8 @@ long EXPORT my_syscall(x64emu_t *emu)
             return my_mprotect(emu, (void*)R_RSI, R_RDX, S_ECX);
         case 11: // sys_munmap
             return my_munmap(emu, (void*)R_RSI, R_RDX);
+        case 12:
+            return (intptr_t)guest_syscall_brk(R_RSI);
         case 13: // sys_rt_sigaction
             #if 1
             return my_syscall_rt_sigaction(emu, S_ESI, (const x64_sigaction_restorer_t *)R_RDX, (x64_sigaction_restorer_t *)R_RCX, (size_t)R_R8);

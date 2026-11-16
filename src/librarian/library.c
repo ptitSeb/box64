@@ -395,11 +395,6 @@ static int loadEmulatedLib(const char* libname, library_t *lib, box64context_t* 
             SET_BOX64ENV(sse42, 0);
             env_changed = 1;
         }
-        if(libname && BOX64ENV(libcef) && strstr(libname, "libcef.so")) {
-            printf_dump(LOG_INFO, "libcef detected, using malloc_hack=2\n");
-            SET_BOX64ENV(malloc_hack, 2);
-            env_changed = 1;
-        }
         if (env_changed) PrintEnvVariables(&box64env, LOG_INFO);
         return 1;
     }

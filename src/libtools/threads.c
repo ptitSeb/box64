@@ -260,6 +260,11 @@ void thread_set_emu(x64emu_t* emu)
 	pthread_setspecific(thread_key, et);
 }
 
+int thread_emu_ready(void)
+{
+	return thread_key_ready;
+}
+
 x64emu_t* thread_get_emu_no_create(void)
 {
 	if(!thread_key_ready) return NULL;

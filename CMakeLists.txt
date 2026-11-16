@@ -498,7 +498,7 @@ set(ELFLOADER_SRC
 )
 if(NOT STATICBUILD)
     list(APPEND ELFLOADER_SRC
-        "${BOX64_ROOT}/src/mallochook.c"
+        "${BOX64_ROOT}/src/guestalloc.c"
         "${BOX64_ROOT}/src/steam.c"
         "${BOX64_ROOT}/src/libtools/sdl1rwops.c"
         "${BOX64_ROOT}/src/libtools/sdl2rwops.c"

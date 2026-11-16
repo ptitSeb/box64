@@ -99,11 +99,9 @@ extern char* ftrace_name;
     BOOLEAN(BOX64_JVM, jvm, 1, 0, 0)                                             \
     STRING(BOX64_LD_LIBRARY_PATH, ld_library_path, 0, 0)                         \
     STRING(BOX64_LD_PRELOAD, ld_preload, 0, 0)                                   \
-    BOOLEAN(BOX64_LIBCEF, libcef, 0, 0, 0)                                       \
     STRING(BOX64_LIBGL, libgl, 0, 0)                                             \
     ADDRESS(BOX64_LOAD_ADDR, load_addr, 0, 0)                                    \
     INTEGER(BOX64_LOG, log, DEFAULT_LOG_LEVEL, 0, 3, 1, 0)                       \
-    INTEGER(BOX64_MALLOC_HACK, malloc_hack, 0, 0, 2, 0, 0)                       \
     INTEGER(BOX64_MAXCPU, new_maxcpu, 0, 0, 100, 1, 0)                           \
     INTEGER(BOX64_SKIPCPU, new_skipcpu, 0, 0, 100, 1, 0)                         \
     BOOLEAN(BOX64_MMAP32, mmap32, 1, 0, 0)                                       \

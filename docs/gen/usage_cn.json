@@ -462,13 +462,6 @@
       "XXXX:YYYY": "强制加载库 XXXX 和 YYYY。"
     }
   },
-  "BOX64_LIBCEF": {
-    "description": "检测 libcef 并应用 BOX64_MALLOC_HACK 设置。",
-    "options": {
-      "0": "不执行任何操作。",
-      "1": "检测 libcef，并在检测到时应用 BOX64_MALLOC_HACK=2。"
-    }
-  },
   "BOX64_LIBGL": {
     "description": "设置 libGL 的名称。",
     "options": {
@@ -489,14 +482,6 @@
       "1": "启用最小级别的 Box64 日志。",
       "2": "启用调试级别的 Box64 日志。",
       "3": "启用详细级别的 Box64 日志。"
-    }
-  },
-  "BOX64_MALLOC_HACK": {
-    "description": "挂钩 malloc 操作符时的行为。",
-    "options": {
-      "0": "不允许重定向 malloc 操作符，重写代码使用常规函数。",
-      "1": "允许重定向 malloc 操作符。",
-      "2": "与 0 类似，但追踪特殊的 mmap/free（某些内联的重定向函数无法被重定向）。"
     }
   },
   "BOX64_MAXCPU": {
