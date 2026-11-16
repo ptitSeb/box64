@@ -284,11 +284,11 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETGX_vector(v0, 1, VECTOR_SEW32);
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW64, 1);
             GETEM_vector(q1, 0);
-            if (BOX64ENV(dynarec_fastround) <= 1) u8 = sse_setround(dyn, ninst, x6, x4);
+            u8 = sse_setround(dyn, ninst, x6, x4);
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
             d0 = fpu_get_scratch(dyn);
             VFCVT_F_X_V(d0, q1, VECTOR_UNMASKED);
-            if (BOX64ENV(dynarec_fastround) <= 1) x87_restoreround(dyn, ninst, u8);
+            x87_restoreround(dyn, ninst, u8);
             VECTOR_LOAD_VMASK(0b0011, x4, 1);
             VMERGE_VVM(v0, v0, d0);
             break;
@@ -788,9 +788,7 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW32, 1);
             GETEX_vector(q0, 0, 0, VECTOR_SEW32);
             GETGX_empty_vector(v0);
-            if (BOX64ENV(dynarec_fastround) <= 1) u8 = sse_setround(dyn, ninst, x6, x4);
             VFCVT_F_X_V(v0, q0, VECTOR_UNMASKED);
-            if (BOX64ENV(dynarec_fastround) <= 1) x87_restoreround(dyn, ninst, u8);
             break;
         case 0x5C:
             if (!BOX64ENV(dynarec_fastnan)) return 0;

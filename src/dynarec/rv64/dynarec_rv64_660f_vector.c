@@ -1822,9 +1822,9 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             }
             vector_vsetvli(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL1, 0.5);
             d0 = fpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-            u8 = sse_setround(dyn, ninst, x6, x4);
+            if (BOX64ENV(dynarec_fastround) < 2) u8 = sse_setround(dyn, ninst, x6, x4);
             VFNCVT_F_F_W(d0, d1, VECTOR_UNMASKED);
-            x87_restoreround(dyn, ninst, u8);
+            if (BOX64ENV(dynarec_fastround) < 2) x87_restoreround(dyn, ninst, u8);
             vector_vsetvli(dyn, ninst, x1, VECTOR_SEW64, VECTOR_LMUL1, 1);
             if (!cpuext.xtheadvector) VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
             VMV_X_S(x4, d0);

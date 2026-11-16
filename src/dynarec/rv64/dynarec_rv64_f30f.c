@@ -122,13 +122,13 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGXSS(v0);
             GETED(0);
-            u8 = sse_setround(dyn, ninst, x6, x4);
+            if (BOX64ENV(dynarec_fastround) < 2) u8 = sse_setround(dyn, ninst, x6, x4);
             if (rex.w) {
                 FCVTSL(v0, ed, RD_DYN);
             } else {
                 FCVTSW(v0, ed, RD_DYN);
             }
-            x87_restoreround(dyn, ninst, u8);
+            if (BOX64ENV(dynarec_fastround) < 2) x87_restoreround(dyn, ninst, u8);
             break;
 
         case 0x2C:
