@@ -22,6 +22,9 @@
 #include "dynarec_native.h"
 #include "dynarec_arch.h"
 #include "native_lock.h"
+#ifdef GDBJIT
+#include "gdbjit.h"
+#endif
 #ifdef BOX64EC
 #include "box64ec.h"
 #endif
@@ -31,6 +34,18 @@
 #include "rbtree.h"
 
 // ---- fast hash for block change detection ----
+#ifdef GDBJIT
+static void FreeDynablockGdbJIT(dynablock_t* db)
+{
+    if (db && db->gdbjit_block) {
+        GdbJITBlockFree((gdbjit_block_t*)db->gdbjit_block);
+        db->gdbjit_block = NULL;
+    }
+}
+#else
+#define FreeDynablockGdbJIT(db) do {} while(0)
+#endif
+
 static uint32_t normal_fast_hash(void* p, uint32_t len)
 {
     const uint8_t* data = (const uint8_t*)p;
@@ -86,6 +101,7 @@ dynablock_t* InvalidDynablock(dynablock_t* db, int need_lock)
         if(db->gone)
             return NULL; // already in the process of deletion!
         dynarec_log(LOG_DEBUG, "InvalidDynablock(%p), db->block=%p x64=%p:%p already gone=%d\n", db, db->block, db->x64_addr, db->x64_addr+db->x64_size-1, db->gone);
+        FreeDynablockGdbJIT(db);
         // remove jumptable without waiting
         setJumpTableDefault64(db->x64_addr);
         if(need_lock)
@@ -177,8 +193,10 @@ static void QueueZombieDynablock(dynablock_t* db)
         if (idx_in_used > 0) {
             printf_log(LOG_DEBUG, "Warning, all %d queued dynablocks are still in use, deferring the oldest one (in_used=%d)\n", DB_ZOMBIE_SIZE, idx_in_used);
             QueueOrphanDynablock(my_context->db_zombie[slot]);
-        } else if (my_context->db_zombie[slot])
+        } else if (my_context->db_zombie[slot]) {
+            FreeDynablockGdbJIT(my_context->db_zombie[slot]);
             FreeDynarecMap((uintptr_t)my_context->db_zombie[slot]->actual_block);
+        }
         // shift all newer entries over the dropped one, then queue db at the tail
         for (int i = idx; i < DB_ZOMBIE_SIZE - 1; ++i) {
             int cur = (my_context->db_zombie_head - DB_ZOMBIE_SIZE + i + DB_ZOMBIE_SIZE) % DB_ZOMBIE_SIZE;
@@ -204,13 +222,16 @@ void DeferFreeDynablockClearRange(void* addr, size_t sz)
     int head = my_context->db_zombie_head;
     for(int i=0; i<my_context->db_zombie_count; ++i) {
         int idx = (head - my_context->db_zombie_count + i + DB_ZOMBIE_SIZE) % DB_ZOMBIE_SIZE;
-        if(my_context->db_zombie[idx] && ((void*)my_context->db_zombie[idx]>=addr) && ((void*)my_context->db_zombie[idx]<(addr+sz)))
+        if(my_context->db_zombie[idx] && ((void*)my_context->db_zombie[idx]>=addr) && ((void*)my_context->db_zombie[idx]<(addr+sz))) {
+            FreeDynablockGdbJIT(my_context->db_zombie[idx]);
             my_context->db_zombie[idx] = NULL;
+        }
     }
     for(int i=0; i<my_context->db_orphan_count; )
-        if(my_context->db_orphan[i] && ((void*)my_context->db_orphan[i]>=addr) && ((void*)my_context->db_orphan[i]<(addr+sz)))
+        if(my_context->db_orphan[i] && ((void*)my_context->db_orphan[i]>=addr) && ((void*)my_context->db_orphan[i]<(addr+sz))) {
+            FreeDynablockGdbJIT(my_context->db_orphan[i]);
             my_context->db_orphan[i] = my_context->db_orphan[--my_context->db_orphan_count];
-        else
+        } else
             ++i;
 }
 
@@ -243,6 +264,7 @@ void FreeDynablock(dynablock_t* db, int need_lock, int need_remove)
         if(db->gone)
             return; // already in the process of deletion!
         dynarec_log(LOG_DEBUG, "FreeDynablock(%p), db->block=%p x64=%p:%p already gone=%d\n", db, db->block, db->x64_addr, db->x64_addr+db->x64_size-1, db->gone);
+        FreeDynablockGdbJIT(db);
         // remove jumptable without waiting
         if(need_remove) {
             setJumpTableDefault64(db->x64_addr);
@@ -276,6 +298,7 @@ void MarkDynablock(dynablock_t* db)
             if(!old->gone && db!=old) {
                 printf_log(LOG_INFO, "Warning, couldn't mark block as dirty for %p, block=%p, current_block=%p\n", old->x64_addr, old, db);
                 // the block is lost, need to invalidate and defer its free
+                FreeDynablockGdbJIT(old);
                 old->gone = 1;
                 old->done = 0;
                 FreeInvalidDynablock(old, 1);
@@ -496,8 +519,10 @@ void FlushZombieDynablocks(void)
     if (!my_context) return;
     if (my_context->db_orphan_count) {
         for (int i = 0; i < my_context->db_orphan_count; ++i)
-            if (my_context->db_orphan[i] && native_lock_get_d(&my_context->db_orphan[i]->in_used) <= 0)
+            if (my_context->db_orphan[i] && native_lock_get_d(&my_context->db_orphan[i]->in_used) <= 0) {
+                FreeDynablockGdbJIT(my_context->db_orphan[i]);
                 FreeDynarecMap((uintptr_t)my_context->db_orphan[i]->actual_block);
+            }
         box_free(my_context->db_orphan);
         my_context->db_orphan = NULL;
         my_context->db_orphan_size = 0;
@@ -507,8 +532,10 @@ void FlushZombieDynablocks(void)
     int head = my_context->db_zombie_head;
     for (int i = 0; i < my_context->db_zombie_count; ++i) {
         int idx = (head - my_context->db_zombie_count + i + DB_ZOMBIE_SIZE) % DB_ZOMBIE_SIZE;
-        if (my_context->db_zombie[idx] && native_lock_get_d(&my_context->db_zombie[idx]->in_used) <= 0)
+        if (my_context->db_zombie[idx] && native_lock_get_d(&my_context->db_zombie[idx]->in_used) <= 0) {
+            FreeDynablockGdbJIT(my_context->db_zombie[idx]);
             FreeDynarecMap((uintptr_t)my_context->db_zombie[idx]->actual_block);
+        }
     }
     my_context->db_zombie_count = 0;
 }

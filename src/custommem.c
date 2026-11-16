@@ -1553,10 +1553,10 @@ int MmaplistAddBlock_internal(mmaplist_t* list, void* map, void* orig, size_t si
             GO(jmpnext);
             GO(table64);
             GO(relocs);
-            #ifdef GBDJIT
-            GO(gdbjit_block);
-            #endif
             #undef GO
+            #ifdef GDBJIT
+            bl->gdbjit_block = NULL;
+            #endif
             // shift the self referece to dynablock
             if(bl->block!=bl->jmpnext) {
                 void** db_ref = (bl->jmpnext-sizeof(void*));
