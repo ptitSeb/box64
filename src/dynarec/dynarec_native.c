@@ -399,6 +399,14 @@ void CancelBlock64(int need_lock)
         mutex_lock(&my_context->mutex_dyndump);
     dynarec_native_t* helper = (dynarec_native_t*)current_helper;
     if(helper) {
+        #ifdef GDBJIT
+        if(helper->gdbjit_block) {
+            GdbJITBlockFree((gdbjit_block_t*)helper->gdbjit_block);
+            helper->gdbjit_block = NULL;
+            if(helper->dynablock)
+                helper->dynablock->gdbjit_block = NULL;
+        }
+        #endif
         if(helper->dynablock && helper->dynablock->actual_block) {
             FreeDynarecMap((uintptr_t)helper->dynablock->actual_block);
             helper->dynablock->actual_block = NULL;
@@ -595,9 +603,6 @@ dynablock_t* FillBlock64(uintptr_t addr, int is32bits, int inst_max, int is_new,
     if(!khjumpaddr)
         khjumpaddr = kh_init(jumpaddr);
     kh_clear(jumpaddr, khjumpaddr);
-#ifdef GDBJIT
-    helper.gdbjit_block = box_calloc(1, sizeof(gdbjit_block_t));
-#endif
     redundant_helper = current_helper = &helper;
     helper.dynablock = NULL;
     helper.start = addr;
@@ -930,9 +935,15 @@ dynablock_t* FillBlock64(uintptr_t addr, int is32bits, int inst_max, int is_new,
                 PrintFunctionAddr(helper.start, " => ");
                 dynarec_log_prefix(0, LOG_NONE, "%s\n", (dyn->need_dump>1)?"\e[m":"");
             }
-            if (BOX64ENV(dynarec_gdbjit) && (!BOX64ENV(dynarec_gdbjit_end) || (addr >= BOX64ENV(dynarec_gdbjit_start) && addr < BOX64ENV(dynarec_gdbjit_end)))) {
-                GdbJITNewBlock(helper.gdbjit_block, (GDB_CORE_ADDR)block->actual_block, (GDB_CORE_ADDR)block->actual_block + native_size, helper.start);
+#ifdef GDBJIT
+            if (helper.gdbjit_block) {
+                GdbJITBlockFree((gdbjit_block_t*)helper.gdbjit_block);
+                helper.gdbjit_block = NULL;
             }
+            if (BOX64ENV(dynarec_gdbjit) && (!BOX64ENV(dynarec_gdbjit_end) || (addr >= BOX64ENV(dynarec_gdbjit_start) && addr < BOX64ENV(dynarec_gdbjit_end)))) {
+                helper.gdbjit_block = GdbJITNewBlock((GDB_CORE_ADDR)helper.native_start, (GDB_CORE_ADDR)(helper.native_start + native_size), helper.start);
+            }
+#endif
             int oldtable64size = helper.table64size;
             oldnativesize = helper.native_size;
             oldinstsize = helper.insts_size;
@@ -990,13 +1001,13 @@ dynablock_t* FillBlock64(uintptr_t addr, int is32bits, int inst_max, int is_new,
             //block->x64_addr = (void*)start;
             block->x64_size = end-start;
             // all done...
-            if (BOX64ENV(dynarec_gdbjit) && (!BOX64ENV(dynarec_gdbjit_end) || (addr >= BOX64ENV(dynarec_gdbjit_start) && addr < BOX64ENV(dynarec_gdbjit_end)))) {
-                if (BOX64ENV(dynarec_gdbjit) != 3) GdbJITBlockReady(helper.gdbjit_block);
+#ifdef GDBJIT
+            if (helper.gdbjit_block) {
                 GdbJITBlockCleanup(helper.gdbjit_block);
-                #ifdef GDBJIT
+                if (BOX64ENV(dynarec_gdbjit) != 3) GdbJITBlockReady(helper.gdbjit_block);
                 block->gdbjit_block = helper.gdbjit_block;
-                #endif
             }
+#endif
             ClearCache(actual_p+sizeof(void*), native_size);   // need to clear the cache before execution...
             block->hash = X31_hash_code((void*)block->x64_readaddr, block->x64_size);
             // Check if something changed, to abort if it is

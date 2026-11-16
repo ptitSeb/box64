@@ -1287,14 +1287,16 @@ dynarec_log(/*LOG_DEBUG*/LOG_INFO, "%04d|Repeated SIGSEGV with Access error on %
         GO(RIP);
         #undef GO
     }
+#ifdef DYNAREC
+    #ifdef GDBJIT
+    if(db && BOX64ENV(dynarec_gdbjit) == 3) GdbJITBlockReady(db->gdbjit_block);
+    #endif
+#endif
     if(log_minimum<=BOX64ENV(log)) {
         static const char* reg_name[] = {"RAX", "RCX", "RDX", "RBX", "RSP", "RBP", "RSI", "RDI", " R8", " R9","R10","R11", "R12","R13","R14","R15"};
         static const char* seg_name[] = {"ES", "CS", "SS", "DS", "FS", "GS"};
         int shown_regs = 0;
 #ifdef DYNAREC
-        #ifdef GDBJIT
-        if(db && BOX64ENV(dynarec_gdbjit) == 3) GdbJITBlockReady(db->gdbjit_block);
-        #endif
         uint32_t hash = 0;
         if(db)
             hash = X31_hash_code(db->x64_addr, db->x64_size);
