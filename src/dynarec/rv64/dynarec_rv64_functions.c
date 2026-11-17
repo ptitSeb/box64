@@ -29,40 +29,51 @@
 #include "gdbjit.h"
 #include "perfmap.h"
 
-static int fpu_scratch_vreg(int n)
+int fpu_get_scratch(dynarec_rv64_t* dyn)
 {
-    if (n < 7)
-        return SCRATCH0 + n;
+    if (dyn->e.fpu_scratch < 7) return SCRATCH0 + dyn->e.fpu_scratch++;
     abort();
 }
 
-// Get a FPU scratch reg
-int fpu_get_scratch(dynarec_rv64_t* dyn)
+static int rvv_scratch_group_width(int lmul)
 {
-    return fpu_scratch_vreg(dyn->e.fpu_scratch++); // return an Sx
+    if (lmul < VECTOR_LMUL1 || lmul > VECTOR_LMUL8) abort();
+    return 1 << lmul;
 }
 
-// Get a FPU scratch reg aligned to LMUL
-int fpu_get_scratch_lmul(dynarec_rv64_t* dyn, int lmul)
+static int rvv_scratch_free(const dynarec_rv64_t* dyn, int base, int width)
 {
-    if (cpuext.xtheadvector) {
-        int reg = SCRATCH0 + dyn->e.fpu_scratch;
-        int skip = (reg % (1 << lmul)) ? (1 << lmul) - (reg % (1 << lmul)) : 0;
-        dyn->e.fpu_scratch += skip + 1;
-        return reg + skip;
-    }
-    int n = dyn->e.fpu_scratch;
-    int reg = fpu_scratch_vreg(n);
-    int skip = (reg % (1 << lmul)) ? (1 << lmul) - (reg % (1 << lmul)) : 0;
-    dyn->e.fpu_scratch += skip + (1 << lmul);
-    return fpu_scratch_vreg(n + skip);
+    uint16_t group = (uint16_t)(((1u << width) - 1) << base);
+    return !(dyn->e.vpu_scratch & group);
 }
 
-// Reset scratch regs counter
+static int rvv_reserve_scratch(dynarec_rv64_t* dyn, int base, int width)
+{
+    if (base < 1 || base + width > 16 || (base & (width - 1)) || !rvv_scratch_free(dyn, base, width)) abort();
+    uint16_t group = (uint16_t)(((1u << width) - 1) << base);
+    dyn->e.vpu_scratch |= group;
+    return base;
+}
+
+int vpu_get_scratch(dynarec_rv64_t* dyn)
+{
+    for (int reg = 1; reg < 16; ++reg)
+        if (rvv_scratch_free(dyn, reg, 1)) return rvv_reserve_scratch(dyn, reg, 1);
+    abort();
+}
+
+int vpu_get_scratch_lmul(dynarec_rv64_t* dyn, int lmul)
+{
+    int width = rvv_scratch_group_width(lmul);
+    for (int reg = width; reg + width <= 16; reg += width)
+        if (rvv_scratch_free(dyn, reg, width)) return rvv_reserve_scratch(dyn, reg, width);
+    abort();
+}
+
 void fpu_reset_scratch(dynarec_rv64_t* dyn)
 {
     dyn->e.fpu_scratch = 0;
-    dyn->pending_zero_flushed = 0;
+    dyn->e.vpu_scratch = 0;
 }
 // Get a x87 double reg
 int fpu_get_reg_x87(dynarec_rv64_t* dyn, int t, int n)
@@ -73,12 +84,11 @@ int fpu_get_reg_x87(dynarec_rv64_t* dyn, int t, int n)
     dyn->e.fpuused[i] = 1;
     dyn->e.extcache[i].n = n;
     dyn->e.extcache[i].t = t;
-    dyn->e.extcache[i].y = 0;
     dyn->e.news |= (1 << i);
     return EXTREG(i); // return a Dx
 }
 // Free a FPU reg
-void fpu_free_reg(dynarec_rv64_t* dyn, int reg)
+void extcache_free_reg(dynarec_rv64_t* dyn, int reg)
 {
     int idx = EXTIDX(reg);
     // TODO: check upper limit?
@@ -94,19 +104,17 @@ int fpu_get_reg_emm(dynarec_rv64_t* dyn, int t, int emm)
     dyn->e.fpuused[i] = 1;
     dyn->e.extcache[i].t = t;
     dyn->e.extcache[i].n = emm;
-    dyn->e.extcache[i].y = 0;
     dyn->e.news |= (1 << (i));
     return EXTREG(i);
 }
 
 // Get an XMM reg
-int fpu_get_reg_xmm(dynarec_rv64_t* dyn, int t, int xmm)
+int simd_alloc_reg(dynarec_rv64_t* dyn, int t, int xmm)
 {
     int i = XMM0 + xmm;
     dyn->e.fpuused[i] = 1;
     dyn->e.extcache[i].t = t;
     dyn->e.extcache[i].n = xmm;
-    dyn->e.extcache[i].y = 0;
     dyn->e.news |= (1 << i);
     return EXTREG(i);
 }
@@ -117,8 +125,7 @@ static void fpu_reset_reg_extcache(dynarec_rv64_t* dyn, extcache_t* e)
         e->fpuused[i] = 0;
         e->extcache[i].v = 0;
     }
-    dyn->vector_sew = VECTOR_SEWNA;
-    dyn->vtype_restore = VECTOR_SEWNA;
+    dyn->rvv.bits = 0;
 }
 void fpu_reset_reg(dynarec_rv64_t* dyn)
 {
@@ -359,6 +366,8 @@ static int isCacheEmpty(dynarec_native_t* dyn, int ninst)
                     && dyn->insts[ninst].e.extcache[i].n < dyn->insts[ninst].e.stack_pop))
                 return 0;
         }
+    for (int a = 0; a < 16; ++a)
+        if (dyn->insts[ninst].e.simd[a].dirty) return 0;
     return 1;
 }
 
@@ -387,6 +396,8 @@ int fpuCacheNeedsTransform(dynarec_rv64_t* dyn, int ninst)
         for (int i = 0; i < 24 && !ret; ++i)
             if (dyn->insts[0].e.extcache[i].v)
                 ret = 1;
+        for (int a = 0; a < 16; ++a)
+            if (dyn->insts[ninst].e.simd[a].dirty) return 1;
         return ret;
     }
     // Check if ninst can be compatible to i2
@@ -395,8 +406,6 @@ int fpuCacheNeedsTransform(dynarec_rv64_t* dyn, int ninst)
     }
     extcache_t cache_i2 = dyn->insts[i2].e;
     extcacheUnwind(&cache_i2);
-    sse_restore_entry_ymm0(dyn, &cache_i2, i2);
-    sse_preload_unwind(&cache_i2, dyn->insts[i2].preload_xmmymm);
 
     for (int i = 0; i < 24; ++i) {
         if (dyn->insts[ninst].e.extcache[i].v) { // there is something at ninst for i
@@ -405,33 +414,28 @@ int fpuCacheNeedsTransform(dynarec_rv64_t* dyn, int ninst)
             } else if (dyn->insts[ninst].e.extcache[i].v != cache_i2.extcache[i].v) { // there is something different
                 if (dyn->insts[ninst].e.extcache[i].n != cache_i2.extcache[i].n) {    // not the same x64 reg
                     ret = 1;
-                } else if (dyn->insts[ninst].e.extcache[i].t == EXT_CACHE_XMMR && cache_i2.extcache[i].t == EXT_CACHE_XMMW) { /* nothing */
-                } else if (dyn->insts[ninst].e.extcache[i].t == EXT_CACHE_YMMR && cache_i2.extcache[i].t == EXT_CACHE_YMMW) { /* nothing */
                 } else
                     ret = 1;
             }
         } else if (cache_i2.extcache[i].v)
             ret = 1;
     }
+    for (int a = 0; a < 16; ++a)
+        if (memcmp(&dyn->insts[ninst].e.simd[a], &cache_i2.simd[a], sizeof(simd_cache_t))) return 1;
     return ret;
 }
 
-int sewNeedsTransform(dynarec_rv64_t* dyn, int ninst)
+int rvv_needs_transform(dynarec_rv64_t* dyn, int ninst)
 {
-    int i2 = dyn->insts[ninst].x64.jmp_insts;
-
-    if (dyn->insts[i2].vector_sew_entry == VECTOR_SEWNA)
-        return 0;
-    else if (dyn->insts[i2].vector_sew_entry == VECTOR_SEWANY && dyn->insts[ninst].vector_sew_exit != VECTOR_SEWNA)
-        return 0;
-    else if (dyn->insts[i2].vector_sew_entry == dyn->insts[ninst].vector_sew_exit)
-        return 0;
-
-    return 1;
+    int target = dyn->insts[ninst].x64.jmp_insts;
+    return target >= 0 && dyn->insts[target].rvv_entry.vl && dyn->insts[target].rvv_entry.bits != dyn->rvv.bits;
 }
 
 void extcacheUnwind(extcache_t* cache)
 {
+    for (int a = 0; a < 16; ++a)
+        if (cache->simd_saved & (1u << a)) cache->simd[a] = cache->simd_old[a];
+    cache->simd_saved = 0;
     if (!cache->swapped && !cache->news && !cache->stack_push && !cache->stack_pop) {
         int dirty = 0;
         for (int i = 0; i < 24; ++i)
@@ -442,6 +446,7 @@ void extcacheUnwind(extcache_t* cache)
         if (!dirty) {
             cache->barrier = 0;
             cache->fpu_scratch = 0;
+            cache->vpu_scratch = 0;
             return;
         }
     }
@@ -517,6 +522,7 @@ void extcacheUnwind(extcache_t* cache)
     // And now, rebuild the x87cache info with extcache
     cache->mmxcount = 0;
     cache->fpu_scratch = 0;
+    cache->vpu_scratch = 0;
     for (int i = 0; i < 8; ++i) {
         cache->x87cache[i] = -1;
         cache->mmxcache[i].v = -1;
@@ -545,15 +551,9 @@ void extcacheUnwind(extcache_t* cache)
                     cache->ssecache[cache->extcache[i].n].vector = 0;
                     cache->ssecache[cache->extcache[i].n].single = 0;
                     break;
-                case EXT_CACHE_XMMR:
-                case EXT_CACHE_XMMW:
-                case EXT_CACHE_YMMR:
-                case EXT_CACHE_YMMW:
+                case EXT_CACHE_SIMD:
                     cache->ssecache[cache->extcache[i].n].reg = EXTREG(i);
                     cache->ssecache[cache->extcache[i].n].vector = 1;
-                    cache->ssecache[cache->extcache[i].n].write = (cache->extcache[i].t == EXT_CACHE_XMMW || cache->extcache[i].t == EXT_CACHE_YMMW) ? 1 : 0;
-                    cache->ssecache[cache->extcache[i].n].ymm = (cache->extcache[i].t == EXT_CACHE_YMMR || cache->extcache[i].t == EXT_CACHE_YMMW) ? 1 : cache->extcache[i].y;
-                    cache->ssecache[cache->extcache[i].n].ymm0 = (cache->ymm0 >> cache->extcache[i].n) & 1;
                     break;
                 case EXT_CACHE_ST_F:
                 case EXT_CACHE_ST_D:
@@ -571,7 +571,6 @@ void extcacheUnwind(extcache_t* cache)
             cache->fpuused[i] = 0;
         }
     }
-    sse_sync_all_cache_types(cache);
 }
 
 // will go badly if address is unaligned
@@ -639,10 +638,7 @@ const char* getCacheName(int t, int n)
         case EXT_CACHE_SS: sprintf(buff, "SS%d", n); break;
         case EXT_CACHE_SD: sprintf(buff, "SD%d", n); break;
         case EXT_CACHE_SCR: sprintf(buff, "Scratch"); break;
-        case EXT_CACHE_XMMW: sprintf(buff, "XMM%d", n); break;
-        case EXT_CACHE_XMMR: sprintf(buff, "xmm%d", n); break;
-        case EXT_CACHE_YMMW: sprintf(buff, "YMM%d", n); break;
-        case EXT_CACHE_YMMR: sprintf(buff, "ymm%d", n); break;
+        case EXT_CACHE_SIMD: sprintf(buff, "SIMD%d", n); break;
         case EXT_CACHE_NONE: buff[0] = '\0'; break;
     }
     return buff;
@@ -732,21 +728,17 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
     if (!dyn->need_dump && !BOX64ENV(dynarec_gdbjit) && !BOX64ENV(dynarec_perf_map)) return;
 
     static __thread char buf[65536];
-    int length = sprintf(buf, "barrier=%d state=%d/%s(%s->%s), set=%X/%X, use=%X, need=%X/%X, fuse=%d/%d, sm=%d(%d/%d), sew@entry=%d, sew@exit=%d",
-        dyn->insts[ninst].x64.barrier,
-        dyn->insts[ninst].x64.state_flags,
-        df_status[dyn->f],
-        df_status[dyn->insts[ninst].f_entry],
-        df_status[dyn->insts[ninst].f_exit],
-        dyn->insts[ninst].x64.set_flags,
-        dyn->insts[ninst].x64.gen_flags,
-        dyn->insts[ninst].x64.use_flags,
-        dyn->insts[ninst].x64.need_before,
-        dyn->insts[ninst].x64.need_after,
-        dyn->insts[ninst].nat_flags_fusion,
-        dyn->insts[ninst].no_scratch_usage,
-        dyn->smwrite, dyn->insts[ninst].will_write, dyn->insts[ninst].last_write,
-        dyn->insts[ninst].vector_sew_entry, dyn->insts[ninst].vector_sew_exit);
+    int length = sprintf(buf,
+        "barrier=%d state=%d/%s(%s->%s), set=%X/%X, use=%X, need=%X/%X, fuse=%d/%d, sm=%d(%d/%d), "
+        "rvv@entry=(e%d,m%d,vl%d), rvv@exit=(e%d,m%d,vl%d)",
+        dyn->insts[ninst].x64.barrier, dyn->insts[ninst].x64.state_flags, df_status[dyn->f], df_status[dyn->insts[ninst].f_entry], df_status[dyn->insts[ninst].f_exit],
+        dyn->insts[ninst].x64.set_flags, dyn->insts[ninst].x64.gen_flags, dyn->insts[ninst].x64.use_flags, dyn->insts[ninst].x64.need_before, dyn->insts[ninst].x64.need_after,
+        dyn->insts[ninst].nat_flags_fusion, dyn->insts[ninst].no_scratch_usage, dyn->smwrite, dyn->insts[ninst].will_write, dyn->insts[ninst].last_write,
+        8 << dyn->insts[ninst].rvv_entry.sew, 1 << dyn->insts[ninst].rvv_entry.lmul, dyn->insts[ninst].rvv_entry.vl, 8 << dyn->insts[ninst].rvv_exit.sew,
+        1 << dyn->insts[ninst].rvv_exit.lmul, dyn->insts[ninst].rvv_exit.vl);
+    if (dyn->insts[ninst].simd_entry)
+        length += sprintf(
+            buf + length, ", simd@entry=(read=%016llx,carry=%016llx)", (unsigned long long)dyn->insts[ninst].simd_live, (unsigned long long)dyn->insts[ninst].simd_carry);
     if (dyn->insts[ninst].pred_sz) {
         length += sprintf(buf + length, ", pred=");
         for (int ii = 0; ii < dyn->insts[ninst].pred_sz; ++ii)
@@ -767,17 +759,17 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
             case EXT_CACHE_MMV: length += sprintf(buf + length, " v%d:%s", EXTREG(ii), getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;
             case EXT_CACHE_SS: length += sprintf(buf + length, " f%d:%s", EXTREG(ii), getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;
             case EXT_CACHE_SD: length += sprintf(buf + length, " f%d:%s", EXTREG(ii), getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;
-            case EXT_CACHE_XMMR: length += sprintf(buf + length, " v%d:%s", EXTREG(ii), getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;
-            case EXT_CACHE_XMMW: length += sprintf(buf + length, " v%d:%s", EXTREG(ii), getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;
-            case EXT_CACHE_YMMR: length += sprintf(buf + length, " v%d:%s", EXTREG(ii), getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;
-            case EXT_CACHE_YMMW: length += sprintf(buf + length, " v%d:%s", EXTREG(ii), getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;
+            case EXT_CACHE_SIMD: length += sprintf(buf + length, " v%d:%s", EXTREG(ii), getCacheName(EXT_CACHE_SIMD, dyn->insts[ninst].e.extcache[ii].n)); break;
             case EXT_CACHE_SCR: length += sprintf(buf + length, " f%d:%s", EXTREG(ii), getCacheName(dyn->insts[ninst].e.extcache[ii].t, dyn->insts[ninst].e.extcache[ii].n)); break;
             case EXT_CACHE_NONE:
             default: break;
         }
     }
-    if (dyn->ymm_zero)
-        length += sprintf(buf + length, " ymm0_mask = %04x", dyn->ymm_zero);
+    for (int a = 0; a < 16; ++a) {
+        const simd_cache_t* c = &dyn->insts[ninst].e.simd[a];
+        if (c->valid || c->zero || c->dirty)
+            length += sprintf(buf + length, " ymm%d[v=%x,z=%x,d=%x]", a, c->valid, c->zero, c->dirty);
+    }
     if (dyn->e.stack || dyn->insts[ninst].e.stack_next || dyn->insts[ninst].e.x87stack)
         length += sprintf(buf + length, " X87:%d/%d(+%d/-%d)%d", dyn->e.stack, dyn->insts[ninst].e.stack_next, dyn->insts[ninst].e.stack_push, dyn->insts[ninst].e.stack_pop, dyn->insts[ninst].e.x87stack);
     if (dyn->insts[ninst].e.combined1 || dyn->insts[ninst].e.combined2)
@@ -847,6 +839,8 @@ static void mmx_reset(extcache_t* e)
 
 static void sse_reset(extcache_t* e)
 {
+    memset(e->simd, 0, sizeof(e->simd));
+    e->simd_saved = 0;
     for (int i = 0; i < 16; ++i)
         e->ssecache[i].v = -1;
 }
@@ -857,7 +851,6 @@ void fpu_reset(dynarec_rv64_t* dyn)
     mmx_reset(&dyn->e);
     sse_reset(&dyn->e);
     fpu_reset_reg(dyn);
-    dyn->ymm_zero = 0;
 }
 
 void fpu_reset_ninst(dynarec_rv64_t* dyn, int ninst)
@@ -973,183 +966,182 @@ int isUpper32Zero(dynarec_rv64_t* dyn, int ninst, int reg)
     return 0;
 }
 
-static uint32_t getFullXYMMMask(const dynarec_rv64_t* dyn, int ninst)
+static void simd_analyze_zeros(dynarec_rv64_t* dyn)
 {
-    if (ninst < 0 || ninst >= dyn->size)
-        return 0;
-    uint32_t ret = 0;
-    for (int i = 0; i < 16; ++i) {
-        const sse_cache_t* c = &dyn->insts[ninst].e.ssecache[i];
-        if (c->v == -1 || !c->vector)
-            continue;
-        if (c->ymm && cpuext.vlen >= 32)
-            ret |= 1u << (16 + i);
-        else
-            ret |= 1u << i;
+    int n = dyn->size;
+    uint64_t* out = malloc(n * sizeof(*out));
+    if (!out) {
+        for (int i = 0; i < n; ++i)
+            dyn->insts[i].simd_zero_in = 0;
+        return;
     }
-    return ret;
-}
-
-static uint32_t getCachedVectorMask(const dynarec_rv64_t* dyn, int ninst)
-{
-    if (ninst < 0 || ninst >= dyn->size)
-        return 0;
-    uint32_t ret = 0;
-    for (int i = 0; i < 16; ++i) {
-        const sse_cache_t* c = &dyn->insts[ninst].e.ssecache[i];
-        if (c->v != -1 && c->vector && c->reg == VREG(i))
-            ret |= 1u << i;
-    }
-    return ret;
-}
-
-static uint32_t filterPreloadLoads(const dynarec_rv64_t* dyn, int first, int last, uint32_t preload)
-{
-    uint16_t pending_xmm = (uint16_t)preload;
-    uint16_t pending_ymm = (uint16_t)(preload >> 16);
-    uint32_t ret = 0;
-    for (int i = first; i <= last && (pending_xmm || pending_ymm); ++i) {
-        const instruction_rv64_t* inst = &dyn->insts[i];
-        uint16_t touched = (uint16_t)(inst->vec_used & 0xffff);
-        uint16_t first_xmm = pending_xmm & touched;
-        uint16_t first_ymm = pending_ymm & touched;
-        ret |= first_xmm & inst->vec_load;
-        ret |= (uint32_t)(first_ymm & inst->vec_ymm_load) << 16;
-        pending_xmm &= (uint16_t)~touched;
-        pending_ymm &= (uint16_t)~touched;
-    }
-    return ret;
-}
-
-static void applyPreloadState(dynarec_rv64_t* dyn, int first, int first_use, int reg, int ymm, int write)
-{
-    int idx = EXTIDX(VREG(reg));
-    int from = first > 0 ? first - 1 : first;
-    for (int i = from; i < first_use; ++i) {
-        extcache_t* e = &dyn->insts[i].e;
-        sse_cache_t* s = &e->ssecache[reg];
-        s->reg = VREG(reg);
-        s->vector = 1;
-        s->single = 0;
-        s->write = write;
-        s->ymm = ymm;
-        s->ymm0 = ymm ? 0 : ((e->ymm0 >> reg) & 1);
-        e->fpuused[idx] = 1;
-        e->extcache[idx].n = reg;
-        e->extcache[idx].y = ymm;
-        if (ymm)
-            e->ymm0 &= (uint16_t)~(1u << reg);
-        e->news &= ~(1u << idx);
-        e->olds[idx].v = 0;
-        sse_sync_cache_type(e, reg);
-    }
-    dyn->insts[first_use].e.news &= ~(1u << idx);
-    dyn->insts[first_use].e.olds[idx].v = 0;
-}
-
-static int tryApplyPreload(dynarec_rv64_t* dyn, int first, int last, int reg, int ymm)
-{
-    uint16_t bit = (uint16_t)(1u << reg);
-    int first_use = -1;
-    for (int i = first; i <= last; ++i) {
-        if (dyn->insts[i].vec_used & bit) {
-            first_use = i;
-            break;
-        }
-    }
-    if (first_use < 0)
-        return 0;
-    int idx = EXTIDX(VREG(reg));
-    for (int i = first; i < first_use; ++i)
-        if (dyn->insts[i].e.fpuused[idx])
-            return 0;
-    const sse_cache_t* use = &dyn->insts[first_use].e.ssecache[reg];
-    if (use->v == -1 || !use->vector || use->reg != VREG(reg))
-        return 0;
-    int type = dyn->insts[first_use].e.extcache[idx].t;
-    int write = 0;
-    if (ymm) {
-        if (type != EXT_CACHE_YMMR && type != EXT_CACHE_YMMW)
-            return 0;
-        for (int p = 0; p < dyn->insts[first].pred_sz; ++p) {
-            const sse_cache_t* c = &dyn->insts[dyn->insts[first].pred[p]].e.ssecache[reg];
-            if (c->v == -1 || !c->vector)
-                continue;
-            if (c->ymm0)
-                return 0;
-            if (c->ymm && c->write) {
-                if (c->reg != VREG(reg) || type != EXT_CACHE_YMMW)
-                    return 0;
-                write = 1;
+    for (int i = 0; i < n; ++i)
+        out[i] = UINT64_MAX;
+    int changed;
+    do {
+        changed = 0;
+        for (int i = 0; i < n; ++i) {
+            instruction_rv64_t* inst = &dyn->insts[i];
+            uint64_t in = i && inst->pred_sz ? UINT64_MAX : 0;
+            for (int p = 0; p < inst->pred_sz; ++p)
+                in &= out[inst->pred[p]];
+            if (inst->x64.barrier & BARRIER_FLOAT) in = 0;
+            inst->simd_zero_in = in;
+            uint64_t next = (in & ~inst->simd_zero_kill) | inst->simd_zero_gen;
+            if (inst->x64.has_callret || inst->simd_opaque) next = 0;
+            if (out[i] != next) {
+                out[i] = next;
+                changed = 1;
             }
         }
-        for (int i = first; i <= first_use; ++i)
-            if (dyn->insts[i].e.ymm0 & bit)
-                return 0;
-    } else if (type != EXT_CACHE_XMMR && type != EXT_CACHE_XMMW
-        && type != EXT_CACHE_YMMR && type != EXT_CACHE_YMMW) {
-        return 0;
-    }
-    applyPreloadState(dyn, first, first_use, reg, ymm, write);
-    return 1;
+    } while (changed);
+    free(out);
 }
 
-static void addSSEPreload(dynarec_rv64_t* dyn, int last, int first, uint32_t preload)
+static int simd_is_entry(const dynarec_rv64_t* dyn, int i)
 {
-    if (first < 0 || first > last || !preload || dyn->insts[first].preload_xmmymm)
-        return;
-    if (first && !dyn->insts[first - 1].x64.has_next)
-        return;
-    for (int i = first; i < last; ++i) {
-        const instruction_rv64_t* inst = &dyn->insts[i];
-        if (!inst->x64.has_next || (inst->x64.barrier & BARRIER_FLOAT)
-            || inst->x64.jmp || inst->x64.has_callret)
-            return;
-    }
-
-    uint32_t accepted = 0;
-    for (int reg = 0; reg < 16; ++reg) {
-        if ((preload & (1u << reg)) && tryApplyPreload(dyn, first, last, reg, 0))
-            accepted |= 1u << reg;
-        if ((preload & (1u << (16 + reg))) && tryApplyPreload(dyn, first, last, reg, 1))
-            accepted |= 1u << (16 + reg);
-    }
-    if (!accepted)
-        return;
-    dyn->insts[first].preload_xmmymm = accepted;
-    dyn->insts[first].preload_from = last;
+    if (!dyn->insts[i].x64.alive) return 0;
+    return !i || dyn->insts[i].pred_sz != 1 || dyn->insts[i].pred[0] != i - 1 || dyn->insts[i - 1].x64.jmp;
 }
 
-void updatePreloads(dynarec_rv64_t* dyn)
+static int simd_boundary(const instruction_rv64_t* inst)
 {
-    propagate_nodf(dyn);
-    if (!cpuext.vector)
-        return;
-    for (int first = 0; first < dyn->size; ++first) {
-        if ((first && dyn->insts[first].pred_sz <= 1) || (!first && !dyn->insts[first].pred_sz))
-            continue;
-        int last = dyn->size + 1;
-        for (int j = 0; j < dyn->insts[first].pred_sz; ++j) {
-            int pred = dyn->insts[first].pred[j];
-            if (pred != first - 1 && pred < last)
-                last = pred;
+    return inst->simd_opaque || (inst->x64.barrier & BARRIER_FLOAT) || inst->x64.has_callret;
+}
+
+static int simd_successors(const dynarec_rv64_t* dyn, int i, int successors[2])
+{
+    const instruction_rv64_t* inst = &dyn->insts[i];
+    int count = 0;
+    if (inst->x64.has_next && i + 1 < dyn->size && dyn->insts[i + 1].x64.alive) successors[count++] = i + 1;
+    int target = inst->x64.jmp_insts;
+    if (inst->x64.jmp && target >= 0 && target < dyn->size && dyn->insts[target].x64.alive
+        && (!count || successors[0] != target))
+        successors[count++] = target;
+    return count;
+}
+
+typedef struct simd_flow_s {
+    uint64_t live;
+    uint8_t reachable, loop, queued;
+} simd_flow_t;
+
+static void simd_analyze_loop(dynarec_rv64_t* dyn, int header, simd_flow_t* flow, int* work)
+{
+    instruction_rv64_t* entry = &dyn->insts[header];
+    int has_backedge = 0;
+    for (int p = 0; p < entry->pred_sz; ++p)
+        if (entry->pred[p] >= header && dyn->insts[entry->pred[p]].x64.alive) has_backedge = 1;
+    if (!has_backedge) return;
+
+    memset(flow, 0, dyn->size * sizeof(*flow));
+    int sp = 0;
+    flow[header].reachable = 1;
+    work[sp++] = header;
+    while (sp) {
+        int successors[2];
+        int count = simd_successors(dyn, work[--sp], successors);
+        for (int s = 0; s < count; ++s) {
+            int next = successors[s];
+            if (!flow[next].reachable) {
+                flow[next].reachable = 1;
+                work[sp++] = next;
+            }
         }
-        if (last > dyn->size || last <= first)
-            continue;
-        int prev = getNominalPred(dyn, first);
-        if (first && prev != first - 1)
-            continue;
-        if (dyn->insts[first].preload_xmmymm)
-            continue;
-
-        uint32_t preload = getFullXYMMMask(dyn, last);
-        uint16_t occupied = (uint16_t)getCachedVectorMask(dyn, prev);
-        preload &= ~(uint32_t)occupied;
-        preload &= ~((uint32_t)occupied << 16);
-        preload = filterPreloadLoads(dyn, first, last, preload);
-        if (preload)
-            addSSEPreload(dyn, last, first, preload);
     }
+
+    flow[header].loop = 1;
+    work[sp++] = header;
+    has_backedge = 0;
+    for (int p = 0; p < entry->pred_sz; ++p) {
+        int latch = entry->pred[p];
+        if (latch >= header && flow[latch].reachable) {
+            has_backedge = 1;
+            if (!flow[latch].loop) {
+                flow[latch].loop = 1;
+                work[sp++] = latch;
+            }
+        }
+    }
+    if (!has_backedge) return;
+    uint64_t read = 0, written = 0, nonzero = 0;
+    while (sp) {
+        int i = work[--sp];
+        const instruction_rv64_t* inst = &dyn->insts[i];
+        if (simd_boundary(inst)) return;
+        read |= inst->simd_read;
+        written |= inst->simd_defs;
+        nonzero |= inst->simd_defs & ~inst->simd_zero_gen;
+        if (i == header) continue;
+        for (int p = 0; p < inst->pred_sz; ++p) {
+            int prev = inst->pred[p];
+            if (prev >= header && flow[prev].reachable && !flow[prev].loop) {
+                flow[prev].loop = 1;
+                work[sp++] = prev;
+            }
+        }
+    }
+
+    for (int i = 0; i < dyn->size; ++i) {
+        if (flow[i].loop) {
+            flow[i].queued = 1;
+            work[sp++] = i;
+        }
+    }
+    while (sp) {
+        int i = work[--sp];
+        flow[i].queued = 0;
+        const instruction_rv64_t* inst = &dyn->insts[i];
+        int successors[2];
+        int count = simd_successors(dyn, i, successors);
+        uint64_t out = 0;
+        for (int s = 0; s < count; ++s)
+            if (flow[successors[s]].loop) out |= flow[successors[s]].live;
+        uint64_t live = inst->simd_read | (out & ~inst->simd_defs);
+        if (live == flow[i].live) continue;
+        flow[i].live = live;
+        for (int p = 0; p < inst->pred_sz; ++p) {
+            int prev = inst->pred[p];
+            if (flow[prev].loop && !flow[prev].queued) {
+                flow[prev].queued = 1;
+                work[sp++] = prev;
+            }
+        }
+    }
+    entry->simd_live |= flow[header].live;
+    entry->simd_carry = written & (nonzero | read);
+}
+
+static void simd_analyze_entries(dynarec_rv64_t* dyn)
+{
+    simd_flow_t* flow = calloc(dyn->size, sizeof(*flow));
+    int* work = malloc(dyn->size * sizeof(*work));
+    for (int i = 0; i < dyn->size; ++i) {
+        instruction_rv64_t* entry = &dyn->insts[i];
+        entry->simd_entry = 0;
+        entry->simd_live = entry->simd_carry = 0;
+        entry->rvv_entry_config.bits = 0;
+        if (!entry->x64.alive || !simd_is_entry(dyn, i) || (entry->x64.barrier & BARRIER_FLOAT)) continue;
+        entry->simd_entry = 1;
+        uint64_t read = 0, written = 0;
+        for (int j = i; j < dyn->size; ++j) {
+            instruction_rv64_t* inst = &dyn->insts[j];
+            if (j != i && simd_is_entry(dyn, j)) break;
+            if (!inst->x64.alive || simd_boundary(inst)) break;
+            read |= inst->simd_read & ~written;
+            written |= inst->simd_defs;
+            if (!entry->rvv_entry_config.vl && inst->rvv_hint.vl) entry->rvv_entry_config = inst->rvv_hint;
+            if (inst->x64.jmp || !inst->x64.has_next) break;
+        }
+        entry->simd_live = read;
+        if (flow && work) simd_analyze_loop(dyn, i, flow, work);
+        if (cpuext.vlen < 32) {
+            entry->simd_live &= 0x7777777777777777ULL;
+            entry->simd_carry &= 0x7777777777777777ULL;
+        }
+    }
+    free(work);
+    free(flow);
 }
 
 void updateUpperLiveness(dynarec_rv64_t* dyn)
@@ -1158,70 +1150,21 @@ void updateUpperLiveness(dynarec_rv64_t* dyn)
     if (n <= 0)
         return;
 
+    simd_analyze_zeros(dyn);
+    simd_analyze_entries(dyn);
+
     size_t live_size = (size_t)n * sizeof(uint16_t);
     size_t pending_size = (size_t)n * sizeof(uint16_t);
     size_t work_size = (size_t)n * sizeof(int);
     size_t list_size = (size_t)n * sizeof(uint8_t);
-    void* buffer = calloc(1, 5 * live_size + pending_size + work_size + list_size);
+    void* buffer = calloc(1, 2 * live_size + pending_size + work_size + list_size);
     if (!buffer)
         return;
     uint16_t* live_in = (uint16_t*)buffer;
     uint16_t* live_out = (uint16_t*)((char*)live_in + live_size);
-    uint16_t* live_ymm_in = (uint16_t*)((char*)live_out + live_size);
-    uint16_t* live_ymm_out = (uint16_t*)((char*)live_ymm_in + live_size);
-    uint16_t* pending_in = (uint16_t*)((char*)live_ymm_out + live_size);
-    uint16_t* pend_ymm = (uint16_t*)((char*)pending_in + pending_size);
-    int* work = (int*)((char*)pend_ymm + live_size);
+    uint16_t* pending_in = (uint16_t*)((char*)live_out + live_size);
+    int* work = (int*)((char*)pending_in + pending_size);
     uint8_t* on_list = (uint8_t*)((char*)work + work_size);
-
-    for (int i = 0; i < n; ++i) {
-        instruction_rv64_t* inst = &dyn->insts[i];
-        inst->promote_ymm = 0;
-        if (!inst->x64.alive || inst->pred_sz < 2 || (inst->x64.barrier & BARRIER_FLOAT))
-            continue;
-        const extcache_t* first = &dyn->insts[inst->pred[0]].e;
-        uint16_t promote = 0;
-        int need_barrier = 0;
-        for (int p = 1; p < inst->pred_sz && !need_barrier; ++p) {
-            const extcache_t* pe = &dyn->insts[inst->pred[p]].e;
-            uint16_t mask_diff = (uint16_t)(first->ymm0 ^ pe->ymm0);
-            uint16_t resolved = 0;
-            for (int r = 0; r < 16; ++r) {
-                const sse_cache_t* a = &first->ssecache[r];
-                const sse_cache_t* b = &pe->ssecache[r];
-                int a_cached = (a->v != -1 && a->vector);
-                int b_cached = (b->v != -1 && b->vector);
-                if (!a_cached || !b_cached) {
-                    if (a_cached != b_cached) {
-                        const sse_cache_t* c = a_cached ? a : b;
-                        if (c->ymm0)
-                            need_barrier = 1;
-                        else
-                            resolved |= (uint16_t)(1u << r);
-                    }
-                    continue;
-                }
-                if (a->ymm == b->ymm && a->ymm0 == b->ymm0)
-                    continue;
-                int a_ok = a->ymm || (!a->ymm && a->ymm0);
-                int b_ok = b->ymm || (!b->ymm && b->ymm0);
-                if (a_ok && b_ok) {
-                    if (!a->ymm) promote |= (uint16_t)(1u << r);
-                    if (!b->ymm) promote |= (uint16_t)(1u << r);
-                    resolved |= (uint16_t)(1u << r);
-                    continue;
-                }
-                need_barrier = 1;
-                break;
-            }
-            if (mask_diff & (uint16_t)~resolved)
-                need_barrier = 1;
-        }
-        if (need_barrier)
-            inst->x64.barrier |= BARRIER_FLOAT;
-        else
-            inst->promote_ymm = promote;
-    }
 
     int sp = 0;
     for (int i = n - 1; i >= 0; --i) {
@@ -1230,7 +1173,6 @@ void updateUpperLiveness(dynarec_rv64_t* dyn)
             on_list[i] = 1;
         }
     }
-    // backward analysis
     while (sp > 0) {
         int i = work[--sp];
         on_list[i] = 0;
@@ -1251,23 +1193,10 @@ void updateUpperLiveness(dynarec_rv64_t* dyn)
             combined_out = UINT16_MAX;
         live_out[i] = combined_out;
 
-        uint16_t combined_ymm_out = 0;
-        if (inst->x64.has_next && i + 1 < n && dyn->insts[i + 1].x64.alive)
-            combined_ymm_out |= live_ymm_in[i + 1];
-        if (inst->x64.jmp && inst->x64.jmp_insts >= 0 && inst->x64.jmp_insts < n)
-            combined_ymm_out |= live_ymm_in[inst->x64.jmp_insts];
-        if ((!inst->x64.has_next && !has_internal_jump) || (inst->x64.jmp && inst->x64.jmp_insts < 0))
-            combined_ymm_out = UINT16_MAX;
-        live_ymm_out[i] = combined_ymm_out;
-
-        uint16_t live_ymm_in_val = inst->ymm_upper_use | (combined_ymm_out & (uint16_t)~inst->ymm_upper_def);
-        if ((inst->x64.barrier & BARRIER_FLOAT) || inst->x64.has_callret)
-            live_ymm_in_val = UINT16_MAX;
 
         uint16_t live_in_val = inst->up32_read | (combined_out & (uint16_t)~inst->up32_write64);
-        if ((live_in_val != live_in[i]) || (live_ymm_in_val != live_ymm_in[i])) {
+        if (live_in_val != live_in[i]) {
             live_in[i] = live_in_val;
-            live_ymm_in[i] = live_ymm_in_val;
             for (int p = 0; p < inst->pred_sz; ++p) {
                 int j = inst->pred[p];
                 if (!on_list[j]) {
@@ -1281,12 +1210,9 @@ void updateUpperLiveness(dynarec_rv64_t* dyn)
     for (int i = 0; i < n; ++i) {
         instruction_rv64_t* inst = &dyn->insts[i];
         inst->up32_skip = inst->up32_write32 & (uint16_t)~live_out[i];
-        inst->ymm_upper_live = live_ymm_out[i];
     }
 
-    // forward analysis
     memset(pending_in, 0, pending_size);
-    memset(pend_ymm, 0, live_size);
     memset(on_list, 0, list_size);
     sp = 0;
     for (int i = 0; i < n; ++i) {
@@ -1303,19 +1229,13 @@ void updateUpperLiveness(dynarec_rv64_t* dyn)
             continue;
 
         uint16_t merged_pending = 0;
-        uint16_t merged_ymm = 0;
         for (int p = 0; p < inst->pred_sz; ++p) {
             int j = inst->pred[p];
             const instruction_rv64_t* pred = &dyn->insts[j];
             merged_pending |= (pending_in[j] & (uint16_t)~pred->up32_write64) | pred->up32_skip;
-            uint16_t ymm_def = pred->ymm_pending_materialized ? UINT16_MAX : pred->ymm_upper_def;
-            merged_ymm |= (pend_ymm[j] & (uint16_t)~ymm_def) | (pred->ymm_zero & pred->ymm_upper_live);
         }
-        if (inst->x64.barrier & BARRIER_FLOAT) merged_ymm = 0;
-        merged_ymm &= (uint16_t)~inst->promote_ymm;
-        if ((merged_pending != pending_in[i]) || (merged_ymm != pend_ymm[i])) {
+        if (merged_pending != pending_in[i]) {
             pending_in[i] = merged_pending;
-            pend_ymm[i] = merged_ymm;
             if (inst->x64.has_next && i + 1 < n && dyn->insts[i + 1].x64.alive && !on_list[i + 1]) {
                 work[sp++] = i + 1;
                 on_list[i + 1] = 1;
@@ -1331,7 +1251,6 @@ void updateUpperLiveness(dynarec_rv64_t* dyn)
     }
     for (int i = 0; i < n; ++i) {
         dyn->insts[i].up32_pending = pending_in[i];
-        dyn->insts[i].ymm_pending = pend_ymm[i];
     }
 
     free(buffer);

@@ -52,12 +52,12 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETG;
             if (MODREG) {
                 ed = (nextop & 7) + (rex.b << 3);
-                v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
-                d0 = sse_get_reg(dyn, ninst, x1, ed, 0);
+                v0 = simd_get_fp_reg(dyn, ninst, x1, gd, 0);
+                d0 = simd_get_fp_reg(dyn, ninst, x1, ed, 0);
                 FMVD(v0, d0);
             } else {
                 SMREAD();
-                v0 = sse_get_reg_empty(dyn, ninst, x1, gd, 0);
+                v0 = simd_get_fp_reg_empty(dyn, ninst, x1, gd, 0);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 1, 0);
                 FLD(v0, ed, fixedaddress);
                 // reset upper part
@@ -68,10 +68,10 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             INST_NAME("MOVSD Ex, Gx");
             nextop = F8;
             GETG;
-            v0 = sse_get_reg(dyn, ninst, x1, gd, 0);
+            v0 = simd_get_fp_reg(dyn, ninst, x1, gd, 0);
             if (MODREG) {
                 ed = (nextop & 7) + (rex.b << 3);
-                d0 = sse_get_reg(dyn, ninst, x1, ed, 0);
+                d0 = simd_get_fp_reg(dyn, ninst, x1, ed, 0);
                 FMVD(d0, v0);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 1, 0);
@@ -93,7 +93,7 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGXSD(v0);
             GETED(0);
-            if (BOX64ENV(dynarec_fastround) < 2) u8 = sse_setround(dyn, ninst, x6, x4);
+            if (BOX64ENV(dynarec_fastround) < 2) u8 = simd_set_rounding(dyn, ninst, x6, x4);
             if (rex.w) {
                 FCVTDL(v0, ed, BOX64ENV(dynarec_fastround) < 2 ? RD_DYN : RD_RNE);
             } else {
@@ -130,7 +130,7 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             if (!BOX64ENV(dynarec_fastround)) {
                 FSFLAGSI(0); // // reset all bits
             }
-            u8 = sse_setround(dyn, ninst, x2, x3);
+            u8 = simd_set_rounding(dyn, ninst, x2, x3);
             FCVTLDxw(gd, v0, RD_DYN);
             if (NEED_ZEROUP(gd)) ZEROUP_RESULT(gd);
             x87_restoreround(dyn, ninst, u8);
@@ -303,12 +303,12 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             gd = ((nextop & 0x38) >> 3) + (rex.r << 3);
             if (MODREG && gd == (nextop & 7) + (rex.b << 3)) {
-                v0 = sse_get_reg_size_changed(dyn, ninst, x2, gd, 1);
+                v0 = simd_get_fp_reg_resized(dyn, ninst, x2, gd, 1);
                 if (!BOX64ENV(dynarec_fastnan)) {
                     FEQD(x3, v0, v0);
                     FMVXD(x4, v0);
                 }
-                if (BOX64ENV(dynarec_fastround) < 2) u8 = sse_setround(dyn, ninst, x5, x6);
+                if (BOX64ENV(dynarec_fastround) < 2) u8 = simd_set_rounding(dyn, ninst, x5, x6);
                 FCVTSD(v0, v0);
                 if (BOX64ENV(dynarec_fastround) < 2) x87_restoreround(dyn, ninst, u8);
             } else {
@@ -318,7 +318,7 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     FEQD(x3, v1, v1);
                     FMVXD(x4, v1);
                 }
-                if (BOX64ENV(dynarec_fastround) < 2) u8 = sse_setround(dyn, ninst, x5, x6);
+                if (BOX64ENV(dynarec_fastround) < 2) u8 = simd_set_rounding(dyn, ninst, x5, x6);
                 FCVTSD(v0, v1);
                 if (BOX64ENV(dynarec_fastround) < 2) x87_restoreround(dyn, ninst, u8);
             }
@@ -773,7 +773,7 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGX();
             GETEX(x2, 0, 8);
             d0 = fpu_get_scratch(dyn);
-            u8 = sse_setround(dyn, ninst, x6, x4);
+            u8 = simd_set_rounding(dyn, ninst, x6, x4);
             for (int i = 0; i < 2; ++i) {
                 FLD(d0, wback, fixedaddress + 8 * i);
                 FCVTLD(x3, d0, RD_DYN);

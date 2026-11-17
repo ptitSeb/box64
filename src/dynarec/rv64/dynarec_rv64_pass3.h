@@ -19,26 +19,13 @@
         if (dyn->need_dump && dyn->need_dump != 3) dynarec_log(LOG_NONE, __VA_ARGS__); \
     } while (0)
 #define NEW_INST                                                                                                  \
-    if (!(ninst > 0 && dyn->insts[ninst].pred_sz == 1 && dyn->insts[ninst].pred[0] == ninst - 1                   \
-            && dyn->insts[ninst - 1].x64.has_next && !dyn->insts[ninst - 1].x64.jmp                               \
-            && !(dyn->insts[ninst - 1].x64.barrier & BARRIER_FLOAT) && !dyn->insts[ninst - 1].x64.has_callret)) { \
-        dyn->inst_sew = dyn->insts[ninst].vector_sew_entry;                                                       \
-        dyn->inst_vlmul = VECTOR_LMUL1;                                                                           \
-        dyn->inst_vl = 0;                                                                                         \
-    }                                                                                                             \
-    dyn->vector_sew = dyn->insts[ninst].vector_sew_entry;                                                         \
+    dyn->rvv = dyn->insts[ninst].rvv_entry;                                                                       \
     if (ninst) {                                                                                                  \
         addInst(dyn->instsize, &dyn->insts_size, dyn->insts[ninst - 1].x64.size, dyn->insts[ninst - 1].size / 4); \
-        dyn->insts[ninst].ymm0_pass3 = dyn->ymm_zero;                                                             \
     }                                                                                                             \
-    if (ninst && dyn->insts[ninst - 1].vec_used) sse_sync_all_cache_types(&dyn->e);                               \
     AREFLAGSNEEDED()
-#define INST_EPILOG                                                   \
-    if (dyn->vtype_restore != VECTOR_SEWNA) {                         \
-        avx_set_vector_width(dyn, ninst, x1, dyn->vtype_restore, 16); \
-        dyn->vtype_restore = VECTOR_SEWNA;                            \
-    }                                                                 \
-    dyn->vector_sew = dyn->insts[ninst].vector_sew_exit;
+#define INST_EPILOG \
+    assert(dyn->rvv.bits == dyn->insts[ninst].rvv_exit.bits);
 #define INST_NAME(name) inst_name_pass3(dyn, ninst, name, rex)
 
 #define TABLE64(A, V)                                 \

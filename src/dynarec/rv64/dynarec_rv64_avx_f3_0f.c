@@ -203,7 +203,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETGX();
             GETVX();
             GETED(0);
-            u8 = sse_setround(dyn, ninst, x6, x4);
+            u8 = simd_set_rounding(dyn, ninst, x6, x4);
             d0 = fpu_get_scratch(dyn);
             if (rex.w) {
                 FCVTSL(d0, ed, RD_DYN);
@@ -227,7 +227,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             d0 = fpu_get_scratch(dyn);
             if (MODREG) {
                 ed = (nextop & 7) + (rex.b << 3);
-                sse_forget_reg(dyn, ninst, x1, ed);
+                simd_forget_fp_reg(dyn, ninst, x1, ed);
                 FLW(d0, xEmu, offsetof(x64emu_t, xmm[ed]));
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 0, 0);
@@ -256,7 +256,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             d0 = fpu_get_scratch(dyn);
             if (MODREG) {
                 ed = (nextop & 7) + (rex.b << 3);
-                sse_forget_reg(dyn, ninst, x1, ed);
+                simd_forget_fp_reg(dyn, ninst, x1, ed);
                 FLW(d0, xEmu, offsetof(x64emu_t, xmm[ed]));
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 0, 0);
@@ -265,7 +265,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             if (!BOX64ENV(dynarec_fastround)) {
                 FSFLAGSI(0);
             }
-            u8 = sse_setround(dyn, ninst, x5, x6);
+            u8 = simd_set_rounding(dyn, ninst, x5, x6);
             FCVTSxw(gd, d0, RD_DYN);
             x87_restoreround(dyn, ninst, u8);
             if (!rex.w) ZEROUP(gd);
@@ -640,7 +640,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETGX();
             GETGY();
             d0 = fpu_get_scratch(dyn);
-            u8 = sse_setround(dyn, ninst, x6, x4);
+            u8 = simd_set_rounding(dyn, ninst, x6, x4);
             LW(x3, wback, fixedaddress + 0);
             LW(x4, wback, fixedaddress + 4);
             if (vex.l) {

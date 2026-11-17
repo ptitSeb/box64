@@ -104,11 +104,11 @@ extern void la64_next_invalid();
 
 #define ADDITIONNAL_DEFINITION()                                  \
     int fpuCacheNeedsTransform(dynarec_native_t* dyn, int ninst); \
-    int sewNeedsTransform(dynarec_rv64_t* dyn, int ninst);
+    int rvv_needs_transform(dynarec_rv64_t* dyn, int ninst);
 
 #define OTHER_CACHE()                                 \
     if (fpuCacheNeedsTransform(dyn, ninst)) ret |= 2; \
-    if (sewNeedsTransform(dyn, ninst)) ret |= 4;
+    if (rvv_needs_transform(dyn, ninst)) ret |= 4;
 
 #include "rv64/rv64_printer.h"
 #include "rv64/dynarec_rv64_private.h"
@@ -120,7 +120,7 @@ extern void la64_next_invalid();
 #define RAZ_SPECIFIC(A, N)
 #define UPDATE_SPECIFICS(A)
 #define PREUPDATE_SPECIFICS(A) updateNativeFlags(A)
-#define POSTUPDATE_SPECIFICS(A) updatePreloads(A)
+#define POSTUPDATE_SPECIFICS(A) propagate_nodf(A)
 
 #define ARCH_SIZE(A)    get_size_arch(A)
 #define ARCH_FILL(A, B, C) populate_arch(A, B, C)
