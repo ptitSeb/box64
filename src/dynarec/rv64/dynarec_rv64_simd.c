@@ -222,6 +222,14 @@ static int simd_can_mask_e32(const dynarec_rv64_t* dyn, unsigned bytes)
     return dyn->rvv.vl && dyn->rvv.sew == VECTOR_SEW32 && dyn->rvv.lmul == VECTOR_LMUL1 && dyn->rvv.vl >= bytes / 4;
 }
 
+static int simd_memory_sew(const dynarec_rv64_t* dyn, unsigned bytes)
+{
+    if (cpuext.xtheadvector || !dyn->rvv.vl || dyn->rvv.lmul != VECTOR_LMUL1) return -1;
+    for (int sew = VECTOR_SEW8; sew <= dyn->rvv.sew; ++sew)
+        if ((dyn->rvv.vl << sew) == bytes) return sew;
+    return -1;
+}
+
 void simd_materialize(dynarec_rv64_t* dyn, int ninst, int s1, int a, unsigned regions)
 {
     simd_record_read(dyn, ninst, a, regions);
@@ -231,9 +239,30 @@ void simd_materialize(dynarec_rv64_t* dyn, int ninst, int s1, int a, unsigned re
     simd_snapshot(dyn, a);
     int reg = dyn->e.ssecache[a].reg;
     unsigned memory = missing & ~c->zero;
-    if (memory == missing && (missing == SIMD_LO32 || missing == SIMD_LO64 || missing == SIMD_XMM)) {
+    if (!cpuext.xtheadvector && memory == missing && (missing == SIMD_YMM || missing == SIMD_HI128)) {
+        if (simd_memory_sew(dyn, 16) < 0 || (dyn->rvv.vl << dyn->rvv.sew) != 32)
+            rvv_set_config(dyn, ninst, s1, VECTOR_SEW64, VECTOR_LMUL1, 4);
+        int sew = dyn->rvv.sew - 1;
+        int upper = vpu_get_scratch(dyn);
+        if (missing == SIMD_YMM) {
+            ADDI(s1, xEmu, offsetof(x64emu_t, xmm[a]));
+            VLE_V(reg, s1, sew, VECTOR_UNMASKED, VECTOR_NFIELD1);
+        }
+        ADDI(s1, xEmu, offsetof(x64emu_t, ymm[a]));
+        VLE_V(upper, s1, sew, VECTOR_UNMASKED, VECTOR_NFIELD1);
+        VSLIDEUP_VI(reg, upper, 16 >> dyn->rvv.sew, VECTOR_UNMASKED);
+        dyn->e.vpu_scratch &= ~(1u << upper);
+    } else if (memory == missing && (missing == SIMD_LO32 || missing == SIMD_LO64 || missing == SIMD_XMM)) {
         unsigned bytes = missing == SIMD_LO32 ? 4 : missing == SIMD_LO64 ? 8
                                                                          : 16;
+        int memory_sew = simd_memory_sew(dyn, bytes);
+        if (memory_sew >= 0) {
+            ADDI(s1, xEmu, offsetof(x64emu_t, xmm[a]));
+            VLE_V(reg, s1, memory_sew, VECTOR_UNMASKED, VECTOR_NFIELD1);
+            c->valid |= missing;
+            simd_check(dyn, a);
+            return;
+        }
         if (simd_can_mask_e32(dyn, bytes) && dyn->rvv.vl != bytes / 4) {
             simd_mask(dyn, ninst, s1, missing, bytes);
             ADDI(s1, xEmu, offsetof(x64emu_t, xmm[a]));
@@ -458,31 +487,29 @@ void simd_flush(dynarec_rv64_t* dyn, int ninst, int s1, int a, unsigned regions,
     assert(!(stored & ~c->valid));
     if (stored) {
         int reg = dyn->e.ssecache[a].reg;
-        int masked = 0;
-        if (stored == SIMD_YMM) {
-            int upper = 1;
-            rvv_set_config(dyn, ninst, s1, VECTOR_SEW8, VECTOR_LMUL1, 16);
+        if (stored == SIMD_YMM && !cpuext.xtheadvector) {
+            if (simd_memory_sew(dyn, 16) < 0 || (dyn->rvv.vl << dyn->rvv.sew) != 32)
+                rvv_set_config(dyn, ninst, s1, VECTOR_SEW64, VECTOR_LMUL1, 4);
+            int sew = dyn->rvv.sew - 1;
+            int upper = vpu_get_scratch(dyn);
             ADDI(s1, xEmu, offsetof(x64emu_t, xmm[a]));
-            VSE8_V(reg, s1, VECTOR_UNMASKED, VECTOR_NFIELD1);
-            VSLIDEDOWN_VI(upper, reg, 16, VECTOR_UNMASKED);
+            VSE_V(reg, s1, sew, VECTOR_UNMASKED, VECTOR_NFIELD1);
+            VSLIDEDOWN_VI(upper, reg, 16 >> dyn->rvv.sew, VECTOR_UNMASKED);
             ADDI(s1, xEmu, offsetof(x64emu_t, ymm[a]));
-            VSE8_V(upper, s1, VECTOR_UNMASKED, VECTOR_NFIELD1);
-        } else if (stored == SIMD_XMM) {
-            rvv_set_config(dyn, ninst, s1, VECTOR_SEW8, VECTOR_LMUL1, 16);
-            ADDI(s1, xEmu, offsetof(x64emu_t, xmm[a]));
-            VSE8_V(reg, s1, VECTOR_UNMASKED, VECTOR_NFIELD1);
-        } else if (stored == SIMD_LO32 || stored == SIMD_LO64) {
+            VSE_V(upper, s1, sew, VECTOR_UNMASKED, VECTOR_NFIELD1);
+            dyn->e.vpu_scratch &= ~(1u << upper);
+        } else if (stored == SIMD_XMM || stored == SIMD_LO32 || stored == SIMD_LO64) {
             unsigned bytes = stored == SIMD_LO32 ? 4 : stored == SIMD_LO64 ? 8 : 16;
-            if (simd_can_mask_e32(dyn, bytes) && dyn->rvv.vl != bytes / 4) {
+            int sew = simd_memory_sew(dyn, bytes);
+            if (sew < 0 && stored != SIMD_XMM && simd_can_mask_e32(dyn, bytes) && dyn->rvv.vl != bytes / 4) {
                 simd_mask(dyn, ninst, s1, stored, bytes);
                 ADDI(s1, xEmu, offsetof(x64emu_t, xmm[a]));
                 VSE32_V(reg, s1, VECTOR_MASKED, VECTOR_NFIELD1);
-                masked = 1;
-            }
-            if (!masked) {
-                int sew = bytes == 4 ? VECTOR_SEW32 : bytes == 8   ? VECTOR_SEW64
-                    : dyn->rvv.vl && dyn->rvv.lmul == VECTOR_LMUL1 ? dyn->rvv.sew : VECTOR_SEW32;
-                rvv_set_config(dyn, ninst, s1, sew, VECTOR_LMUL1, bytes >> sew);
+            } else {
+                if (sew < 0) {
+                    sew = bytes == 4 ? VECTOR_SEW32 : bytes == 8 ? VECTOR_SEW64 : VECTOR_SEW8;
+                    rvv_set_config(dyn, ninst, s1, sew, VECTOR_LMUL1, bytes >> sew);
+                }
                 ADDI(s1, xEmu, offsetof(x64emu_t, xmm[a]));
                 VSE_V(reg, s1, sew, VECTOR_UNMASKED, VECTOR_NFIELD1);
             }
