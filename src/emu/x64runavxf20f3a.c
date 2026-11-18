@@ -64,7 +64,7 @@ uintptr_t RunAVX_F20F3A(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             u8 = F8;
             if(rex.w) {
                 u8 &= 0x3f;
-                GD->q[0] = (ED->q[0] << (64 - u8)) + ((ED->q[0] >> (u8)) & ((1L << (64 - u8)) - 1L));
+                GD->q[0] = (ED->q[0] << (64 - u8)) + ((ED->q[0] >> (u8)) & ((1ULL << (64 - u8)) - 1ULL));
             } else {
                 u8 &= 0x1f;
                 GD->q[0] = (ED->dword[0] << (32 - u8)) + ((ED->dword[0] >> (u8)) & ((1 << (32 - u8)) - 1));
