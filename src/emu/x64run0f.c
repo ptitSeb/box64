@@ -364,13 +364,16 @@ uintptr_t Run0F(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             EX->q[0] = GX->q[0];
             EX->q[1] = GX->q[1];
             break;
-        case 0x2A:                      /* CVTPI2PS Gx, Em */
+        case 0x2A: {                      /* CVTPI2PS Gx, Em */
             nextop = F8;
             GETEM(0);
             GETGX;
+            int oldround = mxcsr_setround(emu);
             GX->f[0] = EM->sd[0];
             GX->f[1] = EM->sd[1];
-            break;
+            fesetround(oldround);
+        }
+        break;
         case 0x2B:                      /* MOVNTPS Ex,Gx */
             nextop = F8;
             if(MODREG) {
