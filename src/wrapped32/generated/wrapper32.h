@@ -917,6 +917,7 @@ void vFpibpp__32(x64emu_t *emu, uintptr_t fnc);
 void vFpbpu_u_32(x64emu_t *emu, uintptr_t fnc);
 void vFpbpu_p_32(x64emu_t *emu, uintptr_t fnc);
 void iFLbpi_i_32(x64emu_t *emu, uintptr_t fnc);
+void iEpirLL__32(x64emu_t *emu, uintptr_t fnc);
 void iFpibpu__32(x64emu_t *emu, uintptr_t fnc);
 void iFpibpp__32(x64emu_t *emu, uintptr_t fnc);
 void iFpubpu__32(x64emu_t *emu, uintptr_t fnc);
