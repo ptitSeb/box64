@@ -252,7 +252,7 @@ void simd_materialize(dynarec_rv64_t* dyn, int ninst, int s1, int a, unsigned re
         VLE_V(upper, s1, sew, VECTOR_UNMASKED, VECTOR_NFIELD1);
         VSLIDEUP_VI(reg, upper, 16 >> dyn->rvv.sew, VECTOR_UNMASKED);
         dyn->e.vpu_scratch &= ~(1u << upper);
-    } else if (memory == missing && (missing == SIMD_LO32 || missing == SIMD_LO64 || missing == SIMD_XMM)) {
+    } else if (memory == missing && (missing == SIMD_LO32 || missing == SIMD_LO64 || missing == SIMD_XMM) && (!cpuext.xtheadvector || !c->valid)) {
         unsigned bytes = missing == SIMD_LO32 ? 4 : missing == SIMD_LO64 ? 8
                                                                          : 16;
         int memory_sew = simd_memory_sew(dyn, bytes);
@@ -299,12 +299,24 @@ void simd_materialize(dynarec_rv64_t* dyn, int ninst, int s1, int a, unsigned re
     simd_check(dyn, a);
 }
 
+static void simd_preserve_tail(dynarec_rv64_t* dyn, int ninst, int s1, int a, unsigned regions)
+{
+    if (!cpuext.xtheadvector) return;
+    simd_cache_t* c = &dyn->e.simd[a];
+    unsigned tail = c->valid & ~regions;
+    if (!tail) return;
+    simd_flush(dyn, ninst, s1, a, tail & ~c->zero, 1);
+    simd_snapshot(dyn, a);
+    c->valid &= ~tail;
+}
+
 int simd_get(dynarec_rv64_t* dyn, int ninst, int s1, int a, unsigned bytes, int sew, int write)
 {
     int reg = simd_allocate(dyn, ninst, s1, a);
     unsigned regions = simd_regions(bytes);
     simd_materialize(dyn, ninst, s1, a, regions);
     if (write) {
+        simd_preserve_tail(dyn, ninst, s1, a, regions);
         simd_record_write(dyn, ninst, a, regions);
         simd_snapshot(dyn, a);
         dyn->e.simd[a].dirty |= regions;
@@ -320,7 +332,9 @@ int simd_get(dynarec_rv64_t* dyn, int ninst, int s1, int a, unsigned bytes, int 
 int simd_write(dynarec_rv64_t* dyn, int ninst, int s1, int a, unsigned bytes, int sew)
 {
     int reg = simd_allocate(dyn, ninst, s1, a);
-    simd_commit(dyn, ninst, a, simd_regions(bytes), 0);
+    unsigned regions = simd_regions(bytes);
+    simd_preserve_tail(dyn, ninst, s1, a, regions);
+    simd_commit(dyn, ninst, a, regions, 0);
     rvv_note_requirement(dyn, ninst, sew, VECTOR_LMUL1, bytes >> sew);
     rvv_set_config(dyn, ninst, s1, sew, VECTOR_LMUL1, bytes >> sew);
     return reg;
