@@ -2222,18 +2222,12 @@ x64emurun:
                     imul8(emu, EB->byte[0]);
                     break;
                 case 6:                 /* DIV Eb */
-                    #ifndef TEST_INTERPRETER
-                    if(!EB->byte[0])
-                        EmitDiv0(emu, (void*)R_RIP, 1);
-                    #endif
                     div8(emu, EB->byte[0]);
+                    CHECK_DIV0(emu);
                     break;
                 case 7:                 /* IDIV Eb */
-                    #ifndef TEST_INTERPRETER
-                    if(!EB->byte[0])
-                        EmitDiv0(emu, (void*)R_RIP, 1);
-                    #endif
                     idiv8(emu, EB->byte[0]);
+                    CHECK_DIV0(emu);
                     break;
             }
             break;
@@ -2261,18 +2255,12 @@ x64emurun:
                         imul64_rax(emu, ED->q[0]);
                         break;
                     case 6:                 /* DIV Ed */
-                        #ifndef TEST_INTERPRETER
-                        if(!ED->q[0])
-                            EmitDiv0(emu, (void*)R_RIP, 1);
-                        #endif
                         div64(emu, ED->q[0]);
+                        CHECK_DIV0(emu);
                         break;
                     case 7:                 /* IDIV Ed */
-                        #ifndef TEST_INTERPRETER
-                        if(!ED->q[0])
-                            EmitDiv0(emu, (void*)R_RIP, 1);
-                        #endif
                         idiv64(emu, ED->q[0]);
+                        CHECK_DIV0(emu);
                         break;
                 }
             } else {
@@ -2305,20 +2293,14 @@ x64emurun:
                         emu->regs[_DX].dword[1] = 0;
                         break;
                     case 6:                 /* DIV Ed */
-                        #ifndef TEST_INTERPRETER
-                        if(!ED->dword[0])
-                            EmitDiv0(emu, (void*)R_RIP, 1);
-                        #endif
                         div32(emu, ED->dword[0]);
+                        CHECK_DIV0(emu);
                         //emu->regs[_AX].dword[1] = 0;  // already put high regs to 0
                         //emu->regs[_DX].dword[1] = 0;
                         break;
                     case 7:                 /* IDIV Ed */
-                        #ifndef TEST_INTERPRETER
-                        if(!ED->dword[0])
-                            EmitDiv0(emu, (void*)R_RIP, 1);
-                        #endif
                         idiv32(emu, ED->dword[0]);
+                        CHECK_DIV0(emu);
                         //emu->regs[_AX].dword[1] = 0;
                         //emu->regs[_DX].dword[1] = 0;
                         break;
