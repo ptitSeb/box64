@@ -1464,8 +1464,7 @@ uintptr_t dynarec64_AVX_66_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             nextop = F8;
             GETGDd;
             SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW8);
-            q0 = vpu_get_scratch(dyn);
-            simd_load_reg(dyn, ninst, x1, q0, (nextop & 7) + (rex.b << 3), 16 << vex.l, VECTOR_SEW8);
+            q0 = simd_get(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 16 << vex.l, VECTOR_SEW8, 0);
             if (cpuext.xtheadvector) {
                 v0 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL8);
                 VSRL_VI(v0, q0, 7, VECTOR_UNMASKED);

@@ -380,39 +380,23 @@ int fpuCacheNeedsTransform(dynarec_rv64_t* dyn, int ninst)
         // if the barrier as already been apply, no transform needed
         return ((dyn->insts[ninst].x64.barrier & BARRIER_FLOAT)) ? 0 : (isCacheEmpty(dyn, ninst) ? 0 : 1);
     int ret = 0;
-    if (!i2) { // restore the state the first instruction was emitted with
-        if (dyn->insts[ninst].e.stack_next) {
-            return 1;
-        }
-        for (int i = 0; i < 24 && !ret; ++i)
-            if (dyn->insts[ninst].e.extcache[i].v) { // there is something at ninst for i
-                if (!(
-                        (dyn->insts[ninst].e.extcache[i].t == EXT_CACHE_ST_F
-                            || dyn->insts[ninst].e.extcache[i].t == EXT_CACHE_ST_D
-                            || dyn->insts[ninst].e.extcache[i].t == EXT_CACHE_ST_I64)
-                        && dyn->insts[ninst].e.extcache[i].n < dyn->insts[ninst].e.stack_pop))
-                    ret = 1;
-            }
-        for (int i = 0; i < 24 && !ret; ++i)
-            if (dyn->insts[0].e.extcache[i].v)
-                ret = 1;
-        for (int a = 0; a < 16; ++a)
-            if (dyn->insts[ninst].e.simd[a].dirty) return 1;
-        return ret;
-    }
     // Check if ninst can be compatible to i2
-    if (dyn->insts[ninst].e.stack_next != dyn->insts[i2].e.stack - dyn->insts[i2].e.stack_push) {
+    if (dyn->e.stack_next != dyn->insts[i2].e.stack - dyn->insts[i2].e.stack_push) {
         return 1;
     }
     extcache_t cache_i2 = dyn->insts[i2].e;
     extcacheUnwind(&cache_i2);
 
     for (int i = 0; i < 24; ++i) {
-        if (dyn->insts[ninst].e.extcache[i].v) { // there is something at ninst for i
+        if (i < 16
+            && (!dyn->e.extcache[i].v || dyn->e.extcache[i].t == EXT_CACHE_SIMD)
+            && (!cache_i2.extcache[i].v || cache_i2.extcache[i].t == EXT_CACHE_SIMD))
+            continue;
+        if (dyn->e.extcache[i].v) { // there is something at ninst for i
             if (!cache_i2.extcache[i].v) {       // but there is nothing at i2 for i
                 ret = 1;
-            } else if (dyn->insts[ninst].e.extcache[i].v != cache_i2.extcache[i].v) { // there is something different
-                if (dyn->insts[ninst].e.extcache[i].n != cache_i2.extcache[i].n) {    // not the same x64 reg
+            } else if (dyn->e.extcache[i].v != cache_i2.extcache[i].v) { // there is something different
+                if (dyn->e.extcache[i].n != cache_i2.extcache[i].n) {    // not the same x64 reg
                     ret = 1;
                 } else
                     ret = 1;
@@ -420,8 +404,12 @@ int fpuCacheNeedsTransform(dynarec_rv64_t* dyn, int ninst)
         } else if (cache_i2.extcache[i].v)
             ret = 1;
     }
-    for (int a = 0; a < 16; ++a)
-        if (memcmp(&dyn->insts[ninst].e.simd[a], &cache_i2.simd[a], sizeof(simd_cache_t))) return 1;
+    for (int a = 0; a < 16; ++a) {
+        const simd_cache_t* src = &dyn->e.simd[a];
+        const simd_cache_t* dst = &cache_i2.simd[a];
+        unsigned kill = (dyn->insts[i2].simd_kill >> (a * 4)) & SIMD_YMM;
+        if ((src->dirty & ~kill & ~dst->dirty) || (dst->valid & ~(src->valid & ~kill))) return 1;
+    }
     return ret;
 }
 
@@ -1120,6 +1108,7 @@ static void simd_analyze_entries(dynarec_rv64_t* dyn)
         instruction_rv64_t* entry = &dyn->insts[i];
         entry->simd_entry = 0;
         entry->simd_live = entry->simd_carry = 0;
+        entry->simd_kill = 0;
         entry->rvv_entry_config.bits = 0;
         if (!entry->x64.alive || !simd_is_entry(dyn, i) || (entry->x64.barrier & BARRIER_FLOAT)) continue;
         entry->simd_entry = 1;
@@ -1134,7 +1123,9 @@ static void simd_analyze_entries(dynarec_rv64_t* dyn)
             if (inst->x64.jmp || !inst->x64.has_next) break;
         }
         entry->simd_live = read;
+        entry->simd_kill = written & ~read;
         if (flow && work) simd_analyze_loop(dyn, i, flow, work);
+        entry->simd_carry &= ~entry->simd_kill;
         if (cpuext.vlen < 32) {
             entry->simd_live &= 0x7777777777777777ULL;
             entry->simd_carry &= 0x7777777777777777ULL;

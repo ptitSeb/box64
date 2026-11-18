@@ -165,6 +165,7 @@ typedef struct instruction_rv64_s {
     uint64_t            simd_read, simd_defs; // regional architectural effects
     uint64_t            simd_live;  // incoming regions read before definition
     uint64_t            simd_carry; // regions preserved across backedges
+    uint64_t            simd_kill;  // incoming regions overwritten before their first read
     rvv_config_t        rvv_hint, rvv_entry_config;
     uint8_t             simd_entry, simd_opaque;
     rvv_config_t        rvv_entry;
