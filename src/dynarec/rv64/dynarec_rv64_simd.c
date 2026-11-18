@@ -582,8 +582,49 @@ void simd_purge_low(dynarec_rv64_t* dyn, int ninst, int s1)
     }
 }
 
+static unsigned simd_flush_zero_uppers(dynarec_rv64_t* dyn, int ninst, int s1)
+{
+    if (cpuext.vlen < 32 || cpuext.xtheadvector) return 0;
+
+    unsigned used = dyn->e.vpu_scratch;
+    for (int a = 0; a < 8; ++a)
+        if (dyn->e.mmxcache[a].v != -1 && dyn->e.mmxcache[a].vector) used |= 1u << dyn->e.mmxcache[a].reg;
+
+    unsigned zeros = 0;
+    for (int a = 0; a < 16; ++a)
+        if (dyn->e.simd[a].dirty & dyn->e.simd[a].zero & SIMD_HI128) zeros |= 1u << a;
+
+    unsigned flushed = 0;
+    while (zeros) {
+        int first = __builtin_ctz(zeros);
+        int count = __builtin_ctz(~(zeros >> first));
+        unsigned run = ((1u << count) - 1) << first;
+        zeros &= ~run;
+        if (count < 4) continue;
+
+        unsigned vl = count * 2;
+        for (int lmul = VECTOR_LMUL1; lmul <= VECTOR_LMUL8; ++lmul) {
+            unsigned group = 1u << lmul;
+            if (vl > (cpuext.vlen / 8) * group) continue;
+            unsigned mask = (1u << group) - 1;
+            int reg = group;
+            while (reg < 16 && (used & (mask << reg))) reg += group;
+            if (reg == 16) continue;
+
+            rvv_set_config(dyn, ninst, s1, VECTOR_SEW64, lmul, vl);
+            VMV_V_I(reg, 0);
+            ADDI(s1, xEmu, offsetof(x64emu_t, ymm[first]));
+            VSE64_V(reg, s1, VECTOR_UNMASKED, VECTOR_NFIELD1);
+            flushed |= run;
+            break;
+        }
+    }
+    return flushed;
+}
+
 void simd_purge(dynarec_rv64_t* dyn, int ninst, int next, int s1)
 {
+    unsigned flushed = simd_flush_zero_uppers(dyn, ninst, s1);
     for (int a = 0; a < 16; ++a) {
         if (dyn->e.ssecache[a].v != -1 && !dyn->e.ssecache[a].vector) {
             if (dyn->e.ssecache[a].single) {
@@ -592,7 +633,7 @@ void simd_purge(dynarec_rv64_t* dyn, int ninst, int next, int s1)
                 FSD(dyn->e.ssecache[a].reg, xEmu, offsetof(x64emu_t, xmm[a]));
             }
         }
-        simd_flush(dyn, ninst, s1, a, SIMD_YMM, !next);
+        simd_flush(dyn, ninst, s1, a, flushed & (1u << a) ? SIMD_XMM : SIMD_YMM, !next);
         if (!next) {
             simd_snapshot(dyn, a);
             if (dyn->e.ssecache[a].v != -1) extcache_free_reg(dyn, dyn->e.ssecache[a].reg);
