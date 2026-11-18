@@ -85,10 +85,10 @@ void emit_add32c(dynarec_arm_t* dyn, int ninst, rex_t rex, int s1, int64_t c, in
     if((s1==xRSP) && (BOX64DRENV(dynarec_safeflags)<2) && (!dyn->insts || (dyn->insts[ninst].x64.gen_flags==X_PEND) || (!BOX64ENV(dynarec_df) && (dyn->insts[ninst].x64.gen_flags==X_ALL)))) {
         // special case when doing math on ESP and only PEND is needed: ignoring it!
         if(c>=0 && c<0x1000) {
-            ADDx_U12(s1, s1, c);
+            ADDxw_U12(s1, s1, c);
         } else {
             MOV64x(s3, c);
-            ADDx_REG(s1, s1, s3);
+            ADDxw_REG(s1, s1, s3);
         }
         return;
     }
