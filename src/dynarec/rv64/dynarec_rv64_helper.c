@@ -2379,8 +2379,13 @@ void emit_pf(dynarec_rv64_t* dyn, int ninst, int s1, int s3, int s4)
 void fpu_reset_cache(dynarec_rv64_t* dyn, int ninst, int reset_n)
 {
     MESSAGE(LOG_DEBUG, "Reset Caches with %d\n", reset_n);
+#if STEP > 1
+    dyn->e = dyn->insts[ninst].e;
+    dyn->rvv = dyn->insts[ninst].rvv_entry;
+#else
     dyn->e = dyn->insts[reset_n].e;
     dyn->rvv = dyn->insts[reset_n].rvv_exit;
+#endif
     extcacheUnwind(&dyn->e);
 #if STEP == 0
     if (dyn->need_dump && dyn->need_dump != 3 && dyn->e.x87stack) dynarec_log(LOG_NONE, "New x87stack=%d at ResetCache in inst %d with %d\n", dyn->e.x87stack, ninst, reset_n);
