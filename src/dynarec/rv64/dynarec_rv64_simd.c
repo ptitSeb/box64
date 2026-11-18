@@ -459,9 +459,20 @@ void simd_flush(dynarec_rv64_t* dyn, int ninst, int s1, int a, unsigned regions,
     if (stored) {
         int reg = dyn->e.ssecache[a].reg;
         int masked = 0;
-        if (stored == SIMD_LO32 || stored == SIMD_LO64 || stored == SIMD_XMM) {
-            unsigned bytes = stored == SIMD_LO32 ? 4 : stored == SIMD_LO64 ? 8
-                                                                           : 16;
+        if (stored == SIMD_YMM) {
+            int upper = 1;
+            rvv_set_config(dyn, ninst, s1, VECTOR_SEW8, VECTOR_LMUL1, 16);
+            ADDI(s1, xEmu, offsetof(x64emu_t, xmm[a]));
+            VSE8_V(reg, s1, VECTOR_UNMASKED, VECTOR_NFIELD1);
+            VSLIDEDOWN_VI(upper, reg, 16, VECTOR_UNMASKED);
+            ADDI(s1, xEmu, offsetof(x64emu_t, ymm[a]));
+            VSE8_V(upper, s1, VECTOR_UNMASKED, VECTOR_NFIELD1);
+        } else if (stored == SIMD_XMM) {
+            rvv_set_config(dyn, ninst, s1, VECTOR_SEW8, VECTOR_LMUL1, 16);
+            ADDI(s1, xEmu, offsetof(x64emu_t, xmm[a]));
+            VSE8_V(reg, s1, VECTOR_UNMASKED, VECTOR_NFIELD1);
+        } else if (stored == SIMD_LO32 || stored == SIMD_LO64) {
+            unsigned bytes = stored == SIMD_LO32 ? 4 : stored == SIMD_LO64 ? 8 : 16;
             if (simd_can_mask_e32(dyn, bytes) && dyn->rvv.vl != bytes / 4) {
                 simd_mask(dyn, ninst, s1, stored, bytes);
                 ADDI(s1, xEmu, offsetof(x64emu_t, xmm[a]));
@@ -470,8 +481,7 @@ void simd_flush(dynarec_rv64_t* dyn, int ninst, int s1, int a, unsigned regions,
             }
             if (!masked) {
                 int sew = bytes == 4 ? VECTOR_SEW32 : bytes == 8   ? VECTOR_SEW64
-                    : dyn->rvv.vl && dyn->rvv.lmul == VECTOR_LMUL1 ? dyn->rvv.sew
-                                                                   : VECTOR_SEW32;
+                    : dyn->rvv.vl && dyn->rvv.lmul == VECTOR_LMUL1 ? dyn->rvv.sew : VECTOR_SEW32;
                 rvv_set_config(dyn, ninst, s1, sew, VECTOR_LMUL1, bytes >> sew);
                 ADDI(s1, xEmu, offsetof(x64emu_t, xmm[a]));
                 VSE_V(reg, s1, sew, VECTOR_UNMASKED, VECTOR_NFIELD1);
