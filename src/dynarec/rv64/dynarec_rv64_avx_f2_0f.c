@@ -135,14 +135,12 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETGX();
             GETVX();
             GETED(0);
-            u8 = simd_set_rounding(dyn, ninst, x6, x4);
             d0 = fpu_get_scratch(dyn);
             if (rex.w) {
                 FCVTDL(d0, ed, RD_DYN);
             } else {
                 FCVTDW(d0, ed, RD_DYN);
             }
-            x87_restoreround(dyn, ninst, u8);
             if (gd != vex.v) {
                 LD(x2, vback, vxoffset + 0);
                 LD(x3, vback, vxoffset + 8);
@@ -197,10 +195,8 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             if (!BOX64ENV(dynarec_fastround)) {
                 FSFLAGSI(0); // reset all bits
             }
-            u8 = simd_set_rounding(dyn, ninst, x2, x3);
             FCVTLDxw(gd, d0, RD_DYN);
             if (!rex.w) ZEROUP(gd);
-            x87_restoreround(dyn, ninst, u8);
             if (!BOX64ENV(dynarec_fastround)) {
                 FRFLAGS(x5); // get back FPSR to check the IOC bit
                 ANDI(x5, x5, (1 << FR_NV) | (1 << FR_OF));
@@ -926,7 +922,6 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETEX(x2, 0, vex.l ? 24 : 8);
             GETGX();
             d0 = fpu_get_scratch(dyn);
-            u8 = simd_set_rounding(dyn, ninst, x6, x4);
             for (int i = 0; i < 2; ++i) {
                 FLD(d0, wback, fixedaddress + 8 * i);
                 FCVTLD(x3, d0, RD_DYN);
@@ -949,7 +944,6 @@ uintptr_t dynarec64_AVX_F2_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 SW(xZR, gback, gdoffset + 8);
                 SW(xZR, gback, gdoffset + 12);
             }
-            x87_restoreround(dyn, ninst, u8);
             YMM0(gd);
             break;
         case 0xF0:

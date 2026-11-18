@@ -290,10 +290,8 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             MARK2;
             FMVXW(x3, d0);
             if (u8 & 4) {
-                tmp8u = simd_set_rounding(dyn, ninst, x4, x5);
                 FCVTWS(x5, d0, RD_DYN);
                 FCVTSW(d2, x5, RD_RTZ);
-                x87_restoreround(dyn, ninst, tmp8u);
             } else {
                 FCVTWS(x5, d0, round_round[u8 & 3]);
                 FCVTSW(d2, x5, RD_RTZ);
@@ -369,10 +367,8 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             B_MARK2_nocond;
             FMVXD(x3, d0);
             if (u8 & 4) {
-                tmp8u = simd_set_rounding(dyn, ninst, x4, x5);
                 FCVTLD(x5, d0, RD_DYN);
                 FCVTDL(d0, x5, RD_RTZ);
-                x87_restoreround(dyn, ninst, tmp8u);
             } else {
                 FCVTLD(x5, d0, round_round[u8 & 3]);
                 FCVTDL(d0, x5, RD_RTZ);
@@ -431,10 +427,8 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             MARK2;
             FMVXW(x3, d0);
             if (u8 & 4) {
-                tmp8u = simd_set_rounding(dyn, ninst, x4, x5);
                 FCVTWS(x5, d0, RD_DYN);
                 FCVTSW(d2, x5, RD_RTZ);
-                x87_restoreround(dyn, ninst, tmp8u);
             } else {
                 FCVTWS(x5, d0, round_round[u8 & 3]);
                 FCVTSW(d2, x5, RD_RTZ);
@@ -485,10 +479,8 @@ uintptr_t dynarec64_AVX_66_0F3A(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             MARK2;
             FMVXD(x3, d0);
             if (u8 & 4) {
-                tmp8u = simd_set_rounding(dyn, ninst, x4, x5);
                 FCVTLD(x5, d0, RD_DYN);
                 FCVTDL(d2, x5, RD_RTZ);
-                x87_restoreround(dyn, ninst, tmp8u);
             } else {
                 FCVTLD(x5, d0, round_round[u8 & 3]);
                 FCVTDL(d2, x5, RD_RTZ);

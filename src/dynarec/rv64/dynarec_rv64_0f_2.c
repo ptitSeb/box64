@@ -279,6 +279,7 @@ uintptr_t dynarec64_0F_2(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                             OR(x3, x3, x5);
                             CSRRW(xZR, x3, /* fflags */ 0x001);
                         }
+                        simd_sync_rounding(dyn, ninst, x3, x4);
                         break;
                     case 3:
                         INST_NAME("STMXCSR Md");

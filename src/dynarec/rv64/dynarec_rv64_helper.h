@@ -1924,7 +1924,7 @@
 #define x87_swapreg                  STEPNAME(x87_swapreg)
 #define x87_setround                 STEPNAME(x87_setround)
 #define x87_restoreround             STEPNAME(x87_restoreround)
-#define simd_set_rounding            STEPNAME(simd_set_rounding)
+#define simd_sync_rounding           STEPNAME(simd_sync_rounding)
 #define mmx_get_reg                  STEPNAME(mmx_get_reg)
 #define mmx_get_reg_empty            STEPNAME(mmx_get_reg_empty)
 #define mmx_forget_reg               STEPNAME(mmx_forget_reg)
@@ -2167,8 +2167,8 @@ void x87_swapreg(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int a, int b);
 int x87_setround(dynarec_rv64_t* dyn, int ninst, int s1, int s2);
 // Restore round flag
 void x87_restoreround(dynarec_rv64_t* dyn, int ninst, int s1);
+void simd_sync_rounding(dynarec_rv64_t* dyn, int ninst, int s1, int s2);
 // Set rounding according to mxcsr flags, return reg to restore flags
-int simd_set_rounding(dynarec_rv64_t* dyn, int ninst, int s1, int s2);
 
 void simd_cache_transform(dynarec_rv64_t* dyn, int ninst, int cacheupd, int s1, int s2, int s3);
 

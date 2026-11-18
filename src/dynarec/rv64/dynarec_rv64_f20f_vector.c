@@ -110,14 +110,12 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 GETGX_vector(v0, 1, VECTOR_SEW32);
                 GETED(0);
             }
-            if (BOX64ENV(dynarec_fastround) <= 1) u8 = simd_set_rounding(dyn, ninst, x5, x6);
             if (rex.w) {
                 FCVTDL(v0, ed, BOX64ENV(dynarec_fastround) <= 1 ? RD_DYN : RD_RNE);
             } else {
                 FCVTDW(v0, ed, BOX64ENV(dynarec_fastround) <= 1 ? RD_DYN : RD_RNE);
                 SET_ELEMENT_WIDTH(x3, VECTOR_SEW64);
             }
-            if (BOX64ENV(dynarec_fastround) <= 1) x87_restoreround(dyn, ninst, u8);
             if (cpuext.xtheadvector) {
                 v1 = vpu_get_scratch(dyn);
                 VFMV_S_F(v1, v0);
@@ -177,17 +175,13 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             }
             if (BOX64ENV(dynarec_fastround)) {
                 VFMV_F_S(v0, v0);
-                u8 = simd_set_rounding(dyn, ninst, x2, x3);
                 FCVTLDxw(gd, v0, RD_DYN);
                 if (!rex.w) ZEROUP(gd);
-                x87_restoreround(dyn, ninst, u8);
             } else {
                 VFMV_F_S(v0, v0);
                 FSFLAGSI(0); // // reset all bits
-                u8 = simd_set_rounding(dyn, ninst, x2, x3);
                 FCVTLDxw(gd, v0, RD_DYN);
                 if (!rex.w) ZEROUP(gd);
-                x87_restoreround(dyn, ninst, u8);
                 FRFLAGS(x5); // get back FPSR to check the IOC bit
                 ANDI(x5, x5, (1 << FR_NV) | (1 << FR_OF));
                 CBZ_NEXT(x5);
@@ -266,7 +260,6 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             }
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW32);
             VECTOR_LOAD_VMASK(0b0001, x4);
-            if (BOX64ENV(dynarec_fastround) < 2) u8 = simd_set_rounding(dyn, ninst, x6, x5);
             if (v1 & 1 || v0 == v1 + 1) {
                 d1 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
                 VMV_V_V(d1, v1);
@@ -286,7 +279,6 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     VFNCVT_F_F_W(v0, v1, VECTOR_MASKED);
                 }
             }
-            if (BOX64ENV(dynarec_fastround) < 2) x87_restoreround(dyn, ninst, u8);
             break;
         case 0x5C:
             INST_NAME("SUBSD Gx, Ex");
@@ -460,15 +452,12 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             }
             if (!BOX64ENV(dynarec_fastround)) FSFLAGSI(0);
             d0 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-            u8 = simd_set_rounding(dyn, ninst, x6, x4);
             if (BOX64ENV(dynarec_fastround)) {
                 rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL1, 8);
                 VFNCVT_X_F_W(d0, d1, VECTOR_UNMASKED);
-                x87_restoreround(dyn, ninst, u8);
                 q1 = d0;
             } else {
                 VFCVT_X_F_V(d0, d1, VECTOR_UNMASKED);
-                x87_restoreround(dyn, ninst, u8);
                 q0 = vpu_get_scratch(dyn);
                 MOV64x(x4, (int64_t)INT32_MIN);
                 VMSLT_VX(q0, d0, x4, VECTOR_UNMASKED);

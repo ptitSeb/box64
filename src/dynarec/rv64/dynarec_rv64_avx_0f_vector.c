@@ -407,9 +407,7 @@ uintptr_t dynarec64_AVX_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t
             nextop = F8;
             GETEY_vector(q0, 0, VECTOR_SEW32);
             GETGY_empty_vector(v0);
-            if (BOX64ENV(dynarec_fastround) <= 1) u8 = simd_set_rounding(dyn, ninst, x6, x4);
             VFCVT_F_X_V(v0, q0, VECTOR_UNMASKED);
-            if (BOX64ENV(dynarec_fastround) <= 1) x87_restoreround(dyn, ninst, u8);
             PUTGY_vector(v0, VECTOR_SEW32);
             break;
         case 0x5C:
@@ -466,6 +464,7 @@ uintptr_t dynarec64_AVX_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t
                     addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 0);
                     LWU(x4, ed, fixedaddress);
                     SW(x4, xEmu, offsetof(x64emu_t, mxcsr));
+                    simd_sync_rounding(dyn, ninst, x3, x6);
                     if (BOX64ENV(sse_flushto0)) {
                         // Doing x86 -> RV here, 543210 => 0123x4, ignore denormal
                         SLLIW(x5, x4, 4);

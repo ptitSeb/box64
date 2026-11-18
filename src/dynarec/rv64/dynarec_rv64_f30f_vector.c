@@ -131,14 +131,12 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 GETGX_vector(v0, 1, VECTOR_SEW32);
                 GETED(0);
             }
-            if (BOX64ENV(dynarec_fastround) <= 1) u8 = simd_set_rounding(dyn, ninst, x5, x6);
             if (rex.w) {
                 FCVTSL(v0, ed, BOX64ENV(dynarec_fastround) <= 1 ? RD_DYN : RD_RNE);
                 SET_ELEMENT_WIDTH(x3, VECTOR_SEW32);
             } else {
                 FCVTSW(v0, ed, BOX64ENV(dynarec_fastround) <= 1 ? RD_DYN : RD_RNE);
             }
-            if (BOX64ENV(dynarec_fastround) <= 1) x87_restoreround(dyn, ninst, u8);
             if (cpuext.xtheadvector) {
                 v1 = vpu_get_scratch(dyn);
                 VFMV_S_F(v1, v0);
@@ -187,9 +185,7 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 GETEXSS(d0, 0);
             }
             if (!BOX64ENV(dynarec_fastround)) FSFLAGSI(0);
-            u8 = simd_set_rounding(dyn, ninst, x5, x6);
             FCVTSxw(gd, d0, RD_DYN);
-            x87_restoreround(dyn, ninst, u8);
             if (!rex.w) ZEROUP(gd);
             if (!BOX64ENV(dynarec_fastround)) {
                 FRFLAGS(x5);

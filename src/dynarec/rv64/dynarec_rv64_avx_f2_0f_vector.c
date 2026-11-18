@@ -179,13 +179,11 @@ uintptr_t dynarec64_AVX_F2_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
                     LW(x4, ed, fixedaddress);
                 ed = x4;
             }
-            u8 = simd_set_rounding(dyn, ninst, x5, x6);
             d0 = fpu_get_scratch(dyn);
             if (rex.w)
                 FCVTDL(d0, ed, RD_DYN);
             else
                 FCVTDW(d0, ed, RD_DYN);
-            x87_restoreround(dyn, ninst, u8);
             GETGY_empty_vector(v0);
             if (v0 != q0) {
                 simd_set_width(dyn, ninst, x1, VECTOR_SEW64, 16);
@@ -248,15 +246,11 @@ uintptr_t dynarec64_AVX_F2_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
                 FLD(d0, ed, fixedaddress);
             }
             if (BOX64ENV(dynarec_fastround)) {
-                u8 = simd_set_rounding(dyn, ninst, x2, x3);
                 FCVTLDxw(gd, d0, RD_DYN);
                 if (!rex.w) ZEROUP(gd);
-                x87_restoreround(dyn, ninst, u8);
             } else {
                 FSFLAGSI(0); // reset all bits
-                u8 = simd_set_rounding(dyn, ninst, x6, x4);
                 FCVTLDxw(gd, d0, RD_DYN);
-                x87_restoreround(dyn, ninst, u8);
                 if (!rex.w) ZEROUP(gd);
                 FRFLAGS(x5); // get back FPSR to check the invalid bit
                 ANDI(x5, x5, (1 << FR_NV) | (1 << FR_OF));
@@ -395,15 +389,11 @@ uintptr_t dynarec64_AVX_F2_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
                 simd_set_width(dyn, ninst, x1, VECTOR_SEW32, 16);
                 VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
                 rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL1, (vex.l ? 16 : 8));
-                u8 = simd_set_rounding(dyn, ninst, x6, x4);
                 VFNCVT_X_F_W(q2, d0, VECTOR_UNMASKED);
-                x87_restoreround(dyn, ninst, u8);
                 VMV_V_V(v0, q2);
             } else {
                 FSFLAGSI(0);
-                u8 = simd_set_rounding(dyn, ninst, x6, x4);
                 VFCVT_X_F_V(d0, d0, VECTOR_UNMASKED);
-                x87_restoreround(dyn, ninst, u8);
                 q3 = vpu_get_scratch(dyn);
                 MOV64x(x5, (int64_t)INT32_MIN);
                 VMSLT_VX(q3, d0, x5, VECTOR_UNMASKED);

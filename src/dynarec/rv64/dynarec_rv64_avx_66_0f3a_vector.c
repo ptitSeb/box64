@@ -25,7 +25,7 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
     (void)need_epilog;
 
     uint8_t opcode = F8;
-    uint8_t nextop, u8, u8s;
+    uint8_t nextop, u8;
     uint8_t gd, ed;
     int v0, v1, v2;
     int q0, q1, q2, q3, q4, d0, d1, d2;
@@ -45,7 +45,6 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
     MAYUSE(d1);
     MAYUSE(d2);
     MAYUSE(u8);
-    MAYUSE(u8s);
     MAYUSE(j64);
 
     switch (opcode) {
@@ -387,9 +386,7 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             q2 = vpu_get_scratch(dyn);
             q3 = vpu_get_scratch(dyn);
             q4 = vpu_get_scratch(dyn);
-            if (u8 & 4) {
-                u8s = simd_set_rounding(dyn, ninst, x5, x6);
-            } else {
+            if (!(u8 & 4)) {
                 ADDI(x5, xZR, round_round[u8 & 3]);
                 FSRM(x6, x5);
             }
@@ -417,9 +414,7 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             FMVWX(d1, x5);
             VMFLE_VF(VMASK, q0, d1, VECTOR_UNMASKED);
             VMERGE_VVM(q2, q2, q0);
-            if (u8 & 4) {
-                x87_restoreround(dyn, ninst, u8s);
-            } else {
+            if (!(u8 & 4)) {
                 FSRM(x5, x6);
             }
             PUTGY_vector(q2, VECTOR_SEW32);
@@ -434,9 +429,7 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             q1 = vpu_get_scratch(dyn);
             q2 = vpu_get_scratch(dyn);
             q3 = vpu_get_scratch(dyn);
-            if (u8 & 4) {
-                u8s = simd_set_rounding(dyn, ninst, x5, x6);
-            } else {
+            if (!(u8 & 4)) {
                 ADDI(x5, xZR, round_round[u8 & 3]);
                 FSRM(x6, x5);
             }
@@ -464,9 +457,7 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             FMVDX(d1, x5);
             VMFLE_VF(VMASK, q0, d1, VECTOR_UNMASKED);
             VMERGE_VVM(q2, q2, q0);
-            if (u8 & 4) {
-                x87_restoreround(dyn, ninst, u8s);
-            } else {
+            if (!(u8 & 4)) {
                 FSRM(x5, x6);
             }
             PUTGY_vector(q2, VECTOR_SEW64);
@@ -513,10 +504,8 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             MARK2;
             FMVXW(x3, d0);
             if (u8 & 4) {
-                u8s = simd_set_rounding(dyn, ninst, x4, x2);
                 FCVTWS(x5, d0, RD_DYN);
                 FCVTSW(d2, x5, RD_RTZ);
-                x87_restoreround(dyn, ninst, u8s);
             } else {
                 FCVTWS(x5, d0, round_round[u8 & 3]);
                 FCVTSW(d2, x5, RD_RTZ);
@@ -575,10 +564,8 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             MARK2;
             FMVXD(x3, d0);
             if (u8 & 4) {
-                u8s = simd_set_rounding(dyn, ninst, x4, x2);
                 FCVTLD(x5, d0, RD_DYN);
                 FCVTDL(d2, x5, RD_RTZ);
-                x87_restoreround(dyn, ninst, u8s);
             } else {
                 FCVTLD(x5, d0, round_round[u8 & 3]);
                 FCVTDL(d2, x5, RD_RTZ);

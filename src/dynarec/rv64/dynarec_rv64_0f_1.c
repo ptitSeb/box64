@@ -325,7 +325,7 @@ uintptr_t dynarec64_0F_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             s0 = fpu_get_scratch(dyn);
             for (int i = 0; i < 4; ++i) {
                 LW(x3, wback, fixedaddress + i * 4);
-                FCVTSW(s0, x3, RD_RNE);
+                FCVTSW(s0, x3, RD_DYN);
                 FSW(s0, gback, gdoffset + i * 4);
             }
             break;

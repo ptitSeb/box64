@@ -227,6 +227,7 @@ typedef struct dynarec_rv64_s {
     uint8_t             is_file_mapped; // if the memory is a mapped file (probably binary, not a memory)
     void*               gdbjit_block;
     uint32_t            need_x87check; // x87 low precision check
+    int                 x87round_active; // temporary x87 rounding mode is active across helper calls
     uint32_t            need_dump;     // need to dump the block
     int                 need_reloc; // does the dynablock need relocations
     int                 reloc_size;

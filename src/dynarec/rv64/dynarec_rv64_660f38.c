@@ -1041,10 +1041,8 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     MARK2; // needs rounding
                     FMVXW(x3, d0);
                     if (u8 & 4) {
-                        tmp8u = simd_set_rounding(dyn, ninst, x4, x5);
                         FCVTWS(x5, d0, RD_DYN);
                         FCVTSW(d2, x5, RD_RTZ);
-                        x87_restoreround(dyn, ninst, tmp8u);
                     } else {
                         FCVTWS(x5, d0, round_round[u8 & 3]);
                         FCVTSW(d2, x5, RD_RTZ);
@@ -1094,10 +1092,8 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     B_MARK_nocond;
                     FMVXD(x3, d0);
                     if (u8 & 4) {
-                        tmp8u = simd_set_rounding(dyn, ninst, x4, x5);
                         FCVTLD(x5, d0, RD_DYN);
                         FCVTDL(d0, x5, RD_RTZ);
-                        x87_restoreround(dyn, ninst, tmp8u);
                     } else {
                         FCVTLD(x5, d0, round_round[u8 & 3]);
                         FCVTDL(d0, x5, RD_RTZ);
@@ -1132,10 +1128,8 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     B_MARK2_nocond;
                     FMVXD(x3, d0);
                     if (u8 & 4) {
-                        tmp8u = simd_set_rounding(dyn, ninst, x4, x5);
                         FCVTLD(x5, d0, RD_DYN);
                         FCVTDL(d0, x5, RD_RTZ);
-                        x87_restoreround(dyn, ninst, tmp8u);
                     } else {
                         FCVTLD(x5, d0, round_round[u8 & 3]);
                         FCVTDL(d0, x5, RD_RTZ);
@@ -1175,10 +1169,8 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     MARK2;
                     FMVXW(x3, d0);
                     if (u8 & 4) {
-                        tmp8u = simd_set_rounding(dyn, ninst, x4, x2);
                         FCVTWS(x5, d0, RD_DYN);
                         FCVTSW(v0, x5, RD_RTZ);
-                        x87_restoreround(dyn, ninst, tmp8u);
                     } else {
                         FCVTWS(x5, d0, round_round[u8 & 3]);
                         FCVTSW(v0, x5, RD_RTZ);
@@ -1216,10 +1208,8 @@ uintptr_t dynarec64_660F38(dynarec_rv64_t* dyn, uintptr_t addr, uint8_t opcode, 
                     MARK2;
                     FMVXD(x3, d0);
                     if (u8 & 4) {
-                        tmp8u = simd_set_rounding(dyn, ninst, x4, x2);
                         FCVTLD(x5, d0, RD_DYN);
                         FCVTDL(v0, x5, RD_RTZ);
-                        x87_restoreround(dyn, ninst, tmp8u);
                     } else {
                         FCVTLD(x5, d0, round_round[u8 & 3]);
                         FCVTDL(v0, x5, RD_RTZ);

@@ -679,7 +679,9 @@ void call_c(dynarec_rv64_t* dyn, int ninst, rv64_consts_t fnc, int reg, int ret,
     if (arg5) MV(A5, arg5);
     if (arg6) MV(A6, arg6);
     MV(A0, xEmu);
+    if (!dyn->x87round_active) CSRRWI(xZR, 0, 0x002);
     JALR(xRA, reg);
+    if (!dyn->x87round_active) simd_sync_rounding(dyn, ninst, x2, x3);
     if (ret >= 0) {
         MV(ret, A0);
     }
@@ -743,7 +745,9 @@ void call_n(dynarec_rv64_t* dyn, int ninst, void* fnc, int w)
     // Note that if need_reloc is active, the TABLE64 will trigger cancel block,
     // because native function might be very different on a next run: different function address, different brick, different everything basicaly
     // and we don't have a relocation mecanism here, it's too complex
+    CSRRWI(xZR, 0, 0x002);
     JALR(xRA, x3);
+    simd_sync_rounding(dyn, ninst, x2, x3);
     // put return value in x64 regs
     if (w > 0) {
         MV(xRAX, A0);
@@ -1419,6 +1423,7 @@ int x87_setround(dynarec_rv64_t* dyn, int ninst, int s1, int s2)
     MAYUSE(ninst);
     MAYUSE(s1);
     MAYUSE(s2);
+    dyn->x87round_active = 1;
     LW(s1, xEmu, offsetof(x64emu_t, cw));
     SRLI(s1, s1, 10);
     ANDI(s1, s1, 0b11);
@@ -1436,28 +1441,19 @@ int x87_setround(dynarec_rv64_t* dyn, int ninst, int s1, int s2)
     return s1;
 }
 
-// Set rounding according to mxcsr flags, return reg to restore flags
-int simd_set_rounding(dynarec_rv64_t* dyn, int ninst, int s1, int s2)
+void simd_sync_rounding(dynarec_rv64_t* dyn, int ninst, int s1, int s2)
 {
     MAYUSE(dyn);
     MAYUSE(ninst);
     MAYUSE(s1);
     MAYUSE(s2);
     LW(s1, xEmu, offsetof(x64emu_t, mxcsr));
-    SRLI(s1, s1, 13);
-    ANDI(s1, s1, 0b11);
-    // MMX/x87 Round mode: 0..3: Nearest, Down, Up, Chop
-    // RV64: 0..7: Nearest, Toward Zero (Chop), Down, Up, Nearest tie to Max, invalid, invalid, dynamic (invalid here)
-    // 0->0, 1->2, 2->3, 3->1
-    BEQ(s1, xZR, 24);
-    ADDI(s2, xZR, 3);
-    BEQ(s1, s2, 12);
-    ADDI(s1, s1, 1);
-    J(8);
-    ADDI(s1, xZR, 1);
-    // transform done (is there a faster way?)
-    FSRM(s1, s1); // exange RM with current
-    return s1;
+    SRLI(s1, s1, 12);
+    ANDI(s1, s1, 6);
+    MOV32w(s2, 0x78);
+    SRL(s2, s2, s1);
+    ANDI(s2, s2, 3);
+    FSRM(xZR, s2);
 }
 
 // Restore round flag, destroy s1 doing so
@@ -1466,6 +1462,7 @@ void x87_restoreround(dynarec_rv64_t* dyn, int ninst, int s1)
     MAYUSE(dyn);
     MAYUSE(ninst);
     MAYUSE(s1);
+    dyn->x87round_active = 0;
     FSRM(s1, s1); // put back fpscr
 }
 

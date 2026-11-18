@@ -203,14 +203,12 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETGX();
             GETVX();
             GETED(0);
-            u8 = simd_set_rounding(dyn, ninst, x6, x4);
             d0 = fpu_get_scratch(dyn);
             if (rex.w) {
                 FCVTSL(d0, ed, RD_DYN);
             } else {
                 FCVTSW(d0, ed, RD_DYN);
             }
-            x87_restoreround(dyn, ninst, u8);
             if (gd != vex.v) {
                 LD(x2, vback, vxoffset + 0);
                 LD(x3, vback, vxoffset + 8);
@@ -265,9 +263,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             if (!BOX64ENV(dynarec_fastround)) {
                 FSFLAGSI(0);
             }
-            u8 = simd_set_rounding(dyn, ninst, x5, x6);
             FCVTSxw(gd, d0, RD_DYN);
-            x87_restoreround(dyn, ninst, u8);
             if (!rex.w) ZEROUP(gd);
             if (!BOX64ENV(dynarec_fastround)) {
                 FRFLAGS(x5);
@@ -640,7 +636,6 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETGX();
             GETGY();
             d0 = fpu_get_scratch(dyn);
-            u8 = simd_set_rounding(dyn, ninst, x6, x4);
             LW(x3, wback, fixedaddress + 0);
             LW(x4, wback, fixedaddress + 4);
             if (vex.l) {
@@ -658,7 +653,6 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 FSD(d0, gback, gyoffset + 8);
             } else
                 YMM0(gd);
-            x87_restoreround(dyn, ninst, u8);
             break;
         default:
             DEFAULT;

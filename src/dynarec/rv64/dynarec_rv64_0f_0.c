@@ -385,13 +385,11 @@ uintptr_t dynarec64_0F_0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGX();
             GETEM(x2, 0, 4);
             d0 = fpu_get_scratch(dyn);
-            u8 = simd_set_rounding(dyn, ninst, x4, x5);
             for (int i = 0; i < 2; ++i) {
                 LW(x3, wback, fixedaddress + i * 4);
                 FCVTSW(d0, x3, RD_DYN);
                 FSW(d0, gback, gdoffset + i * 4);
             }
-            x87_restoreround(dyn, ninst, u8);
             break;
         case 0x2B:
             INST_NAME("MOVNTPS Ex,Gx");
@@ -433,7 +431,6 @@ uintptr_t dynarec64_0F_0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGM();
             GETEX(x2, 0, 4);
             d0 = fpu_get_scratch(dyn);
-            u8 = simd_set_rounding(dyn, ninst, x6, x4);
             for (int i = 0; i < 2; ++i) {
                 if (!BOX64ENV(dynarec_fastround)) {
                     FSFLAGSI(0); // // reset all bits
@@ -450,7 +447,6 @@ uintptr_t dynarec64_0F_0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 }
                 SW(x1, gback, gdoffset + i * 4);
             }
-            x87_restoreround(dyn, ninst, u8);
             break;
         case 0x2E:
             // no special check...

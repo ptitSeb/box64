@@ -222,7 +222,6 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGM();
             GETEX(x2, 0, 8);
             d0 = fpu_get_scratch(dyn);
-            u8 = simd_set_rounding(dyn, ninst, x4, x5);
             for (int i = 0; i < 2; ++i) {
                 if (!BOX64ENV(dynarec_fastround)) {
                     FSFLAGSI(0); // // reset all bits
@@ -239,7 +238,6 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 }
                 SW(x1, gback, gdoffset + i * 4);
             }
-            x87_restoreround(dyn, ninst, u8);
             break;
         case 0x2E:
             // no special check...
@@ -451,7 +449,6 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGX();
             GETEX(x2, 0, 8);
             d0 = fpu_get_scratch(dyn);
-            if (BOX64ENV(dynarec_fastround) < 2) u8 = simd_set_rounding(dyn, ninst, x6, x4);
             for (int i = 0; i < 2; ++i) {
                 FLD(d0, wback, fixedaddress + i * 8);
                 if (!BOX64ENV(dynarec_fastnan)) {
@@ -474,7 +471,6 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 }
                 FSW(d0, gback, gdoffset + i * 4);
             }
-            if (BOX64ENV(dynarec_fastround) < 2) x87_restoreround(dyn, ninst, u8);
             // GX->q[1] = 0;
             SD(xZR, gback, gdoffset + 8);
             break;
@@ -484,7 +480,6 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETGX();
             GETEX(x2, 0, 12);
             d0 = fpu_get_scratch(dyn);
-            u8 = simd_set_rounding(dyn, ninst, x6, x4);
             for (int i = 0; i < 4; ++i) {
                 FLW(d0, wback, fixedaddress + 4 * i);
                 FCVTLS(x3, d0, RD_DYN);
@@ -493,7 +488,6 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 MOV64x(x3, (int64_t)INT32_MIN);
                 SW(x3, gback, gdoffset + 4 * i);
             }
-            x87_restoreround(dyn, ninst, u8);
             break;
         case 0x5C:
             INST_NAME("SUBPD Gx, Ex");
