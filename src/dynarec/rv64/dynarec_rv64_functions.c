@@ -1141,8 +1141,10 @@ void updateUpperLiveness(dynarec_rv64_t* dyn)
     if (n <= 0)
         return;
 
-    simd_analyze_zeros(dyn);
-    simd_analyze_entries(dyn);
+    if (dyn->simd_used) {
+        simd_analyze_zeros(dyn);
+        simd_analyze_entries(dyn);
+    }
 
     size_t live_size = (size_t)n * sizeof(uint16_t);
     size_t pending_size = (size_t)n * sizeof(uint16_t);
