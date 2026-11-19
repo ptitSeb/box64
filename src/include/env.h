@@ -178,7 +178,7 @@ extern char* ftrace_name;
     INTEGER(BOX64_DYNACACHE, dynacache, 1, 0, 2, 0, 0)
 #endif
 
-#ifndef _WIN32
+#if !defined(_WIN32) || defined(BOX64EC)
 #define ENVSUPER5() \
     INTEGER(BOX64_DYNAREC_CALLRET, dynarec_callret, 2, 0, 3, 1, 2)
 #else

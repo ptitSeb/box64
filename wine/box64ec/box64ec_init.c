@@ -52,12 +52,14 @@ NTSTATUS WINAPI ProcessInit(void)
     }
 
 #ifdef DYNAREC
-    // no CALLRET stack on Box64EC yet, and x87pc is a scratch register in the EC map
-    if (BOX64ENV(dynarec_callret) || BOX64ENV(dynarec_x87double) == 2) {
-        printf_log(LOG_INFO, "BOX64_DYNAREC_CALLRET and BOX64_DYNAREC_X87DOUBLE=2 are not supported on Box64EC yet, turning them off\n");
-        SET_BOX64ENV(dynarec_callret, 0);
-        if (BOX64ENV(dynarec_x87double) == 2)
-            SET_BOX64ENV(dynarec_x87double, 1);
+    // x87pc is a scratch register in the EC map
+    if (BOX64ENV(dynarec_x87double) == 2) {
+        printf_log(LOG_INFO, "BOX64_DYNAREC_X87DOUBLE=2 is not supported on Box64EC yet, turning it off\n");
+        SET_BOX64ENV(dynarec_x87double, 1);
+    }
+    if (BOX64ENV(dynarec_callret) == 3) {
+        printf_log(LOG_INFO, "BOX64_DYNAREC_CALLRET=3 (in_used tracking) is not supported on Box64EC, using 2\n");
+        SET_BOX64ENV(dynarec_callret, 2);
     }
 #endif
 
