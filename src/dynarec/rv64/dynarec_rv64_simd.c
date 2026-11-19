@@ -686,6 +686,7 @@ void simd_prepare_entry(dynarec_rv64_t* dyn, int entry, int emit)
     int ninst = emit && entry ? entry - 1 : entry;
     if (entry < 0 || entry >= dyn->size || (dyn->insts[entry].x64.barrier & BARRIER_FLOAT)) return;
     instruction_rv64_t* inst = &dyn->insts[entry];
+    if (!inst->simd_entry) return;
     int s1 = x1;
     if (inst->nat_flags_live & (1u << s1)) s1 = x2;
     if (inst->nat_flags_live & (1u << s1)) s1 = x3;
@@ -693,20 +694,17 @@ void simd_prepare_entry(dynarec_rv64_t* dyn, int entry, int emit)
     if (!emit && inst->simd_kill)
         for (int a = 0; a < 16; ++a)
             simd_discard(dyn, a, (inst->simd_kill >> (a * 4)) & SIMD_YMM);
-    if (inst->pred_sz > 1) {
-        uint64_t keep = inst->simd_zero_in;
-        for (int a = 0; a < 16; ++a, keep >>= 4) {
-            simd_cache_t* c = &dyn->e.simd[a];
-            unsigned drop = c->zero & ~keep;
-            if (!drop) continue;
-            unsigned memory = drop & ~c->valid;
-            if (emit) simd_flush(dyn, ninst, s1, a, memory, 1);
-            simd_snapshot(dyn, a);
-            c->dirty &= ~memory;
-            c->zero &= ~drop;
-        }
+    uint64_t keep = inst->simd_zero_in;
+    for (int a = 0; a < 16; ++a, keep >>= 4) {
+        simd_cache_t* c = &dyn->e.simd[a];
+        unsigned drop = c->zero & ~keep;
+        if (!drop) continue;
+        unsigned memory = drop & ~c->valid;
+        if (emit) simd_flush(dyn, ninst, s1, a, memory, 1);
+        simd_snapshot(dyn, a);
+        c->dirty &= ~memory;
+        c->zero &= ~drop;
     }
-    if (!inst->simd_entry) return;
     uint64_t preload = inst->simd_live | inst->simd_carry;
     int fpu_scratch = dyn->e.fpu_scratch;
     uint16_t vector_scratch = dyn->e.vpu_scratch;
