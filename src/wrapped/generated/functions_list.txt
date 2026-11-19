@@ -7664,6 +7664,8 @@ wrappedvorbisfile:
 - lFppiiiippp:
   - ov_read_filter
 wrappedvulkan:
+- iFp:
+  - vkNegotiateLoaderLayerInterfaceVersion
 - vFpp:
   - vkDestroyDevice
   - vkDestroyInstance

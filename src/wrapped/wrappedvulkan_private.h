@@ -1184,4 +1184,4 @@ GO(vkGetPhysicalDeviceCooperativeMatrixProperties2EXT, iFpppp)
 
 // Layer stuffs
 GO(vk_icdNegotiateLoaderICDInterfaceVersion, iFp)
-//GO(vkNegotiateLoaderLayerInterfaceVersion, iFp)
+GOM(vkNegotiateLoaderLayerInterfaceVersion, iFEp)

@@ -12,6 +12,7 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef int32_t (*iFp_t)(void*);
 typedef void (*vFpp_t)(void*, void*);
 typedef void* (*pFpp_t)(void*, void*);
 typedef void (*vFpUp_t)(void*, uint64_t, void*);
@@ -25,6 +26,7 @@ typedef int32_t (*iFppuppp_t)(void*, void*, uint32_t, void*, void*, void*);
 typedef int32_t (*iFpppuppp_t)(void*, void*, void*, uint32_t, void*, void*, void*);
 
 #define SUPER() ADDED_FUNCTIONS() \
+	GO(vkNegotiateLoaderLayerInterfaceVersion, iFp_t) \
 	GO(vkDestroyDevice, vFpp_t) \
 	GO(vkDestroyInstance, vFpp_t) \
 	GO(vkGetPhysicalDeviceProperties2, vFpp_t) \
