@@ -551,27 +551,71 @@ static void* my_##A##_wrps[MAXN] = {my_##A##_0, my_##A##_1, my_##A##_2, my_##A##
 
 //vkGetInstanceProcAddr
 #define GO(B, A)   \
-static uintptr_t my_vkGetInstanceProcAddr_fct_##A = 0;                                                      \
-static void* my_vkGetInstanceProcAddr_##A(void* a, void* b)                                                 \
+static uintptr_t my_##B##_fct_##A = 0;                                                                      \
+static void* my_##B##_##A(void* a, void* b)                                                                 \
 {                                                                                                           \
     printf_dlsym(LOG_DEBUG, "my_vkGetInstanceProcAddr_%d(%p, %s) =>", A, a, b);                             \
-    uintptr_t addr = RunFunctionFmt(my_vkGetInstanceProcAddr_fct_##A, "pp", a, b);                          \
+    uintptr_t addr = RunFunctionFmt(my_##B##_fct_##A, "pp", a, b);                                          \
     printf_dlsym_prefix(0, LOG_DEBUG, " %p =>", (void*)addr);                                               \
     void* ret = wrapVulkanSymbol(&overlays[A], b, addr);                                                    \
     printf_dlsym_prefix(0, LOG_DEBUG, " %p\n", ret);                                                        \
     return ret;                                                                                             \
 }
 SUPER(vkGetInstanceProcAddr)
+SUPER(vkGetInstanceProcAddr_Layer)
 #undef GO
 //vkGetDeviceProcAddr
 #define GO(B, A)   \
-static uintptr_t my_vkGetDeviceProcAddr_fct_##A = 0;                                                        \
-static void* my_vkGetDeviceProcAddr_##A(void* a, void* b)                                                   \
+static uintptr_t my_##B##_fct_##A = 0;                                                                      \
+static void* my_##B##_##A(void* a, void* b)                                                                 \
 {                                                                                                           \
     printf_dlsym(LOG_DEBUG, "my_vkGetDeviceProcAddr_%d(%p, %s)\n", A, a, b);                                \
-    return wrapVulkanSymbol(&overlays[A], b, RunFunctionFmt(my_vkGetDeviceProcAddr_fct_##A, "pp", a, b));   \
+    return wrapVulkanSymbol(&overlays[A], b, RunFunctionFmt(my_##B##_fct_##A, "pp", a, b));                 \
 }
 SUPER(vkGetDeviceProcAddr)
+SUPER(vkGetDeviceProcAddr_Layer)
+#undef GO
+//vkGetPhysicalDeviceProcAddr
+// this one is virtual and used internaly by vkNegotiateLoaderLayerInterfaceVersion
+#define GO(B, A)   \
+static uintptr_t my_##B##_fct_##A = 0;                                                                      \
+static void* my_##B##_##A(void* a, void* b)                                                                 \
+{                                                                                                           \
+    printf_dlsym(LOG_DEBUG, "my_vkGetPhysicalDeviceProcAddr_%d(%p, %s) =>", A, a, b);                       \
+    uintptr_t addr = RunFunctionFmt(my_##B##_fct_##A, "pp", a, b);                                          \
+    printf_dlsym_prefix(0, LOG_DEBUG, " %p =>", (void*)addr);                                               \
+    void* ret = wrapVulkanSymbol(&overlays[A], b, addr);                                                    \
+    printf_dlsym_prefix(0, LOG_DEBUG, " %p\n", ret);                                                        \
+    return ret;                                                                                             \
+}
+SUPER(vkGetPhysicalDeviceProcAddr_Layer)
+#undef GO
+//vkNegotiateLoaderLayerInterfaceVersion
+#define GO(B, A)   \
+static uintptr_t my_vkNegotiateLoaderLayerInterfaceVersion_fct_##A = 0;                                     \
+static int my_vkNegotiateLoaderLayerInterfaceVersion_##A(void* a)                                           \
+{                                                                                                           \
+    printf_dlsym(LOG_DEBUG, "my_vkNegotiateLoaderLayerInterfaceVersion_%d(%p) =>", A, a);                   \
+    int ret = RunFunctionFmt(my_vkNegotiateLoaderLayerInterfaceVersion_fct_##A, "p", a);                    \
+    printf_dlsym_prefix(0, LOG_DEBUG, " %i\n", ret);                                                        \
+    if(!ret) {                                                                                              \
+        my_VkNegotiateLayerInterface_t* p = (my_VkNegotiateLayerInterface_t*)a;                             \
+        if(p->pfnGetInstanceProcAddr) {                                                                     \
+            my_vkGetInstanceProcAddr_Layer_fct_##A = (uintptr_t)p->pfnGetInstanceProcAddr;                  \
+            p->pfnGetInstanceProcAddr = my_vkGetInstanceProcAddr_Layer_##A;                                 \
+        }                                                                                                   \
+        if(p->pfnGetDeviceProcAddr) {                                                                       \
+            my_vkGetDeviceProcAddr_Layer_fct_##A = (uintptr_t)p->pfnGetDeviceProcAddr;                      \
+            p->pfnGetDeviceProcAddr = my_vkGetDeviceProcAddr_Layer_##A;                                     \
+        }                                                                                                   \
+        if(p->pfnGetPhysicalDeviceProcAddr) {                                                               \
+            my_vkGetPhysicalDeviceProcAddr_Layer_fct_##A = (uintptr_t)p->pfnGetPhysicalDeviceProcAddr;      \
+            p->pfnGetPhysicalDeviceProcAddr = my_vkGetPhysicalDeviceProcAddr_Layer_##A;                     \
+        }                                                                                                   \
+    }                                                                                                       \
+    return ret;                                                                                             \
+}
+SUPER(vkNegotiateLoaderLayerInterfaceVersion)
 #undef GO
 // All the CREATE
 #define GO(A, N)   \
@@ -1018,6 +1062,12 @@ void* GetSymbolVulkanOverlay(void* g, const char* sym)
             if(!x64) return NULL;
             *my_vkGetInstanceProcAddr_fcts[idx] = x64;
             return my_vkGetInstanceProcAddr_wrps[idx];
+        }
+        if(!strcmp(name, "vkNegotiateLoaderLayerInterfaceVersion")) {
+            uintptr_t x64 = (uintptr_t)my_dlsym(emu, v->handle, sym);
+            if(!x64) return NULL;
+            *my_vkNegotiateLoaderLayerInterfaceVersion_fcts[idx] = x64;
+            return my_vkNegotiateLoaderLayerInterfaceVersion_wrps[idx];
         }
         
     }

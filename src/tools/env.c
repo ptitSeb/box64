@@ -802,12 +802,13 @@ void RecordEnvMappings(uintptr_t addr, size_t length, int fd)
     if(!mapping_entries) mapping_entries = kh_init(mapping_entry);
 
     char* filename = NULL;
-    static char fullname[4096];
+    char fullname[4096];
     if (fd > 0) {
-        static char buf[128];
+        char buf[128];
         sprintf(buf, "/proc/self/fd/%d", fd);
         ssize_t r = readlink(buf, fullname, sizeof(fullname) - 1);
-        if (r != -1) fullname[r] = 0;
+        if (r == -1) return;
+        fullname[r] = 0;
 
         filename = strrchr(fullname, '/');
     }

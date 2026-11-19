@@ -38,6 +38,8 @@ rv64_prolog:
     fsd     fs9,  (20*8)(sp)
     fsd     fs10, (21*8)(sp)
     fsd     fs11, (22*8)(sp)
+    frrm    t3
+    sd      t3, (23*8)(sp)
 
     // save a1
     mv      t6,  a1
@@ -64,6 +66,7 @@ rv64_prolog:
     ld      R15,   120(Emu)
     ld      Flags, 128(Emu)
     ld      RIP,   136(Emu)
+    rv64_sync_rounding t3, t4
 
     // adjust flags bit 11 -> bit 5
     andi    Flags, Flags, ~(1<<5)   // probably not usefull?

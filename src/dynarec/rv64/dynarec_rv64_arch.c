@@ -54,6 +54,8 @@ typedef struct arch_sse_s
     uint16_t vector;    // 1bit for each sse reg cached in a vector register
     uint8_t reg[16];    // register of each present sse reg
     uint8_t single[16]; // 1 if the sse value is single precision
+    uint8_t valid[16];
+    uint8_t zero[16];
 } arch_sse_t;
 
 typedef struct arch_ymm_s
@@ -129,15 +131,10 @@ static int arch_build(dynarec_rv64_t* dyn, int ninst, arch_build_t* arch)
             }
             case EXT_CACHE_SS:
             case EXT_CACHE_SD:
-            case EXT_CACHE_XMMR:
-            case EXT_CACHE_XMMW:
-            case EXT_CACHE_YMMR:
-            case EXT_CACHE_YMMW: {
+            case EXT_CACHE_SIMD: {
                 int xmm = e->extcache[i].n & 15;
                 arch->sse_.sse |= (uint16_t)(1 << xmm);
-                if (e->extcache[i].t == EXT_CACHE_XMMR || e->extcache[i].t == EXT_CACHE_XMMW
-                    || e->extcache[i].t == EXT_CACHE_YMMR || e->extcache[i].t == EXT_CACHE_YMMW)
-                    arch->sse_.vector |= (uint16_t)(1 << xmm);
+                if (e->extcache[i].t == EXT_CACHE_SIMD) arch->sse_.vector |= (uint16_t)(1 << xmm);
                 arch->sse_.reg[xmm] = (uint8_t)reg;
                 arch->sse_.single[xmm] = (e->extcache[i].t == EXT_CACHE_SS) ? 1 : 0;
                 break;
@@ -149,15 +146,16 @@ static int arch_build(dynarec_rv64_t* dyn, int ninst, arch_build_t* arch)
     // pending x87 stack count
     if (e->x87stack)
         arch->x87_.delta = e->x87stack;
-    for (int i = 0; i < 32; ++i) {
-        if (e->extcache[i].t != EXT_CACHE_XMMR && e->extcache[i].t != EXT_CACHE_XMMW
-            && e->extcache[i].t != EXT_CACHE_YMMR && e->extcache[i].t != EXT_CACHE_YMMW)
-            continue;
-        int xmm = e->extcache[i].n & 15;
-        if (e->ssecache[xmm].ymm)
-            arch->ymm_.ymm |= (uint16_t)(1 << xmm);
+    for (int a = 0; a < 16; ++a) {
+        if (e->simd[a].valid & SIMD_HI128) arch->ymm_.ymm |= 1u << a;
+        if (e->simd[a].zero & SIMD_HI128) arch->ymm_.ymm0 |= 1u << a;
+        arch->sse_.valid[a] = e->simd[a].valid & SIMD_XMM;
+        arch->sse_.zero[a] = e->simd[a].zero & SIMD_XMM;
+        if (arch->sse_.zero[a]) {
+            arch->sse_.sse |= 1u << a;
+            arch->sse_.vector |= 1u << a;
+        }
     }
-    arch->ymm_.ymm0 = e->ymm0;
     if (arch->ymm_.ymm || arch->ymm_.ymm0)
         arch->ymm = 1;
     if (arch->x87_.x87 || arch->x87_.delta)
@@ -167,6 +165,12 @@ static int arch_build(dynarec_rv64_t* dyn, int ninst, arch_build_t* arch)
     if (arch->sse_.sse)
         arch->sse = 1;
     return arch->flags + arch->x87 + arch->mmx + arch->sse + arch->ymm + arch->unaligned + (arch->up32 != 0) + (arch->rsp != 0);
+}
+
+static int arch_same_state(const instruction_rv64_t* a, const instruction_rv64_t* b)
+{
+    return a->f_entry == b->f_entry && a->unaligned == b->unaligned && a->rsp_entry == b->rsp_entry && a->up32_pending == b->up32_pending && a->e.x87stack == b->e.x87stack
+        && !memcmp(a->e.extcache, b->e.extcache, sizeof(a->e.extcache)) && !memcmp(a->e.simd, b->e.simd, sizeof(a->e.simd));
 }
 
 size_t get_size_arch(dynarec_rv64_t* dyn)
@@ -179,6 +183,10 @@ size_t get_size_arch(dynarec_rv64_t* dyn)
     int last = 0;
     if(!dyn->size) return 0;
     for(int i=0; i<dyn->size; ++i) {
+        if (i && seq < 1023 && arch_same_state(&dyn->insts[i], &dyn->insts[i - 1])) {
+            ++seq;
+            continue;
+        }
         last = arch_build(dyn, i, &build);
         if((!memcmp(&build, &previous, sizeof(arch_build_t))) && (seq<((1<<10)-1)) && i) {
             // same sequence, increment
@@ -306,6 +314,10 @@ void* populate_arch(dynarec_rv64_t* dyn, void* p, size_t sz)
     arch_arch_t* next = p;
     int seq = 0;
     for(int i=0; i<dyn->size; ++i) {
+        if (i && seq < 1023 && arch_same_state(&dyn->insts[i], &dyn->insts[i - 1])) {
+            arch->seq = ++seq;
+            continue;
+        }
         arch_build(dyn, i, &build);
         if((!memcmp(&build, &previous, sizeof(arch_build_t))) && (seq<((1<<10)-1)) && i) {
             // same sequence, increment
@@ -384,8 +396,15 @@ void adjust_arch(dynablock_t* db, x64emu_t* emu, ucontext_t* p, uintptr_t x64pc)
                     continue;
                 if ((sse->vector >> i) & 1) {
                     uint8_t vbuf[32];
-                    if (read_vector_reg(vframe, vlenb, sse->reg[i], vbuf, 16))
-                        memcpy(&emu->xmm[i], vbuf, 16);
+                    unsigned valid = sse->valid[i] & ~sse->zero[i];
+                    if (valid && read_vector_reg(vframe, vlenb, sse->reg[i], vbuf, 16)) {
+                        if (valid & SIMD_LO32) memcpy((uint8_t*)&emu->xmm[i], vbuf, 4);
+                        if (valid & SIMD_HI32) memcpy((uint8_t*)&emu->xmm[i] + 4, vbuf + 4, 4);
+                        if (valid & SIMD_HI64) memcpy((uint8_t*)&emu->xmm[i] + 8, vbuf + 8, 8);
+                    }
+                    if (sse->zero[i] & SIMD_LO32) emu->xmm[i].ud[0] = 0;
+                    if (sse->zero[i] & SIMD_HI32) emu->xmm[i].ud[1] = 0;
+                    if (sse->zero[i] & SIMD_HI64) emu->xmm[i].q[1] = 0;
                 } else if (sse->single[i]) {
                     uint64_t raw = p->uc_mcontext.__fpregs.__d.__f[sse->reg[i] & 31];
                     *(uint32_t*)&emu->xmm[i] = (uint32_t)raw;

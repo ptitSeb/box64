@@ -888,3 +888,24 @@ DESTROY(vkDestroyShaderInstrumentationARM)
 
 CREATE(vkCreateExternalComputeQueueNV)
 DESTROY(vkDestroyExternalComputeQueueNV)
+
+typedef struct my_VkNegotiateLayerInterface_s {
+    int sType;
+    void *pNext;
+    uint32_t loaderLayerInterfaceVersion;
+    void* pfnGetInstanceProcAddr;   //PFN_vkGetInstanceProcAddr
+    void* pfnGetDeviceProcAddr; //PFN_vkGetDeviceProcAddr
+    void* pfnGetPhysicalDeviceProcAddr; //PFN_GetPhysicalDeviceProcAddr
+} my_VkNegotiateLayerInterface_t;
+
+EXPORT int my_vkNegotiateLoaderLayerInterfaceVersion(x64emu_t* emu, my_VkNegotiateLayerInterface_t *p)
+{
+    int ret = my->vkNegotiateLoaderLayerInterfaceVersion(p);
+    // the layer fill the structure pointers
+    if(!ret) {
+        // wrap the functions pointers
+        if(p->pfnGetDeviceProcAddr) p->pfnGetDeviceProcAddr = (void*)AddCheckBridge2(my_lib->w.bridge, pFEpp, my_vkGetDeviceProcAddr, p->pfnGetDeviceProcAddr, 0, "vkGetDeviceProcAddr");
+        if(p->pfnGetInstanceProcAddr) p->pfnGetInstanceProcAddr = (void*)AddCheckBridge2(my_lib->w.bridge, pFEpp, my_vkGetInstanceProcAddr, p->pfnGetInstanceProcAddr, 0, "vkGetInstanceProcAddr");
+        if(p->pfnGetPhysicalDeviceProcAddr) p->pfnGetPhysicalDeviceProcAddr = (void*)AddCheckBridge2(my_lib->w.bridge, pFEpp, my_vkGetInstanceProcAddr, p->pfnGetPhysicalDeviceProcAddr, 0, "vkGetPhysicalDeviceProcAddr");
+    }
+}

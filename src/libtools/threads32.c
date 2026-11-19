@@ -1073,6 +1073,11 @@ EXPORT int my32_pthread_mutex_timedlock(pthread_mutex_t *m, const struct timespe
     return pthread_mutex_timedlock(getAlignedMutex(m), t);
 }
 
+EXPORT int my32_pthread_mutex_clocklock(pthread_mutex_t *m, int clockid, const struct timespec * t)
+{
+    return pthread_mutex_clocklock(getAlignedMutex(m), clockid, t);
+}
+
 EXPORT int my32_pthread_mutex_trylock(pthread_mutex_t *m)
 {
     return pthread_mutex_trylock(getAlignedMutex(m));
