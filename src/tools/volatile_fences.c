@@ -127,9 +127,10 @@ void VolatileFenceAddMetadataPoint(uintptr_t ip)
     points_add(&metadata_points, ip);
 }
 
-int VolatileFenceGetLevel(uintptr_t ip, int default_level)
+int VolatileFenceGetLevel(uintptr_t ip, int default_level, int* needs_fence)
 {
     int level = range_tree_level(&metadata_ranges, ip);
+    *needs_fence = level >= 0 && points_contains(points_get(&metadata_points), ip);
     if (level >= 0)
         return level;
 
@@ -143,11 +144,6 @@ int VolatileFenceGetLevel(uintptr_t ip, int default_level)
     }
 
     return default_level;
-}
-
-int VolatileFenceNeedsFence(uintptr_t ip)
-{
-    return range_tree_level(&metadata_ranges, ip) >= 0 && points_contains(points_get(&metadata_points), ip);
 }
 
 int VolatileFenceNeedsUnityFence(uintptr_t ip, int64_t disp)
