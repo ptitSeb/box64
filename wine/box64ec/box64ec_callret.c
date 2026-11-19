@@ -12,6 +12,7 @@
 
 _Static_assert(offsetof(x64emu_t, callret_sp) == BOX64EC_EMU_CALLRET_SP_OFFSET, "callret_sp");
 _Static_assert(offsetof(x64emu_t, callret_sp_top) == BOX64EC_EMU_CALLRET_SP_TOP_OFFSET, "callret_sp_top");
+_Static_assert(offsetof(x64emu_t, jit_frame) == BOX64EC_EMU_JIT_FRAME_OFFSET, "jit_frame");
 
 #define BOX64EC_CALLRET_STACK_SIZE (2u * 1024u * 1024u)
 /* The allocation granularity: on 16K or 64K host pages a 4K guard would share a host page with the stack */
@@ -84,9 +85,10 @@ void Box64EC_FreeCallretStack(x64emu_t* emu)
     emu->callret_size = 0;
 }
 
-// Drop every activation: only the zero sentinel pair of the first one is left
+// Drop every activation but the first zero sentinel
 void Box64EC_ResetCallretStack(x64emu_t* emu)
 {
+    emu->jit_frame = 0;
     if (!emu->callret_stack)
         return;
     emu->callret_sp_top = emu->callret_stack + emu->callret_size - 16;

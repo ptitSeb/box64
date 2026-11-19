@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: MIT
 
+#include "box64ec_layout.h"
+
 /* ARM64EC dispatch bridges for box64ec.dll
  * Implements documented __os_arm64x_* helpers exported as ExitToX64 / DispatchJump /
  * RetToEntryThunk / BeginSimulation
@@ -162,9 +164,18 @@ enter_jit:
     ldr     x1,  [x17, #0x8]             /* EmulatorStackBase */
     cbz     x1,  .Lenter_jit_fail
     mov     x4,  x1                      /* keep stack base for range check */
-
-     /* Experimental: keep this activation below a live Wine callback frame. */
     ldr     x3,  [x17, #0x10]            /* EmulatorStackLimit */
+
+    /* a callback during a fast native call: start below the live JIT frame */
+    ldr     x2,  [x17, #0x30]            /* EmulatorData[EC_DATA_EMU] */
+    cbz     x2,  .Lenter_jit_physical_stack
+    ldr     x2,  [x2, #BOX64EC_EMU_JIT_FRAME_OFFSET]
+    cmp     x2,  x3
+    b.ls    .Lenter_jit_physical_stack   /* none, or not on the emulator stack */
+    cmp     x2,  x1
+    csel    x1,  x2, x1, lo
+.Lenter_jit_physical_stack:
+     /* Experimental: keep this activation below a live Wine callback frame. */
     cmp     x11, x3
     b.lo    .Lenter_jit_stack_base       /* physical SP is not EmulatorStack */
     cmp     x11, x4

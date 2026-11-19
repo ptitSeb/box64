@@ -34,6 +34,8 @@ arm64_epilog:
     str     x4, [x0, #BOX64EC_EMU_CALLRET_SP_OFFSET]
     ldr     x3, [x29, #8]
     str     x3, [x0, #BOX64EC_EMU_CALLRET_SP_TOP_OFFSET]
+    ldr     x2, [x29]
+    str     x2, [x0, #BOX64EC_EMU_JIT_FRAME_OFFSET]
 arm64_epilog_scope:
     mov     sp, x29
     ldp     x19, x20, [sp, #16]

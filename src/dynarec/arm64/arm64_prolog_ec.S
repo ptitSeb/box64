@@ -12,7 +12,7 @@
 .seh_proc arm64_prolog
 arm64_prolog:
     /* The JIT chunks register unwind codes for this same 160-byte frame, keep
-     * both in sync. [sp] is not used, [sp, #8] keeps the parent's CALLRET sentinel. */
+     * both in sync. [sp] keeps the parent's JIT frame, [sp, #8] its CALLRET sentinel. */
     sub     sp, sp, #160
     .seh_stackalloc 160
     stp     x29, x30, [sp, #144]
@@ -69,6 +69,11 @@ arm64_prolog:
     str     x4, [x0, #BOX64EC_EMU_CALLRET_SP_TOP_OFFSET]
     str     x3, [sp, #8]
     mov     x28, x4
+
+    /* Nested activations start below the innermost live frame */
+    ldr     x2, [x0, #BOX64EC_EMU_JIT_FRAME_OFFSET]
+    str     x2, [sp]
+    str     x29, [x0, #BOX64EC_EMU_JIT_FRAME_OFFSET]
 
     br      x1
 .seh_endproc

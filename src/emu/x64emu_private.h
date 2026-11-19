@@ -138,6 +138,7 @@ typedef struct x64emu_s {
     uintptr_t   callret_sp;
     uintptr_t   callret_sp_top;     // current activation's zero sentinel pair
     size_t      callret_size;
+    uintptr_t   jit_frame;          // frame base of the innermost live JIT activation, 0 if none
     #endif
     // local selector handling
     base_segment_t  segldt[16];
