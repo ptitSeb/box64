@@ -114,7 +114,9 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
     dyn->forward_to = 0;
     dyn->forward_size = 0;
     dyn->forward_ninst = 0;
+    #if !defined(RV64)
     dyn->ymm_zero = 0;
+    #endif
     dyn->is_file_mapped = IsAddrElfOrFileMapped(addr);
     #if STEP == 0
     memset(&dyn->insts[ninst], 0, sizeof(instruction_native_t));
@@ -168,9 +170,15 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
                 doEnterBlock(dyn, 0, x1, x2, x3);
             if(dyn->always_test)
                 checkCRC(dyn, 0);
+            #if defined(RV64)
+            #if STEP > 0
+            simd_prepare_entry(dyn, 0, 1);
+            #endif
+            #else
             if(dyn->insts[0].preload_xmmymm) {
                 doPreload(dyn, 0);
             }
+            #endif
             ENDPREFIX;
         }
         #endif
@@ -201,6 +209,9 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
             dyn->last_ip = 0;   // reset IP if some jump are coming here
         #endif
         MESSAGE(LOG_DUMP, "New Instruction %s:%p, native:%p\n", is32bits?"x86":"x64",(void*)addr, (void*)dyn->block);
+        #if defined(RV64) && STEP > 0
+        simd_prepare_entry(dyn, ninst, 0);
+        #endif
         NEW_INST;
         #if defined(BOX64EC) && STEP > 1
         // linked blocks and backward jumps can loop without leaving the JIT: check the suspend doorbell at
@@ -327,6 +338,12 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
             addr = dynarec64_00(dyn, addr, ip, ninst, rex, &ok, &need_epilog);
         if(dyn->abort)
             return ip;
+        #if defined(RV64) && STEP == 2
+        dyn->insts[ninst].epilog = dyn->native_size;
+        #endif
+        #if defined(RV64) && STEP > 0
+        if (ok > 0) simd_prepare_entry(dyn, ninst + 1, 1);
+        #endif
         INST_EPILOG;
 
         #if STEP > 1
@@ -362,12 +379,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
                 dyn->last_ip = 0;
             }
         }
-        #if defined(RV64)
-        if(dyn->insts[ninst].x64.has_next && dyn->insts[next].promote_ymm && !(dyn->insts[next].x64.barrier & BARRIER_FLOAT)) {
-            avx_promote_upper(dyn, ninst, x1, dyn->insts[next].promote_ymm);
-        }
-        #endif
-        #if defined(ARM64) || defined(LA64) || defined(RV64)
+        #if defined(ARM64) || defined(LA64)
         if(dyn->insts[ninst].x64.has_next && dyn->insts[ninst+1].preload_xmmymm) {
             doPreload(dyn, ninst+1);
         }

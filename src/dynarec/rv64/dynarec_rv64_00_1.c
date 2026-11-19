@@ -450,38 +450,36 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             *ok = 0;
             break;
 
-#define GO(GETFLAGS, NO, YES, NATNO, NATYES, F)                                             \
-    READFLAGS_FUSION(F, x1, x2, x3, x4, x5);                                                \
-    i8 = F8S;                                                                               \
-    JUMP(addr + i8, 1);                                                                     \
-    if (!dyn->insts[ninst].nat_flags_fusion) {                                              \
-        GETFLAGS;                                                                           \
-    }                                                                                       \
-    if (dyn->insts[ninst].x64.jmp_insts == -1 || CHECK_CACHE()) {                           \
-        /* out of the block */                                                              \
-        i32 = dyn->insts[ninst].epilog - (dyn->native_size);                                \
-        if (dyn->insts[ninst].nat_flags_fusion) {                                           \
-            NATIVEJUMP_safe(NATNO, i32);                                                    \
-        } else {                                                                            \
-            B##NO##_safe(tmp1, i32);                                                        \
-        }                                                                                   \
-        if (dyn->insts[ninst].x64.jmp_insts == -1) {                                        \
-            if (!(dyn->insts[ninst].x64.barrier & BARRIER_FLOAT))                           \
-                fpu_purgecache(dyn, ninst, 1, tmp1, tmp2, tmp3);                            \
-            jump_to_next(dyn, addr + i8, 0, ninst, rex.is32bits);                           \
-        } else {                                                                            \
-            CacheTransform(dyn, ninst, cacheupd, tmp1, tmp2, tmp3);                         \
-            i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address - (dyn->native_size); \
-            B(i32);                                                                         \
-        }                                                                                   \
-    } else {                                                                                \
-        /* inside the block */                                                              \
-        i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address - (dyn->native_size);     \
-        if (dyn->insts[ninst].nat_flags_fusion) {                                           \
-            NATIVEJUMP_safe(NATYES, i32);                                                   \
-        } else {                                                                            \
-            B##YES##_safe(tmp1, i32);                                                       \
-        }                                                                                   \
+#define GO(GETFLAGS, NO, YES, NATNO, NATYES, F)                                                                \
+    READFLAGS_FUSION(F, x1, x2, x3, x4, x5);                                                                   \
+    i8 = F8S;                                                                                                  \
+    JUMP(addr + i8, 1);                                                                                        \
+    if (!dyn->insts[ninst].nat_flags_fusion) { GETFLAGS; }                                                     \
+    rvv_prepare_branch(dyn, ninst, tmp1);                                                                      \
+    if (dyn->insts[ninst].x64.jmp_insts == -1 || CHECK_CACHE()) {                                              \
+        /* out of the block */                                                                                 \
+        i32 = dyn->insts[ninst].epilog - (dyn->native_size);                                                   \
+        if (dyn->insts[ninst].nat_flags_fusion) {                                                              \
+            NATIVEJUMP_safe(NATNO, i32);                                                                       \
+        } else {                                                                                               \
+            B##NO##_safe(tmp1, i32);                                                                           \
+        }                                                                                                      \
+        if (dyn->insts[ninst].x64.jmp_insts == -1) {                                                           \
+            if (!(dyn->insts[ninst].x64.barrier & BARRIER_FLOAT)) fpu_exitcache(dyn, ninst, tmp1, tmp2, tmp3); \
+            jump_to_next(dyn, addr + i8, 0, ninst, rex.is32bits);                                              \
+        } else {                                                                                               \
+            simd_cache_transform(dyn, ninst, cacheupd, tmp1, tmp2, tmp3);                                      \
+            i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address - (dyn->native_size);                    \
+            B(i32);                                                                                            \
+        }                                                                                                      \
+    } else {                                                                                                   \
+        /* inside the block */                                                                                 \
+        i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address - (dyn->native_size);                        \
+        if (dyn->insts[ninst].nat_flags_fusion) {                                                              \
+            NATIVEJUMP_safe(NATYES, i32);                                                                      \
+        } else {                                                                                               \
+            B##YES##_safe(tmp1, i32);                                                                          \
+        }                                                                                                      \
     }
             GOCOND(0x70, "J", "ib");
 #undef GO

@@ -566,7 +566,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     MESSAGE(LOG_DUMP, "Native Call to %s\n", GetNativeName(GetNativeFnc(ip), 1));
                     x87_stackcount(dyn, ninst, x1);
                     x87_forget(dyn, ninst, x3, x4, 0);
-                    sse_purge07cache(dyn, ninst, x3);
+                    simd_purge_low(dyn, ninst, x3);
                     // Partially support isSimpleWrapper
                     tmp = isSimpleWrapper(*(wrapper_t*)(addr));
                     if (isRetX87Wrapper(*(wrapper_t*)(addr)))
@@ -1149,74 +1149,47 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0xDF:
             addr = dynarec64_DF(dyn, addr, ip, ninst, rex, ok, need_epilog);
             break;
-#define GO(Z, R)                                                                            \
-    JUMP(addr + i8, 1);                                                                     \
-    if (dyn->insts[ninst].x64.jmp_insts == -1 || CHECK_CACHE()) {                           \
-        /* out of the block */                                                              \
-        i32 = dyn->insts[ninst].epilog - (dyn->native_size);                                \
-        if (Z) {                                                                            \
-            BNE(R, xZR, i32);                                                               \
-        } else {                                                                            \
-            BEQ(R, xZR, i32);                                                               \
-        };                                                                                  \
-        if (dyn->insts[ninst].x64.jmp_insts == -1) {                                        \
-            if (!(dyn->insts[ninst].x64.barrier & BARRIER_FLOAT))                           \
-                fpu_purgecache(dyn, ninst, 1, x1, x2, x3);                                  \
-            jump_to_next(dyn, addr + i8, 0, ninst, rex.is32bits);                           \
-        } else {                                                                            \
-            CacheTransform(dyn, ninst, cacheupd, x1, x2, x3);                               \
-            i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address - (dyn->native_size); \
-            B(i32);                                                                         \
-        }                                                                                   \
-    } else {                                                                                \
-        /* inside the block */                                                              \
-        i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address - (dyn->native_size);     \
-        if (Z) {                                                                            \
-            BEQ(R, xZR, i32);                                                               \
-        } else {                                                                            \
-            BNE(R, xZR, i32);                                                               \
-        };                                                                                  \
+#define GO(Z, R)                                                                                         \
+    JUMP(addr + i8, 1);                                                                                  \
+    rvv_prepare_branch(dyn, ninst, R);                                                                   \
+    if (opcode == 0xE0 || opcode == 0xE1) {                                                              \
+        ANDI(x1, xFlags, 1 << F_ZF);                                                                     \
+        if (opcode == 0xE0) {                                                                            \
+            CBNZ_NEXT(x1);                                                                               \
+        } else {                                                                                         \
+            CBZ_NEXT(x1);                                                                                \
+        }                                                                                                \
+    }                                                                                                    \
+    if (dyn->insts[ninst].x64.jmp_insts == -1 || CHECK_CACHE()) {                                        \
+        /* out of the block */                                                                           \
+        i32 = dyn->insts[ninst].epilog - (dyn->native_size);                                             \
+        if (Z) {                                                                                         \
+            BNE(R, xZR, i32);                                                                            \
+        } else {                                                                                         \
+            BEQ(R, xZR, i32);                                                                            \
+        };                                                                                               \
+        if (dyn->insts[ninst].x64.jmp_insts == -1) {                                                     \
+            if (!(dyn->insts[ninst].x64.barrier & BARRIER_FLOAT)) fpu_exitcache(dyn, ninst, x1, x2, x3); \
+            jump_to_next(dyn, addr + i8, 0, ninst, rex.is32bits);                                        \
+        } else {                                                                                         \
+            simd_cache_transform(dyn, ninst, cacheupd, x1, x2, x3);                                      \
+            i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address - (dyn->native_size);              \
+            B(i32);                                                                                      \
+        }                                                                                                \
+    } else {                                                                                             \
+        /* inside the block */                                                                           \
+        i32 = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address - (dyn->native_size);                  \
+        if (Z) {                                                                                         \
+            BEQ(R, xZR, i32);                                                                            \
+        } else {                                                                                         \
+            BNE(R, xZR, i32);                                                                            \
+        };                                                                                               \
     }
         case 0xE0:
-            INST_NAME("LOOPNZ");
-            READFLAGS(X_ZF);
-            i8 = F8S;
-            if (rex.is32bits && rex.is67) {
-                ZEXTH(x3, xRCX);
-                ADDIW(x3, x3, -1);
-                INSH(xRCX, x3, x5, x6, 1, 0);
-                ANDI(x1, xFlags, 1 << F_ZF);
-                CBNZ_NEXT(x1);
-                GO(0, x3);
-            } else {
-                UP32_READ(xRCX);
-                ADDIy(xRCX, xRCX, -1);
-                ANDI(x1, xFlags, 1 << F_ZF);
-                CBNZ_NEXT(x1);
-                GO(0, xRCX);
-            }
-            break;
         case 0xE1:
-            INST_NAME("LOOPZ");
-            READFLAGS(X_ZF);
-            i8 = F8S;
-            if (rex.is32bits && rex.is67) {
-                ZEXTH(x3, xRCX);
-                ADDIW(x3, x3, -1);
-                INSH(xRCX, x3, x5, x6, 1, 0);
-                ANDI(x1, xFlags, 1 << F_ZF);
-                CBZ_NEXT(x1);
-                GO(0, x3);
-            } else {
-                UP32_READ(xRCX);
-                ADDIy(xRCX, xRCX, -1);
-                ANDI(x1, xFlags, 1 << F_ZF);
-                CBZ_NEXT(x1);
-                GO(0, xRCX);
-            }
-            break;
         case 0xE2:
-            INST_NAME("LOOP");
+            INST_NAME(opcode == 0xE0 ? "LOOPNZ" : opcode == 0xE1 ? "LOOPZ" : "LOOP");
+            if (opcode != 0xE2) { READFLAGS(X_ZF); }
             i8 = F8S;
             if (rex.is32bits && rex.is67) {
                 ZEXTH(x3, xRCX);
@@ -1281,7 +1254,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     PUSH1(x2);
                     MESSAGE(LOG_DUMP, "Native Call to %s (retn=%d)\n", GetNativeName(GetNativeFnc(dyn->insts[ninst].natcall - 1), 1), dyn->insts[ninst].retn);
                     // calling a native function
-                    sse_purge07cache(dyn, ninst, x3);
+                    simd_purge_low(dyn, ninst, x3);
                     if ((BOX64ENV(log) < 2 && !BOX64ENV(rolling_log)) && dyn->insts[ninst].natcall) {
                         // Partially support isSimpleWrapper
                         tmp = isSimpleWrapper(*(wrapper_t*)(dyn->insts[ninst].natcall + 2));
@@ -1370,8 +1343,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     jump_to_next(dyn, j64, 0, ninst, rex.is32bits);
                     CALLRET_RET(can_continue);
                     MARK;
-                    if (BOX64DRENV(dynarec_callret) && can_continue && dyn->vector_sew != VECTOR_SEWNA)
-                        vector_vsetvli(dyn, ninst, x3, dyn->vector_sew, VECTOR_LMUL1, 1);
+                    dyn->rvv.bits = 0;
                     if (BOX64DRENV(dynarec_callret) && !can_continue) {
                         // jumps out of current dynablock...
                         j64 = getJumpTableAddress64(addr);
@@ -1412,7 +1384,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 jump_to_next(dyn, (uintptr_t)getAlternate((void*)j64), 0, ninst, rex.is32bits);
             } else {
                 // inside the block
-                CacheTransform(dyn, ninst, CHECK_CACHE(), x1, x2, x3);
+                simd_cache_transform(dyn, ninst, CHECK_CACHE(), x1, x2, x3);
                 tmp = dyn->insts[dyn->insts[ninst].x64.jmp_insts].address - (dyn->native_size);
                 MESSAGE(1, "Jump to %d / 0x%x\n", tmp, tmp);
                 if (tmp == 4) {
@@ -2002,8 +1974,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     int can_continue = (addr < (dyn->start + dyn->isize));
                     CALLRET_RET(can_continue);
                     MARK;
-                    if (BOX64DRENV(dynarec_callret) && can_continue && dyn->vector_sew != VECTOR_SEWNA)
-                        vector_vsetvli(dyn, ninst, x3, dyn->vector_sew, VECTOR_LMUL1, 1);
+                    dyn->rvv.bits = 0;
                     if (BOX64DRENV(dynarec_callret) && !can_continue) {
                         // jumps out of current dynablock...
                         j64 = getJumpTableAddress64(addr);
@@ -2074,8 +2045,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         int can_continue = (addr < (dyn->start + dyn->isize));
                         CALLRET_RET(can_continue);
                         MARK;
-                        if (BOX64DRENV(dynarec_callret) && can_continue && dyn->vector_sew != VECTOR_SEWNA)
-                            vector_vsetvli(dyn, ninst, x3, dyn->vector_sew, VECTOR_LMUL1, 1);
+                        dyn->rvv.bits = 0;
                         if (BOX64DRENV(dynarec_callret) && !can_continue) {
                             // jumps out of current dynablock...
                             j64 = getJumpTableAddress64(addr);

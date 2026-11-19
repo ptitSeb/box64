@@ -66,31 +66,26 @@
     } else                                         \
         dyn->insts[ninst].barrier_maybe = 1
 #define SET_HASCALLRET() dyn->insts[ninst].x64.has_callret = 1
-#define NEW_INST                                                                                      \
-    ++dyn->size;                                                                                      \
-    memset(&dyn->insts[ninst], 0, sizeof(instruction_native_t));                                      \
-    dyn->insts[ninst].x64.addr = ip;                                                                  \
-    dyn->e.combined1 = dyn->e.combined2 = 0;                                                          \
-    dyn->e.swapped = 0;                                                                               \
-    dyn->e.barrier = 0;                                                                               \
-    for (int i = 0; i < 24; ++i)                                                                      \
-        dyn->e.olds[i].v = 0;                                                                         \
-    dyn->insts[ninst].f_entry = dyn->f;                                                               \
-    dyn->insts[ninst].vector_sew_entry = dyn->vector_sew;                                             \
-    dyn->inst_sew = dyn->vector_sew;                                                                  \
-    dyn->inst_vlmul = VECTOR_LMUL1;                                                                   \
-    dyn->inst_vl = 0;                                                                                 \
-    dyn->insts[ninst].x64.strongmem = VolatileFenceGetLevel(ip, BOX64DRENV(dynarec_strongmem));           \
-    if (ninst)                                                                                        \
-        dyn->insts[ninst - 1].x64.size = dyn->insts[ninst].x64.addr - dyn->insts[ninst - 1].x64.addr; \
+#define NEW_INST                                                                                             \
+    ++dyn->size;                                                                                             \
+    memset(&dyn->insts[ninst], 0, sizeof(instruction_native_t));                                             \
+    dyn->insts[ninst].x64.addr = ip;                                                                         \
+    dyn->e.simd_saved = 0;                                                                                   \
+    dyn->e.combined1 = dyn->e.combined2 = 0;                                                                 \
+    dyn->e.swapped = 0;                                                                                      \
+    dyn->e.barrier = 0;                                                                                      \
+    for (int i = 0; i < 24; ++i)                                                                             \
+        dyn->e.olds[i].v = 0;                                                                                \
+    dyn->insts[ninst].f_entry = dyn->f;                                                                      \
+    dyn->insts[ninst].rvv_entry = dyn->rvv;                                                                  \
+    dyn->insts[ninst].x64.strongmem = VolatileFenceGetLevel(ip, BOX64DRENV(dynarec_strongmem));              \
+    if (ninst) dyn->insts[ninst - 1].x64.size = dyn->insts[ninst].x64.addr - dyn->insts[ninst - 1].x64.addr; \
     AREFLAGSNEEDED()
 
-#define INST_EPILOG                                                    \
-    dyn->insts[ninst].f_exit = dyn->f;                                 \
-    dyn->vtype_restore = VECTOR_SEWNA;                                 \
-    if (dyn->insts[ninst].vec_used) sse_sync_all_cache_types(&dyn->e); \
-    dyn->insts[ninst].e = dyn->e;                                      \
-    dyn->insts[ninst].vector_sew_exit = dyn->vector_sew;               \
+#define INST_EPILOG                        \
+    dyn->insts[ninst].f_exit = dyn->f;     \
+    dyn->insts[ninst].e = dyn->e;          \
+    dyn->insts[ninst].rvv_exit = dyn->rvv; \
     dyn->insts[ninst].x64.has_next = (ok > 0) ? 1 : 0;
 #define INST_NAME(name)
 #define DEFAULT                                                                                                               \
@@ -101,14 +96,6 @@
         if (!dyn->size || BOX64ENV(dynarec_log) > LOG_INFO || dyn->need_dump) {                                               \
             dynarec_stopped(dyn->insts[ninst].x64.addr, rex.is32bits);                                                        \
         }
-
-#define SET_ELEMENT_WIDTH(s1, sew, set)                    \
-    do {                                                   \
-        if ((sew) != VECTOR_SEWANY && (set))               \
-            dyn->vector_sew = (sew);                       \
-        else if (dyn->vector_sew == VECTOR_SEWNA && (set)) \
-            dyn->vector_sew = VECTOR_SEW8;                 \
-    } while (0)
 
 // mark opcode as "unaligned" if the current address is marked as already unaligned
 #define IF_UNALIGNED(A) if ((dyn->insts[ninst].unaligned = is_addr_unaligned(A)))

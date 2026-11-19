@@ -601,7 +601,6 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETEX(x2, 0, vex.l ? 24 : 8);
             GETGX();
             d0 = fpu_get_scratch(dyn);
-            u8 = sse_setround(dyn, ninst, x6, x4);
             if (!BOX64ENV(dynarec_fastnan)) MOV32w(x7, 0x7FC00000);
             for (int i = 0; i < 2; ++i) {
                 FLD(d0, wback, fixedaddress + i * 8);
@@ -647,7 +646,6 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 }
             } else
                 SD(xZR, gback, gdoffset + 8);
-            x87_restoreround(dyn, ninst, u8);
             YMM0(gd);
             break;
         case 0x5B:
@@ -657,7 +655,6 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETGX();
             GETGY();
             d0 = fpu_get_scratch(dyn);
-            u8 = sse_setround(dyn, ninst, x6, x4);
             for (int i = 0; i < 4; ++i) {
                 FLW(d0, wback, fixedaddress + 4 * i);
                 FCVTLS(x3, d0, RD_DYN);
@@ -678,7 +675,6 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
                 }
             } else
                 YMM0(gd);
-            x87_restoreround(dyn, ninst, u8);
             break;
         case 0x5C:
             INST_NAME("VSUBPD Gx, Vx, Ex");

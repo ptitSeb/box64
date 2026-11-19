@@ -19,28 +19,13 @@
         dyn->native_size += 4;       \
     } while (0)
 #define NEW_INST                                                                                                                                                               \
-    if (!(ninst > 0 && dyn->insts[ninst].pred_sz == 1 && dyn->insts[ninst].pred[0] == ninst - 1                                                                                \
-            && dyn->insts[ninst - 1].x64.has_next && !dyn->insts[ninst - 1].x64.jmp                                                                                            \
-            && !(dyn->insts[ninst - 1].x64.barrier & BARRIER_FLOAT) && !dyn->insts[ninst - 1].x64.has_callret)) {                                                              \
-        dyn->inst_sew = dyn->insts[ninst].vector_sew_entry;                                                                                                                    \
-        dyn->inst_vlmul = VECTOR_LMUL1;                                                                                                                                        \
-        dyn->inst_vl = 0;                                                                                                                                                      \
-    }                                                                                                                                                                          \
-    dyn->vector_sew = dyn->insts[ninst].vector_sew_entry;                                                                                                                      \
+    dyn->rvv = dyn->insts[ninst].rvv_entry;                                                                                                                                    \
     if (ninst) {                                                                                                                                                               \
         dyn->insts[ninst].address = (dyn->insts[ninst - 1].address + dyn->insts[ninst - 1].size);                                                                              \
         dyn->insts_size += 1 + ((dyn->insts[ninst - 1].x64.size > (dyn->insts[ninst - 1].size / 4)) ? dyn->insts[ninst - 1].x64.size : (dyn->insts[ninst - 1].size / 4)) / 15; \
-        dyn->insts[ninst].ymm0_pass2 = dyn->ymm_zero;                                                                                                                          \
     }                                                                                                                                                                          \
     AREFLAGSNEEDED()
-#define INST_EPILOG                                                    \
-    dyn->insts[ninst].epilog = dyn->native_size;                       \
-    if (dyn->vtype_restore != VECTOR_SEWNA) {                          \
-        avx_set_vector_width(dyn, ninst, x1, dyn->vtype_restore, 16);  \
-        dyn->vtype_restore = VECTOR_SEWNA;                             \
-    }                                                                  \
-    if (dyn->insts[ninst].vec_used) sse_sync_all_cache_types(&dyn->e); \
-    dyn->vector_sew = dyn->insts[ninst].vector_sew_exit;
+#define INST_EPILOG dyn->insts[ninst].rvv_exit = dyn->rvv;
 #define INST_NAME(name)
 #define TABLE64(A, V)                                \
     do {                                             \

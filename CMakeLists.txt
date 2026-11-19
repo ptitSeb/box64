@@ -1121,6 +1121,7 @@ if(RV64_DYNAREC)
 
     set(DYNAREC_PASS
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_helper.c"
+    "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_simd.c"
     "${BOX64_ROOT}/src/dynarec/rv64/updateflags_rv64_pass.c"
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_emit_tests.c"
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_emit_math.c"
@@ -1132,6 +1133,10 @@ if(RV64_DYNAREC)
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_00_2.c"
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_00_3.c"
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_0f.c"
+    "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_0f_0.c"
+    "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_0f_1.c"
+    "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_0f_2.c"
+    "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_0f_3.c"
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_0f_vector.c"
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_66.c"
     "${BOX64_ROOT}/src/dynarec/rv64/dynarec_rv64_d8.c"

@@ -659,7 +659,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             GETGY();
             if (MODREG) {
                 ed = (nextop & 7) + (rex.b << 3);
-                sse_forget_reg(dyn, ninst, x3, ed);
+                simd_forget_fp_reg(dyn, ninst, x3, ed);
                 ADDI(x3, xEmu, offsetof(x64emu_t, xmm[ed]));
             } else {
                 SMREAD();
@@ -2241,18 +2241,18 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             if (cpuext.zvkned && cpuext.vlen >= 32) {
                 gd = ((nextop & 0x38) >> 3) + (rex.r << 3);
                 SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW32);
-                v0 = fpu_get_scratch(dyn);
-                avx_load_reg_vector(dyn, ninst, x1, v0, vex.v, 16 << vex.l, VECTOR_SEW32);
-                v1 = fpu_get_scratch(dyn);
+                v0 = vpu_get_scratch(dyn);
+                simd_load_reg(dyn, ninst, x1, v0, vex.v, 16 << vex.l, VECTOR_SEW32);
+                v1 = vpu_get_scratch(dyn);
                 if (MODREG) {
-                    avx_load_reg_vector(dyn, ninst, x1, v1, (nextop & 7) + (rex.b << 3), 16 << vex.l, VECTOR_SEW32);
+                    simd_load_reg(dyn, ninst, x1, v1, (nextop & 7) + (rex.b << 3), 16 << vex.l, VECTOR_SEW32);
                 } else {
                     SMREAD();
                     addr = geted(dyn, addr, ninst, nextop, &ed, x3, x2, &fixedaddress, rex, NULL, 0, 0);
                     VLE32_V(v1, ed, VECTOR_UNMASKED, VECTOR_NFIELD1);
                 }
                 VAESEM_VV(v0, v1);
-                avx_store_reg_vector(dyn, ninst, x1, v0, gd, 16 << vex.l, VECTOR_SEW32);
+                simd_store_reg(dyn, ninst, x1, v0, gd, 16 << vex.l, VECTOR_SEW32);
                 break;
             }
             GETGX();
@@ -2313,18 +2313,18 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             if (cpuext.zvkned && cpuext.vlen >= 32) {
                 gd = ((nextop & 0x38) >> 3) + (rex.r << 3);
                 SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW32);
-                v0 = fpu_get_scratch(dyn);
-                avx_load_reg_vector(dyn, ninst, x1, v0, vex.v, 16 << vex.l, VECTOR_SEW32);
-                v1 = fpu_get_scratch(dyn);
+                v0 = vpu_get_scratch(dyn);
+                simd_load_reg(dyn, ninst, x1, v0, vex.v, 16 << vex.l, VECTOR_SEW32);
+                v1 = vpu_get_scratch(dyn);
                 if (MODREG) {
-                    avx_load_reg_vector(dyn, ninst, x1, v1, (nextop & 7) + (rex.b << 3), 16 << vex.l, VECTOR_SEW32);
+                    simd_load_reg(dyn, ninst, x1, v1, (nextop & 7) + (rex.b << 3), 16 << vex.l, VECTOR_SEW32);
                 } else {
                     SMREAD();
                     addr = geted(dyn, addr, ninst, nextop, &ed, x3, x2, &fixedaddress, rex, NULL, 0, 0);
                     VLE32_V(v1, ed, VECTOR_UNMASKED, VECTOR_NFIELD1);
                 }
                 VAESEF_VV(v0, v1);
-                avx_store_reg_vector(dyn, ninst, x1, v0, gd, 16 << vex.l, VECTOR_SEW32);
+                simd_store_reg(dyn, ninst, x1, v0, gd, 16 << vex.l, VECTOR_SEW32);
                 break;
             }
             GETGX();
@@ -2388,19 +2388,19 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             if (cpuext.zvkned && cpuext.vlen >= 32 && !vex.l) {
                 gd = ((nextop & 0x38) >> 3) + (rex.r << 3);
                 SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW32);
-                v1 = fpu_get_scratch(dyn);
+                v1 = vpu_get_scratch(dyn);
                 if (MODREG) {
-                    avx_load_reg_vector(dyn, ninst, x1, v1, (nextop & 7) + (rex.b << 3), 16, VECTOR_SEW32);
+                    simd_load_reg(dyn, ninst, x1, v1, (nextop & 7) + (rex.b << 3), 16, VECTOR_SEW32);
                 } else {
                     SMREAD();
                     addr = geted(dyn, addr, ninst, nextop, &ed, x3, x2, &fixedaddress, rex, NULL, 0, 0);
                     VLE32_V(v1, ed, VECTOR_UNMASKED, VECTOR_NFIELD1);
                 }
-                v2 = fpu_get_scratch(dyn);
+                v2 = vpu_get_scratch(dyn);
                 MOV32w(x4, 0x63636363);
                 VMV_V_X(v2, x4);
                 VAESDM_VV(v2, v1);
-                avx_store_reg_vector(dyn, ninst, x1, v2, gd, 16, VECTOR_SEW32);
+                simd_store_reg(dyn, ninst, x1, v2, gd, 16, VECTOR_SEW32);
                 break;
             }
             GETGX();
@@ -2409,7 +2409,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 LD(x3, wback, fixedaddress + i * 8);
                 SD(x3, gback, gdoffset + i * 8);
             }
-            sse_forget_reg(dyn, ninst, x6, gd);
+            simd_forget_fp_reg(dyn, ninst, x6, gd);
             MOV32w(x1, gd);
             CALL(const_native_aesimc, -1, x1, 0);
             YMM0(gd);
@@ -2420,25 +2420,25 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             if (cpuext.zvkned && cpuext.vlen >= 32) {
                 gd = ((nextop & 0x38) >> 3) + (rex.r << 3);
                 SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW32);
-                v0 = fpu_get_scratch(dyn);
-                avx_load_reg_vector(dyn, ninst, x1, v0, vex.v, 16 << vex.l, VECTOR_SEW32);
-                v1 = fpu_get_scratch(dyn);
+                v0 = vpu_get_scratch(dyn);
+                simd_load_reg(dyn, ninst, x1, v0, vex.v, 16 << vex.l, VECTOR_SEW32);
+                v1 = vpu_get_scratch(dyn);
                 if (MODREG) {
-                    avx_load_reg_vector(dyn, ninst, x1, v1, (nextop & 7) + (rex.b << 3), 16 << vex.l, VECTOR_SEW32);
+                    simd_load_reg(dyn, ninst, x1, v1, (nextop & 7) + (rex.b << 3), 16 << vex.l, VECTOR_SEW32);
                 } else {
                     SMREAD();
                     addr = geted(dyn, addr, ninst, nextop, &ed, x3, x2, &fixedaddress, rex, NULL, 0, 0);
                     VLE32_V(v1, ed, VECTOR_UNMASKED, VECTOR_NFIELD1);
                 }
-                v2 = fpu_get_scratch(dyn);
+                v2 = vpu_get_scratch(dyn);
                 VXOR_VV(v2, v2, v2, 1);
                 VAESDF_VV(v0, v2);
-                v2 = fpu_get_scratch(dyn);
+                v2 = vpu_get_scratch(dyn);
                 MOV32w(x4, 0x63636363);
                 VMV_V_X(v2, x4);
                 VAESDM_VV(v2, v0);
                 VXOR_VV(v0, v2, v1, 1);
-                avx_store_reg_vector(dyn, ninst, x1, v0, gd, 16 << vex.l, VECTOR_SEW32);
+                simd_store_reg(dyn, ninst, x1, v0, gd, 16 << vex.l, VECTOR_SEW32);
                 break;
             }
             GETGX();
@@ -2499,18 +2499,18 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             if (cpuext.zvkned && cpuext.vlen >= 32) {
                 gd = ((nextop & 0x38) >> 3) + (rex.r << 3);
                 SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW32);
-                v0 = fpu_get_scratch(dyn);
-                avx_load_reg_vector(dyn, ninst, x1, v0, vex.v, 16 << vex.l, VECTOR_SEW32);
-                v1 = fpu_get_scratch(dyn);
+                v0 = vpu_get_scratch(dyn);
+                simd_load_reg(dyn, ninst, x1, v0, vex.v, 16 << vex.l, VECTOR_SEW32);
+                v1 = vpu_get_scratch(dyn);
                 if (MODREG) {
-                    avx_load_reg_vector(dyn, ninst, x1, v1, (nextop & 7) + (rex.b << 3), 16 << vex.l, VECTOR_SEW32);
+                    simd_load_reg(dyn, ninst, x1, v1, (nextop & 7) + (rex.b << 3), 16 << vex.l, VECTOR_SEW32);
                 } else {
                     SMREAD();
                     addr = geted(dyn, addr, ninst, nextop, &ed, x3, x2, &fixedaddress, rex, NULL, 0, 0);
                     VLE32_V(v1, ed, VECTOR_UNMASKED, VECTOR_NFIELD1);
                 }
                 VAESDF_VV(v0, v1);
-                avx_store_reg_vector(dyn, ninst, x1, v0, gd, 16 << vex.l, VECTOR_SEW32);
+                simd_store_reg(dyn, ninst, x1, v0, gd, 16 << vex.l, VECTOR_SEW32);
                 break;
             }
             GETGX();

@@ -121,6 +121,16 @@ x31     t6     x6           Temporary                       Scratch             
 #define Flags x23
 #define Emu   x25
 
+.macro rv64_sync_rounding scratch1, scratch2
+    lw      \scratch1, 800(Emu)
+    srli    \scratch1, \scratch1, 12
+    andi    \scratch1, \scratch1, 6
+    li      \scratch2, 0x78
+    srl     \scratch2, \scratch2, \scratch1
+    andi    \scratch2, \scratch2, 3
+    fsrm    \scratch2
+.endm
+
 #endif
 
 #endif // __RV64_MAPPING_H__

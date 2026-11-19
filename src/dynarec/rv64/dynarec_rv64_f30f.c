@@ -53,11 +53,11 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETG;
             if (MODREG) {
-                v0 = sse_get_reg(dyn, ninst, x1, gd, 1);
-                q0 = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 1);
+                v0 = simd_get_fp_reg(dyn, ninst, x1, gd, 1);
+                q0 = simd_get_fp_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 1);
                 FMVS(v0, q0);
             } else {
-                v0 = sse_get_reg_empty(dyn, ninst, x1, gd, 1);
+                v0 = simd_get_fp_reg_empty(dyn, ninst, x1, gd, 1);
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 1, 0);
                 FLW(v0, ed, fixedaddress);
@@ -70,9 +70,9 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             INST_NAME("MOVSS Ex, Gx");
             nextop = F8;
             GETG;
-            v0 = sse_get_reg(dyn, ninst, x1, gd, 1);
+            v0 = simd_get_fp_reg(dyn, ninst, x1, gd, 1);
             if (MODREG) {
-                q0 = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 1);
+                q0 = simd_get_fp_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 1);
                 FMVS(q0, v0);
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 1, 0);
@@ -122,13 +122,11 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             GETGXSS(v0);
             GETED(0);
-            if (BOX64ENV(dynarec_fastround) < 2) u8 = sse_setround(dyn, ninst, x6, x4);
             if (rex.w) {
                 FCVTSL(v0, ed, RD_DYN);
             } else {
                 FCVTSW(v0, ed, RD_DYN);
             }
-            if (BOX64ENV(dynarec_fastround) < 2) x87_restoreround(dyn, ninst, u8);
             break;
 
         case 0x2C:
@@ -162,9 +160,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             if (!BOX64ENV(dynarec_fastround)) {
                 FSFLAGSI(0); // // reset all bits
             }
-            u8 = sse_setround(dyn, ninst, x5, x6);
             FCVTSxw(gd, d0, RD_DYN);
-            x87_restoreround(dyn, ninst, u8);
             if (NEED_ZEROUP(gd))
                 ZEROUP_RESULT(gd);
             if (!BOX64ENV(dynarec_fastround)) {
@@ -355,7 +351,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 FMVXW(x4, v1);
             }
             if (MODREG && gd == (nextop & 7) + (rex.b << 3)) {
-                v0 = sse_get_reg_size_changed(dyn, ninst, x2, gd, 0);
+                v0 = simd_get_fp_reg_resized(dyn, ninst, x2, gd, 0);
             } else {
                 GETGXSD_empty(v0);
             }
@@ -507,7 +503,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             nextop = F8;
             // Will load Gx as SD. Is that a good choice?
             if (MODREG) {
-                v1 = sse_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0);
+                v1 = simd_get_fp_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0);
                 GETGXSD_empty(v0);
                 FMVD(v0, v1);
             } else {

@@ -1025,8 +1025,10 @@ dynablock_t* FillBlock64(uintptr_t addr, int is32bits, int inst_max, int is_new,
                     for(; dump<(uint8_t*)helper.insts[i+1].x64.addr; ++dump)
                         printf_log_prefix(0, LOG_NONE, " %02X", *dump);
                     printf_log_prefix(0, LOG_NONE, "\t%d -> %d", helper.insts[i].size2, helper.insts[i].size);
+                    #if !defined(RV64)
                     if(helper.insts[i].ymm0_pass2 || helper.insts[i].ymm0_pass3)
                         printf_log_prefix(0, LOG_NONE, "\t %04x -> %04x", helper.insts[i].ymm0_pass2, helper.insts[i].ymm0_pass3);
+                    #endif
                     printf_log_prefix(0, LOG_NONE, "\n");
                 }
                 printf_log(LOG_NONE, "Table64 \t%d -> %d\n", oldtable64size*8, helper.table64size*8);

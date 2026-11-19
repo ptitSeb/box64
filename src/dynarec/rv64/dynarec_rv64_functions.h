@@ -10,21 +10,14 @@ typedef struct dynarec_rv64_s dynarec_rv64_t;
 #define SCRATCH0 1
 #define VMASK    0
 
-// Get an FPU scratch reg
 int fpu_get_scratch(dynarec_rv64_t* dyn);
-// Get a FPU scratch reg aligned to LMUL
-int fpu_get_scratch_lmul(dynarec_rv64_t* dyn, int lmul);
-// Reset scratch regs counter
+int vpu_get_scratch(dynarec_rv64_t* dyn);
+int vpu_get_scratch_lmul(dynarec_rv64_t* dyn, int lmul);
 void fpu_reset_scratch(dynarec_rv64_t* dyn);
-// Get an x87 double reg
 int fpu_get_reg_x87(dynarec_rv64_t* dyn, int t, int n);
-// Get an MMX double reg
 int fpu_get_reg_emm(dynarec_rv64_t* dyn, int t, int emm);
-// Get an XMM quad reg
-int fpu_get_reg_xmm(dynarec_rv64_t* dyn, int t, int xmm);
-// Free a FPU/MMX/XMM reg
-void fpu_free_reg(dynarec_rv64_t* dyn, int reg);
-// Reset fpu regs counter
+int simd_alloc_reg(dynarec_rv64_t* dyn, int t, int xmm);
+void extcache_free_reg(dynarec_rv64_t* dyn, int reg);
 void fpu_reset_reg(dynarec_rv64_t* dyn);
 
 // ---- Neon cache functions
@@ -50,7 +43,7 @@ int extcache_no_i64(dynarec_rv64_t* dyn, int ninst, int st, int a);
 // FPU Cache transformation (for loops) // Specific, need to be written par backend
 int fpuCacheNeedsTransform(dynarec_rv64_t* dyn, int ninst);
 
-int sewNeedsTransform(dynarec_rv64_t* dyn, int ninst);
+int rvv_needs_transform(dynarec_rv64_t* dyn, int ninst);
 
 // Undo the changes of a extcache to get the status before the instruction
 void extcacheUnwind(extcache_t* cache);
@@ -71,7 +64,6 @@ int fpu_is_st_freed(dynarec_native_t* dyn, int ninst, int st);
 
 void updateNativeFlags(dynarec_rv64_t* dyn);
 void updateUpperLiveness(dynarec_rv64_t* dyn);
-void updatePreloads(dynarec_rv64_t* dyn);
 int isUpper32Zero(dynarec_rv64_t* dyn, int ninst, int reg);
 void updateRspMerge(dynarec_rv64_t* dyn, int is32bits);
 void get_free_scratch(dynarec_rv64_t* dyn, int ninst, uint8_t* tmp1, uint8_t* tmp2, uint8_t* tmp3, uint8_t s1, uint8_t s2, uint8_t s3, uint8_t s4, uint8_t s5);

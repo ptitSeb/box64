@@ -39,12 +39,14 @@ rv64_next:
     addi    a3, sp, 8*8     // a3 is address to change rip
 
     // call the function
+    fsrmi   0
 1:
     auipc   t4, %pcrel_hi(LinkNext)
     jalr    t4, %pcrel_lo(1b)
 
     // reserve return value
     mv      t3, a0
+    rv64_sync_rounding t4, t5
 
     // pop regs
     ld      RDI, (0*8)(sp)
@@ -84,12 +86,14 @@ rv64_next_invalid:
     addi    a3, sp, 8*8     // a3 is address to change rip
 
     // call the function
+    fsrmi   0
 1:
     auipc   t4, %pcrel_hi(LinkNextInvalid)
     jalr    t4, %pcrel_lo(1b)
 
     // reserve return value
     mv      t3, a0
+    rv64_sync_rounding t4, t5
 
     // pop regs
     ld      RDI, (0*8)(sp)

@@ -49,6 +49,8 @@ rv64_epilog_fast:
     ld      t3, -8(sp)
     // put back old value
     sd      t3, 808(Emu)
+    ld      t3, (23*8)(sp)
+    fsrm    t3
 
     ld      ra,   (0*8)(sp)
     ld      fp,   (1*8)(sp)
