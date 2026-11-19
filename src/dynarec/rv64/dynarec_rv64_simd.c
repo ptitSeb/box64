@@ -30,7 +30,10 @@
 static void simd_record_read(dynarec_rv64_t* dyn, int ninst, int a, unsigned regions)
 {
 #if STEP == 0
-    if (ninst >= 0 && ninst < dyn->size) dyn->insts[ninst].simd_read |= (uint64_t)regions << (a * 4);
+    if (ninst >= 0 && ninst < dyn->size) {
+        dyn->simd_used = 1;
+        dyn->insts[ninst].simd_read |= (uint64_t)regions << (a * 4);
+    }
 #endif
 }
 
@@ -38,6 +41,7 @@ static void simd_record_write(dynarec_rv64_t* dyn, int ninst, int a, unsigned re
 {
 #if STEP == 0
     if (ninst >= 0 && ninst < dyn->size) {
+        dyn->simd_used = 1;
         uint64_t bits = (uint64_t)regions << (a * 4);
         dyn->insts[ninst].simd_defs |= bits;
         dyn->insts[ninst].simd_zero_kill |= bits;
@@ -681,7 +685,7 @@ void simd_prepare_entry(dynarec_rv64_t* dyn, int entry, int emit)
     if (inst->nat_flags_live & (1u << s1)) s1 = x2;
     if (inst->nat_flags_live & (1u << s1)) s1 = x3;
     assert(!(inst->nat_flags_live & (1u << s1)));
-    if (!emit)
+    if (!emit && inst->simd_kill)
         for (int a = 0; a < 16; ++a)
             simd_discard(dyn, a, (inst->simd_kill >> (a * 4)) & SIMD_YMM);
     if (inst->pred_sz > 1) {
@@ -698,17 +702,18 @@ void simd_prepare_entry(dynarec_rv64_t* dyn, int entry, int emit)
         }
     }
     if (!inst->simd_entry) return;
+    uint64_t preload = inst->simd_live | inst->simd_carry;
     int fpu_scratch = dyn->e.fpu_scratch;
     uint16_t vector_scratch = dyn->e.vpu_scratch;
     dyn->e.fpu_scratch = 0;
     dyn->e.vpu_scratch = 0;
-    for (int size = 32; size >= 4; size >>= 1) {
+    for (int size = 32; preload && size >= 4; size >>= 1) {
         for (int a = 0; a < 16; ++a) {
-            unsigned need = ((inst->simd_live | inst->simd_carry) >> (a * 4)) & SIMD_YMM;
-            unsigned bytes = need & SIMD_HI128 ? 32 : need & SIMD_HI64 ? 16
-                : need & SIMD_HI32                                     ? 8
-                                                                       : 4;
-            if (!need || bytes != size) continue;
+            unsigned need = (preload >> (a * 4)) & SIMD_YMM;
+            if (!need) continue;
+            unsigned bytes = need & SIMD_HI128 ? 32 : need & SIMD_HI64 ? 16 : need & SIMD_HI32 ? 8 : 4;
+            if (bytes != size) continue;
+            preload &= ~((uint64_t)SIMD_YMM << (a * 4));
             simd_cache_t* c = &dyn->e.simd[a];
             unsigned resident = need & ~c->zero;
             if (emit) {
@@ -810,6 +815,9 @@ void simd_store_reg(dynarec_rv64_t* dyn, int ninst, int s1, int vreg, int a, int
 int rvv_set_config(dynarec_rv64_t* dyn, int ninst, int s1, int sew, int lmul, unsigned vl)
 {
     assert(sew <= VECTOR_SEW64 && vl && vl <= 65535);
+#if STEP == 0
+    dyn->simd_used = 1;
+#endif
     rvv_config_t next = { .bits = 0 };
     next.sew = sew;
     next.lmul = lmul;

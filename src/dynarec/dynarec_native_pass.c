@@ -172,7 +172,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
                 checkCRC(dyn, 0);
             #if defined(RV64)
             #if STEP > 0
-            simd_prepare_entry(dyn, 0, 1);
+            if (dyn->simd_used) simd_prepare_entry(dyn, 0, 1);
             #endif
             #else
             if(dyn->insts[0].preload_xmmymm) {
@@ -210,7 +210,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         #endif
         MESSAGE(LOG_DUMP, "New Instruction %s:%p, native:%p\n", is32bits?"x86":"x64",(void*)addr, (void*)dyn->block);
         #if defined(RV64) && STEP > 0
-        simd_prepare_entry(dyn, ninst, 0);
+        if (dyn->simd_used) simd_prepare_entry(dyn, ninst, 0);
         #endif
         NEW_INST;
         #if defined(BOX64EC) && STEP > 1
@@ -342,7 +342,7 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
         dyn->insts[ninst].epilog = dyn->native_size;
         #endif
         #if defined(RV64) && STEP > 0
-        if (ok > 0) simd_prepare_entry(dyn, ninst + 1, 1);
+        if (ok > 0 && dyn->simd_used) simd_prepare_entry(dyn, ninst + 1, 1);
         #endif
         INST_EPILOG;
 

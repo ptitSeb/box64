@@ -223,6 +223,7 @@ typedef struct dynarec_rv64_s {
     uint8_t             always_test;
     uint8_t             abort;
     uint8_t             vector_eew;     // current effective sew status, should only be used after SET_ELEMENT_WIDTH
+    uint8_t             simd_used;      // pass 0 saw RVV operations or SIMD region effects
     rvv_config_t        rvv;
     uint8_t             is_file_mapped; // if the memory is a mapped file (probably binary, not a memory)
     void*               gdbjit_block;
