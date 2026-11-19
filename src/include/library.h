@@ -22,6 +22,7 @@ int AddSymbolsLibrary(lib_t* maplib, library_t* lib, x64emu_t* emu);
 int FinalizeLibrary(library_t* lib, lib_t* local_maplib, int bindnow, int deepbind, x64emu_t* emu);
 
 char* GetNameLib(library_t *lib);
+char* GetPathLib(library_t *lib);
 int IsSameLib(library_t* lib, const char* path);    // check if lib is same (path -> name)
 int GetLibGlobalSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end, size_t size, int* weak, int* version, const char** vername, int local, int* veropt, void** elfsym);
 int GetLibWeakSymbolStartEnd(library_t* lib, const char* name, uintptr_t* start, uintptr_t* end, size_t size, int* weak, int* version, const char** vername, int local, int* veropt, void** elfsym);

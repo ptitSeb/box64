@@ -22,10 +22,11 @@
 #include "json.h"
 #include "callback.h"
 #include "bridge.h"
-#include "khash.h"
 #include "wrapper.h"
 #include "alternate.h"
 #include "myalign.h"
+#include "library.h"
+#include "khash.h"
 
 #include "vulkanoverlay.h"
 
@@ -907,6 +908,30 @@ static void addVulkanSymbol(my_vulkanoverlay_t* v, const char* name, uintptr_t* 
     kh_value(v->wrappers, k).f = f;
 }
 
+static char* getPairedSteamOverlayPath(const char* path)
+{
+    if(!my_context || !my_context->preload)
+        return NULL;
+    const char* name = strrchr(path, '/');
+    name = name?(name+1):path;
+    static char alt[4096];
+    for(int i=0; i<my_context->preload->size; ++i) {
+        const char* preload = GetPathLib(my_context->preload->libs[i]);
+        if(!preload)
+            continue;
+        const char* sep = strrchr(preload, '/');
+        if(!sep || strcmp(sep+1, "gameoverlayrenderer.so"))
+            continue;
+        size_t len = sep - preload + 1; // everything up to and including the last '/'
+        memcpy(alt, preload, len);
+        strcpy(alt+len, name);
+        // the sibling has to be another lib than the one asked for, and an x64 one
+        if(strcmp(alt, path) && FileIsX64ELF(alt))
+            return alt;
+    }
+    return NULL;
+}
+
 void* LoadVulkanOverlay(const char* path, int flags)
 {
     // find the local vulkan/implicit_layer.d
@@ -1013,7 +1038,10 @@ void* LoadVulkanOverlay(const char* path, int flags)
             // my_dlopen it now
             if(v) {
                 x64emu_t* emu = thread_get_emu();
-                void* handle = my_dlopen(emu, path, flags);
+                char* paired = getPairedSteamOverlayPath(path);
+                if(paired)
+                    printf_log(LOG_INFO, "\tPaired with the preloaded overlay helper, using %s (instead of %s)\n", paired, path);
+                void* handle = my_dlopen(emu, paired?paired:path, flags);
                 if(!handle) {
                     printf_log(LOG_INFO, "\tFailed to open the lib\n");
                     // there was an error, cancel...

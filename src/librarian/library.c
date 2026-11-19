@@ -736,6 +736,10 @@ char* GetNameLib(library_t* lib)
 {
     return lib->name;
 }
+char* GetPathLib(library_t* lib)
+{
+    return lib?lib->path:NULL;
+}
 
 #ifndef PATH_MAX
 #define PATH_MAX 4096
