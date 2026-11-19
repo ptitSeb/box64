@@ -59,6 +59,10 @@ typedef struct emu_flags_s {
 
 #define N_SCRATCH 200
 
+#ifdef BOX64EC
+#define BOX64EC_MXCSR_UNKNOWN 0xffffffffu   // reserved MXCSR bits are never set in a real value
+#endif
+
 typedef struct x64emu_s {
     // cpu
     reg64_t     regs[16];
@@ -139,6 +143,10 @@ typedef struct x64emu_s {
     uintptr_t   callret_sp_top;     // current activation's zero sentinel pair
     size_t      callret_size;
     uintptr_t   jit_frame;          // frame base of the innermost live JIT activation, 0 if none
+    // MXCSR known to be live and the FPCR/FPSR it came from, or BOX64EC_MXCSR_UNKNOWN
+    uint32_t    live_mxcsr;
+    uint32_t    live_fpcr;
+    uint32_t    live_fpsr;
     #endif
     // local selector handling
     base_segment_t  segldt[16];

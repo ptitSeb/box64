@@ -16,6 +16,10 @@
 _Static_assert(offsetof(box64ec_thr_t, guest_exception_pending) == BOX64EC_THR_EXCEPTION_PENDING_OFFSET,
                "guest_exception_pending");
 _Static_assert(offsetof(x64emu_t, xmm) == BOX64EC_EMU_XMM_OFFSET, "xmm");
+_Static_assert(offsetof(x64emu_t, mxcsr) == BOX64EC_EMU_MXCSR_OFFSET, "mxcsr");
+_Static_assert(offsetof(x64emu_t, live_mxcsr) == BOX64EC_EMU_LIVE_MXCSR_OFFSET, "live_mxcsr");
+_Static_assert(offsetof(x64emu_t, live_fpcr) == BOX64EC_EMU_LIVE_FPCR_OFFSET, "live_fpcr");
+_Static_assert(offsetof(x64emu_t, live_fpsr) == BOX64EC_EMU_LIVE_FPSR_OFFSET, "live_fpsr");
 
 /* Functions that never return or switch stacks, as exports and x64 stub targets */
 enum { SLOW_RAISE_EXCEPTION, SLOW_RTL_RAISE_EXCEPTION, SLOW_SWITCH_TO_FIBER, SLOW_COUNT };

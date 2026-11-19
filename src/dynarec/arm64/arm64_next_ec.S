@@ -175,7 +175,12 @@ arm64_ec_fast_forward:
     stp     x16, x20, [x28]
     str     x28, [x0, #BOX64EC_EMU_CALLRET_SP_OFFSET]
 
+    ldr     w1, [x0, #BOX64EC_EMU_MXCSR_OFFSET]
+    ldr     w2, [x0, #BOX64EC_EMU_LIVE_MXCSR_OFFSET]
+    cmp     w1, w2
+    b.eq    1f
     bl      Box64EC_ApplyLiveMxcsr       /* x0 = emu, returned */
+1:
     mov     x12, x20                     /* guest RSP, 8 mod 16 */
     mov     x15, x27                     /* native target */
 
@@ -242,9 +247,21 @@ arm64_ec_fast_resume:
     ldr     x29, [x6, #BOX64EC_EMU_JIT_FRAME_OFFSET]
     mov     sp,  x29
 arm64_ec_fast_resume_stable:
-    mov     x0,  x6
+    /* FPCR/FPSR unchanged: the known MXCSR still holds */
+    mrs     x1,  fpcr
+    mrs     x2,  fpsr
+    ldr     w3,  [x6, #BOX64EC_EMU_LIVE_FPCR_OFFSET]
+    ldr     w4,  [x6, #BOX64EC_EMU_LIVE_FPSR_OFFSET]
+    cmp     w1,  w3
+    ccmp    w2,  w4, #0, eq
+    b.ne    1f
+    ldr     w1,  [x6, #BOX64EC_EMU_LIVE_MXCSR_OFFSET]
+    str     w1,  [x6, #BOX64EC_EMU_MXCSR_OFFSET]
+    b       2f
+1:  mov     x0,  x6
     bl      Box64EC_CaptureLiveMxcsr     /* x0 = emu, returned */
     mov     x6,  x0
+2:
     /* cross-process code changes queued during the call, as in EnterX64 */
     ldr     x1,  [x18, #0x60]            /* PEB */
     ldr     x1,  [x1, #BOX64EC_PEB_CHPEV2_INFO_OFFSET]

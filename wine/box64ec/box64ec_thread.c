@@ -57,6 +57,7 @@ NTSTATUS WINAPI ThreadInit(void)
     }
     area->EmulatorData[EC_DATA_THR] = thr;
     area->SuspendDoorbell = (ULONG*)&emu->suspend_doorbell;
+    emu->live_mxcsr = emu->live_fpcr = BOX64EC_MXCSR_UNKNOWN;
     if (Box64EC_InitCallretStack(emu)) {
         area->SuspendDoorbell = NULL;
         area->EmulatorData[EC_DATA_THR] = NULL;

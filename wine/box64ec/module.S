@@ -538,8 +538,11 @@ BeginSimulation:
 ExitFunctionEC:
     /* Clear AFP NEP+AH - native EC code will not expect them */
     mrs     x17, fpcr
+    tst     x17, #6
+    b.eq    .Lexit_fpcr_clear            /* an FPCR write is slow, usually they are clear */
     and     x17, x17, #~6
     msr     fpcr, x17
+.Lexit_fpcr_clear:
 
     ldr     x17, [x18, #0x1788]
     strb    wzr, [x17]                   /* InSimulation = 0 */

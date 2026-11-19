@@ -7,6 +7,10 @@
 #define BOX64EC_EMU_CALLRET_SP_TOP_OFFSET  0xc40
 #define BOX64EC_EMU_JIT_FRAME_OFFSET       0xc50
 #define BOX64EC_EMU_XMM_OFFSET             0x090
+#define BOX64EC_EMU_MXCSR_OFFSET           0x320
+#define BOX64EC_EMU_LIVE_MXCSR_OFFSET      0xc58
+#define BOX64EC_EMU_LIVE_FPCR_OFFSET       0xc5c
+#define BOX64EC_EMU_LIVE_FPSR_OFFSET       0xc60
 /* box64ec_thr_t, asserted in box64ec_fastpath.c */
 #define BOX64EC_THR_EXCEPTION_PENDING_OFFSET 0x040
 /* PEB ChpeV2ProcessInfo, its CrossProcessWorkList and the list's work_list.first (Wine winternl.h) */

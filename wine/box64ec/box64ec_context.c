@@ -127,6 +127,7 @@ void context_to_emu(ARM64EC_NT_CONTEXT* context, x64emu_t* emu)
 {
     const void* ymm;
 
+    emu->live_mxcsr = emu->live_fpcr = BOX64EC_MXCSR_UNKNOWN;   // not known after a reload
     if ((context->ContextFlags & CONTEXT_INTEGER) == CONTEXT_INTEGER) {
         R_RAX = context->X8;
         R_RCX = context->X0;
@@ -279,19 +280,33 @@ static void write_live_mxcsr(uint32_t mxcsr)
         __os_arm64x_set_x64_information(0, mxcsr, NULL);
 }
 
+/* Remember the MXCSR known to be live: guest code rarely changes it */
 x64emu_t* Box64EC_ApplyLiveMxcsr(x64emu_t* emu)
 {
-    if (emu)
+    if (emu && emu->live_mxcsr != emu->mxcsr.x32) {
         write_live_mxcsr(emu->mxcsr.x32);
+        emu->live_mxcsr = emu->mxcsr.x32;
+        emu->live_fpcr = BOX64EC_MXCSR_UNKNOWN;
+    }
     return emu;
 }
 
 x64emu_t* Box64EC_CaptureLiveMxcsr(x64emu_t* emu)
 {
+    uint64_t fpcr, fpsr;
     uint32_t mxcsr;
 
-    if (emu && read_live_mxcsr(&mxcsr))
-        emu->mxcsr.x32 = mxcsr;
+    if (!emu)
+        return emu;
+    /* FPCR/FPSR key live_mxcsr, so arm64_ec_fast_resume can skip the getter */
+    __asm__ __volatile__("mrs %0, fpcr" : "=r"(fpcr));
+    __asm__ __volatile__("mrs %0, fpsr" : "=r"(fpsr));
+    if (read_live_mxcsr(&mxcsr)) {
+        emu->mxcsr.x32 = emu->live_mxcsr = mxcsr;
+        emu->live_fpcr = (uint32_t)fpcr;
+        emu->live_fpsr = (uint32_t)fpsr;
+    } else
+        emu->live_fpcr = BOX64EC_MXCSR_UNKNOWN;
     return emu;
 }
 
@@ -307,8 +322,17 @@ void Box64EC_CaptureContextMxcsr(ARM64EC_NT_CONTEXT* context)
 
 void Box64EC_ApplyContextMxcsr(ARM64EC_NT_CONTEXT* context)
 {
-    if (context)
-        write_live_mxcsr(context->AMD64_MxCsr);
+    CHPE_V2_CPU_AREA_INFO* area;
+    x64emu_t* emu;
+
+    if (!context)
+        return;
+    write_live_mxcsr(context->AMD64_MxCsr);
+    /* The live value no longer follows this thread's emu */
+    area = Box64EC_GetCpuArea();
+    emu = area ? (x64emu_t*)area->EmulatorData[EC_DATA_EMU] : NULL;
+    if (emu)
+        emu->live_mxcsr = emu->live_fpcr = BOX64EC_MXCSR_UNKNOWN;
 }
 
 void merge_eflags_from_emu(x64emu_t* emu, ARM64EC_NT_CONTEXT* context)
