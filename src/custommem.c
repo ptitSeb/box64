@@ -58,6 +58,9 @@ static uintptr_t**         box64_jmptbl2[1<<JMPTABL_SHIFT2];
 #endif
 static uintptr_t*          box64_jmptbldefault1[1<<JMPTABL_SHIFT1];
 static uintptr_t           box64_jmptbldefault0[1<<JMPTABL_SHIFT0];
+#ifdef BOX64EC
+uintptr_t                  box64_ec_jmptable48;    // for the ARM64EC assembly
+#endif
 // lock addresses
 KHASH_SET_INIT_INT64(lockaddress)
 static kh_lockaddress_t    *lockaddress = NULL;
@@ -3466,6 +3469,9 @@ void init_custommem_helper(box64context_t* ctx)
         box64_jmptbldefault1[i] = box64_jmptbldefault0;
     for(int i=0; i<(1<<JMPTABL_SHIFT0); ++i)
         box64_jmptbldefault0[i] = (uintptr_t)native_next;
+#ifdef BOX64EC
+    box64_ec_jmptable48 = getJumpTable48();
+#endif
     lockaddress = kh_init(lockaddress);
     rbt_dynmem = rbtree_init("rbt_dynmem");
 #endif

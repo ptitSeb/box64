@@ -34,6 +34,8 @@
 extern int running32bits;
 #ifdef DYNAREC
 #ifdef BOX64EC
+extern void arm64_ec_fast_forward(void);
+extern void arm64_ec_fast_forward_direct(void);
 extern void arm64_ec_native_exit_direct(void);
 #endif
 void* LinkNext(x64emu_t* emu, uintptr_t addr, void* x2, uintptr_t* x3)
@@ -49,11 +51,13 @@ void* LinkNext(x64emu_t* emu, uintptr_t addr, void* x2, uintptr_t* x3)
     }
     #endif
     #ifdef BOX64EC
-    // ARM64EC code runs natively, after leaving the JIT
+    // ARM64EC code runs natively
     if(Box64EC_IsEcCode(addr)) {
         // remember the target, so the next calls leave the JIT without coming back here
         switch(Box64EC_TryFastForward(emu, addr)) {
             case BOX64EC_FAST_FORWARD_ACCEPT:
+                addJumpTableIfDefault64((void*)addr, arm64_ec_fast_forward_direct);
+                return arm64_ec_fast_forward;
             case BOX64EC_FAST_FORWARD_NATIVE_EXIT:
                 addJumpTableIfDefault64((void*)addr, arm64_ec_native_exit_direct);
                 break;

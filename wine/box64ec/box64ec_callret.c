@@ -97,13 +97,9 @@ void Box64EC_ResetCallretStack(x64emu_t* emu)
     emu->callret_sp = emu->callret_sp_top;
 }
 
-/* A full stack drops the current activation's pairs instead of faulting.
- * Their returns then miss and take the jump table. The faulting store is one
- * of the stack pushes:
- *   stp xA, xB, [x28, #-16]!   (dynarec CALL)
- *   stp xzr, xzr, [xN]         (activation sentinel in the prolog)
- * Moving the base register makes the store land just below the current
- * activation's sentinel. */
+/* A full stack drops the current activation's pairs (their returns take the jump
+ * table): the faulting push (CALL, prolog sentinel or fast call record) is moved
+ * just below the activation's sentinel. */
 static int reset_full_callret_stack(x64emu_t* emu, uintptr_t address,
                                     ARM64_NT_CONTEXT* arm_ctx)
 {
@@ -116,9 +112,14 @@ static int reset_full_callret_stack(x64emu_t* emu, uintptr_t address,
         return 0;
     if ((insn & 0xFFFF8000u) == 0xA9BF0000u && arm_ctx->X[rn] == address + 16)
         arm_ctx->X[rn] = top;
-    else if ((insn & 0xFFFF8000u) == 0xA9000000u && arm_ctx->X[rn] == address)
+    else if ((insn & 0xFFFF8000u) == 0xA9000000u && arm_ctx->X[rn] == address) {
+        unsigned rt = insn & 31;
+
         arm_ctx->X[rn] = top - 16;
-    else
+        /* a moved fast native call record no longer sits on its CALLRET pair */
+        if (rt != 31 && ((arm_ctx->X[rt] >> 32) & ~BOX64EC_FAST_RECORD_CALLRET) == BOX64EC_FAST_RECORD_TAG)
+            arm_ctx->X[rt] &= ~((uint64_t)BOX64EC_FAST_RECORD_CALLRET << 32);
+    } else
         return 0;
     emu->callret_sp = top;
     printf_log(LOG_DEBUG, "box64ec: private CALLRET stack full, dropping the "

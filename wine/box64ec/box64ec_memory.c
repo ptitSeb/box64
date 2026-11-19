@@ -78,12 +78,13 @@ static int get_allocation_range(void* address, uintptr_t* start, size_t* size)
 }
 
 #ifdef DYNAREC
+extern void arm64_ec_fast_forward_direct(void);
 extern void arm64_ec_native_exit_direct(void);
 
 // The jump table remembers native targets: forget them with the memory that held them
 static void forget_native_targets(uintptr_t address, size_t size)
 {
-    setJumpTableDefaultRangeRef64(address, size, arm64_ec_native_exit_direct, NULL);
+    setJumpTableDefaultRangeRef64(address, size, arm64_ec_fast_forward_direct, arm64_ec_native_exit_direct);
 }
 #endif
 

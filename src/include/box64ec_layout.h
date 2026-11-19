@@ -6,5 +6,19 @@
 #define BOX64EC_EMU_CALLRET_SP_OFFSET      0xc38
 #define BOX64EC_EMU_CALLRET_SP_TOP_OFFSET  0xc40
 #define BOX64EC_EMU_JIT_FRAME_OFFSET       0xc50
+#define BOX64EC_EMU_XMM_OFFSET             0x090
+/* box64ec_thr_t, asserted in box64ec_fastpath.c */
+#define BOX64EC_THR_EXCEPTION_PENDING_OFFSET 0x040
+/* PEB ChpeV2ProcessInfo, its CrossProcessWorkList and the list's work_list.first (Wine winternl.h) */
+#define BOX64EC_PEB_CHPEV2_INFO_OFFSET       0x338
+#define BOX64EC_CHPEV2_WORK_LIST_OFFSET      0x010
+#define BOX64EC_WORK_LIST_FIRST_OFFSET       0x008
+
+/* Fast native call record tag, plus the CALLRET bit when the call's pair is above it */
+#define BOX64EC_FAST_RECORD_TAG_LOW        0x5354
+#define BOX64EC_FAST_RECORD_TAG_HIGH       0x4641
+#define BOX64EC_FAST_RECORD_TAG            \
+    ((BOX64EC_FAST_RECORD_TAG_HIGH << 16) | BOX64EC_FAST_RECORD_TAG_LOW)
+#define BOX64EC_FAST_RECORD_CALLRET        1
 
 #endif

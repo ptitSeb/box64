@@ -6,11 +6,16 @@
 #include <winternl.h>
 
 #include "box64ec.h"
+#include "box64ec_layout.h"
 #include "box64ec_private.h"
 #include "box64cpu.h"
 #include "x64emu.h"
 #include "emu/x64emu_private.h"
 #include "wine/compiler.h"
+
+_Static_assert(offsetof(box64ec_thr_t, guest_exception_pending) == BOX64EC_THR_EXCEPTION_PENDING_OFFSET,
+               "guest_exception_pending");
+_Static_assert(offsetof(x64emu_t, xmm) == BOX64EC_EMU_XMM_OFFSET, "xmm");
 
 /* Functions that never return or switch stacks, as exports and x64 stub targets */
 enum { SLOW_RAISE_EXCEPTION, SLOW_RTL_RAISE_EXCEPTION, SLOW_SWITCH_TO_FIBER, SLOW_COUNT };
