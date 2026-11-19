@@ -578,8 +578,12 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                         SET_FLAGS_EQZ(x4, F_ZF, x3);
                     }
                     IFX (X_CF) {
-                        VXOR_VI(v0, q0, 0x1F, VECTOR_UNMASKED);
-                        VAND_VV(v0, q1, v0, VECTOR_UNMASKED);
+                        if (cpuext.zvbb) {
+                            VANDN_VV(v0, q1, q0, VECTOR_UNMASKED);
+                        } else {
+                            VXOR_VI(v0, q0, 0x1F, VECTOR_UNMASKED);
+                            VAND_VV(v0, q1, v0, VECTOR_UNMASKED);
+                        }
                         if (cpuext.xtheadvector) {
                             // Force the mask element width to 32
                             rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW64, VECTOR_LMUL2, 16);
@@ -1662,6 +1666,32 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     VMERGE_VVM(q0, v1, d0);
                     break;
                 case 0x44:
+                    if (!cpuext.zvbc) return 0;
+                    INST_NAME("PCLMULQDQ Gx, Ex, Ib");
+                    nextop = F8;
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW64);
+                    GETGX_vector(q0, 1, VECTOR_SEW64);
+                    GETEX_vector(q1, 0, 1, VECTOR_SEW64);
+                    u8 = F8;
+                    q2 = q0;
+                    q3 = q1;
+                    if (u8 & 1) {
+                        q2 = vpu_get_scratch(dyn);
+                        VSLIDEDOWN_VI(q2, q0, 1, VECTOR_UNMASKED);
+                    }
+                    if (u8 & 0x10) {
+                        if (q0 == q1 && (u8 & 1)) {
+                            q3 = q2;
+                        } else {
+                            q3 = vpu_get_scratch(dyn);
+                            VSLIDEDOWN_VI(q3, q1, 1, VECTOR_UNMASKED);
+                        }
+                    }
+                    q4 = vpu_get_scratch(dyn);
+                    VCLMULH_VV(q4, q2, q3, VECTOR_UNMASKED);
+                    VCLMUL_VV(q0, q2, q3, VECTOR_UNMASKED);
+                    VSLIDEUP_VI(q0, q4, 1, VECTOR_UNMASKED);
+                    break;
                 case 0x60 ... 0x63:
                 case 0xDF: return 0;
                 default: DEFAULT_VECTOR;
@@ -1723,6 +1753,10 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             SET_ELEMENT_WIDTH(x1, VECTOR_SEWANY);
             GETGX_vector(q0, 1, dyn->vector_eew);
             GETEX_vector(q1, 0, 0, dyn->vector_eew);
+            if (cpuext.zvbb) {
+                VANDN_VV(q0, q1, q0, VECTOR_UNMASKED);
+                break;
+            }
             if (q0 == q1) {
                 q1 = vpu_get_scratch(dyn);
                 VMV_V_V(q1, q0);
@@ -1844,6 +1878,20 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
         case 0x60:
             INST_NAME("PUNPCKLBW Gx, Ex");
             nextop = F8;
+            if (MODREG && cpuext.zvbb && cpuext.vlen >= 32) {
+                gd = ((nextop >> 3) & 7) | (rex.r << 3);
+                ed = (nextop & 7) | (rex.b << 3);
+                q0 = simd_access(dyn, ninst, x1, gd, SIMD_XMM, 1);
+                q1 = gd == ed ? q0 : simd_access(dyn, ninst, x1, ed, SIMD_XMM, 0);
+                rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW8, VECTOR_LMULF2, 8);
+                v0 = vpu_get_scratch(dyn);
+                VMV_V_V(v0, q0);
+                if (gd == ed) q1 = v0;
+                d0 = vpu_get_scratch(dyn);
+                VWSLL_VI(d0, q1, 8, VECTOR_UNMASKED);
+                VWADDU_WV(q0, d0, v0, VECTOR_UNMASKED);
+                break;
+            }
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW8);
             GETGX_vector(q0, 1, VECTOR_SEW8);
             GETEX_vector(q1, 0, 0, VECTOR_SEW8);
@@ -1862,6 +1910,12 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             GETGX_vector(q0, 1, VECTOR_SEW16);
             GETEX_vector(q1, 0, 0, VECTOR_SEW16);
             v0 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+            if (cpuext.zvbb) {
+                VWSLL_VI(v0, q1, 16, VECTOR_UNMASKED);
+                VWADDU_WV(v0, v0, q0, VECTOR_UNMASKED);
+                VMV_V_V(q0, v0);
+                break;
+            }
             d0 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
             VWADDU_VX(d0, q0, xZR, VECTOR_UNMASKED);
             VWADDU_VX(v0, q1, xZR, VECTOR_UNMASKED);
@@ -1969,6 +2023,26 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 MOV32w(x5, 32);
             }
             nextop = F8;
+            if (opcode == 0x68 && MODREG && cpuext.zvbb && cpuext.vlen >= 32) {
+                gd = ((nextop >> 3) & 7) | (rex.r << 3);
+                ed = (nextop & 7) | (rex.b << 3);
+                q0 = simd_access(dyn, ninst, x1, gd, SIMD_XMM, 1);
+                q1 = gd == ed ? q0 : simd_access(dyn, ninst, x1, ed, SIMD_XMM, 0);
+                rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW8, VECTOR_LMULF2, 8);
+                v0 = vpu_get_scratch(dyn);
+                VSLIDEDOWN_VI(v0, q0, 8, VECTOR_UNMASKED);
+                if (gd != ed) {
+                    v1 = vpu_get_scratch(dyn);
+                    VSLIDEDOWN_VI(v1, q1, 8, VECTOR_UNMASKED);
+                    q1 = v1;
+                } else {
+                    q1 = v0;
+                }
+                d0 = vpu_get_scratch(dyn);
+                VWSLL_VI(d0, q1, 8, VECTOR_UNMASKED);
+                VWADDU_WV(q0, d0, v0, VECTOR_UNMASKED);
+                break;
+            }
             SET_ELEMENT_WIDTH(x1, u8);
             GETGX_vector(q0, 1, dyn->vector_eew);
             GETEX_vector(q1, 0, 0, dyn->vector_eew);
@@ -2680,6 +2754,10 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             SET_ELEMENT_WIDTH(x1, VECTOR_SEWANY);
             GETGX_vector(q0, 1, dyn->vector_eew);
             GETEX_vector(q1, 0, 0, dyn->vector_eew);
+            if (cpuext.zvbb) {
+                VANDN_VV(q0, q1, q0, VECTOR_UNMASKED);
+                break;
+            }
             if (q0 == q1) {
                 q1 = vpu_get_scratch(dyn);
                 VMV_V_V(q1, q0);

@@ -303,9 +303,14 @@ uintptr_t dynarec64_AVX_66_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
         case 0x55:
             INST_NAME("VANDNPD Gx, Vx, Ex");
             nextop = F8;
-            GETGY_empty_VYEY_vector_safe(v0, q0, q1, VECTOR_SEW64);
-            VXOR_VI(v0, q0, 0x1f, VECTOR_UNMASKED);
-            VAND_VV(v0, v0, q1, VECTOR_UNMASKED);
+            GETGY_empty_VYEY_vector(v0, q0, q1, VECTOR_SEW64);
+            if (cpuext.zvbb) {
+                VANDN_VV(v0, q1, q0, VECTOR_UNMASKED);
+            } else {
+                VEC_SRC_KEEP(q1, v0);
+                VXOR_VI(v0, q0, 0x1f, VECTOR_UNMASKED);
+                VAND_VV(v0, v0, q1, VECTOR_UNMASKED);
+            }
             PUTGY_vector(v0, VECTOR_SEW64);
             break;
         case 0x56:
@@ -1157,9 +1162,14 @@ uintptr_t dynarec64_AVX_66_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
         case 0xDF:
             INST_NAME("VPANDN Gx, Vx, Ex");
             nextop = F8;
-            GETGY_empty_VYEY_vector_safe(v0, q0, q1, VECTOR_SEW64);
-            VXOR_VI(v0, q0, 0x1f, VECTOR_UNMASKED);
-            VAND_VV(v0, v0, q1, VECTOR_UNMASKED);
+            GETGY_empty_VYEY_vector(v0, q0, q1, VECTOR_SEW64);
+            if (cpuext.zvbb) {
+                VANDN_VV(v0, q1, q0, VECTOR_UNMASKED);
+            } else {
+                VEC_SRC_KEEP(q1, v0);
+                VXOR_VI(v0, q0, 0x1f, VECTOR_UNMASKED);
+                VAND_VV(v0, v0, q1, VECTOR_UNMASKED);
+            }
             PUTGY_vector(v0, VECTOR_SEW64);
             break;
         case 0xE0:

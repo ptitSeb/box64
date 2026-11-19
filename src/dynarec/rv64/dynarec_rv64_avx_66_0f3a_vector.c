@@ -838,6 +838,37 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             PUTGY_vector(q3, VECTOR_SEW32);
             break;
         }
+        case 0x44:
+            if (!cpuext.zvbc) return 0;
+            INST_NAME("VPCLMULQDQ Gx, Vx, Ex, Ib");
+            nextop = F8;
+            GETGY_empty_VYEY_vector_D(v0, q0, q1, VECTOR_SEW64, 1);
+            u8 = F8;
+            q2 = q0;
+            q3 = q1;
+            if (u8 & 1) {
+                q2 = vpu_get_scratch(dyn);
+                VSLIDEDOWN_VI(q2, q0, 1, VECTOR_UNMASKED);
+            }
+            if (u8 & 0x10) {
+                if (q0 == q1 && (u8 & 1)) {
+                    q3 = q2;
+                } else {
+                    q3 = vpu_get_scratch(dyn);
+                    VSLIDEDOWN_VI(q3, q1, 1, VECTOR_UNMASKED);
+                }
+            }
+            q4 = vpu_get_scratch(dyn);
+            VCLMULH_VV(q4, q2, q3, VECTOR_UNMASKED);
+            VCLMUL_VV(v0, q2, q3, VECTOR_UNMASKED);
+            if (vex.l) {
+                VECTOR_LOAD_VMASK(0xa, x4);
+                VSLIDEUP_VI(v0, q4, 1, VECTOR_MASKED);
+            } else {
+                VSLIDEUP_VI(v0, q4, 1, VECTOR_UNMASKED);
+            }
+            PUTGY_vector(v0, VECTOR_SEW64);
+            break;
         case 0x4A:
             INST_NAME("VBLENDVPS Gx, Vx, Ex, Vx2");
             nextop = F8;

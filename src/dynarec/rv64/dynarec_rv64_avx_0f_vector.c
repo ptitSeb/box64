@@ -110,26 +110,35 @@ uintptr_t dynarec64_AVX_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t
             SMWRITE2();
             break;
         case 0x14:
-            INST_NAME("VUNPCKLPS Gx, Vx, Ex");
-            nextop = F8;
-            GETGY_empty_VYEY_vector(v0, q0, q1, VECTOR_SEW32);
-            q2 = vpu_get_scratch(dyn);
-            v1 = vpu_get_scratch(dyn);
-            v2 = vpu_get_scratch(dyn);
-            VID_V(q2, VECTOR_UNMASKED);
-            VAND_VI(v1, q2, 4, VECTOR_UNMASKED);
-            VADD_VV(q2, q2, v1, VECTOR_UNMASKED);
-            VSRL_VI(q2, q2, 1, VECTOR_UNMASKED);
-            VRGATHER_VV_SAFE(v1, q0, q2, VECTOR_UNMASKED);
-            VRGATHER_VV_SAFE(v2, q1, q2, VECTOR_UNMASKED);
-            VECTOR_LOAD_VMASK(0xaa, x4);
-            VMERGE_VVM(v0, v1, v2);
-            PUTGY_vector(v0, VECTOR_SEW32);
-            break;
         case 0x15:
-            INST_NAME("VUNPCKHPS Gx, Vx, Ex");
+            INST_NAME(opcode == 0x14 ? "VUNPCKLPS Gx, Vx, Ex" : "VUNPCKHPS Gx, Vx, Ex");
             nextop = F8;
             GETGY_empty_VYEY_vector(v0, q0, q1, VECTOR_SEW32);
+            if (cpuext.zvbb) {
+                d0 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+                MOV32w(x4, 32);
+                VWSLL_VX(d0, q1, x4, VECTOR_UNMASKED);
+                VWADDU_WV(d0, d0, q0, VECTOR_UNMASKED);
+                if (opcode == 0x14) {
+                    VMV_V_V(v0, d0);
+                } else {
+                    VSLIDEDOWN_VI(v0, d0, 4, VECTOR_UNMASKED);
+                }
+                if (vex.l) {
+                    v1 = d0 + 1;
+                    if (cpuext.vlen > 32 || opcode == 0x15) {
+                        v1 = vpu_get_scratch(dyn);
+                        if (cpuext.vlen > 32) {
+                            VSLIDEDOWN_VI(v1, d0, opcode == 0x14 ? 8 : 12, VECTOR_UNMASKED);
+                        } else {
+                            VSLIDEDOWN_VI(v1, d0 + 1, 4, VECTOR_UNMASKED);
+                        }
+                    }
+                    VSLIDEUP_VI(v0, v1, 4, VECTOR_UNMASKED);
+                }
+                PUTGY_vector(v0, VECTOR_SEW32);
+                break;
+            }
             q2 = vpu_get_scratch(dyn);
             v1 = vpu_get_scratch(dyn);
             v2 = vpu_get_scratch(dyn);
@@ -137,7 +146,7 @@ uintptr_t dynarec64_AVX_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t
             VAND_VI(v1, q2, 4, VECTOR_UNMASKED);
             VADD_VV(q2, q2, v1, VECTOR_UNMASKED);
             VSRL_VI(q2, q2, 1, VECTOR_UNMASKED);
-            VADD_VI(q2, q2, 2, VECTOR_UNMASKED);
+            if (opcode == 0x15) VADD_VI(q2, q2, 2, VECTOR_UNMASKED);
             VRGATHER_VV_SAFE(v1, q0, q2, VECTOR_UNMASKED);
             VRGATHER_VV_SAFE(v2, q1, q2, VECTOR_UNMASKED);
             VECTOR_LOAD_VMASK(0xaa, x4);
@@ -319,9 +328,14 @@ uintptr_t dynarec64_AVX_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t
         case 0x55:
             INST_NAME("VANDNPS Gx, Vx, Ex");
             nextop = F8;
-            GETGY_empty_VYEY_vector_safe(v0, q0, q1, VECTOR_SEW32);
-            VXOR_VI(v0, q0, 0x1f, VECTOR_UNMASKED);
-            VAND_VV(v0, v0, q1, VECTOR_UNMASKED);
+            GETGY_empty_VYEY_vector(v0, q0, q1, VECTOR_SEW32);
+            if (cpuext.zvbb) {
+                VANDN_VV(v0, q1, q0, VECTOR_UNMASKED);
+            } else {
+                VEC_SRC_KEEP(q1, v0);
+                VXOR_VI(v0, q0, 0x1f, VECTOR_UNMASKED);
+                VAND_VV(v0, v0, q1, VECTOR_UNMASKED);
+            }
             PUTGY_vector(v0, VECTOR_SEW32);
             break;
         case 0x56:

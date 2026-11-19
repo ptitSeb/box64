@@ -245,8 +245,12 @@ uintptr_t dynarec64_AVX_66_0F38_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
                 SET_FLAGS_EQZ(x4, F_ZF, x5);
             }
             IFX (X_CF) {
-                VXOR_VI(v0, q0, 0x1f, VECTOR_UNMASKED);
-                VAND_VV(v0, v0, q1, VECTOR_UNMASKED);
+                if (cpuext.zvbb) {
+                    VANDN_VV(v0, q1, q0, VECTOR_UNMASKED);
+                } else {
+                    VXOR_VI(v0, q0, 0x1f, VECTOR_UNMASKED);
+                    VAND_VV(v0, v0, q1, VECTOR_UNMASKED);
+                }
                 VMSLT_VX(VMASK, v0, xZR, VECTOR_UNMASKED);
                 VMV_X_S(x4, VMASK);
                 ANDI(x4, x4, (1 << ((sew == VECTOR_SEW32 ? 4 : 2) << vex.l)) - 1);
@@ -270,8 +274,12 @@ uintptr_t dynarec64_AVX_66_0F38_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
                 SET_FLAGS_EQZ(x4, F_ZF, x5);
             }
             IFX (X_CF) {
-                VXOR_VI(v0, q0, 0x1f, VECTOR_UNMASKED);
-                VAND_VV(v0, v0, q1, VECTOR_UNMASKED);
+                if (cpuext.zvbb) {
+                    VANDN_VV(v0, q1, q0, VECTOR_UNMASKED);
+                } else {
+                    VXOR_VI(v0, q0, 0x1f, VECTOR_UNMASKED);
+                    VAND_VV(v0, v0, q1, VECTOR_UNMASKED);
+                }
                 VMSNE_VX(VMASK, v0, xZR, VECTOR_UNMASKED);
                 VMV_X_S(x4, VMASK);
                 ANDI(x4, x4, (1 << (4 << vex.l)) - 1);
