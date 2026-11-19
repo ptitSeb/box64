@@ -167,6 +167,12 @@ static int arch_build(dynarec_rv64_t* dyn, int ninst, arch_build_t* arch)
     return arch->flags + arch->x87 + arch->mmx + arch->sse + arch->ymm + arch->unaligned + (arch->up32 != 0) + (arch->rsp != 0);
 }
 
+static int arch_same_state(const instruction_rv64_t* a, const instruction_rv64_t* b)
+{
+    return a->f_entry == b->f_entry && a->unaligned == b->unaligned && a->rsp_entry == b->rsp_entry && a->up32_pending == b->up32_pending && a->e.x87stack == b->e.x87stack
+        && !memcmp(a->e.extcache, b->e.extcache, sizeof(a->e.extcache)) && !memcmp(a->e.simd, b->e.simd, sizeof(a->e.simd));
+}
+
 size_t get_size_arch(dynarec_rv64_t* dyn)
 {
     arch_build_t build = {0};
@@ -177,6 +183,10 @@ size_t get_size_arch(dynarec_rv64_t* dyn)
     int last = 0;
     if(!dyn->size) return 0;
     for(int i=0; i<dyn->size; ++i) {
+        if (i && seq < 1023 && arch_same_state(&dyn->insts[i], &dyn->insts[i - 1])) {
+            ++seq;
+            continue;
+        }
         last = arch_build(dyn, i, &build);
         if((!memcmp(&build, &previous, sizeof(arch_build_t))) && (seq<((1<<10)-1)) && i) {
             // same sequence, increment
@@ -304,6 +314,10 @@ void* populate_arch(dynarec_rv64_t* dyn, void* p, size_t sz)
     arch_arch_t* next = p;
     int seq = 0;
     for(int i=0; i<dyn->size; ++i) {
+        if (i && seq < 1023 && arch_same_state(&dyn->insts[i], &dyn->insts[i - 1])) {
+            arch->seq = ++seq;
+            continue;
+        }
         arch_build(dyn, i, &build);
         if((!memcmp(&build, &previous, sizeof(arch_build_t))) && (seq<((1<<10)-1)) && i) {
             // same sequence, increment
