@@ -1668,6 +1668,7 @@ void mmx_purgecache(dynarec_rv64_t* dyn, int ninst, int next, int s1)
             }
             FSD(dyn->e.mmxcache[i].reg, xEmu, offsetof(x64emu_t, mmx[i]));
             if (!next) {
+                mmx_save_old(dyn, EXTIDX(dyn->e.mmxcache[i].reg));
                 extcache_free_reg(dyn, dyn->e.mmxcache[i].reg);
                 dyn->e.mmxcache[i].v = -1;
             }
