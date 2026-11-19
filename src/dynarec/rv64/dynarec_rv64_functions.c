@@ -1144,19 +1144,16 @@ void updateUpperLiveness(dynarec_rv64_t* dyn)
     simd_analyze_zeros(dyn);
     simd_analyze_entries(dyn);
 
-    void* buffer = calloc(n, sizeof(int) + sizeof(uint16_t) + sizeof(uint8_t));
-    if (!buffer)
-        return;
-    int* work = buffer;
-    uint16_t* live_in = (uint16_t*)(work + n);
-    uint8_t* on_list = (uint8_t*)(live_in + n);
+    static int work[MAX_INSTS];
+    static uint16_t live_in[MAX_INSTS];
+    static uint8_t on_list[MAX_INSTS];
+    memset(live_in, 0, n * sizeof(*live_in));
 
     int sp = 0;
     for (int i = 0; i < n; ++i) {
-        if (dyn->insts[i].x64.alive) {
+        on_list[i] = !!dyn->insts[i].x64.alive;
+        if (on_list[i])
             work[sp++] = i;
-            on_list[i] = 1;
-        }
     }
     while (sp > 0) {
         int i = work[--sp];
@@ -1203,10 +1200,8 @@ void updateUpperLiveness(dynarec_rv64_t* dyn)
         }
         any_pending |= inst->up32_skip;
     }
-    if (!any_pending) {
-        free(buffer);
+    if (!any_pending)
         return;
-    }
     while (sp > 0) {
         int i = work[--sp];
         on_list[i] = 0;
@@ -1235,7 +1230,6 @@ void updateUpperLiveness(dynarec_rv64_t* dyn)
             }
         }
     }
-    free(buffer);
 }
 
 void updateRspMerge(dynarec_rv64_t* dyn, int is32bits)
