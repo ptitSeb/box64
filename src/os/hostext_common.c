@@ -78,6 +78,7 @@ void PrintHostCpuFeatures(void)
     if (cpuext.zvknha) printf_log_prefix(0, LOG_INFO, "_zvknha");
     if (cpuext.zvknhb) printf_log_prefix(0, LOG_INFO, "_zvknhb");
     if (cpuext.zvbb) printf_log_prefix(0, LOG_INFO, "_zvbb");
+    if (cpuext.zvbc) printf_log_prefix(0, LOG_INFO, "_zvbc");
     if (cpuext.zvfh) printf_log_prefix(0, LOG_INFO, "_zvfh");
     printf_log_prefix(0, LOG_INFO, "\n");
 #elif defined(PPC64LE)

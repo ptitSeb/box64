@@ -1942,6 +1942,7 @@
 #define mmx_get_reg_empty_vector STEPNAME(mmx_get_reg_empty_vector)
 #define simd_get_reg_empty       STEPNAME(simd_get_reg_empty)
 #define simd_get                 STEPNAME(simd_get)
+#define simd_access              STEPNAME(simd_access)
 #define simd_snapshot            STEPNAME(simd_snapshot)
 #define simd_prepare_entry       STEPNAME(simd_prepare_entry)
 #define rvv_prepare_branch       STEPNAME(rvv_prepare_branch)
@@ -2229,6 +2230,7 @@ void mmx_flush_reg_preserve_vtype(dynarec_rv64_t* dyn, int ninst, int s1, int a)
 // SSE/SSE2 helpers
 //  get float register for a SSE reg, create the entry if needed
 int simd_get_fp_reg(dynarec_rv64_t* dyn, int ninst, int s1, int a, int single);
+int simd_access(dynarec_rv64_t* dyn, int ninst, int s1, int a, unsigned regions, int write);
 int simd_get(dynarec_rv64_t* dyn, int ninst, int s1, int a, unsigned bytes, int sew, int write);
 void simd_commit(dynarec_rv64_t* dyn, int ninst, int a, unsigned written, unsigned zero);
 int simd_get_reg(dynarec_rv64_t* dyn, int ninst, int s1, int a, int forwrite, int sew);

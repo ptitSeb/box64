@@ -715,15 +715,16 @@ void inst_name_pass3(dynarec_native_t* dyn, int ninst, const char* name, rex_t r
     }
     if (!dyn->need_dump && !BOX64ENV(dynarec_gdbjit) && !BOX64ENV(dynarec_perf_map)) return;
 
+    static const char* const lmul[] = { "m1", "m2", "m4", "m8", "reserved", "mf8", "mf4", "mf2" };
     static __thread char buf[65536];
     int length = sprintf(buf,
         "barrier=%d state=%d/%s(%s->%s), set=%X/%X, use=%X, need=%X/%X, fuse=%d/%d, sm=%d(%d/%d), "
-        "rvv@entry=(e%d,m%d,vl%d), rvv@exit=(e%d,m%d,vl%d)",
+        "rvv@entry=(e%d,%s,vl%d), rvv@exit=(e%d,%s,vl%d)",
         dyn->insts[ninst].x64.barrier, dyn->insts[ninst].x64.state_flags, df_status[dyn->f], df_status[dyn->insts[ninst].f_entry], df_status[dyn->insts[ninst].f_exit],
         dyn->insts[ninst].x64.set_flags, dyn->insts[ninst].x64.gen_flags, dyn->insts[ninst].x64.use_flags, dyn->insts[ninst].x64.need_before, dyn->insts[ninst].x64.need_after,
         dyn->insts[ninst].nat_flags_fusion, dyn->insts[ninst].no_scratch_usage, dyn->smwrite, dyn->insts[ninst].will_write, dyn->insts[ninst].last_write,
-        8 << dyn->insts[ninst].rvv_entry.sew, 1 << dyn->insts[ninst].rvv_entry.lmul, dyn->insts[ninst].rvv_entry.vl, 8 << dyn->insts[ninst].rvv_exit.sew,
-        1 << dyn->insts[ninst].rvv_exit.lmul, dyn->insts[ninst].rvv_exit.vl);
+        8 << dyn->insts[ninst].rvv_entry.sew, lmul[dyn->insts[ninst].rvv_entry.lmul], dyn->insts[ninst].rvv_entry.vl, 8 << dyn->insts[ninst].rvv_exit.sew,
+        lmul[dyn->insts[ninst].rvv_exit.lmul], dyn->insts[ninst].rvv_exit.vl);
     if (dyn->insts[ninst].simd_entry)
         length += sprintf(
             buf + length, ", simd@entry=(read=%016llx,carry=%016llx)", (unsigned long long)dyn->insts[ninst].simd_live, (unsigned long long)dyn->insts[ninst].simd_carry);

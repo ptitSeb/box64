@@ -314,10 +314,9 @@ static void simd_preserve_tail(dynarec_rv64_t* dyn, int ninst, int s1, int a, un
     c->valid &= ~tail;
 }
 
-int simd_get(dynarec_rv64_t* dyn, int ninst, int s1, int a, unsigned bytes, int sew, int write)
+int simd_access(dynarec_rv64_t* dyn, int ninst, int s1, int a, unsigned regions, int write)
 {
     int reg = simd_allocate(dyn, ninst, s1, a);
-    unsigned regions = simd_regions(bytes);
     simd_materialize(dyn, ninst, s1, a, regions);
     if (write) {
         simd_preserve_tail(dyn, ninst, s1, a, regions);
@@ -326,6 +325,12 @@ int simd_get(dynarec_rv64_t* dyn, int ninst, int s1, int a, unsigned bytes, int 
         dyn->e.simd[a].dirty |= regions;
         dyn->e.simd[a].zero &= ~regions;
     }
+    return reg;
+}
+
+int simd_get(dynarec_rv64_t* dyn, int ninst, int s1, int a, unsigned bytes, int sew, int write)
+{
+    int reg = simd_access(dyn, ninst, s1, a, simd_regions(bytes), write);
     int fixed = sew != VECTOR_SEWANY;
     if (sew == VECTOR_SEWANY) sew = dyn->rvv.vl && dyn->rvv.lmul == VECTOR_LMUL1 && (dyn->rvv.vl << dyn->rvv.sew) == bytes ? dyn->rvv.sew : VECTOR_SEW8;
     if (fixed) rvv_note_requirement(dyn, ninst, sew, VECTOR_LMUL1, bytes >> sew);

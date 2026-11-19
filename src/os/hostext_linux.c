@@ -179,6 +179,13 @@ void rv64Detect(void)
         cpuext.zvbb = Check(my_block);
 
         block = (uint32_t*)my_block;
+        VSETIVLI(xZR, 2, (VECTOR_SEW64 << 3) | VECTOR_LMUL1);
+        VCLMUL_VV(3, 4, 5, VECTOR_UNMASKED);
+        ADDI(A0, xZR, 42);
+        BR(xRA);
+        cpuext.zvbc = Check(my_block);
+
+        block = (uint32_t*)my_block;
         VSETIVLI(x5, 4, (VECTOR_SEW16 << 3) | VECTOR_LMUL1); // vsetivli x5, 4, e16, m1
         VFWCVT_F_F_V(6, 4, 1);                               // vfwcvt.f.f.v v6, v4
         ADDI(A0, xZR, 42);
@@ -333,6 +340,7 @@ int DetectHostCpuFeatures(void)
                     cpuext.zvknhb = 0;
                 }
                 if (!strcasecmp(p, "zvbb")) cpuext.zvbb = 0;
+                if (!strcasecmp(p, "zvbc")) cpuext.zvbc = 0;
                 if (!strcasecmp(p, "zvfh")) cpuext.zvfh = 0;
                 p = strtok(NULL, ",");
             }
@@ -343,6 +351,7 @@ int DetectHostCpuFeatures(void)
             cpuext.zvknha = 0;
             cpuext.zvknhb = 0;
             cpuext.zvbb = 0;
+            cpuext.zvbc = 0;
             cpuext.zvfh = 0;
         }
     }
