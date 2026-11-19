@@ -139,6 +139,13 @@ void WINAPI ResetToConsistentState(EXCEPTION_RECORD* record, CONTEXT* context,
 
     if (!record || !arm_context)
         return;
+    /* Before the SMC check: a stale protection entry there must not retry the push forever */
+    if (emu && record->ExceptionCode == STATUS_ACCESS_VIOLATION && record->NumberParameters >= 2 &&
+        record->ExceptionInformation[0] == 1 &&
+        Box64EC_HandleCallretStackFault(emu, (uintptr_t)record->ExceptionInformation[1], arm_context)) {
+        Box64EC_ContinueNative(arm_context, FALSE);
+        return;
+    }
 #ifdef DYNAREC
     handle_smc_write(record, arm_context, area, emu);
 #endif

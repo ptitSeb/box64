@@ -128,6 +128,7 @@ void Box64EC_ResetAbandonedEmuRun(box64ec_thr_t* state, x64emu_t* emu)
         return;
     emu->jmpbuf = NULL;
     emu->flags.jmpbuf_ready = 0;
+    Box64EC_ResetCallretStack(emu);
 }
 
 void Box64EC_EnterX64(uint64_t rip)
@@ -212,6 +213,8 @@ void Box64EC_BeginSimulation(void)
         t->pending_callback_seq = 0;
     }
     area->InSimulation = TRUE;
+    /* restarts on the emulator stack base, no earlier activation can resume */
+    Box64EC_ResetCallretStack(emu);
     /* Wine filled ContextAmd64 from an ARM64 context, which cannot carry the
      * x87 control/status/tag words nor all EFlags: keep them from the emu. */
     merge_unmapped_context_from_emu(emu, area->ContextAmd64);

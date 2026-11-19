@@ -133,6 +133,11 @@ typedef struct x64emu_s {
     #endif
     #ifdef BOX64EC
     volatile uint32_t suspend_doorbell;  // set by Wine to suspend the thread, polled by the JIT
+    // private CALLRET stack: x28 holds the live pointer in JIT code, callret_sp is its last spill
+    uintptr_t   callret_stack;      // lowest usable address, a guard page is below
+    uintptr_t   callret_sp;
+    uintptr_t   callret_sp_top;     // current activation's zero sentinel pair
+    size_t      callret_size;
     #endif
     // local selector handling
     base_segment_t  segldt[16];
