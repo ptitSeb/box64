@@ -28,6 +28,8 @@ arm64_epilog:
     str     x19, [x0, (8 * 15)]          /* R15 */
     str     x7,  [x0, (8 * 16)]          /* Flags */
     str     x27, [x0, (8 * 17)]          /* RIP */
+.global arm64_epilog_restore
+arm64_epilog_restore:                    /* guest registers already in emu */
     /* Pop this activation's CALLRET sentinel, back to the parent's */
     ldr     x4, [x0, #BOX64EC_EMU_CALLRET_SP_TOP_OFFSET]
     add     x4, x4, #16

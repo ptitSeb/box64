@@ -9,9 +9,25 @@
 
 .extern LinkNext
 .extern LinkNextInvalid
+.extern Box64EC_RequestExitToNative
+.extern arm64_epilog_restore
 
 .global arm64_next
 .global arm64_next_invalid
+.global arm64_ec_native_exit_direct
+
+/* Spill the guest registers of the JIT map to emu (x0) */
+.macro save_guest_regs
+    stp     x10, x11, [x0, (8 *  0)]     /* RAX, RCX */
+    stp     x12, x8,  [x0, (8 *  2)]     /* RDX, RBX */
+    stp     x20, x21, [x0, (8 *  4)]     /* RSP, RBP */
+    stp     x16, x17, [x0, (8 *  6)]     /* RSI, RDI */
+    stp     x15, x6,  [x0, (8 *  8)]     /* R8, R9 */
+    stp     x23, x9,  [x0, (8 * 10)]     /* R10, R11 */
+    stp     x22, x25, [x0, (8 * 12)]     /* R12, R13 */
+    stp     x26, x19, [x0, (8 * 14)]     /* R14, R15 */
+    stp     x7,  x27, [x0, (8 * 16)]     /* Flags, RIP */
+.endm
 
 .macro next_linker name, linker
 \name:
@@ -62,6 +78,22 @@
 next_linker arm64_next, LinkNext
 next_linker arm64_next_invalid, LinkNextInvalid
 
+/* Jump table entry of a native target: leave the JIT without LinkNext */
+    .8byte  0   // NULL pointer before the entry, for getDB
+arm64_ec_native_exit_direct:
+    stp     x29, x30, [sp, #-16]!
+    sub     sp,  sp,  #16
+    save_guest_regs
+    str     x28, [x0, #BOX64EC_EMU_CALLRET_SP_OFFSET]
+    str     x0,  [sp]
+    mov     x1,  x27                     /* xRIP */
+    bl      Box64EC_RequestExitToNative
+    ldr     x0,  [sp]
+    add     sp,  sp,  #16
+    ldp     x29, x30, [sp], #16
+    b       arm64_epilog_restore         /* the helper clobbered the guest registers */
+arm64_ec_native_exit_direct_end:
+
 /* These are noncontiguous children of arm64_prolog: end_c separates the local
  * prolog from the inherited 160-byte dynarec frame. */
 .section .xdata,"dr"
@@ -81,9 +113,19 @@ next_linker arm64_next_invalid, LinkNextInvalid
     .byte 0x84, 0xc8, 0x02, 0x52, 0x0a, 0xe4
     .byte 0xe3, 0xe3, 0xe3, 0xe3, 0xe3, 0xe3
 
+.Lunwind_arm64_ec_native_exit_direct:
+    .long ((arm64_ec_native_exit_direct_end-arm64_ec_native_exit_direct)/4) | (1<<21) | (7<<27)
+    .byte 0x01, 0x81, 0xe5, 0xe1
+    .byte 0xd9, 0x90, 0xd9, 0x0e, 0xd8, 0x8c, 0xd8, 0x0a
+    .byte 0xe7, 0x17, 0x09, 0xd2, 0x08, 0xc9, 0x86, 0xc8
+    .byte 0x84, 0xc8, 0x02, 0x52, 0x0a, 0xe4
+    .byte 0xe3, 0xe3
+
 .section .pdata,"dr"
 .p2align 2
     .rva arm64_next
     .rva .Lunwind_arm64_next
     .rva arm64_next_invalid
     .rva .Lunwind_arm64_next_invalid
+    .rva arm64_ec_native_exit_direct
+    .rva .Lunwind_arm64_ec_native_exit_direct

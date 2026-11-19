@@ -55,6 +55,8 @@ void Box64EC_ResetCallretStack(x64emu_t* emu);
 int Box64EC_HandleCallretStackFault(x64emu_t* emu, uintptr_t address,
                                     ARM64_NT_CONTEXT* arm_ctx);
 NTSTATUS Box64EC_TransitionProcessInit(HMODULE ntdll);
+uintptr_t fast_ffs_target(uintptr_t stub);
+extern uintptr_t rtl_unwind_ex, rtl_unwind_target;
 extern void ExitToX64(void);
 extern void BeginSimulation(void);
 extern char ExitFunctionSuspendPoint;

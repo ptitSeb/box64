@@ -27,7 +27,7 @@ extern void arm64_epilog(void);
 #endif
 
 static void (WINAPI *pProcessPendingCrossProcessEmulatorWork)(void);
-static uintptr_t rtl_unwind_ex, rtl_unwind_target;
+uintptr_t rtl_unwind_ex, rtl_unwind_target;
 
 static const uint8_t fast_ffs_prefix[9] = {
     0x48, 0x8b, 0xc4,             /* mov rax,rsp */
@@ -112,7 +112,7 @@ static NTSTATUS alloc_x64_return_instr(void)
     return STATUS_SUCCESS;
 }
 
-static uintptr_t fast_ffs_target(uintptr_t stub)
+uintptr_t fast_ffs_target(uintptr_t stub)
 {
     uintptr_t jmp = stub + sizeof(fast_ffs_prefix);
     int32_t rel;
