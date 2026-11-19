@@ -1144,21 +1144,15 @@ void updateUpperLiveness(dynarec_rv64_t* dyn)
     simd_analyze_zeros(dyn);
     simd_analyze_entries(dyn);
 
-    size_t live_size = (size_t)n * sizeof(uint16_t);
-    size_t pending_size = (size_t)n * sizeof(uint16_t);
-    size_t work_size = (size_t)n * sizeof(int);
-    size_t list_size = (size_t)n * sizeof(uint8_t);
-    void* buffer = calloc(1, 2 * live_size + pending_size + work_size + list_size);
+    void* buffer = calloc(n, sizeof(int) + sizeof(uint16_t) + sizeof(uint8_t));
     if (!buffer)
         return;
-    uint16_t* live_in = (uint16_t*)buffer;
-    uint16_t* live_out = (uint16_t*)((char*)live_in + live_size);
-    uint16_t* pending_in = (uint16_t*)((char*)live_out + live_size);
-    int* work = (int*)((char*)pending_in + pending_size);
-    uint8_t* on_list = (uint8_t*)((char*)work + work_size);
+    int* work = buffer;
+    uint16_t* live_in = (uint16_t*)(work + n);
+    uint8_t* on_list = (uint8_t*)(live_in + n);
 
     int sp = 0;
-    for (int i = n - 1; i >= 0; --i) {
+    for (int i = 0; i < n; ++i) {
         if (dyn->insts[i].x64.alive) {
             work[sp++] = i;
             on_list[i] = 1;
@@ -1167,7 +1161,7 @@ void updateUpperLiveness(dynarec_rv64_t* dyn)
     while (sp > 0) {
         int i = work[--sp];
         on_list[i] = 0;
-        const instruction_rv64_t* inst = &dyn->insts[i];
+        instruction_rv64_t* inst = &dyn->insts[i];
         if (!inst->x64.alive)
             continue;
         uint16_t combined_out = 0;
@@ -1182,8 +1176,7 @@ void updateUpperLiveness(dynarec_rv64_t* dyn)
         int has_internal_jump = inst->x64.jmp && inst->x64.jmp_insts >= 0 && inst->x64.jmp_insts < n;
         if ((inst->x64.has_next && i == n - 1) || (!inst->x64.has_next && !has_internal_jump))
             combined_out = UINT16_MAX;
-        live_out[i] = combined_out;
-
+        inst->up32_skip = inst->up32_write32 & (uint16_t)~combined_out;
 
         uint16_t live_in_val = inst->up32_read | (combined_out & (uint16_t)~inst->up32_write64);
         if (live_in_val != live_in[i]) {
@@ -1198,19 +1191,21 @@ void updateUpperLiveness(dynarec_rv64_t* dyn)
         }
     }
 
-    for (int i = 0; i < n; ++i) {
+    int any_pending = 0;
+    for (int i = n - 1; i >= 0; --i) {
         instruction_rv64_t* inst = &dyn->insts[i];
-        inst->up32_skip = inst->up32_write32 & (uint16_t)~live_out[i];
-    }
-
-    memset(pending_in, 0, pending_size);
-    memset(on_list, 0, list_size);
-    sp = 0;
-    for (int i = 0; i < n; ++i) {
-        if (dyn->insts[i].x64.alive) {
+        inst->up32_pending = 0;
+        if (inst->x64.alive) {
             work[sp++] = i;
             on_list[i] = 1;
+        } else {
+            inst->up32_skip = inst->up32_write32;
         }
+        any_pending |= inst->up32_skip;
+    }
+    if (!any_pending) {
+        free(buffer);
+        return;
     }
     while (sp > 0) {
         int i = work[--sp];
@@ -1223,10 +1218,10 @@ void updateUpperLiveness(dynarec_rv64_t* dyn)
         for (int p = 0; p < inst->pred_sz; ++p) {
             int j = inst->pred[p];
             const instruction_rv64_t* pred = &dyn->insts[j];
-            merged_pending |= (pending_in[j] & (uint16_t)~pred->up32_write64) | pred->up32_skip;
+            merged_pending |= (pred->up32_pending & (uint16_t)~pred->up32_write64) | pred->up32_skip;
         }
-        if (merged_pending != pending_in[i]) {
-            pending_in[i] = merged_pending;
+        if (merged_pending != inst->up32_pending) {
+            inst->up32_pending = merged_pending;
             if (inst->x64.has_next && i + 1 < n && dyn->insts[i + 1].x64.alive && !on_list[i + 1]) {
                 work[sp++] = i + 1;
                 on_list[i + 1] = 1;
@@ -1240,10 +1235,6 @@ void updateUpperLiveness(dynarec_rv64_t* dyn)
             }
         }
     }
-    for (int i = 0; i < n; ++i) {
-        dyn->insts[i].up32_pending = pending_in[i];
-    }
-
     free(buffer);
 }
 
