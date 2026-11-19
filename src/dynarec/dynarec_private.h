@@ -55,6 +55,7 @@ typedef struct instruction_x64_s {
     uint8_t     need_before;// calculated
     uint8_t     need_after; // calculated
     uint8_t     strongmem:3;    // strongmem model at the opcode
+    uint8_t     volatile_fence:1; // requires an explicit fence from volatile metadata
 } instruction_x64_t;
 
 #endif //__DYNAREC_PRIVATE_H_

@@ -32,18 +32,19 @@
     } while (0)
 #define BARRIER(A)      if(A!=BARRIER_MAYBE) {fpu_purgecache(dyn, ninst, 0, x1, x2, x3, 0); dyn->insts[ninst].x64.barrier = A;} else dyn->insts[ninst].barrier_maybe = 1
 #define SET_HASCALLRET()    dyn->insts[ninst].x64.has_callret = 1
-#define NEW_INST \
-        ++dyn->size;                            \
-        dyn->insts[ninst].x64.addr = ip;        \
-        dyn->n.combined1 = dyn->n.combined2 = 0;\
-        dyn->n.swapped = 0; dyn->n.barrier = 0; \
-        dyn->insts[ninst].f_entry = dyn->f;     \
-        dyn->insts[ninst].host_call = 0;        \
-        dyn->insts[ninst].host_call_clobber = 0;\
-        dyn->insts[ninst].x64.strongmem = VolatileFenceGetLevel(ip, BOX64DRENV(dynarec_strongmem)); \
-        if(dyn->insts[ninst].x64.strongmem && cpuext.lrcpc && cpuext.lrcpc2 && cpuext.uscat) dyn->insts[ninst].use_lrcpc = 1;   \
-        if(ninst) {dyn->insts[ninst-1].x64.size = dyn->insts[ninst].x64.addr - dyn->insts[ninst-1].x64.addr;}                   \
-        AREFLAGSNEEDED()
+#define NEW_INST                                                                                                           \
+    ++dyn->size;                                                                                                           \
+    dyn->insts[ninst].x64.addr = ip;                                                                                       \
+    dyn->n.combined1 = dyn->n.combined2 = 0;                                                                               \
+    dyn->n.swapped = 0;                                                                                                    \
+    dyn->n.barrier = 0;                                                                                                    \
+    dyn->insts[ninst].f_entry = dyn->f;                                                                                    \
+    dyn->insts[ninst].host_call = 0;                                                                                       \
+    dyn->insts[ninst].host_call_clobber = 0;                                                                               \
+    READ_VOLATILE_FENCE();                                                                                                 \
+    if (dyn->insts[ninst].x64.strongmem && cpuext.lrcpc && cpuext.lrcpc2 && cpuext.uscat) dyn->insts[ninst].use_lrcpc = 1; \
+    if (ninst) { dyn->insts[ninst - 1].x64.size = dyn->insts[ninst].x64.addr - dyn->insts[ninst - 1].x64.addr; }           \
+    AREFLAGSNEEDED()
 
 #define INST_EPILOG                             \
         dyn->insts[ninst].f_exit = dyn->f;      \

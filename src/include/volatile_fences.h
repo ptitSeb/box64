@@ -24,10 +24,7 @@ int VolatileFenceAddRange(volatile_range_t kind, uintptr_t start, uintptr_t end)
 void VolatileFenceAddMetadataPoint(uintptr_t ip);
 
 // Strongmem level for ip.
-int VolatileFenceGetLevel(uintptr_t ip, int default_level);
-
-// Whether ip is a registered metadata fence point inside a metadata range.
-int VolatileFenceNeedsFence(uintptr_t ip);
+int VolatileFenceGetLevel(uintptr_t ip, int default_level, int* needs_fence);
 
 // Whether the Unity workaround needs a fence for this memory access.
 int VolatileFenceNeedsUnityFence(uintptr_t ip, int64_t disp);

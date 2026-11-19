@@ -23,6 +23,13 @@
 
 #include "dynarec_arch.h"
 #include "dynarec_helper.h"
+
+#define READ_VOLATILE_FENCE()                                                                                     \
+    do {                                                                                                          \
+        int needs_fence;                                                                                          \
+        dyn->insts[ninst].x64.strongmem = VolatileFenceGetLevel(ip, BOX64DRENV(dynarec_strongmem), &needs_fence); \
+        dyn->insts[ninst].x64.volatile_fence = needs_fence;                                                       \
+    } while (0)
 #ifdef BOX64EC
 #include "box64ec.h"
 #endif
@@ -237,7 +244,9 @@ uintptr_t native_pass(dynarec_native_t* dyn, uintptr_t addr, int alternate, int 
             WILLWRITE();
         }
         #endif
-        int is_opcode_volatile = VolatileFenceNeedsFence(ip);
+        #if STEP > 1 || (STEP == 1 && defined(ARM64))
+        int is_opcode_volatile = dyn->insts[ninst].x64.volatile_fence;
+        #endif
         #if defined(ARM64) && STEP == 1
         if(is_opcode_volatile && cpuext.lrcpc && cpuext.lrcpc2 && cpuext.uscat) dyn->insts[ninst].use_lrcpc = 1;
         #endif

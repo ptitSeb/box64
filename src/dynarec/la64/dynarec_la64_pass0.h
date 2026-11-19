@@ -88,7 +88,7 @@
     dyn->insts[ninst].host_call = 0;                                                                             \
     dyn->insts[ninst].call_window = 0;                                                                           \
     dyn->insts[ninst].f_entry = dyn->f;                                                                          \
-    dyn->insts[ninst].x64.strongmem = VolatileFenceGetLevel(ip, BOX64DRENV(dynarec_strongmem));                  \
+    READ_VOLATILE_FENCE();                                                                                       \
     if (ninst) { dyn->insts[ninst - 1].x64.size = dyn->insts[ninst].x64.addr - dyn->insts[ninst - 1].x64.addr; } \
     AREFLAGSNEEDED()
 
