@@ -2,6 +2,8 @@
 // ARM64EC dynarec prolog
 // x0 = emu*, x1 = native block entry
 
+#include "box64ec_layout.h"
+
 .text
 .align 4
 
@@ -10,7 +12,7 @@
 .seh_proc arm64_prolog
 arm64_prolog:
     /* The JIT chunks register unwind codes for this same 160-byte frame, keep
-     * both in sync. The lowest 16 bytes are not used. */
+     * both in sync. [sp] is not used, [sp, #8] keeps the parent's CALLRET sentinel. */
     sub     sp, sp, #160
     .seh_stackalloc 160
     stp     x29, x30, [sp, #144]
@@ -57,6 +59,16 @@ arm64_prolog:
     ldr     x19, [x0, (8 * 15)]          /* R15 */
     ldr     x7,  [x0, (8 * 16)]          /* Flags */
     ldr     x27, [x0, (8 * 17)]          /* RIP */
+
+    /* push this activation's zero sentinel, the epilog restores the parent's */
+    ldr     x2, [x0, #BOX64EC_EMU_CALLRET_SP_OFFSET]
+    ldr     x3, [x0, #BOX64EC_EMU_CALLRET_SP_TOP_OFFSET]
+    sub     x4, x2, #16
+    stp     xzr, xzr, [x4]
+    str     x4, [x0, #BOX64EC_EMU_CALLRET_SP_OFFSET]
+    str     x4, [x0, #BOX64EC_EMU_CALLRET_SP_TOP_OFFSET]
+    str     x3, [sp, #8]
+    mov     x28, x4
 
     br      x1
 .seh_endproc

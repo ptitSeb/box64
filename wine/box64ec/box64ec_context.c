@@ -192,6 +192,9 @@ void jit_arm_context_to_emu(ARM64_NT_CONTEXT* context, x64emu_t* emu)
     R_R14 = context->X26;
     R_R15 = context->X19;
     emu->eflags.x64 = context->X7;
+    // JIT code keeps the CALLRET stack pointer in x28, anything else is not live
+    if (context->X28 >= emu->callret_stack && context->X28 <= emu->callret_stack + emu->callret_size)
+        emu->callret_sp = context->X28;
 }
 
 void emu_to_jit_arm_context(x64emu_t* emu, ARM64_NT_CONTEXT* context)

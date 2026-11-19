@@ -59,6 +59,8 @@ p0-p3 are used to pass scalable predicate arguments to a subroutine and to retur
 #define xR15    19
 #define xFlags  7
 #define xRIP    27
+// the CALLRET stack is private, ARM64EC code never uses x28
+#define xCallRetSP 28
 
 // convert a x86 register to native according to the register mapping
 #define TO_NAT(A) (((uint8_t[]){10, 11, 12, 8, 20, 21, 16, 17, 15, 6, 23, 9, 22, 25, 26, 19})[(A)])
@@ -84,6 +86,7 @@ p0-p3 are used to pass scalable predicate arguments to a subroutine and to retur
 #define xFlags  26
 #define xRIP    27
 #define xSavedSP 28
+#define xCallRetSP xSP
 
 // convert a x86 register to native according to the register mapping
 #define TO_NAT(A) (xRAX + (A))

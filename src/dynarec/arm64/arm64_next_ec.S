@@ -2,6 +2,8 @@
 // ARM64EC update linker table for dynarec
 // called with emu in x0 and the x64 target in x1 (and xRIP)
 
+#include "box64ec_layout.h"
+
 .text
 .align 4
 
@@ -34,12 +36,15 @@
     stp     x22, x25, [x0, (8 * 12)]     /* R12, R13 */
     stp     x26, x19, [x0, (8 * 14)]     /* R14, R15 */
     stp     x7,  x27, [x0, (8 * 16)]     /* Flags, RIP */
+    /* nested activations start below it, and Wine's context conversions zero x28 */
+    str     x28, [x0, #BOX64EC_EMU_CALLRET_SP_OFFSET]
     mov     x1, x27                      /* xRIP */
     mov     x2, x30                      /* "from" is in lr */
     add     x3, sp, (8 * 13)             /* address to change RIP */
     bl      \linker
     mov     x3, x0
     ldp     x0,  x1,  [sp, (8 *  0)]
+    ldr     x28, [x0, #BOX64EC_EMU_CALLRET_SP_OFFSET]
     ldp     x10, x11, [sp, (8 *  2)]
     ldp     x12, x8,  [sp, (8 *  4)]
     ldp     x23, x9,  [sp, (8 *  6)]

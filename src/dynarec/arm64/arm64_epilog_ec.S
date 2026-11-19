@@ -2,6 +2,8 @@
 // ARM64EC dynarec epilog
 // x0 = emu*
 
+#include "box64ec_layout.h"
+
 .text
 .align 4
 
@@ -26,6 +28,12 @@ arm64_epilog:
     str     x19, [x0, (8 * 15)]          /* R15 */
     str     x7,  [x0, (8 * 16)]          /* Flags */
     str     x27, [x0, (8 * 17)]          /* RIP */
+    /* Pop this activation's CALLRET sentinel, back to the parent's */
+    ldr     x4, [x0, #BOX64EC_EMU_CALLRET_SP_TOP_OFFSET]
+    add     x4, x4, #16
+    str     x4, [x0, #BOX64EC_EMU_CALLRET_SP_OFFSET]
+    ldr     x3, [x29, #8]
+    str     x3, [x0, #BOX64EC_EMU_CALLRET_SP_TOP_OFFSET]
 arm64_epilog_scope:
     mov     sp, x29
     ldp     x19, x20, [sp, #16]

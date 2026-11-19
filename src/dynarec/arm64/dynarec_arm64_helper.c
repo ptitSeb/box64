@@ -350,7 +350,7 @@ void jump_to_epilog(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst)
     TABLE64C(x2, const_epilog);
     SMEND();
     CHECK_DFNONE(0);
-#ifndef BOX64EC // no CALLRET on Box64EC yet
+#ifndef BOX64EC // x6 is guest R9, CALLRET 3 is not supported
     if (BOX64DRENV(dynarec_callret) >= 3)
         doLeaveBlock(dyn, ninst, x4, x5, x6);
 #endif
@@ -428,7 +428,7 @@ void jump_to_next(dynarec_arm_t* dyn, uintptr_t ip, int reg, int ninst, int is32
     if(reg!=x1) {
         MOVx_REG(x1, xRIP);
     }
-#ifndef BOX64EC // no CALLRET on Box64EC yet
+#ifndef BOX64EC // x6 is guest R9, CALLRET 3 is not supported
     if(BOX64DRENV(dynarec_callret) >= 3 && !dyn->insts[ninst].x64.has_callret)
         doLeaveBlock(dyn, ninst, x4, x5, x6);
 #endif
@@ -452,19 +452,22 @@ void ret_to_next(dynarec_arm_t* dyn, uintptr_t ip, int ninst, rex_t rex)
     CHECK_DFNONE(0);
     MOVz_REG(x1, xRIP);
     SMEND();
-#ifndef BOX64EC // no CALLRET on Box64EC yet
     if(BOX64DRENV(dynarec_callret)) {
         // pop the actual return address for ARM stack
-        LDPx_S7_postindex(xLR, x6, xSP, 16);
-        SUBx_REG(x6, x6, xRIP); // is it the right address?
+        LDPx_S7_postindex(xLR, x5, xCallRetSP, 16);
+        SUBx_REG(x5, x5, xRIP); // is it the right address?
         if (BOX64DRENV(dynarec_callret) >= 3)
-            doLeaveBlock(dyn, ninst, x4, x5, x3);
-        CBNZx(x6, 2*4);
+            doLeaveBlock(dyn, ninst, x4, x2, x3);
+        CBNZx(x5, 2*4);
         RET(xLR);
         // not the correct return address, regular jump, but purge the stack first, it's unsync now...
+#ifdef BOX64EC
+        // keep the activation's sentinel
+        LDRx_U12(xCallRetSP, xEmu, offsetof(x64emu_t, callret_sp_top));
+#else
         SUBx_U12(xSP, xSavedSP, 16);
-    }
 #endif
+    }
     NOTEST(x2);
     int dest = indirect_lookup(dyn, ninst, rex.is32bits, x2, x3);
     #ifdef HAVE_TRACE
