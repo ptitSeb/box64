@@ -1447,9 +1447,8 @@ void idiv32(x64emu_t *emu, uint32_t s)
 		INTR_RAISE_DIV0(emu);
 		return;
 	}
-	ldiv_t p = ldiv(dvd, (int32_t)s);
-	quot = p.quot;
-	mod = p.rem;
+	quot = dvd / (int32_t)s;
+	mod = dvd % (int32_t)s;
 	if ((int32_t)quot != quot) {
 		INTR_RAISE_DIV0(emu);
 		return;
