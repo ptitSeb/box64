@@ -752,10 +752,12 @@ uintptr_t Run66(x64emu_t *emu, rex_t rex, uintptr_t addr, int *step)
             case 6:                 /* DIV Ew */
                 GETEW(0);
                 div16(emu, EW->word[0]);
+                CHECK_DIV0(emu);
                 break;
             case 7:                 /* IDIV Ew */
                 GETEW(0);
                 idiv16(emu, EW->word[0]);
+                CHECK_DIV0(emu);
                 break;
         }
         break;
