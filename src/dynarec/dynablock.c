@@ -98,7 +98,8 @@ uint32_t X31_hash_code(void* addr, int len)
 dynablock_t* InvalidDynablock(dynablock_t* db, int need_lock)
 {
     if(db) {
-        if(db->gone)
+        // claim the block before its jump table entry goes: MarkDynablock retires a block it finds unlinked
+        if(native_lock_xchg_b(&db->gone, 1))
             return NULL; // already in the process of deletion!
         dynarec_log(LOG_DEBUG, "InvalidDynablock(%p), db->block=%p x64=%p:%p already gone=%d\n", db, db->block, db->x64_addr, db->x64_addr+db->x64_size-1, db->gone);
         FreeDynablockGdbJIT(db);
@@ -107,7 +108,6 @@ dynablock_t* InvalidDynablock(dynablock_t* db, int need_lock)
         if(need_lock)
             mutex_lock(&my_context->mutex_dyndump);
         db->done = 0;
-        db->gone = 1;
         uintptr_t db_size = db->x64_size;
         #ifdef ARCH_NOP
         if(db->callret_size) {
@@ -261,7 +261,7 @@ void FreeInvalidDynablock(dynablock_t* db, int need_lock)
 void FreeDynablock(dynablock_t* db, int need_lock, int need_remove)
 {
     if(db) {
-        if(db->gone)
+        if(native_lock_xchg_b(&db->gone, 1))
             return; // already in the process of deletion!
         dynarec_log(LOG_DEBUG, "FreeDynablock(%p), db->block=%p x64=%p:%p already gone=%d\n", db, db->block, db->x64_addr, db->x64_addr+db->x64_size-1, db->gone);
         FreeDynablockGdbJIT(db);
@@ -273,7 +273,6 @@ void FreeDynablock(dynablock_t* db, int need_lock, int need_remove)
             mutex_lock(&my_context->mutex_dyndump);
         dynarec_log(LOG_DEBUG, " -- FreeDyrecMap(%p, %d)\n", db->actual_block, db->size);
         db->done = 0;
-        db->gone = 1;
         uintptr_t db_size = db->x64_size;
         if(db_size && my_context) {
             uint32_t n = rb_dec(my_context->db_sizes, db_size, db_size+1);
@@ -295,11 +294,10 @@ void MarkDynablock(dynablock_t* db)
         if(!setJumpTableIfRef64(db->x64_addr, db->jmpnext, db->block)) {
             dynablock_t* old = db;
             db = getDB((uintptr_t)old->x64_addr);
-            if(!old->gone && db!=old) {
+            if(db!=old && !native_lock_xchg_b(&old->gone, 1)) {
                 printf_log(LOG_INFO, "Warning, couldn't mark block as dirty for %p, block=%p, current_block=%p\n", old->x64_addr, old, db);
                 // the block is lost, need to invalidate and defer its free
                 FreeDynablockGdbJIT(old);
-                old->gone = 1;
                 old->done = 0;
                 FreeInvalidDynablock(old, 1);
             }

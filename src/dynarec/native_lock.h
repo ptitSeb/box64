@@ -103,7 +103,7 @@
 #define native_lock_cas_d(A, B, C)          la64_lock_cas_d(A, B, C)
 #define native_lock_cas_dd(A, B, C)         la64_lock_cas_dd(A, B, C)
 #define native_lock_xchg_b(A, B) \
-    cpuext.lam_bh ? la64_lock_xchg_b(A, B) : la64_lock_xchg_b_slow(A, B)
+    (cpuext.lam_bh ? la64_lock_xchg_b(A, B) : la64_lock_xchg_b_slow(A, B))
 #define native_lock_read_b(A)               tmpcas=*(uint8_t*)(A)
 #define native_lock_write_b(A, B) \
     cpuext.lamcas ? la64_lock_cas_b(A, tmpcas, B) : la64_lock_cas_b_slow(A, tmpcas, B)
