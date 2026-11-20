@@ -85,36 +85,7 @@ void native_fprem(x64emu_t* emu)
         if(full_ld_fprem(emu))
             return;
     }
-    double x = ST0.d, y = ST1.d;
-    int64_t q = 0;
-    if (isnan(x) || isnan(y)) {
-        ST0.d = fpu_quiet_nan(isnan(x) ? x : y);
-        q = 0;
-    } else if (isinf(x) || y == 0.0) {
-#if !defined(_WIN32) && !defined(__MINGW32__)
-        feraiseexcept(FE_INVALID);
-#endif
-        ST0.q = X87_REAL_INDEFINITE_DOUBLE;
-        q = 0;
-    } else {
-#if defined(_WIN32) || defined(__MINGW32__)
-        if(isinf(y))
-            q = 0;
-        else {
-            q = (int64_t)trunc(x / y);
-            ST0.d = x - (y * q);
-        }
-#else
-        ST0.d = fmod(x, y);
-        q = (int64_t)trunc(x / y);
-#endif
-    }
-    //q &= 7;   //why forcing all low bits (and so C0, C1 & C3) to 1?
-    emu->sw.f.F87_C2 = 0;
-    emu->sw.f.F87_C1 = q & 1;
-    emu->sw.f.F87_C3 = (q >> 1) & 1;
-    emu->sw.f.F87_C0 = (q >> 2) & 1;
-
+    fpu_fprem(emu, 0);
 }
 void native_fyl2xp1(x64emu_t* emu)
 {
@@ -347,32 +318,7 @@ void native_frstor16(x64emu_t* emu, uint8_t* ed)
 
 void native_fprem1(x64emu_t* emu)
 {
-    double x = ST0.d, y = ST1.d;
-    int q = 0;
-    if (isnan(x) || isnan(y)) {
-        ST0.d = fpu_quiet_nan(isnan(x) ? x : y);
-    } else if (isinf(x) || y == 0.0) {
-#if !defined(_WIN32) && !defined(__MINGW32__)
-        feraiseexcept(FE_INVALID);
-#endif
-        ST0.q = X87_REAL_INDEFINITE_DOUBLE;
-    } else {
-#if defined(_WIN32) || defined(__MINGW32__)
-        if(isinf(y))
-            q = 0;
-        else {
-            q = (int)round(x / y);
-            ST0.d = x - (y * q);
-        }
-#else
-        ST0.d = remquo(x, y, &q);
-#endif
-    }
-    //q &= 7;   //why forcing all low bits (and so C0, C1 & C3) to 1?
-    emu->sw.f.F87_C2 = 0;
-    emu->sw.f.F87_C1 = q & 1;
-    emu->sw.f.F87_C3 = (q >> 1) & 1;
-    emu->sw.f.F87_C0 = (q >> 2) & 1;
+    fpu_fprem(emu, 1);
 }
 
 const uint8_t ff_mult2[4][256] = {

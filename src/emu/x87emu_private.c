@@ -289,10 +289,45 @@ int full_ld_fprem(x64emu_t* emu)
         return 0;   // only case corectly computed is when a mod b = a becasue b is bigger than a, and the value is big already
     //ST0 will not change in that case...
     emu->sw.f.F87_C2 = 0;
-    emu->sw.f.F87_C1 = a.f.q & 1;
-    emu->sw.f.F87_C3 = (a.f.q >> 1) & 1;
-    emu->sw.f.F87_C0 = (a.f.q >> 2) & 1;
+    emu->sw.f.F87_C1 = 0;
+    emu->sw.f.F87_C3 = 0;
+    emu->sw.f.F87_C0 = 0;
     return 1;
+}
+
+void fpu_fprem(x64emu_t* emu, int nearest)
+{
+    double x = ST0.d, y = ST1.d;
+    int q = 0;
+    emu->sw.f.F87_C2 = 0;
+    if (isnan(x) || isnan(y)) {
+        ST0.d = fpu_quiet_nan(isnan(x) ? x : y);
+    } else if (isinf(x) || y == 0.0) {
+        box64_feraise(FE_INVALID);
+        ST0.q = X87_REAL_INDEFINITE_DOUBLE;
+    } else if (!isinf(y) && x != 0.0) {
+        int d = ilogb(x) - ilogb(y);
+        if (d >= 64) {
+            // partial remainder
+            ST0.d = fmod(x, ldexp(y, d - 32 - d % 32));
+            emu->sw.f.F87_C2 = 1;
+        } else {
+            // low 3 bits of the quotient, all the subtractions are exact
+            double ay = fabs(y);
+            double r = fmod(fabs(x), 8 * ay);
+            if (r >= 4 * ay) { r -= 4 * ay; q |= 4; }
+            if (r >= 2 * ay) { r -= 2 * ay; q |= 2; }
+            if (r >= ay) { r -= ay; q |= 1; }
+            if (nearest && (2 * r > ay || (2 * r == ay && (q & 1)))) {
+                r -= ay;
+                ++q;
+            }
+            ST0.d = signbit(x) ? -r : r;
+        }
+    }
+    emu->sw.f.F87_C1 = q & 1;
+    emu->sw.f.F87_C3 = (q >> 1) & 1;
+    emu->sw.f.F87_C0 = (q >> 2) & 1;
 }
 
 void fpu_loadenv(x64emu_t* emu, char* p, int b16)
