@@ -33,6 +33,17 @@ int is_addr_autosmc(uintptr_t addr)
     return autosmc && kh_get(autosmc, autosmc, addr) != kh_end(autosmc);
 }
 
+/* Other threads change the block marks while building and freeing blocks */
+static dynablock_t* find_jit_block(uintptr_t pc)
+{
+    dynablock_t* db;
+
+    mutex_lock(&my_context->mutex_dyndump);
+    db = FindDynablockFromNativeAddress((void*)pc);
+    mutex_unlock(&my_context->mutex_dyndump);
+    return db;
+}
+
 /* A write to guest code the Dynarec write-protected, from any code: drop the
  * blocks of the page and retry the write, as the Linux signal handler does.
  * Returns if the fault is not one of those. */
@@ -52,7 +63,7 @@ static void handle_smc_write(EXCEPTION_RECORD* record, ARM64_NT_CONTEXT* arm_con
         unprotectDB(addr, 1, 1);
     } else if (!(prot & PROT_WRITE))
         return;     // not a write to protected guest code (or another thread already unprotected it)
-    db = (area && emu && area->InSimulation) ? FindDynablockFromNativeAddress((void*)(uintptr_t)arm_context->Pc) : NULL;
+    db = (area && emu && area->InSimulation) ? find_jit_block(arm_context->Pc) : NULL;
     if (db) {
         uintptr_t x64pc = getX64Address(db, arm_context->Pc);
         int own = addr >= (uintptr_t)db->x64_addr && addr < (uintptr_t)db->x64_addr + db->x64_size;
@@ -161,7 +172,7 @@ void WINAPI ResetToConsistentState(EXCEPTION_RECORD* record, CONTEXT* context,
         cancelFillBlock();
     /* In JIT code the guest registers are in the JIT map, and the deferred flags and
      * cached SIMD registers are described by the block. */
-    dynablock_t* db = area->InSimulation ? FindDynablockFromNativeAddress((void*)(uintptr_t)arm_context->Pc) : NULL;
+    dynablock_t* db = area->InSimulation ? find_jit_block(arm_context->Pc) : NULL;
     if (db) {
         uintptr_t x64pc = getX64Address(db, arm_context->Pc);
         jit_arm_context_to_emu(arm_context, emu);
