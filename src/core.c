@@ -1022,6 +1022,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
     }
     // Create a new context
     #ifdef BOX32
+    init_custommem_helper(NULL);    //might be needed
     box64_is32bits = FileIsX86ELF(prog);
     #endif
     my_context = NewBox64Context(argc - nextarg);
