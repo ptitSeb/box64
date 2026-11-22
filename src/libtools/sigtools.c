@@ -954,6 +954,12 @@ void copyEmu2USignalCTXreg(ucontext_t* p, x64emu_t* emu, void* new_pc)
     CONTEXT_REG(p, xRBX) = R_RBX;
     CONTEXT_REG(p, xRIP) = R_RIP;
     CONTEXT_REG(p, xFlags) = emu->eflags.x64;
+    #ifdef LA64
+    if (cpuext.lbt) {
+        uint64_t f = emu->eflags.x64;
+        __asm__ __volatile__("x86mtflag %0, 0b111111" : : "r"(f));
+    }
+    #endif
     #ifdef RV64
     CONTEXT_REG(p, xFlags) &= ~(1<<F_OF2);
     CONTEXT_REG(p, xFlags) |= ((CONTEXT_REG(p, xFlags)>>F_OF)&1)<<F_OF2;
