@@ -149,11 +149,16 @@ EXPORT int my32_pthread_attr_destroy(x64emu_t* emu, void* attr)
     return ret;
 }
 
-EXPORT int my32_pthread_attr_getstack(x64emu_t* emu, void* attr, void** stackaddr, size_t* stacksize)
+EXPORT int my32_pthread_attr_getstack(x64emu_t* emu, void* attr, ptr_t* stackaddr, ulong_t* stacksize)
 {
-    int ret = pthread_attr_getstack(get_attr(attr), stackaddr, stacksize);
-    if (ret==0)
-        GetStackSize((uintptr_t)attr, stackaddr, stacksize);
+    void* addr = NULL;
+    size_t sz = 0;
+    int ret = pthread_attr_getstack(get_attr(attr), &addr, &sz);
+    if (ret==0) {
+        GetStackSize((uintptr_t)attr, &addr, &sz);
+        *stackaddr = to_ptrv(addr);
+        *stacksize = to_ulong(sz);
+    }
     return ret;
 }
 
