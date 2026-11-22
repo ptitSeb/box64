@@ -880,7 +880,7 @@ uint64_t rol64(x64emu_t *emu, uint64_t d, uint8_t s)
 
 	if(!BOX64ENV(cputype)) CONDITIONAL_SET_FLAG(XOR2(d>>62), F_OF);
 	if((cnt = s % 64) != 0) {
-	d = (d << cnt) + ((d >> (64 - cnt)) & ((1L << cnt) - 1));
+	d = (d << cnt) + ((d >> (64 - cnt)) & ((1ULL << cnt) - 1));
 	}
 
 	if(BOX64ENV(cputype)) CONDITIONAL_SET_FLAG((d + (d >> 63)) & 1, F_OF);
@@ -971,7 +971,7 @@ uint64_t ror64(x64emu_t *emu, uint64_t d, uint8_t s)
 	if(!BOX64ENV(cputype)) CONDITIONAL_SET_FLAG(((d >> 63)^d)&1, F_OF);
 
 	if((cnt = s % 64) != 0) {
-		d = (d << (64 - cnt)) + ((d >> (cnt)) & ((1L << (64 - cnt)) - 1L));
+		d = (d << (64 - cnt)) + ((d >> (cnt)) & ((1ULL << (64 - cnt)) - 1ULL));
 	}
 
 	if(BOX64ENV(cputype)) CONDITIONAL_SET_FLAG(XOR2(d >> 62), F_OF);
