@@ -660,7 +660,7 @@ static int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, int bindnow, int d
                     if(sym_elf) {
                         delta = *(int32_t*)p;
                         printf_dump(LOG_NEVER, "Applying %s %s on %s @%p (%d -> %d+%d, size=%d)\n", (bind==STB_LOCAL)?"Local":((bind==STB_WEAK)?"Weak":"Global"), DumpRelType32(t), symname, p, delta, sym_elf->tlsbase, (int32_t)offs, end-offs);
-                        *p = (uintptr_t)((int32_t)offs + sym_elf->tlsbase);
+                        *p = (uintptr_t)((int32_t)offs + delta + sym_elf->tlsbase);
                     } else {
                         printf_log(LOG_INFO, "Warning, cannot apply %s %s on %s @%p (%d), no elf_header found\n", (bind==STB_LOCAL)?"Local":((bind==STB_WEAK)?"Weak":"Global"), DumpRelType32(t), symname, p, (int32_t)offs);
                     }
@@ -676,7 +676,7 @@ static int RelocateElfREL(lib_t *maplib, lib_t *local_maplib, int bindnow, int d
                     if(sym_elf) {
                         delta = *(int32_t*)p;
                         printf_dump(LOG_NEVER, "Applying %s %s on %s @%p (%d -> %d+%d, size=%d)\n", (bind==STB_LOCAL)?"Local":((bind==STB_WEAK)?"Weak":"Global"), DumpRelType32(t), symname, p, delta, -sym_elf->tlsbase, (int32_t)offs, end-offs);
-                        *p = (uintptr_t)((int32_t)offs - sym_elf->tlsbase);
+                        *p = (uintptr_t)((int32_t)offs + delta - sym_elf->tlsbase);
                     } else {
                         printf_log(LOG_INFO, "Warning, cannot apply %s %s on %s @%p (%d), no elf_header found\n", (bind==STB_LOCAL)?"Local":((bind==STB_WEAK)?"Weak":"Global"), DumpRelType32(t), symname, p, (int32_t)offs);
                     }
