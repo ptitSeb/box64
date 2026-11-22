@@ -178,6 +178,11 @@ typedef struct x64emu_s {
 
 void EmitDiv0(x64emu_t* emu, void* addr, int code);
 #define INTR_RAISE_DIV0(emu) {emu->error |= ERR_DIVBY0;} // should rise a SIGFPE and not quit
+#ifdef TEST_INTERPRETER
+#define CHECK_DIV0(emu)
+#else
+#define CHECK_DIV0(emu) if(emu->error&ERR_DIVBY0) {emu->error &= ~ERR_DIVBY0; EmitDiv0(emu, (void*)R_RIP, 1);}
+#endif
 
 void applyFlushTo0(x64emu_t* emu);
 
