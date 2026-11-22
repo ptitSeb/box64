@@ -1330,6 +1330,36 @@ void MarkElfInitDone(elfheader_t* h)
         h->init_done = 1;
 }
 
+void RunElfPreInit(elfheader_t* h, x64emu_t *emu)
+{
+    if(!h || h->preinit_done)
+        return;
+    h->preinit_done = 1;
+    if(!h->preinitarray || !h->preinitarray_sz)
+        return;
+    RefreshElfTLS(h, emu);
+    #ifdef BOX32
+    if(box64_is32bits) {
+        Elf32_Addr *addr = (Elf32_Addr*)(h->preinitarray + h->delta);
+        for (size_t i=0; i<h->preinitarray_sz; ++i) {
+            if(addr[i]) {
+                printf_dump(LOG_DEBUG, "Calling PreInit[%zu] for %s @%p\n", i, ElfName(h), from_ptrv(addr[i]));
+                RunFunctionWithEmu(emu, 0, (uintptr_t)addr[i], 3, my_context->argc, my_context->argv32, my_context->envv32);
+            }
+        }
+    } else
+    #endif
+    {
+        Elf64_Addr *addr = (Elf64_Addr*)(h->preinitarray + h->delta);
+        for (size_t i=0; i<h->preinitarray_sz; ++i) {
+            if(addr[i]) {
+                printf_dump(LOG_DEBUG, "Calling PreInit[%zu] for %s @%p\n", i, ElfName(h), (void*)addr[i]);
+                RunFunctionWithEmu(emu, 0, (uintptr_t)addr[i], 3, my_context->argc, my_context->argv, my_context->envv);
+            }
+        }
+    }
+}
+
 void RunElfInit(elfheader_t* h, x64emu_t *emu)
 {
     if(!h || h->init_done)

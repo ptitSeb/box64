@@ -330,11 +330,13 @@ elfheader_t* ParseElfHeader64(FILE* f, const char* name, int exec)
                 h->initarray_sz = val / sizeof(Elf64_Addr);
                 printf_dump(LOG_DEBUG, "The DT_INIT_ARRAYSZ is %zu\n", h->initarray_sz);
                 break;
+            case DT_PREINIT_ARRAY:
+                h->preinitarray = ptr;
+                printf_dump(LOG_DEBUG, "The DT_PREINIT_ARRAY is at address %p\n", (void*)h->preinitarray);
+                break;
             case DT_PREINIT_ARRAYSZ:
-                #ifndef ANDROID
-                    if(val)
-                        printf_log(LOG_NONE, "Warning, PreInit Array (size=%d) present and ignored!\n", val);
-                #endif
+                h->preinitarray_sz = val / sizeof(Elf64_Addr);
+                printf_dump(LOG_DEBUG, "The DT_PREINIT_ARRAYSZ is %zu\n", h->preinitarray_sz);
                 break;
             case DT_FINI: // Exit hook
                 h->finientry = ptr;

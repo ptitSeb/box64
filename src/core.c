@@ -1540,6 +1540,7 @@ int initialize(int argc, const char **argv, char** env, x64emu_t** emulator, elf
         dynarec_wine_prereserve();
         #endif
     }
+    if(!box64_nolibs) PatchLoadedDynamicSection(elf_header);
     AddMainElfToLinkmap(elf_header);    //TODO: LinkMap seems incorect
     // pre-load lib if needed
     if(ld_preload.size) {
