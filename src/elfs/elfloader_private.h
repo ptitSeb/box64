@@ -82,6 +82,8 @@ typedef struct elfheader_s {
     uintptr_t   initentry;
     uintptr_t   initarray;
     size_t      initarray_sz;
+    uintptr_t   preinitarray;
+    size_t      preinitarray_sz;
     uintptr_t   finientry;
     uintptr_t   finiarray;
     size_t      finiarray_sz;
@@ -125,6 +127,7 @@ typedef struct elfheader_s {
 
     int64_t     tlsbase;    // the base of the tlsdata in the global tlsdata (always negative)
 
+    int         preinit_done;
     int         init_done;
     int         fini_done;
     int         refcnt;     // ref count for the elf

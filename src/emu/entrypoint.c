@@ -38,6 +38,10 @@ EXPORT int32_t my___libc_start_main(x64emu_t* emu, int (*main) (int, char * *, c
 
     guest_alloc_run();
 
+    if(my_context->elfs[0]) {
+        RunElfPreInit(my_context->elfs[0], emu);
+    }
+
     if(init) {
         uintptr_t old_rsp = GetRSP(emu);
         uintptr_t old_rbp = GetRBP(emu); // should not be needed, but seems to be without dynarec
@@ -115,6 +119,10 @@ int32_t EXPORT my32___libc_start_main(x64emu_t* emu, int *(main) (int, char * *,
     Push_32(emu, my_context->argv32);
     Push_32(emu, my_context->argc);
     guest_alloc_run();
+
+    if(my_context->elfs[0]) {
+        RunElfPreInit(my_context->elfs[0], emu);
+    }
     if(init) {
         PushExit_32(emu);
         R_EIP=to_ptrv(*init);

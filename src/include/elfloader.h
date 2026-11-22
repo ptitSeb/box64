@@ -60,6 +60,7 @@ needed_libs_t* GetELfNeededLibs(elfheader_t* h);
 uintptr_t GetElfInit(elfheader_t* h);
 uintptr_t GetElfFini(elfheader_t* h);
 void RefreshElfTLS(elfheader_t* h, x64emu_t* emu);
+void RunElfPreInit(elfheader_t* h, x64emu_t *emu);
 void RunElfInit(elfheader_t* h, x64emu_t *emu);
 void RunElfFini(elfheader_t* h, x64emu_t *emu);
 void RunDeferredElfInit(x64emu_t *emu);
