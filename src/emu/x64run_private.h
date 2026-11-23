@@ -60,6 +60,11 @@ static inline void mxcsr_raise_invalid(x64emu_t* emu)
     box64_feraise_invalid();
 }
 
+static inline void mxcsr_raise_precision(x64emu_t* emu)
+{
+    emu->mxcsr.f.MXCSR_PE = 1;
+}
+
 /* Apply guest MXCSR rounding mode and return the previous host mode. */
 static inline int mxcsr_setround(x64emu_t* emu)
 {

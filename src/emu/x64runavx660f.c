@@ -462,6 +462,8 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                     }
                 if (tmp64s==(int32_t)tmp64s) {
                     GX->sd[i] = (int32_t)tmp64s;
+                    if((float)tmp64s!=EX->f[i])
+                        mxcsr_raise_precision(emu);
                 } else {
                     mxcsr_raise_invalid(emu);
                     GX->sd[i] = INT32_MIN;
@@ -493,6 +495,8 @@ uintptr_t RunAVX_660F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                         }
                     if (tmp64s==(int32_t)tmp64s) {
                         GY->sd[i] = (int32_t)tmp64s;
+                        if((float)tmp64s!=EY->f[i])
+                            mxcsr_raise_precision(emu);
                     } else {
                         mxcsr_raise_invalid(emu);
                         GY->sd[i] = INT32_MIN;
