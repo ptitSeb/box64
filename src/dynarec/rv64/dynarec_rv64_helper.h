@@ -2257,6 +2257,13 @@ void simd_store_reg(dynarec_rv64_t* dyn, int ninst, int s1, int vreg, int a, int
         SW(s1, xEmu, offsetof(x64emu_t, mxcsr)); \
     } while (0)
 
+#define emit_mxcsr_raise_precision(s1)           \
+    do {                                         \
+        LW(s1, xEmu, offsetof(x64emu_t, mxcsr)); \
+        ORI(s1, s1, 0x20);                       \
+        SW(s1, xEmu, offsetof(x64emu_t, mxcsr)); \
+    } while (0)
+
 // common coproc helpers
 // reset the cache with n
 void fpu_reset_cache(dynarec_rv64_t* dyn, int ninst, int reset_n);

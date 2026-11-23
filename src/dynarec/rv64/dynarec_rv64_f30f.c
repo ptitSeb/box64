@@ -388,6 +388,10 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     emit_mxcsr_raise_invalid(x5);
                     MOV32w(x3, 0x80000000);
                     MARKi(i);
+                    FRFLAGS(x5);
+                    ANDI(x5, x5, 1 << FR_NX);
+                    BEQZ(x5, 16);
+                    emit_mxcsr_raise_precision(x5);
                 }
                 SW(x3, gback, gdoffset + i * 4);
             }
