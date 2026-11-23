@@ -13,6 +13,8 @@
 #include "custommem.h"
 #include "dynablock.h"
 #include "dynarec/dynablock_private.h"
+#include "emu/x64run_private.h"
+#include "dynarec/dynarec_arch.h"
 #include "dynarec/arm64/dynarec_arm64_arch.h"
 #include "box64context.h"
 #include "os.h"
@@ -31,6 +33,17 @@ static kh_autosmc_t* autosmc = NULL;
 int is_addr_autosmc(uintptr_t addr)
 {
     return autosmc && kh_get(autosmc, autosmc, addr) != kh_end(autosmc);
+}
+
+/* Other threads change the block marks while building and freeing blocks */
+static dynablock_t* find_jit_block(uintptr_t pc)
+{
+    dynablock_t* db;
+
+    mutex_lock(&my_context->mutex_dyndump);
+    db = FindDynablockFromNativeAddress((void*)pc);
+    mutex_unlock(&my_context->mutex_dyndump);
+    return db;
 }
 
 /* A write to guest code the Dynarec write-protected, from any code: drop the
@@ -52,7 +65,7 @@ static void handle_smc_write(EXCEPTION_RECORD* record, ARM64_NT_CONTEXT* arm_con
         unprotectDB(addr, 1, 1);
     } else if (!(prot & PROT_WRITE))
         return;     // not a write to protected guest code (or another thread already unprotected it)
-    db = (area && emu && area->InSimulation) ? FindDynablockFromNativeAddress((void*)(uintptr_t)arm_context->Pc) : NULL;
+    db = (area && emu && area->InSimulation) ? find_jit_block(arm_context->Pc) : NULL;
     if (db) {
         uintptr_t x64pc = getX64Address(db, arm_context->Pc);
         int own = addr >= (uintptr_t)db->x64_addr && addr < (uintptr_t)db->x64_addr + db->x64_size;
@@ -79,6 +92,58 @@ static void handle_smc_write(EXCEPTION_RECORD* record, ARM64_NT_CONTEXT* arm_con
             arm_context->Pc = (uintptr_t)arm64_epilog;
         }
     }
+    Box64EC_ContinueNative(arm_context, FALSE);
+}
+
+/* CALLRET landing patched to UDF: resume if the code is unchanged, as Linux signals.c */
+static void handle_dirty_callret(ARM64_NT_CONTEXT* arm_context, x64emu_t* emu, dynablock_t* db)
+{
+    uintptr_t pc = arm_context->Pc;
+    uintptr_t x64pc;
+    int type = -1;
+
+    for (int i = 0; i < db->callret_size; ++i)
+        if (pc == (uintptr_t)db->block + db->callrets[i].offs)
+            type = db->callrets[i].type;
+    if (type < 0)
+        return;
+    x64pc = type ? getX64Address(db, pc) : arm_context->X27;
+    int is_hotpage = checkInHotPage(x64pc);
+    // protect then hash, as DBGetBlock, outside the lock: the guest code can fault
+    uint32_t generation = getUnprotectGeneration();
+    if (!db->gone && !is_hotpage && !db->always_test)
+        protectDB((uintptr_t)db->x64_addr, db->x64_size);
+    uint32_t hash = (db->gone || is_hotpage) ? 0 : X31_hash_code(db->x64_addr, db->x64_size);
+    mutex_lock(&my_context->mutex_dyndump);
+    if (!db->gone && !db->to_delete && (!is_hotpage || db->autocrc) && hash == db->hash) {
+        arm_context->Pc += 4;
+        if (db->always_test)
+            protectDB((uintptr_t)db->x64_addr, 1);
+        else if (generation == getUnprotectGeneration()) {
+            for (int i = 0; i < db->callret_size; ++i)
+                *(uint32_t*)(db->block + db->callrets[i].offs) = ARCH_NOP;
+            ClearCache(db->block, db->size);
+            protectDBJumpTable((uintptr_t)db->x64_addr, db->x64_size, db->block, db->jmpnext);
+            if (generation != getUnprotectGeneration())
+                MarkDynablock(db);
+        }
+        mutex_unlock(&my_context->mutex_dyndump);
+        Box64EC_ContinueNative(arm_context, FALSE);
+        return;
+    }
+    mutex_unlock(&my_context->mutex_dyndump);
+    // the block is dirty: a return address only needs the epilog, a loop needs the full state
+    jit_arm_context_to_emu(arm_context, emu);
+    R_RIP = x64pc;
+    if (type) {
+        adjustregs(emu, (void*)pc);
+        if (db->arch_size)
+            adjust_arch(db, emu, arm_context, x64pc);
+    }
+    emu->test.clean = 0;
+    emu_to_jit_arm_context(emu, arm_context);
+    arm_context->X0 = (uintptr_t)emu;
+    arm_context->Pc = (uintptr_t)arm64_epilog;
     Box64EC_ContinueNative(arm_context, FALSE);
 }
 #endif
@@ -128,6 +193,13 @@ void WINAPI ResetToConsistentState(EXCEPTION_RECORD* record, CONTEXT* context,
 
     if (!record || !arm_context)
         return;
+    /* Before the SMC check: a stale protection entry there must not retry the push forever */
+    if (emu && record->ExceptionCode == STATUS_ACCESS_VIOLATION && record->NumberParameters >= 2 &&
+        record->ExceptionInformation[0] == 1 &&
+        Box64EC_HandleCallretStackFault(emu, (uintptr_t)record->ExceptionInformation[1], arm_context)) {
+        Box64EC_ContinueNative(arm_context, FALSE);
+        return;
+    }
 #ifdef DYNAREC
     handle_smc_write(record, arm_context, area, emu);
 #endif
@@ -161,7 +233,9 @@ void WINAPI ResetToConsistentState(EXCEPTION_RECORD* record, CONTEXT* context,
         cancelFillBlock();
     /* In JIT code the guest registers are in the JIT map, and the deferred flags and
      * cached SIMD registers are described by the block. */
-    dynablock_t* db = area->InSimulation ? FindDynablockFromNativeAddress((void*)(uintptr_t)arm_context->Pc) : NULL;
+    dynablock_t* db = area->InSimulation ? find_jit_block(arm_context->Pc) : NULL;
+    if (db && record->ExceptionCode == STATUS_ILLEGAL_INSTRUCTION && db->callret_size)
+        handle_dirty_callret(arm_context, emu, db);
     if (db) {
         uintptr_t x64pc = getX64Address(db, arm_context->Pc);
         jit_arm_context_to_emu(arm_context, emu);

@@ -47,7 +47,16 @@ box64ec_thr_t* Box64EC_GetThreadState(void);
 void process_pending_cross_process_work(void);
 void finish_enter(box64ec_thr_t* state);
 void Box64EC_ResetAbandonedEmuRun(box64ec_thr_t* state, x64emu_t* emu);
+void Box64EC_InternalMapEnter(void);
+void Box64EC_InternalMapLeave(void);
+NTSTATUS Box64EC_InitCallretStack(x64emu_t* emu);
+void Box64EC_FreeCallretStack(x64emu_t* emu);
+void Box64EC_ResetCallretStack(x64emu_t* emu);
+int Box64EC_HandleCallretStackFault(x64emu_t* emu, uintptr_t address,
+                                    ARM64_NT_CONTEXT* arm_ctx);
 NTSTATUS Box64EC_TransitionProcessInit(HMODULE ntdll);
+uintptr_t fast_ffs_target(uintptr_t stub);
+extern uintptr_t rtl_unwind_ex, rtl_unwind_target;
 extern void ExitToX64(void);
 extern void BeginSimulation(void);
 extern char ExitFunctionSuspendPoint;

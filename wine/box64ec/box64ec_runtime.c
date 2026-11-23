@@ -128,6 +128,7 @@ void Box64EC_ResetAbandonedEmuRun(box64ec_thr_t* state, x64emu_t* emu)
         return;
     emu->jmpbuf = NULL;
     emu->flags.jmpbuf_ready = 0;
+    Box64EC_ResetCallretStack(emu);
 }
 
 void Box64EC_EnterX64(uint64_t rip)
@@ -143,7 +144,8 @@ void Box64EC_EnterX64(uint64_t rip)
     }
 
     thr = Box64EC_GetThreadState();
-    nested = thr ? thr->enter_depth : 0;
+    /* BeginSimulation runs at depth 0: a live JIT frame also means an outer activation waits */
+    nested = (thr ? thr->enter_depth : 0) || emu->jit_frame;
     if (thr) {
         thr->enter_depth++;
         /* Only the outermost entry clears pending - nested SEH/CALL_S must
@@ -158,6 +160,9 @@ void Box64EC_EnterX64(uint64_t rip)
     area->InSimulation = TRUE;
 
     process_pending_cross_process_work();
+    /* callback from a fast native call: the caller's x87 state and EFlags are in emu */
+    if (nested)
+        merge_unmapped_context_from_emu(emu, area->ContextAmd64);
     context_to_emu(area->ContextAmd64, emu);
     R_RIP = rip;
 
@@ -185,6 +190,9 @@ void Box64EC_EnterX64(uint64_t rip)
     /* Keep InSimulation=1 until asm TakePending + ExitFunctionEC / enter_jit
      * restore path clears it - prevents nested EnterX64 wiping pending_exit. */
     emu_to_context(emu, area->ContextAmd64);
+    /* the outer activation goes on running, the callback's exit is not its own */
+    if (nested)
+        emu->quit = 0;
     finish_enter(thr);
 }
 
@@ -212,6 +220,8 @@ void Box64EC_BeginSimulation(void)
         t->pending_callback_seq = 0;
     }
     area->InSimulation = TRUE;
+    /* restarts on the emulator stack base, no earlier activation can resume */
+    Box64EC_ResetCallretStack(emu);
     /* Wine filled ContextAmd64 from an ARM64 context, which cannot carry the
      * x87 control/status/tag words nor all EFlags: keep them from the emu. */
     merge_unmapped_context_from_emu(emu, area->ContextAmd64);

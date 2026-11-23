@@ -3961,7 +3961,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                 j64 = (dyn->insts)?(GETMARK-(dyn->native_size)):0;
                         ADR_S20(x4, j64);
                         MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64>>2);
-                        STPx_S7_preindex(x4, x2, xSP, -16);
+                        STPx_S7_preindex(x4, x2, xCallRetSP, -16);
                     } else {
                         *ok = 0;
                         *need_epilog = 0;
@@ -4670,7 +4670,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                             ADR_S20(x4, j64);
                             MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64>>2);
                         }
-                        STPx_S7_preindex(x4, xRIP, xSP, -16);
+                        STPx_S7_preindex(x4, xRIP, xCallRetSP, -16);
                     }
                     PUSH1z(xRIP);
                     jump_to_next(dyn, 0, ed, ninst, rex.is32bits);
@@ -4733,7 +4733,7 @@ uintptr_t dynarec64_00(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                                 ADR_S20(x4, j64);
                                 MESSAGE(LOG_NONE, "\tCALLRET set return to +%di\n", j64>>2);
                             }
-                            STPx_S7_preindex(x4, xRIP, xSP, -16);
+                            STPx_S7_preindex(x4, xRIP, xCallRetSP, -16);
                         }
                         if (rex.w) PUSH2(x5, xRIP); else PUSH2_32(x5, xRIP);
                         STRH_U12(x3, xEmu, offsetof(x64emu_t, segs[_CS]));

@@ -65,6 +65,9 @@ int setJumpTableIfRef64(void* addr, void* jmp, void* ref); // return 1 if write 
 void setJumpTableDefault64(void* addr);
 int setJumpTableDefaultIfRef64(void* addr, void* jmp);
 void setJumpTableDefaultRef64(void* addr, void* jmp);
+#ifdef BOX64EC
+void setJumpTableDefaultRangeRef64(uintptr_t addr, size_t size, void* jmp, void* other_jmp);
+#endif
 int isJumpTableDefault64(void* addr);
 uintptr_t getJumpTable64(void);
 uintptr_t getJumpTable48(void);

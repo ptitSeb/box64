@@ -58,6 +58,9 @@ static uintptr_t**         box64_jmptbl2[1<<JMPTABL_SHIFT2];
 #endif
 static uintptr_t*          box64_jmptbldefault1[1<<JMPTABL_SHIFT1];
 static uintptr_t           box64_jmptbldefault0[1<<JMPTABL_SHIFT0];
+#ifdef BOX64EC
+uintptr_t                  box64_ec_jmptable48;    // for the ARM64EC assembly
+#endif
 // lock addresses
 KHASH_SET_INIT_INT64(lockaddress)
 static kh_lockaddress_t    *lockaddress = NULL;
@@ -2074,6 +2077,48 @@ void setJumpTableDefaultRef64(void* addr, void* jmp)
     idx0 = (((uintptr_t)addr)    )&JMPTABLE_MASK0;
     native_lock_storeifref2(&box64_jmptbl2[idx2][idx1][idx0], native_next, jmp);
 }
+#ifdef BOX64EC
+// reset the entries of a freed or changed range, when they still hold one of the two given stubs
+void setJumpTableDefaultRangeRef64(uintptr_t addr, size_t size, void* jmp, void* other_jmp)
+{
+    uintptr_t end;
+    if(!size || addr>UINTPTR_MAX-size || (addr&0xffff000000000000UL)) return;
+    end = addr+size;
+    addr = (addr+3)&~(uintptr_t)3;  // ARM64EC code is 4 bytes aligned
+    while(addr<end) {
+        uintptr_t idx2, idx1, next;
+        #ifdef JMPTABL_SHIFT4
+        uintptr_t idx3 = (addr>>JMPTABL_START3)&JMPTABLE_MASK3;
+        uintptr_t ***box64_jmptbl2 = box64_jmptbl3[idx3];
+        if(box64_jmptbl2 == (uintptr_t***)box64_jmptbldefault2) {
+            next = ((addr>>JMPTABL_START3)+1)<<JMPTABL_START3;
+            addr = next>addr?next:end;
+            continue;
+        }
+        #endif
+        idx2 = (addr>>JMPTABL_START2)&JMPTABLE_MASK2;
+        if(box64_jmptbl2[idx2] == box64_jmptbldefault1) {
+            next = ((addr>>JMPTABL_START2)+1)<<JMPTABL_START2;
+            addr = next>addr?next:end;
+            continue;
+        }
+        idx1 = (addr>>JMPTABL_START1)&JMPTABLE_MASK1;
+        next = ((addr>>JMPTABL_START1)+1)<<JMPTABL_START1;
+        if(box64_jmptbl2[idx2][idx1] == box64_jmptbldefault0) {
+            addr = next>addr?next:end;
+            continue;
+        }
+        if(next<=addr || next>end)
+            next = end;
+        for(; addr<next; addr+=4) {
+            uintptr_t* slot = &box64_jmptbl2[idx2][idx1][addr&JMPTABLE_MASK0];
+            void* old = (void*)*slot;   // a plain read first: most slots hold neither stub
+            if(old==jmp || old==other_jmp)
+                native_lock_storeifref2(slot, native_next, old);
+        }
+    }
+}
+#endif
 int setJumpTableIfRef64(void* addr, void* jmp, void* ref)
 {
     uintptr_t idx2, idx1, idx0;
@@ -3424,6 +3469,9 @@ void init_custommem_helper(box64context_t* ctx)
         box64_jmptbldefault1[i] = box64_jmptbldefault0;
     for(int i=0; i<(1<<JMPTABL_SHIFT0); ++i)
         box64_jmptbldefault0[i] = (uintptr_t)native_next;
+#ifdef BOX64EC
+    box64_ec_jmptable48 = getJumpTable48();
+#endif
     lockaddress = kh_init(lockaddress);
     rbt_dynmem = rbtree_init("rbt_dynmem");
 #endif

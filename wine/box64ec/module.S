@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: MIT
 
+#include "box64ec_layout.h"
+
 /* ARM64EC dispatch bridges for box64ec.dll
  * Implements documented __os_arm64x_* helpers exported as ExitToX64 / DispatchJump /
  * RetToEntryThunk / BeginSimulation
@@ -162,9 +164,18 @@ enter_jit:
     ldr     x1,  [x17, #0x8]             /* EmulatorStackBase */
     cbz     x1,  .Lenter_jit_fail
     mov     x4,  x1                      /* keep stack base for range check */
-
-     /* Experimental: keep this activation below a live Wine callback frame. */
     ldr     x3,  [x17, #0x10]            /* EmulatorStackLimit */
+
+    /* a callback during a fast native call: start below the live JIT frame */
+    ldr     x2,  [x17, #0x30]            /* EmulatorData[EC_DATA_EMU] */
+    cbz     x2,  .Lenter_jit_physical_stack
+    ldr     x2,  [x2, #BOX64EC_EMU_JIT_FRAME_OFFSET]
+    cmp     x2,  x3
+    b.ls    .Lenter_jit_physical_stack   /* none, or not on the emulator stack */
+    cmp     x2,  x1
+    csel    x1,  x2, x1, lo
+.Lenter_jit_physical_stack:
+     /* Experimental: keep this activation below a live Wine callback frame. */
     cmp     x11, x3
     b.lo    .Lenter_jit_stack_base       /* physical SP is not EmulatorStack */
     cmp     x11, x4
@@ -208,6 +219,15 @@ enter_jit_frame:
     str     d13, [x16, #0x270]
     str     d14, [x16, #0x280]
     str     d15, [x16, #0x290]
+    /* native return: XMM6-15 are whole, a fast native call never exported them */
+    cmp     w6, #3
+    b.ne    7f
+    stp     q6,  q7,  [x16, #0x200]
+    stp     q8,  q9,  [x16, #0x220]
+    stp     q10, q11, [x16, #0x240]
+    stp     q12, q13, [x16, #0x260]
+    stp     q14, q15, [x16, #0x280]
+7:
 
     /* Save entry-only values after the guest nonvolatiles are protected. */
     stp     x10, x11, [sp, #0x30]        /* pushed slot, physical entry SP */
@@ -380,6 +400,26 @@ RetToEntryThunk:
     mov     x10, sp
     ldr     x10, [x10]
 
+#ifdef DYNAREC
+    /* return of a fast native call: resume the live activation (x12, x15-x17 free) */
+    ldr     x17, [x18, #0x1788]
+    ldr     x17, [x17, #0x30]            /* EmulatorData[EC_DATA_EMU] */
+    cbz     x17, .Lret_normal
+    ldr     x12, [x17, #BOX64EC_EMU_CALLRET_SP_OFFSET]
+    ldp     x15, x16, [x12]              /* tag and flags, pre-call RSP */
+    lsr     x15, x15, #32
+    and     w15, w15, #~BOX64EC_FAST_RECORD_CALLRET
+    mov     w17, #BOX64EC_FAST_RECORD_TAG_LOW
+    movk    w17, #BOX64EC_FAST_RECORD_TAG_HIGH, lsl #16
+    cmp     w15, w17
+    b.ne    .Lret_normal
+    add     x16, x16, #8                 /* the return popped the guest return address */
+    cmp     x11, x16
+    b.ne    .Lret_normal
+    b       arm64_ec_fast_resume
+.Lret_normal:
+#endif
+
      /* Shared: x9 = target; SP unchanged. */
 .Lcheck_target_ec:
     adrp    x16, Box64EC_EcCodeBitmapLimit
@@ -498,8 +538,11 @@ BeginSimulation:
 ExitFunctionEC:
     /* Clear AFP NEP+AH - native EC code will not expect them */
     mrs     x17, fpcr
+    tst     x17, #6
+    b.eq    .Lexit_fpcr_clear            /* an FPCR write is slow, usually they are clear */
     and     x17, x17, #~6
     msr     fpcr, x17
+.Lexit_fpcr_clear:
 
     ldr     x17, [x18, #0x1788]
     strb    wzr, [x17]                   /* InSimulation = 0 */

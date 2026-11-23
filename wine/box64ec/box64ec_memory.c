@@ -77,12 +77,24 @@ static int get_allocation_range(void* address, uintptr_t* start, size_t* size)
     return 1;
 }
 
+#ifdef DYNAREC
+extern void arm64_ec_fast_forward_direct(void);
+extern void arm64_ec_native_exit_direct(void);
+
+// The jump table remembers native targets: forget them with the memory that held them
+static void forget_native_targets(uintptr_t address, size_t size)
+{
+    setJumpTableDefaultRangeRef64(address, size, arm64_ec_fast_forward_direct, arm64_ec_native_exit_direct);
+}
+#endif
+
 // Blocks of freed memory must go before the address range is reused
 static void drop_blocks(uintptr_t address, size_t size)
 {
     uintptr_t start = address & ~(uintptr_t)0xfff;
     size_t length = ((address + size + 0xfff) & ~(uintptr_t)0xfff) - start;
 #ifdef DYNAREC
+    forget_native_targets(start, length);
     cleanDBFromAddressRange(start, length, 1);
 #endif
     freeProtection(start, length);
@@ -120,8 +132,10 @@ void WINAPI NotifyMemoryProtect(void* address, SIZE_T size, ULONG protection, BO
     // Wine returns the old protection and VirtualQuery the new one: the guest must not see the write
     // protection of its blocks there, so lift it before (the blocks are checked again when they run)
     if (!is_post) {
-        if (user_range(address, size))
+        if (user_range(address, size)) {
+            forget_native_targets((uintptr_t)address, size);
             unprotectDB((uintptr_t)address, size, 1);
+        }
         return;
     }
 #endif
@@ -149,22 +163,27 @@ void WINAPI NotifyMemoryProtect(void* address, SIZE_T size, ULONG protection, BO
 void WINAPI BTCpu64NotifyReadFile(HANDLE handle, void* address, SIZE_T size, BOOL is_post, NTSTATUS status)
 {
 #ifdef DYNAREC
-    if (!is_post && user_range(address, size))
+    if (!is_post && user_range(address, size)) {
+        forget_native_targets((uintptr_t)address, size);
         unprotectDB((uintptr_t)address, size, 1);
+    }
 #endif
 }
 
 void WINAPI BTCpu64FlushInstructionCache(const void* address, SIZE_T size)
 {
 #ifdef DYNAREC
-    if (user_range(address, size))
+    if (user_range(address, size)) {
+        forget_native_targets((uintptr_t)address, size);
         unprotectDB((uintptr_t)address, size, 1);
+    }
 #endif
 }
 
 void WINAPI BTCpu64NotifyMemoryDirty(void* address, SIZE_T size)
 {
 #ifdef DYNAREC
+    forget_native_targets((uintptr_t)address, size);
     unprotectDB((uintptr_t)address, size, 1);
 #endif
 }

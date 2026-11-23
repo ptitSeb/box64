@@ -38,6 +38,13 @@ typedef struct {
 #define BOX64EC_JIT_SUSPEND_OPCODE 0xec53  // UDF #0xec53 in JIT code, reached when the suspend doorbell is set
 
 struct x64emu_s;
+/* How a native target can be called from the dynarec, see Box64EC_TryFastForward */
+enum {
+    BOX64EC_FAST_FORWARD_REJECT,
+    BOX64EC_FAST_FORWARD_ACCEPT,
+    BOX64EC_FAST_FORWARD_NATIVE_EXIT
+};
+int Box64EC_TryFastForward(struct x64emu_s* emu, uintptr_t addr);
 void Box64EC_EnterX64(uint64_t rip);
 void Box64EC_BeginSimulation(void) __attribute__((noreturn));
 void Box64EC_FinishBeginSimulation(ARM64EC_NT_CONTEXT* context,
