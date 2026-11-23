@@ -15,6 +15,16 @@
 
 _Static_assert(offsetof(box64ec_thr_t, guest_exception_pending) == BOX64EC_THR_EXCEPTION_PENDING_OFFSET,
                "guest_exception_pending");
+_Static_assert(offsetof(box64ec_thr_t, pending_exit) == BOX64EC_THR_PENDING_EXIT_OFFSET, "pending_exit");
+_Static_assert(offsetof(box64ec_thr_t, pending_native_sp) == BOX64EC_THR_PENDING_NATIVE_SP_OFFSET,
+               "pending_native_sp");
+_Static_assert(offsetof(box64ec_thr_t, entry.sp) == BOX64EC_THR_ENTRY_SP_OFFSET &&
+               offsetof(box64ec_thr_t, entry.pc) == BOX64EC_THR_ENTRY_SP_OFFSET + 8, "entry");
+_Static_assert(offsetof(box64ec_thr_t, enter_depth) == BOX64EC_THR_ENTER_DEPTH_OFFSET, "enter_depth");
+_Static_assert(offsetof(box64ec_thr_t, pending_callback_depth) == BOX64EC_THR_PENDING_CALLBACK_DEPTH_OFFSET,
+               "pending_callback_depth");
+_Static_assert(offsetof(box64ec_thr_t, pending_callback_seq) == BOX64EC_THR_PENDING_CALLBACK_SEQ_OFFSET,
+               "pending_callback_seq");
 _Static_assert(offsetof(x64emu_t, xmm) == BOX64EC_EMU_XMM_OFFSET, "xmm");
 _Static_assert(offsetof(x64emu_t, mxcsr) == BOX64EC_EMU_MXCSR_OFFSET, "mxcsr");
 _Static_assert(offsetof(x64emu_t, live_mxcsr) == BOX64EC_EMU_LIVE_MXCSR_OFFSET, "live_mxcsr");

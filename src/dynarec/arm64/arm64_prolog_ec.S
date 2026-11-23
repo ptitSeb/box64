@@ -7,10 +7,15 @@
 .text
 .align 4
 
+.extern arm64_epilog
 .global arm64_prolog
+.global arm64_prolog_callback
 
-.seh_proc arm64_prolog
-arm64_prolog:
+/* arm64_prolog_callback is arm64_prolog plus one CALLRET pair, so the final RET of a
+ * native to x64 callback goes straight to arm64_epilog. */
+.macro define_prolog name, callback
+.seh_proc \name
+\name:
     /* The JIT chunks register unwind codes for this same 160-byte frame, keep
      * both in sync. [sp] keeps the parent's JIT frame, [sp, #8] its CALLRET sentinel. */
     sub     sp, sp, #160
@@ -68,6 +73,13 @@ arm64_prolog:
     str     x4, [x0, #BOX64EC_EMU_CALLRET_SP_OFFSET]
     str     x4, [x0, #BOX64EC_EMU_CALLRET_SP_TOP_OFFSET]
     str     x3, [sp, #8]
+.if \callback
+    ldr     x3, [x20]                    /* the native caller's LR, the callback's return address */
+    adrp    x2, arm64_epilog
+    add     x2, x2, :lo12:arm64_epilog
+    stp     x2, x3, [x4, #-16]!
+    str     x4, [x0, #BOX64EC_EMU_CALLRET_SP_OFFSET]
+.endif
     mov     x28, x4
 
     /* Nested activations start below the innermost live frame */
@@ -77,3 +89,7 @@ arm64_prolog:
 
     br      x1
 .seh_endproc
+.endm
+
+define_prolog arm64_prolog, 0
+define_prolog arm64_prolog_callback, 1

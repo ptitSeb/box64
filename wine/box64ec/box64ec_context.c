@@ -30,6 +30,8 @@ _Static_assert(offsetof(ARM64EC_NT_CONTEXT, X20) == 0xe0, "CTX_X20/R13");
 _Static_assert(offsetof(ARM64EC_NT_CONTEXT, X21) == 0xe8, "CTX_X21/R14");
 _Static_assert(offsetof(ARM64EC_NT_CONTEXT, X22) == 0xf0, "CTX_X22/R15");
 _Static_assert(offsetof(ARM64EC_NT_CONTEXT, Pc) == 0xf8, "CTX_PC");
+_Static_assert(offsetof(ARM64EC_NT_CONTEXT, AMD64_ControlWord) == 0x100 &&
+               offsetof(ARM64EC_NT_CONTEXT, AMD64_StatusWord) == 0x102, "CTX_CONTROLWORD/STATUSWORD");
 _Static_assert(offsetof(ARM64EC_NT_CONTEXT, V) == 0x1a0, "CTX_V/XMM");
 _Static_assert(sizeof(((x64emu_t*)0)->ymm) ==
                    16 * sizeof(ARM64_NT_NEON128),

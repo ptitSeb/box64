@@ -46,6 +46,8 @@ void merge_unmapped_context_from_emu(x64emu_t* emu, ARM64EC_NT_CONTEXT* context)
 box64ec_thr_t* Box64EC_GetThreadState(void);
 void process_pending_cross_process_work(void);
 void finish_enter(box64ec_thr_t* state);
+extern int Box64EC_FastCallback;
+void Box64EC_FastCallbackLeave(void);
 void Box64EC_ResetAbandonedEmuRun(box64ec_thr_t* state, x64emu_t* emu);
 void Box64EC_InternalMapEnter(void);
 void Box64EC_InternalMapLeave(void);

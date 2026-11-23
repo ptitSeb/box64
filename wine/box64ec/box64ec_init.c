@@ -73,6 +73,7 @@ NTSTATUS WINAPI ProcessInit(void)
         printf_log(LOG_INFO, "Minimum CPU requirements not met, disabling DynaRec\n");
         SET_BOX64ENV(dynarec, 0);
     }
+    Box64EC_FastCallback = BOX64ENV(dynarec);
 #else
     DetectHostCpuFeatures();
 #endif
