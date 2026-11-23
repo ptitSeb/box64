@@ -374,6 +374,11 @@ uintptr_t dynarec64_AVX_F3_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
                 BEQ_MARK(x5, xZR);
                 emit_mxcsr_raise_invalid(x4);
                 MARK;
+                FRFLAGS(x5);
+                ANDI(x5, x5, 1 << FR_NX);
+                BEQ_MARK2(x5, xZR);
+                emit_mxcsr_raise_precision(x4);
+                MARK2;
                 VMV_V_V(v0, v1);
             }
             PUTGY_vector(v0, VECTOR_SEW32);

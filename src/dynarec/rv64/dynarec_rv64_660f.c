@@ -481,8 +481,19 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             GETEX(x2, 0, 12);
             d0 = fpu_get_scratch(dyn);
             for (int i = 0; i < 4; ++i) {
+                if (!BOX64ENV(dynarec_fastround)) FSFLAGSI(0);
                 FLW(d0, wback, fixedaddress + 4 * i);
                 FCVTLS(x3, d0, RD_DYN);
+                if (!BOX64ENV(dynarec_fastround)) {
+                    FRFLAGS(x6);
+                    ANDI(x4, x6, (1 << FR_NV) | (1 << FR_OF));
+                    BEQZ_MARKi(x4, i);
+                    emit_mxcsr_raise_invalid(x4);
+                    MARKi(i);
+                    ANDI(x4, x6, 1 << FR_NX);
+                    BEQZ(x4, 16);
+                    emit_mxcsr_raise_precision(x4);
+                }
                 SEXT_W(x5, x3);
                 BEQ(x5, x3, 8);
                 MOV64x(x3, (int64_t)INT32_MIN);
