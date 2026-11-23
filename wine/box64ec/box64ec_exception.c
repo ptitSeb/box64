@@ -146,6 +146,48 @@ static void handle_dirty_callret(ARM64_NT_CONTEXT* arm_context, x64emu_t* emu, d
     arm_context->Pc = (uintptr_t)arm64_epilog;
     Box64EC_ContinueNative(arm_context, FALSE);
 }
+
+/* An LRCPC access (LDAPUR, STLUR and the SIMD forms) crossing a 16 byte boundary faults: patch it to the plain
+ * LDUR/STUR, which then runs again in the JIT, and mark the block for a rebuild without LRCPC for it.
+ * Returns if the fault is not one of those. */
+static void handle_misaligned_lrcpc(ARM64_NT_CONTEXT* arm_context, dynablock_t* db, box64ec_thr_t* state)
+{
+    uint32_t* code = (uint32_t*)(uintptr_t)arm_context->Pc;
+    uintptr_t x64pc = getX64Address(db, arm_context->Pc);
+    int handled = 0;
+
+    if (!x64pc)
+        return;
+    mutex_lock(&my_context->mutex_dyndump);    // native_pass reads the lrcpc addresses under this lock
+    uint32_t opcode = *code;
+    uint32_t form = opcode & 0x3F200C00;
+    int simd = form == 0x1D000800 || form == 0x3C000000;
+    int size = opcode >> 30;    // log2 of the access size
+    int rn = (opcode >> 5) & 31;
+    uint64_t base = rn == 31 ? arm_context->Sp : arm_context->X[rn];
+    uint64_t addr = base + ((int32_t)(opcode << 11) >> 23);
+
+    if (simd)
+        size |= ((opcode >> 23) & 1) << 2;    // 128bit access
+    if (addr & ((1 << size) - 1)) {
+        if (form == 0x19000000 || form == 0x1D000800) {
+            add_lrcpc_address(x64pc);
+            if (arch_lrcpc(db, x64pc))
+                mark_db_lrcpc(db, x64pc);
+            *(volatile uint32_t*)code = simd ? (opcode & 0xC0FFF3FF) | 0x3C000000 : (opcode & 0xC0FFFFFF) | 0x38000000;
+            ClearCache(code, sizeof(*code));
+            handled = 1;
+            state->lrcpc_retry_pc = 0;
+        } else if (form == 0x38000000 || form == 0x3C000000) {
+            // another thread patched it after this one ran the LRCPC form: run it again, a second fault here is a real one
+            handled = is_addr_lrcpc(x64pc) && state->lrcpc_retry_pc != arm_context->Pc;
+            state->lrcpc_retry_pc = handled ? arm_context->Pc : 0;
+        }
+    }
+    mutex_unlock(&my_context->mutex_dyndump);
+    if (handled)
+        Box64EC_ContinueNative(arm_context, FALSE);
+}
 #endif
 
 /* Dispatch a host fault in Run with the guest state, on the guest stack. */
@@ -236,6 +278,8 @@ void WINAPI ResetToConsistentState(EXCEPTION_RECORD* record, CONTEXT* context,
     dynablock_t* db = area->InSimulation ? find_jit_block(arm_context->Pc) : NULL;
     if (db && record->ExceptionCode == STATUS_ILLEGAL_INSTRUCTION && db->callret_size)
         handle_dirty_callret(arm_context, emu, db);
+    if (db && record->ExceptionCode == STATUS_DATATYPE_MISALIGNMENT)
+        handle_misaligned_lrcpc(arm_context, db, state);
     if (db) {
         uintptr_t x64pc = getX64Address(db, arm_context->Pc);
         jit_arm_context_to_emu(arm_context, emu);

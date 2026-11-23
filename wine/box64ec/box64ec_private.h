@@ -31,6 +31,7 @@ typedef struct {
     uintptr_t guest_exception_rip;
     uintptr_t guest_exception_rsp;
     box64ec_callback_activation_t callbacks[BOX64EC_CALLBACK_SLOTS];
+    uintptr_t lrcpc_retry_pc;
 } box64ec_thr_t;
 
 extern box64context_t Box64EC_Context;
