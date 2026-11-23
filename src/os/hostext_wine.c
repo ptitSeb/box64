@@ -32,6 +32,16 @@ int DetectHostCpuFeatures(void)
         // RND, bits[63:60]
         cpuext.rndr = !!((value >> 60) & 0x1);
     }
+#ifdef BOX64EC
+    // WowBox64 cannot recover misaligned LRCPC accesses yet
+    size = sizeof(value);
+    if (RegQueryValueExA(key, "CP 4031" /* ID_AA64ISAR1_EL1 */, NULL, NULL, (LPBYTE)&value, &size) == ERROR_SUCCESS) {
+        // LRCPC, bits[23:20]
+        cpuext.lrcpc = ((value >> 20) & 0xf) >= 1;
+        cpuext.lrcpc2 = ((value >> 20) & 0xf) >= 2;
+        cpuext.lrcpc3 = ((value >> 20) & 0xf) >= 3;
+    }
+#endif
     size = sizeof(value);
     if (RegQueryValueExA(key, "CP 4039" /* ID_AA64MMFR1_EL1 */, NULL, NULL, (LPBYTE)&value, &size) == ERROR_SUCCESS) {
         // AFP, bits[47:44]
