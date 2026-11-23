@@ -2255,7 +2255,7 @@
     "name": "BOX64_UNITYPLAYER",
     "description": "Detect UnityPlayer and apply conservative settings.",
     "category": "Compatibility",
-    "wine": false,
+    "wine": true,
     "configurator": true,
     "options": [
       {

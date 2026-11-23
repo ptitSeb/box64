@@ -1,8 +1,13 @@
 // SPDX-License-Identifier: MIT
 #include <stdint.h>
 #include <string.h>
+#include <windows.h>
+#include <ntstatus.h>
+#include <winternl.h>
 #include "box64ec_private.h"
 #include "custommem.h"
+#include "debug.h"
+#include "env.h"
 #include "os.h"
 #include "wine/compiler.h"
 
@@ -186,6 +191,32 @@ void WINAPI BTCpu64NotifyMemoryDirty(void* address, SIZE_T size)
     forget_native_targets((uintptr_t)address, size);
     unprotectDB((uintptr_t)address, size, 1);
 #endif
+}
+
+// Wine calls this for each image it maps: UnityPlayer.dll needs the BOX64_UNITY memory ordering hack
+NTSTATUS WINAPI NotifyMapViewOfSection(void* unknown1, void* address, void* unknown2, SIZE_T size,
+                                       ULONG allocation, ULONG protection)
+{
+    struct {
+        UNICODE_STRING name;
+        WCHAR path[1024];     // deep game install paths
+    } mapped = {0};
+    const WCHAR* base;
+    const WCHAR* end;
+
+    if (!BOX64ENV(unityplayer) || BOX64ENV(unity) ||
+        NtQueryVirtualMemory(NtCurrentProcess(), address, MemoryMappedFilenameInformation, &mapped, sizeof(mapped), NULL))
+        return STATUS_SUCCESS;
+    base = mapped.name.Buffer;
+    end = base + mapped.name.Length / sizeof(WCHAR);
+    for (const WCHAR* c = base; c < end; ++c)
+        if (*c == L'\\')
+            base = c + 1;
+    if (end - base == 15 && !_wcsnicmp(base, L"unityplayer.dll", 15)) {
+        SET_BOX64ENV(unity, 1);
+        printf_log(LOG_INFO, "Detected UnityPlayer.dll\n");
+    }
+    return STATUS_SUCCESS;
 }
 
 void WINAPI NotifyUnmapViewOfSection(void* address, BOOL is_post, NTSTATUS status)

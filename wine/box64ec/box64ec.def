@@ -10,6 +10,7 @@ EXPORTS
   BTCpu64IsProcessorFeaturePresent
   BTCpu64NotifyMemoryDirty
   BTCpu64NotifyReadFile
+  NotifyMapViewOfSection
   NotifyMemoryFree
   NotifyMemoryProtect
   NotifyUnmapViewOfSection

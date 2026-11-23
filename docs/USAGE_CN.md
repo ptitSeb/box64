@@ -477,7 +477,7 @@ SSE Flush to 0 FLAGS的行为，同时追踪 SSE 异常 FLAGS。 在 WowBox64 �
 
 ### BOX64_UNITYPLAYER
 
-检测 UnityPlayer 并应用保守设置。
+检测 UnityPlayer 并应用保守设置。 在 WowBox64 中可用。
 
  * 0: 不执行任何操作。
  * 1: 检测 UnityPlayer（Windows 或 Linux），并在检测到时应用 BOX64_UNITY=1。 [默认值]

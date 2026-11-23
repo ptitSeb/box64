@@ -490,7 +490,7 @@ Synchronize rounding mode between x86 and native.
 
 ### BOX64_UNITYPLAYER
 
-Detect UnityPlayer and apply conservative settings.
+Detect UnityPlayer and apply conservative settings. Available in WowBox64.
 
  * 0: Does nothing.
  * 1: Detect UnityPlayer (Windows or Linux), and apply BOX64_UNITY=1 when detected. [Default]
