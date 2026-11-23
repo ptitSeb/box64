@@ -160,8 +160,8 @@ GO(GOMP_loop_dynamic_start, iFllllpp)
 GO(GOMP_loop_end, vFv)
 //GO(GOMP_loop_end_cancel, 
 GO(GOMP_loop_end_nowait, vFv)
-//GO(GOMP_loop_guided_next, 
-//GO(GOMP_loop_guided_start, 
+GO(GOMP_loop_guided_next, iFpp)
+GO(GOMP_loop_guided_start, iFllllpp)
 //GO(GOMP_loop_maybe_nonmonotonic_runtime_next, 
 //GO(GOMP_loop_maybe_nonmonotonic_runtime_start, 
 //GO(GOMP_loop_nonmonotonic_dynamic_next, 
