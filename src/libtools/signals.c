@@ -748,6 +748,8 @@ void my_sigactionhandler_oldcode(x64emu_t* emu, int32_t sig, int simple, siginfo
     mmx87_regs_t old_mmx[8];
     mmx87_regs_t old_x87[8];
     uint32_t old_top = emu->top;
+    uint16_t old_fpu_tags = emu->fpu_tags;
+    int old_fpu_stack = emu->fpu_stack;
     uint16_t old_segs[6];
     uintptr_t old_segs_offs[6];
     memcpy(old_xmm, emu->xmm, sizeof(old_xmm));
@@ -816,6 +818,8 @@ void my_sigactionhandler_oldcode(x64emu_t* emu, int32_t sig, int simple, siginfo
     memcpy(emu->segs, old_segs, sizeof(old_segs));
     memcpy(emu->segs_offs, old_segs_offs, sizeof(old_segs_offs));
     emu->top = old_top;
+    emu->fpu_tags = old_fpu_tags;
+    emu->fpu_stack = old_fpu_stack;
 }
 
 extern void* current_helper;
