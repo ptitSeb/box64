@@ -809,7 +809,7 @@ static int flagsCacheNeedsTransform(dynarec_native_t* dyn, int ninst) {
     if(dyn->insts[ninst].f_exit==dyn->insts[jmp].f_entry)
         return 0;
     if(dyn->insts[jmp].df_notneeded)
-        return 0;
+        return dyn->insts[jmp].f_entry == status_none && dyn->insts[ninst].f_exit != status_none;
     if((dyn->insts[jmp].f_entry==status_none_pending) && (dyn->insts[ninst].f_exit!=status_none_pending))
         return 1;
     switch (dyn->insts[jmp].f_entry) {
