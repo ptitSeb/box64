@@ -190,6 +190,7 @@ uint64_t GetDynSetting(mapping_t* mapping)
 #undef BOOLEAN
 #undef ADDRESS
 #undef STRING
+    if(box64env.dynarec_test) settings.x ^= UINT64_C(0x9e3779b97f4a7c15);
     return settings.x;
 }
 
