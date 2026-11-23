@@ -190,13 +190,13 @@ uintptr_t dynarec64_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int nin
                 CALL_S(const_x64syscall, -1);
             }
             LOAD_XEMU_CALL(xRIP);
+            LOAD_XEMU_REM();
             TABLE64(x3, addr); // expected return address
             SUBx_REG(x3, x3, xRIP);
             CBNZx_MARK(x3);
             LDRw_U12(w1, xEmu, offsetof(x64emu_t, quit));
             CBZw_NEXT(w1);
             MARK;
-            LOAD_XEMU_REM();
             jump_to_epilog(dyn, 0, xRIP, ninst);
             break;
 
