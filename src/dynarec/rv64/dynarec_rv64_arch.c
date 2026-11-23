@@ -9,6 +9,7 @@
 #include "dynablock.h"
 #include "x64emu.h"
 #include "emu/x64emu_private.h"
+#include "emu/x87emu_private.h"
 #include "emu/x64run_private.h"
 #include "dynarec/dynablock_private.h"
 #include "dynarec_rv64_arch.h"
@@ -442,8 +443,21 @@ void adjust_arch(dynablock_t* db, x64emu_t* emu, ucontext_t* p, uintptr_t x64pc)
     }
     if (x87) {
         dynarec_log(LOG_INFO, " x87[%x, delta=%d] ", x87->x87, x87->delta);
-        if (x87->delta)
+        if (x87->delta) {
+            emu->fpu_stack += x87->delta;
+            if (emu->fpu_stack < 0) emu->fpu_stack = 0;
+            if (emu->fpu_stack > 8) emu->fpu_stack = 8;
             emu->top = (emu->top - x87->delta) & 7;
+            if (x87->delta > 0) {
+                emu->fpu_tags = (uint16_t)((emu->fpu_tags << (2 * x87->delta)) & TAGS_EMPTY);
+            } else {
+                int s = 2 * (-x87->delta);
+                if (s >= 16)
+                    emu->fpu_tags = TAGS_EMPTY;
+                else
+                    emu->fpu_tags = (uint16_t)((emu->fpu_tags >> s) | (TAGS_EMPTY << (16 - s)));
+            }
+        }
         for (int i = 0; i < 8; ++i) {
             if (!((x87->x87 >> i) & 1))
                 continue;
@@ -459,6 +473,7 @@ void adjust_arch(dynablock_t* db, x64emu_t* emu, ucontext_t* p, uintptr_t x64pc)
                     emu->x87[(emu->top + i) & 7].d = *(double*)&raw;
                     break;
             }
+            emu->fpu_tags &= ~(uint16_t)(0b11 << (i * 2));
         }
     }
     dynarec_log(LOG_INFO, "\n");
