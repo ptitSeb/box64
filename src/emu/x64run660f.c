@@ -1484,6 +1484,8 @@ uintptr_t Run660F(x64emu_t *emu, rex_t rex, uintptr_t addr)
                 }
             if (tmp64s==(int32_t)tmp64s) {
                 GX->sd[i] = (int32_t)tmp64s;
+                if((float)tmp64s!=EX->f[i])
+                    mxcsr_raise_precision(emu);
             } else {
                 mxcsr_raise_invalid(emu);
                 GX->sd[i] = INT32_MIN;
