@@ -2351,7 +2351,7 @@ static void flagsCacheTransform(dynarec_arm_t* dyn, int ninst)
         return;
     if(dyn->insts[ninst].f_exit==dyn->insts[jmp].f_entry)  // flags will be fully known, nothing we can do more
         return;
-    if(dyn->insts[jmp].df_notneeded)
+    if(dyn->insts[jmp].df_notneeded && !(dyn->insts[jmp].f_entry == status_none && dyn->insts[ninst].f_exit != status_none))
         return;
     MESSAGE(LOG_DUMP, "\tFlags fetch ---- ninst=%d -> %d\n", ninst, jmp);
     int go_fetch = 0;
@@ -2373,7 +2373,7 @@ static void flagsCacheTransform(dynarec_arm_t* dyn, int ninst)
                 go_fetch = 1;
             break;
         case status_none:
-            if(dyn->insts[ninst].f_exit==status_none_pending) {
+            if(dyn->insts[ninst].f_exit==status_none_pending || dyn->insts[jmp].df_notneeded) {
                 FORCE_DFNONE();
             } else
                 go_fetch = 1;
