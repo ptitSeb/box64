@@ -672,7 +672,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             break;
         case 0xCF:
             INST_NAME("IRET");
-            SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION); // Not a hack, EFLAGS are restored
+            SETFLAGS(X_ALL, SF_SET_DF, NAT_FLAGS_NOFUSION); // Not a hack, EFLAGS are restored
             BARRIER(BARRIER_FLOAT);
             iret_to_next(dyn, ip, ninst, rex.is32bits, rex.w);
             *need_epilog = 0;
@@ -1540,7 +1540,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     INST_NAME("DIV Eb");
                     MESSAGE(LOG_DUMP, "Need Optimization\n");
                     SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
-                    CHECK_DFNONE(1);
+                    FORCE_DFNONE();
                     GETEB(x1, 0);
                     ZEXTH(x2, xRAX);
                     if (BOX64ENV(dynarec_div0)) {
@@ -1562,7 +1562,6 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     ANDI(x4, x4, 0xff);
                     SLLI(x4, x4, 8);
                     OR(xRAX, xRAX, x4);
-                    SET_DFNONE();
                     CLEAR_FLAGS();
                     IFX (X_ZF) ORI(xFlags, xFlags, 1 << F_ZF);
                     IFX (X_PF) ORI(xFlags, xFlags, 1 << F_PF);
@@ -1702,8 +1701,7 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 case 6:
                     INST_NAME("DIV Ed");
                     SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
-                    SET_DFNONE();
-                    CHECK_DFNONE(1);
+                    FORCE_DFNONE();
                     MARKREGd(xRAX);
                     MARKREGd(xRDX);
                     MARKREGs(xRAX);
@@ -1793,9 +1791,8 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     SKIPTEST(x1);
                     if (!BOX64DRENV(dynarec_safeflags)) {
                         SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
-                        SET_DFNONE();
                     }
-                    CHECK_DFNONE(1);
+                    FORCE_DFNONE();
                     MARKREGd(xRAX);
                     MARKREGd(xRDX);
                     MARKREGs(xRAX);
@@ -1898,14 +1895,14 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             switch ((nextop >> 3) & 7) {
                 case 0:
                     INST_NAME("INC Eb");
-                    SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING, NAT_FLAGS_FUSION);
+                    SETFLAGS(X_ALL & ~X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
                     GETEB(x1, 0);
                     emit_inc8(dyn, ninst, ed, x2, x4, x5);
                     EBBACK(x5, 0);
                     break;
                 case 1:
                     INST_NAME("DEC Eb");
-                    SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING, NAT_FLAGS_FUSION);
+                    SETFLAGS(X_ALL & ~X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
                     GETEB(x1, 0);
                     emit_dec8(dyn, ninst, ed, x2, x4, x5);
                     EBBACK(x5, 0);
@@ -1919,14 +1916,14 @@ uintptr_t dynarec64_00_3(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
             switch ((nextop >> 3) & 7) {
                 case 0: // INC Ed
                     INST_NAME("INC Ed");
-                    SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING, NAT_FLAGS_FUSION);
+                    SETFLAGS(X_ALL & ~X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
                     GETEDsd(0);
                     emit_inc32(dyn, ninst, rex, ed, x3, x4, x5, x6);
                     WBACK;
                     break;
                 case 1: // DEC Ed
                     INST_NAME("DEC Ed");
-                    SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING, NAT_FLAGS_FUSION);
+                    SETFLAGS(X_ALL & ~X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
                     GETEDsd(0);
                     emit_dec32(dyn, ninst, rex, ed, x3, x4, x5, x6);
                     WBACK;
