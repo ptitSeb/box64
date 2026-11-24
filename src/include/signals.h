@@ -61,6 +61,8 @@ typedef struct __attribute__((packed)) i386_sigaction_restorer_s {
 	sigset_t sa_mask;
 } i386_sigaction_restorer_t;
 
+int my32_syscall_rt_sigaction(x64emu_t* emu, int signum, const i386_sigaction_restorer_t *act, i386_sigaction_restorer_t *oldact, int sigsetsize);
+
 #endif
 
 sighandler_t my_signal(x64emu_t* emu, int signum, sighandler_t handler);
