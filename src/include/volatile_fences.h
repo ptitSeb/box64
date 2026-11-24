@@ -20,6 +20,9 @@ typedef enum volatile_range_e {
 // Register a range.
 int VolatileFenceAddRange(volatile_range_t kind, uintptr_t start, uintptr_t end);
 
+// Forget the metadata ranges of an unmapped image. Its fence points stay, they only count inside a range.
+void VolatileFenceRemoveMetadataRange(uintptr_t start, uintptr_t end);
+
 // Register a metadata fence point.
 void VolatileFenceAddMetadataPoint(uintptr_t ip);
 

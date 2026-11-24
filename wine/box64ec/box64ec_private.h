@@ -52,6 +52,7 @@ void Box64EC_FastCallbackLeave(void);
 void Box64EC_ResetAbandonedEmuRun(box64ec_thr_t* state, x64emu_t* emu);
 void Box64EC_InternalMapEnter(void);
 void Box64EC_InternalMapLeave(void);
+void Box64EC_RegisterVolatileMetadata(void* image, int relocated);
 NTSTATUS Box64EC_InitCallretStack(x64emu_t* emu);
 void Box64EC_FreeCallretStack(x64emu_t* emu);
 void Box64EC_ResetCallretStack(x64emu_t* emu);

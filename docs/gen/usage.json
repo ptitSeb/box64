@@ -893,7 +893,7 @@
     "name": "BOX64_DYNAREC_VOLATILE_METADATA",
     "description": "Use volatile metadata parsed from PE files, only valid for 64bit Windows games.",
     "category": "Performance",
-    "wine": false,
+    "wine": true,
     "configurator": false,
     "options": [
       {

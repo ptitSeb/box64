@@ -165,7 +165,7 @@ BOX64_DYNAREC_CALLRET=1
 
 ### BOX64_DYNAREC_VOLATILE_METADATA
 
-使用从 PE 文件解析的 volatile 元数据，仅对 64 位 Windows 游戏有效。
+使用从 PE 文件解析的 volatile 元数据，仅对 64 位 Windows 游戏有效。 在 WowBox64 中可用。
 
  * 0: 不使用 volatile 元数据。
  * 1: 使用 volatile 元数据，将指导 Box64 进行更好的强内存模拟。 [默认值]

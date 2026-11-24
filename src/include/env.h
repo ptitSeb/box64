@@ -76,7 +76,7 @@ extern char* ftrace_name;
     BOOLEAN(BOX64_DYNAREC_TEST_NODUP, dynarec_test_nodup, 0, 1, 0)               \
     BOOLEAN(BOX64_DYNAREC_TEST_NODUMP, dynarec_test_nodump, 1, 1, 0)             \
     BOOLEAN(BOX64_DYNAREC_TRACE, dynarec_trace, 0, 0, 0)                         \
-    BOOLEAN(BOX64_DYNAREC_VOLATILE_METADATA, dynarec_volatile_metadata, 1, 0, 1) \
+    BOOLEAN(BOX64_DYNAREC_VOLATILE_METADATA, dynarec_volatile_metadata, 1, 1, 1) \
     BOOLEAN(BOX64_DYNAREC_WAIT, dynarec_wait, 1, 1, 0)                           \
     INTEGER(BOX64_DYNAREC_WEAKBARRIER, dynarec_weakbarrier, 1, 0, 2, 1, 2)       \
     INTEGER(BOX64_DYNAREC_X87DOUBLE, dynarec_x87double, 0, 0, 2, 1, 2)           \

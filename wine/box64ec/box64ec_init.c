@@ -96,6 +96,9 @@ NTSTATUS WINAPI ProcessInit(void)
         va_bits = 48;
     Box64EC_EcCodeBitmapLimit = 1ull << (va_bits < 47 ? va_bits : 47);
     RtlInitializeCriticalSection(&Box64EC_Context.mutex_dyndump);
+    // Wine maps the main exe before loading this module, so NotifyMapViewOfSection never sees it
+    if (BOX64ENV(dynarec_volatile_metadata))
+        Box64EC_RegisterVolatileMetadata(*(void**)((char*)NtCurrentTeb()->ProcessEnvironmentBlock + 0x10), 1);    // PEB ImageBaseAddress
     RtlInitializeCriticalSection(&Box64EC_Context.mutex_trace);
     RtlInitializeCriticalSection(&Box64EC_Context.mutex_tls);
     RtlInitializeCriticalSection(&Box64EC_Context.mutex_thread);

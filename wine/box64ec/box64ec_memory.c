@@ -1,14 +1,17 @@
 // SPDX-License-Identifier: MIT
+#include <stddef.h>
 #include <stdint.h>
 #include <string.h>
 #include <windows.h>
 #include <ntstatus.h>
 #include <winternl.h>
 #include "box64ec_private.h"
+#include "box64context.h"
 #include "custommem.h"
 #include "debug.h"
 #include "env.h"
 #include "os.h"
+#include "volatile_fences.h"
 #include "wine/compiler.h"
 
 int Box64EC_IsEcCode(uintptr_t address)
@@ -193,7 +196,53 @@ void WINAPI BTCpu64NotifyMemoryDirty(void* address, SIZE_T size)
 #endif
 }
 
-// Wine calls this for each image it maps: UnityPlayer.dll needs the BOX64_UNITY memory ordering hack
+NTSYSAPI PIMAGE_NT_HEADERS WINAPI RtlImageNtHeader(HMODULE);
+NTSYSAPI void* WINAPI RtlImageDirectoryEntryToData(HMODULE, BOOLEAN, USHORT, ULONG*);
+
+// IMAGE_VOLATILE_METADATA, missing in the llvm-mingw headers
+typedef struct {
+    DWORD size, version;
+    DWORD access_rva, access_size;      // DWORD RVAs
+    DWORD range_rva, range_size;        // DWORD RVA and size pairs
+} volatile_metadata_t;
+
+static int in_image(const IMAGE_NT_HEADERS* nt, uint64_t rva, uint64_t size)
+{
+    return rva <= nt->OptionalHeader.SizeOfImage && size <= nt->OptionalHeader.SizeOfImage - rva;
+}
+
+// The volatile metadata of a mapped image: Box64EC has no file to read it from, as ParseVolatileMetadata does
+void Box64EC_RegisterVolatileMetadata(void* image, int relocated)
+{
+    PIMAGE_NT_HEADERS nt = RtlImageNtHeader(image);
+    uintptr_t base = (uintptr_t)image;
+    size_t config_size = offsetof(IMAGE_LOAD_CONFIG_DIRECTORY64, VolatileMetadataPointer) + sizeof(ULONGLONG);
+    ULONG size;
+
+    if (!nt || nt->OptionalHeader.Magic != IMAGE_NT_OPTIONAL_HDR64_MAGIC)
+        return;
+    IMAGE_LOAD_CONFIG_DIRECTORY64* config = RtlImageDirectoryEntryToData(image, TRUE, IMAGE_DIRECTORY_ENTRY_LOAD_CONFIG, &size);
+    if (!config || !in_image(nt, (uintptr_t)config - base, config_size) || config->Size < config_size || !config->VolatileMetadataPointer)
+        return;
+    // the loader relocates the pointer without updating ImageBase, and Wine reports a mapping before that
+    uint64_t rva = config->VolatileMetadataPointer - (relocated ? base : nt->OptionalHeader.ImageBase);
+    if (!in_image(nt, rva, sizeof(volatile_metadata_t)))
+        return;
+    const volatile_metadata_t* metadata = (const volatile_metadata_t*)(base + rva);
+    if (!in_image(nt, metadata->access_rva, metadata->access_size) || !in_image(nt, metadata->range_rva, metadata->range_size))
+        return;
+    printf_log(LOG_INFO, "Parsing volatile metadata of image loaded at %p\n", image);
+    const DWORD* access = (const DWORD*)(base + metadata->access_rva);
+    for (DWORD i = 0; i < metadata->access_size / sizeof(DWORD); ++i)
+        if (in_image(nt, access[i], 1))
+            VolatileFenceAddMetadataPoint(base + access[i]);
+    const DWORD* range = (const DWORD*)(base + metadata->range_rva);
+    for (DWORD i = 0; i < metadata->range_size / (2 * sizeof(DWORD)); ++i, range += 2)
+        if (in_image(nt, range[0], range[1]))     // a range past the image would outlive its unmapping
+            VolatileFenceAddRange(VOLATILE_RANGE_METADATA, base + range[0], base + range[0] + range[1]);
+}
+
+// Wine calls this for each image it maps: it carries volatile metadata, and UnityPlayer.dll needs the BOX64_UNITY memory ordering hack
 NTSTATUS WINAPI NotifyMapViewOfSection(void* unknown1, void* address, void* unknown2, SIZE_T size,
                                        ULONG allocation, ULONG protection)
 {
@@ -204,6 +253,11 @@ NTSTATUS WINAPI NotifyMapViewOfSection(void* unknown1, void* address, void* unkn
     const WCHAR* base;
     const WCHAR* end;
 
+    if (BOX64ENV(dynarec_volatile_metadata)) {
+        mutex_lock(&my_context->mutex_dyndump);    // the dynarec reads the ranges while filling a block under this lock
+        Box64EC_RegisterVolatileMetadata(address, 0);
+        mutex_unlock(&my_context->mutex_dyndump);
+    }
     if (!BOX64ENV(unityplayer) || BOX64ENV(unity) ||
         NtQueryVirtualMemory(NtCurrentProcess(), address, MemoryMappedFilenameInformation, &mapped, sizeof(mapped), NULL))
         return STATUS_SUCCESS;
@@ -227,6 +281,12 @@ void WINAPI NotifyUnmapViewOfSection(void* address, BOOL is_post, NTSTATUS statu
 
     if (is_post || !thread || thread->internal_map_depth)
         return;
-    if (get_allocation_range(address, &start, &length))
+    if (get_allocation_range(address, &start, &length)) {
         drop_blocks(start, length);
+        if (BOX64ENV(dynarec_volatile_metadata)) {
+            mutex_lock(&my_context->mutex_dyndump);
+            VolatileFenceRemoveMetadataRange(start, start + length);
+            mutex_unlock(&my_context->mutex_dyndump);
+        }
+    }
 }
