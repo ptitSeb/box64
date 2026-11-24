@@ -2083,6 +2083,12 @@ static void fp_cache_transform(dynarec_rv64_t* dyn, int ninst, int s1, int s2, i
                     MESSAGE(LOG_DUMP, "\t---- Cache Transform\n");
                     return;
                 }
+            for (int a = 0; a < 16; ++a)
+                if (dyn->e.simd[a].dirty & SIMD_XMM) {
+                    fpu_purgecache(dyn, ninst, 1, s1, s2, s3);
+                    MESSAGE(LOG_DUMP, "\t---- Cache Transform\n");
+                    return;
+                }
             simd_sync_upper(dyn, ninst, s1, 1);
             MESSAGE(LOG_DUMP, "\t---- Cache Transform\n");
             return;
