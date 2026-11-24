@@ -11,6 +11,7 @@
 #include <sys/wait.h>
 
 #include "box64context.h"
+#include "bridge.h"
 #include "debug.h"
 #include "core.h"
 #include "fileutils.h"
@@ -386,6 +387,11 @@ static void loadTest(const char** filepath, const char* include_path)
     struct json_value_s* mode = json_find(config->payload, "Mode");
     if (mode && mode->type == json_type_string && !strcmp(((struct json_string_s*)mode->payload)->string, "32BIT")) {
         box64_is32bits = true;
+#ifdef DYNAREC
+        my_context->exit_bridge = AddBridge(my_context->alternates, NULL, NULL, 0, NULL);
+#else
+        my_context->exit_bridge = AddBridge(NewBridge(), NULL, NULL, 0, NULL);
+#endif
         printf_log(LOG_INFO, "Test is in 32bits mode\n");
     }
 
