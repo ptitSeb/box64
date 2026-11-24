@@ -651,14 +651,14 @@ static int runSingleTest(const char* filepath, const char* include_path)
 
     for (int i = 0; i < 16; ++i) {
         if (check_xmmregs[i]) {
-            if (ymmregs[i][0] != emu->xmm[i].q[0] || ymmregs[i][1] != emu->xmm[i].q[1]) {
-                printf_log(LOG_NONE, "XMM%-2d: expected %016zx-%016zx, got %016zx-%016zx\n", i, ymmregs[i][1], ymmregs[i][0], emu->xmm[i].q[1], emu->xmm[i].q[0]);
+            if (ymmregs[i][0] != getXMM(emu, i)->q[0] || ymmregs[i][1] != getXMM(emu, i)->q[1]) {
+                printf_log(LOG_NONE, "XMM%-2d: expected %016zx-%016zx, got %016zx-%016zx\n", i, ymmregs[i][1], ymmregs[i][0], getXMM(emu, i)->q[1], getXMM(emu, i)->q[0]);
                 retcode += 1;
             }
         }
         if (check_ymmregs[i]) {
-            if (ymmregs[i][2] != emu->ymm[i].q[0] || ymmregs[i][3] != emu->ymm[i].q[1]) {
-                printf_log(LOG_NONE, "YMM%-2d: expected %016zx-%016zx, got %016zx-%016zx\n", i, ymmregs[i][3], ymmregs[i][2], emu->ymm[i].q[1], emu->ymm[i].q[0]);
+            if (ymmregs[i][2] != getYMM(emu, i)->q[0] || ymmregs[i][3] != getYMM(emu, i)->q[1]) {
+                printf_log(LOG_NONE, "YMM%-2d: expected %016zx-%016zx, got %016zx-%016zx\n", i, ymmregs[i][3], ymmregs[i][2], getYMM(emu, i)->q[1], getYMM(emu, i)->q[0]);
                 retcode += 1;
             }
         }

@@ -196,7 +196,7 @@ uint64_t RunFunctionFmt(uintptr_t fnc, const char* fmt, ...)
         for (int i=0; fmt[i]; ++i) {
             switch(fmt[i]) {
                 case 'f':   if(ndf<8)
-                                emu->xmm[ndf++].f[0] = va_arg(va, double);  // float are promoted to double in ...
+                                getXMM(emu, ndf++)->f[0] = va_arg(va, double);  // float are promoted to double in ...
                             else {
                                 *p = 0;
                                 *((float*)p) = va_arg(va, double);
@@ -204,7 +204,7 @@ uint64_t RunFunctionFmt(uintptr_t fnc, const char* fmt, ...)
                             }
                             break;
                 case 'd':   if(ndf<8)
-                                emu->xmm[ndf++].d[0] = va_arg(va, double);
+                                getXMM(emu, ndf++)->d[0] = va_arg(va, double);
                             else {
                                 *((double*)p) = va_arg(va, double);
                                 ++p;
@@ -362,7 +362,7 @@ uint64_t RunFunctionFmtNoAlt(uintptr_t fnc, const char* fmt, ...)
         for (int i=0; fmt[i]; ++i) {
             switch(fmt[i]) {
                 case 'f':   if(ndf<8)
-                                emu->xmm[ndf++].f[0] = va_arg(va, double);  // float are promoted to double in ...
+                                getXMM(emu, ndf++)->f[0] = va_arg(va, double);  // float are promoted to double in ...
                             else {
                                 *p = 0;
                                 *((float*)p) = va_arg(va, double);
@@ -370,7 +370,7 @@ uint64_t RunFunctionFmtNoAlt(uintptr_t fnc, const char* fmt, ...)
                             }
                             break;
                 case 'd':   if(ndf<8)
-                                emu->xmm[ndf++].d[0] = va_arg(va, double);
+                                getXMM(emu, ndf++)->d[0] = va_arg(va, double);
                             else {
                                 *((double*)p) = va_arg(va, double);
                                 ++p;
@@ -528,7 +528,7 @@ double RunFunctionFmtD(uintptr_t fnc, const char* fmt, ...)
         for (int i=0; fmt[i]; ++i) {
             switch(fmt[i]) {
                 case 'f':   if(ndf<8)
-                                emu->xmm[ndf++].f[0] = va_arg(va, double);  // float are promoted to double in ...
+                                getXMM(emu, ndf++)->f[0] = va_arg(va, double);  // float are promoted to double in ...
                             else {
                                 *p = 0;
                                 *((float*)p) = va_arg(va, double);
@@ -536,7 +536,7 @@ double RunFunctionFmtD(uintptr_t fnc, const char* fmt, ...)
                             }
                             break;
                 case 'd':   if(ndf<8)
-                                emu->xmm[ndf++].d[0] = va_arg(va, double);
+                                getXMM(emu, ndf++)->d[0] = va_arg(va, double);
                             else {
                                 *((double*)p) = va_arg(va, double);
                                 ++p;
@@ -585,7 +585,7 @@ double RunFunctionFmtD(uintptr_t fnc, const char* fmt, ...)
         fpu_do_pop(emu);
     } else
     #endif
-    ret = emu->xmm[0].d[0];
+    ret = getXMM(emu, 0)->d[0];
 
     return ret;
 }

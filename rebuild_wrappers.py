@@ -1196,8 +1196,8 @@ def main(root: str, files: Iterable[Filename], ver: str):
 				"R_RAX=(unsigned short)fn({0});",                          # W
 				"R_RAX=(uint32_t)fn({0});",                                # u
 				"R_RAX=fn({0});",                                          # U
-				"emu->xmm[0].f[0]=fn({0});",                               # f
-				"emu->xmm[0].d[0]=fn({0});",                               # d
+				"getXMM(emu, 0)->f[0]=fn({0});",                           # f
+				"getXMM(emu, 0)->d[0]=fn({0});",                           # d
 				"long double ld=fn({0}); fpu_do_push(emu); ST0val = ld;",  # D
 				"R_RAX=(intptr_t)fn({0});",                                # l
 				"R_RAX=(uintptr_t)fn({0});",                               # L
@@ -1225,8 +1225,8 @@ def main(root: str, files: Iterable[Filename], ver: str):
 				"R_RAX=(unsigned short)fn({0});",                          # W
 				"R_RAX=(uint32_t)fn({0});",                                # u
 				"R_RAX=fn({0});",                                          # U
-				"emu->xmm[0].f[0]=fn({0});",                               # f
-				"emu->xmm[0].d[0]=fn({0});",                               # d
+				"getXMM(emu, 0)->f[0]=fn({0});",                           # f
+				"getXMM(emu, 0)->d[0]=fn({0});",                           # d
 				"R_RAX=(intptr_t)fn({0});",                                # l
 				"R_RAX=(uintptr_t)fn({0});",                               # L
 				"R_RAX=(uintptr_t)fn({0});",                               # p
@@ -1247,7 +1247,7 @@ def main(root: str, files: Iterable[Filename], ver: str):
 		}
 		vals_android = {
 			conventions['F']: {
-				"D": "long double ld=fn({0}); emu->xmm[0].u128=*(__uint128_t*)&ld;",
+				"D": "long double ld=fn({0}); getXMM(emu, 0)->u128=*(__uint128_t*)&ld;",
 				"Y": "from_complexl(emu, fn({0}));",
 			},
 			conventions['W']: {}
@@ -1298,33 +1298,33 @@ def main(root: str, files: Iterable[Filename], ver: str):
 			"aligned_xcb, ",               # b
 		]
 		arg_x = [
-			"",                       # E
-			"",                       # v
-			"",                       # c
-			"",                       # w
-			"",                       # i
-			"",                       # I
-			"",                       # C
-			"",                       # W
-			"",                       # u
-			"",                       # U
-			"emu->xmm[{p}].f[0], ",   # f
-			"emu->xmm[{p}].d[0], ",   # d
-			"",                       # D
-			"",                       # l
-			"",                       # L
-			"",                       # p
-			"",                       # V
-			"",                       # O
-			"",                       # S
-			"",                       # N
-			"",                       # H
-			"",                       # P
-			"",                       # A
-			"to_complexf(emu, {p}), ", # x
-			"to_complex(emu, {p}), ",  # X
-			"",                       # Y
-			"",                       # b
+			"",                         # E
+			"",                         # v
+			"",                         # c
+			"",                         # w
+			"",                         # i
+			"",                         # I
+			"",                         # C
+			"",                         # W
+			"",                         # u
+			"",                         # U
+			"getXMM(emu, {p})->f[0], ", # f
+			"getXMM(emu, {p})->d[0], ", # d
+			"",                         # D
+			"",                         # l
+			"",                         # L
+			"",                         # p
+			"",                         # V
+			"",                         # O
+			"",                         # S
+			"",                         # N
+			"",                         # H
+			"",                         # P
+			"",                         # A
+			"to_complexf(emu, {p}), ",  # x
+			"to_complex(emu, {p}), ",   # X
+			"",                         # Y
+			"",                         # b
 		]
 		arg_o = [
 			"emu, ",                  # E
@@ -1400,8 +1400,8 @@ def main(root: str, files: Iterable[Filename], ver: str):
 		vxmm_android[conventions['F'].values.index('D')] = 1
 		vxmm_android[conventions['F'].values.index('Y')] = 1
 		arg_x_android = {
-			'D': "*(long double*)&emu->xmm[{p}], ",
-			'Y': "to_complexl(emu, (uintptr_t)&emu->xmm[{p}]), ",
+			'D': "*(long double*)getXMM(emu, {p}), ",
+			'Y': "to_complexl(emu, (uintptr_t)getXMM(emu, {p})), ",
 		}
 		arg_x_ld = {
 			t: arg_x[conventions['F'].values.index(t)] for t in arg_x_android

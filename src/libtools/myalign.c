@@ -106,7 +106,7 @@ void myStackAlign(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* mystac
             case 13:    //%llg, still double
             case 15:    //%zg, meh.. double?
                 if(xmm) {
-                    *mystack = emu->xmm[x++].q[0];
+                    *mystack = getXMM(emu, x++)->q[0];
                     --xmm;
                     mystack++;
                 } else {
@@ -130,7 +130,7 @@ void myStackAlign(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* mystac
                 if((((uintptr_t)mystack)&0xf)!=0)
                     mystack++;
                 if(xmm) {
-                    memcpy(mystack, &emu->xmm[x++], 16);
+                    memcpy(mystack, getXMM(emu, x++), 16);
                     st+=2; mystack+=2;
                     --xmm;
                 } else {
@@ -364,7 +364,7 @@ void myStackAlignW(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* mysta
             case 13:    //%llg, still double
             case 15:    //%zg, meh .. double
                 if(xmm) {
-                    *mystack = emu->xmm[x++].q[0];
+                    *mystack = getXMM(emu, x++)->q[0];
                     --xmm;
                     mystack++;
                 } else {
@@ -388,7 +388,7 @@ void myStackAlignW(x64emu_t* emu, const char* fmt, uint64_t* st, uint64_t* mysta
                 if((((uintptr_t)mystack)&0xf)!=0)
                     mystack++;
                 if(xmm) {
-                    memcpy(mystack, &emu->xmm[x++], 16);
+                    memcpy(mystack, getXMM(emu, x++), 16);
                     st+=2; mystack+=2;
                     --xmm;
                 } else {
@@ -1444,7 +1444,7 @@ void myStackAlignGVariantNew(x64emu_t* emu, const char* fmt, uint64_t* st, uint6
                         break;
                     case 'd': // gdouble
                         if (xmm) {
-                            *mystack = emu->xmm[x++].q[0];
+                            *mystack = getXMM(emu, x++)->q[0];
                             --xmm;
                             mystack++;
                         } else {

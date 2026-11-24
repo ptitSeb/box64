@@ -45,8 +45,8 @@
 #define GETEY               opey=TestEy(test, &addr, rex, nextop)
 #define GETEM(D)            opem=TestEm(test, &addr, rex, nextop, D)
 #define GETGM               opgm=GetGm(test->emu, &addr, rex, nextop)
-#define GETVX               opvx=&test->emu->xmm[vex.v]
-#define GETVY               opvy=&test->emu->ymm[vex.v]
+#define GETVX               opvx=getXMM(test->emu, vex.v)
+#define GETVY               opvy=getYMM(test->emu, vex.v)
 #define GETVD               opvd=&test->emu->regs[vex.v]
 #else
 #define GETED(D)            oped=GetEd(emu, &addr, rex, nextop, D)
@@ -67,11 +67,11 @@
 #define GETEX8(D)           GETEX(D)
 #define GETGX               opgx=GetGx(emu, &addr, rex, nextop)
 #define GETGY               opgy=GetGy(emu, &addr, rex, nextop)
-#define GETEY               opey=(opex>=&emu->xmm[0] && opex<=&emu->xmm[15])?((sse_regs_t*)((uintptr_t)opex+offsetof(x64emu_t, ymm)-offsetof(x64emu_t, xmm))):((sse_regs_t*)((uintptr_t)opex+16))
+#define GETEY               opey=MODREG?getYMM(emu, (nextop&0x07)+(rex.b<<3)):((sse_regs_t*)((uintptr_t)opex+16))
 #define GETEM(D)            opem=GetEm(emu, &addr, rex, nextop, D)
 #define GETGM               opgm=GetGm(emu, &addr, rex, nextop)
-#define GETVX               opvx=&emu->xmm[vex.v]
-#define GETVY               opvy=&emu->ymm[vex.v]
+#define GETVX               opvx=getXMM(emu, vex.v)
+#define GETVY               opvy=getYMM(emu, vex.v)
 #define GETVD               opvd=&emu->regs[vex.v]
 #endif
 #define ED  oped

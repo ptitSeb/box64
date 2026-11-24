@@ -95,56 +95,56 @@ static v4sf_v4sf_func_t native_v4f_powf = NULL;
 static void apply_v2d_unary(x64emu_t* emu, double (*fn)(double))
 {
     for (int i = 0; i < 2; ++i)
-        emu->xmm[0].d[i] = fn(emu->xmm[0].d[i]);
+        getXMM(emu, 0)->d[i] = fn(getXMM(emu, 0)->d[i]);
 }
 
 static void apply_v2d_binary(x64emu_t* emu, double (*fn)(double, double))
 {
     for (int i = 0; i < 2; ++i)
-        emu->xmm[0].d[i] = fn(emu->xmm[0].d[i], emu->xmm[1].d[i]);
+        getXMM(emu, 0)->d[i] = fn(getXMM(emu, 0)->d[i], getXMM(emu, 1)->d[i]);
 }
 
 static void apply_v4f_unary(x64emu_t* emu, float (*fn)(float))
 {
     for (int i = 0; i < 4; ++i)
-        emu->xmm[0].f[i] = fn(emu->xmm[0].f[i]);
+        getXMM(emu, 0)->f[i] = fn(getXMM(emu, 0)->f[i]);
 }
 
 static void apply_v4f_binary(x64emu_t* emu, float (*fn)(float, float))
 {
     for (int i = 0; i < 4; ++i)
-        emu->xmm[0].f[i] = fn(emu->xmm[0].f[i], emu->xmm[1].f[i]);
+        getXMM(emu, 0)->f[i] = fn(getXMM(emu, 0)->f[i], getXMM(emu, 1)->f[i]);
 }
 
 static void apply_v4d_unary(x64emu_t* emu, double (*fn)(double))
 {
     for (int i = 0; i < 2; ++i) {
-        emu->xmm[0].d[i] = fn(emu->xmm[0].d[i]);
-        emu->ymm[0].d[i] = fn(emu->ymm[0].d[i]);
+        getXMM(emu, 0)->d[i] = fn(getXMM(emu, 0)->d[i]);
+        getYMM(emu, 0)->d[i] = fn(getYMM(emu, 0)->d[i]);
     }
 }
 
 static void apply_v4d_binary(x64emu_t* emu, double (*fn)(double, double))
 {
     for (int i = 0; i < 2; ++i) {
-        emu->xmm[0].d[i] = fn(emu->xmm[0].d[i], emu->xmm[1].d[i]);
-        emu->ymm[0].d[i] = fn(emu->ymm[0].d[i], emu->ymm[1].d[i]);
+        getXMM(emu, 0)->d[i] = fn(getXMM(emu, 0)->d[i], getXMM(emu, 1)->d[i]);
+        getYMM(emu, 0)->d[i] = fn(getYMM(emu, 0)->d[i], getYMM(emu, 1)->d[i]);
     }
 }
 
 static void apply_v8f_unary(x64emu_t* emu, float (*fn)(float))
 {
     for (int i = 0; i < 4; ++i) {
-        emu->xmm[0].f[i] = fn(emu->xmm[0].f[i]);
-        emu->ymm[0].f[i] = fn(emu->ymm[0].f[i]);
+        getXMM(emu, 0)->f[i] = fn(getXMM(emu, 0)->f[i]);
+        getYMM(emu, 0)->f[i] = fn(getYMM(emu, 0)->f[i]);
     }
 }
 
 static void apply_v8f_binary(x64emu_t* emu, float (*fn)(float, float))
 {
     for (int i = 0; i < 4; ++i) {
-        emu->xmm[0].f[i] = fn(emu->xmm[0].f[i], emu->xmm[1].f[i]);
-        emu->ymm[0].f[i] = fn(emu->ymm[0].f[i], emu->ymm[1].f[i]);
+        getXMM(emu, 0)->f[i] = fn(getXMM(emu, 0)->f[i], getXMM(emu, 1)->f[i]);
+        getYMM(emu, 0)->f[i] = fn(getYMM(emu, 0)->f[i], getYMM(emu, 1)->f[i]);
     }
 }
 
@@ -152,9 +152,9 @@ EXPORT void my__ZGVbN2v_sin(x64emu_t* emu)
 {
     if (native_v2d_sin) {
         v2df input, result;
-        memcpy(&input, &emu->xmm[0], sizeof(v2df));
+        memcpy(&input, getXMM(emu, 0), sizeof(v2df));
         result = native_v2d_sin(input);
-        memcpy(&emu->xmm[0], &result, sizeof(v2df));
+        memcpy(getXMM(emu, 0), &result, sizeof(v2df));
     } else {
         apply_v2d_unary(emu, sin);
     }
@@ -164,9 +164,9 @@ EXPORT void my__ZGVbN2v_cos(x64emu_t* emu)
 {
     if (native_v2d_cos) {
         v2df input, result;
-        memcpy(&input, &emu->xmm[0], sizeof(v2df));
+        memcpy(&input, getXMM(emu, 0), sizeof(v2df));
         result = native_v2d_cos(input);
-        memcpy(&emu->xmm[0], &result, sizeof(v2df));
+        memcpy(getXMM(emu, 0), &result, sizeof(v2df));
     } else {
         apply_v2d_unary(emu, cos);
     }
@@ -176,9 +176,9 @@ EXPORT void my__ZGVbN2v_cosh(x64emu_t* emu)
 {
     if (native_v2d_cosh) {
         v2df input, result;
-        memcpy(&input, &emu->xmm[0], sizeof(v2df));
+        memcpy(&input, getXMM(emu, 0), sizeof(v2df));
         result = native_v2d_cosh(input);
-        memcpy(&emu->xmm[0], &result, sizeof(v2df));
+        memcpy(getXMM(emu, 0), &result, sizeof(v2df));
     } else {
         apply_v2d_unary(emu, cosh);
     }
@@ -188,9 +188,9 @@ EXPORT void my__ZGVbN2v_tanh(x64emu_t* emu)
 {
     if (native_v2d_tanh) {
         v2df input, result;
-        memcpy(&input, &emu->xmm[0], sizeof(v2df));
+        memcpy(&input, getXMM(emu, 0), sizeof(v2df));
         result = native_v2d_tanh(input);
-        memcpy(&emu->xmm[0], &result, sizeof(v2df));
+        memcpy(getXMM(emu, 0), &result, sizeof(v2df));
     } else {
         apply_v2d_unary(emu, tanh);
     }
@@ -200,9 +200,9 @@ EXPORT void my__ZGVbN2v_acos(x64emu_t* emu)
 {
     if (native_v2d_acos) {
         v2df input, result;
-        memcpy(&input, &emu->xmm[0], sizeof(v2df));
+        memcpy(&input, getXMM(emu, 0), sizeof(v2df));
         result = native_v2d_acos(input);
-        memcpy(&emu->xmm[0], &result, sizeof(v2df));
+        memcpy(getXMM(emu, 0), &result, sizeof(v2df));
     } else {
         apply_v2d_unary(emu, acos);
     }
@@ -212,9 +212,9 @@ EXPORT void my__ZGVbN2v_erf(x64emu_t* emu)
 {
     if (native_v2d_erf) {
         v2df input, result;
-        memcpy(&input, &emu->xmm[0], sizeof(v2df));
+        memcpy(&input, getXMM(emu, 0), sizeof(v2df));
         result = native_v2d_erf(input);
-        memcpy(&emu->xmm[0], &result, sizeof(v2df));
+        memcpy(getXMM(emu, 0), &result, sizeof(v2df));
     } else {
         apply_v2d_unary(emu, erf);
     }
@@ -224,9 +224,9 @@ EXPORT void my__ZGVbN2v_log10(x64emu_t* emu)
 {
     if (native_v2d_log10) {
         v2df input, result;
-        memcpy(&input, &emu->xmm[0], sizeof(v2df));
+        memcpy(&input, getXMM(emu, 0), sizeof(v2df));
         result = native_v2d_log10(input);
-        memcpy(&emu->xmm[0], &result, sizeof(v2df));
+        memcpy(getXMM(emu, 0), &result, sizeof(v2df));
     } else {
         apply_v2d_unary(emu, log10);
     }
@@ -236,9 +236,9 @@ EXPORT void my__ZGVbN2v_sinh(x64emu_t* emu)
 {
     if (native_v2d_sinh) {
         v2df input, result;
-        memcpy(&input, &emu->xmm[0], sizeof(v2df));
+        memcpy(&input, getXMM(emu, 0), sizeof(v2df));
         result = native_v2d_sinh(input);
-        memcpy(&emu->xmm[0], &result, sizeof(v2df));
+        memcpy(getXMM(emu, 0), &result, sizeof(v2df));
     } else {
         apply_v2d_unary(emu, sinh);
     }
@@ -248,10 +248,10 @@ EXPORT void my__ZGVbN2vv_atan2(x64emu_t* emu)
 {
     if (native_v2d_atan2) {
         v2df y, x, result;
-        memcpy(&y, &emu->xmm[0], sizeof(v2df));
-        memcpy(&x, &emu->xmm[1], sizeof(v2df));
+        memcpy(&y, getXMM(emu, 0), sizeof(v2df));
+        memcpy(&x, getXMM(emu, 1), sizeof(v2df));
         result = native_v2d_atan2(y, x);
-        memcpy(&emu->xmm[0], &result, sizeof(v2df));
+        memcpy(getXMM(emu, 0), &result, sizeof(v2df));
     } else {
         apply_v2d_binary(emu, atan2);
     }
@@ -261,9 +261,9 @@ EXPORT void my__ZGVbN2v_exp(x64emu_t* emu)
 {
     if (native_v2d_exp) {
         v2df input, result;
-        memcpy(&input, &emu->xmm[0], sizeof(v2df));
+        memcpy(&input, getXMM(emu, 0), sizeof(v2df));
         result = native_v2d_exp(input);
-        memcpy(&emu->xmm[0], &result, sizeof(v2df));
+        memcpy(getXMM(emu, 0), &result, sizeof(v2df));
     } else {
         apply_v2d_unary(emu, exp);
     }
@@ -273,9 +273,9 @@ EXPORT void my__ZGVbN2v_log(x64emu_t* emu)
 {
     if (native_v2d_log) {
         v2df input, result;
-        memcpy(&input, &emu->xmm[0], sizeof(v2df));
+        memcpy(&input, getXMM(emu, 0), sizeof(v2df));
         result = native_v2d_log(input);
-        memcpy(&emu->xmm[0], &result, sizeof(v2df));
+        memcpy(getXMM(emu, 0), &result, sizeof(v2df));
     } else {
         apply_v2d_unary(emu, log);
     }
@@ -285,9 +285,9 @@ EXPORT void my__ZGVbN4v_acosf(x64emu_t* emu)
 {
     if (native_v4f_acosf) {
         v4sf input, result;
-        memcpy(&input, &emu->xmm[0], sizeof(v4sf));
+        memcpy(&input, getXMM(emu, 0), sizeof(v4sf));
         result = native_v4f_acosf(input);
-        memcpy(&emu->xmm[0], &result, sizeof(v4sf));
+        memcpy(getXMM(emu, 0), &result, sizeof(v4sf));
     } else {
         apply_v4f_unary(emu, acosf);
     }
@@ -297,9 +297,9 @@ EXPORT void my__ZGVbN4v_sinf(x64emu_t* emu)
 {
     if (native_v4f_sinf) {
         v4sf input, result;
-        memcpy(&input, &emu->xmm[0], sizeof(v4sf));
+        memcpy(&input, getXMM(emu, 0), sizeof(v4sf));
         result = native_v4f_sinf(input);
-        memcpy(&emu->xmm[0], &result, sizeof(v4sf));
+        memcpy(getXMM(emu, 0), &result, sizeof(v4sf));
     } else {
         apply_v4f_unary(emu, sinf);
     }
@@ -309,9 +309,9 @@ EXPORT void my__ZGVbN4v_cosf(x64emu_t* emu)
 {
     if (native_v4f_cosf) {
         v4sf input, result;
-        memcpy(&input, &emu->xmm[0], sizeof(v4sf));
+        memcpy(&input, getXMM(emu, 0), sizeof(v4sf));
         result = native_v4f_cosf(input);
-        memcpy(&emu->xmm[0], &result, sizeof(v4sf));
+        memcpy(getXMM(emu, 0), &result, sizeof(v4sf));
     } else {
         apply_v4f_unary(emu, cosf);
     }
@@ -321,9 +321,9 @@ EXPORT void my__ZGVbN4v_expf(x64emu_t* emu)
 {
     if (native_v4f_expf) {
         v4sf input, result;
-        memcpy(&input, &emu->xmm[0], sizeof(v4sf));
+        memcpy(&input, getXMM(emu, 0), sizeof(v4sf));
         result = native_v4f_expf(input);
-        memcpy(&emu->xmm[0], &result, sizeof(v4sf));
+        memcpy(getXMM(emu, 0), &result, sizeof(v4sf));
     } else {
         apply_v4f_unary(emu, expf);
     }
@@ -333,9 +333,9 @@ EXPORT void my__ZGVbN4v_logf(x64emu_t* emu)
 {
     if (native_v4f_logf) {
         v4sf input, result;
-        memcpy(&input, &emu->xmm[0], sizeof(v4sf));
+        memcpy(&input, getXMM(emu, 0), sizeof(v4sf));
         result = native_v4f_logf(input);
-        memcpy(&emu->xmm[0], &result, sizeof(v4sf));
+        memcpy(getXMM(emu, 0), &result, sizeof(v4sf));
     } else {
         apply_v4f_unary(emu, logf);
     }
@@ -345,10 +345,10 @@ EXPORT void my__ZGVbN2vv_pow(x64emu_t* emu)
 {
     if (native_v2d_pow) {
         v2df base, exp, result;
-        memcpy(&base, &emu->xmm[0], sizeof(v2df));
-        memcpy(&exp, &emu->xmm[1], sizeof(v2df));
+        memcpy(&base, getXMM(emu, 0), sizeof(v2df));
+        memcpy(&exp, getXMM(emu, 1), sizeof(v2df));
         result = native_v2d_pow(base, exp);
-        memcpy(&emu->xmm[0], &result, sizeof(v2df));
+        memcpy(getXMM(emu, 0), &result, sizeof(v2df));
     } else {
         apply_v2d_binary(emu, pow);
     }
@@ -358,10 +358,10 @@ EXPORT void my__ZGVbN4vv_powf(x64emu_t* emu)
 {
     if (native_v4f_powf) {
         v4sf base, exp, result;
-        memcpy(&base, &emu->xmm[0], sizeof(v4sf));
-        memcpy(&exp, &emu->xmm[1], sizeof(v4sf));
+        memcpy(&base, getXMM(emu, 0), sizeof(v4sf));
+        memcpy(&exp, getXMM(emu, 1), sizeof(v4sf));
         result = native_v4f_powf(base, exp);
-        memcpy(&emu->xmm[0], &result, sizeof(v4sf));
+        memcpy(getXMM(emu, 0), &result, sizeof(v4sf));
     } else {
         apply_v4f_binary(emu, powf);
     }

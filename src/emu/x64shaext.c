@@ -191,8 +191,8 @@ void sha256rnds2(x64emu_t* emu, sse_regs_t* xmm1, sse_regs_t* xmm2)
     uint32_t G = xmm1->ud[1];
     uint32_t H = xmm1->ud[0];
     for(int i=0; i<2; ++i) {
-        uint32_t new_A = Ch(E, F, G) + sigma1(E) + emu->xmm[0].ud[i] + H + Maj(A, B, C) + sigma0(A);
-        uint32_t new_E = Ch(E, F, G) + sigma1(E) + emu->xmm[0].ud[i] + H + D;
+        uint32_t new_A = Ch(E, F, G) + sigma1(E) + getXMM(emu, 0)->ud[i] + H + Maj(A, B, C) + sigma0(A);
+        uint32_t new_E = Ch(E, F, G) + sigma1(E) + getXMM(emu, 0)->ud[i] + H + D;
         H = G;
         G = F;
         F = E;

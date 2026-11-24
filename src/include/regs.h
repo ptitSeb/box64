@@ -303,6 +303,24 @@ typedef union {
 	uint8_t ub[16];
 	int8_t sb[16];
 } sse_regs_t;
+
+typedef union {
+	__uint128_t u128[2];
+	uint64_t q[4];
+	int64_t sq[4];
+	double d[4];
+	float f[8];
+	uint32_t ud[8];
+	int32_t sd[8];
+	uint16_t uw[16];
+	int16_t sw[16];
+	uint8_t ub[32];
+	int8_t sb[32];
+	struct {
+		sse_regs_t lo;
+		sse_regs_t hi;
+	} r;
+} avx_regs_t;
 #pragma pack(pop)
 
 #define R_RIP emu->ip.q[0]

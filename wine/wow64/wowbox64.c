@@ -37,6 +37,7 @@ int box64_rdtsc = 0;
 uint8_t box64_rdtsc_shift = 0;
 int box64_is32bits = 0;
 int box64_unittest_mode = 0;
+int box64_ymm_split = 0;
 int box64_wine = 0; // this is for the emulated x86 Wine.
 sysinfo_t box64_sysinfo = {0};
 
@@ -266,6 +267,9 @@ NTSTATUS WINAPI BTCpuProcessInit(void)
         printf_log(LOG_INFO, "Minimum CPU requirements not met, disabling DynaRec\n");
         SET_BOX64ENV(dynarec, 0);
     }
+
+    box64_ymm_split = BOX64ENV(dynarec) ? 1 : 0;
+    printf_log(LOG_DEBUG, "Using %s xmm/ymm registers\n", box64_ymm_split ? "separate" : "unified");
 
     TCHAR filename[MAX_PATH];
     if (GetModuleFileNameA(NULL, filename, MAX_PATH)) {
