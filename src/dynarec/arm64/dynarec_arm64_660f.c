@@ -1827,6 +1827,11 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETEX(v1, 0, 0);
             GETGX_empty(v0);
+            if(!BOX64ENV(dynarec_fastround)) {
+                MRS_fpsr(x5);
+                BFCw(x5, FPSR_IXC, 1);   // reset IXC bit
+                MSR_fpsr(x5);
+            }
             if(BOX64ENV(dynarec_fastround)) {
                 u8 = sse_setround(dyn, ninst, x1, x2, x3);
                 VFRINTISQ(v0, v1);
@@ -1847,9 +1852,9 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         MSR_fpsr(x5);
                         if(i) {
                             VMOVeS(d0, 0, v1, i);
-                            FRINTIS(d0, d0);
+                            FRINTXS(d0, d0);
                         } else {
-                            FRINTIS(d0, v1);
+                            FRINTXS(d0, v1);
                         }
                         VFCVTZSs(d0, d0);
                         MRS_fpsr(x5);   // get back FPSR to check the IOC bit
@@ -1859,6 +1864,8 @@ uintptr_t dynarec64_660F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                     }
                 }
                 x87_restoreround(dyn, ninst, u8);
+                MRS_fpsr(x5);
+                emit_mxcsr_raise_precision_fpsr(x5, x4);
             }
             break;
         case 0x5C:

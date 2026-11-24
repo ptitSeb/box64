@@ -444,10 +444,15 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             INST_NAME("VCVTPS2DQ Gx, Ex");
             nextop = F8;
             u8 = sse_setround(dyn, ninst, x3, x2, x4);  // the address below can use x2 and x3, x4 keeps the old FPCR
-            if(!BOX64ENV(dynarec_fastround) && !cpuext.frintts) {
-                d0 = fpu_get_scratch(dyn, ninst);
-                d1 = fpu_get_scratch(dyn, ninst);
-                MOVI_32_lsl(d1, 0x80, 3);
+            if(!BOX64ENV(dynarec_fastround)) {
+                MRS_fpsr(x5);
+                BFCw(x5, FPSR_IXC, 1);  // reset IXC bit
+                MSR_fpsr(x5);
+                if(!cpuext.frintts) {
+                    d0 = fpu_get_scratch(dyn, ninst);
+                    d1 = fpu_get_scratch(dyn, ninst);
+                    MOVI_32_lsl(d1, 0x80, 3);
+                }
             }
             for(int l=0; l<1+vex.l; ++l) {
                 if(!l) { GETGX_empty_EX(v0, v1, 0); } else { GETGY_empty_EY(v0, v1); }
@@ -465,9 +470,9 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                             MSR_fpsr(x5);
                             if(i) {
                                 VMOVeS(d0, 0, v1, i);
-                                FRINTIS(d0, d0);
+                                FRINTXS(d0, d0);
                             } else {
-                                FRINTIS(d0, v1);
+                                FRINTXS(d0, v1);
                             }
                             VFCVTZSs(d0, d0);
                             MRS_fpsr(x5);   // get back FPSR to check the IOC bit
@@ -477,6 +482,10 @@ uintptr_t dynarec64_AVX_66_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                         }
                     }
                 }
+            }
+            if(!BOX64ENV(dynarec_fastround)) {
+                MRS_fpsr(x1);
+                emit_mxcsr_raise_precision_fpsr(x1, x1);
             }
             x87_restoreround(dyn, ninst, u8);
             if(!vex.l) YMM0(gd);
