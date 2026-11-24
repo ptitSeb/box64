@@ -61,7 +61,7 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x46:
         case 0x47:
             INST_NAME("INC Reg (32bits)");
-            SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING, NAT_FLAGS_FUSION);
+            SETFLAGS(X_ALL & ~X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
             gd = TO_NAT(opcode & 7);
             MARKREGsd(gd);
             emit_inc32(dyn, ninst, rex, gd, x1, x2, x3, x4);
@@ -75,7 +75,7 @@ uintptr_t dynarec64_00_1(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
         case 0x4E:
         case 0x4F:
             INST_NAME("DEC Reg (32bits)");
-            SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING, NAT_FLAGS_FUSION);
+            SETFLAGS(X_ALL & ~X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
             gd = TO_NAT(opcode & 7);
             MARKREGsd(gd);
             emit_dec32(dyn, ninst, rex, gd, x1, x2, x3, x4);

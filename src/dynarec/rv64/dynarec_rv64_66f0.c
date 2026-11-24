@@ -1042,7 +1042,7 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         *ok = 0;
                     } else {
                         INST_NAME("LOCK INC Ew");
-                        SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING, NAT_FLAGS_FUSION);
+                        SETFLAGS(X_ALL & ~X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
                         ANDI(x3, wback, 0b10);
                         BNEZ_MARK(x3);
@@ -1090,7 +1090,7 @@ uintptr_t dynarec64_66F0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         *ok = 0;
                     } else {
                         INST_NAME("LOCK DEC Ew");
-                        SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING, NAT_FLAGS_FUSION);
+                        SETFLAGS(X_ALL & ~X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
                         addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, LOCK_LOCK, 0, 0);
                         ANDI(x3, wback, 0b10);
                         BNEZ_MARK(x3);

@@ -362,7 +362,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x46:
         case 0x47:
             INST_NAME("INC Reg16 (32bits)");
-            SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING, NAT_FLAGS_FUSION);
+            SETFLAGS(X_ALL & ~X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
             gd = TO_NAT(opcode & 7);
             ZEXTH(x1, gd);
             emit_inc16(dyn, ninst, x1, x2, x3, x4, x5);
@@ -377,7 +377,7 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
         case 0x4E:
         case 0x4F:
             INST_NAME("DEC Reg16 (32bits)");
-            SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING, NAT_FLAGS_FUSION);
+            SETFLAGS(X_ALL & ~X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
             gd = TO_NAT(opcode & 7);
             ZEXTH(x1, gd);
             emit_dec16(dyn, ninst, x1, x2, x3, x4, x5);
@@ -1652,14 +1652,14 @@ uintptr_t dynarec64_66(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int ni
             switch ((nextop >> 3) & 7) {
                 case 0:
                     INST_NAME("INC Ew");
-                    SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING, NAT_FLAGS_FUSION);
+                    SETFLAGS(X_ALL & ~X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
                     GETEW(x1, 0);
                     emit_inc16(dyn, ninst, x1, x2, x4, x5, x6);
                     EWBACK;
                     break;
                 case 1:
                     INST_NAME("DEC Ew");
-                    SETFLAGS(X_ALL & ~X_CF, SF_SUBSET_PENDING, NAT_FLAGS_FUSION);
+                    SETFLAGS(X_ALL & ~X_CF, SF_SUBSET, NAT_FLAGS_FUSION);
                     GETEW(x1, 0);
                     emit_dec16(dyn, ninst, x1, x2, x4, x5, x6);
                     EWBACK;
