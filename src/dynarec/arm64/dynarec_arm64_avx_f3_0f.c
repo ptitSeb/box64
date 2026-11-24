@@ -346,6 +346,8 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
             d0 = fpu_get_scratch(dyn, ninst);
             if(!BOX64ENV(dynarec_fastround)) {
                 MRS_fpsr(x5);
+                BFCw(x5, FPSR_IXC, 1);   // reset IXC bit
+                MSR_fpsr(x5);
                 ORRw_mask(x4, xZR, 1, 0);    //0x80000000
             }
             for(int l=0; l<1+vex.l; ++l) {
@@ -373,6 +375,10 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, 
                         }
                     }
                 }
+            }
+            if(!BOX64ENV(dynarec_fastround)) {
+                MRS_fpsr(x1);
+                emit_mxcsr_raise_precision_fpsr(x1, x1);
             }
             if(!vex.l) YMM0(gd);
             break;

@@ -608,6 +608,15 @@
 #else
 #define SYNC_FPCR_ROUND(s1, s2)
 #endif
+
+// Set the MXCSR precision (PE) flag if the IXC flag is set in the given FPSR
+#define emit_mxcsr_raise_precision_fpsr(fpsr, s1)      \
+    do {                                               \
+        TBZ(fpsr, FPSR_IXC, 16);                       \
+        LDRw_U12(s1, xEmu, offsetof(x64emu_t, mxcsr)); \
+        ORRw_mask(s1, s1, 27, 0);   /* 0x20 */         \
+        STRw_U12(s1, xEmu, offsetof(x64emu_t, mxcsr)); \
+    } while (0)
 // CALL_D will use x7 for the call address. Use for function having 1 or 2 double args and returning 1 double
 // All regs are saved, including xmm0-7, will move arg1/arg2 to D0, D1, return D0 to ret (unless any is -1)
 #define CALL_D(F, ret, arg1, arg2, sav1, sav2) call_d(dyn, ninst, F, ret, arg1, arg2, sav1, sav2)

@@ -375,15 +375,21 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
             nextop = F8;
             GETEX(v1, 0, 0) ;
             GETGX_empty(v0);
+            if(!BOX64ENV(dynarec_fastround)) {
+                MRS_fpsr(x5);
+                BFCw(x5, FPSR_IXC, 1);   // reset IXC bit
+                MSR_fpsr(x5);
+            }
             if(BOX64ENV(dynarec_fastround)) {
                 VFCVTZSQS(v0, v1);
             } else {
                 if(cpuext.frintts) {
                     VFRINT32ZSQ(v0, v1);
                     VFCVTZSQS(v0, v0);
+                    MRS_fpsr(x5);
+                    emit_mxcsr_raise_precision_fpsr(x5, x4);
                 } else {
                     // try to transform the 4 values first, then fall back to 1 at time if needed
-                    MRS_fpsr(x5);
                     BFCw(x5, FPSR_IOC, 1);   // reset IOC bit
                     MSR_fpsr(x5);
                     d0 = fpu_get_scratch(dyn, ninst);
@@ -393,6 +399,7 @@ uintptr_t dynarec64_F30F(dynarec_arm_t* dyn, uintptr_t addr, uintptr_t ip, int n
                         VFCVTZSQS(d0, v1);
                     }
                     MRS_fpsr(x5);   // get back FPSR to check the IOC bit
+                    emit_mxcsr_raise_precision_fpsr(x5, x1);
                     if(v0!=v1) {
                         TBZ_NEXT(x5, FPSR_IOC);
                     } else {
