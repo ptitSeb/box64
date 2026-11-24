@@ -477,6 +477,11 @@ void EXPORT x86Syscall(x64emu_t *emu)
             }
             break;
         }
+        case 174:
+            S_EAX = my32_syscall_rt_sigaction(emu, R_EBX, from_ptrv(R_ECX), from_ptrv(R_EDX), R_ESI);
+            if(S_EAX==-1 && errno>0)
+                S_EAX = -errno;
+            break;
         case 186:   // sigaltstack
             S_EAX = my32_sigaltstack(emu, from_ptrv(R_EBX), from_ptrv(R_ECX));
             if(S_EAX==-1 && errno>0)
@@ -677,9 +682,14 @@ uint32_t EXPORT my32_syscall(x64emu_t *emu, uint32_t s, ptr_t* b)
 #if 0
         case 125:   // mprotect
             return (uint32_t)my32_mprotect(emu, p(0), u32(4), i32(8));
-        case 174:   // sys_rt_sigaction
-            return (uint32_t)my32_sigaction(emu, i32(0), (x86_sigaction_t*)p(4), (x86_sigaction_t*)p(8));
 #endif
+        case 174:
+            {
+                int ret = my32_syscall_rt_sigaction(emu, i32(0), (i386_sigaction_restorer_t*)p(4), (i386_sigaction_restorer_t*)p(8), i32(12));
+                if(ret==-1 && errno>0)
+                    ret = -errno;
+                return (uint32_t)ret;
+            }
         case 186:   // sigaltstack
             return my32_sigaltstack(emu, p(0), p(4));
         case 192:   // mmap2
