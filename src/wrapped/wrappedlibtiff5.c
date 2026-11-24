@@ -191,7 +191,7 @@ EXPORT int my_TIFFSetField(x64emu_t* emu, void* tiff, uint32_t tag, uintptr_t* b
         case 282:   //TIFFTAG_XRESOLUTION
         case 287:   //TIFFTAG_YPOSITION
         case 283:   //TIFFTAG_YRESOLUTION
-            if(R_EAX) return my->TIFFSetField(tiff, tag, emu->xmm[0].d[0]);
+            if(R_EAX) return my->TIFFSetField(tiff, tag, getXMM(emu, 0)->d[0]);
             else {
                 uint64_t val = getVArgs(emu, 2, b, 0);
                 return my->TIFFSetField(tiff, tag, *(double*)&val);

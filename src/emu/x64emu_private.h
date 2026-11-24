@@ -4,6 +4,7 @@
 
 #include "regs.h"
 #include "os.h"
+#include "debug.h"
 #include "box64context.h"
 #include <signal.h>
 
@@ -68,9 +69,13 @@ typedef struct x64emu_s {
     reg64_t     regs[16];
     x64flags_t  eflags;
     reg64_t     ip;
-    // sse
-    sse_regs_t  xmm[16];
-    sse_regs_t  ymm[16];
+    union {
+        avx_regs_t  ymm256[16];
+        struct {
+            sse_regs_t  xmm[16];
+            sse_regs_t  ymm[16];
+        };
+    };
     // fpu / mmx
     mmx87_regs_t x87[8];
     mmx87_regs_t mmx[8];
@@ -189,6 +194,16 @@ typedef struct x64emu_s {
 #define EMUTYPE_NONE    0
 #define EMUTYPE_MAIN    1
 #define EMUTYPE_SIGNAL  2
+
+static inline sse_regs_t* getXMM(x64emu_t* emu, int i)
+{
+    return box64_ymm_split ? &emu->xmm[i] : &emu->ymm256[i].r.lo;
+}
+
+static inline sse_regs_t* getYMM(x64emu_t* emu, int i)
+{
+    return box64_ymm_split ? &emu->ymm[i] : &emu->ymm256[i].r.hi;
+}
 
 void EmitDiv0(x64emu_t* emu, void* addr, int code);
 #define INTR_RAISE_DIV0(emu) {emu->error |= ERR_DIVBY0;} // should rise a SIGFPE and not quit

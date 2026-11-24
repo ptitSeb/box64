@@ -433,8 +433,8 @@ int my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigin
     // Refer to https://github.com/torvalds/linux/blob/v7.2/arch/x86/kernel/signal.c#L310
     reset_fpu(emu);
     for (int i = 0; i < 16; ++i) {
-        emu->xmm[i].u128 = 0;
-        emu->ymm[i].u128 = 0;
+        getXMM(emu, i)->u128 = 0;
+        getYMM(emu, i)->u128 = 0;
     }
     emu->mxcsr.x32 = 0x1f80; // x86 default MXCSR
     memcpy(&sigcontext->xstate, xstate, sizeof(sigcontext->xstate));
@@ -743,8 +743,7 @@ void my_sigactionhandler_oldcode(x64emu_t* emu, int32_t sig, int simple, siginfo
     multiuint_t old_op1;
     multiuint_t old_op2;
     multiuint_t old_res;
-    sse_regs_t old_xmm[16];
-    sse_regs_t old_ymm[16];
+    avx_regs_t old_ymm256[16];
     mmx87_regs_t old_mmx[8];
     mmx87_regs_t old_x87[8];
     uint32_t old_top = emu->top;
@@ -752,8 +751,7 @@ void my_sigactionhandler_oldcode(x64emu_t* emu, int32_t sig, int simple, siginfo
     int old_fpu_stack = emu->fpu_stack;
     uint16_t old_segs[6];
     uintptr_t old_segs_offs[6];
-    memcpy(old_xmm, emu->xmm, sizeof(old_xmm));
-    memcpy(old_ymm, emu->ymm, sizeof(old_ymm));
+    memcpy(old_ymm256, emu->ymm256, sizeof(old_ymm256));
     memcpy(old_mmx, emu->mmx, sizeof(old_mmx));
     memcpy(old_x87, emu->x87, sizeof(old_x87));
     memcpy(old_segs, emu->segs, sizeof(old_segs));
@@ -811,8 +809,7 @@ void my_sigactionhandler_oldcode(x64emu_t* emu, int32_t sig, int simple, siginfo
     GO(op2);
     GO(res);
     #undef GO
-    memcpy(emu->xmm, old_xmm, sizeof(old_xmm));
-    memcpy(emu->ymm, old_ymm, sizeof(old_ymm));
+    memcpy(emu->ymm256, old_ymm256, sizeof(old_ymm256));
     memcpy(emu->mmx, old_mmx, sizeof(old_mmx));
     memcpy(emu->x87, old_x87, sizeof(old_x87));
     memcpy(emu->segs, old_segs, sizeof(old_segs));

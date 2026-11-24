@@ -127,22 +127,31 @@ void x64test_check(x64emu_t* ref, uintptr_t ip)
     if(ref->mxcsr.x32 != emu->mxcsr.x32) {
         BANNER(printf_log(LOG_NONE, "MXCSR: %x | %x\n", ref->mxcsr.x32, emu->mxcsr.x32);)
     }
-    if(BOX64ENV(avx))
-        if(!duplicate && memcmp(ref->ymm, emu->ymm, sizeof(emu->ymm))) {
+    if(BOX64ENV(avx)) {
+        int diff = 0;
+        for(int i=0; i<16; ++i)
+            if(getYMM(ref, i)->u128!=getYMM(emu, i)->u128) { diff = 1; break; }
+        if(!duplicate && diff) {
             BANNER(
             for(int i=0; i<16; ++i) {
-                if(ref->ymm[i].u128!=emu->ymm[i].u128) {
-                    printf_log(LOG_NONE, "YMM[%02d]: %016zx-%016zx | %016zx-%016zx\n", i, ref->ymm[i].q[1], ref->ymm[i].q[0], emu->ymm[i].q[1], emu->ymm[i].q[0]);
+                if(getYMM(ref, i)->u128!=getYMM(emu, i)->u128) {
+                    printf_log(LOG_NONE, "YMM[%02d]: %016zx-%016zx | %016zx-%016zx\n", i, getYMM(ref, i)->q[1], getYMM(ref, i)->q[0], getYMM(emu, i)->q[1], getYMM(emu, i)->q[0]);
                 }
             })
         }
-    if(!duplicate && memcmp(ref->xmm, emu->xmm, sizeof(emu->xmm))) {
-        BANNER(
-        for(int i=0; i<16; ++i) {
-            if(ref->xmm[i].u128!=emu->xmm[i].u128) {
-                printf_log(LOG_NONE, "XMM[%02d]: %016zx-%016zx | %016zx-%016zx\n", i, ref->xmm[i].q[1], ref->xmm[i].q[0], emu->xmm[i].q[1], emu->xmm[i].q[0]);
-            }
-        })
+    }
+    {
+        int diff = 0;
+        for(int i=0; i<16; ++i)
+            if(getXMM(ref, i)->u128!=getXMM(emu, i)->u128) { diff = 1; break; }
+        if(!duplicate && diff) {
+            BANNER(
+            for(int i=0; i<16; ++i) {
+                if(getXMM(ref, i)->u128!=getXMM(emu, i)->u128) {
+                    printf_log(LOG_NONE, "XMM[%02d]: %016zx-%016zx | %016zx-%016zx\n", i, getXMM(ref, i)->q[1], getXMM(ref, i)->q[0], getXMM(emu, i)->q[1], getXMM(emu, i)->q[0]);
+                }
+            })
+        }
     }
     if(test->memsize) {
         if(!duplicate && memcmp(test->mem, (void*)test->memaddr, test->memsize)) {

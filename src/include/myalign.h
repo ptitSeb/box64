@@ -50,7 +50,8 @@ typedef struct {
     uint64_t *p = (uint64_t*)(SCRATCH);             \
     p[0]=R_RDI; p[1]=R_RSI; p[2]=R_RDX;             \
     p[3]=R_RCX; p[4]=R_R8; p[5]=R_R9;               \
-    memcpy(&p[6], emu->xmm, 8*16);                  \
+    for(int _i=0; _i<8; ++_i)                       \
+      memcpy(&p[6+_i*2], getXMM(emu, _i), 16);      \
   }
 
 #define PREFER_CONVERT_VAARG
@@ -92,7 +93,8 @@ typedef struct  va_list {
     uintptr_t *p = (uintptr_t*)(SCRATCH);                               \
     p[0]=R_RDI; p[1]=R_RSI; p[2]=R_RDX;                                 \
     p[3]=R_RCX; p[4]=R_R8; p[5]=R_R9;                                   \
-    memcpy(&p[6], emu->xmm, 8*16);                                      \
+    for(int _i=0; _i<8; ++_i)                                           \
+      memcpy(&p[6+_i*2], getXMM(emu, _i), 16);                          \
   }
 
 #define PREFER_CONVERT_VAARG

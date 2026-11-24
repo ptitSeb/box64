@@ -16,14 +16,14 @@ typedef struct complexl_s { long double r; long double i;} complexl_t;
 #define __COMPLEX_T_IMPL_H_
 static inline complexf_t to_complexf(x64emu_t* emu, int i) {
     complexf_t ret; 
-    ret.r = emu->xmm[i].f[0];
-    ret.i = emu->xmm[i].f[1];
+    ret.r = getXMM(emu, i)->f[0];
+    ret.i = getXMM(emu, i)->f[1];
     return ret;
 }
 static inline complex_t to_complex(x64emu_t* emu, int i) {
     complex_t ret;
-    ret.r = emu->xmm[i].d[0];
-    ret.i = emu->xmm[i+1].d[0];
+    ret.r = getXMM(emu, i)->d[0];
+    ret.i = getXMM(emu, i+1)->d[0];
     return ret;
 }
 static inline complexl_t to_complexl(x64emu_t* emu, uintptr_t p) {
@@ -39,16 +39,17 @@ static inline complex_t to_complexk(x64emu_t* emu, uintptr_t p) {
     return ret;
 }
 static inline void from_complexf(x64emu_t* emu, complexf_t v) {
-    emu->xmm[0].f[0]=v.r;
-    emu->xmm[0].f[1]=v.i;
+    getXMM(emu, 0)->f[0]=v.r;
+    getXMM(emu, 0)->f[1]=v.i;
 }
 static inline void from_complex(x64emu_t* emu, complex_t v) {
-    emu->xmm[0].d[0]=v.r; 
-    emu->xmm[1].d[0]=v.i;
+    getXMM(emu, 0)->d[0]=v.r; 
+    getXMM(emu, 1)->d[0]=v.i;
 }
 #ifdef ANDROID
 static inline void from_complexl(x64emu_t* emu, complexl_t v) {
-    memcpy(&emu->xmm[0], &v, 16*2); // what if AVX is present?
+    memcpy(getXMM(emu, 0), &v, 16);
+    memcpy(getXMM(emu, 1), (void*)((uintptr_t)&v+16), 16);
 }
 #else
 static inline void from_complexl(x64emu_t* emu, complexl_t v) {

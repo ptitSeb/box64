@@ -616,7 +616,7 @@ sse_regs_t* GetEx(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v, uint8_t 
 {
     uint8_t m = v&0xC7;    // filter Ed
     if(m>=0xC0) {
-         return &emu->xmm[(m&0x07)+(rex.b<<3)];
+         return getXMM(emu, (m&0x07)+(rex.b<<3));
     } else return (sse_regs_t*)GetECommon(emu, addr, rex, m, delta);
 }
 
@@ -625,7 +625,7 @@ sse_regs_t* TestEx(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v, uint8
     uint8_t m = v&0xC7;    // filter Ed
     if(m>=0xC0) {
         test->memsize=0;
-        return &test->emu->xmm[(m&0x07)+(rex.b<<3)];
+        return getXMM(test->emu, (m&0x07)+(rex.b<<3));
     } else {
         sse_regs_t* ret = (sse_regs_t*)GetECommon(test->emu, addr, rex, m, delta);
         test->memsize = sz;
@@ -639,7 +639,7 @@ sse_regs_t* TestEy(x64test_t *test, uintptr_t* addr, rex_t rex, uint8_t v)
     uint8_t m = v&0xC7;    // filter Ed
     if(m>=0xC0) {
         test->memsize=0;
-        return &test->emu->ymm[(m&0x07)+(rex.b<<3)];
+        return getYMM(test->emu, (m&0x07)+(rex.b<<3));
     } else {
         sse_regs_t* ret = (sse_regs_t*)(test->memaddr+16);
         test->memsize += 16;
@@ -674,11 +674,11 @@ mmx87_regs_t* GetGm(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v)
 sse_regs_t* GetGx(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v)
 {
     uint8_t m = (v&0x38)>>3;
-    return &emu->xmm[(m&7)+(rex.r<<3)];
+    return getXMM(emu, (m&7)+(rex.r<<3));
 }
 
 sse_regs_t* GetGy(x64emu_t *emu, uintptr_t* addr, rex_t rex, uint8_t v)
 {
     uint8_t m = (v&0x38)>>3;
-    return &emu->ymm[(m&7)+(rex.r<<3)];
+    return getYMM(emu, (m&7)+(rex.r<<3));
 }

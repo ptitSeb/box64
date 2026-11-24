@@ -638,14 +638,17 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
                 if(vex.v!=0) {
                     EmitSignal(emu, X64_SIGILL, (void*)R_RIP, 0);
                 } else {
-                    memset(emu->ymm, 0, sizeof(sse_regs_t)*((vex.rex.is32bits)?8:16));
+                    for(int i=0; i<((vex.rex.is32bits)?8:16); ++i)
+                        getYMM(emu, i)->u128 = 0;
                 }
             } else {    // VZEROALL
                 if(vex.v!=0) {
                     EmitSignal(emu, X64_SIGILL, (void*)R_RIP, 0);
                 } else {
-                    memset(emu->xmm, 0, sizeof(sse_regs_t)*((vex.rex.is32bits)?8:16));
-                    memset(emu->ymm, 0, sizeof(sse_regs_t)*((vex.rex.is32bits)?8:16));
+                    for(int i=0; i<((vex.rex.is32bits)?8:16); ++i) {
+                        getXMM(emu, i)->u128 = 0;
+                        getYMM(emu, i)->u128 = 0;
+                    }
                 }
             }
             break;

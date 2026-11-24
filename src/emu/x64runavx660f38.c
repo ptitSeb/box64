@@ -1408,8 +1408,8 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             else if(nextop&0x80)
                 tmp64u += F32S;
             // get vxmm
-            EX = &emu->xmm[((tmp8u>>3)&7)+(rex.x<<3)];
-            EY = &emu->ymm[((tmp8u>>3)&7)+(rex.x<<3)];
+            EX = getXMM(emu, ((tmp8u>>3)&7)+(rex.x<<3));
+            EY = getYMM(emu, ((tmp8u>>3)&7)+(rex.x<<3));
             u8 = tmp8u>>6;
             // prepare mask
             if(!vex.l)
@@ -1483,8 +1483,8 @@ uintptr_t RunAVX_660F38(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             else if(nextop&0x80)
                 tmp64u += F32S;
             // get vxmm
-            EX = &emu->xmm[((tmp8u>>3)&7)+(rex.x<<3)];
-            EY = &emu->ymm[((tmp8u>>3)&7)+(rex.x<<3)];
+            EX = getXMM(emu, ((tmp8u>>3)&7)+(rex.x<<3));
+            EY = getYMM(emu, ((tmp8u>>3)&7)+(rex.x<<3));
             u8 = tmp8u>>6;
             // prepare mask
             if(!vex.l) {

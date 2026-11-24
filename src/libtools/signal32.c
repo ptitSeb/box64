@@ -548,8 +548,8 @@ int my_sigactionhandler_oldcode_32(x64emu_t* emu, int32_t sig, int simple, sigin
     ((struct i386_fpstate*)xstate)->status_magic = 0x46505853;   // magic number to signal an XSTATE type of fpregs
     reset_fpu(emu);
     for (int i = 0; i < 16; ++i) {
-        emu->xmm[i].u128 = 0;
-        emu->ymm[i].u128 = 0;
+        getXMM(emu, i)->u128 = 0;
+        getYMM(emu, i)->u128 = 0;
     }
     emu->mxcsr.x32 = 0x1f80;
     // get signal mask
