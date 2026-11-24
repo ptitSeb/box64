@@ -546,6 +546,12 @@ int my_sigactionhandler_oldcode_32(x64emu_t* emu, int32_t sig, int simple, sigin
     fpu_xsave_mask(emu, xstate, 1, 0b111);
     memcpy(&sigcontext->xstate, xstate, sizeof(sigcontext->xstate));
     ((struct i386_fpstate*)xstate)->status_magic = 0x46505853;   // magic number to signal an XSTATE type of fpregs
+    reset_fpu(emu);
+    for (int i = 0; i < 16; ++i) {
+        emu->xmm[i].u128 = 0;
+        emu->ymm[i].u128 = 0;
+    }
+    emu->mxcsr.x32 = 0x1f80;
     // get signal mask
 
     if(new_ss) {
@@ -722,6 +728,7 @@ int my_sigactionhandler_oldcode_32(x64emu_t* emu, int32_t sig, int simple, sigin
     #undef GO
 
     if(memcmp(sigcontext, &sigcontext_copy, sizeof(i386_ucontext_t))) {
+        fpu_xrstor_mask(emu, xstate, 1, 0b111);
         if(emu->jmpbuf) {
             #define GO(R)   emu->regs[_##R].q[0]=sigcontext->uc_mcontext.gregs[I386_E##R]
             GO(AX);
@@ -773,6 +780,7 @@ int my_sigactionhandler_oldcode_32(x64emu_t* emu, int32_t sig, int simple, sigin
         }
         printf_log(LOG_INFO, "Warning, context has been changed in Sigactionhanlder%s\n", (sigcontext->uc_mcontext.gregs[I386_EIP]!=sigcontext_copy.uc_mcontext.gregs[I386_EIP])?" (EIP changed)":"");
     }
+    fpu_xrstor_mask(emu, xstate, 1, 0b111);
     // restore regs...
     #define GO(R)   R_##R=sigcontext->uc_mcontext.gregs[I386_##R]
     GO(EAX);
