@@ -788,7 +788,7 @@ int my_sigactionhandler_oldcode_32(x64emu_t* emu, int32_t sig, int simple, sigin
             #ifdef ANDROID
             // cannot inject sigmask in jumpbuf, as the data is private and format/offset varies with architecture
             sigset_t tmp = {0};
-            memcpy(&emu->jmpbuf->__saved_mask, &sigcontext->uc_sigmask, sigmask_sz);
+            memcpy(&tmp, &sigcontext->uc_sigmask, sigmask_sz);
             sigprocmask(SIG_SETMASK, &tmp, NULL);
             longjmp(*emu->jmpbuf, skip);
             #else
