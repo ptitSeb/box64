@@ -1652,7 +1652,7 @@ if(BUNDLE_X86_LIBS)
     install(CODE "
         message(STATUS \"Installing the x86 and x86_64 libraries bundle\")
         execute_process(
-            COMMAND \"${BOX64_ROOT}/box64-bundle-x86-libs.sh\" --install
+            COMMAND \"${BOX64_ROOT}/bundle/box64-bundle-x86-libs.sh\" --install
             WORKING_DIRECTORY \"${BOX64_ROOT}\"
             RESULT_VARIABLE BUNDLE_X86_LIBS_RESULT)
         if(NOT BUNDLE_X86_LIBS_RESULT EQUAL 0)

@@ -1,6 +1,6 @@
 # Bundling x86 Libraries
 
-The script `box64-bundle-x86-libs.sh` is provided to download, extract, and re-bundle x86_64 and x86 libraries for use with Box64/Box32 and Box86. This bundle improves Box emulation by providing libraries that are not wrapped yet. In a perfect world, the application or game would already provide these libraries but that is not always the case. The bundle archive provides a much smaller size compared to using a full root file system of an operating system.
+The script `bundle/box64-bundle-x86-libs.sh` is provided to download, extract, and re-bundle x86_64 and x86 libraries for use with Box64/Box32 and Box86. This bundle improves Box emulation by providing libraries that are not wrapped yet. In a perfect world, the application or game would already provide these libraries but that is not always the case. The bundle archive provides a much smaller size compared to using a full root file system of an operating system.
 
 ## Usage
 
@@ -8,10 +8,19 @@ The script `box64-bundle-x86-libs.sh` is provided to download, extract, and re-b
 
 Add `--debug` to any command to log every command that is run, along with every file that `tar`, `cpio`, and `unzip` handle. Without it, `--build` is silent unless it fails.
 
+Add `--variant <NAME>` to any command to use a different list of packages. It reads `bundle/box64-bundle-x86-libs-<NAME>.csv` and the archives are named with the same `-<NAME>` suffix. Available variants:
+
+- `android` = Libraries for the Android (bionic) build of Box64. These are not compatible with the regular Linux (glibc) build.
+- `ubuntu` = Libraries only from Ubuntu LTS releases. Each library is taken from the newest release that provides it, starting with Ubuntu 24.04 and falling back to Ubuntu 22.04, 20.04, 18.04, and then 16.04 so that the libraries stay compatible with older Linux distributions. Ubuntu 26.04 is only used for libraries that no older LTS release provides (for example, SDL3).
+
+```
+sudo ./bundle/box64-bundle-x86-libs.sh --install --variant android
+```
+
 Install the bundle from the latest [GitHub release](https://github.com/ptitSeb/box64/releases/latest). This only requires `coreutils`, `curl`, and `tar`.
 
 ```
-sudo ./box64-bundle-x86-libs.sh --install
+sudo ./bundle/box64-bundle-x86-libs.sh --install
 ```
 
 The bundle can also be installed as part of a Box64 installation by turning on the `BUNDLE_X86_LIBS` option. It is off by default. From the `build` directory of a [compiled Box64](COMPILE.md):
@@ -25,7 +34,7 @@ sudo make install
 Optionally set the environment variable `DESTDIR` to extract to a different location than `/`.
 
 ```
-DESTDIR=/tmp/box64 ./box64-bundle-x86-libs.sh --install
+DESTDIR=/tmp/box64 ./bundle/box64-bundle-x86-libs.sh --install
 ```
 
 ```
@@ -53,7 +62,7 @@ Build the bundle from Linux distribution packages. Install the required dependen
     sudo dnf install binutils coreutils curl tar zstd
     ```
 
-Run `box64-bundle-x86-libs.sh --build`. This will create two archives:
+Run `bundle/box64-bundle-x86-libs.sh --build`. This will create two archives:
 - `box64-bundle-x86-libs.tar.gz` = All of the extracted library files in the directory structure of `usr/lib/box64-i386-linux-gnu` and `usr/lib/box64-x86_64-linux-gnu`.
 - `box64-bundle-x86-pkgs.tar.gz` = All of the Linux distribution packages used to extract the library files. This is only created for preservation purposes and is otherwise unused.
 
@@ -65,10 +74,13 @@ sudo tar --extract --no-same-owner --file box64-bundle-x86-libs.tar.gz --directo
 
 ### Developer
 
-Add new packages to the `box64-bundle-x86-libs.csv` file in the format of `<PACKAGE_URL>,<SHA256_CHECKSUM>`.
+Add new packages to the `bundle/box64-bundle-x86-libs.csv` file in the format of `<PACKAGE_URL>,<SHA256_CHECKSUM>`.
+
+Add packages for a variant to its own `bundle/box64-bundle-x86-libs-<NAME>.csv` file in the same format.
 
 Supported packages:
 - DEB (Debian)
+- DEB (Termux) for Android libraries
 - EOPKG (Solus)
 - RPM (Fedora)
 - XBPS (Void Linux)
@@ -79,6 +91,8 @@ Preference of operating system packages that provide a library:
 3. EOPKG from Solus provide old variants of obscure 32-bit libraries.
 4. XBPS from Void Linux provide updated variants of obscure 32-bit libraries.
 5. Other (wherever a library is packaged)
+
+Packages must be downloaded from URLs that never change, such as the AlmaLinux and CentOS vaults or the Debian archive, so that the bundle is reproducible. The `ubuntu` variant uses the [Ubuntu snapshot service](https://snapshot.ubuntu.com/) which keeps every package that was in the Ubuntu archive at the time in the URL (for example, `https://snapshot.ubuntu.com/ubuntu/20261125T000000Z/pool/`). Update the Ubuntu packages by changing URLs to a newer time stamp, updating the package versions, and updating the SHA256 checksums.
 
 Some essential libraries will always be emulated and should be bundled. The full list can be found in the [in the core source code](https://github.com/ptitSeb/box64/blob/v0.4.0/src/core.c#L413).
 
