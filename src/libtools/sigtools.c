@@ -123,7 +123,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd, 
     if(ARCH_UNALIGNED(db, x64pc))
         /*return*/ mark_db_unaligned(db, x64pc);    // don't force an exit for now
 #endif
-#ifdef ARM64
+#if defined(DYNAREC) && defined(ARM64)
     ucontext_t *p = (ucontext_t *)ucntx;
     uint32_t opcode = *(uint32_t*)pc;
     struct fpsimd_context *fpsimd = (struct fpsimd_context *)_fpsimd;
@@ -620,7 +620,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd, 
         printf_log(LOG_INFO, "Unsupported SIGBUS special cases with pc=%p, opcode=%x (%s)\n", pc, opcode, arm64_print(opcode, (uintptr_t)pc));
     }
 #undef CHECK_ALIGNED
-#elif defined(LA64)
+#elif defined(DYNAREC) && defined(LA64)
     ucontext_t *p = (ucontext_t *)ucntx;
     uint32_t inst = *(uint32_t*)pc;
 
@@ -678,7 +678,7 @@ int sigbus_specialcases(siginfo_t* info, void * ucntx, void* pc, void* _fpsimd, 
     } else {
         printf_log(LOG_NONE, "Unsupported SIGBUS special cases with pc=%p, opcode=%x (%s)\n", pc, inst, la64_print(inst, (uintptr_t)pc));
     }
-#elif RV64
+#elif defined(DYNAREC) && defined(RV64)
 #define GET_FIELD(v, high, low) (((v) >> low) & ((1ULL << (high - low + 1)) - 1))
 #define SIGN_EXT(val, val_sz) (((int32_t)(val) << (32 - (val_sz))) >> (32 - (val_sz)))
 
