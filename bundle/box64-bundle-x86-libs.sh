@@ -126,6 +126,7 @@ sha256sum=$(which sha256sum) || { echo "E: You must have sha256sum" && exit 1; }
 tar=$(which tar) || { echo "E: You must have tar" && exit 1; }
 
 current_dir=$(pwd)
+dir_script=$(cd "$(dirname "${0}")" && pwd)
 dir_tmp="$(mktemp -d /tmp/box64-bundle.XXXXXX)"
 dir_dest="${DESTDIR:-/}"
 
@@ -155,7 +156,7 @@ while IFS= read -r line; do
         echo "Computed: ${checksum}"
         exit 1
     fi
-done < box64-bundle-x86-libs.csv
+done < "${dir_script}"/box64-bundle-x86-libs.csv
 
 # generate the bundle packages archive
 tar -C "${dir_tmp}"/bundle-pkgs -cz"${verbose}"f "${current_dir}"/box64-bundle-x86-pkgs.tar.gz .

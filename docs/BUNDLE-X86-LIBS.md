@@ -1,6 +1,6 @@
 # Bundling x86 Libraries
 
-The script `box64-bundle-x86-libs.sh` is provided to download, extract, and re-bundle x86_64 and x86 libraries for use with Box64/Box32 and Box86. This bundle improves Box emulation by providing libraries that are not wrapped yet. In a perfect world, the application or game would already provide these libraries but that is not always the case. The bundle archive provides a much smaller size compared to using a full root file system of an operating system.
+The script `bundle/box64-bundle-x86-libs.sh` is provided to download, extract, and re-bundle x86_64 and x86 libraries for use with Box64/Box32 and Box86. This bundle improves Box emulation by providing libraries that are not wrapped yet. In a perfect world, the application or game would already provide these libraries but that is not always the case. The bundle archive provides a much smaller size compared to using a full root file system of an operating system.
 
 ## Usage
 
@@ -11,7 +11,7 @@ Add `--debug` to any command to log every command that is run, along with every 
 Install the bundle from the latest [GitHub release](https://github.com/ptitSeb/box64/releases/latest). This only requires `coreutils`, `curl`, and `tar`.
 
 ```
-sudo ./box64-bundle-x86-libs.sh --install
+sudo ./bundle/box64-bundle-x86-libs.sh --install
 ```
 
 The bundle can also be installed as part of a Box64 installation by turning on the `BUNDLE_X86_LIBS` option. It is off by default. From the `build` directory of a [compiled Box64](COMPILE.md):
@@ -25,7 +25,7 @@ sudo make install
 Optionally set the environment variable `DESTDIR` to extract to a different location than `/`.
 
 ```
-DESTDIR=/tmp/box64 ./box64-bundle-x86-libs.sh --install
+DESTDIR=/tmp/box64 ./bundle/box64-bundle-x86-libs.sh --install
 ```
 
 ```
@@ -53,7 +53,7 @@ Build the bundle from Linux distribution packages. Install the required dependen
     sudo dnf install binutils coreutils curl tar zstd
     ```
 
-Run `box64-bundle-x86-libs.sh --build`. This will create two archives:
+Run `bundle/box64-bundle-x86-libs.sh --build`. This will create two archives:
 - `box64-bundle-x86-libs.tar.gz` = All of the extracted library files in the directory structure of `usr/lib/box64-i386-linux-gnu` and `usr/lib/box64-x86_64-linux-gnu`.
 - `box64-bundle-x86-pkgs.tar.gz` = All of the Linux distribution packages used to extract the library files. This is only created for preservation purposes and is otherwise unused.
 
@@ -65,7 +65,7 @@ sudo tar --extract --no-same-owner --file box64-bundle-x86-libs.tar.gz --directo
 
 ### Developer
 
-Add new packages to the `box64-bundle-x86-libs.csv` file in the format of `<PACKAGE_URL>,<SHA256_CHECKSUM>`.
+Add new packages to the `bundle/box64-bundle-x86-libs.csv` file in the format of `<PACKAGE_URL>,<SHA256_CHECKSUM>`.
 
 Supported packages:
 - DEB (Debian)
