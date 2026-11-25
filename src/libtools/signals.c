@@ -673,8 +673,8 @@ int my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigin
             #endif
             cancel_deferred_signal_processing(emu);
             #ifdef ANDROID
-            memcpy(&emu->jmpbuf->mask, &sigcontext->uc_sigmask, sigmask_sz);
-            emu->jmpbuf->saved_mask = 1;
+            memcpy(&emu->jmpbuf[0][_SIGMASK], &sigcontext->uc_sigmask, sigmask_sz);
+            emu->jmpbuf[0][_SAVEMASK] = 1;
             longjmp(*emu->jmpbuf, skip);
             #else
             memcpy(&emu->jmpbuf->__saved_mask, &sigcontext->uc_sigmask, sigmask_sz);
