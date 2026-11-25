@@ -49,6 +49,8 @@
 #include "signal_private.h"
 
 extern int box64_in_fatal_handler;
+static void* fake_restorer = NULL;
+static int fake_restorer_init = 0;
 
 static void sigstack_destroy(void* p)
 {
@@ -1472,6 +1474,15 @@ static int is_box64_signal(int signum)
     return signum == X64_SIGSEGV || signum == X64_SIGBUS || signum == X64_SIGILL || signum == X64_SIGABRT;
 }
 
+static void find_fake_restorer()
+{
+    if(fake_restorer_init)
+        return;
+    fake_restorer_init = 1;
+    fake_restorer = (void*)sched_yield;
+    printf_log(LOG_INFO, "Inject a fake sa_restorer as %p\n", fake_restorer);
+}
+
 static void fill_emulated_sigaction(x64_sigaction_t* oldact, int signum, uintptr_t handler)
 {
     memset(oldact, 0, sizeof(*oldact));
@@ -1585,7 +1596,11 @@ int EXPORT my_sigaction(x64emu_t* emu, int signum, const x64_sigaction_t *act, x
             oldact->_u._sa_handler = old.sa_handler;  //TODO should wrap...
         if((uintptr_t)oldact->_u._sa_sigaction == (uintptr_t)MY_SIGHANDLER && old_handler)
             oldact->_u._sa_sigaction = (void*)old_handler;
-        oldact->sa_restorer = NULL; // no handling for now...
+        if(box64_wine && (signum==X64_SIGSYS)) {
+            find_fake_restorer();
+            oldact->sa_restorer = fake_restorer; // fake handling...
+        } else
+            oldact->sa_restorer = NULL;
     }
     return ret;
 }
