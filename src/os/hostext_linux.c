@@ -15,7 +15,7 @@
 #include <asm/cputable.h>
 #endif
 
-#ifdef RV64
+#if defined(RV64) && defined(DYNAREC)
 #include <setjmp.h>
 #include <signal.h>
 #include <sys/mman.h>
