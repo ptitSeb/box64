@@ -11,6 +11,7 @@ Add `--debug` to any command to log every command that is run, along with every 
 Add `--variant <NAME>` to any command to use a different list of packages. It reads `bundle/box64-bundle-x86-libs-<NAME>.csv` and the archives are named with the same `-<NAME>` suffix. Available variants:
 
 - `android` = Libraries for the Android (bionic) build of Box64. These are not compatible with the regular Linux (glibc) build.
+- `ubuntu` = Libraries only from Ubuntu LTS releases. Each library is taken from the newest release that provides it, starting with Ubuntu 24.04 and falling back to Ubuntu 22.04, 20.04, 18.04, and then 16.04 so that the libraries stay compatible with older Linux distributions. Ubuntu 26.04 is only used for libraries that no older LTS release provides (for example, SDL3).
 
 ```
 sudo ./bundle/box64-bundle-x86-libs.sh --install --variant android
@@ -90,6 +91,8 @@ Preference of operating system packages that provide a library:
 3. EOPKG from Solus provide old variants of obscure 32-bit libraries.
 4. XBPS from Void Linux provide updated variants of obscure 32-bit libraries.
 5. Other (wherever a library is packaged)
+
+Packages must be downloaded from URLs that never change, such as the AlmaLinux and CentOS vaults or the Debian archive, so that the bundle is reproducible. The `ubuntu` variant uses the [Ubuntu snapshot service](https://snapshot.ubuntu.com/) which keeps every package that was in the Ubuntu archive at the time in the URL (for example, `https://snapshot.ubuntu.com/ubuntu/20261125T000000Z/pool/`). Update the Ubuntu packages by changing URLs to a newer time stamp, updating the package versions, and updating the SHA256 checksums.
 
 Some essential libraries will always be emulated and should be bundled. The full list can be found in the [in the core source code](https://github.com/ptitSeb/box64/blob/v0.4.0/src/core.c#L413).
 

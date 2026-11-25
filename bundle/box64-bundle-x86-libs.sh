@@ -38,6 +38,7 @@ Options:
               built or installed are named with the same -<NAME> suffix.
               Can be combined with --build or --install. Available variants:
               "android" libraries for the Android (bionic) build of Box64
+              "ubuntu" libraries only from Ubuntu LTS releases
   --debug     Log every command that is run and every file that is extracted
               or archived. Without it, --build is silent unless it fails. Can
               be combined with --build or --install.
@@ -205,6 +206,7 @@ for file in *.deb *.eopkg *.rpm *.xbps; do
             log "I: DEB (Debian) package detected (${file})"
             ar x "${dir_tmp}"/bundle-pkgs/"${file}"
             tar -xf data.tar*
+            rm -f control.tar* data.tar* debian-binary
             # Termux uses the same library path for every architecture
             dir_termux="data/data/com.termux/files/usr/lib"
             if [ -d "${dir_termux}" ]; then
@@ -259,10 +261,14 @@ move_libs()
         fi
     done
 }
+# older Debian and Ubuntu packages use absolute symlinks from /usr/lib to /lib
+# so /lib is moved last to replace them with its relative symlinks
 move_libs "${dir_tmp}"/bundle-libs/box64-i386-linux-gnu \
-    lib/*.so* usr/lib/*.so* usr/lib/i386-linux-gnu/* usr/lib32/*.so*
+    lib/*.so* usr/lib/*.so* usr/lib/i386-linux-gnu/* usr/lib32/*.so* \
+    lib/i386-linux-gnu/*
 move_libs "${dir_tmp}"/bundle-libs/box64-x86_64-linux-gnu \
-    lib64/*.so* usr/lib/x86_64-linux-gnu/* usr/lib64/*.so*
+    lib64/*.so* usr/lib/x86_64-linux-gnu/* usr/lib64/*.so* \
+    lib/x86_64-linux-gnu/*
 rm -f ./*.tar.* debian-binary files.xml metadata.xml
 rm -rf ./lib* etc run sbin usr var
 mkdir -p usr/lib
