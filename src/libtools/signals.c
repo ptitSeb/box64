@@ -12,6 +12,7 @@
 #include <setjmp.h>
 #include <sys/mman.h>
 #include <pthread.h>
+#include <signal.h>
 #ifndef ANDROID
 #include <execinfo.h>
 #endif
@@ -425,6 +426,18 @@ int my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigin
     x64_ucontext_t   *sigcontext = (x64_ucontext_t*)frame;
     // get general register
     emu2mctx(&sigcontext->uc_mcontext, emu);
+    const size_t sigmask_sz = (sizeof(sigset_t)<=sizeof(x64_sigset_t))?sizeof(sigset_t):sizeof(x64_sigset_t);
+    if(ucntx)
+        memcpy(&sigcontext->uc_sigmask, &((ucontext_t *)ucntx)->uc_sigmask, sigmask_sz);
+    else {
+        if(sizeof(sigset_t)==sizeof(x64_sigset_t))
+            sigprocmask(SIG_SETMASK, NULL, (sigset_t*)&sigcontext->uc_sigmask);
+        else {
+            sigset_t tmp = {0};
+            sigprocmask(SIG_SETMASK, NULL, &tmp);
+            memcpy(&sigcontext->uc_sigmask, &tmp, sigmask_sz);
+        }
+    }
     // get FloatPoint status
     sigcontext->uc_mcontext.fpregs = xstate;//(struct x64_libc_fpstate*)&sigcontext->xstate;
     fpu_xsave_mask(emu, xstate, 0, 0b111);
@@ -595,6 +608,7 @@ int my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigin
     R_RBP = sigcontext->uc_mcontext.gregs[X64_RBP];
 
     int exits = 0;
+    int context_applied = 0;   // set to SIGCTX_APPLIED below when the frame context is written back
     int ret;
     int dynarec = 0;
     #ifdef DYNAREC
@@ -658,14 +672,28 @@ int my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigin
             dynablock_leave_runtime((dynablock_t*)cur_db);
             #endif
             cancel_deferred_signal_processing(emu);
+            memcpy(&emu->jmpbuf->__saved_mask, &sigcontext->uc_sigmask, sigmask_sz);
+            emu->jmpbuf->__mask_was_saved = 1;
             #ifdef ANDROID
-            siglongjmp(*emu->jmpbuf, skip);
+            longjmp(*emu->jmpbuf, skip);
             #else
-            siglongjmp(emu->jmpbuf, skip);
+            longjmp(emu->jmpbuf, skip);
             #endif
         }
         printf_log(LOG_INFO, "Warning, context has been changed in Sigactionhanlder%s\n", (sigcontext->uc_mcontext.gregs[X64_RIP]!=sigcontext_copy.uc_mcontext.gregs[X64_RIP])?" (EIP changed)":"");
     }
+    if(ucntx)
+        memcpy(&((ucontext_t*)ucntx)->uc_sigmask, &sigcontext->uc_sigmask, sigmask_sz);
+    else {
+        if(sizeof(sigset_t)==sizeof(x64_sigset_t))
+            sigprocmask(SIG_SETMASK, (sigset_t*)&sigcontext->uc_mcontext, NULL);
+        else {
+            sigset_t tmp = {0};
+            memcpy(&tmp, &sigcontext->uc_sigmask, sigmask_sz);
+            sigprocmask(SIG_SETMASK, &tmp, NULL);
+        }
+    }
+    context_applied = SIGCTX_APPLIED;
     // restore fpu state from the frame, mimicking the sigreturn behavior
     fpu_xrstor_mask(emu, xstate, 0, 0b111);
     // restore regs...
@@ -711,10 +739,14 @@ int my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigin
         #endif
         exit(ret);
     }
-    if(restorer)
+    if(restorer) {
         RunFunctionHandler(emu, &exits, 0, NULL, restorer, 0);
+        /* A guest-installed restorer (SA_RESTORER) runs *after* the context was written back and
+         * clobbers the registers with whatever it likes; keep the old behaviour there. */
+        context_applied = 0;
+    }
     relockMutex(Locks);
-    return 0;
+    return context_applied;
 }
 
 void my_sigactionhandler_oldcode(x64emu_t* emu, int32_t sig, int simple, siginfo_t* info, void * ucntx, int* old_code, void* cur_db, uintptr_t x64pc)
@@ -783,8 +815,21 @@ void my_sigactionhandler_oldcode(x64emu_t* emu, int32_t sig, int simple, siginfo
     } else
     #endif
     direct_ret = my_sigactionhandler_oldcode_64(emu, sig, simple, info, ucntx, old_code, cur_db, x64pc);
-    if(direct_ret)
+    if(direct_ret == 1)
+        return;     // the interrupted state was already fully restored (jump / dynablock mirror)
+    if(direct_ret == SIGCTX_APPLIED) {
+        #define GO(A) emu->A = old_##A
+        GO(df);
+        GO(op1);
+        GO(op2);
+        GO(res);
+        #undef GO
+        memcpy(emu->segs_offs, old_segs_offs, sizeof(old_segs_offs));
+        /* DS/ES are not carried in a x86-64 ucontext, so the callee cannot have restored them */
+        emu->segs[_DS] = old_segs[_DS];
+        emu->segs[_ES] = old_segs[_ES];
         return;
+    }
     #define GO(A) R_##A = old_##A
     GO(RAX);
     GO(RBX);
