@@ -643,7 +643,7 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                         pthread_mutex_unlock(&my_context->mutex_lock);
                     } else {
                         pthread_mutex_lock(&my_context->mutex_lock);
-                        ED->word[0] = not16(emu, ED->dword[0]);
+                        ED->word[0] = not16(emu, ED->word[0]);
                         pthread_mutex_unlock(&my_context->mutex_lock);
                     }
 #endif
@@ -677,7 +677,7 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
                         pthread_mutex_unlock(&my_context->mutex_lock);
                     } else {
                         pthread_mutex_lock(&my_context->mutex_lock);
-                        ED->word[0] = neg16(emu, ED->dword[0]);
+                        ED->word[0] = neg16(emu, ED->word[0]);
                         pthread_mutex_unlock(&my_context->mutex_lock);
                     }
 #endif
