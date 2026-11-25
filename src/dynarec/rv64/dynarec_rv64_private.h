@@ -106,6 +106,9 @@ typedef enum flagcache_s {
 
 typedef struct callret_s callret_t;
 
+#define XMMOFF(a)   (offsetof(x64emu_t, ymm256) + (a) * sizeof(avx_regs_t) + offsetof(avx_regs_t, r.lo))
+#define YMMOFF(a)   (offsetof(x64emu_t, ymm256) + (a) * sizeof(avx_regs_t) + offsetof(avx_regs_t, r.hi))
+
 #define RSP_CLASS_BARRIER 0
 #define RSP_CLASS_PUSH    1
 #define RSP_CLASS_POP     2

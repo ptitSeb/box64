@@ -539,7 +539,7 @@ static uint8_t ff_mult(uint8_t a, uint8_t b)
 
 void native_aesimc(x64emu_t* emu, int xmm)
 {
-    sse_regs_t eax1 = emu->xmm[xmm];
+    sse_regs_t eax1 = *getXMM(emu, xmm);
 
     for(int j=0; j<4; ++j) {
         // 0x0E -> 0, 0x09 -> 1, 0x0D -> 2, 0x0B -> 3
@@ -547,30 +547,30 @@ void native_aesimc(x64emu_t* emu, int xmm)
         // emu->xmm[xmm].ub[1+j*4] = ff_mult(0x09, eax1.ub[0+j*4]) ^ ff_mult(0x0E, eax1.ub[1+j*4]) ^ ff_mult(0x0B, eax1.ub[2+j*4]) ^ ff_mult(0x0D, eax1.ub[3+j*4]);
         // emu->xmm[xmm].ub[2+j*4] = ff_mult(0x0D, eax1.ub[0+j*4]) ^ ff_mult(0x09, eax1.ub[1+j*4]) ^ ff_mult(0x0E, eax1.ub[2+j*4]) ^ ff_mult(0x0B, eax1.ub[3+j*4]);
         // emu->xmm[xmm].ub[3+j*4] = ff_mult(0x0B, eax1.ub[0+j*4]) ^ ff_mult(0x0D, eax1.ub[1+j*4]) ^ ff_mult(0x09, eax1.ub[2+j*4]) ^ ff_mult(0x0E, eax1.ub[3+j*4]);
-        emu->xmm[xmm].ub[0+j*4] = ff_mult2[0][eax1.ub[0+j*4]] ^ ff_mult2[3][eax1.ub[1+j*4]] ^ ff_mult2[2][eax1.ub[2+j*4]] ^ ff_mult2[1][eax1.ub[3+j*4]];
-        emu->xmm[xmm].ub[1+j*4] = ff_mult2[1][eax1.ub[0+j*4]] ^ ff_mult2[0][eax1.ub[1+j*4]] ^ ff_mult2[3][eax1.ub[2+j*4]] ^ ff_mult2[2][eax1.ub[3+j*4]];
-        emu->xmm[xmm].ub[2+j*4] = ff_mult2[2][eax1.ub[0+j*4]] ^ ff_mult2[1][eax1.ub[1+j*4]] ^ ff_mult2[0][eax1.ub[2+j*4]] ^ ff_mult2[3][eax1.ub[3+j*4]];
-        emu->xmm[xmm].ub[3+j*4] = ff_mult2[3][eax1.ub[0+j*4]] ^ ff_mult2[2][eax1.ub[1+j*4]] ^ ff_mult2[1][eax1.ub[2+j*4]] ^ ff_mult2[0][eax1.ub[3+j*4]];
+        getXMM(emu, xmm)->ub[0+j*4] = ff_mult2[0][eax1.ub[0+j*4]] ^ ff_mult2[3][eax1.ub[1+j*4]] ^ ff_mult2[2][eax1.ub[2+j*4]] ^ ff_mult2[1][eax1.ub[3+j*4]];
+        getXMM(emu, xmm)->ub[1+j*4] = ff_mult2[1][eax1.ub[0+j*4]] ^ ff_mult2[0][eax1.ub[1+j*4]] ^ ff_mult2[3][eax1.ub[2+j*4]] ^ ff_mult2[2][eax1.ub[3+j*4]];
+        getXMM(emu, xmm)->ub[2+j*4] = ff_mult2[2][eax1.ub[0+j*4]] ^ ff_mult2[1][eax1.ub[1+j*4]] ^ ff_mult2[0][eax1.ub[2+j*4]] ^ ff_mult2[3][eax1.ub[3+j*4]];
+        getXMM(emu, xmm)->ub[3+j*4] = ff_mult2[3][eax1.ub[0+j*4]] ^ ff_mult2[2][eax1.ub[1+j*4]] ^ ff_mult2[1][eax1.ub[2+j*4]] ^ ff_mult2[0][eax1.ub[3+j*4]];
     }
 }
 void native_aesimc_y(x64emu_t* emu, int ymm)
 {
-    sse_regs_t eay1 = emu->ymm[ymm];
+    sse_regs_t eay1 = *getYMM(emu, ymm);
 
     for(int j=0; j<4; ++j) {
         // emu->ymm[ymm].ub[0+j*4] = ff_mult(0x0E, eay1.ub[0+j*4]) ^ ff_mult(0x0B, eay1.ub[1+j*4]) ^ ff_mult(0x0D, eay1.ub[2+j*4]) ^ ff_mult(0x09, eay1.ub[3+j*4]);
         // emu->ymm[ymm].ub[1+j*4] = ff_mult(0x09, eay1.ub[0+j*4]) ^ ff_mult(0x0E, eay1.ub[1+j*4]) ^ ff_mult(0x0B, eay1.ub[2+j*4]) ^ ff_mult(0x0D, eay1.ub[3+j*4]);
         // emu->ymm[ymm].ub[2+j*4] = ff_mult(0x0D, eay1.ub[0+j*4]) ^ ff_mult(0x09, eay1.ub[1+j*4]) ^ ff_mult(0x0E, eay1.ub[2+j*4]) ^ ff_mult(0x0B, eay1.ub[3+j*4]);
         // emu->ymm[ymm].ub[3+j*4] = ff_mult(0x0B, eay1.ub[0+j*4]) ^ ff_mult(0x0D, eay1.ub[1+j*4]) ^ ff_mult(0x09, eay1.ub[2+j*4]) ^ ff_mult(0x0E, eay1.ub[3+j*4]);
-        emu->ymm[ymm].ub[0+j*4] = ff_mult2[0][eay1.ub[0+j*4]] ^ ff_mult2[3][eay1.ub[1+j*4]] ^ ff_mult2[2][eay1.ub[2+j*4]] ^ ff_mult2[1][eay1.ub[3+j*4]];
-        emu->ymm[ymm].ub[1+j*4] = ff_mult2[1][eay1.ub[0+j*4]] ^ ff_mult2[0][eay1.ub[1+j*4]] ^ ff_mult2[3][eay1.ub[2+j*4]] ^ ff_mult2[2][eay1.ub[3+j*4]];
-        emu->ymm[ymm].ub[2+j*4] = ff_mult2[2][eay1.ub[0+j*4]] ^ ff_mult2[1][eay1.ub[1+j*4]] ^ ff_mult2[0][eay1.ub[2+j*4]] ^ ff_mult2[3][eay1.ub[3+j*4]];
-        emu->ymm[ymm].ub[3+j*4] = ff_mult2[3][eay1.ub[0+j*4]] ^ ff_mult2[2][eay1.ub[1+j*4]] ^ ff_mult2[1][eay1.ub[2+j*4]] ^ ff_mult2[0][eay1.ub[3+j*4]];
+        getYMM(emu, ymm)->ub[0+j*4] = ff_mult2[0][eay1.ub[0+j*4]] ^ ff_mult2[3][eay1.ub[1+j*4]] ^ ff_mult2[2][eay1.ub[2+j*4]] ^ ff_mult2[1][eay1.ub[3+j*4]];
+        getYMM(emu, ymm)->ub[1+j*4] = ff_mult2[1][eay1.ub[0+j*4]] ^ ff_mult2[0][eay1.ub[1+j*4]] ^ ff_mult2[3][eay1.ub[2+j*4]] ^ ff_mult2[2][eay1.ub[3+j*4]];
+        getYMM(emu, ymm)->ub[2+j*4] = ff_mult2[2][eay1.ub[0+j*4]] ^ ff_mult2[1][eay1.ub[1+j*4]] ^ ff_mult2[0][eay1.ub[2+j*4]] ^ ff_mult2[3][eay1.ub[3+j*4]];
+        getYMM(emu, ymm)->ub[3+j*4] = ff_mult2[3][eay1.ub[0+j*4]] ^ ff_mult2[2][eay1.ub[1+j*4]] ^ ff_mult2[1][eay1.ub[2+j*4]] ^ ff_mult2[0][eay1.ub[3+j*4]];
     }
 }
 void native_aesmc(x64emu_t* emu, int xmm)
 {
-    sse_regs_t eax1 = emu->xmm[xmm];
+    sse_regs_t eax1 = *getXMM(emu, xmm);
 
     for(int j=0; j<4; ++j) {
         // 0x02 -> 0, 0x01 -> 1, 0x01 -> 2, 0x03 -> 3
@@ -578,25 +578,25 @@ void native_aesmc(x64emu_t* emu, int xmm)
         // emu->xmm[xmm].ub[1+j*4] =               eax1.ub[0+j*4]  ^ ff_mult(0x02, eax1.ub[1+j*4]) ^ ff_mult(0x03, eax1.ub[2+j*4]) ^               eax1.ub[3+j*4] ;
         // emu->xmm[xmm].ub[2+j*4] =               eax1.ub[0+j*4]  ^               eax1.ub[1+j*4]  ^ ff_mult(0x02, eax1.ub[2+j*4]) ^ ff_mult(0x03, eax1.ub[3+j*4]);
         // emu->xmm[xmm].ub[3+j*4] = ff_mult(0x03, eax1.ub[0+j*4]) ^               eax1.ub[1+j*4]  ^               eax1.ub[2+j*4]  ^ ff_mult(0x02, eax1.ub[3+j*4]);
-        emu->xmm[xmm].ub[0+j*4] = ff_mult3[0][eax1.ub[0+j*4]] ^ ff_mult3[3][eax1.ub[1+j*4]] ^ ff_mult3[2][eax1.ub[2+j*4]] ^ ff_mult3[1][eax1.ub[3+j*4]];
-        emu->xmm[xmm].ub[1+j*4] = ff_mult3[1][eax1.ub[0+j*4]] ^ ff_mult3[0][eax1.ub[1+j*4]] ^ ff_mult3[3][eax1.ub[2+j*4]] ^ ff_mult3[2][eax1.ub[3+j*4]];
-        emu->xmm[xmm].ub[2+j*4] = ff_mult3[2][eax1.ub[0+j*4]] ^ ff_mult3[1][eax1.ub[1+j*4]] ^ ff_mult3[0][eax1.ub[2+j*4]] ^ ff_mult3[3][eax1.ub[3+j*4]];
-        emu->xmm[xmm].ub[3+j*4] = ff_mult3[3][eax1.ub[0+j*4]] ^ ff_mult3[2][eax1.ub[1+j*4]] ^ ff_mult3[1][eax1.ub[2+j*4]] ^ ff_mult3[0][eax1.ub[3+j*4]];
+        getXMM(emu, xmm)->ub[0+j*4] = ff_mult3[0][eax1.ub[0+j*4]] ^ ff_mult3[3][eax1.ub[1+j*4]] ^ ff_mult3[2][eax1.ub[2+j*4]] ^ ff_mult3[1][eax1.ub[3+j*4]];
+        getXMM(emu, xmm)->ub[1+j*4] = ff_mult3[1][eax1.ub[0+j*4]] ^ ff_mult3[0][eax1.ub[1+j*4]] ^ ff_mult3[3][eax1.ub[2+j*4]] ^ ff_mult3[2][eax1.ub[3+j*4]];
+        getXMM(emu, xmm)->ub[2+j*4] = ff_mult3[2][eax1.ub[0+j*4]] ^ ff_mult3[1][eax1.ub[1+j*4]] ^ ff_mult3[0][eax1.ub[2+j*4]] ^ ff_mult3[3][eax1.ub[3+j*4]];
+        getXMM(emu, xmm)->ub[3+j*4] = ff_mult3[3][eax1.ub[0+j*4]] ^ ff_mult3[2][eax1.ub[1+j*4]] ^ ff_mult3[1][eax1.ub[2+j*4]] ^ ff_mult3[0][eax1.ub[3+j*4]];
     }
 }
 void native_aesmc_y(x64emu_t* emu, int ymm)
 {
-    sse_regs_t eay1 = emu->ymm[ymm];
+    sse_regs_t eay1 = *getYMM(emu, ymm);
 
     for(int j=0; j<4; ++j) {
         // emu->ymm[ymm].ub[0+j*4] = ff_mult(0x02, eay1.ub[0+j*4]) ^ ff_mult(0x03, eay1.ub[1+j*4]) ^               eay1.ub[2+j*4]  ^               eay1.ub[3+j*4] ;
         // emu->ymm[ymm].ub[1+j*4] =               eay1.ub[0+j*4]  ^ ff_mult(0x02, eay1.ub[1+j*4]) ^ ff_mult(0x03, eay1.ub[2+j*4]) ^               eay1.ub[3+j*4] ;
         // emu->ymm[ymm].ub[2+j*4] =               eay1.ub[0+j*4]  ^               eay1.ub[1+j*4]  ^ ff_mult(0x02, eay1.ub[2+j*4]) ^ ff_mult(0x03, eay1.ub[3+j*4]);
         // emu->ymm[ymm].ub[3+j*4] = ff_mult(0x03, eay1.ub[0+j*4]) ^               eay1.ub[1+j*4]  ^               eay1.ub[2+j*4]  ^ ff_mult(0x02, eay1.ub[3+j*4]);
-        emu->ymm[ymm].ub[0+j*4] = ff_mult3[0][eay1.ub[0+j*4]] ^ ff_mult3[3][eay1.ub[1+j*4]] ^ ff_mult3[2][eay1.ub[2+j*4]] ^ ff_mult3[1][eay1.ub[3+j*4]];
-        emu->ymm[ymm].ub[1+j*4] = ff_mult3[1][eay1.ub[0+j*4]] ^ ff_mult3[0][eay1.ub[1+j*4]] ^ ff_mult3[3][eay1.ub[2+j*4]] ^ ff_mult3[2][eay1.ub[3+j*4]];
-        emu->ymm[ymm].ub[2+j*4] = ff_mult3[2][eay1.ub[0+j*4]] ^ ff_mult3[1][eay1.ub[1+j*4]] ^ ff_mult3[0][eay1.ub[2+j*4]] ^ ff_mult3[3][eay1.ub[3+j*4]];
-        emu->ymm[ymm].ub[3+j*4] = ff_mult3[3][eay1.ub[0+j*4]] ^ ff_mult3[2][eay1.ub[1+j*4]] ^ ff_mult3[1][eay1.ub[2+j*4]] ^ ff_mult3[0][eay1.ub[3+j*4]];
+        getYMM(emu, ymm)->ub[0+j*4] = ff_mult3[0][eay1.ub[0+j*4]] ^ ff_mult3[3][eay1.ub[1+j*4]] ^ ff_mult3[2][eay1.ub[2+j*4]] ^ ff_mult3[1][eay1.ub[3+j*4]];
+        getYMM(emu, ymm)->ub[1+j*4] = ff_mult3[1][eay1.ub[0+j*4]] ^ ff_mult3[0][eay1.ub[1+j*4]] ^ ff_mult3[3][eay1.ub[2+j*4]] ^ ff_mult3[2][eay1.ub[3+j*4]];
+        getYMM(emu, ymm)->ub[2+j*4] = ff_mult3[2][eay1.ub[0+j*4]] ^ ff_mult3[1][eay1.ub[1+j*4]] ^ ff_mult3[0][eay1.ub[2+j*4]] ^ ff_mult3[3][eay1.ub[3+j*4]];
+        getYMM(emu, ymm)->ub[3+j*4] = ff_mult3[3][eay1.ub[0+j*4]] ^ ff_mult3[2][eay1.ub[1+j*4]] ^ ff_mult3[1][eay1.ub[2+j*4]] ^ ff_mult3[0][eay1.ub[3+j*4]];
     }
 }
                                   //   A0 B1 C2 D3 E4 F5 G6 H7 I8 J9 Ka Lb Mc Nd Oe Pf
@@ -625,10 +625,10 @@ void native_aesdlast(x64emu_t* emu, int xmm)
 
     sse_regs_t eax1;
     for(int i=0; i<16; ++i)
-        eax1.ub[i] = emu->xmm[xmm].ub[invshiftrows[i]];
+        eax1.ub[i] = getXMM(emu, xmm)->ub[invshiftrows[i]];
     //STATE ← InvSubBytes( STATE );
     for(int i=0; i<16; ++i)
-        emu->xmm[xmm].ub[i] = invsubbytes[eax1.ub[i]];
+        getXMM(emu, xmm)->ub[i] = invsubbytes[eax1.ub[i]];
 
 }
 void native_aesdlast_y(x64emu_t* emu, int ymm)
@@ -636,10 +636,10 @@ void native_aesdlast_y(x64emu_t* emu, int ymm)
 
     sse_regs_t eay1;
     for(int i=0; i<16; ++i)
-        eay1.ub[i] = emu->ymm[ymm].ub[invshiftrows[i]];
+        eay1.ub[i] = getYMM(emu, ymm)->ub[invshiftrows[i]];
     //STATE ← InvSubBytes( STATE );
     for(int i=0; i<16; ++i)
-        emu->ymm[ymm].ub[i] = invsubbytes[eay1.ub[i]];
+        getYMM(emu, ymm)->ub[i] = invsubbytes[eay1.ub[i]];
 
 }
 const uint8_t shiftrows[] = {0, 5,10,15, 4, 9,14, 3, 8,13, 2, 7,12, 1, 6,11};
@@ -667,18 +667,18 @@ void native_aeselast(x64emu_t* emu, int xmm)
                             //   A  F  K  P  E  J  O  D  I  N  C  H  M  B  G  L
     sse_regs_t eax1;
     for(int i=0; i<16; ++i)
-        eax1.ub[i] = emu->xmm[xmm].ub[shiftrows[i]];
+        eax1.ub[i] = getXMM(emu, xmm)->ub[shiftrows[i]];
     //STATE ← SubBytes( STATE );
     for(int i=0; i<16; ++i)
-        emu->xmm[xmm].ub[i] = subbytes[eax1.ub[i]];
+        getXMM(emu, xmm)->ub[i] = subbytes[eax1.ub[i]];
 }
 void native_aeselast_y(x64emu_t* emu, int ymm)
 {
     sse_regs_t eay1;
     for(int i=0; i<16; ++i)
-        eay1.ub[i] = emu->ymm[ymm].ub[shiftrows[i]];
+        eay1.ub[i] = getYMM(emu, ymm)->ub[shiftrows[i]];
     for(int i=0; i<16; ++i)
-        emu->ymm[ymm].ub[i] = subbytes[eay1.ub[i]];
+        getYMM(emu, ymm)->ub[i] = subbytes[eay1.ub[i]];
 }
 void native_aesd(x64emu_t* emu, int xmm)
 {
@@ -702,8 +702,8 @@ void native_aese_y(x64emu_t* emu, int ymm)
 }
 void native_aeskeygenassist(x64emu_t* emu, int gx, int ex, void* p, uint32_t u8)
 {
-    sse_regs_t *EX = p?((sse_regs_t*)p):&emu->xmm[ex];
-    sse_regs_t *GX = &emu->xmm[gx];
+    sse_regs_t *EX = p?((sse_regs_t*)p):getXMM(emu, ex);
+    sse_regs_t *GX = getXMM(emu, gx);
     for (int i = 4; i < 8; ++i)
         GX->ub[i] = subbytes[EX->ub[i]];
     for (int i = 12; i < 16; ++i)
@@ -750,8 +750,8 @@ static inline __int128 pclmul_4bit(uint64_t a, uint64_t b)
 
 void native_pclmul(x64emu_t* emu, int gx, int ex, void* p, uint32_t u8)
 {
-    sse_regs_t* EX = p ? ((sse_regs_t*)p) : &emu->xmm[ex];
-    sse_regs_t* GX = &emu->xmm[gx];
+    sse_regs_t* EX = p ? ((sse_regs_t*)p) : getXMM(emu, ex);
+    sse_regs_t* GX = getXMM(emu, gx);
     int g = (u8 & 1) ? 1 : 0;
     int e = (u8 & 0b10000) ? 1 : 0;
 
@@ -778,9 +778,9 @@ void native_cvtph2ps(x64emu_t* emu, void* dst, void* src, int count)
 
 void native_pclmul_x(x64emu_t* emu, int gx, int vx, void* p, uint32_t u8)
 {
-    sse_regs_t* EX = ((uintptr_t)p > 15) ? (sse_regs_t*)p : &emu->xmm[(uintptr_t)p];
-    sse_regs_t* GX = &emu->xmm[gx];
-    sse_regs_t* VX = &emu->xmm[vx];
+    sse_regs_t* EX = ((uintptr_t)p > 15) ? (sse_regs_t*)p : getXMM(emu, (uintptr_t)p);
+    sse_regs_t* GX = getXMM(emu, gx);
+    sse_regs_t* VX = getXMM(emu, vx);
     int g = (u8 & 1) ? 1 : 0;
     int e = (u8 & 0b10000) ? 1 : 0;
 
@@ -791,10 +791,9 @@ void native_pclmul_y(x64emu_t* emu, int gy, int vy, void* p, uint32_t u8)
 {
     native_pclmul_x(emu, gy, vy, p, u8);
 
-    sse_regs_t* EY = ((uintptr_t)p > 15) ? (sse_regs_t*)((char*)p + 16)
-                                         : &emu->ymm[(uintptr_t)p];
-    sse_regs_t* GY = &emu->ymm[gy];
-    sse_regs_t* VY = &emu->ymm[vy];
+    sse_regs_t* EY = ((uintptr_t)p > 15) ? (sse_regs_t*)((char*)p + 16) : getYMM(emu, (uintptr_t)p);
+    sse_regs_t* GY = getYMM(emu, gy);
+    sse_regs_t* VY = getYMM(emu, vy);
     int g = (u8 & 1) ? 1 : 0;
     int e = (u8 & 0b10000) ? 1 : 0;
 

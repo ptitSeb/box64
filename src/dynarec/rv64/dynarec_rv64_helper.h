@@ -528,28 +528,28 @@
     gd = ((nextop & 0x38) >> 3) + (rex.r << 3); \
     simd_forget_fp_reg(dyn, ninst, x3, gd);     \
     gback = xEmu;                               \
-    gdoffset = offsetof(x64emu_t, xmm[gd])
+    gdoffset = XMMOFF(gd)
 
 #define GETGY()                                 \
     gd = ((nextop & 0x38) >> 3) + (rex.r << 3); \
     simd_flush_upper(dyn, ninst, x3, gd);       \
-    gyoffset = offsetof(x64emu_t, ymm[gd])
+    gyoffset = YMMOFF(gd)
 
 #define GETVX()                                \
     simd_forget_fp_reg(dyn, ninst, x3, vex.v); \
     vback = xEmu;                              \
-    vxoffset = offsetof(x64emu_t, xmm[vex.v])
+    vxoffset = XMMOFF(vex.v)
 
 #define GETVY()                              \
     simd_flush_upper(dyn, ninst, x3, vex.v); \
-    vyoffset = offsetof(x64emu_t, ymm[vex.v]);
+    vyoffset = YMMOFF(vex.v);
 
 // Get Ex address in general register a, will purge SS or SD if it's reg and is loaded. May use x3. Use wback as load address!
 #define GETEX(a, D, I12)                                                                         \
     if (MODREG) {                                                                                \
         ed = (nextop & 7) + (rex.b << 3);                                                        \
         simd_forget_fp_reg(dyn, ninst, x3, ed);                                                  \
-        fixedaddress = offsetof(x64emu_t, xmm[ed]);                                              \
+        fixedaddress = XMMOFF(ed);                                              \
         wback = xEmu;                                                                            \
     } else {                                                                                     \
         SMREAD();                                                                                \
@@ -563,7 +563,7 @@
         ed = (nextop & 7) + (rex.b << 3);           \
         simd_flush_upper(dyn, ninst, x3, ed);       \
         wback = xEmu;                               \
-        fixedaddress = offsetof(x64emu_t, ymm[ed]); \
+        fixedaddress = YMMOFF(ed); \
     } else {                                        \
         fixedaddress += 16;                         \
     }
@@ -573,7 +573,7 @@
     if (MODREG) {                                                                                  \
         ed = (nextop & 7) + (rex.b << 3);                                                          \
         simd_forget_fp_reg(dyn, ninst, x3, ed);                                                    \
-        fixedaddress = offsetof(x64emu_t, xmm[ed]);                                                \
+        fixedaddress = XMMOFF(ed);                                                \
         wback = xEmu;                                                                              \
     } else {                                                                                       \
         SMREAD();                                                                                  \
@@ -1957,8 +1957,8 @@ void rvv_prepare_branch(dynarec_rv64_t* dyn, int ninst, int condition_reg);
 void simd_materialize(dynarec_rv64_t* dyn, int ninst, int s1, int a, unsigned regions);
 void simd_flush(dynarec_rv64_t* dyn, int ninst, int s1, int a, unsigned regions, int clean);
 void simd_transform(dynarec_rv64_t* dyn, int ninst, int s1, const extcache_t* target);
-void simd_purge(dynarec_rv64_t* dyn, int ninst, int next, int s1);
-void simd_reflect(dynarec_rv64_t* dyn, int ninst, int s1);
+void simd_purge(dynarec_rv64_t* dyn, int ninst, int next, int s1, int s2);
+void simd_reflect(dynarec_rv64_t* dyn, int ninst, int s1, int s2);
 
 #define simd_write        STEPNAME(simd_write)
 #define simd_copy         STEPNAME(simd_copy)
@@ -2658,8 +2658,8 @@ uintptr_t dynarec64_AVX_F3_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
 // TODO: can be lazy
 #define YMM0(a)                                        \
     do {                                               \
-        SD(xZR, xEmu, offsetof(x64emu_t, ymm[a]) + 0); \
-        SD(xZR, xEmu, offsetof(x64emu_t, ymm[a]) + 8); \
+        SD(xZR, xEmu, YMMOFF(a) + 0); \
+        SD(xZR, xEmu, YMMOFF(a) + 8); \
     } while (0)
 
 

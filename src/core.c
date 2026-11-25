@@ -213,7 +213,11 @@ void computeRDTSC()
 
 static void SetYmmMode(void)
 {
+    #if defined(RV64)
+    box64_ymm_split = 0;
+    #else
     box64_ymm_split = BOX64ENV(dynarec) ? 1 : 0;
+    #endif
     printf_log(LOG_DEBUG, "Using %s xmm/ymm registers\n", box64_ymm_split?"separate":"unified");
 }
 

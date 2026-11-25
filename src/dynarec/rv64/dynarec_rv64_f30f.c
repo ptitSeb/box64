@@ -62,8 +62,8 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 1, 0);
                 FLW(v0, ed, fixedaddress);
                 // reset upper part
-                SW(xZR, xEmu, offsetof(x64emu_t, xmm[gd]) + 4);
-                SD(xZR, xEmu, offsetof(x64emu_t, xmm[gd]) + 8);
+                SW(xZR, xEmu, XMMOFF(gd) + 4);
+                SD(xZR, xEmu, XMMOFF(gd) + 8);
             }
             break;
         case 0x11:
@@ -516,7 +516,7 @@ uintptr_t dynarec64_F30F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 1, 0);
                 FLD(v0, ed, fixedaddress);
             }
-            SD(xZR, xEmu, offsetof(x64emu_t, xmm[gd]) + 8);
+            SD(xZR, xEmu, XMMOFF(gd) + 8);
             break;
         case 0x7F:
             INST_NAME("MOVDQU Ex,Gx");

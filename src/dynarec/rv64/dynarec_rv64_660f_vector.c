@@ -1258,7 +1258,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     simd_forget_fp_reg(dyn, ninst, x6, gd);
                     SET_ELEMENT_WIDTH(x1, VECTOR_SEW32);
                     VMV_X_S(x4, q2);
-                    SW(x4, xEmu, offsetof(x64emu_t, xmm[gd]));
+                    SW(x4, xEmu, XMMOFF(gd));
                     break;
                 }
                 case 0x0B: {
@@ -1309,7 +1309,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     simd_forget_fp_reg(dyn, ninst, x6, gd);
                     SET_ELEMENT_WIDTH(x1, VECTOR_SEW64);
                     VMV_X_S(x4, q2);
-                    SD(x4, xEmu, offsetof(x64emu_t, xmm[gd]));
+                    SD(x4, xEmu, XMMOFF(gd));
                     break;
                 }
                 case 0x0C:

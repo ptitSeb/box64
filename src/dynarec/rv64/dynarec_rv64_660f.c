@@ -883,9 +883,9 @@ uintptr_t dynarec64_660F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 FMVDX(v0, ed);
             } else {
                 FMVWX(v0, ed);
-                SW(xZR, xEmu, offsetof(x64emu_t, xmm[gd]) + 4);
+                SW(xZR, xEmu, XMMOFF(gd) + 4);
             }
-            SD(xZR, xEmu, offsetof(x64emu_t, xmm[gd]) + 8);
+            SD(xZR, xEmu, XMMOFF(gd) + 8);
             break;
         case 0x6F:
             INST_NAME("MOVDQA Gx,Ex");
