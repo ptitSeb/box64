@@ -1716,9 +1716,9 @@ void fpu_pushcache(dynarec_rv64_t* dyn, int ninst, int s1, int not07)
                 if (dyn->e.ssecache[i].vector)
                     continue;
                 else if (dyn->e.ssecache[i].single)
-                    FSW(dyn->e.ssecache[i].reg, xEmu, offsetof(x64emu_t, xmm[i]));
+                    FSW(dyn->e.ssecache[i].reg, xEmu, XMMOFF(i));
                 else
-                    FSD(dyn->e.ssecache[i].reg, xEmu, offsetof(x64emu_t, xmm[i]));
+                    FSD(dyn->e.ssecache[i].reg, xEmu, XMMOFF(i));
             }
         MESSAGE(LOG_DUMP, "\t------- Push (float) XMM Cache (%d)\n", n);
     }
@@ -1783,9 +1783,9 @@ void fpu_popcache(dynarec_rv64_t* dyn, int ninst, int s1, int not07)
                 if (dyn->e.ssecache[i].vector)
                     continue;
                 else if (dyn->e.ssecache[i].single)
-                    FLW(dyn->e.ssecache[i].reg, xEmu, offsetof(x64emu_t, xmm[i]));
+                    FLW(dyn->e.ssecache[i].reg, xEmu, XMMOFF(i));
                 else
-                    FLD(dyn->e.ssecache[i].reg, xEmu, offsetof(x64emu_t, xmm[i]));
+                    FLD(dyn->e.ssecache[i].reg, xEmu, XMMOFF(i));
             }
         MESSAGE(LOG_DUMP, "\t------- Pop (float) XMM Cache (%d)\n", n);
     }
@@ -1838,7 +1838,7 @@ void fpu_purgecache(dynarec_rv64_t* dyn, int ninst, int next, int s1, int s2, in
 {
     x87_purgecache(dyn, ninst, next, s1, s2, s3);
     mmx_purgecache(dyn, ninst, next, s1);
-    simd_purge(dyn, ninst, next, s1);
+    simd_purge(dyn, ninst, next, s1, s2);
     if (!next)
         fpu_reset_reg(dyn);
 }
@@ -2347,7 +2347,7 @@ void fpu_reflectcache(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3)
 {
     x87_reflectcache(dyn, ninst, s1, s2, s3);
     mmx_reflectcache(dyn, ninst, s1);
-    simd_reflect(dyn, ninst, s1);
+    simd_reflect(dyn, ninst, s1, s2);
 }
 
 void fpu_unreflectcache(dynarec_rv64_t* dyn, int ninst, int s1, int s2, int s3)

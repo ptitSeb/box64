@@ -1056,6 +1056,7 @@ uintptr_t dynarec64_AVX_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
                     UDF();
                 } else {
                     for (int i = 0; i < (rex.is32bits ? 8 : 16); ++i) {
+                        simd_flush_upper(dyn, ninst, x3, i);
                         YMM0(i);
                     }
                     SMWRITE2();
@@ -1067,8 +1068,8 @@ uintptr_t dynarec64_AVX_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, in
                 } else {
                     for (int i = 0; i < (rex.is32bits ? 8 : 16); ++i) {
                         simd_forget_fp_reg(dyn, ninst, x3, i);
-                        SD(xZR, xEmu, offsetof(x64emu_t, xmm[i]) + 0);
-                        SD(xZR, xEmu, offsetof(x64emu_t, xmm[i]) + 8);
+                        SD(xZR, xEmu, XMMOFF(i) + 0);
+                        SD(xZR, xEmu, XMMOFF(i) + 8);
                         YMM0(i);
                     }
                     SMWRITE2();

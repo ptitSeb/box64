@@ -399,18 +399,18 @@ void adjust_arch(dynablock_t* db, x64emu_t* emu, ucontext_t* p, uintptr_t x64pc)
                     uint8_t vbuf[32];
                     unsigned valid = sse->valid[i] & ~sse->zero[i];
                     if (valid && read_vector_reg(vframe, vlenb, sse->reg[i], vbuf, 16)) {
-                        if (valid & SIMD_LO32) memcpy((uint8_t*)&emu->xmm[i], vbuf, 4);
-                        if (valid & SIMD_HI32) memcpy((uint8_t*)&emu->xmm[i] + 4, vbuf + 4, 4);
-                        if (valid & SIMD_HI64) memcpy((uint8_t*)&emu->xmm[i] + 8, vbuf + 8, 8);
+                        if (valid & SIMD_LO32) memcpy((uint8_t*)getXMM(emu, i), vbuf, 4);
+                        if (valid & SIMD_HI32) memcpy((uint8_t*)getXMM(emu, i) + 4, vbuf + 4, 4);
+                        if (valid & SIMD_HI64) memcpy((uint8_t*)getXMM(emu, i) + 8, vbuf + 8, 8);
                     }
-                    if (sse->zero[i] & SIMD_LO32) emu->xmm[i].ud[0] = 0;
-                    if (sse->zero[i] & SIMD_HI32) emu->xmm[i].ud[1] = 0;
-                    if (sse->zero[i] & SIMD_HI64) emu->xmm[i].q[1] = 0;
+                    if (sse->zero[i] & SIMD_LO32) getXMM(emu, i)->ud[0] = 0;
+                    if (sse->zero[i] & SIMD_HI32) getXMM(emu, i)->ud[1] = 0;
+                    if (sse->zero[i] & SIMD_HI64) getXMM(emu, i)->q[1] = 0;
                 } else if (sse->single[i]) {
                     uint64_t raw = p->uc_mcontext.__fpregs.__d.__f[sse->reg[i] & 31];
-                    *(uint32_t*)&emu->xmm[i] = (uint32_t)raw;
+                    *(uint32_t*)getXMM(emu, i) = (uint32_t)raw;
                 } else {
-                    emu->xmm[i].q[0] = p->uc_mcontext.__fpregs.__d.__f[sse->reg[i] & 31];
+                    getXMM(emu, i)->q[0] = p->uc_mcontext.__fpregs.__d.__f[sse->reg[i] & 31];
                 }
             }
         }
@@ -420,10 +420,10 @@ void adjust_arch(dynablock_t* db, x64emu_t* emu, ucontext_t* p, uintptr_t x64pc)
                 if (((ymm->ymm >> i) & 1) && sse && ((sse->vector >> i) & 1)) {
                     uint8_t vbuf[32];
                     if (read_vector_reg(vframe, vlenb, sse->reg[i], vbuf, 32))
-                        memcpy(&emu->ymm[i], vbuf + 16, 16);
+                        memcpy(getYMM(emu, i), vbuf + 16, 16);
                 }
                 if ((ymm->ymm0 >> i) & 1)
-                    emu->ymm[i].q[0] = emu->ymm[i].q[1] = 0;
+                    getYMM(emu, i)->q[0] = getYMM(emu, i)->q[1] = 0;
             }
         }
         if (mmx) {

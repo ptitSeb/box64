@@ -61,7 +61,7 @@ uintptr_t dynarec64_F20F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 1, 0);
                 FLD(v0, ed, fixedaddress);
                 // reset upper part
-                SD(xZR, xEmu, offsetof(x64emu_t, xmm[gd]) + 8);
+                SD(xZR, xEmu, XMMOFF(gd) + 8);
             }
             break;
         case 0x11:

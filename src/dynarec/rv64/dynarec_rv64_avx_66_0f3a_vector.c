@@ -964,11 +964,11 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
             gd = ((nextop & 0x38) >> 3) + (rex.r << 3);
             simd_forget_fp_reg(dyn, ninst, x6, gd);
-            ADDI(x3, xEmu, offsetof(x64emu_t, xmm[gd]));
+            ADDI(x3, xEmu, XMMOFF(gd));
             if (MODREG) {
                 ed = (nextop & 7) + (rex.b << 3);
                 simd_forget_fp_reg(dyn, ninst, x6, ed);
-                ADDI(x1, xEmu, offsetof(x64emu_t, xmm[ed]));
+                ADDI(x1, xEmu, XMMOFF(ed));
                 ed = x1;
             } else {
                 SMREAD();
@@ -987,19 +987,19 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
                     for (int i = 0; i < 8; ++i) {
                         BEXTI(x2, x1, i);
                         SUB(x2, xZR, x2);
-                        SH(x2, xEmu, offsetof(x64emu_t, xmm[0]) + 2 * i);
+                        SH(x2, xEmu, XMMOFF(0) + 2 * i);
                     }
                 } else {
                     for (int i = 0; i < 16; ++i) {
                         BEXTI(x2, x1, i);
                         SUB(x2, xZR, x2);
-                        SB(x2, xEmu, offsetof(x64emu_t, xmm[0]) + i);
+                        SB(x2, xEmu, XMMOFF(0) + i);
                     }
                 }
             } else {
-                SD(xZR, xEmu, offsetof(x64emu_t, xmm[0]));
-                SD(xZR, xEmu, offsetof(x64emu_t, xmm[0]) + 8);
-                SH(x1, xEmu, offsetof(x64emu_t, xmm[0]));
+                SD(xZR, xEmu, XMMOFF(0));
+                SD(xZR, xEmu, XMMOFF(0) + 8);
+                SH(x1, xEmu, XMMOFF(0));
             }
             YMM0(0);
             break;
@@ -1014,11 +1014,11 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
             gd = ((nextop & 0x38) >> 3) + (rex.r << 3);
             simd_forget_fp_reg(dyn, ninst, x6, gd);
-            ADDI(x3, xEmu, offsetof(x64emu_t, xmm[gd]));
+            ADDI(x3, xEmu, XMMOFF(gd));
             if (MODREG) {
                 ed = (nextop & 7) + (rex.b << 3);
                 simd_forget_fp_reg(dyn, ninst, x6, ed);
-                ADDI(x1, xEmu, offsetof(x64emu_t, xmm[ed]));
+                ADDI(x1, xEmu, XMMOFF(ed));
                 ed = x1;
             } else {
                 SMREAD();
@@ -1052,11 +1052,11 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
             gd = ((nextop & 0x38) >> 3) + (rex.r << 3);
             simd_forget_fp_reg(dyn, ninst, x6, gd);
-            ADDI(x2, xEmu, offsetof(x64emu_t, xmm[gd]));
+            ADDI(x2, xEmu, XMMOFF(gd));
             if (MODREG) {
                 ed = (nextop & 7) + (rex.b << 3);
                 simd_forget_fp_reg(dyn, ninst, x6, ed);
-                ADDI(x1, xEmu, offsetof(x64emu_t, xmm[ed]));
+                ADDI(x1, xEmu, XMMOFF(ed));
                 ed = x1;
             } else {
                 SMREAD();
@@ -1073,21 +1073,21 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
                         for (int i = 0; i < 16; ++i) {
                             BEXTI(x3, x1, i);
                             NEG(x3, x3);
-                            SB(x3, xEmu, offsetof(x64emu_t, xmm[0]) + i);
+                            SB(x3, xEmu, XMMOFF(0) + i);
                         }
                         break;
                     case 0b01:
                         for (int i = 0; i < 8; ++i) {
                             BEXTI(x3, x1, i);
                             NEG(x3, x3);
-                            SH(x3, xEmu, offsetof(x64emu_t, xmm[0]) + i * 2);
+                            SH(x3, xEmu, XMMOFF(0) + i * 2);
                         }
                         break;
                 }
             } else {
-                SW(x1, xEmu, offsetof(x64emu_t, xmm[0]));
-                SW(xZR, xEmu, offsetof(x64emu_t, xmm[0]) + 4);
-                SD(xZR, xEmu, offsetof(x64emu_t, xmm[0]) + 8);
+                SW(x1, xEmu, XMMOFF(0));
+                SW(xZR, xEmu, XMMOFF(0) + 4);
+                SD(xZR, xEmu, XMMOFF(0) + 8);
             }
             YMM0(0);
             break;
@@ -1102,11 +1102,11 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
             gd = ((nextop & 0x38) >> 3) + (rex.r << 3);
             simd_forget_fp_reg(dyn, ninst, x6, gd);
-            ADDI(x2, xEmu, offsetof(x64emu_t, xmm[gd]));
+            ADDI(x2, xEmu, XMMOFF(gd));
             if (MODREG) {
                 ed = (nextop & 7) + (rex.b << 3);
                 simd_forget_fp_reg(dyn, ninst, x6, ed);
-                ADDI(x1, xEmu, offsetof(x64emu_t, xmm[ed]));
+                ADDI(x1, xEmu, XMMOFF(ed));
                 ed = x1;
             } else {
                 SMREAD();

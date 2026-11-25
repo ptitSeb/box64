@@ -100,9 +100,9 @@ int simd_get_fp_reg(dynarec_rv64_t* dyn, int ninst, int s1, int a, int single)
     dyn->e.ssecache[a].single = single;
     dyn->e.ssecache[a].vector = 0;
     if (dyn->e.ssecache[a].single)
-        FLW(dyn->e.ssecache[a].reg, xEmu, offsetof(x64emu_t, xmm[a]));
+        FLW(dyn->e.ssecache[a].reg, xEmu, XMMOFF(a));
     else
-        FLD(dyn->e.ssecache[a].reg, xEmu, offsetof(x64emu_t, xmm[a]));
+        FLD(dyn->e.ssecache[a].reg, xEmu, XMMOFF(a));
     return ret;
 }
 
@@ -118,9 +118,9 @@ int simd_get_fp_reg_empty(dynarec_rv64_t* dyn, int ninst, int s1, int a, int sin
         if (dyn->e.ssecache[a].single != single) {
             simd_snapshot(dyn, a);
             if (dyn->e.ssecache[a].single)
-                FSW(dyn->e.ssecache[a].reg, xEmu, offsetof(x64emu_t, xmm[a]));
+                FSW(dyn->e.ssecache[a].reg, xEmu, XMMOFF(a));
             else
-                FSD(dyn->e.ssecache[a].reg, xEmu, offsetof(x64emu_t, xmm[a]));
+                FSD(dyn->e.ssecache[a].reg, xEmu, XMMOFF(a));
             dyn->e.ssecache[a].single = single;
             dyn->e.ssecache[a].vector = 0;
             dyn->e.extcache[EXTIDX(dyn->e.ssecache[a].reg)].t = single ? EXT_CACHE_SS : EXT_CACHE_SD;
@@ -152,9 +152,9 @@ int simd_get_fp_reg_resized(dynarec_rv64_t* dyn, int ninst, int s1, int a, int s
     dyn->e.ssecache[a].single = single;
     dyn->e.ssecache[a].vector = 0;
     if (!single)
-        FLW(dyn->e.ssecache[a].reg, xEmu, offsetof(x64emu_t, xmm[a]));
+        FLW(dyn->e.ssecache[a].reg, xEmu, XMMOFF(a));
     else
-        FLD(dyn->e.ssecache[a].reg, xEmu, offsetof(x64emu_t, xmm[a]));
+        FLD(dyn->e.ssecache[a].reg, xEmu, XMMOFF(a));
     return ret;
 }
 
@@ -168,9 +168,9 @@ void simd_forget_fp_reg(dynarec_rv64_t* dyn, int ninst, int s1, int a)
     if (dyn->e.ssecache[a].vector == 1) return simd_forget_reg(dyn, ninst, s1, a);
     simd_snapshot(dyn, a);
     if (dyn->e.ssecache[a].single)
-        FSW(dyn->e.ssecache[a].reg, xEmu, offsetof(x64emu_t, xmm[a]));
+        FSW(dyn->e.ssecache[a].reg, xEmu, XMMOFF(a));
     else
-        FSD(dyn->e.ssecache[a].reg, xEmu, offsetof(x64emu_t, xmm[a]));
+        FSD(dyn->e.ssecache[a].reg, xEmu, XMMOFF(a));
     extcache_free_reg(dyn, dyn->e.ssecache[a].reg);
     dyn->e.ssecache[a].v = -1;
     return;
@@ -249,10 +249,10 @@ void simd_materialize(dynarec_rv64_t* dyn, int ninst, int s1, int a, unsigned re
         int sew = dyn->rvv.sew - 1;
         int upper = vpu_get_scratch(dyn);
         if (missing == SIMD_YMM) {
-            ADDI(s1, xEmu, offsetof(x64emu_t, xmm[a]));
+            ADDI(s1, xEmu, XMMOFF(a));
             VLE_V(reg, s1, sew, VECTOR_UNMASKED, VECTOR_NFIELD1);
         }
-        ADDI(s1, xEmu, offsetof(x64emu_t, ymm[a]));
+        ADDI(s1, xEmu, YMMOFF(a));
         VLE_V(upper, s1, sew, VECTOR_UNMASKED, VECTOR_NFIELD1);
         VSLIDEUP_VI(reg, upper, 16 >> dyn->rvv.sew, VECTOR_UNMASKED);
         dyn->e.vpu_scratch &= ~(1u << upper);
@@ -261,7 +261,7 @@ void simd_materialize(dynarec_rv64_t* dyn, int ninst, int s1, int a, unsigned re
                                                                          : 16;
         int memory_sew = simd_memory_sew(dyn, bytes);
         if (memory_sew >= 0) {
-            ADDI(s1, xEmu, offsetof(x64emu_t, xmm[a]));
+            ADDI(s1, xEmu, XMMOFF(a));
             VLE_V(reg, s1, memory_sew, VECTOR_UNMASKED, VECTOR_NFIELD1);
             c->valid |= missing;
             simd_check(dyn, a);
@@ -269,7 +269,7 @@ void simd_materialize(dynarec_rv64_t* dyn, int ninst, int s1, int a, unsigned re
         }
         if (simd_can_mask_e32(dyn, bytes) && dyn->rvv.vl != bytes / 4) {
             simd_mask(dyn, ninst, s1, missing, bytes);
-            ADDI(s1, xEmu, offsetof(x64emu_t, xmm[a]));
+            ADDI(s1, xEmu, XMMOFF(a));
             VLE32_V(reg, s1, VECTOR_MASKED, VECTOR_NFIELD1);
             c->valid |= missing;
             simd_check(dyn, a);
@@ -279,19 +279,19 @@ void simd_materialize(dynarec_rv64_t* dyn, int ninst, int s1, int a, unsigned re
             : dyn->rvv.vl && dyn->rvv.lmul == VECTOR_LMUL1 ? dyn->rvv.sew
                                                            : VECTOR_SEW32;
         rvv_set_config(dyn, ninst, s1, sew, VECTOR_LMUL1, bytes >> sew);
-        ADDI(s1, xEmu, offsetof(x64emu_t, xmm[a]));
+        ADDI(s1, xEmu, XMMOFF(a));
         VLE_V(reg, s1, sew, VECTOR_UNMASKED, VECTOR_NFIELD1);
     } else {
         unsigned bytes = missing & SIMD_HI128 ? 32 : 16;
         rvv_set_config(dyn, ninst, s1, VECTOR_SEW32, VECTOR_LMUL1, bytes / 4);
         if (memory & SIMD_XMM) {
             simd_mask(dyn, ninst, s1, memory & SIMD_XMM, bytes);
-            ADDI(s1, xEmu, offsetof(x64emu_t, xmm[a]));
+            ADDI(s1, xEmu, XMMOFF(a));
             VLE32_V(reg, s1, VECTOR_MASKED, VECTOR_NFIELD1);
         }
         if (memory & SIMD_HI128) {
             simd_mask(dyn, ninst, s1, SIMD_HI128, bytes);
-            ADDI(s1, xEmu, offsetof(x64emu_t, ymm[a]) - 16);
+            ADDI(s1, xEmu, XMMOFF(a));
             VLE32_V(reg, s1, VECTOR_MASKED, VECTOR_NFIELD1);
         }
         if (missing & c->zero) {
@@ -496,9 +496,7 @@ void simd_flush(dynarec_rv64_t* dyn, int ninst, int s1, int a, unsigned regions,
     unsigned zeros = dirty & c->zero;
     for (int r = 0; r < 4; ++r) {
         if (!(zeros & (1u << r))) continue;
-        int offset = r == 0 ? offsetof(x64emu_t, xmm[a]) : r == 1 ? offsetof(x64emu_t, xmm[a]) + 4
-            : r == 2                                              ? offsetof(x64emu_t, xmm[a]) + 8
-                                                                  : offsetof(x64emu_t, ymm[a]);
+        int offset = r == 0 ? XMMOFF(a) : r == 1 ? XMMOFF(a) + 4 : r == 2 ? XMMOFF(a) + 8 : YMMOFF(a);
         if (r < 2) {
             SW(xZR, xEmu, offset);
         } else {
@@ -515,10 +513,10 @@ void simd_flush(dynarec_rv64_t* dyn, int ninst, int s1, int a, unsigned regions,
                 rvv_set_config(dyn, ninst, s1, VECTOR_SEW64, VECTOR_LMUL1, 4);
             int sew = dyn->rvv.sew - 1;
             int upper = vpu_get_scratch(dyn);
-            ADDI(s1, xEmu, offsetof(x64emu_t, xmm[a]));
+            ADDI(s1, xEmu, XMMOFF(a));
             VSE_V(reg, s1, sew, VECTOR_UNMASKED, VECTOR_NFIELD1);
             VSLIDEDOWN_VI(upper, reg, 16 >> dyn->rvv.sew, VECTOR_UNMASKED);
-            ADDI(s1, xEmu, offsetof(x64emu_t, ymm[a]));
+            ADDI(s1, xEmu, YMMOFF(a));
             VSE_V(upper, s1, sew, VECTOR_UNMASKED, VECTOR_NFIELD1);
             dyn->e.vpu_scratch &= ~(1u << upper);
         } else if (stored == SIMD_XMM || stored == SIMD_LO32 || stored == SIMD_LO64) {
@@ -526,14 +524,14 @@ void simd_flush(dynarec_rv64_t* dyn, int ninst, int s1, int a, unsigned regions,
             int sew = simd_memory_sew(dyn, bytes);
             if (sew < 0 && stored != SIMD_XMM && simd_can_mask_e32(dyn, bytes) && dyn->rvv.vl != bytes / 4) {
                 simd_mask(dyn, ninst, s1, stored, bytes);
-                ADDI(s1, xEmu, offsetof(x64emu_t, xmm[a]));
+                ADDI(s1, xEmu, XMMOFF(a));
                 VSE32_V(reg, s1, VECTOR_MASKED, VECTOR_NFIELD1);
             } else {
                 if (sew < 0) {
                     sew = bytes == 4 ? VECTOR_SEW32 : bytes == 8 ? VECTOR_SEW64 : VECTOR_SEW8;
                     rvv_set_config(dyn, ninst, s1, sew, VECTOR_LMUL1, bytes >> sew);
                 }
-                ADDI(s1, xEmu, offsetof(x64emu_t, xmm[a]));
+                ADDI(s1, xEmu, XMMOFF(a));
                 VSE_V(reg, s1, sew, VECTOR_UNMASKED, VECTOR_NFIELD1);
             }
         } else {
@@ -541,12 +539,12 @@ void simd_flush(dynarec_rv64_t* dyn, int ninst, int s1, int a, unsigned regions,
             rvv_set_config(dyn, ninst, s1, VECTOR_SEW32, VECTOR_LMUL1, bytes / 4);
             if (stored & SIMD_XMM) {
                 simd_mask(dyn, ninst, s1, stored & SIMD_XMM, bytes);
-                ADDI(s1, xEmu, offsetof(x64emu_t, xmm[a]));
+                ADDI(s1, xEmu, XMMOFF(a));
                 VSE32_V(reg, s1, VECTOR_MASKED, VECTOR_NFIELD1);
             }
             if (stored & SIMD_HI128) {
                 simd_mask(dyn, ninst, s1, SIMD_HI128, bytes);
-                ADDI(s1, xEmu, offsetof(x64emu_t, ymm[a]) - 16);
+                ADDI(s1, xEmu, XMMOFF(a));
                 VSE32_V(reg, s1, VECTOR_MASKED, VECTOR_NFIELD1);
             }
         }
@@ -591,17 +589,17 @@ void simd_purge_low(dynarec_rv64_t* dyn, int ninst, int s1)
     }
 }
 
-static unsigned simd_flush_zero_uppers(dynarec_rv64_t* dyn, int ninst, int s1)
+static unsigned simd_flush_zero_uppers(dynarec_rv64_t* dyn, int ninst, int s1, int s2)
 {
     if (cpuext.vlen < 32 || cpuext.xtheadvector) return 0;
-
-    unsigned used = dyn->e.vpu_scratch;
-    for (int a = 0; a < 8; ++a)
-        if (dyn->e.mmxcache[a].v != -1 && dyn->e.mmxcache[a].vector) used |= 1u << dyn->e.mmxcache[a].reg;
 
     unsigned zeros = 0;
     for (int a = 0; a < 16; ++a)
         if (dyn->e.simd[a].dirty & dyn->e.simd[a].zero & SIMD_HI128) zeros |= 1u << a;
+
+    unsigned used = dyn->e.vpu_scratch;
+    for (int a = 0; a < 8; ++a)
+        if (dyn->e.mmxcache[a].v != -1 && dyn->e.mmxcache[a].vector) used |= 1u << dyn->e.mmxcache[a].reg;
 
     unsigned flushed = 0;
     while (zeros) {
@@ -611,35 +609,40 @@ static unsigned simd_flush_zero_uppers(dynarec_rv64_t* dyn, int ninst, int s1)
         zeros &= ~run;
         if (count < 4) continue;
 
-        unsigned vl = count * 2;
-        for (int lmul = VECTOR_LMUL1; lmul <= VECTOR_LMUL8; ++lmul) {
-            unsigned group = 1u << lmul;
-            if (vl > (cpuext.vlen / 8) * group) continue;
-            unsigned mask = (1u << group) - 1;
-            int reg = group;
-            while (reg < 16 && (used & (mask << reg))) reg += group;
-            if (reg == 16) continue;
-
-            rvv_set_config(dyn, ninst, s1, VECTOR_SEW64, lmul, vl);
-            VMV_V_I(reg, 0);
-            ADDI(s1, xEmu, offsetof(x64emu_t, ymm[first]));
-            VSE64_V(reg, s1, VECTOR_UNMASKED, VECTOR_NFIELD1);
-            flushed |= run;
-            break;
+        int lmul = VECTOR_LMUL1, group = 1;
+        while ((cpuext.vlen / 8) * group < count && group < 8) {
+            lmul++;
+            group *= 2;
         }
+        if ((cpuext.vlen / 8) * group < count) continue;
+        if (2 * group > 8) continue;
+
+        unsigned need = (1u << (2 * group)) - 1;
+        int reg = -1;
+        for (int base = group; base + 2 * group <= 16; base += group)
+            if (!(used & (need << base))) { reg = base; break; }
+        if (reg < 0) continue;
+
+        rvv_set_config(dyn, ninst, s1, VECTOR_SEW64, lmul, count);
+        VMV_V_I(reg, 0);
+        VMV_V_I(reg + group, 0);
+        MOV32w(s2, sizeof(avx_regs_t));
+        ADDI(s1, xEmu, YMMOFF(first));
+        VSSE64_V(reg, s2, s1, VECTOR_UNMASKED, VECTOR_NFIELD2);
+        flushed |= run;
     }
     return flushed;
 }
 
-void simd_purge(dynarec_rv64_t* dyn, int ninst, int next, int s1)
+void simd_purge(dynarec_rv64_t* dyn, int ninst, int next, int s1, int s2)
 {
-    unsigned flushed = simd_flush_zero_uppers(dyn, ninst, s1);
+    unsigned flushed = simd_flush_zero_uppers(dyn, ninst, s1, s2);
     for (int a = 0; a < 16; ++a) {
         if (dyn->e.ssecache[a].v != -1 && !dyn->e.ssecache[a].vector) {
             if (dyn->e.ssecache[a].single) {
-                FSW(dyn->e.ssecache[a].reg, xEmu, offsetof(x64emu_t, xmm[a]));
+                FSW(dyn->e.ssecache[a].reg, xEmu, XMMOFF(a));
             } else {
-                FSD(dyn->e.ssecache[a].reg, xEmu, offsetof(x64emu_t, xmm[a]));
+                FSD(dyn->e.ssecache[a].reg, xEmu, XMMOFF(a));
             }
         }
         simd_flush(dyn, ninst, s1, a, flushed & (1u << a) ? SIMD_XMM : SIMD_YMM, !next);
@@ -652,15 +655,15 @@ void simd_purge(dynarec_rv64_t* dyn, int ninst, int next, int s1)
     }
 }
 
-void simd_reflect(dynarec_rv64_t* dyn, int ninst, int s1) { simd_purge(dyn, ninst, 1, s1); }
+void simd_reflect(dynarec_rv64_t* dyn, int ninst, int s1, int s2) { simd_purge(dyn, ninst, 1, s1, s2); }
 
 void simd_reflect_fp_reg(dynarec_rv64_t* dyn, int ninst, int s1, int a)
 {
     if (dyn->e.ssecache[a].v != -1 && !dyn->e.ssecache[a].vector) {
         if (dyn->e.ssecache[a].single) {
-            FSW(dyn->e.ssecache[a].reg, xEmu, offsetof(x64emu_t, xmm[a]));
+            FSW(dyn->e.ssecache[a].reg, xEmu, XMMOFF(a));
         } else {
-            FSD(dyn->e.ssecache[a].reg, xEmu, offsetof(x64emu_t, xmm[a]));
+            FSD(dyn->e.ssecache[a].reg, xEmu, XMMOFF(a));
         }
     }
     simd_flush(dyn, ninst, s1, a, SIMD_YMM, 0);

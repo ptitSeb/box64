@@ -660,7 +660,7 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             if (MODREG) {
                 ed = (nextop & 7) + (rex.b << 3);
                 simd_forget_fp_reg(dyn, ninst, x3, ed);
-                ADDI(x3, xEmu, offsetof(x64emu_t, xmm[ed]));
+                ADDI(x3, xEmu, XMMOFF(ed));
             } else {
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 0, 0);
@@ -696,8 +696,8 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 LD(x4, wback, fixedaddress + 8);
                 SD(x3, x6, 0);
                 SD(x4, x6, 8);
-                LD(x3, wback, fixedaddress + offsetof(x64emu_t, ymm) - offsetof(x64emu_t, xmm));
-                LD(x4, wback, fixedaddress + offsetof(x64emu_t, ymm) - offsetof(x64emu_t, xmm) + 8);
+                LD(x3, wback, YMMOFF(ed));
+                LD(x4, wback, YMMOFF(ed) + 8);
                 SD(x3, x6, 16);
                 SD(x4, x6, 24);
                 wback = x6;
@@ -1496,8 +1496,8 @@ uintptr_t dynarec64_AVX_66_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 LD(x4, wback, fixedaddress + 8);
                 SD(x3, x6, 0);
                 SD(x4, x6, 8);
-                LD(x3, wback, fixedaddress + offsetof(x64emu_t, ymm) - offsetof(x64emu_t, xmm));
-                LD(x4, wback, fixedaddress + offsetof(x64emu_t, ymm) - offsetof(x64emu_t, xmm) + 8);
+                LD(x3, wback, YMMOFF(ed));
+                LD(x4, wback, YMMOFF(ed) + 8);
                 SD(x3, x6, 16);
                 SD(x4, x6, 24);
                 wback = x6;

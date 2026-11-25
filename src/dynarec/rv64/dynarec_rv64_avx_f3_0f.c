@@ -226,7 +226,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             if (MODREG) {
                 ed = (nextop & 7) + (rex.b << 3);
                 simd_forget_fp_reg(dyn, ninst, x1, ed);
-                FLW(d0, xEmu, offsetof(x64emu_t, xmm[ed]));
+                FLW(d0, xEmu, XMMOFF(ed));
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 0, 0);
                 FLW(d0, wback, fixedaddress);
@@ -255,7 +255,7 @@ uintptr_t dynarec64_AVX_F3_0F(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             if (MODREG) {
                 ed = (nextop & 7) + (rex.b << 3);
                 simd_forget_fp_reg(dyn, ninst, x1, ed);
-                FLW(d0, xEmu, offsetof(x64emu_t, xmm[ed]));
+                FLW(d0, xEmu, XMMOFF(ed));
             } else {
                 addr = geted(dyn, addr, ninst, nextop, &wback, x2, x1, &fixedaddress, rex, NULL, 0, 0);
                 FLW(d0, wback, fixedaddress);

@@ -934,7 +934,7 @@ uintptr_t dynarec64_0F_0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     if (MODREG) {
                         ed = (nextop & 7) + (rex.b << 3);
                         simd_reflect_fp_reg(dyn, ninst, x6, ed);
-                        ADDI(x2, xEmu, offsetof(x64emu_t, xmm[ed]));
+                        ADDI(x2, xEmu, XMMOFF(ed));
                         ed = x2;
                     } else {
                         SMREAD();
@@ -947,7 +947,7 @@ uintptr_t dynarec64_0F_0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                     }
                     GETG;
                     simd_forget_fp_reg(dyn, ninst, x6, gd);
-                    ADDI(x1, xEmu, offsetof(x64emu_t, xmm[gd]));
+                    ADDI(x1, xEmu, XMMOFF(gd));
                     simd_reflect_fp_reg(dyn, ninst, x6, 0);
                     switch (u8) {
                         case 0xC8: CALL(const_sha1nexte, -1, x1, ed); break;
@@ -1017,7 +1017,7 @@ uintptr_t dynarec64_0F_0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         if (MODREG) {
                             ed = (nextop & 7) + (rex.b << 3);
                             simd_reflect_fp_reg(dyn, ninst, x6, ed);
-                            ADDI(x2, xEmu, offsetof(x64emu_t, xmm[ed]));
+                            ADDI(x2, xEmu, XMMOFF(ed));
                             wback = x2;
                         } else {
                             SMREAD();
@@ -1030,7 +1030,7 @@ uintptr_t dynarec64_0F_0(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip, int 
                         u8 = F8;
                         GETG;
                         simd_forget_fp_reg(dyn, ninst, x6, gd);
-                        ADDI(x1, xEmu, offsetof(x64emu_t, xmm[gd]));
+                        ADDI(x1, xEmu, XMMOFF(gd));
                         MOV32w(x3, u8);
                         CALL4(const_sha1rnds4, -1, x1, wback, x3, 0);
                         break;
