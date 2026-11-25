@@ -8,6 +8,14 @@ The script `bundle/box64-bundle-x86-libs.sh` is provided to download, extract, a
 
 Add `--debug` to any command to log every command that is run, along with every file that `tar`, `cpio`, and `unzip` handle. Without it, `--build` is silent unless it fails.
 
+Add `--variant <NAME>` to any command to use a different list of packages. It reads `bundle/box64-bundle-x86-libs-<NAME>.csv` and the archives are named with the same `-<NAME>` suffix. Available variants:
+
+- `android` = Libraries for the Android (bionic) build of Box64. These are not compatible with the regular Linux (glibc) build.
+
+```
+sudo ./bundle/box64-bundle-x86-libs.sh --install --variant android
+```
+
 Install the bundle from the latest [GitHub release](https://github.com/ptitSeb/box64/releases/latest). This only requires `coreutils`, `curl`, and `tar`.
 
 ```
@@ -67,8 +75,11 @@ sudo tar --extract --no-same-owner --file box64-bundle-x86-libs.tar.gz --directo
 
 Add new packages to the `bundle/box64-bundle-x86-libs.csv` file in the format of `<PACKAGE_URL>,<SHA256_CHECKSUM>`.
 
+Add packages for a variant to its own `bundle/box64-bundle-x86-libs-<NAME>.csv` file in the same format.
+
 Supported packages:
 - DEB (Debian)
+- DEB (Termux) for Android libraries
 - EOPKG (Solus)
 - RPM (Fedora)
 - XBPS (Void Linux)

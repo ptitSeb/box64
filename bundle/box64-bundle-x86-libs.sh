@@ -32,6 +32,12 @@ Options:
               not match the checksums of the latest release. It is extracted
               to the root of the file system or into DESTDIR when that
               environment variable is set.
+  --variant <NAME>
+              Use the box64-bundle-x86-libs-<NAME>.csv package list instead of
+              the default box64-bundle-x86-libs.csv. The archives that are
+              built or installed are named with the same -<NAME> suffix.
+              Can be combined with --build or --install. Available variants:
+              "android" libraries for the Android (bionic) build of Box64
   --debug     Log every command that is run and every file that is extracted
               or archived. Without it, --build is silent unless it fails. Can
               be combined with --build or --install.
@@ -41,12 +47,27 @@ EOF
 
 # parse the arguments before anything else so that --debug logs everything
 mode=""
+variant=""
 verbose=""
 quiet="q"
-for arg in "$@"; do
+while [ "$#" -gt 0 ]; do
+    arg="${1}"
+    shift
     case "${arg}" in
         --build|--install)
             mode="${arg}"
+            ;;
+        --variant=*)
+            variant="${arg#--variant=}"
+            ;;
+        --variant)
+            if [ "$#" -eq 0 ]; then
+                echo "E: --variant requires a name"
+                usage
+                exit 1
+            fi
+            variant="${1}"
+            shift
             ;;
         --debug)
             set -x
@@ -70,6 +91,15 @@ if [ -z "${mode}" ]; then
     exit 1
 fi
 
+# the variant selects the package list and the names of the archives
+bundle_name="box64-bundle-x86-libs${variant:+-${variant}}"
+dir_script=$(cd "$(dirname "${0}")" && pwd)
+bundle_csv="${dir_script}/${bundle_name}.csv"
+if [ ! -f "${bundle_csv}" ]; then
+    echo "E: Unknown variant (${variant}), ${bundle_csv} does not exist"
+    exit 1
+fi
+
 repo_url="https://github.com/ptitSeb/box64"
 
 # compare the local files to the latest release and, on any mismatch, install it
@@ -84,9 +114,9 @@ install_bundle()
             exit 1
             ;;
     esac
-    bundle_url="${repo_url}/releases/download/${release}/box64-bundle-x86-libs-${release}"
-    bundle_checksums="${dir_tmp}/box64-bundle-x86-libs-${release}.sha256"
-    bundle_archive="${dir_tmp}/box64-bundle-x86-libs-${release}.tar.gz"
+    bundle_url="${repo_url}/releases/download/${release}/${bundle_name}-${release}"
+    bundle_checksums="${dir_tmp}/${bundle_name}-${release}.sha256"
+    bundle_archive="${dir_tmp}/${bundle_name}-${release}.tar.gz"
 
     # the checksum paths are relative to the root of the destination
     ${curl_cmd} "${bundle_checksums}" "${bundle_url}.sha256"
@@ -126,7 +156,6 @@ sha256sum=$(which sha256sum) || { echo "E: You must have sha256sum" && exit 1; }
 tar=$(which tar) || { echo "E: You must have tar" && exit 1; }
 
 current_dir=$(pwd)
-dir_script=$(cd "$(dirname "${0}")" && pwd)
 dir_tmp="$(mktemp -d /tmp/box64-bundle.XXXXXX)"
 dir_dest="${DESTDIR:-/}"
 
@@ -156,10 +185,11 @@ while IFS= read -r line; do
         echo "Computed: ${checksum}"
         exit 1
     fi
-done < "${dir_script}"/box64-bundle-x86-libs.csv
+done < "${bundle_csv}"
 
 # generate the bundle packages archive
-tar -C "${dir_tmp}"/bundle-pkgs -cz"${verbose}"f "${current_dir}"/box64-bundle-x86-pkgs.tar.gz .
+tar -C "${dir_tmp}"/bundle-pkgs -cz"${verbose}"f \
+    "${current_dir}"/box64-bundle-x86-pkgs${variant:+-${variant}}.tar.gz .
 
 # extract the packages
 cd "${dir_tmp}"/bundle-pkgs
@@ -175,6 +205,24 @@ for file in *.deb *.eopkg *.rpm *.xbps; do
             log "I: DEB (Debian) package detected (${file})"
             ar x "${dir_tmp}"/bundle-pkgs/"${file}"
             tar -xf data.tar*
+            # Termux uses the same library path for every architecture
+            dir_termux="data/data/com.termux/files/usr/lib"
+            if [ -d "${dir_termux}" ]; then
+                log "I: Termux (Android) package detected (${file})"
+                case "${file}" in
+                    *_i686.deb) dir_arch="usr/lib32" ;;
+                    *_x86_64.deb) dir_arch="usr/lib64" ;;
+                    *)
+                        echo "E: Unsupported Termux package architecture (${file})"
+                        exit 1
+                        ;;
+                esac
+                mkdir -p "${dir_arch}"
+                # Termux libraries are only readable by their owner
+                chmod 0644 "${dir_termux}"/*.so*
+                mv "${dir_termux}"/*.so* "${dir_arch}"
+                rm -rf data
+            fi
             ;;
         eopkg)
             log "I: EOPKG (Solus Linux) package detected (${file})"
@@ -199,12 +247,22 @@ done
 
 # reorganize the files
 cd "${dir_tmp}"/bundle-libs
-mkdir -p "${dir_tmp}"/bundle-libs/box64-i386-linux-gnu
-mv lib/*.so* usr/lib/*.so* usr/lib/i386-linux-gnu/* usr/lib32/*.so* \
-    "${dir_tmp}"/bundle-libs/box64-i386-linux-gnu
-mkdir -p "${dir_tmp}"/bundle-libs/box64-x86_64-linux-gnu
-mv lib64/*.so* usr/lib/x86_64-linux-gnu/* usr/lib64/*.so* \
-    "${dir_tmp}"/bundle-libs/box64-x86_64-linux-gnu
+# not every package list provides libraries in every one of these paths
+move_libs()
+{
+    dir_target="${1}"
+    shift
+    mkdir -p "${dir_target}"
+    for lib in "$@"; do
+        if [ -e "${lib}" ] || [ -L "${lib}" ]; then
+            mv "${lib}" "${dir_target}"
+        fi
+    done
+}
+move_libs "${dir_tmp}"/bundle-libs/box64-i386-linux-gnu \
+    lib/*.so* usr/lib/*.so* usr/lib/i386-linux-gnu/* usr/lib32/*.so*
+move_libs "${dir_tmp}"/bundle-libs/box64-x86_64-linux-gnu \
+    lib64/*.so* usr/lib/x86_64-linux-gnu/* usr/lib64/*.so*
 rm -f ./*.tar.* debian-binary files.xml metadata.xml
 rm -rf ./lib* etc run sbin usr var
 mkdir -p usr/lib
@@ -232,9 +290,12 @@ fi
 
 # Manually create additional symlinks that are useful to have.
 cd "${dir_tmp}"/bundle-libs/usr/lib/box64-x86_64-linux-gnu/
-ln -s libmbedcrypto.so.7 libmbedcrypto.so.3
-ln -s libmbedtls.so.14 libmbedtls.so.12
-ln -s libmbedx509.so.1 libmbedx509.so.0
+for link in libmbedcrypto.so.7:libmbedcrypto.so.3 \
+    libmbedtls.so.14:libmbedtls.so.12 libmbedx509.so.1:libmbedx509.so.0; do
+    if [ -e "${link%%:*}" ]; then
+        ln -s "${link%%:*}" "${link##*:}"
+    fi
+done
 
 # create shared libraries (.so) symlinks
 # if multiple libraries of the same name exist, it will symlink the oldest version
@@ -246,6 +307,8 @@ ln -s libmbedx509.so.1 libmbedx509.so.0
 for dir_lib in "${dir_tmp}"/bundle-libs/usr/lib/box64-*-linux-gnu; do
     cd "${dir_lib}"
     for lib in lib*.so*; do
+        # handle the case of an empty directory
+        [ -e "${lib}" ] || [ -L "${lib}" ] || break
         lib_base="$(echo "${lib}" | awk -F'.' '{print $1"."$2}')"
         if ! ls "${dir_lib}/${lib_base}" > /dev/null 2>&1; then
             ln -s "${lib}" "${lib_base}"
@@ -256,7 +319,7 @@ done
 # generate a SHA256 checksum of every file and symlink in the bundle
 cd "${dir_tmp}"/bundle-libs
 find usr \( -type f -o -type l \) -exec "${sha256sum}" {} + \
-    | LC_ALL=C sort --key 2 > "${current_dir}"/box64-bundle-x86-libs.sha256
+    | LC_ALL=C sort --key 2 > "${current_dir}"/"${bundle_name}".sha256
 
 # generate the bundle libraries archive
-tar -C "${dir_tmp}"/bundle-libs -cz"${verbose}"f "${current_dir}"/box64-bundle-x86-libs.tar.gz .
+tar -C "${dir_tmp}"/bundle-libs -cz"${verbose}"f "${current_dir}"/"${bundle_name}".tar.gz .
