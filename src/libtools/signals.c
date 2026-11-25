@@ -674,12 +674,16 @@ int my_sigactionhandler_oldcode_64(x64emu_t* emu, int32_t sig, int simple, sigin
             dynablock_leave_runtime((dynablock_t*)cur_db);
             #endif
             cancel_deferred_signal_processing(emu);
-            #ifdef ANDROID
-            // cannot inject sigmask in jumpbuf, as the data is private and format/offset varies with architecture
+            #ifndef __GLIBC__
+            // cannot inject sigmask in jumpbuf, as the data is private and format/offset varies with libc and architecture
             sigset_t tmp = {0};
             memcpy(&tmp, &sigcontext->uc_sigmask, sigmask_sz);
             sigprocmask(SIG_SETMASK, &tmp, NULL);
+            #ifdef ANDROID
             longjmp(*emu->jmpbuf, skip);
+            #else
+            longjmp(emu->jmpbuf, skip);
+            #endif
             #else
             memcpy(&emu->jmpbuf->__saved_mask, &sigcontext->uc_sigmask, sigmask_sz);
             emu->jmpbuf->__mask_was_saved = 1;
