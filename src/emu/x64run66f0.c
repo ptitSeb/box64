@@ -130,10 +130,10 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
 #else
                             pthread_mutex_lock(&my_context->mutex_lock);
                             tmp8u &= 15;
-                            if (ED->dword[0] & (1 << tmp8u)) {
+                            if (ED->word[0] & (1 << tmp8u)) {
                                 SET_FLAG(F_CF);
                             } else {
-                                ED->dword[0] ^= (1 << tmp8u);
+                                ED->word[0] ^= (1 << tmp8u);
                                 CLEAR_FLAG(F_CF);
                             }
                             pthread_mutex_unlock(&my_context->mutex_lock);
@@ -176,10 +176,10 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
 #else
                             pthread_mutex_lock(&my_context->mutex_lock);
                             tmp8u &= 15;
-                            if (ED->dword[0] & (1 << tmp8u)) {
+                            if (ED->word[0] & (1 << tmp8u)) {
                                 SET_FLAG(F_CF);
+                                ED->word[0] ^= (1 << tmp8u);
                             } else {
-                                ED->dword[0] ^= (1 << tmp8u);
                                 CLEAR_FLAG(F_CF);
                             }
                             pthread_mutex_unlock(&my_context->mutex_lock);
@@ -222,12 +222,12 @@ uintptr_t Run66F0(x64emu_t *emu, rex_t rex, uintptr_t addr)
 #else
                             pthread_mutex_lock(&my_context->mutex_lock);
                             tmp8u &= 15;
-                            if (ED->dword[0] & (1 << tmp8u)) {
+                            if (ED->word[0] & (1 << tmp8u)) {
                                 SET_FLAG(F_CF);
                             } else {
-                                ED->dword[0] ^= (1 << tmp8u);
                                 CLEAR_FLAG(F_CF);
                             }
+                            ED->word[0] ^= (1 << tmp8u);
                             pthread_mutex_unlock(&my_context->mutex_lock);
 #endif
                             if (BOX64ENV(dynarec_test)) {
