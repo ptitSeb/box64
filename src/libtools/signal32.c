@@ -785,11 +785,13 @@ int my_sigactionhandler_oldcode_32(x64emu_t* emu, int32_t sig, int simple, sigin
             dynablock_leave_runtime((dynablock_t*)cur_db);
             #endif
             cancel_deferred_signal_processing(emu);
-            memcpy(&emu->jmpbuf->__saved_mask, &sigcontext->uc_sigmask, sigmask_sz);
-            emu->jmpbuf->__mask_was_saved = 1;
             #ifdef ANDROID
+            memcpy(&emu->jmpbuf->mask, &sigcontext->uc_sigmask, sigmask_sz);
+            emu->jmpbuf->saved_mask = 1;
             longjmp(*emu->jmpbuf, skip);
             #else
+            memcpy(&emu->jmpbuf->__saved_mask, &sigcontext->uc_sigmask, sigmask_sz);
+            emu->jmpbuf->__mask_was_saved = 1;
             longjmp(emu->jmpbuf, skip);
             #endif
         }
