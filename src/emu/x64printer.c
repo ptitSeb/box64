@@ -2848,6 +2848,8 @@ void x64Print(x64emu_t* emu, char* buff, size_t buffsz, const char* func, int ti
         snprintf(buff, buffsz, "%04d|%p: Calling %s(%" PRIp ", %" PRIp ", %" PRIp ")", tid, *(void**)(R_RSP), func, (void*)R_RDI, (void*)R_RSI, (void*)(R_RSP + 8));
     } else if (w == pFEppA) {
         snprintf(buff, buffsz, "%04d|%p: Calling %s(%" PRIp ", %" PRIp ", %" PRIp ")", tid, *(void**)(R_RSP), func, (void*)R_RDI, (void*)R_RSI, (void*)R_RDX);
+    } else if (w == pFEPPP) {
+        snprintf(buff, buffsz, "%04d|%p: Calling %s(%" PRIp ", %" PRIp ", %" PRIp ")", tid, *(void**)(R_RSP), func, *(void**)(R_RSP + 8), *(void**)(R_RSP + 16), *(void**)(R_RSP + 24));
     } else if (w == pFiiii) {
         snprintf(buff, buffsz, "%04d|%p: Calling %s(%" PRIi32 ", %" PRIi32 ", %" PRIi32 ", %" PRIi32 ")", tid, *(void**)(R_RSP), func, (int32_t)R_RDI, (int32_t)R_RSI, (int32_t)R_RDX, (int32_t)R_RCX);
     } else if (w == pFiiiu) {

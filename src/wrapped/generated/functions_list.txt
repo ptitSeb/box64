@@ -1592,6 +1592,7 @@
 #() pFEppp
 #() pFEppV
 #() pFEppA
+#() pFEPPP
 #() pFiiii
 #() pFiiiu
 #() pFiiip
@@ -7898,3 +7899,8 @@ wrappedxslt:
 - iFpppp:
   - xsltRegisterExtFunction
 wrappedzstd:
+% M my_ZSTD_customMem PPP
+- pFM:
+  - ZSTD_createCStream_advanced
+  - ZSTD_createDStream_advanced
+% pFEM

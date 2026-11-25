@@ -3,6 +3,8 @@
 #error Meh...
 #endif
 
+//%S M my_ZSTD_customMem PPP
+
 //GO(COVER_best_destroy, 
 //GO(COVER_best_finish, 
 //GO(COVER_best_init, 
@@ -348,14 +350,14 @@ GO(ZSTD_createCDict, pFpLi)
 //GO(ZSTD_createCDict_advanced2, 
 GO(ZSTD_createCDict_byReference, pFpLi)
 GO(ZSTD_createCStream, pFv)
-//GO(ZSTD_createCStream_advanced, 
+GOM(ZSTD_createCStream_advanced, pFEM)
 GO(ZSTD_createDCtx, pFv)
 //GO(ZSTD_createDCtx_advanced, 
 GO(ZSTD_createDDict, pFpL)
 //GO(ZSTD_createDDict_advanced, 
 GO(ZSTD_createDDict_byReference, pFpL)
 GO(ZSTD_createDStream, pFv)
-//GO(ZSTD_createDStream_advanced, 
+GOM(ZSTD_createDStream_advanced, pFEM)
 //GO(ZSTD_crossEntropyCost, 
 GO(ZSTD_CStreamInSize, LFv)
 GO(ZSTD_CStreamOutSize, LFv)

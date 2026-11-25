@@ -12,7 +12,10 @@
 #define ADDED_FUNCTIONS() 
 #endif
 
+typedef void* (*pFM_t)(my_ZSTD_customMem);
 
-#define SUPER() ADDED_FUNCTIONS()
+#define SUPER() ADDED_FUNCTIONS() \
+	GO(ZSTD_createCStream_advanced, pFM_t) \
+	GO(ZSTD_createDStream_advanced, pFM_t)
 
 #endif // __wrappedzstdTYPES_H_
