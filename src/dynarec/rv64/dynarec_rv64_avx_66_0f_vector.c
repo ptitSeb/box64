@@ -1342,44 +1342,42 @@ uintptr_t dynarec64_AVX_66_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             VADD_VV(v0, d0, d1, VECTOR_UNMASKED);
             PUTGY_vector(v0, VECTOR_SEW32);
             break;
-        case 0xF6:
+        case 0xF6: {
             INST_NAME("VPSADBW Gx, Vx, Ex");
             nextop = F8;
             GETGY_empty_VYEY_vector(v0, q0, q1, VECTOR_SEW8);
-            q2 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-            v1 = vpu_get_scratch(dyn);
-            v2 = vpu_get_scratch(dyn);
-            d0 = q2 + 1; // second register of the LMUL2 group, used at VLEN=256
-            if (vex.l && cpuext.vlen > 32) d0 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-            simd_set_width(dyn, ninst, x1, VECTOR_SEW8, 16 << vex.l);
-            VMINU_VV(v1, q0, q1, VECTOR_UNMASKED);
-            VMAXU_VV(v2, q0, q1, VECTOR_UNMASKED);
-            VSUB_VV(v1, v2, v1, VECTOR_UNMASKED);
-            VWADDU_VX(q2, v1, xZR, VECTOR_UNMASKED);
-            rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL2, (32 << vex.l));
-            if (vex.l && cpuext.vlen > 32) VSLIDEDOWN_VI(d0, q2, 16, VECTOR_UNMASKED);
-            rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 32);
-            ADDI(x4, xZR, 0xFF);
-            VMV_S_X(VMASK, x4);
-            VXOR_VV(v1, v1, v1, VECTOR_UNMASKED);
-            VREDSUM_VS(v1, q2, v1, VECTOR_MASKED);
-            VSLIDEUP_VI_SAFE(v0, v1, 0, VECTOR_UNMASKED);
-            VMNAND_MM(VMASK, VMASK, VMASK);
-            VXOR_VV(v1, v1, v1, VECTOR_UNMASKED);
-            VREDSUM_VS(v1, q2, v1, VECTOR_MASKED);
-            VSLIDEUP_VI_SAFE(v0, v1, 4, VECTOR_UNMASKED);
+            int byte_diffs = vpu_get_scratch(dyn);
+            int work = vpu_get_scratch(dyn);
+            SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW8);
+            VMAXU_VV(byte_diffs, q0, q1, VECTOR_UNMASKED);
+            VMINU_VV(work, q0, q1, VECTOR_UNMASKED);
+            VSUB_VV(byte_diffs, byte_diffs, work, VECTOR_UNMASKED);
             if (vex.l) {
-                VMNAND_MM(VMASK, VMASK, VMASK);
-                VXOR_VV(v1, v1, v1, VECTOR_UNMASKED);
-                VREDSUM_VS(v1, d0, v1, VECTOR_MASKED);
-                VSLIDEUP_VI_SAFE(v0, v1, 8, VECTOR_UNMASKED);
-                VMNAND_MM(VMASK, VMASK, VMASK);
-                VXOR_VV(v1, v1, v1, VECTOR_UNMASKED);
-                VREDSUM_VS(v1, d0, v1, VECTOR_MASKED);
-                VSLIDEUP_VI_SAFE(v0, v1, 12, VECTOR_UNMASKED);
+                SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW16);
+                ADDI(x4, xZR, 0xff);
+                VSRL_VI(work, byte_diffs, 8, VECTOR_UNMASKED);
+                VAND_VX(byte_diffs, byte_diffs, x4, VECTOR_UNMASKED);
+                VADD_VV(byte_diffs, byte_diffs, work, VECTOR_UNMASKED);
+                SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW64);
+                // Multiplication adds the four pair sums into the top 16 bits of each qword without carry between words.
+                MOV64xs(x4, 0x0001000100010001ULL, x5);
+                VMUL_VX(v0, byte_diffs, x4, VECTOR_UNMASKED);
+                ADDI(x4, xZR, 48);
+                VSRL_VX(v0, v0, x4, VECTOR_UNMASKED);
+            } else {
+                int upper_sum = vpu_get_scratch(dyn);
+                VMV_V_I(v0, 0);
+                VMV_V_I(upper_sum, 0);
+                rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW8, VECTOR_LMUL1, 8);
+                VSLIDEDOWN_VI(work, byte_diffs, 8, VECTOR_UNMASKED);
+                VWREDSUMU_VS(v0, byte_diffs, v0, VECTOR_UNMASKED);
+                VWREDSUMU_VS(upper_sum, work, upper_sum, VECTOR_UNMASKED);
+                SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW64);
+                VSLIDEUP_VI(v0, upper_sum, 1, VECTOR_UNMASKED);
             }
-            PUTGY_vector(v0, VECTOR_SEW16);
+            PUTGY_vector(v0, VECTOR_SEW64);
             break;
+        }
         case 0xF8:
             INST_NAME("VPSUBB Gx, Vx, Ex");
             nextop = F8;
