@@ -766,25 +766,18 @@ uintptr_t dynarec64_AVX_66_0F38_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             VMUL_VV(v0, q0, q1, VECTOR_UNMASKED);
             PUTGY_vector(v0, VECTOR_SEW32);
             break;
-        case 0x45:
+        case 0x45: {
             INST_NAME("VPSRLVD/Q Gx, Vx, Ex");
             nextop = F8;
-            if (rex.w) {
-                GETGY_empty_VYEY_vector_safe(v0, q0, q1, VECTOR_SEW64);
-                VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
-                MOV32w(x4, 64);
-                VMSLTU_VX(VMASK, q1, x4, VECTOR_UNMASKED);
-                VSRL_VV(v0, q0, q1, VECTOR_MASKED);
-                PUTGY_vector(v0, VECTOR_SEW64);
-            } else {
-                GETGY_empty_VYEY_vector_safe(v0, q0, q1, VECTOR_SEW32);
-                VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
-                MOV32w(x4, 32);
-                VMSLTU_VX(VMASK, q1, x4, VECTOR_UNMASKED);
-                VSRL_VV(v0, q0, q1, VECTOR_MASKED);
-                PUTGY_vector(v0, VECTOR_SEW32);
-            }
+            const int width = rex.w ? VECTOR_SEW64 : VECTOR_SEW32;
+            GETGY_empty_VYEY_vector(v0, q0, q1, width);
+            MOV32w(x4, rex.w ? 63 : 31);
+            VMSGTU_VX(VMASK, q1, x4, VECTOR_UNMASKED);
+            VSRL_VV(v0, q0, q1, VECTOR_UNMASKED);
+            VMERGE_VIM(v0, v0, 0);
+            PUTGY_vector(v0, width);
             break;
+        }
         case 0x46:
             if (rex.w) return 0;
             INST_NAME("VPSRAVD Gx, Vx, Ex");
@@ -796,25 +789,18 @@ uintptr_t dynarec64_AVX_66_0F38_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             VSRA_VV(v0, q0, q2, VECTOR_UNMASKED);
             PUTGY_vector(v0, VECTOR_SEW32);
             break;
-        case 0x47:
+        case 0x47: {
             INST_NAME("VPSLLVD/Q Gx, Vx, Ex");
             nextop = F8;
-            if (rex.w) {
-                GETGY_empty_VYEY_vector_safe(v0, q0, q1, VECTOR_SEW64);
-                VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
-                MOV32w(x4, 64);
-                VMSLTU_VX(VMASK, q1, x4, VECTOR_UNMASKED);
-                VSLL_VV(v0, q0, q1, VECTOR_MASKED);
-                PUTGY_vector(v0, VECTOR_SEW64);
-            } else {
-                GETGY_empty_VYEY_vector_safe(v0, q0, q1, VECTOR_SEW32);
-                VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
-                MOV32w(x4, 32);
-                VMSLTU_VX(VMASK, q1, x4, VECTOR_UNMASKED);
-                VSLL_VV(v0, q0, q1, VECTOR_MASKED);
-                PUTGY_vector(v0, VECTOR_SEW32);
-            }
+            const int width = rex.w ? VECTOR_SEW64 : VECTOR_SEW32;
+            GETGY_empty_VYEY_vector(v0, q0, q1, width);
+            MOV32w(x4, rex.w ? 63 : 31);
+            VMSGTU_VX(VMASK, q1, x4, VECTOR_UNMASKED);
+            VSLL_VV(v0, q0, q1, VECTOR_UNMASKED);
+            VMERGE_VIM(v0, v0, 0);
+            PUTGY_vector(v0, width);
             break;
+        }
         case 0x5A:
             if (!vex.l) return 0;
             INST_NAME("VBROADCASTI128 Gx, Ex");
