@@ -908,4 +908,5 @@ EXPORT int my_vkNegotiateLoaderLayerInterfaceVersion(x64emu_t* emu, my_VkNegotia
         if(p->pfnGetInstanceProcAddr) p->pfnGetInstanceProcAddr = (void*)AddCheckBridge2(my_lib->w.bridge, pFEpp, my_vkGetInstanceProcAddr, p->pfnGetInstanceProcAddr, 0, "vkGetInstanceProcAddr");
         if(p->pfnGetPhysicalDeviceProcAddr) p->pfnGetPhysicalDeviceProcAddr = (void*)AddCheckBridge2(my_lib->w.bridge, pFEpp, my_vkGetInstanceProcAddr, p->pfnGetPhysicalDeviceProcAddr, 0, "vkGetPhysicalDeviceProcAddr");
     }
+    return ret;
 }
