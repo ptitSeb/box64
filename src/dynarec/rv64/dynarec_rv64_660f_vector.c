@@ -2608,21 +2608,25 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             }
             VSLIDE1UP_VX_SAFE(v0, v1, x4, VECTOR_UNMASKED);
             break;
-        case 0xD0:
+        case 0xD0: {
             if (!BOX64ENV(dynarec_fastnan)) return 0;
             INST_NAME("ADDSUBPD Gx, Ex");
             nextop = F8;
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW64);
             GETGX_vector(q0, 1, VECTOR_SEW64);
             GETEX_vector(q1, 0, 0, VECTOR_SEW64);
-            q2 = vpu_get_scratch(dyn);
-            VID_V(q2, VECTOR_UNMASKED);
-            VAND_VI(q2, q2, 1, VECTOR_UNMASKED);
-            VMSEQ_VX(VMASK, q2, xZR, VECTOR_UNMASKED);
-            VFSUB_VV(q0, q0, q1, VECTOR_MASKED);
-            VXOR_VI(VMASK, VMASK, 0x1f, VECTOR_UNMASKED);
-            VFADD_VV(q0, q0, q1, VECTOR_MASKED);
+            int addend = vpu_get_scratch(dyn);
+            if (cpuext.xtheadvector) {
+                VID_V(addend, VECTOR_UNMASKED);
+                VMSEQ_VI(VMASK, addend, 0, VECTOR_UNMASKED);
+            } else {
+                VECTOR_LOAD_VMASK(0x01, x4);
+            }
+            VMV_V_V(addend, q1);
+            VFSGNJN_VV(addend, q1, q1, VECTOR_MASKED);
+            VFADD_VV(q0, q0, addend, VECTOR_UNMASKED);
             break;
+        }
         case 0xD1:
         case 0xD2:
         case 0xD3:

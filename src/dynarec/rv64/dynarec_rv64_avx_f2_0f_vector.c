@@ -354,12 +354,9 @@ uintptr_t dynarec64_AVX_F2_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             INST_NAME("VADDSUBPS Gx, Vx, Ex");
             nextop = F8;
             GETGY_empty_VYEY_vector(v0, q0, q1, VECTOR_SEW32);
-            q2 = vpu_get_scratch(dyn);
-            VID_V(q2, VECTOR_UNMASKED);
-            VAND_VI(q2, q2, 1, VECTOR_UNMASKED);
-            VMSEQ_VX(VMASK, q2, xZR, VECTOR_UNMASKED);
+            VECTOR_LOAD_VMASK(vex.l ? 0x55 : 0x05, x4);
             VFSUB_VV(v0, q0, q1, VECTOR_MASKED);
-            VXOR_VI(VMASK, VMASK, 0x1f, VECTOR_UNMASKED);
+            VMNAND_MM(VMASK, VMASK, VMASK);
             VFADD_VV(v0, q0, q1, VECTOR_MASKED);
             PUTGY_vector(v0, VECTOR_SEW32);
             break;
