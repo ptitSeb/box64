@@ -308,46 +308,59 @@ uintptr_t dynarec64_AVX_66_0F38_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             PUTGY_vector(v0, VECTOR_SEW32);
             break;
         case 0x18:
-            INST_NAME("VBROADCASTSS Gx, Ex");
-            nextop = F8;
-            if (MODREG) {
-                q0 = vpu_get_scratch(dyn);
-                ed = (nextop & 7) + (rex.b << 3);
-                simd_load_reg(dyn, ninst, x1, q0, ed, 16, VECTOR_SEW32);
-            } else {
-                SMREAD();
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
-            }
-            GETGY_empty_vector(v0);
-            if (MODREG) {
-                VMV_X_S(x4, q0);
-            } else {
-                LW(x4, ed, fixedaddress);
-            }
-            SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW32);
-            VMV_V_X(v0, x4);
-            PUTGY_vector(v0, VECTOR_SEW32);
-            break;
         case 0x19:
-            INST_NAME("VBROADCASTSD Gx, Ex");
+        case 0x58:
+        case 0x59:
+        case 0x78:
+        case 0x79:
+            switch (opcode) {
+                case 0x18:
+                    INST_NAME("VBROADCASTSS Gx, Ex");
+                    sew = VECTOR_SEW32;
+                    break;
+                case 0x19:
+                    INST_NAME("VBROADCASTSD Gx, Ex");
+                    sew = VECTOR_SEW64;
+                    break;
+                case 0x58:
+                    INST_NAME("VPBROADCASTD Gx, Ex");
+                    sew = VECTOR_SEW32;
+                    break;
+                case 0x59:
+                    INST_NAME("VPBROADCASTQ Gx, Ex");
+                    sew = VECTOR_SEW64;
+                    break;
+                case 0x78:
+                    INST_NAME("VPBROADCASTB Gx, Ex");
+                    sew = VECTOR_SEW8;
+                    break;
+                case 0x79:
+                    INST_NAME("VPBROADCASTW Gx, Ex");
+                    sew = VECTOR_SEW16;
+                    break;
+            }
             nextop = F8;
             if (MODREG) {
-                q0 = vpu_get_scratch(dyn);
                 ed = (nextop & 7) + (rex.b << 3);
-                simd_load_reg(dyn, ninst, x1, q0, ed, 16, VECTOR_SEW64);
+                q0 = simd_access(dyn, ninst, x1, ed, sew == VECTOR_SEW64 ? SIMD_LO64 : SIMD_LO32, 0);
+                GETGY_empty_vector(v0);
+                SET_AVX_VECTOR_WIDTH(x1, sew);
+                if (v0 == q0) v0 = vpu_get_scratch(dyn);
+                VRGATHER_VI(v0, q0, 0, VECTOR_UNMASKED);
             } else {
                 SMREAD();
                 addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
+                switch (sew) {
+                    case VECTOR_SEW8: LBU(x4, ed, fixedaddress); break;
+                    case VECTOR_SEW16: LHU(x4, ed, fixedaddress); break;
+                    case VECTOR_SEW32: LW(x4, ed, fixedaddress); break;
+                    case VECTOR_SEW64: LD(x4, ed, fixedaddress); break;
+                }
+                GETGY_empty_vector(v0);
+                SET_AVX_VECTOR_WIDTH(x1, sew);
+                VMV_V_X(v0, x4);
             }
-            GETGY_empty_vector(v0);
-            if (MODREG) {
-                VMV_X_S(x4, q0);
-            } else {
-                LD(x4, ed, fixedaddress);
-            }
-            SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW64);
-            VMV_V_X(v0, x4);
-            PUTGY_vector(v0, VECTOR_SEW64);
+            PUTGY_vector(v0, sew);
             break;
         case 0x1A:
             if (!vex.l) return 0;
@@ -802,42 +815,6 @@ uintptr_t dynarec64_AVX_66_0F38_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
                 PUTGY_vector(v0, VECTOR_SEW32);
             }
             break;
-        case 0x58:
-            INST_NAME("VPBROADCASTD Gx, Ex");
-            nextop = F8;
-            if (MODREG) {
-                ed = (nextop & 7) + (rex.b << 3);
-                q0 = vpu_get_scratch(dyn);
-                simd_load_reg(dyn, ninst, x1, q0, ed, 16, VECTOR_SEW32);
-                VMV_X_S(x4, q0);
-            } else {
-                SMREAD();
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
-                LW(x4, ed, fixedaddress);
-            }
-            GETGY_empty_vector(v0);
-            SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW32);
-            VMV_V_X(v0, x4);
-            PUTGY_vector(v0, VECTOR_SEW32);
-            break;
-        case 0x59:
-            INST_NAME("VPBROADCASTQ Gx, Ex");
-            nextop = F8;
-            if (MODREG) {
-                ed = (nextop & 7) + (rex.b << 3);
-                q0 = vpu_get_scratch(dyn);
-                simd_load_reg(dyn, ninst, x1, q0, ed, 16, VECTOR_SEW64);
-                VMV_X_S(x4, q0);
-            } else {
-                SMREAD();
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
-                LD(x4, ed, fixedaddress);
-            }
-            GETGY_empty_vector(v0);
-            SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW64);
-            VMV_V_X(v0, x4);
-            PUTGY_vector(v0, VECTOR_SEW64);
-            break;
         case 0x5A:
             if (!vex.l) return 0;
             INST_NAME("VBROADCASTI128 Gx, Ex");
@@ -857,42 +834,6 @@ uintptr_t dynarec64_AVX_66_0F38_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             simd_set_width(dyn, ninst, x1, VECTOR_SEW8, 32);
             VSLIDEUP_VI_SAFE(v0, q0, 16, VECTOR_UNMASKED);
             PUTGY_vector(v0, VECTOR_SEW8);
-            break;
-        case 0x78:
-            INST_NAME("VPBROADCASTB Gx, Ex");
-            nextop = F8;
-            if (MODREG) {
-                ed = (nextop & 7) + (rex.b << 3);
-                q0 = vpu_get_scratch(dyn);
-                simd_load_reg(dyn, ninst, x1, q0, ed, 16, VECTOR_SEW8);
-                VMV_X_S(x4, q0);
-            } else {
-                SMREAD();
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
-                LBU(x4, ed, fixedaddress);
-            }
-            GETGY_empty_vector(v0);
-            SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW8);
-            VMV_V_X(v0, x4);
-            PUTGY_vector(v0, VECTOR_SEW8);
-            break;
-        case 0x79:
-            INST_NAME("VPBROADCASTW Gx, Ex");
-            nextop = F8;
-            if (MODREG) {
-                ed = (nextop & 7) + (rex.b << 3);
-                q0 = vpu_get_scratch(dyn);
-                simd_load_reg(dyn, ninst, x1, q0, ed, 16, VECTOR_SEW16);
-                VMV_X_S(x4, q0);
-            } else {
-                SMREAD();
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
-                LHU(x4, ed, fixedaddress);
-            }
-            GETGY_empty_vector(v0);
-            SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW16);
-            VMV_V_X(v0, x4);
-            PUTGY_vector(v0, VECTOR_SEW16);
             break;
         case 0x8C:
             INST_NAME("VPMASKMOVD/Q Gx, Vx, Ex");
