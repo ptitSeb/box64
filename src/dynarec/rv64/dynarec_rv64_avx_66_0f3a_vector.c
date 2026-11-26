@@ -123,38 +123,56 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             PUTGY_vector(v0, VECTOR_SEW64);
             break;
         case 0x06:
+        case 0x46: {
             if (!vex.l) return 0;
-            INST_NAME("VPERM2F128 Gx, Vx, Ex, Ib");
+            INST_NAME(opcode == 0x06 ? "VPERM2F128 Gx, Vx, Ex, Ib" : "VPERM2I128 Gx, Vx, Ex, Ib");
             nextop = F8;
             GETGY_empty_VYEY_vector_D(v0, q0, q1, VECTOR_SEW64, 1);
             u8 = F8;
-            VEC_SRC_KEEP(q0, v0);
-            VEC_SRC_KEEP(q1, v0);
-            VMV_V_V(v0, q0);
-            for (int j = 0; j < 2; ++j) {
-                int control = j ? (u8 >> 4) & 3 : u8 & 3;
-                int zero = j ? (u8 & 0x80) : (u8 & 0x08);
-                int mask = j ? 0xc : 0x3;
-                if (zero) {
-                    VECTOR_LOAD_VMASK(mask, x4);
-                    VXOR_VV(v0, v0, v0, VECTOR_MASKED);
-                } else if (control != j) {
-                    int src = (control & 2) ? q1 : q0;
-                    VECTOR_LOAD_VMASK(mask, x4);
-                    if (((j == 0) && ((control & 1) == 0)) || ((j == 1) && ((control & 1) == 1))) {
-                        VMERGE_VVM(v0, v0, src);
-                    } else {
-                        q2 = vpu_get_scratch(dyn);
-                        if (j)
-                            VSLIDEUP_VI(q2, src, 2, VECTOR_UNMASKED);
-                        else
-                            VSLIDEDOWN_VI(q2, src, 2, VECTOR_UNMASKED);
-                        VMERGE_VVM(v0, v0, q2);
-                    }
+            int low = (u8 & 2) ? q1 : q0;
+            int high = (u8 & 0x20) ? q1 : q0;
+            int zero_low = u8 & 8;
+            int zero_high = u8 & 0x80;
+            int low_from_high = u8 & 1;
+            int high_from_high = u8 & 0x10;
+            if (zero_low && zero_high) {
+                VMV_V_I(v0, 0);
+            } else if (zero_high || (zero_low && high_from_high)) {
+                if (zero_high && low_from_high) {
+                    VSLIDEDOWN_VI(v0, low, 2, VECTOR_UNMASKED);
+                    low = v0;
                 }
+                if (!zero_high || !low_from_high || cpuext.vlen > 32) {
+                    VECTOR_LOAD_VMASK(zero_high ? 0xc : 0x3, x4);
+                    VMERGE_VIM(v0, zero_high ? low : high, 0);
+                }
+            } else if (!low_from_high && high_from_high) {
+                if (low != high) {
+                    VECTOR_LOAD_VMASK(0xc, x4);
+                    VMERGE_VVM(v0, low, high);
+                } else if (v0 != low) {
+                    VMV_V_V(v0, low);
+                }
+            } else {
+                if (high_from_high) {
+                    q2 = vpu_get_scratch(dyn);
+                    VSLIDEDOWN_VI(q2, high, 2, VECTOR_UNMASKED);
+                    high = q2;
+                } else {
+                    VEC_SRC_KEEP(high, v0);
+                }
+                if (zero_low) {
+                    VMV_V_I(v0, 0);
+                } else if (low_from_high) {
+                    VSLIDEDOWN_VI(v0, low, 2, VECTOR_UNMASKED);
+                } else if (v0 != low) {
+                    VMV_V_V(v0, low);
+                }
+                VSLIDEUP_VI(v0, high, 2, VECTOR_UNMASKED);
             }
             PUTGY_vector(v0, VECTOR_SEW64);
             break;
+        }
         case 0x0E:
             INST_NAME("VPBLENDW Gx, Vx, Ex, Ib");
             nextop = F8;
@@ -300,39 +318,6 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
                 VSLIDEUP_VI_SAFE(v0, q3, 8, VECTOR_UNMASKED);
             }
             PUTGY_vector(v0, VECTOR_SEW16);
-            break;
-        case 0x46:
-            if (!vex.l) return 0;
-            INST_NAME("VPERM2I128 Gx, Vx, Ex, Ib");
-            nextop = F8;
-            GETGY_empty_VYEY_vector_D(v0, q0, q1, VECTOR_SEW64, 1);
-            u8 = F8;
-            VEC_SRC_KEEP(q0, v0);
-            VEC_SRC_KEEP(q1, v0);
-            VMV_V_V(v0, q0);
-            for (int j = 0; j < 2; ++j) {
-                int control = j ? (u8 >> 4) & 3 : u8 & 3;
-                int zero = j ? (u8 & 0x80) : (u8 & 0x08);
-                int mask = j ? 0xc : 0x3;
-                if (zero) {
-                    VECTOR_LOAD_VMASK(mask, x4);
-                    VXOR_VV(v0, v0, v0, VECTOR_MASKED);
-                } else if (control != j) {
-                    int src = (control & 2) ? q1 : q0;
-                    VECTOR_LOAD_VMASK(mask, x4);
-                    if (((j == 0) && ((control & 1) == 0)) || ((j == 1) && ((control & 1) == 1))) {
-                        VMERGE_VVM(v0, v0, src);
-                    } else {
-                        q2 = vpu_get_scratch(dyn);
-                        if (j)
-                            VSLIDEUP_VI(q2, src, 2, VECTOR_UNMASKED);
-                        else
-                            VSLIDEDOWN_VI(q2, src, 2, VECTOR_UNMASKED);
-                        VMERGE_VVM(v0, v0, q2);
-                    }
-                }
-            }
-            PUTGY_vector(v0, VECTOR_SEW64);
             break;
         case 0x08:
             INST_NAME("VROUNDPS Gx, Ex, Ib");
