@@ -1,0 +1,105 @@
+name: Build and Test Box64 on Gentoo (musl-llvm)
+
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "**/*.c"
+      - "**/*.h"
+      - "**/*.S"
+      - "**/*.py"
+      - "**/*.cmake"
+      - "CMakeLists.txt"
+      - "**/*.def"
+      - "tests/**"
+      - "tests32/**"
+      - "x64lib/**"
+      - "x86lib/**"
+      - ".github/workflows/gentoo-musl-llvm.yml"
+      - ".github/docker/gentoo.Dockerfile"
+      - "contrib/ci.sh"
+  pull_request:
+    types: [assigned, opened, synchronize, reopened]
+    paths:
+      - "**/*.c"
+      - "**/*.h"
+      - "**/*.S"
+      - "**/*.py"
+      - "**/*.cmake"
+      - "CMakeLists.txt"
+      - "**/*.def"
+      - "tests/**"
+      - "tests32/**"
+      - "x64lib/**"
+      - "x86lib/**"
+      - ".github/workflows/gentoo-musl-llvm.yml"
+      - ".github/docker/gentoo.Dockerfile"
+      - "contrib/ci.sh"
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  gentoo:
+    name: ${{ matrix.arch }}${{ matrix.box32 == 'ON' && ' Box32' || '' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [x86_64, aarch64]
+        include:
+          - arch: x86_64
+            os: ubuntu-latest
+          - arch: aarch64
+            os: ubuntu-24.04-arm
+        box32: ["OFF", "ON"]
+
+    runs-on: ${{ matrix.os }}
+    env:
+      CI_SH: contrib/ci.sh gentoo ${{ matrix.arch }} musl llvm
+      BOX32: ${{ matrix.box32 }}
+      BUILD_DIR: build
+      CMAKE_ARGS: -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: "Build Gentoo image"
+        uses: docker/build-push-action@v6
+        with:
+          context: contrib
+          file: .github/docker/gentoo.Dockerfile
+          build-args: |
+            ARCH=${{ matrix.arch }}
+            LIBC=musl
+            TOOLCHAIN=llvm
+            STAGE3=musl-llvm
+          pull: true
+          load: true
+          tags: box64-gentoo-musl-llvm:${{ matrix.arch }}
+          cache-from: type=gha,scope=gentoo-musl-llvm-${{ matrix.arch }}
+          cache-to: type=gha,mode=max,scope=gentoo-musl-llvm-${{ matrix.arch }}
+
+      - name: "Build Box64"
+        run: $CI_SH build
+
+      - name: "Test Box64"
+        run: $CI_SH test
+
+      - name: "Run x86_64 bash"
+        run: $CI_SH bash
+
+      - name: "Upload failed test output"
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gentoo-musl-llvm-${{ matrix.arch }}-box32-${{ matrix.box32 }}-test-logs
+          path: |
+            build/tests/*.out
+            build/tests/*.err
+            build/Testing/Temporary/LastTest*.log
+          if-no-files-found: ignore
