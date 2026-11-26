@@ -22,7 +22,9 @@ extern int box64_rdtsc;
 extern uint8_t box64_rdtsc_shift;
 extern int box64_is32bits;
 extern int box64_isAddressSpace32;
+#ifndef ARM64
 extern int box64_ymm_split;
+#endif
 extern int box64_nolibs;
 extern int box64_hasinterp;
 #if defined(DYNAREC) || defined(BOX64EC)
