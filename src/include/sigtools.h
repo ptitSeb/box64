@@ -16,10 +16,12 @@
 #define CONTEXT_PC(P)       (P)->uc_mcontext.__pc
 #elif defined(RV64)
 #include "dynarec/rv64/rv64_mapping.h"
+#include <ucontext.h> /* REG_PC */
 #define CONTEXT_REG(P, X)   (P)->uc_mcontext.__gregs[X]
 #define CONTEXT_PC(P)       (P)->uc_mcontext.__gregs[REG_PC]
 #elif defined(PPC64LE)
 #include "dynarec/ppc64le/ppc64le_mapping.h"
+#include <asm/ptrace.h> /* PT_NIP */
 #define CONTEXT_REG(P, X)   (P)->uc_mcontext.gp_regs[X]
 #define CONTEXT_PC(P)       (P)->uc_mcontext.gp_regs[PT_NIP]
 #else
