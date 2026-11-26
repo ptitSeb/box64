@@ -460,12 +460,36 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             v0 = simd_write(dyn, ninst, x1, gd, 8, VECTOR_SEW64);
             simd_compare(dyn, ninst, v0, d0, d1, u8 & 7);
             break;
-        case 0xE6:
+        case 0xE6: {
             INST_NAME("CVTPD2DQ Gx, Ex");
             nextop = F8;
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW64);
             GETEX_vector(v1, 0, 0, VECTOR_SEW64);
             GETGX_empty_vector(v0);
+            if (!cpuext.xtheadvector) {
+                if (BOX64ENV(dynarec_fastround)) {
+                    rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMULF2, 8);
+                    VFNCVT_X_F_W(v0, v1, VECTOR_UNMASKED);
+                } else {
+                    int rounded = vpu_get_scratch(dyn);
+                    FSFLAGSI(0);
+                    VFCVT_X_F_V(rounded, v1, VECTOR_UNMASKED);
+                    MOV64x(x4, (int64_t)INT32_MIN);
+                    VSUB_VX(v0, rounded, x4, VECTOR_UNMASKED);
+                    SRLI(x5, x4, 32);
+                    VMSGTU_VX(VMASK, v0, x5, VECTOR_UNMASKED);
+                    rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMULF2, 8);
+                    VNSRL_WI(v0, rounded, 0, VECTOR_UNMASKED);
+                    VMERGE_VXM(v0, v0, x4);
+                    VFIRST_M(x4, VMASK, VECTOR_UNMASKED);
+                    BLT_MARK(x4, xZR);
+                    emit_mxcsr_raise_invalid(x5);
+                    if (BOX64ENV(sse_flushto0)) CSRRSI(xZR, 1 << FR_NV, 0x001);
+                    MARK;
+                }
+                simd_commit(dyn, ninst, gd, SIMD_LO64, SIMD_HI64);
+                break;
+            }
             if (v1 & 1) {
                 d1 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
                 VMV_V_V(d1, v1);
@@ -500,10 +524,10 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 MARK;
             }
             rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW64, VECTOR_LMUL1, 16);
-            if (!cpuext.xtheadvector) VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
             VMV_X_S(x4, q1);
             VMV_S_X(v0, x4);
             break;
+        }
         case 0xF0:
             INST_NAME("LDDQU Gx, Ex");
             nextop = F8;
