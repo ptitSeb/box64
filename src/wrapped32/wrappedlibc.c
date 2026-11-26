@@ -81,7 +81,6 @@
 #include "libc_malloc.h"
 #include "libc_ctype.h"
 #include "libc_glob.h"
-#include "libc_select.h"
 
 // need to undef all read / read64 stuffs!
 #undef pread
@@ -2385,7 +2384,7 @@ EXPORT unsigned long int my32___fdelt_chk (unsigned long int d)
 #endif
   }
 
-  return d / __NFDBITS;
+  return d / 32;  // i386 fd_set is made of 32-bit longs, not the host's __NFDBITS
 }
 #endif
 
