@@ -1394,6 +1394,8 @@ if(NOT NOBOX64)
     endif()
     target_link_libraries(${BOX64} interpreter)
 
+    include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/MuslCompatLibs.cmake)
+
     if(${CMAKE_VERSION} VERSION_LESS "3.13")
         if(NOT NOLOADADDR)
             if(CMAKE_C_COMPILER_ID STREQUAL "Clang" OR WITH_MOLD)
