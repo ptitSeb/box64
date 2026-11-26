@@ -538,54 +538,54 @@ uintptr_t dynarec64_AVX_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t
             simd_compare(dyn, ninst, v0, q0, q1, u8);
             PUTGY_vector(v0, VECTOR_SEW32);
             break;
-        case 0xC6:
+        case 0xC6: {
             INST_NAME("VSHUFPS Gx, Vx, Ex, Ib");
             nextop = F8;
-            GETVY_vector(q0, VECTOR_SEW32);
-            if (!vex.l && MODREG && ((nextop & 7) + (rex.b << 3)) == vex.v) {
-                u8 = F8;
-                MOV64x(x4, (uint64_t)(u8 & 3) | ((uint64_t)((u8 >> 2) & 3) << 16) | ((uint64_t)((u8 >> 4) & 3) << 32) | ((uint64_t)((u8 >> 6) & 3) << 48));
-                rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW64, VECTOR_LMUL1, 16);
-                q2 = vpu_get_scratch(dyn);
-                VMV_S_X(q2, x4);
-                simd_set_width(dyn, ninst, x1, VECTOR_SEW32, 16);
-                GETGY_empty_vector(v0);
-                if (v0 == q0) {
-                    v2 = vpu_get_scratch(dyn);
-                    VRGATHEREI16_VV(v2, q0, q2, VECTOR_UNMASKED);
-                    v0 = v2;
+            GETGY_empty_VYEY_vector_D(v0, q0, q1, VECTOR_SEW32, 1);
+            u8 = F8;
+            if (u8 == 0xe4) {
+                SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW64);
+                if (q0 == q1) {
+                    v0 = q0;
                 } else {
-                    VRGATHEREI16_VV(v0, q0, q2, VECTOR_UNMASKED);
+                    VECTOR_LOAD_VMASK(0xa, x4);
+                    VMERGE_VVM(v0, q0, q1);
                 }
-                PUTGY_vector(v0, VECTOR_SEW32);
+                PUTGY_vector(v0, VECTOR_SEW64);
                 break;
             }
-            GETEY_vector(q1, 1, VECTOR_SEW32);
-            u8 = F8;
-            GETGY_empty_vector(v0);
-            VEC_SRC_KEEP(q0, v0);
-            VEC_SRC_KEEP(q1, v0);
-            q2 = vpu_get_scratch(dyn);
-            v1 = vpu_get_scratch(dyn);
-            v2 = vpu_get_scratch(dyn);
-            MOV64xs(x4, (uint64_t)(u8 & 3) | ((uint64_t)((u8 >> 2) & 3) << 16) | ((uint64_t)((u8 >> 4) & 3) << 32) | ((uint64_t)((u8 >> 6) & 3) << 48), x3);
-            rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW64, VECTOR_LMUL1, 16);
-            if (vex.l) {
-                VMV_V_X(q2, x4);
-                rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 16);
-                VID_V(VMASK, VECTOR_UNMASKED);
-                VMSGT_VI(VMASK, VMASK, 3, VECTOR_UNMASKED);
-                VOR_VI(q2, q2, 4, VECTOR_MASKED);
+            int result = (v0 == q0 || v0 == q1) ? vpu_get_scratch(dyn) : v0;
+            int first = u8 & 3;
+            if (q0 == q1 && u8 == first * 0x55) {
+                VRGATHER_VI(result, q0, first, VECTOR_UNMASKED);
+                if (vex.l) {
+                    VECTOR_LOAD_VMASK(0xf0, x4);
+                    VRGATHER_VI(result, q0, first + 4, VECTOR_MASKED);
+                }
             } else {
-                VMV_S_X(q2, x4);
+                uint64_t packed_indices = first | ((uint64_t)((u8 >> 2) & 3) << 16) | ((uint64_t)((u8 >> 4) & 3) << 32) | ((uint64_t)(u8 >> 6) << 48);
+                int indices = vpu_get_scratch(dyn);
+                simd_set_width(dyn, ninst, x1, VECTOR_SEW64, 16);
+                MOV64x(x4, packed_indices);
+                if (vex.l) {
+                    int upper_indices = vpu_get_scratch(dyn);
+                    MOV64x(x5, 0x0004000400040004ULL);
+                    ADD(x5, x4, x5);
+                    VMV_S_X(upper_indices, x5);
+                    VSLIDE1UP_VX(indices, upper_indices, x4, VECTOR_UNMASKED);
+                } else {
+                    VMV_S_X(indices, x4);
+                }
+                SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW32);
+                VRGATHEREI16_VV(result, q0, indices, VECTOR_UNMASKED);
+                if (q0 != q1) {
+                    VECTOR_LOAD_VMASK(vex.l ? 0xcc : 0x0c, x4);
+                    VRGATHEREI16_VV(result, q1, indices, VECTOR_MASKED);
+                }
             }
-            simd_set_width(dyn, ninst, x1, VECTOR_SEW32, 16 << vex.l);
-            VRGATHEREI16_VV(v1, q0, q2, VECTOR_UNMASKED);
-            VRGATHEREI16_VV(v2, q1, q2, VECTOR_UNMASKED);
-            VECTOR_LOAD_VMASK(vex.l ? 0xcc : 0x0c, x4);
-            VMERGE_VVM(v0, v1, v2);
-            PUTGY_vector(v0, VECTOR_SEW32);
+            PUTGY_vector(result, VECTOR_SEW32);
             break;
+        }
         default:
             DEFAULT_VECTOR;
     }
