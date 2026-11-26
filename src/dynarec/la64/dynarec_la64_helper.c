@@ -2351,6 +2351,18 @@ static void fpuCacheTransform(dynarec_la64_t* dyn, int ninst, int s1, int s2, in
     lsxcache_t cache_i2 = dyn->insts[i2].lsx;
     lsxcacheUnwind(&cache_i2);
 
+    if (!cache_i2.stack) {
+        int purge = 1;
+        for (int i = 0; i < 24 && purge; ++i)
+            if (cache_i2.lsxcache[i].v)
+                purge = 0;
+        if (purge) {
+            fpu_purgecache(dyn, ninst, 1, s1, s2, s3);
+            MESSAGE(LOG_DUMP, "\t---- Cache Transform\n");
+            return;
+        }
+    }
+
     int stack_cnt = dyn->lsx.stack_next;
     int s3_top = 0xffff;
     lsxcache_t cache = dyn->lsx;
