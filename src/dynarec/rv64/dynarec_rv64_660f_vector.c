@@ -2435,103 +2435,52 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             VMERGE_VIM(q0, q0, 0b11111); // implies vmask and widened it
             break;
         case 0x7C:
-            INST_NAME("HADDPD Gx, Ex");
+        case 0x7D: {
+            if (opcode == 0x7C) {
+                INST_NAME("HADDPD Gx, Ex");
+            } else {
+                INST_NAME("HSUBPD Gx, Ex");
+            }
             nextop = F8;
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW64);
             GETGX_vector(q0, 1, VECTOR_SEW64);
             GETEX_vector(q1, 0, 0, VECTOR_SEW64);
-            q2 = vpu_get_scratch(dyn);
-            q3 = vpu_get_scratch(dyn);
-            q4 = vpu_get_scratch(dyn);
-            q5 = vpu_get_scratch(dyn);
-            VMV_V_V(q3, q1);
-            VMV_V_V(q4, q0);
-            VMV_V_V(q2, q3);
-            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64);
-            VID_V(q5, VECTOR_UNMASKED);
-            VMSEQ_VI(VMASK, q5, 1, VECTOR_UNMASKED);
-            VSLIDEUP_VI(q2, q3, 1, VECTOR_MASKED);
-            VMERGE_VVM(q4, q4, q2);
-            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64);
-            VID_V(d0, VECTOR_UNMASKED);
-            VMSEQ_VI(VMASK, d0, 0, VECTOR_UNMASKED);
-            VSLIDEDOWN_VI(q5, q0, 1, VECTOR_MASKED);
-            VMV_V_V(q2, q3);
-            VSLIDEDOWN_VI(q2, q3, 1, VECTOR_MASKED);
-            VMERGE_VVM(q2, q2, q5);
-            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64);
-            VFADD_VV(q0, q4, q2, VECTOR_UNMASKED);
-            d0 = vpu_get_scratch(dyn);
-            d1 = vpu_get_scratch(dyn);
+            int even_terms = vpu_get_scratch(dyn);
+            int odd_terms = vpu_get_scratch(dyn);
+            int ordered = vpu_get_scratch(dyn);
+            int quiet_nan = vpu_get_scratch(dyn);
+            if (q0 == q1) {
+                VRGATHER_VI(even_terms, q0, 0, VECTOR_UNMASKED);
+                VRGATHER_VI(odd_terms, q0, 1, VECTOR_UNMASKED);
+            } else {
+                VSLIDE1UP_VX(even_terms, q1, xZR, VECTOR_UNMASKED);
+                VSLIDEDOWN_VI(odd_terms, q0, 1, VECTOR_UNMASKED);
+                if (cpuext.xtheadvector) {
+                    VID_V(ordered, VECTOR_UNMASKED);
+                    VMSEQ_VI(VMASK, ordered, 1, VECTOR_UNMASKED);
+                } else {
+                    VECTOR_LOAD_VMASK(0x02, x4);
+                }
+                VMERGE_VVM(even_terms, q0, even_terms);
+                VMERGE_VVM(odd_terms, odd_terms, q1);
+            }
+            VMFEQ_VV(VMASK, even_terms, even_terms, VECTOR_UNMASKED);
+            VMFEQ_VV(ordered, odd_terms, odd_terms, VECTOR_UNMASKED);
+            VMAND_MM(ordered, ordered, VMASK);
+            VMERGE_VVM(quiet_nan, even_terms, odd_terms);
             MOV64x(x4, 0x0008000000000000LL);
-            VOR_VX(d0, q4, x4, VECTOR_UNMASKED);
-            VMFNE_VV(d1, q4, q4, VECTOR_UNMASKED);
-            VMFNE_VV(q5, q2, q2, VECTOR_UNMASKED);
-            VMAND_MM(VMASK, q5, q5);
-            VMERGE_VVM(q0, q0, q2);
-            VMAND_MM(VMASK, d1, d1);
-            VMERGE_VVM(q0, q0, d0);
-            VMOR_MM(q5, q5, d1);
-            VMAND_MM(VMASK, q5, q5);
-            VOR_VX(q0, q0, x4, VECTOR_MASKED);
-            VMFNE_VV(d1, q0, q0, VECTOR_UNMASKED);
-            VMNAND_MM(q5, q5, q5);
-            VMAND_MM(d1, d1, q5);
-            MOV64x(x4, 0xFFF8000000000000LL);
-            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64);
-            VMV_V_X(d0, x4);
-            VMAND_MM(VMASK, d1, d1);
-            VMERGE_VVM(q0, q0, d0);
+            VOR_VX(quiet_nan, quiet_nan, x4, VECTOR_UNMASKED);
+            if (opcode == 0x7C)
+                VFADD_VV(q0, even_terms, odd_terms, VECTOR_UNMASKED);
+            else
+                VFSUB_VV(q0, even_terms, odd_terms, VECTOR_UNMASKED);
+            VMFNE_VV(VMASK, q0, q0, VECTOR_UNMASKED);
+            VMAND_MM(VMASK, VMASK, ordered);
+            VFSGNJN_VV(q0, q0, q0, VECTOR_MASKED);
+            VMNAND_MM(VMASK, ordered, ordered);
+            VMERGE_VVM(q0, q0, quiet_nan);
             break;
-        case 0x7D:
-            INST_NAME("HSUBPD Gx, Ex");
-            nextop = F8;
-            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64);
-            GETGX_vector(q0, 1, VECTOR_SEW64);
-            GETEX_vector(q1, 0, 0, VECTOR_SEW64);
-            q2 = vpu_get_scratch(dyn);
-            q3 = vpu_get_scratch(dyn);
-            q4 = vpu_get_scratch(dyn);
-            q5 = vpu_get_scratch(dyn);
-            VMV_V_V(q3, q1);
-            VMV_V_V(q4, q0);
-            VMV_V_V(q2, q3);
-            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64);
-            VID_V(q5, VECTOR_UNMASKED);
-            VMSEQ_VI(VMASK, q5, 1, VECTOR_UNMASKED);
-            VSLIDEUP_VI(q2, q3, 1, VECTOR_MASKED);
-            VMERGE_VVM(q4, q4, q2);
-            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64);
-            VID_V(d0, VECTOR_UNMASKED);
-            VMSEQ_VI(VMASK, d0, 0, VECTOR_UNMASKED);
-            VSLIDEDOWN_VI(q5, q0, 1, VECTOR_MASKED);
-            VMV_V_V(q2, q3);
-            VSLIDEDOWN_VI(q2, q3, 1, VECTOR_MASKED);
-            VMERGE_VVM(q2, q2, q5);
-            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64);
-            VFSUB_VV(q0, q4, q2, VECTOR_UNMASKED);
-            d0 = vpu_get_scratch(dyn);
-            d1 = vpu_get_scratch(dyn);
-            MOV64x(x4, 0x0008000000000000LL);
-            VOR_VX(d0, q4, x4, VECTOR_UNMASKED);
-            VMFNE_VV(d1, q4, q4, VECTOR_UNMASKED);
-            VMFNE_VV(q5, q2, q2, VECTOR_UNMASKED);
-            VMAND_MM(VMASK, q5, q5);
-            VMERGE_VVM(q0, q0, q2);
-            VMAND_MM(VMASK, d1, d1);
-            VMERGE_VVM(q0, q0, d0);
-            VMOR_MM(q5, q5, d1);
-            VMAND_MM(VMASK, q5, q5);
-            VOR_VX(q0, q0, x4, VECTOR_MASKED);
-            VMFNE_VV(d1, q0, q0, VECTOR_UNMASKED);
-            VMNAND_MM(q5, q5, q5);
-            VMAND_MM(d1, d1, q5);
-            MOV64x(x4, 0xFFF8000000000000LL);
-            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64);
-            VMV_V_X(d0, x4);
-            VMAND_MM(VMASK, d1, d1);
-            VMERGE_VVM(q0, q0, d0);
-            break;
+        }
         case 0x7E:
             return 0;
         case 0x7F:

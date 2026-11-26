@@ -1552,7 +1552,7 @@ uintptr_t dynarec64_AVX_66_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             simd_store_reg(dyn, ninst, x1, v0, gd, 16, VECTOR_SEW32);
             break;
         case 0x7C:
-        case 0x7D:
+        case 0x7D: {
             if (!BOX64ENV(dynarec_fastnan)) return 0;
             if (opcode == 0x7C) {
                 INST_NAME("VHADDPD Gx, Vx, Ex");
@@ -1561,29 +1561,25 @@ uintptr_t dynarec64_AVX_66_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             }
             nextop = F8;
             GETGY_empty_VYEY_vector(v0, q0, q1, VECTOR_SEW64);
-            q2 = vpu_get_scratch(dyn);
-            q3 = vpu_get_scratch(dyn);
-            q4 = vpu_get_scratch(dyn);
-            q5 = vpu_get_scratch(dyn);
-            VSLIDEDOWN_VI(q2, q0, 1, VECTOR_UNMASKED);
+            int even_terms = vpu_get_scratch(dyn);
+            int odd_terms = vpu_get_scratch(dyn);
+            if (!vex.l && q0 == q1) {
+                VRGATHER_VI(even_terms, q0, 0, VECTOR_UNMASKED);
+                VRGATHER_VI(odd_terms, q0, 1, VECTOR_UNMASKED);
+            } else {
+                VSLIDE1UP_VX(even_terms, q1, xZR, VECTOR_UNMASKED);
+                VSLIDEDOWN_VI(odd_terms, q0, 1, VECTOR_UNMASKED);
+                VECTOR_LOAD_VMASK(vex.l ? 0x0a : 0x02, x4);
+                VMERGE_VVM(even_terms, q0, even_terms);
+                VMERGE_VVM(odd_terms, odd_terms, q1);
+            }
             if (opcode == 0x7C)
-                VFADD_VV(q2, q0, q2, VECTOR_UNMASKED);
+                VFADD_VV(v0, even_terms, odd_terms, VECTOR_UNMASKED);
             else
-                VFSUB_VV(q2, q0, q2, VECTOR_UNMASKED);
-            VSLIDEDOWN_VI(q3, q1, 1, VECTOR_UNMASKED);
-            if (opcode == 0x7C)
-                VFADD_VV(q3, q1, q3, VECTOR_UNMASKED);
-            else
-                VFSUB_VV(q3, q1, q3, VECTOR_UNMASKED);
-            rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 16);
-            VID_V(q4, VECTOR_UNMASKED);
-            VAND_VI(q4, q4, -2, VECTOR_UNMASKED);
-            simd_set_width(dyn, ninst, x1, VECTOR_SEW64, 16 << vex.l);
-            VRGATHEREI16_VV(q5, q3, q4, VECTOR_UNMASKED);
-            VECTOR_LOAD_VMASK(vex.l ? 0x0a : 0x02, x4);
-            VMERGE_VVM(v0, q2, q5);
+                VFSUB_VV(v0, even_terms, odd_terms, VECTOR_UNMASKED);
             PUTGY_vector(v0, VECTOR_SEW64);
             break;
+        }
         case 0xF7:
             INST_NAME("VMASKMOVDQU Gx, Ex");
             UP32_READ(xRDI);
