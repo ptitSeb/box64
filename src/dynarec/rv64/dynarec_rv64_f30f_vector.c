@@ -533,6 +533,26 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
         case 0xE6:
             INST_NAME("CVTDQ2PD Gx, Ex");
             nextop = F8;
+            if (!cpuext.xtheadvector) {
+                if (MODREG) {
+                    v1 = simd_access(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), SIMD_LO64, 0);
+                } else {
+                    SMREAD();
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 0);
+                    v1 = vpu_get_scratch(dyn);
+                    rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMULF2, 8);
+                    VLE32_V(v1, ed, VECTOR_UNMASKED, VECTOR_NFIELD1);
+                }
+                GETGX_empty_vector(v0);
+                if (v1 == v0) {
+                    int input = vpu_get_scratch(dyn);
+                    VMV1R_V(input, v1);
+                    v1 = input;
+                }
+                rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMULF2, 8);
+                VFWCVT_F_X_V(v0, v1, VECTOR_UNMASKED);
+                break;
+            }
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW64);
             if (MODREG) {
                 v1 = simd_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0, VECTOR_SEW64);
