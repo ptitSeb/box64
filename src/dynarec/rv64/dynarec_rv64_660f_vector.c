@@ -770,17 +770,24 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 case 0x28:
                     INST_NAME("PMULDQ Gx, Ex");
                     nextop = F8;
-                    if (cpuext.vlen >= 32) {
-                        SET_ELEMENT_WIDTH(x1, VECTOR_SEW64);
-                        GETGX_vector(v0, 1, VECTOR_SEW64);
-                        GETEX_vector(v1, 0, 0, VECTOR_SEW64);
-                        d1 = vpu_get_scratch(dyn);
-                        ADDI(x2, xZR, 32);
-                        VSLL_VX(v0, v0, x2, VECTOR_UNMASKED);
-                        VSRA_VX(v0, v0, x2, VECTOR_UNMASKED);
-                        VSLL_VX(d1, v1, x2, VECTOR_UNMASKED);
-                        VSRA_VX(d1, d1, x2, VECTOR_UNMASKED);
-                        VMUL_VV(v0, v0, d1, VECTOR_UNMASKED);
+                    if (!cpuext.xtheadvector) {
+                        gd = ((nextop & 0x38) >> 3) + (rex.r << 3);
+                        v0 = simd_access(dyn, ninst, x1, gd, SIMD_XMM, 1);
+                        if (MODREG) {
+                            v1 = simd_access(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), SIMD_XMM, 0);
+                        } else {
+                            SET_ELEMENT_WIDTH(x1, VECTOR_SEW32);
+                            GETEX_vector(v1, 0, 0, VECTOR_SEW32);
+                        }
+                        rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMULF2, 8);
+                        int left_dwords = vpu_get_scratch(dyn);
+                        int right_dwords = left_dwords;
+                        VNSRL_WI(left_dwords, v0, 0, VECTOR_UNMASKED);
+                        if (v0 != v1) {
+                            right_dwords = vpu_get_scratch(dyn);
+                            VNSRL_WI(right_dwords, v1, 0, VECTOR_UNMASKED);
+                        }
+                        VWMUL_VV(v0, left_dwords, right_dwords, VECTOR_UNMASKED);
                     } else {
                         SET_ELEMENT_WIDTH(x1, VECTOR_SEW32);
                         GETGX_vector(v0, 1, VECTOR_SEW32);
@@ -3031,15 +3038,24 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
         case 0xF4:
             INST_NAME("PMULUDQ Gx, Ex");
             nextop = F8;
-            if (cpuext.vlen >= 32) {
-                SET_ELEMENT_WIDTH(x1, VECTOR_SEW64);
-                GETGX_vector(v0, 1, VECTOR_SEW64);
-                GETEX_vector(v1, 0, 0, VECTOR_SEW64);
-                d1 = vpu_get_scratch(dyn);
-                MOV64x(x2, 0xffffffffULL);
-                VAND_VX(v0, v0, x2, VECTOR_UNMASKED);
-                VAND_VX(d1, v1, x2, VECTOR_UNMASKED);
-                VMUL_VV(v0, v0, d1, VECTOR_UNMASKED);
+            if (!cpuext.xtheadvector) {
+                gd = ((nextop & 0x38) >> 3) + (rex.r << 3);
+                v0 = simd_access(dyn, ninst, x1, gd, SIMD_XMM, 1);
+                if (MODREG) {
+                    v1 = simd_access(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), SIMD_XMM, 0);
+                } else {
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW64);
+                    GETEX_vector(v1, 0, 0, VECTOR_SEW64);
+                }
+                rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMULF2, 8);
+                int left_dwords = vpu_get_scratch(dyn);
+                int right_dwords = left_dwords;
+                VNSRL_WI(left_dwords, v0, 0, VECTOR_UNMASKED);
+                if (v0 != v1) {
+                    right_dwords = vpu_get_scratch(dyn);
+                    VNSRL_WI(right_dwords, v1, 0, VECTOR_UNMASKED);
+                }
+                VWMULU_VV(v0, left_dwords, right_dwords, VECTOR_UNMASKED);
             } else {
                 SET_ELEMENT_WIDTH(x1, VECTOR_SEW32);
                 GETGX_vector(v0, 1, VECTOR_SEW32);
