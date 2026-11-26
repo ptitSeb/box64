@@ -492,97 +492,74 @@ uintptr_t dynarec64_AVX_66_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             break;
         }
         case 0x63:
-            INST_NAME("VPACKSSWB Gx, Vx, Ex");
-            nextop = F8;
-            GETGY_empty_VYEY_vector(v0, q0, q1, VECTOR_SEW16);
-            q2 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-            if (vex.l) {
-                q3 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-                q4 = vpu_get_scratch(dyn);
-                simd_set_width(dyn, ninst, x1, VECTOR_SEW16, 32);
-                VMV_V_V(q2, q0);
-                if (q1 & 1) {
-                    VMV_V_V(q3, q1);
-                    q1 = q3;
-                }
-                rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL2, 64);
-                VSLIDEUP_VI_SAFE(q2, q1, 16, VECTOR_UNMASKED);
-                simd_set_width(dyn, ninst, x1, VECTOR_SEW8, 32);
-                VNCLIP_WI(q4, q2, 0, VECTOR_UNMASKED);
-                rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW64, VECTOR_LMUL1, 32);
-                MOV64x(x4, 0x0003000100020000ULL);
-                VMV_S_X(q3, x4);
-                VRGATHEREI16_VV(v0, q4, q3, VECTOR_UNMASKED);
-            } else {
-                simd_set_width(dyn, ninst, x1, VECTOR_SEW16, 32);
-                VMV_V_V(q2, q0);
-                VSLIDEUP_VI_SAFE(q2, q1, 8, VECTOR_UNMASKED);
-                simd_set_width(dyn, ninst, x1, VECTOR_SEW8, 16);
-                VNCLIP_WI(v0, q2, 0, VECTOR_UNMASKED);
-            }
-            PUTGY_vector(v0, VECTOR_SEW8);
-            break;
-        case 0x6B:
-            INST_NAME("VPACKSSDW Gx, Vx, Ex");
-            nextop = F8;
-            GETGY_empty_VYEY_vector(v0, q0, q1, VECTOR_SEW32);
-            q2 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-            if (vex.l) {
-                q3 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-                q4 = vpu_get_scratch(dyn);
-                simd_set_width(dyn, ninst, x1, VECTOR_SEW32, 32);
-                VMV_V_V(q2, q0);
-                if (q1 & 1) {
-                    VMV_V_V(q3, q1);
-                    q1 = q3;
-                }
-                rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL2, 64);
-                VSLIDEUP_VI_SAFE(q2, q1, 8, VECTOR_UNMASKED);
-                simd_set_width(dyn, ninst, x1, VECTOR_SEW16, 32);
-                VNCLIP_WI(q4, q2, 0, VECTOR_UNMASKED);
-                rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW64, VECTOR_LMUL1, 32);
-                MOV64x(x4, 0x0003000100020000ULL);
-                VMV_S_X(q3, x4);
-                VRGATHEREI16_VV(v0, q4, q3, VECTOR_UNMASKED);
-            } else {
-                simd_set_width(dyn, ninst, x1, VECTOR_SEW32, 32);
-                VMV_V_V(q2, q0);
-                VSLIDEUP_VI_SAFE(q2, q1, 4, VECTOR_UNMASKED);
-                simd_set_width(dyn, ninst, x1, VECTOR_SEW16, 16);
-                VNCLIP_WI(v0, q2, 0, VECTOR_UNMASKED);
-            }
-            PUTGY_vector(v0, VECTOR_SEW16);
-            break;
         case 0x67:
-            INST_NAME("VPACKUSWB Gx, Vx, Ex");
-            nextop = F8;
-            GETGY_empty_VYEY_vector(v0, q0, q1, VECTOR_SEW16);
-            q2 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-            if (vex.l) {
-                q3 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-                q4 = vpu_get_scratch(dyn);
-                simd_set_width(dyn, ninst, x1, VECTOR_SEW16, 32);
-                VMAX_VX(q2, q0, xZR, VECTOR_UNMASKED);
-                VMAX_VX(q3, q1, xZR, VECTOR_UNMASKED);
-                rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL2, 64);
-                VSLIDEUP_VI_SAFE(q2, q3, 16, VECTOR_UNMASKED);
-                simd_set_width(dyn, ninst, x1, VECTOR_SEW8, 32);
-                VNCLIPU_WI(q4, q2, 0, VECTOR_UNMASKED);
-                rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW64, VECTOR_LMUL1, 32);
-                MOV64x(x4, 0x0003000100020000ULL);
-                VMV_S_X(q3, x4);
-                VRGATHEREI16_VV(v0, q4, q3, VECTOR_UNMASKED);
+        case 0x6B: {
+            int wide_sew = opcode == 0x6B ? VECTOR_SEW32 : VECTOR_SEW16;
+            int narrow_sew = wide_sew - 1;
+            int unsigned_output = opcode == 0x67;
+            if (opcode == 0x63) {
+                INST_NAME("VPACKSSWB Gx, Vx, Ex");
+            } else if (unsigned_output) {
+                INST_NAME("VPACKUSWB Gx, Vx, Ex");
             } else {
-                simd_set_width(dyn, ninst, x1, VECTOR_SEW16, 32);
-                VMAX_VX(q2, q0, xZR, VECTOR_UNMASKED);
-                v1 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-                VMAX_VX(v1, q1, xZR, VECTOR_UNMASKED);
-                VSLIDEUP_VI_SAFE(q2, v1, 8, VECTOR_UNMASKED);
-                simd_set_width(dyn, ninst, x1, VECTOR_SEW8, 16);
-                VNCLIPU_WI(v0, q2, 0, VECTOR_UNMASKED);
+                INST_NAME("VPACKSSDW Gx, Vx, Ex");
             }
-            PUTGY_vector(v0, VECTOR_SEW8);
+            nextop = F8;
+            unsigned regions = vex.l ? SIMD_YMM : SIMD_XMM;
+            q0 = simd_access(dyn, ninst, x1, vex.v, regions, 0);
+            if (MODREG) {
+                q1 = simd_access(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), regions, 0);
+            } else {
+                GETEY_vector(q1, 0, wide_sew);
+            }
+            GETGY_empty_vector(v0);
+            if (vex.l) {
+                int packed_left = vpu_get_scratch(dyn);
+                int packed_right = q0 == q1 ? packed_left : vpu_get_scratch(dyn);
+                if (unsigned_output) {
+                    SET_AVX_VECTOR_WIDTH(x1, wide_sew);
+                    VMAX_VX(packed_left, q0, xZR, VECTOR_UNMASKED);
+                    if (q0 != q1) { VMAX_VX(packed_right, q1, xZR, VECTOR_UNMASKED); }
+                    rvv_set_vl_for_width(dyn, ninst, x1, narrow_sew, VECTOR_LMULF2, 16);
+                    VNCLIPU_WI(packed_left, packed_left, 0, VECTOR_UNMASKED);
+                    if (q0 != q1) { VNCLIPU_WI(packed_right, packed_right, 0, VECTOR_UNMASKED); }
+                } else {
+                    rvv_set_vl_for_width(dyn, ninst, x1, narrow_sew, VECTOR_LMULF2, 16);
+                    VNCLIP_WI(packed_left, q0, 0, VECTOR_UNMASKED);
+                    if (q0 != q1) { VNCLIP_WI(packed_right, q1, 0, VECTOR_UNMASKED); }
+                }
+                SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW64);
+                uint64_t lane_indices = 0x0001000100000000ULL;
+                if (q0 != q1) {
+                    VSLIDEUP_VI(packed_left, packed_right, 2, VECTOR_UNMASKED);
+                    lane_indices = 0x0003000100020000ULL;
+                }
+                int indices = vpu_get_scratch(dyn);
+                MOV64x(x4, lane_indices);
+                VMV_S_X(indices, x4);
+                VRGATHEREI16_VV(v0, packed_left, indices, VECTOR_UNMASKED);
+            } else {
+                int joined = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+                simd_set_width(dyn, ninst, x1, wide_sew, 32);
+                if (unsigned_output) {
+                    int positive_right = vpu_get_scratch(dyn);
+                    VMAX_VX(joined, q0, xZR, VECTOR_UNMASKED);
+                    VMAX_VX(positive_right, q1, xZR, VECTOR_UNMASKED);
+                    q1 = positive_right;
+                } else {
+                    VMV_V_V(joined, q0);
+                }
+                VSLIDEUP_VI(joined, q1, 16 >> wide_sew, VECTOR_UNMASKED);
+                SET_AVX_VECTOR_WIDTH(x1, narrow_sew);
+                if (unsigned_output) {
+                    VNCLIPU_WI(v0, joined, 0, VECTOR_UNMASKED);
+                } else {
+                    VNCLIP_WI(v0, joined, 0, VECTOR_UNMASKED);
+                }
+            }
+            PUTGY_vector(v0, narrow_sew);
             break;
+        }
         case 0x6C:
             INST_NAME("VPUNPCKLQDQ Gx, Vx, Ex");
             nextop = F8;

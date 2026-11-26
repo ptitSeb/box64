@@ -499,36 +499,49 @@ uintptr_t dynarec64_AVX_66_0F38_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             VLE8_V(v0, ed, VECTOR_UNMASKED, VECTOR_NFIELD1);
             PUTGY_vector(v0, VECTOR_SEW8);
             break;
-        case 0x2B:
+        case 0x2B: {
             INST_NAME("VPACKUSDW Gx, Vx, Ex");
             nextop = F8;
-            GETGY_empty_VYEY_vector(v0, q0, q1, VECTOR_SEW32);
-            q2 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-            simd_set_width(dyn, ninst, x1, VECTOR_SEW32, 16 << vex.l);
-            VMAX_VX(q2, q0, xZR, VECTOR_UNMASKED);
-            v1 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-            VMAX_VX(v1, q1, xZR, VECTOR_UNMASKED);
-            if (vex.l) {
-                rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL1, 16);
-                VSLIDEDOWN_VI(q2 + 1, q2, 4, VECTOR_UNMASKED); // hi[0..3] = a[4..7]
-                simd_set_width(dyn, ninst, x1, VECTOR_SEW32, 32);
-                VSLIDEUP_VI_SAFE(q2, v1, 4, VECTOR_UNMASKED); // lo[4..7] = b[0..3]
-                rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL1, 16);
-                VSLIDEDOWN_VI(v1 + 1, v1, 4, VECTOR_UNMASKED); // v1 hi[0..3] = b[4..7]
-                simd_set_width(dyn, ninst, x1, VECTOR_SEW32, 32);
-                VSLIDEUP_VI_SAFE(q2 + 1, v1 + 1, 4, VECTOR_UNMASKED); // hi[4..7] = b[4..7]
-                if (cpuext.vlen > 32) {
-                    rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL1, 64);
-                    VSLIDEUP_VI_SAFE(q2, q2 + 1, 8, VECTOR_UNMASKED);
-                }
+            unsigned regions = vex.l ? SIMD_YMM : SIMD_XMM;
+            q0 = simd_access(dyn, ninst, x1, vex.v, regions, 0);
+            if (MODREG) {
+                q1 = simd_access(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), regions, 0);
             } else {
-                rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL1, 32);
-                VSLIDEUP_VI_SAFE(q2, v1, 4, VECTOR_UNMASKED);
+                GETEY_vector(q1, 0, VECTOR_SEW32);
             }
-            simd_set_width(dyn, ninst, x1, VECTOR_SEW16, 16 << vex.l);
-            VNCLIPU_WI(v0, q2, 0, VECTOR_UNMASKED);
+            GETGY_empty_vector(v0);
+            if (vex.l) {
+                int packed_left = vpu_get_scratch(dyn);
+                int packed_right = q0 == q1 ? packed_left : vpu_get_scratch(dyn);
+                SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW32);
+                VMAX_VX(packed_left, q0, xZR, VECTOR_UNMASKED);
+                if (q0 != q1) { VMAX_VX(packed_right, q1, xZR, VECTOR_UNMASKED); }
+                rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMULF2, 16);
+                VNCLIPU_WI(packed_left, packed_left, 0, VECTOR_UNMASKED);
+                if (q0 != q1) { VNCLIPU_WI(packed_right, packed_right, 0, VECTOR_UNMASKED); }
+                SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW64);
+                uint64_t lane_indices = 0x0001000100000000ULL;
+                if (q0 != q1) {
+                    VSLIDEUP_VI(packed_left, packed_right, 2, VECTOR_UNMASKED);
+                    lane_indices = 0x0003000100020000ULL;
+                }
+                int indices = vpu_get_scratch(dyn);
+                MOV64x(x4, lane_indices);
+                VMV_S_X(indices, x4);
+                VRGATHEREI16_VV(v0, packed_left, indices, VECTOR_UNMASKED);
+            } else {
+                int joined = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+                int positive_right = vpu_get_scratch(dyn);
+                simd_set_width(dyn, ninst, x1, VECTOR_SEW32, 32);
+                VMAX_VX(joined, q0, xZR, VECTOR_UNMASKED);
+                VMAX_VX(positive_right, q1, xZR, VECTOR_UNMASKED);
+                VSLIDEUP_VI(joined, positive_right, 4, VECTOR_UNMASKED);
+                SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW16);
+                VNCLIPU_WI(v0, joined, 0, VECTOR_UNMASKED);
+            }
             PUTGY_vector(v0, VECTOR_SEW16);
             break;
+        }
         case 0x2C:
             INST_NAME("VMASKMOVPS Gx, Vx, Ex");
             nextop = F8;
