@@ -330,6 +330,8 @@ static void* pthread_routine(void* p)
 	pthread_setspecific(thread_key, p);
 	// call the function
 	emuthread_t *et = (emuthread_t*)p;
+	while(et->pthread_t_addr && !__atomic_load_n(&et->pthread_t_ready, __ATOMIC_ACQUIRE))
+		SchedYield();
 	et->emu->type = EMUTYPE_MAIN;
 	// setup callstack and run...
 	x64emu_t* emu = et->emu;
@@ -658,6 +660,7 @@ EXPORT int my_pthread_create(x64emu_t *emu, void* t, void* attr, void* start_rou
 	et->emu = emuthread;
 	et->fnc = (uintptr_t)start_routine;
 	et->arg = arg;
+	et->pthread_t_addr = t;
 	#ifdef DYNAREC
 	if(BOX64ENV(dynarec)) {
 		// pre-creation of the JIT code for the entry point of the thread
@@ -674,9 +677,12 @@ EXPORT int my_pthread_create(x64emu_t *emu, void* t, void* attr, void* start_rou
 	#endif
 	// create thread
 	PTHREAD_ATTR_ALIGN(attr);
-	return pthread_create((pthread_t*)t, PTHREAD_ATTR(attr),
+	int ret = pthread_create((pthread_t*)t, PTHREAD_ATTR(attr),
 		pthread_routine, et);
 	// no need too unalign for attr, it's const
+	// publish the guest pthread_t before the new thread runs guest code
+	__atomic_store_n(&et->pthread_t_ready, 1, __ATOMIC_RELEASE);
+	return ret;
 }
 
 void* my_prepare_thread(x64emu_t *emu, void* f, void* arg, int ssize, void** pet)
