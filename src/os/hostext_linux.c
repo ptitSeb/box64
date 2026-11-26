@@ -37,7 +37,7 @@ static int Check(void* block)
     // Clear instruction cache
     __builtin___clear_cache(block, block+box64_pagesize);
     // Setup SIGILL signal handler
-    __sighandler_t old = signal(SIGILL, detect_sigill);
+    sighandler_t old = signal(SIGILL, detect_sigill);
     if(sigsetjmp(sigbuf, 1)) {
         // didn't work, extension not present
         signal(SIGILL, old);
