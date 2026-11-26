@@ -1636,25 +1636,23 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             VADD_VV(v0, v0, v1, VECTOR_UNMASKED);
             break;
         case 0xE0:
-            INST_NAME("PAVGB Gm, Em");
+        case 0xE3: {
+            INST_NAME(opcode == 0xE0 ? "PAVGB Gm, Em" : "PAVGW Gm, Em");
             nextop = F8;
             GETGM_vector(v0);
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW64);
             GETEM_vector(v1, 0);
-            SET_ELEMENT_WIDTH(x1, VECTOR_SEW8);
-            VAADDU_VV(v0, v0, v1, VECTOR_UNMASKED);
-            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64);
+            if (v0 != v1) {
+                int difference = vpu_get_scratch(dyn);
+                SET_ELEMENT_WIDTH(x1, opcode == 0xE0 ? VECTOR_SEW8 : VECTOR_SEW16);
+                VXOR_VV(difference, v0, v1, VECTOR_UNMASKED);
+                VOR_VV(v0, v0, v1, VECTOR_UNMASKED);
+                VSRL_VI(difference, difference, 1, VECTOR_UNMASKED);
+                VSUB_VV(v0, v0, difference, VECTOR_UNMASKED);
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEW64);
+            }
             break;
-        case 0xE3:
-            INST_NAME("PAVGW Gm, Em");
-            nextop = F8;
-            GETGM_vector(v0);
-            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64);
-            GETEM_vector(v1, 0);
-            SET_ELEMENT_WIDTH(x1, VECTOR_SEW16);
-            VAADDU_VV(v0, v0, v1, VECTOR_UNMASKED);
-            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64);
-            break;
+        }
         case 0xEA:
             INST_NAME("PMINSW Gm, Em");
             nextop = F8;

@@ -2782,23 +2782,22 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             VAND_VV(q0, q1, q0, VECTOR_UNMASKED);
             break;
         case 0xE0:
-            INST_NAME("PAVGB Gx, Ex");
+        case 0xE3: {
+            INST_NAME(opcode == 0xE0 ? "PAVGB Gx, Ex" : "PAVGW Gx, Ex");
             nextop = F8;
-            SET_ELEMENT_WIDTH(x1, VECTOR_SEW8);
-            GETGX_vector(q0, 1, VECTOR_SEW8);
-            GETEX_vector(q1, 0, 0, VECTOR_SEW8);
-            if (cpuext.xtheadvector) { // lack of vaddu.vv
-                v0 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-                VWADDU_VV(v0, q0, q1, VECTOR_UNMASKED);
-                rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL2, 32);
-                VADD_VI(v0, v0, 1, VECTOR_UNMASKED);
-                rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW8, VECTOR_LMUL1, 16);
-                VNSRL_WI(q0, v0, 1, VECTOR_UNMASKED);
-            } else {
-                CSRRWI(xZR, 0b00 /* rnu */, 0x00A /* vxrm */);
-                VAADDU_VV(q0, q0, q1, VECTOR_UNMASKED);
+            const int width = opcode == 0xE0 ? VECTOR_SEW8 : VECTOR_SEW16;
+            SET_ELEMENT_WIDTH(x1, width);
+            GETGX_vector(q0, 1, width);
+            GETEX_vector(q1, 0, 0, width);
+            if (q0 != q1) {
+                int difference = vpu_get_scratch(dyn);
+                VXOR_VV(difference, q0, q1, VECTOR_UNMASKED);
+                VOR_VV(q0, q0, q1, VECTOR_UNMASKED);
+                VSRL_VI(difference, difference, 1, VECTOR_UNMASKED);
+                VSUB_VV(q0, q0, difference, VECTOR_UNMASKED);
             }
             break;
+        }
         case 0xE1:
         case 0xE2:
             INST_NAME(opcode == 0xE1 ? "PSRAW Gx, Ex" : "PSRAD Gx, Ex");
@@ -2819,24 +2818,6 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             VMV_X_S(x4, v1);
             q0 = simd_get(dyn, ninst, x1, gd, 16, opcode == 0xE1 ? VECTOR_SEW16 : VECTOR_SEW32, 1);
             VSRA_VX(q0, q0, x4, VECTOR_UNMASKED);
-            break;
-        case 0xE3:
-            INST_NAME("PAVGW Gx, Ex");
-            nextop = F8;
-            SET_ELEMENT_WIDTH(x1, VECTOR_SEW16);
-            GETGX_vector(q0, 1, VECTOR_SEW16);
-            GETEX_vector(q1, 0, 0, VECTOR_SEW16);
-            if (cpuext.xtheadvector) { // lack of vaddu.vv
-                v0 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-                VWADDU_VV(v0, q0, q1, VECTOR_UNMASKED);
-                rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL2, 32);
-                VADD_VI(v0, v0, 1, VECTOR_UNMASKED);
-                rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 16);
-                VNSRL_WI(q0, v0, 1, VECTOR_UNMASKED);
-            } else {
-                CSRRWI(xZR, 0b00 /* rnu */, 0x00A /* vxrm */);
-                VAADDU_VV(q0, q0, q1, VECTOR_UNMASKED);
-            }
             break;
         case 0xE4:
             INST_NAME("PMULHUW Gx, Ex");
