@@ -205,3 +205,10 @@ endif()
 if(NOT HAVE_ERROR AND NOT HAVE_ERROR_LIB)
     message(FATAL_ERROR "error() is unavailable")
 endif()
+
+check_c_source_compiles("#include <locale.h>
+int main(void){ struct __locale_struct l = { .__ctype_b = 0 }; return 0; }" LOCALE_STRUCT___CTYPE_B)
+
+if(LOCALE_STRUCT___CTYPE_B) # glibc, other libc use the generic opaque locale_t path
+  add_compile_definitions("HAVE_LOCALE_STRUCT___CTYPE_B")
+endif()

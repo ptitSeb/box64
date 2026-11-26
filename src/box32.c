@@ -4,6 +4,9 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <errno.h>
+#include <string.h>
+#include <ctype.h>
+#include <locale.h>
 
 #include "debug.h"
 #include "box32.h"
@@ -170,12 +173,36 @@ typedef struct struct_locale_32_s {
     int tohigher[384];
 } struct_locale_32_t;
 
+#ifndef HAVE_LOCALE_STRUCT___CTYPE_B
+// glibc ctype/ctype.h _ISbit(), little-endian (x86 guest)
+#define GLIBC_ISBIT(bit) ((bit) < 8 ? ((1 << (bit)) << 8) : ((1 << (bit)) >> 8))
+static const struct {
+    int (*is)(int, locale_t);
+    unsigned short bit;
+} ctype_class[] = {
+    { isupper_l,  GLIBC_ISBIT(0)  },    /* UPPERCASE.  */
+    { islower_l,  GLIBC_ISBIT(1)  },    /* lowercase.  */
+    { isalpha_l,  GLIBC_ISBIT(2)  },    /* Alphabetic.  */
+    { isdigit_l,  GLIBC_ISBIT(3)  },    /* Numeric.  */
+    { isxdigit_l, GLIBC_ISBIT(4)  },    /* Hexadecimal numeric.  */
+    { isspace_l,  GLIBC_ISBIT(5)  },    /* Whitespace.  */
+    { isprint_l,  GLIBC_ISBIT(6)  },    /* Printing.  */
+    { isgraph_l,  GLIBC_ISBIT(7)  },    /* Graphical.  */
+    { isblank_l,  GLIBC_ISBIT(8)  },    /* Blank (usually SPC and TAB).  */
+    { iscntrl_l,  GLIBC_ISBIT(9)  },    /* Control character.  */
+    { ispunct_l,  GLIBC_ISBIT(10) },    /* Punctuation.  */
+    { isalnum_l,  GLIBC_ISBIT(11) },    /* Alphanumeric.  */
+};
+#undef GLIBC_ISBIT
+#endif
+
 void to_struct_locale(ptr_t d, const struct_locale_t *src) {
 	if (!src) return;
 	struct_locale_32_t* dest = from_ptrv(d);
     // save the original locale
     dest->sign = LOCALE_SIGN;
     dest->org = (void*)src;
+#ifdef HAVE_LOCALE_STRUCT___CTYPE_B
     //copy the 2 arrays
     for(int i=0; i<13; ++i) {
 	    dest->p0[i] = to_hashv(src->p0[i]);
@@ -187,17 +214,41 @@ void to_struct_locale(ptr_t d, const struct_locale_t *src) {
     memcpy(dest->type_b, src->p1-128*sizeof(short), 384*sizeof(short));
     memcpy(dest->tolower, src->p2-128*sizeof(int), 384*sizeof(int));
     memcpy(dest->tohigher, src->p3-128*sizeof(int), 384*sizeof(int));
+#else
+    // p0 has no equivalent and stays NULL, names are "C" like gcompat
+    for(int i=0; i<13; ++i) {
+	    dest->p4[i] = to_cstring((char*)"C");
+    }
+    locale_t loc = (locale_t)src;
+    for(int c=-128; c<256; ++c) {
+        // -128..-2 are signed char, mirroring 128..254; -1 is EOF
+        int u = (c < -1) ? c + 256 : c;
+        unsigned short b = 0;
+        for(size_t i=0; i<sizeof(ctype_class)/sizeof(ctype_class[0]); ++i) {
+            if(ctype_class[i].is(u, loc)) {
+                b |= ctype_class[i].bit;
+            }
+        }
+        dest->type_b[c+128] = b;
+        dest->tolower[c+128] = tolower_l(u, loc);
+        dest->tohigher[c+128] = toupper_l(u, loc);
+    }
+#endif
     dest->p1 = to_ptrv(dest->type_b)+128*sizeof(short);
     dest->p2 = to_ptrv(dest->tolower)+128*sizeof(int);
     dest->p3 = to_ptrv(dest->tohigher)+128*sizeof(int);
 }
 void free_struct_locale(const struct_locale_t *src) {
+#ifdef HAVE_LOCALE_STRUCT___CTYPE_B
     for(int i=0; i<13; ++i) {
 	    to_hash_d((uintptr_t)src->p0[i]);
     }
     /*for(int i=0; i<13; ++i) {
 	    to_hash_d((uintptr_t)src->p4[i]);
     }*/
+#else
+    (void)src;
+#endif
 }
 
 // Convert from locale key to original 64bits value
