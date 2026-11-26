@@ -317,9 +317,9 @@ Building with musl needs additional libraries:
 | Library  | Alpine Linux        | Gentoo                        |
 | -------- | ------------------- | ----------------------------- |
 | argp     | `argp-standalone`   | `sys-libs/argp-standalone`    |
-| obstack  | `musl-obstack`      | `sys-libs/obstack-standalone` |
-| fts      | `musl-fts`          | `sys-libs/fts-standalone`     |
-| ucontext | `libucontext`       | `sys-libs/libucontext`        |
+| obstack  | `musl-obstack-dev`  | `sys-libs/obstack-standalone` |
+| fts      | `musl-fts-dev`      | `sys-libs/fts-standalone`     |
+| ucontext | `libucontext-dev`   | `sys-libs/libucontext`        |
 | error    | `musl-legacy-error` | `sys-libs/error-standalone`   |
 
 ----
