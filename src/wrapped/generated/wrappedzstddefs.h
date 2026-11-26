@@ -5,5 +5,6 @@
 #ifndef __wrappedzstdDEFS_H_
 #define __wrappedzstdDEFS_H_
 
+#define pFEM pFEPPP
 
 #endif // __wrappedzstdDEFS_H_
