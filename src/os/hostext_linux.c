@@ -173,7 +173,7 @@ void rv64Detect(void)
 
         block = (uint32_t*)my_block;
         VSETIVLI(x5, 4, (VECTOR_SEW32 << 3) | VECTOR_LMUL1); // vsetivli x5, 4, e32, m1
-        VROR_VI(3, 4, 1, 1);                                 // vror.vi v3, v4, 1
+        VWSLL_VI(2, 4, 1, VECTOR_UNMASKED);
         ADDI(A0, xZR, 42);
         BR(xRA);
         cpuext.zvbb = Check(my_block);
