@@ -1224,10 +1224,6 @@ uintptr_t dynarec64_AVX_66_0F38_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             PUTGY_vector(v0, VECTOR_SEW32);
             break;
         case 0x13: {
-            if (!cpuext.zvfh) {
-                BARRIER(BARRIER_FLOAT);
-                return 0;
-            }
             INST_NAME("VCVTPH2PS Gx, Ex");
             nextop = F8;
             if (MODREG) {
@@ -1241,6 +1237,35 @@ uintptr_t dynarec64_AVX_66_0F38_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
                 VLE16_V(v1, ed, VECTOR_UNMASKED, VECTOR_NFIELD1);
             }
             GETGY_empty_vector(v0);
+            if (!cpuext.zvfh) {
+                SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW32);
+                int sign = vpu_get_scratch(dyn);
+                int magnitude = vpu_get_scratch(dyn);
+                VZEXT_VF2(sign, v1, VECTOR_UNMASKED);
+                MOV32w(x4, 0x7fff);
+                VAND_VX(magnitude, sign, x4, VECTOR_UNMASKED);
+                VSLL_VI(sign, sign, 16, VECTOR_UNMASKED);
+                VSLL_VI(v0, magnitude, 13, VECTOR_UNMASKED);
+                MOV32w(x4, 0x38000000);
+                VADD_VX(v0, v0, x4, VECTOR_UNMASKED);
+                MOV32w(x5, 0x7bff);
+                VMSGTU_VX(VMASK, magnitude, x5, VECTOR_UNMASKED);
+                VADD_VX(v0, v0, x4, VECTOR_MASKED);
+                ADDI(x5, x5, 1);
+                VMSGTU_VX(VMASK, magnitude, x5, VECTOR_UNMASKED);
+                MOV32w(x4, 0x00400000);
+                VOR_VX(v0, v0, x4, VECTOR_MASKED);
+                ADDI(x5, xZR, 0x400);
+                VMSLTU_VX(VMASK, magnitude, x5, VECTOR_UNMASKED);
+                MOV32w(x4, 0x3f000000);
+                int bias = fpu_get_scratch(dyn);
+                FMVWX(bias, x4);
+                VOR_VX(v0, magnitude, x4, VECTOR_MASKED);
+                VFSUB_VF(v0, v0, bias, VECTOR_MASKED);
+                VFSGNJ_VV(v0, v0, sign, VECTOR_UNMASKED);
+                PUTGY_vector(v0, VECTOR_SEW32);
+                break;
+            }
             rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, vex.l ? 16 : 8);
             int expanded = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
             int payload = vpu_get_scratch(dyn);
