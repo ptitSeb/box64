@@ -1069,10 +1069,22 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     SET_ELEMENT_WIDTH(x1, VECTOR_SEW16);
                     GETEX_vector(q0, 0, 0, VECTOR_SEW16);
                     GETGX_empty_vector(v0);
+                    if (cpuext.zvbb) {
+                        int group = cpuext.vlen >= 32 ? VECTOR_LMUL1 : VECTOR_LMUL2;
+                        int ranked_values = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+                        int first_min = vpu_get_scratch_lmul(dyn, group);
+                        VWSLL_VI(ranked_values, q0, 16, VECTOR_UNMASKED);
+                        rvv_set_config(dyn, ninst, x1, VECTOR_SEW32, group, 8);
+                        VID_V(first_min, VECTOR_UNMASKED);
+                        VOR_VV(ranked_values, ranked_values, first_min, VECTOR_UNMASKED);
+                        VMV_V_I(first_min, 0);
+                        VREDMINU_VS(first_min, ranked_values, ranked_values, VECTOR_UNMASKED);
+                        SET_ELEMENT_WIDTH(x1, VECTOR_SEW32);
+                        VROR_VI(v0, first_min, 16, VECTOR_UNMASKED);
+                        break;
+                    }
                     q1 = vpu_get_scratch(dyn);
-                    q2 = vpu_get_scratch(dyn);
-                    VMV_V_I(q2, -1);
-                    VREDMINU_VS(q1, q0, q2, VECTOR_UNMASKED);
+                    VREDMINU_VS(q1, q0, q0, VECTOR_UNMASKED);
                     VMV_X_S(x4, q1);
                     ZEXTH(x4, x4);
                     VMSEQ_VX(VMASK, q0, x4, VECTOR_UNMASKED);
