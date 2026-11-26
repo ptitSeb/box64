@@ -387,6 +387,7 @@ set(BOX64_ROOT ${CMAKE_SOURCE_DIR})
 add_definitions(-std=gnu11 -funwind-tables -fvisibility=hidden)
 add_definitions(-D_GNU_SOURCE=1)
 add_definitions(-D_FILE_OFFSET_BITS=64)
+list(APPEND CMAKE_REQUIRED_DEFINITIONS -D_GNU_SOURCE)
 
 if(USE_CCACHE)
     find_program(CCACHE_FOUND ccache)
@@ -417,6 +418,8 @@ add_custom_target(generate_dynacache_hashes
     BYPRODUCTS "${DYNACACHE_HASH_HEADER}"
     VERBATIM
 )
+
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/LibcChecks.cmake)
 
 # generated files
 set_source_files_properties(
@@ -477,6 +480,7 @@ set(ELFLOADER_SRC
     "${BOX64_ROOT}/src/libtools/syscall_user_dispatch.c"
     "${BOX64_ROOT}/src/libtools/decopcode.c"
     "${BOX64_ROOT}/src/libtools/threads.c"
+    "${BOX64_ROOT}/src/libtools/libc.c"
     "${BOX64_ROOT}/src/steamwebhelper.c"
     "${BOX64_ROOT}/src/tools/bitutils.c"
     "${BOX64_ROOT}/src/tools/box64stack.c"

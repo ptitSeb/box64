@@ -13,7 +13,7 @@
 #include <sys/mman.h>
 #include <pthread.h>
 #include <signal.h>
-#ifndef ANDROID
+#ifdef USE_BACKTRACE
 #include <execinfo.h>
 #endif
 
@@ -451,7 +451,7 @@ void convert_siginfo_to_32(void* d, void* s, int sig)
     dst->si_signo = src->si_signo;
     dst->si_errno = src->si_errno;
     dst->si_code = src->si_code;
-    memcpy(&dst->_sifields, &src->_sifields, sizeof(siginfo_t) - offsetof(siginfo_t, _sifields));
+    memcpy(&dst->_sifields, &src->SIGINFO_S_SIFIELDS, sizeof(siginfo_t) - offsetof(siginfo_t, SIGINFO_S_SIFIELDS));
     if(sig==X64_SIGILL || sig==X64_SIGFPE || sig==X64_SIGSEGV || sig==X64_SIGBUS)
         dst->_sifields._sigfault.__si_addr = to_ptr(((uintptr_t)src->si_addr)&0xffffffff);  // in case addr is not a 32bits value...
     if(sig==X64_SIGCHLD) {
@@ -785,12 +785,16 @@ int my_sigactionhandler_oldcode_32(x64emu_t* emu, int32_t sig, int simple, sigin
             dynablock_leave_runtime((dynablock_t*)cur_db);
             #endif
             cancel_deferred_signal_processing(emu);
-            #ifdef ANDROID
-            // cannot inject sigmask in jumpbuf, as the data is private and format/offset varies with architecture
+            #ifndef __GLIBC__
+            // cannot inject sigmask in jumpbuf, as the data is private and format/offset varies with libc and architecture
             sigset_t tmp = {0};
             memcpy(&tmp, &sigcontext->uc_sigmask, sigmask_sz);
             sigprocmask(SIG_SETMASK, &tmp, NULL);
+            #ifdef ANDROID
             longjmp(*emu->jmpbuf, skip);
+            #else
+            longjmp(emu->jmpbuf, skip);
+            #endif
             #else
             memcpy(&emu->jmpbuf->__saved_mask, &sigcontext->uc_sigmask, sigmask_sz);
             emu->jmpbuf->__mask_was_saved = 1;
