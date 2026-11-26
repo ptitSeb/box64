@@ -996,17 +996,21 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             } else {
                 const unsigned int byte_offset = u8 & 15;
                 const unsigned int tail_start = 16 - byte_offset;
-                if (vex.l || u8 > 16) {
+                if (vex.l) {
                     const uint32_t lane_tail_mask = ((1u << byte_offset) - 1) << tail_start;
-                    VECTOR_LOAD_VMASK(vex.l ? lane_tail_mask | (lane_tail_mask << 16) : lane_tail_mask, x4);
+                    VECTOR_LOAD_VMASK(lane_tail_mask | (lane_tail_mask << 16), x4);
                 }
                 if (u8 < 16) {
                     VEC_SRC_KEEP(q0, v0);
                     VSLIDEDOWN_VI(v0, q1, byte_offset, VECTOR_UNMASKED);
                     VSLIDEUP_VI(v0, q0, tail_start, vex.l ? VECTOR_MASKED : VECTOR_UNMASKED);
                 } else {
+                    if (!vex.l) {
+                        int xmm_lmul = (VECTOR_LMUL1 - __builtin_ctz(cpuext.vlen / 16u)) & 7;
+                        rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW8, xmm_lmul, 16);
+                    }
                     VSLIDEDOWN_VI(v0, q0, byte_offset, VECTOR_UNMASKED);
-                    VMERGE_VIM(v0, v0, 0);
+                    if (vex.l) VMERGE_VIM(v0, v0, 0);
                 }
             }
             PUTGY_vector(v0, VECTOR_SEW8);
