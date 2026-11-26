@@ -397,24 +397,24 @@ uintptr_t dynarec64_AVX_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t
             if (!BOX64ENV(dynarec_fastnan)) return 0;
             INST_NAME("VCVTPS2PD Gx, Ex");
             nextop = F8;
-            q0 = vpu_get_scratch(dyn);
             if (MODREG) {
-                ed = (nextop & 7) + (rex.b << 3);
-                simd_load_reg(dyn, ninst, x1, q0, ed, 16, VECTOR_SEW32);
+                q0 = simd_access(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), vex.l ? SIMD_XMM : SIMD_LO64, 0);
             } else {
                 SMREAD();
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
-                if (fixedaddress) { ADDI(x4, ed, fixedaddress); ed = x4; fixedaddress = 0; }
-                rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL1, vex.l ? 16 : 8);
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 0);
+                q0 = vpu_get_scratch(dyn);
+                rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMULF2, 8 << vex.l);
                 VLE32_V(q0, ed, VECTOR_UNMASKED, VECTOR_NFIELD1);
             }
-            rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL1, vex.l ? 16 : 8);
-            d0 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-            VFWCVT_F_F_V(d0, q0, VECTOR_UNMASKED);
             GETGY_empty_vector(v0);
-            simd_set_width(dyn, ninst, x1, VECTOR_SEW64, 16 << vex.l);
-            VMV_V_V(v0, d0);
-            PUTGY_vector(v0, VECTOR_SEW64);
+            if (q0 == v0) {
+                int input = vpu_get_scratch(dyn);
+                VMV1R_V(input, q0);
+                q0 = input;
+            }
+            rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMULF2, 8 << vex.l);
+            VFWCVT_F_F_V(v0, q0, VECTOR_UNMASKED);
+            simd_commit(dyn, ninst, gd, vex.l ? SIMD_YMM : SIMD_XMM, vex.l ? 0 : SIMD_HI128);
             break;
         case 0x5B:
             INST_NAME("VCVTDQ2PS Gx, Ex");
