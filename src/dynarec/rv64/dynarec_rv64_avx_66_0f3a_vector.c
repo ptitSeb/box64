@@ -753,35 +753,43 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             nextop = F8;
             GETGY_empty_VYEY_vector_D(v0, q0, q1, VECTOR_SEW32, 1);
             u8 = F8;
-            SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW32);
-            q3 = vpu_get_scratch(dyn);
-            VXOR_VV(q3, q3, q3, VECTOR_UNMASKED);
-            d0 = fpu_get_scratch(dyn);
-            q2 = vpu_get_scratch(dyn);
-            d1 = fpu_get_scratch(dyn);
-            d2 = fpu_get_scratch(dyn);
-            int nl = vex.l ? 2 : 1;
-            for (int L = 0; L < nl; ++L) {
-                FMVWX(d0, xZR); // sum = 0.0f
-                for (int i = 0; i < 4; ++i) {
-                    if ((u8 >> (4 + i)) & 1) {
-                        VSLIDEDOWN_VI(q2, q0, L * 4 + i, VECTOR_UNMASKED);
-                        VFMV_F_S(d1, q2);
-                        VSLIDEDOWN_VI(q2, q1, L * 4 + i, VECTOR_UNMASKED);
-                        VFMV_F_S(d2, q2);
-                        FMULS(d1, d1, d2);
-                        FADDS(d0, d0, d1);
-                    }
-                }
-                int out_mask = u8 & 0xF;
-                out_mask <<= 4 * L;
-                if (out_mask) {
-                    VECTOR_LOAD_VMASK(out_mask, x4);
-                    VFMV_V_F(q2, d0);
-                    VMERGE_VVM(q3, q3, q2);
+            unsigned products_mask = u8 >> 4;
+            unsigned result_mask = u8 & 0x0f;
+            if (products_mask == 0) {
+                VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
+                PUTGY_vector(v0, VECTOR_SEW32);
+                break;
+            }
+            int products = vpu_get_scratch(dyn);
+            int zero = vpu_get_scratch(dyn);
+            int upper = vex.l ? vpu_get_scratch(dyn) : -1;
+            int masked = products_mask != 0x0f;
+            if (masked) VECTOR_LOAD_VMASK(products_mask | (products_mask << 4), x4);
+            VFMUL_VV(products, q0, q1, masked ? VECTOR_MASKED : VECTOR_UNMASKED);
+            if (vex.l) {
+                simd_set_width(dyn, ninst, x1, VECTOR_SEW32, 16);
+                VSLIDEDOWN_VI(upper, products, 4, VECTOR_UNMASKED);
+            }
+            VXOR_VV(zero, zero, zero, VECTOR_UNMASKED);
+            VFREDOSUM_VS(products, products, zero, masked ? VECTOR_MASKED : VECTOR_UNMASKED);
+            if (vex.l) {
+                VFREDOSUM_VS(upper, upper, zero, masked ? VECTOR_MASKED : VECTOR_UNMASKED);
+                SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW32);
+            }
+            if (result_mask == 0x0f) {
+                VRGATHER_VI(v0, products, 0, VECTOR_UNMASKED);
+            } else {
+                VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
+                if (result_mask) {
+                    VECTOR_LOAD_VMASK(result_mask, x4);
+                    VRGATHER_VI(v0, products, 0, VECTOR_MASKED);
                 }
             }
-            PUTGY_vector(q3, VECTOR_SEW32);
+            if (vex.l && result_mask) {
+                VECTOR_LOAD_VMASK(result_mask << 4, x4);
+                VRGATHER_VI(v0, upper, 0, VECTOR_MASKED);
+            }
+            PUTGY_vector(v0, VECTOR_SEW32);
             break;
         }
         case 0x44:

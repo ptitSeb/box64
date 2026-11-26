@@ -1683,25 +1683,37 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                         rvv_set_vl_for_width(dyn, ninst, x1, dyn->vector_eew, VECTOR_LMUL1, 16);
                     }
                     break;
-                case 0x40:
+                case 0x40: {
                     INST_NAME("DPPS Gx, Ex, Ib");
                     nextop = F8;
                     SET_ELEMENT_WIDTH(x1, VECTOR_SEW32);
                     GETGX_vector(q0, 1, VECTOR_SEW32);
                     GETEX_vector(q1, 0, 1, VECTOR_SEW32);
                     u8 = F8;
-                    v0 = vpu_get_scratch(dyn);
-                    v1 = vpu_get_scratch(dyn);
-                    d0 = vpu_get_scratch(dyn);
-                    VXOR_VV(v1, v1, v1, VECTOR_UNMASKED);
-                    VECTOR_LOAD_VMASK((u8 >> 4), x4);
-                    VFMUL_VV(v0, q0, q1, VECTOR_MASKED);
-                    VFREDUSUM_VS(d0, v0, v1, VECTOR_MASKED);
-                    VMV_X_S(x4, d0);
-                    VMV_V_X(d0, x4);
-                    VECTOR_LOAD_VMASK((u8 & 0xf), x4);
-                    VMERGE_VVM(q0, v1, d0);
+                    unsigned products_mask = u8 >> 4;
+                    unsigned result_mask = u8 & 0x0f;
+                    if (products_mask == 0) {
+                        VXOR_VV(q0, q0, q0, VECTOR_UNMASKED);
+                        break;
+                    }
+                    int products = vpu_get_scratch(dyn);
+                    int zero = vpu_get_scratch(dyn);
+                    int masked = products_mask != 0x0f;
+                    if (masked) VECTOR_LOAD_VMASK(products_mask, x4);
+                    VFMUL_VV(products, q0, q1, masked ? VECTOR_MASKED : VECTOR_UNMASKED);
+                    VXOR_VV(zero, zero, zero, VECTOR_UNMASKED);
+                    VFREDUSUM_VS(products, products, zero, masked ? VECTOR_MASKED : VECTOR_UNMASKED);
+                    if (result_mask == 0x0f) {
+                        VRGATHER_VI(q0, products, 0, VECTOR_UNMASKED);
+                    } else {
+                        VMV_V_V(q0, zero);
+                        if (result_mask) {
+                            VECTOR_LOAD_VMASK(result_mask, x4);
+                            VRGATHER_VI(q0, products, 0, VECTOR_MASKED);
+                        }
+                    }
                     break;
+                }
                 case 0x44:
                     if (!cpuext.zvbc) return 0;
                     INST_NAME("PCLMULQDQ Gx, Ex, Ib");
