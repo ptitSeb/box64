@@ -850,6 +850,43 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             PUTGY_vector(v0, VECTOR_SEW32);
             break;
         }
+        case 0x41: {
+            if (vex.l) return 0;
+            INST_NAME("VDPPD Gx, Vx, Ex, Ib");
+            nextop = F8;
+            GETGY_empty_VYEY_vector_D(v0, q0, q1, VECTOR_SEW64, 1);
+            u8 = F8;
+            unsigned products_mask = (u8 >> 4) & 3;
+            unsigned result_mask = u8 & 3;
+            if (products_mask == 0) {
+                VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
+                PUTGY_vector(v0, VECTOR_SEW64);
+                break;
+            }
+            int products = vpu_get_scratch(dyn);
+            if (products_mask == 3) {
+                VFMUL_VV(products, q0, q1, VECTOR_UNMASKED);
+                VECTOR_LOAD_VMASK(2, x4);
+                VFREDOSUM_VS(products, products, products, VECTOR_MASKED);
+            } else {
+                int zero = vpu_get_scratch(dyn);
+                VECTOR_LOAD_VMASK(products_mask, x4);
+                VFMUL_VV(products, q0, q1, VECTOR_MASKED);
+                VXOR_VV(zero, zero, zero, VECTOR_UNMASKED);
+                VFREDOSUM_VS(products, products, zero, VECTOR_MASKED);
+            }
+            if (result_mask == 3) {
+                VRGATHER_VI(v0, products, 0, VECTOR_UNMASKED);
+            } else {
+                VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
+                if (result_mask) {
+                    VECTOR_LOAD_VMASK(result_mask, x4);
+                    VRGATHER_VI(v0, products, 0, VECTOR_MASKED);
+                }
+            }
+            PUTGY_vector(v0, VECTOR_SEW64);
+            break;
+        }
         case 0x44:
             if (!cpuext.zvbc) return 0;
             INST_NAME("VPCLMULQDQ Gx, Vx, Ex, Ib");
