@@ -242,26 +242,37 @@ uintptr_t dynarec64_AVX_66_0F38_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
             GETGY_vector(q0, sew);
             GETEY_vector(q1, 0, sew);
-            v0 = vpu_get_scratch(dyn);
             CLEAR_FLAGS();
+            SET_DFNONE();
+            v0 = q0;
+            IFX (X_ZF | X_CF) {
+                if (q0 != q1) v0 = vpu_get_scratch(dyn);
+            }
             IFX (X_ZF) {
-                VAND_VV(v0, q0, q1, VECTOR_UNMASKED);
+                if (q0 != q1) VAND_VV(v0, q0, q1, VECTOR_UNMASKED);
                 VMSLT_VX(VMASK, v0, xZR, VECTOR_UNMASKED);
-                VMV_X_S(x4, VMASK);
-                ANDI(x4, x4, (1 << ((sew == VECTOR_SEW32 ? 4 : 2) << vex.l)) - 1);
-                SET_FLAGS_EQZ(x4, F_ZF, x5);
+                VFIRST_M(x4, VMASK, VECTOR_UNMASKED);
+                SLTI(x4, x4, 0);
+                SLLI(x4, x4, F_ZF);
+                OR(xFlags, xFlags, x4);
             }
             IFX (X_CF) {
-                if (cpuext.zvbb) {
-                    VANDN_VV(v0, q1, q0, VECTOR_UNMASKED);
+                if (q0 == q1) {
+                    ORI(xFlags, xFlags, 1 << F_CF);
                 } else {
-                    VXOR_VI(v0, q0, 0x1f, VECTOR_UNMASKED);
-                    VAND_VV(v0, v0, q1, VECTOR_UNMASKED);
+                    IFX (X_ZF) {
+                        VXOR_VV(v0, v0, q1, VECTOR_UNMASKED);
+                    } else if (cpuext.zvbb) {
+                        VANDN_VV(v0, q1, q0, VECTOR_UNMASKED);
+                    } else {
+                        VXOR_VI(v0, q0, -1, VECTOR_UNMASKED);
+                        VAND_VV(v0, v0, q1, VECTOR_UNMASKED);
+                    }
+                    VMSLT_VX(VMASK, v0, xZR, VECTOR_UNMASKED);
+                    VFIRST_M(x4, VMASK, VECTOR_UNMASKED);
+                    SLTI(x4, x4, 0);
+                    OR(xFlags, xFlags, x4);
                 }
-                VMSLT_VX(VMASK, v0, xZR, VECTOR_UNMASKED);
-                VMV_X_S(x4, VMASK);
-                ANDI(x4, x4, (1 << ((sew == VECTOR_SEW32 ? 4 : 2) << vex.l)) - 1);
-                SET_FLAGS_EQZ(x4, F_CF, x5);
             }
             break;
         case 0x17:
