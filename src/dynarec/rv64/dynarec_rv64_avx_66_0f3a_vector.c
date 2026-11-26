@@ -255,6 +255,64 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
                 SMWRITE2();
             }
             break;
+        case 0x1D: {
+            if (!cpuext.zvfh) return 0;
+            INST_NAME("VCVTPS2PH Ex, Gx, Ib");
+            nextop = F8;
+            GETG;
+            int source = simd_access(dyn, ninst, x1, gd, vex.l ? SIMD_YMM : SIMD_XMM, 0);
+            if (source & 1) {
+                int aligned = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+                VMV1R_V(aligned, source);
+                source = aligned;
+            }
+            int destination = -1;
+            if (MODREG) {
+                ed = (nextop & 7) + (rex.b << 3);
+                destination = simd_get_reg_empty(dyn, ninst, x1, ed);
+            } else {
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 1);
+            }
+            u8 = F8;
+            int halves = destination < 0 || destination == source || destination == source + 1 ? vpu_get_scratch(dyn) : destination;
+            int sign = vpu_get_scratch(dyn);
+            int payload = vpu_get_scratch(dyn);
+            if (u8 & 4) {
+                LWU(x4, xEmu, offsetof(x64emu_t, mxcsr));
+                SRLI(x4, x4, 12);
+                ANDI(x4, x4, 6);
+                ADDI(x5, xZR, 0x78);
+                SRL(x5, x5, x4);
+                ANDI(x5, x5, 3);
+                SLLI(x5, x5, 5);
+                CSRRW(x6, x5, 0x003);
+            } else if (u8 & 3) {
+                ADDI(x5, xZR, round_round[u8 & 3] << 5);
+                CSRRW(x6, x5, 0x003);
+            } else {
+                CSRRW(x6, xZR, 0x003);
+            }
+            SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW32);
+            VMFNE_VV(VMASK, source, source, VECTOR_UNMASKED);
+            simd_set_width(dyn, ninst, x1, VECTOR_SEW16, 8 << vex.l);
+            VFNCVT_F_F_W(halves, source, VECTOR_UNMASKED);
+            CSRRW(xZR, x6, 0x003);
+            VNSRA_WI(sign, source, 31, VECTOR_UNMASKED);
+            MOV32w(x4, 0x7fff);
+            VOR_VX(sign, sign, x4, VECTOR_UNMASKED);
+            VNSRL_WI(payload, source, 13, VECTOR_UNMASKED);
+            MOV32w(x4, 0x0200);
+            VOR_VX(payload, payload, x4, VECTOR_UNMASKED);
+            VAND_VV(halves, payload, sign, VECTOR_MASKED);
+            if (MODREG) {
+                if (destination != halves) VMV_V_V(destination, halves);
+                simd_commit(dyn, ninst, ed, vex.l ? SIMD_XMM : SIMD_LO64, (vex.l ? 0 : SIMD_HI64) | SIMD_HI128);
+            } else {
+                VSE16_V(halves, ed, VECTOR_UNMASKED, VECTOR_NFIELD1);
+                SMWRITE2();
+            }
+            break;
+        }
         case 0x42: {
             INST_NAME("VMPSADBW Gx, Vx, Ex, Ib");
             nextop = F8;
