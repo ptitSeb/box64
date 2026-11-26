@@ -1824,6 +1824,17 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW64);
             GETEX_vector(v1, 0, 0, VECTOR_SEW64);
             GETGX_empty_vector(v0);
+            if (!cpuext.xtheadvector) {
+                if ((v1 & 1) || v0 == v1 + 1) {
+                    d1 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+                    VMV1R_V(d1, v1);
+                    v1 = d1;
+                }
+                simd_set_width(dyn, ninst, x1, VECTOR_SEW32, 8);
+                VFNCVT_F_F_W(v0, v1, VECTOR_UNMASKED);
+                simd_commit(dyn, ninst, gd, SIMD_LO64, SIMD_HI64);
+                break;
+            }
             if (v1 & 1) {
                 d1 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
                 VMV_V_V(d1, v1);
@@ -1834,7 +1845,6 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             d0 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
             VFNCVT_F_F_W(d0, d1, VECTOR_UNMASKED);
             rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW64, VECTOR_LMUL1, 16);
-            if (!cpuext.xtheadvector) VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
             VMV_X_S(x4, d0);
             VMV_S_X(v0, x4);
             break;

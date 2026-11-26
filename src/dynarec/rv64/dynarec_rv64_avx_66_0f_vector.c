@@ -346,25 +346,16 @@ uintptr_t dynarec64_AVX_66_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             if (!BOX64ENV(dynarec_fastnan)) return 0;
             INST_NAME("VCVTPD2PS Gx, Ex");
             nextop = F8;
-            d0 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-            if (MODREG) {
-                ed = (nextop & 7) + (rex.b << 3);
-                simd_load_reg(dyn, ninst, x1, d0, ed, 16 << vex.l, VECTOR_SEW64);
-            } else {
-                SMREAD();
-                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
-                if (fixedaddress) { ADDI(x4, ed, fixedaddress); ed = x4; fixedaddress = 0; }
-                SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW64);
-                VLE64_V(d0, ed, VECTOR_UNMASKED, VECTOR_NFIELD1);
+            GETEY_vector(q0, 0, VECTOR_SEW64);
+            GETGY_empty_vector(v0);
+            if ((q0 & 1) || v0 == q0 + 1) {
+                d0 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+                VMV1R_V(d0, q0);
+                q0 = d0;
             }
-            v0 = vpu_get_scratch(dyn);
-            if (!vex.l && !cpuext.xtheadvector) {
-                VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
-            }
-            rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL1, vex.l ? 16 : 8);
-            VFNCVT_F_F_W(v0, d0, VECTOR_UNMASKED);
-            gd = ((nextop & 0x38) >> 3) + (rex.r << 3);
-            simd_store_reg(dyn, ninst, x1, v0, gd, 16, VECTOR_SEW32);
+            simd_set_width(dyn, ninst, x1, VECTOR_SEW32, 8 << vex.l);
+            VFNCVT_F_F_W(v0, q0, VECTOR_UNMASKED);
+            simd_commit(dyn, ninst, gd, vex.l ? SIMD_XMM : SIMD_LO64, (vex.l ? 0 : SIMD_HI64) | SIMD_HI128);
             break;
         case 0x5B:
             INST_NAME("VCVTPS2DQ Gx, Ex");
