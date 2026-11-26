@@ -255,70 +255,72 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
                 SMWRITE2();
             }
             break;
-        case 0x42:
+        case 0x42: {
             INST_NAME("VMPSADBW Gx, Vx, Ex, Ib");
             nextop = F8;
             GETGY_empty_VYEY_vector_D(v0, q0, q1, VECTOR_SEW8, 1);
             u8 = F8;
-            int q3 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-            int q4 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-            int tmp[5];
-            fpu_borrow_regs(dyn, ninst, x1, x2, tmp, 5, 8);
-            int q2 = tmp[0];
-            int q5 = tmp[1];
-            int q6 = tmp[2];
-            int q7 = tmp[3];
-            int q8 = tmp[4];
+            int group = vex.l ? VECTOR_LMUL2 : VECTOR_LMUL1;
+            int outputs = 8 << vex.l;
+            int pair_sums = vpu_get_scratch_lmul(dyn, group + 1);
+            int left_index = vpu_get_scratch_lmul(dyn, group);
+            int right_index = vpu_get_scratch_lmul(dyn, group);
+            int distances = vpu_get_scratch_lmul(dyn, group);
+            int shifted = vpu_get_scratch_lmul(dyn, group);
+            for (int slot = EMM0; slot < EMM0 + 8; ++slot) {
+                if ((dyn->e.vpu_scratch & (1u << EXTREG(slot))) && dyn->e.extcache[slot].t == EXT_CACHE_MMV)
+                    mmx_forget_reg(dyn, ninst, x1, dyn->e.extcache[slot].n);
+            }
+            int left_offset = ((u8 >> 2) & 1) * 4;
+            int right_offset = (u8 & 3) * 4;
+            int left_delta = ((u8 >> 5) & 1) * 4 - left_offset;
+            int right_delta = ((u8 >> 3) & 3) * 4 - right_offset;
 
-            for (int pass = 0; pass < (vex.l ? 2 : 1); ++pass) {
-                rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW8, VECTOR_LMUL1, 32);
-                if (pass)
-                    VSLIDEDOWN_VI(q7, q0, 16, VECTOR_UNMASKED);
-                else
-                    VMV_V_V(q7, q0);
-                if (pass)
-                    VSLIDEDOWN_VI(q8, q1, 16, VECTOR_UNMASKED);
-                else
-                    VMV_V_V(q8, q1);
-
-                VID_V(q5, VECTOR_UNMASKED);
-                VSRL_VI(q6, q5, 3, VECTOR_UNMASKED);
-                VAND_VI(q5, q5, 7, VECTOR_UNMASKED);
-                VADD_VV(q5, q5, q6, VECTOR_UNMASKED);
-                int off5 = (pass ? ((u8 >> 5) & 1) : ((u8 >> 2) & 1)) * 4;
-                int off6 = (pass ? ((u8 >> 3) & 3) : (u8 & 3)) * 4;
-                if (off5) VADD_VI(q5, q5, off5, VECTOR_UNMASKED);
-                if (off6) VADD_VI(q6, q6, off6, VECTOR_UNMASKED);
-
-                VRGATHER_VV_SAFE(q3, q7, q5, VECTOR_UNMASKED);
-                VRGATHER_VV_SAFE(q4, q8, q6, VECTOR_UNMASKED);
-                VMAXU_VV(q7, q3, q4, VECTOR_UNMASKED);
-                VMINU_VV(q4, q3, q4, VECTOR_UNMASKED);
-                VSUB_VV(q7, q7, q4, VECTOR_UNMASKED);
-
-                rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL2, 64);
-                VZEXT_VF2(q3, q7, VECTOR_UNMASKED);
-                VSLIDEDOWN_VI(q4, q3, 8, VECTOR_UNMASKED);
-                VADD_VV(q3, q3, q4, VECTOR_UNMASKED);
-                VSLIDEDOWN_VI(q4, q3, 16, VECTOR_UNMASKED);
-                VADD_VV(q3, q3, q4, VECTOR_UNMASKED);
-
-                if (!pass) {
-                    rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 16);
-                    VMV_V_V(q2, q3);
+            rvv_set_config(dyn, ninst, x1, VECTOR_SEW8, group, outputs * 4);
+            VID_V(left_index, VECTOR_UNMASKED);
+            VSRL_VI(right_index, left_index, 3 + vex.l, VECTOR_UNMASKED);
+            if (vex.l) {
+                VAND_VI(distances, left_index, 8, VECTOR_UNMASKED);
+                if (left_delta || right_delta) VMSNE_VI(VMASK, distances, 0, VECTOR_UNMASKED);
+                VSLL_VI(distances, distances, 1, VECTOR_UNMASKED);
+                VADD_VV(right_index, right_index, distances, VECTOR_UNMASKED);
+            }
+            VAND_VI(left_index, left_index, 7, VECTOR_UNMASKED);
+            VADD_VV(left_index, left_index, right_index, VECTOR_UNMASKED);
+            if (left_offset) VADD_VI(left_index, left_index, left_offset, VECTOR_UNMASKED);
+            if (right_offset) VADD_VI(right_index, right_index, right_offset, VECTOR_UNMASKED);
+            if (vex.l) {
+                if (left_delta) VADD_VI(left_index, left_index, left_delta, VECTOR_MASKED);
+                if (right_delta) VADD_VI(right_index, right_index, right_delta, VECTOR_MASKED);
+                if (q0 & 1) {
+                    VMV1R_V(pair_sums, q0);
+                    q0 = pair_sums;
                 }
             }
-
-            simd_set_width(dyn, ninst, x1, VECTOR_SEW16, 16 << vex.l);
-            VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
-            rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 16);
-            VMV_V_V(v0, q2);
-            if (vex.l) {
-                simd_set_width(dyn, ninst, x1, VECTOR_SEW16, 32);
-                VSLIDEUP_VI_SAFE(v0, q3, 8, VECTOR_UNMASKED);
+            VRGATHER_VV(distances, q0, left_index, VECTOR_UNMASKED);
+            if (vex.l && (q1 & 1)) {
+                VMV1R_V(pair_sums, q1);
+                q1 = pair_sums;
             }
+            VRGATHER_VV(shifted, q1, right_index, VECTOR_UNMASKED);
+            VMAXU_VV(left_index, distances, shifted, VECTOR_UNMASKED);
+            VMINU_VV(shifted, distances, shifted, VECTOR_UNMASKED);
+            VSUB_VV(distances, left_index, shifted, VECTOR_UNMASKED);
+
+            if (vex.l) {
+                ADDI(x4, xZR, 32);
+                VSLIDEDOWN_VX(shifted, distances, x4, VECTOR_UNMASKED);
+            } else {
+                VSLIDEDOWN_VI(shifted, distances, 16, VECTOR_UNMASKED);
+            }
+            VWADDU_VV(pair_sums, distances, shifted, VECTOR_UNMASKED);
+            rvv_set_config(dyn, ninst, x1, VECTOR_SEW16, group, outputs);
+            VSLIDEDOWN_VI(shifted, pair_sums, outputs, VECTOR_UNMASKED);
+            SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW16);
+            VADD_VV(v0, pair_sums, shifted, VECTOR_UNMASKED);
             PUTGY_vector(v0, VECTOR_SEW16);
             break;
+        }
         case 0x08:
             INST_NAME("VROUNDPS Gx, Ex, Ib");
             nextop = F8;
