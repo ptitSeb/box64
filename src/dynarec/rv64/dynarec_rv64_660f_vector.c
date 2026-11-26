@@ -510,21 +510,19 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     VMSEQ_VX(VMASK, q1, xZR, VECTOR_UNMASKED);
                     VXOR_VV(q0, q0, q0, VECTOR_MASKED);
                     break;
-                case 0x0B:
+                case 0x0B: {
                     INST_NAME("PMULHRSW Gx, Ex");
                     nextop = F8;
                     SET_ELEMENT_WIDTH(x1, VECTOR_SEW16);
                     GETGX_vector(q0, 1, VECTOR_SEW16);
                     GETEX_vector(q1, 0, 0, VECTOR_SEW16);
-                    v0 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-                    vpu_get_scratch(dyn);
-                    VWMUL_VV(v0, q1, q0, VECTOR_UNMASKED);
-                    rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL2, 32);
-                    VSRL_VI(v0, v0, 14, VECTOR_UNMASKED);
-                    VADD_VI(v0, v0, 1, VECTOR_UNMASKED);
-                    rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 16);
-                    VNSRL_WI(q0, v0, 1, VECTOR_UNMASKED);
+                    int products = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+                    MOV32w(x4, 1 << 14);
+                    VWMUL_VV(products, q0, q1, VECTOR_UNMASKED);
+                    VWADD_WX(products, products, x4, VECTOR_UNMASKED);
+                    VNSRL_WI(q0, products, 15, VECTOR_UNMASKED);
                     break;
+                }
                 case 0x10:
                     INST_NAME("PBLENDVB Gx, Ex");
                     nextop = F8;
