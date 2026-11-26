@@ -242,6 +242,7 @@
     "description": "Rebuild a Dynablock when one of its memory accesses faults on a misaligned address. The Linux build does not support it yet.",
     "category": "Fragile or Legacy",
     "wine": true,
+    "box64ec_only": true,
     "configurator": false,
     "options": [
       {
@@ -894,6 +895,7 @@
     "description": "Use volatile metadata parsed from PE files, only valid for 64bit Windows games.",
     "category": "Performance",
     "wine": true,
+    "box64ec_only": true,
     "configurator": false,
     "options": [
       {
@@ -2256,6 +2258,7 @@
     "description": "Detect UnityPlayer and apply conservative settings.",
     "category": "Compatibility",
     "wine": true,
+    "box64ec_only": true,
     "configurator": true,
     "options": [
       {
