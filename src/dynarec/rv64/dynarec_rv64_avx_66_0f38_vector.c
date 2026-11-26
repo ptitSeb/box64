@@ -190,19 +190,18 @@ uintptr_t dynarec64_AVX_66_0F38_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             VXOR_VV(v0, v0, v0, VECTOR_MASKED);
             PUTGY_vector(v0, VECTOR_SEW32);
             break;
-        case 0x0B:
+        case 0x0B: {
             INST_NAME("VPMULHRSW Gx, Vx, Ex");
             nextop = F8;
             GETGY_empty_VYEY_vector(v0, q0, q1, VECTOR_SEW16);
-            q2 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-            VWMUL_VV(q2, q0, q1, VECTOR_UNMASKED);
-            rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL2, (32 << vex.l));
-            VSRL_VI(q2, q2, 14, VECTOR_UNMASKED);
-            VADD_VI(q2, q2, 1, VECTOR_UNMASKED);
-            simd_set_width(dyn, ninst, x1, VECTOR_SEW16, 16 << vex.l);
-            VNSRL_WI(v0, q2, 1, VECTOR_UNMASKED);
+            int products = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+            MOV32w(x4, 1 << 14);
+            VWMUL_VV(products, q0, q1, VECTOR_UNMASKED);
+            VWADD_WX(products, products, x4, VECTOR_UNMASKED);
+            VNSRL_WI(v0, products, 15, VECTOR_UNMASKED);
             PUTGY_vector(v0, VECTOR_SEW16);
             break;
+        }
         case 0x0C:
             INST_NAME("VPERMILPS Gx, Vx, Ex");
             nextop = F8;
