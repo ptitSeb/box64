@@ -885,31 +885,26 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             nextop = F8;
             GETGY_empty_VYEY_vector_D(v0, q0, q1, VECTOR_SEW8, 1);
             u8 = F8;
-            if (u8 > 31) {
+            SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW8);
+            if (u8 >= 32) {
                 VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
+            } else if (u8 == 0 || u8 == 16) {
+                int selected = u8 ? q0 : q1;
+                if (v0 != selected) VMV_V_V(v0, selected);
             } else {
-                q2 = vpu_get_scratch(dyn);
-                rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW8, VECTOR_LMUL1, 64);
-                VXOR_VV(q2, q2, q2, VECTOR_UNMASKED);
-                rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW8, VECTOR_LMUL1, 32);
-                VMV_V_V(q2, q1);
-                VSLIDEUP_VI_SAFE(q2, q0, 16, VECTOR_UNMASKED);
-                if (vex.l) {
-                    q3 = vpu_get_scratch(dyn);
-                    q4 = vpu_get_scratch(dyn);
-                    rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW8, VECTOR_LMUL1, 64);
-                    VXOR_VV(q3, q3, q3, VECTOR_UNMASKED);
-                    rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW8, VECTOR_LMUL1, 32);
-                    VMV_V_V(q3, q0);
-                    rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW8, VECTOR_LMUL1, 16);
-                    VSLIDEDOWN_VI(q3, q1, 16, VECTOR_UNMASKED);
-                    VSLIDEDOWN_VI(q4, q3, u8, VECTOR_UNMASKED);
+                const unsigned int byte_offset = u8 & 15;
+                const unsigned int tail_start = 16 - byte_offset;
+                if (vex.l || u8 > 16) {
+                    const uint32_t lane_tail_mask = ((1u << byte_offset) - 1) << tail_start;
+                    VECTOR_LOAD_VMASK(vex.l ? lane_tail_mask | (lane_tail_mask << 16) : lane_tail_mask, x4);
                 }
-                rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW8, VECTOR_LMUL1, 16);
-                VSLIDEDOWN_VI(v0, q2, u8, VECTOR_UNMASKED);
-                if (vex.l) {
-                    rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW8, VECTOR_LMUL1, 32);
-                    VSLIDEUP_VI_SAFE(v0, q4, 16, VECTOR_UNMASKED);
+                if (u8 < 16) {
+                    VEC_SRC_KEEP(q0, v0);
+                    VSLIDEDOWN_VI(v0, q1, byte_offset, VECTOR_UNMASKED);
+                    VSLIDEUP_VI(v0, q0, tail_start, vex.l ? VECTOR_MASKED : VECTOR_UNMASKED);
+                } else {
+                    VSLIDEDOWN_VI(v0, q0, byte_offset, VECTOR_UNMASKED);
+                    VMERGE_VIM(v0, v0, 0);
                 }
             }
             PUTGY_vector(v0, VECTOR_SEW8);
