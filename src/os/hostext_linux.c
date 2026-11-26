@@ -35,7 +35,7 @@ static int Check(void* block)
 {
     static uint64_t buf[2] = {0};
     // Clear instruction cache
-    __clear_cache(block, block+box64_pagesize);
+    __builtin___clear_cache(block, block+box64_pagesize);
     // Setup SIGILL signal handler
     __sighandler_t old = signal(SIGILL, detect_sigill);
     if(sigsetjmp(sigbuf, 1)) {
