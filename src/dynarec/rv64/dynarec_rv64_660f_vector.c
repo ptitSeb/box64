@@ -562,35 +562,29 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     GETEX_vector(q1, 0, 0, VECTOR_SEW64);
                     CLEAR_FLAGS();
                     SET_DFNONE();
-                    v0 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-                    IFX (X_ZF) {
-                        VAND_VV(v0, q1, q0, VECTOR_UNMASKED);
-                        if (cpuext.xtheadvector) {
-                            // Force the mask element width to 32
-                            rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW64, VECTOR_LMUL2, 16);
+                    v0 = q0;
+                    IFX (X_ZF | X_CF) {
+                        if (q0 != q1) {
+                            v0 = vpu_get_scratch(dyn);
+                            VAND_VV(v0, q0, q1, VECTOR_UNMASKED);
                         }
-                        VMSGTU_VX(VMASK, v0, xZR, VECTOR_UNMASKED);
-                        if (cpuext.xtheadvector) { rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW64, VECTOR_LMUL1, 16); }
-                        VMV_X_S(x4, VMASK);
-                        if (!cpuext.xtheadvector) ANDI(x4, x4, 0b11);
-                        SET_FLAGS_EQZ(x4, F_ZF, x3);
+                    }
+                    IFX (X_ZF) {
+                        VMSNE_VI(VMASK, v0, 0, VECTOR_UNMASKED);
+                        VFIRST_M(x4, VMASK, VECTOR_UNMASKED);
+                        SLTI(x4, x4, 0);
+                        SLLI(x4, x4, F_ZF);
+                        OR(xFlags, xFlags, x4);
                     }
                     IFX (X_CF) {
-                        if (cpuext.zvbb) {
-                            VANDN_VV(v0, q1, q0, VECTOR_UNMASKED);
+                        if (q0 == q1) {
+                            ORI(xFlags, xFlags, 1 << F_CF);
                         } else {
-                            VXOR_VI(v0, q0, 0x1F, VECTOR_UNMASKED);
-                            VAND_VV(v0, q1, v0, VECTOR_UNMASKED);
+                            VMSNE_VV(VMASK, v0, q1, VECTOR_UNMASKED);
+                            VFIRST_M(x4, VMASK, VECTOR_UNMASKED);
+                            SLTI(x4, x4, 0);
+                            OR(xFlags, xFlags, x4);
                         }
-                        if (cpuext.xtheadvector) {
-                            // Force the mask element width to 32
-                            rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW64, VECTOR_LMUL2, 16);
-                        }
-                        VMSGTU_VX(VMASK, v0, xZR, VECTOR_UNMASKED);
-                        if (cpuext.xtheadvector) { rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW64, VECTOR_LMUL1, 16); }
-                        VMV_X_S(x4, VMASK);
-                        if (!cpuext.xtheadvector) ANDI(x4, x4, 0b11);
-                        SET_FLAGS_EQZ(x4, F_CF, x3);
                     }
                     break;
                 case 0x1C ... 0x1E:

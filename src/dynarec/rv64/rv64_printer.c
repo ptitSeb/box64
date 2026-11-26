@@ -1166,11 +1166,11 @@ const char* rv64_print(uint32_t opcode, uintptr_t addr)
         }
 
         //    rv_v, VFIRST.M
-        if ((opcode & 0xfc0ff07f) == 0x5808a057) {
+        if ((opcode & 0xfc00707f) == 0x54002057) {
             a.rd = FX(opcode, 11, 7);
             a.vs2 = FX(opcode, 24, 20);
             a.vm = FX(opcode, 25, 25);
-            snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFIRST.M", fpr[a.rd], vpr[a.vs2], vm[a.vm]);
+            snprintf(buff, sizeof(buff), "%-15s %s, %s, %s", "VFIRST.M", gpr[a.rd], vpr[a.vs2], vm[a.vm]);
             return buff;
         }
 
