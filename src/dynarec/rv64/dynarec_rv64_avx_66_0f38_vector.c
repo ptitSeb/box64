@@ -268,29 +268,33 @@ uintptr_t dynarec64_AVX_66_0F38_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             INST_NAME("VPTEST Gx, Ex");
             nextop = F8;
             SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
-            GETGY_vector(q0, VECTOR_SEW32);
-            GETEY_vector(q1, 0, VECTOR_SEW32);
-            v0 = vpu_get_scratch(dyn);
+            GETGY_vector(q0, VECTOR_SEW64);
+            GETEY_vector(q1, 0, VECTOR_SEW64);
             CLEAR_FLAGS();
             SET_DFNONE();
+            v0 = q0;
+            IFX (X_ZF | X_CF) {
+                if (q0 != q1) {
+                    v0 = vpu_get_scratch(dyn);
+                    VAND_VV(v0, q0, q1, VECTOR_UNMASKED);
+                }
+            }
             IFX (X_ZF) {
-                VAND_VV(v0, q0, q1, VECTOR_UNMASKED);
-                VMSNE_VX(VMASK, v0, xZR, VECTOR_UNMASKED);
-                VMV_X_S(x4, VMASK);
-                ANDI(x4, x4, (1 << (4 << vex.l)) - 1);
-                SET_FLAGS_EQZ(x4, F_ZF, x5);
+                VMSNE_VI(VMASK, v0, 0, VECTOR_UNMASKED);
+                VFIRST_M(x4, VMASK, VECTOR_UNMASKED);
+                SLTI(x4, x4, 0);
+                SLLI(x4, x4, F_ZF);
+                OR(xFlags, xFlags, x4);
             }
             IFX (X_CF) {
-                if (cpuext.zvbb) {
-                    VANDN_VV(v0, q1, q0, VECTOR_UNMASKED);
+                if (q0 == q1) {
+                    ORI(xFlags, xFlags, 1 << F_CF);
                 } else {
-                    VXOR_VI(v0, q0, 0x1f, VECTOR_UNMASKED);
-                    VAND_VV(v0, v0, q1, VECTOR_UNMASKED);
+                    VMSNE_VV(VMASK, v0, q1, VECTOR_UNMASKED);
+                    VFIRST_M(x4, VMASK, VECTOR_UNMASKED);
+                    SLTI(x4, x4, 0);
+                    OR(xFlags, xFlags, x4);
                 }
-                VMSNE_VX(VMASK, v0, xZR, VECTOR_UNMASKED);
-                VMV_X_S(x4, VMASK);
-                ANDI(x4, x4, (1 << (4 << vex.l)) - 1);
-                SET_FLAGS_EQZ(x4, F_CF, x5);
             }
             break;
         case 0x16:
