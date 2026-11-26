@@ -31,7 +31,6 @@ uintptr_t dynarec64_AVX_66_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
     int v0, v1, v2;
     int q0, q1, q2, q3, q4, q5, d0, d1;
     int j64;
-    uint64_t selectors;
     int64_t fixedaddress;
     rex_t rex = vex.rex;
 
@@ -1494,32 +1493,43 @@ uintptr_t dynarec64_AVX_66_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
         case 0xC6:
             INST_NAME("VSHUFPD Gx, Vx, Ex, Ib");
             nextop = F8;
-            q0 = vpu_get_scratch(dyn);
-            q1 = vpu_get_scratch(dyn);
-            q2 = vpu_get_scratch(dyn);
-            v2 = vpu_get_scratch(dyn);
-            v1 = vpu_get_scratch_lmul(dyn, vex.l ? VECTOR_LMUL1 : VECTOR_LMUL2);
-            simd_load_reg(dyn, ninst, x1, q0, vex.v, 16 << vex.l, VECTOR_SEW64);
-            if (MODREG) {
-                simd_load_reg(dyn, ninst, x1, q1, (nextop & 7) + (rex.b << 3), 16 << vex.l, VECTOR_SEW64);
-            } else {
-                SMREAD();
-                addr = geted(dyn, addr, ninst, nextop, &ed, x3, x2, &fixedaddress, rex, NULL, 0, 1);
-                SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW64);
-                VLE64_V(q1, ed, VECTOR_UNMASKED, VECTOR_NFIELD1);
-            }
-            GETGY_empty_vector(v0);
+            GETGY_empty_VYEY_vector_D(v0, q0, q1, VECTOR_SEW64, 1);
             u8 = F8;
-            selectors = 0;
-            for (int i = 0; i < (2 << vex.l); ++i)
-                selectors |= (uint64_t)((i >> 1) * 2 + ((u8 >> i) & 1)) << (i * 16);
-            MOV64xs(x4, selectors, x3);
-            SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW64);
-            VMV_V_X(v1, x4);
-            VRGATHEREI16_VV(q2, q0, v1, VECTOR_UNMASKED);
-            VRGATHEREI16_VV(v2, q1, v1, VECTOR_UNMASKED);
-            VECTOR_LOAD_VMASK(0xa, x4);
-            VMERGE_VVM(v0, q2, v2);
+            if (!vex.l || (u8 & 3) == ((u8 >> 2) & 3)) {
+                if (u8 & 1) {
+                    q2 = vpu_get_scratch(dyn);
+                    VSLIDEDOWN_VI(q2, q0, 1, VECTOR_UNMASKED);
+                    q0 = q2;
+                }
+                if (!(u8 & 2)) {
+                    q2 = vpu_get_scratch(dyn);
+                    VSLIDE1UP_VX(q2, q1, xZR, VECTOR_UNMASKED);
+                    q1 = q2;
+                }
+            } else {
+                uint64_t selectors = 0;
+                for (int element = 0; element < 4; ++element)
+                    selectors |= (uint64_t)((element & 2) + ((u8 >> element) & 1)) << (element * 16);
+                v1 = vpu_get_scratch(dyn);
+                q2 = vpu_get_scratch(dyn);
+                MOV64xs(x4, selectors, x3);
+                VMV_S_X(v1, x4);
+                VRGATHEREI16_VV(q2, q0, v1, VECTOR_UNMASKED);
+                if (q0 == q1) {
+                    q1 = q2;
+                } else {
+                    v2 = vpu_get_scratch(dyn);
+                    VRGATHEREI16_VV(v2, q1, v1, VECTOR_UNMASKED);
+                    q1 = v2;
+                }
+                q0 = q2;
+            }
+            if (q0 == q1) {
+                v0 = q0;
+            } else {
+                VECTOR_LOAD_VMASK(0xa, x4);
+                VMERGE_VVM(v0, q0, q1);
+            }
             PUTGY_vector(v0, VECTOR_SEW64);
             break;
         case 0xC2:
