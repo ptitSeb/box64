@@ -49,6 +49,7 @@ typedef union cpu_ext_s {
         uint64_t zvbb : 1;
         uint64_t zvfh : 1;
         uint64_t zvbc : 1;
+        uint64_t zfa : 1;
 #elif defined(LA64)
         uint64_t lbt : 1; // it's important it's stay the 1st bit
         uint64_t lam_bh : 1;

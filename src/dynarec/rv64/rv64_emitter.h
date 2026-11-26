@@ -971,6 +971,8 @@
 #define FCVTSD(frd, frs1) EMIT(R_type(0b0100000, 0b00001, frs1, 0b111, frd, 0b1010011))
 // Convert Single frs1 to Double frd
 #define FCVTDS(frd, frs1) EMIT(R_type(0b0100001, 0b00000, frs1, 0b111, frd, 0b1010011))
+#define FROUNDS(frd, frs1, rm, nx) EMIT(R_type(0b0100000, 4 | (nx), frs1, rm, frd, 0b1010011))
+#define FROUNDD(frd, frs1, rm, nx) EMIT(R_type(0b0100001, 4 | (nx), frs1, rm, frd, 0b1010011))
 // Convert from Double to signed 32bits
 #define FCVTWD(rd, frs1, rm) EMIT(R_type(0b1100001, 0b00000, frs1, rm, rd, 0b1010011))
 // Convert from Double to unsigned 32bits
