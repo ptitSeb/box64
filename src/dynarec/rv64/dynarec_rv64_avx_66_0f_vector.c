@@ -821,54 +821,50 @@ uintptr_t dynarec64_AVX_66_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
                     PUTGY_vector(v0, VECTOR_SEW64);
                     break;
                 case 3:
-                    INST_NAME("VPSRLDQ Gx, Ex, Ib");
-                    GETEY_vector(q1, 1, VECTOR_SEW8);
+                case 7: {
+                    int shift_left = !!(nextop & 0x20);
+                    INST_NAME(shift_left ? "VPSLLDQ Gx, Ex, Ib" : "VPSRLDQ Gx, Ex, Ib");
+                    unsigned immediate = MODREG ? PK(0) : 0;
+                    int element_sew = immediate && immediate < 16 ? __builtin_ctz(immediate) : VECTOR_SEW8;
+                    GETEY_vector(q1, 1, element_sew);
                     gd = vex.v;
                     v0 = simd_get_reg_empty(dyn, ninst, x1, gd);
                     u8 = F8;
-                    if (u8 > 15) {
-                        VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
+                    if (u8 >= 16) {
+                        VMV_V_I(v0, 0);
                     } else if (u8 == 0) {
-                        VMV_V_V(v0, q1);
+                        if (v0 != q1) { VMV_V_V(v0, q1); }
                     } else {
-                        q2 = vpu_get_scratch(dyn);
-                        v1 = vpu_get_scratch(dyn);
-                        VID_V(q2, VECTOR_UNMASKED);
-                        VAND_VI(v1, q2, 15, VECTOR_UNMASKED);
-                        VADD_VI(q2, q2, u8, VECTOR_UNMASKED);
-                        ADDI(x4, xZR, 16 - u8);
-                        VMSLTU_VX(VMASK, v1, x4, VECTOR_UNMASKED);
-                        VEC_SRC_KEEP(q1, v0);
-                        VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
-                        VRGATHER_VV_SAFE(v0, q1, q2, VECTOR_MASKED);
+                        int slide = u8 >> element_sew;
+                        int lane_elements = 16 >> element_sew;
+                        if (!vex.l && shift_left) {
+                            VEC_SRC_KEEP(q1, v0);
+                            if (slide == 1) {
+                                VSLIDE1UP_VX(v0, q1, xZR, VECTOR_UNMASKED);
+                            } else {
+                                VMV_V_I(v0, 0);
+                                VSLIDEUP_VI(v0, q1, slide, VECTOR_UNMASKED);
+                            }
+                        } else if (!vex.l && slide == 1) {
+                            VSLIDE1DOWN_VX(v0, q1, xZR, VECTOR_UNMASKED);
+                        } else {
+                            uint32_t zero_mask = (1u << slide) - 1;
+                            if (!shift_left) zero_mask <<= lane_elements - slide;
+                            if (vex.l) zero_mask |= zero_mask << lane_elements;
+                            VECTOR_LOAD_VMASK(zero_mask, x4);
+                            if (shift_left) {
+                                int shifted = v0 == q1 ? vpu_get_scratch(dyn) : v0;
+                                VSLIDEUP_VI(shifted, q1, slide, VECTOR_UNMASKED);
+                                VMERGE_VIM(v0, shifted, 0);
+                            } else {
+                                VSLIDEDOWN_VI(v0, q1, slide, VECTOR_UNMASKED);
+                                VMERGE_VIM(v0, v0, 0);
+                            }
+                        }
                     }
-                    PUTGY_vector(v0, VECTOR_SEW8);
+                    PUTGY_vector(v0, element_sew);
                     break;
-                case 7:
-                    INST_NAME("VPSLLDQ Gx, Ex, Ib");
-                    GETEY_vector(q1, 1, VECTOR_SEW8);
-                    gd = vex.v;
-                    v0 = simd_get_reg_empty(dyn, ninst, x1, gd);
-                    u8 = F8;
-                    if (u8 > 15) {
-                        VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
-                    } else if (u8 == 0) {
-                        VMV_V_V(v0, q1);
-                    } else {
-                        q2 = vpu_get_scratch(dyn);
-                        v1 = vpu_get_scratch(dyn);
-                        VID_V(q2, VECTOR_UNMASKED);
-                        VAND_VI(v1, q2, 15, VECTOR_UNMASKED);
-                        ADDI(x4, xZR, u8);
-                        VSUB_VX(q2, q2, x4, VECTOR_UNMASKED);
-                        ADDI(x4, xZR, u8 - 1);
-                        VMSGTU_VX(VMASK, v1, x4, VECTOR_UNMASKED);
-                        VEC_SRC_KEEP(q1, v0);
-                        VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
-                        VRGATHER_VV_SAFE(v0, q1, q2, VECTOR_MASKED);
-                    }
-                    PUTGY_vector(v0, VECTOR_SEW8);
-                    break;
+                }
                 case 6:
                     INST_NAME("VPSLLQ Gx, Ex, Ib");
                     GETEY_vector(q1, 1, VECTOR_SEW64);
