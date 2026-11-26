@@ -305,13 +305,28 @@ uintptr_t dynarec64_AVX_F2_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
         case 0x12:
             INST_NAME("VMOVDDUP Gx, Ex");
             nextop = F8;
-            GETEY_vector_w(v1, 0, VECTOR_SEW64, vex.l ? 32 : 8);
-            GETGY_empty_vector(v0);
-            v2 = vpu_get_scratch(dyn);
-            SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW64);
-            VID_V(v2, VECTOR_UNMASKED);
-            VAND_VI(v2, v2, 0x1e, VECTOR_UNMASKED);
-            VRGATHER_VV_SAFE(v0, v1, v2, VECTOR_UNMASKED);
+            if (vex.l) {
+                GETEY_vector(v1, 0, VECTOR_SEW64);
+                GETGY_empty_vector(v0);
+                v2 = vpu_get_scratch(dyn);
+                VID_V(v2, VECTOR_UNMASKED);
+                VAND_VI(v2, v2, 0x1e, VECTOR_UNMASKED);
+                VRGATHER_VV_SAFE(v0, v1, v2, VECTOR_UNMASKED);
+            } else if (MODREG) {
+                ed = (nextop & 7) + (rex.b << 3);
+                v1 = simd_access(dyn, ninst, x1, ed, SIMD_LO64, 0);
+                GETGY_empty_vector(v0);
+                SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW64);
+                if (v0 == v1) v0 = vpu_get_scratch(dyn);
+                VRGATHER_VI(v0, v1, 0, VECTOR_UNMASKED);
+            } else {
+                SMREAD();
+                addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 1, 0);
+                LD(x4, ed, fixedaddress);
+                GETGY_empty_vector(v0);
+                SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW64);
+                VMV_V_X(v0, x4);
+            }
             PUTGY_vector(v0, VECTOR_SEW64);
             break;
         case 0x51:
