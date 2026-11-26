@@ -1141,84 +1141,54 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     }
                     break;
                 }
-                case 0x08: {
-                    INST_NAME("ROUNDPS Gx, Ex, Ib");
-                    nextop = F8;
-                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW32);
-                    GETEX_vector(q0, 0, 1, VECTOR_SEW32);
-                    GETGX_empty_vector(v0);
-                    u8 = F8;
-                    q1 = vpu_get_scratch(dyn);
-                    q2 = vpu_get_scratch(dyn);
-                    int r3 = vpu_get_scratch(dyn);
-                    if (!(u8 & 4)) {
-                        ADDI(x5, xZR, round_round[u8 & 3]);
-                        FSRM(x6, x5);
-                    }
-                    VFCVT_X_F_V(q1, q0, VECTOR_UNMASKED); // qi
-                    VFCVT_F_X_V(q2, q1, VECTOR_UNMASKED); // qf
-                    MOV32w(x5, 0x80000000);
-                    VAND_VX(r3, q0, x5, VECTOR_UNMASKED);
-                    VMSEQ_VI(VMASK, q1, 0, VECTOR_UNMASKED);
-                    VMERGE_VVM(q2, q2, r3);
-                    MOV32w(x5, 0x00400000);
-                    VOR_VX(r3, q0, x5, VECTOR_UNMASKED);
-                    VMFEQ_VV(VMASK, q0, q0, VECTOR_UNMASKED);
-                    VMERGE_VVM(q2, r3, q2);
-                    d0 = fpu_get_scratch(dyn);
-                    MOV32w(x5, 0x4f000000);
-                    FMVWX(d0, x5);
-                    VMFGE_VF(VMASK, q0, d0, VECTOR_UNMASKED);
-                    VMERGE_VVM(q2, q2, q0);
-                    d1 = fpu_get_scratch(dyn);
-                    MOV32w(x5, 0xcf000000);
-                    FMVWX(d1, x5);
-                    VMFLE_VF(VMASK, q0, d1, VECTOR_UNMASKED);
-                    VMERGE_VVM(q2, q2, q0);
-                    if (!(u8 & 4)) {
-                        FSRM(x5, x6);
-                    }
-                    VMV_V_V(v0, q2);
-                    break;
-                }
+                case 0x08:
                 case 0x09: {
-                    INST_NAME("ROUNDPD Gx, Ex, Ib");
+                    INST_NAME(opcode == 0x08 ? "ROUNDPS Gx, Ex, Ib" : "ROUNDPD Gx, Ex, Ib");
+                    int sew = opcode == 0x08 ? VECTOR_SEW32 : VECTOR_SEW64;
                     nextop = F8;
-                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW64);
-                    GETEX_vector(q0, 0, 1, VECTOR_SEW64);
+                    SET_ELEMENT_WIDTH(x1, sew);
+                    GETEX_vector(q0, 0, 1, sew);
                     GETGX_empty_vector(v0);
                     u8 = F8;
-                    q1 = vpu_get_scratch(dyn);
-                    q2 = vpu_get_scratch(dyn);
-                    int r3 = vpu_get_scratch(dyn);
-                    if (!(u8 & 4)) {
-                        ADDI(x5, xZR, round_round[u8 & 3]);
-                        FSRM(x6, x5);
+                    int rounded = vpu_get_scratch(dyn);
+                    int truncate = (u8 & 7) == 3 && !cpuext.xtheadvector;
+                    int fixed_round = !(u8 & 4) && !truncate;
+                    int suppress_inexact = (u8 & 8) && BOX64ENV(sse_flushto0);
+                    VSLL_VI(rounded, q0, 1, VECTOR_UNMASKED);
+                    if (sew == VECTOR_SEW32) {
+                        MOV32w(x5, 0x96000000);
+                    } else {
+                        MOV64x(x5, 0x8660000000000000ULL);
                     }
-                    VFCVT_X_F_V(q1, q0, VECTOR_UNMASKED); // qi
-                    VFCVT_F_X_V(q2, q1, VECTOR_UNMASKED); // qf
-                    MOV64x(x5, 0x8000000000000000LL);
-                    VAND_VX(r3, q0, x5, VECTOR_UNMASKED);
-                    VMSEQ_VI(VMASK, q1, 0, VECTOR_UNMASKED);
-                    VMERGE_VVM(q2, q2, r3);
-                    MOV64x(x5, 0x0008000000000000LL);
-                    VOR_VX(r3, q0, x5, VECTOR_UNMASKED);
-                    VMFEQ_VV(VMASK, q0, q0, VECTOR_UNMASKED);
-                    VMERGE_VVM(q2, r3, q2);
-                    d0 = fpu_get_scratch(dyn);
-                    MOV64x(x5, 0x43e0000000000000LL);
-                    FMVDX(d0, x5);
-                    VMFGE_VF(VMASK, q0, d0, VECTOR_UNMASKED);
-                    VMERGE_VVM(q2, q2, q0);
-                    d1 = fpu_get_scratch(dyn);
-                    MOV64x(x5, 0xc3e0000000000000LL);
-                    FMVDX(d1, x5);
-                    VMFLE_VF(VMASK, q0, d1, VECTOR_UNMASKED);
-                    VMERGE_VVM(q2, q2, q0);
-                    if (!(u8 & 4)) {
-                        FSRM(x5, x6);
+                    VMSLTU_VX(VMASK, rounded, x5, VECTOR_UNMASKED);
+                    if (suppress_inexact && fixed_round) {
+                        ADDI(x5, xZR, round_round[u8 & 3] << 5);
+                        CSRRW(x6, x5, 0x003);
+                    } else if (suppress_inexact) {
+                        FRFLAGS(x6);
+                    } else if (fixed_round) {
+                        CSRRWI(x6, round_round[u8 & 3], 0x002);
                     }
-                    VMV_V_V(v0, q2);
+                    if (truncate) {
+                        VFCVT_RTZ_X_F_V(rounded, q0, VECTOR_MASKED);
+                    } else {
+                        VFCVT_X_F_V(rounded, q0, VECTOR_MASKED);
+                    }
+                    VFCVT_F_X_V(rounded, rounded, VECTOR_MASKED);
+                    if (suppress_inexact) {
+                        CSRRW(xZR, x6, fixed_round ? 0x003 : 0x001);
+                    } else if (fixed_round) {
+                        FSRM(xZR, x6);
+                    }
+                    VFSGNJ_VV(rounded, rounded, q0, VECTOR_MASKED);
+                    VMERGE_VVM(v0, q0, rounded);
+                    VMFNE_VV(VMASK, v0, v0, VECTOR_UNMASKED);
+                    if (sew == VECTOR_SEW32) {
+                        MOV32w(x5, 0x00400000);
+                    } else {
+                        MOV64x(x5, 0x0008000000000000ULL);
+                    }
+                    VOR_VX(v0, v0, x5, VECTOR_MASKED);
                     break;
                 }
                 case 0x0A: {
