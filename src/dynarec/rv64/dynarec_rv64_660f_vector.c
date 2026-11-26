@@ -1389,7 +1389,33 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     GETGX_vector(q0, 1, VECTOR_SEW8);
                     GETEX_vector(q1, 0, 1, VECTOR_SEW8);
                     u8 = F8;
-                    {
+                    if (!cpuext.xtheadvector && cpuext.vlen >= 32) {
+                        int left_index = vpu_get_scratch(dyn);
+                        int right_index = vpu_get_scratch(dyn);
+                        int distances = vpu_get_scratch(dyn);
+                        int shifted = vpu_get_scratch(dyn);
+                        int pair_sums = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+                        int left_offset = ((u8 >> 2) & 1) * 4;
+                        int right_offset = (u8 & 3) * 4;
+
+                        rvv_set_config(dyn, ninst, x1, VECTOR_SEW8, VECTOR_LMUL1, 32);
+                        VID_V(left_index, VECTOR_UNMASKED);
+                        VSRL_VI(right_index, left_index, 3, VECTOR_UNMASKED);
+                        VAND_VI(left_index, left_index, 7, VECTOR_UNMASKED);
+                        VADD_VV(left_index, left_index, right_index, VECTOR_UNMASKED);
+                        if (left_offset) VADD_VI(left_index, left_index, left_offset, VECTOR_UNMASKED);
+                        if (right_offset) VADD_VI(right_index, right_index, right_offset, VECTOR_UNMASKED);
+                        VRGATHER_VV(distances, q0, left_index, VECTOR_UNMASKED);
+                        VRGATHER_VV(shifted, q1, right_index, VECTOR_UNMASKED);
+                        VMAXU_VV(left_index, distances, shifted, VECTOR_UNMASKED);
+                        VMINU_VV(shifted, distances, shifted, VECTOR_UNMASKED);
+                        VSUB_VV(distances, left_index, shifted, VECTOR_UNMASKED);
+                        VSLIDEDOWN_VI(shifted, distances, 16, VECTOR_UNMASKED);
+                        VWADDU_VV(pair_sums, distances, shifted, VECTOR_UNMASKED);
+                        SET_ELEMENT_WIDTH(x1, VECTOR_SEW16);
+                        VSLIDEDOWN_VI(shifted, pair_sums, 8, VECTOR_UNMASKED);
+                        VADD_VV(q0, pair_sums, shifted, VECTOR_UNMASKED);
+                    } else {
                         int sum = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
                         int index = vpu_get_scratch(dyn);
                         int left = vpu_get_scratch(dyn);
