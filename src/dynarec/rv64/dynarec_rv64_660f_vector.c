@@ -1381,33 +1381,29 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     if (u8 > 31) {
                         VXOR_VV(q0, q0, q0, VECTOR_UNMASKED);
                     } else if (u8 > 16) {
-                        d0 = vpu_get_scratch(dyn);
-                        if (cpuext.vlen >= 32) {
-                            // clear high bits before slidedown!
-                            rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW8, VECTOR_LMUL1, 32);
-                            VXOR_VV(d0, d0, d0, VECTOR_UNMASKED);
-                            rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW8, VECTOR_LMUL1, 16);
+                        if (cpuext.xtheadvector) {
+                            d0 = vpu_get_scratch(dyn);
+                            VMV_V_V(d0, q0);
+                            VSLIDEDOWN_VI(q0, d0, u8 - 16, VECTOR_UNMASKED);
+                        } else {
+                            unsigned width_ratio = cpuext.vlen / 16;
+                            if (width_ratio) {
+                                int xmm_lmul = (VECTOR_LMUL1 - __builtin_ctz(width_ratio)) & 7;
+                                rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW8, xmm_lmul, 16);
+                            }
+                            VSLIDEDOWN_VI(q0, q0, u8 - 16, VECTOR_UNMASKED);
+                            if (!width_ratio) {
+                                VECTOR_LOAD_VMASK((0xffffu << (32 - u8)) & 0xffffu, x4);
+                                VMERGE_VIM(q0, q0, 0);
+                            }
                         }
-                        VMV_V_V(d0, q0);
-                        VSLIDEDOWN_VI(q0, d0, u8 - 16, VECTOR_UNMASKED);
                     } else if (u8 == 16) {
                         // nop
                     } else if (u8 > 0) {
-                        v0 = vpu_get_scratch(dyn);
-                        v1 = vpu_get_scratch(dyn);
-                        VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
-                        VSLIDEUP_VI_SAFE(v0, q0, 16 - u8, VECTOR_UNMASKED);
-                        if (cpuext.vlen >= 32) {
-                            // clear high bits before slidedown!
-                            d0 = vpu_get_scratch(dyn);
-                            rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW8, VECTOR_LMUL1, 32);
-                            VXOR_VV(d0, d0, d0, VECTOR_UNMASKED);
-                            rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW8, VECTOR_LMUL1, 16);
-                            VMV_V_V(d0, q1);
-                            q1 = d0;
-                        }
-                        VSLIDEDOWN_VI(v1, q1, u8, VECTOR_UNMASKED);
-                        VOR_VV(q0, v1, v0, VECTOR_UNMASKED);
+                        int joined = vpu_get_scratch(dyn);
+                        VSLIDEDOWN_VI(joined, q1, u8, VECTOR_UNMASKED);
+                        VSLIDEUP_VI(joined, q0, 16 - u8, VECTOR_UNMASKED);
+                        VMV_V_V(q0, joined);
                     } else {
                         if (q0 != q1) VMV_V_V(q0, q1);
                     }
