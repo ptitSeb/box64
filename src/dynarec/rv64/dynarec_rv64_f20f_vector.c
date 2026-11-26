@@ -85,18 +85,22 @@ uintptr_t dynarec64_F20F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
         case 0x12:
             INST_NAME("MOVDDUP Gx, Ex");
             nextop = F8;
-            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64);
             if (MODREG) {
-                v1 = simd_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0, VECTOR_SEW64);
+                ed = (nextop & 7) + (rex.b << 3);
+                v1 = simd_access(dyn, ninst, x1, ed, SIMD_LO64, 0);
                 GETGX_empty_vector(v0);
-                VMV_X_S(x4, v1);
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEW64);
+                int duplicate = v0 == v1 ? vpu_get_scratch(dyn) : v0;
+                VRGATHER_VI(duplicate, v1, 0, VECTOR_UNMASKED);
+                if (duplicate != v0) VMV_V_V(v0, duplicate);
             } else {
                 SMREAD();
                 GETGX_empty_vector(v0);
                 addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 1, 0);
                 LD(x4, ed, fixedaddress);
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEW64);
+                VMV_V_X(v0, x4);
             }
-            VMV_V_X(v0, x4);
             break;
         case 0x2A:
             INST_NAME("CVTSI2SD Gx, Ed");
