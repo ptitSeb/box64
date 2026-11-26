@@ -128,6 +128,8 @@ int main(int argc, char **argv)
 
 	//printf("Wait for all threads to complete, and release their resources\n");
 	for (i=0; i < NUMTHREADS; i++) {
+		if (i == 1)	// already joined by thread[0] in foo()
+			continue;
 		rc = pthread_join(thread[i], NULL);
 		//checkResults("pthread_join()\n", rc);
 	}
