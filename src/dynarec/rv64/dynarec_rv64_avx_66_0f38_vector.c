@@ -979,13 +979,8 @@ uintptr_t dynarec64_AVX_66_0F38_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             GETVY_vector(q0, sew);
             GETEY_vector(q1, 0, sew);
             GETGY_vector(q2, sew);
-            GETGY_empty_vector(v0);
-            VEC_SRC_KEEP(q0, v0);
-            VEC_SRC_KEEP(q1, v0);
-            VEC_SRC_KEEP(q2, v0);
-            VMV_V_V(v0, q0);
-            VFMACC_VV(v0, q2, q1, VECTOR_UNMASKED);
-            PUTGY_vector(v0, sew);
+            VFMADD_VV(q2, q0, q1, VECTOR_UNMASKED);
+            PUTGY_vector(q2, sew);
             break;
         case 0x96:
             INST_NAME("VFMADDSUB132PS/D Gx, Vx, Ex");
@@ -1034,13 +1029,8 @@ uintptr_t dynarec64_AVX_66_0F38_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             GETVY_vector(q0, sew);
             GETEY_vector(q1, 0, sew);
             GETGY_vector(q2, sew);
-            GETGY_empty_vector(v0);
-            VEC_SRC_KEEP(q0, v0);
-            VEC_SRC_KEEP(q1, v0);
-            VEC_SRC_KEEP(q2, v0);
-            VMV_V_V(v0, q0);
-            VFMSAC_VV(v0, q2, q1, VECTOR_UNMASKED);
-            PUTGY_vector(v0, sew);
+            VFMSUB_VV(q2, q0, q1, VECTOR_UNMASKED);
+            PUTGY_vector(q2, sew);
             break;
         case 0x9C:
             INST_NAME("VFNMADD132PS/D Gx, Vx, Ex");
@@ -1049,13 +1039,8 @@ uintptr_t dynarec64_AVX_66_0F38_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             GETVY_vector(q0, sew);
             GETEY_vector(q1, 0, sew);
             GETGY_vector(q2, sew);
-            GETGY_empty_vector(v0);
-            VEC_SRC_KEEP(q0, v0);
-            VEC_SRC_KEEP(q1, v0);
-            VEC_SRC_KEEP(q2, v0);
-            VMV_V_V(v0, q0);
-            VFNMSAC_VV(v0, q2, q1, VECTOR_UNMASKED);
-            PUTGY_vector(v0, sew);
+            VFNMSUB_VV(q2, q0, q1, VECTOR_UNMASKED);
+            PUTGY_vector(q2, sew);
             break;
         case 0x9E:
             INST_NAME("VFNMSUB132PS/D Gx, Vx, Ex");
@@ -1064,13 +1049,8 @@ uintptr_t dynarec64_AVX_66_0F38_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             GETVY_vector(q0, sew);
             GETEY_vector(q1, 0, sew);
             GETGY_vector(q2, sew);
-            GETGY_empty_vector(v0);
-            VEC_SRC_KEEP(q0, v0);
-            VEC_SRC_KEEP(q1, v0);
-            VEC_SRC_KEEP(q2, v0);
-            VMV_V_V(v0, q0);
-            VFNMACC_VV(v0, q2, q1, VECTOR_UNMASKED);
-            PUTGY_vector(v0, sew);
+            VFNMADD_VV(q2, q0, q1, VECTOR_UNMASKED);
+            PUTGY_vector(q2, sew);
             break;
         case 0xA8:
             INST_NAME("VFMADD213PS/D Gx, Vx, Ex");
@@ -1079,12 +1059,8 @@ uintptr_t dynarec64_AVX_66_0F38_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             GETVY_vector(q0, sew);
             GETEY_vector(q1, 0, sew);
             GETGY_vector(q2, sew);
-            GETGY_empty_vector(v0);
-            VEC_SRC_KEEP(q0, v0);
-            VEC_SRC_KEEP(q2, v0);
-            VMV_V_V(v0, q1);
-            VFMACC_VV(v0, q0, q2, VECTOR_UNMASKED);
-            PUTGY_vector(v0, sew);
+            VFMADD_VV(q2, q1, q0, VECTOR_UNMASKED);
+            PUTGY_vector(q2, sew);
             break;
         case 0xA6:
             INST_NAME("VFMADDSUB213PS/D Gx, Vx, Ex");
@@ -1133,12 +1109,8 @@ uintptr_t dynarec64_AVX_66_0F38_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             GETVY_vector(q0, sew);
             GETEY_vector(q1, 0, sew);
             GETGY_vector(q2, sew);
-            GETGY_empty_vector(v0);
-            VEC_SRC_KEEP(q0, v0);
-            VEC_SRC_KEEP(q2, v0);
-            VMV_V_V(v0, q1);
-            VFMSAC_VV(v0, q0, q2, VECTOR_UNMASKED);
-            PUTGY_vector(v0, sew);
+            VFMSUB_VV(q2, q1, q0, VECTOR_UNMASKED);
+            PUTGY_vector(q2, sew);
             break;
         case 0xAC:
             INST_NAME("VFNMADD213PS/D Gx, Vx, Ex");
@@ -1147,12 +1119,8 @@ uintptr_t dynarec64_AVX_66_0F38_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             GETVY_vector(q0, sew);
             GETEY_vector(q1, 0, sew);
             GETGY_vector(q2, sew);
-            GETGY_empty_vector(v0);
-            VEC_SRC_KEEP(q0, v0);
-            VEC_SRC_KEEP(q2, v0);
-            VMV_V_V(v0, q1);
-            VFNMSAC_VV(v0, q0, q2, VECTOR_UNMASKED);
-            PUTGY_vector(v0, sew);
+            VFNMSUB_VV(q2, q1, q0, VECTOR_UNMASKED);
+            PUTGY_vector(q2, sew);
             break;
         case 0xAE:
             INST_NAME("VFNMSUB213PS/D Gx, Vx, Ex");
@@ -1161,12 +1129,8 @@ uintptr_t dynarec64_AVX_66_0F38_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             GETVY_vector(q0, sew);
             GETEY_vector(q1, 0, sew);
             GETGY_vector(q2, sew);
-            GETGY_empty_vector(v0);
-            VEC_SRC_KEEP(q0, v0);
-            VEC_SRC_KEEP(q2, v0);
-            VMV_V_V(v0, q1);
-            VFNMACC_VV(v0, q0, q2, VECTOR_UNMASKED);
-            PUTGY_vector(v0, sew);
+            VFNMADD_VV(q2, q1, q0, VECTOR_UNMASKED);
+            PUTGY_vector(q2, sew);
             break;
         case 0xB8:
             INST_NAME("VFMADD231PS/D Gx, Vx, Ex");
@@ -1225,12 +1189,8 @@ uintptr_t dynarec64_AVX_66_0F38_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             GETVY_vector(q0, sew);
             GETEY_vector(q1, 0, sew);
             GETGY_vector(q2, sew);
-            GETGY_empty_vector(v0);
-            VEC_SRC_KEEP(q0, v0);
-            VEC_SRC_KEEP(q1, v0);
-            VMV_V_V(v0, q2);
-            VFMSAC_VV(v0, q0, q1, VECTOR_UNMASKED);
-            PUTGY_vector(v0, sew);
+            VFMSAC_VV(q2, q0, q1, VECTOR_UNMASKED);
+            PUTGY_vector(q2, sew);
             break;
         case 0xBC:
             INST_NAME("VFNMADD231PS/D Gx, Vx, Ex");
@@ -1239,12 +1199,8 @@ uintptr_t dynarec64_AVX_66_0F38_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             GETVY_vector(q0, sew);
             GETEY_vector(q1, 0, sew);
             GETGY_vector(q2, sew);
-            GETGY_empty_vector(v0);
-            VEC_SRC_KEEP(q0, v0);
-            VEC_SRC_KEEP(q1, v0);
-            VMV_V_V(v0, q2);
-            VFNMSAC_VV(v0, q0, q1, VECTOR_UNMASKED);
-            PUTGY_vector(v0, sew);
+            VFNMSAC_VV(q2, q0, q1, VECTOR_UNMASKED);
+            PUTGY_vector(q2, sew);
             break;
         case 0xBE:
             INST_NAME("VFNMSUB231PS/D Gx, Vx, Ex");
@@ -1253,12 +1209,8 @@ uintptr_t dynarec64_AVX_66_0F38_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             GETVY_vector(q0, sew);
             GETEY_vector(q1, 0, sew);
             GETGY_vector(q2, sew);
-            GETGY_empty_vector(v0);
-            VEC_SRC_KEEP(q0, v0);
-            VEC_SRC_KEEP(q1, v0);
-            VMV_V_V(v0, q2);
-            VFNMACC_VV(v0, q0, q1, VECTOR_UNMASKED);
-            PUTGY_vector(v0, sew);
+            VFNMACC_VV(q2, q0, q1, VECTOR_UNMASKED);
+            PUTGY_vector(q2, sew);
             break;
         case 0xDB:
             if (!cpuext.zvkned) {
