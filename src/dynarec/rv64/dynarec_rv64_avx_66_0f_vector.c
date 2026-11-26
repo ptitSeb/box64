@@ -1132,21 +1132,23 @@ uintptr_t dynarec64_AVX_66_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             PUTGY_vector(v0, VECTOR_SEW64);
             break;
         case 0xE0:
-            INST_NAME("VPAVGB Gx, Vx, Ex");
+        case 0xE3: {
+            INST_NAME(opcode == 0xE0 ? "VPAVGB Gx, Vx, Ex" : "VPAVGW Gx, Vx, Ex");
             nextop = F8;
-            GETGY_empty_VYEY_vector(v0, q0, q1, VECTOR_SEW8);
-            CSRRWI(xZR, 0b00, 0x00A);
-            VAADDU_VV(v0, q0, q1, VECTOR_UNMASKED);
-            PUTGY_vector(v0, VECTOR_SEW8);
+            const int width = opcode == 0xE0 ? VECTOR_SEW8 : VECTOR_SEW16;
+            GETGY_empty_VYEY_vector(v0, q0, q1, width);
+            if (q0 == q1) {
+                v0 = q0;
+            } else {
+                int difference = vpu_get_scratch(dyn);
+                VXOR_VV(difference, q0, q1, VECTOR_UNMASKED);
+                VOR_VV(v0, q0, q1, VECTOR_UNMASKED);
+                VSRL_VI(difference, difference, 1, VECTOR_UNMASKED);
+                VSUB_VV(v0, v0, difference, VECTOR_UNMASKED);
+            }
+            PUTGY_vector(v0, width);
             break;
-        case 0xE3:
-            INST_NAME("VPAVGW Gx, Vx, Ex");
-            nextop = F8;
-            GETGY_empty_VYEY_vector(v0, q0, q1, VECTOR_SEW16);
-            CSRRWI(xZR, 0b00, 0x00A);
-            VAADDU_VV(v0, q0, q1, VECTOR_UNMASKED);
-            PUTGY_vector(v0, VECTOR_SEW16);
-            break;
+        }
         case 0xE4:
             INST_NAME("VPMULHUW Gx, Vx, Ex");
             nextop = F8;
