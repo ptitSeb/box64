@@ -3042,30 +3042,28 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             VNSRL_WI(v0, q0, 0, VECTOR_UNMASKED);
             VADD_VV(v0, v0, q1, VECTOR_UNMASKED);
             break;
-        case 0xF6:
+        case 0xF6: {
             INST_NAME("PSADBW Gx, Ex");
             nextop = F8;
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW8);
             GETGX_vector(q0, 1, VECTOR_SEW8);
             GETEX_vector(q1, 0, 0, VECTOR_SEW8);
-            VECTOR_LOAD_VMASK(0xFF, x4);
-            v0 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-            v1 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-            d0 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2); // no more scratches!
-            VWSUBU_VV(v0, q0, q1, VECTOR_UNMASKED);
-            rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL2, 32);
-            VSRA_VI(v1, v0, 15, VECTOR_UNMASKED);
-            VXOR_VV(v0, v1, v0, VECTOR_UNMASKED);
-            VSUB_VV(v1, v0, v1, VECTOR_UNMASKED);
-            VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
-            VREDSUM_VS(v0, v1, v0, VECTOR_MASKED); // sum low 64
-            VSLIDEDOWN_VI(d0, v1, 8, VECTOR_UNMASKED);
-            VXOR_VV(v1, v1, v1, VECTOR_UNMASKED);
-            VREDSUM_VS(v1, d0, v1, VECTOR_MASKED); // sum high 64
-            VSLIDEUP_VI_SAFE(v0, v1, 4, VECTOR_UNMASKED);
-            rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW8, VECTOR_LMUL1, 16);
-            VMV_V_V(q0, v0);
+            int byte_diffs = vpu_get_scratch(dyn);
+            int work = vpu_get_scratch(dyn);
+            int upper_sum = vpu_get_scratch(dyn);
+            VMAXU_VV(byte_diffs, q0, q1, VECTOR_UNMASKED);
+            VMINU_VV(work, q0, q1, VECTOR_UNMASKED);
+            VSUB_VV(byte_diffs, byte_diffs, work, VECTOR_UNMASKED);
+            VMV_V_I(q0, 0);
+            VMV_V_I(upper_sum, 0);
+            rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW8, VECTOR_LMUL1, 8);
+            VSLIDEDOWN_VI(work, byte_diffs, 8, VECTOR_UNMASKED);
+            VWREDSUMU_VS(q0, byte_diffs, q0, VECTOR_UNMASKED);
+            VWREDSUMU_VS(upper_sum, work, upper_sum, VECTOR_UNMASKED);
+            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64);
+            VSLIDEUP_VI(q0, upper_sum, 1, VECTOR_UNMASKED);
             break;
+        }
         case 0xF8 ... 0xFB:
             if (opcode == 0xF8) {
                 INST_NAME("PSUBB Gx, Ex");
