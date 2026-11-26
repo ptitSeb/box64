@@ -1291,18 +1291,29 @@ uintptr_t dynarec64_AVX_66_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             VAND_VX(v0, v0, x5, VECTOR_UNMASKED);
             PUTGY_vector(v0, VECTOR_SEW64);
             break;
-        case 0xF4:
+        case 0xF4: {
             INST_NAME("VPMULUDQ Gx, Vx, Ex");
             nextop = F8;
-            GETGY_empty_VYEY_vector(v0, q0, q1, VECTOR_SEW64);
-            MOV64x(x2, 0xffffffffULL);
-            q2 = vpu_get_scratch(dyn);
-            d0 = vpu_get_scratch(dyn);
-            VAND_VX(q2, q0, x2, VECTOR_UNMASKED);
-            VAND_VX(d0, q1, x2, VECTOR_UNMASKED);
-            VMUL_VV(v0, q2, d0, VECTOR_UNMASKED);
+            unsigned regions = vex.l ? SIMD_YMM : SIMD_XMM;
+            q0 = simd_access(dyn, ninst, x1, vex.v, regions, 0);
+            if (MODREG) {
+                q1 = simd_access(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), regions, 0);
+            } else {
+                GETEY_vector(q1, 0, VECTOR_SEW64);
+            }
+            GETGY_empty_vector(v0);
+            rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMULF2, 8 << vex.l);
+            int left_dwords = vpu_get_scratch(dyn);
+            int right_dwords = left_dwords;
+            VNSRL_WI(left_dwords, q0, 0, VECTOR_UNMASKED);
+            if (q0 != q1) {
+                right_dwords = vpu_get_scratch(dyn);
+                VNSRL_WI(right_dwords, q1, 0, VECTOR_UNMASKED);
+            }
+            VWMULU_VV(v0, left_dwords, right_dwords, VECTOR_UNMASKED);
             PUTGY_vector(v0, VECTOR_SEW64);
             break;
+        }
         case 0xF5:
             INST_NAME("VPMADDWD Gx, Vx, Ex");
             nextop = F8;
