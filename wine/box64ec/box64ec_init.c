@@ -20,7 +20,6 @@ uintptr_t box64_pagesize = 4096;
 uint32_t default_fs = 0;
 int box64_is32bits = 0;
 int box64_unittest_mode = 0;
-int box64_ymm_split = 0;
 uint8_t box64_rdtsc_shift = 0;
 #ifdef DYNAREC
 int box64_rdtsc = 0;
@@ -78,8 +77,7 @@ NTSTATUS WINAPI ProcessInit(void)
     DetectHostCpuFeatures();
 #endif
 
-    box64_ymm_split = BOX64ENV(dynarec) ? 1 : 0;
-    printf_log(LOG_DEBUG, "Using %s xmm/ymm registers\n", box64_ymm_split ? "separate" : "unified");
+    printf_log(LOG_DEBUG, "Using separate xmm/ymm registers\n");
 
     NTSTATUS status = Box64EC_InitSyscalls();
     if (status)

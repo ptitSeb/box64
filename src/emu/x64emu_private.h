@@ -195,6 +195,17 @@ typedef struct x64emu_s {
 #define EMUTYPE_MAIN    1
 #define EMUTYPE_SIGNAL  2
 
+#ifdef ARM64
+static inline sse_regs_t* getXMM(x64emu_t* emu, int i)
+{
+    return &emu->xmm[i];
+}
+
+static inline sse_regs_t* getYMM(x64emu_t* emu, int i)
+{
+    return &emu->ymm[i];
+}
+#else
 static inline sse_regs_t* getXMM(x64emu_t* emu, int i)
 {
     return box64_ymm_split ? &emu->xmm[i] : &emu->ymm256[i].r.lo;
@@ -204,6 +215,7 @@ static inline sse_regs_t* getYMM(x64emu_t* emu, int i)
 {
     return box64_ymm_split ? &emu->ymm[i] : &emu->ymm256[i].r.hi;
 }
+#endif
 
 void EmitDiv0(x64emu_t* emu, void* addr, int code);
 #define INTR_RAISE_DIV0(emu) {emu->error |= ERR_DIVBY0;} // should rise a SIGFPE and not quit
