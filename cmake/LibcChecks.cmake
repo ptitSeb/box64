@@ -67,8 +67,59 @@ endforeach()
 include(CheckFunctionExists)
 
 set(PROJECT_FUNCTION_CHECKS
-    __chk_fail
 )
+
+# glibc _FORTIFY_SOURCE runtime checks
+set(PROJECT_FORTIFY_CHECKS
+    __chk_fail
+    __confstr_chk
+    __explicit_bzero_chk
+    __fdelt_chk
+    __fgets_chk
+    __fgets_unlocked_chk
+    __fread_chk
+    __fread_unlocked_chk
+    __getgroups_chk
+    __gethostname_chk
+    __getwd_chk
+    __mbsnrtowcs_chk
+    __mbsrtowcs_chk
+    __mbstowcs_chk
+    __memcpy_chk
+    __memmove_chk
+    __mempcpy_chk
+    __memset_chk
+    __poll_chk
+    __ppoll_chk
+    __pread64_chk
+    __pread_chk
+    __read_chk
+    __recv_chk
+    __stpcpy_chk
+    __stpncpy_chk
+    __strcat_chk
+    __strcpy_chk
+    __strlcpy_chk
+    __strncat_chk
+    __strncpy_chk
+    __wcrtomb_chk
+    __wcscat_chk
+    __wcscpy_chk
+    __wcsncat_chk
+    __wcsncpy_chk
+    __wcsnrtombs_chk
+    __wcsrtombs_chk
+    __wcstombs_chk
+    __wctomb_chk
+    __wmemcpy_chk
+    __wmemmove_chk
+    __wmemset_chk
+)
+
+# Bionic has its own fortify functions
+if(NOT ANDROID)
+    list(APPEND PROJECT_FUNCTION_CHECKS ${PROJECT_FORTIFY_CHECKS})
+endif()
 
 foreach(function IN LISTS PROJECT_FUNCTION_CHECKS)
     string(MAKE_C_IDENTIFIER "${function}" function_ident)

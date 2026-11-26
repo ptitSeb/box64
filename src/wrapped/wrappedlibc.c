@@ -5846,11 +5846,6 @@ size_t __attribute__((weak)) strlcpy(char* dest, const char* src, size_t len)
     }
     return l;
 }
-size_t __attribute__((weak)) __strlcpy_chk(char* dest, const char* src, size_t len, size_t chk)
-{
-    // in case it's not defined... create a weak version with no actual chk
-    return strlcpy(dest, src, len);
-}
 
 __attribute__((weak)) uint32_t arc4random(void)
 {
