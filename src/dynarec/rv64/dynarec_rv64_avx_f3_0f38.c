@@ -63,33 +63,47 @@ uintptr_t dynarec64_AVX_F3_0F38(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             GETGDd;
             GETVD;
             GETED(0);
-            if (gd == ed || gd == vd) {
+            if (rex.w || !MODREG) {
+                MV(x4, ed);
+            } else {
+                ZEXTW2(x4, ed);
+            }
+            if (gd == vd) {
                 gb1 = gd;
                 gd = x6;
             } else {
                 gb1 = 0;
             }
-            ADDI(gd, xZR, 0);
-            ADDI(x3, xZR, 1);
-            ADDI(x4, xZR, 1);
-            MARK;
-            AND(x5, ed, x4);
-            BEQZ_MARK2(x5);
-            AND(x5, vd, x4);
-            if (cpuext.zicond) {
-                CZERO_EQZ(x5, x3, x5);
-                OR(gd, gd, x5);
+            ADDIxw(x5, x4, 1);
+            if (rex.w) {
+                MV(gd, vd);
             } else {
-                BEQZ_MARK3(x5);
+                ZEXTW2(gd, vd);
+            }
+            BEQZ_MARK2(x5);
+            ADDI(gd, xZR, 0);
+            BEQZ_MARK2(x4);
+            ADDI(x3, xZR, 1);
+            MARK;
+            ADDI(x5, x4, -1);
+            ANDN(x2, x4, x5, x2);
+            AND(x4, x4, x5);
+            AND(x2, vd, x2);
+            if (cpuext.zicond) {
+                CZERO_EQZ(x2, x3, x2);
+                OR(gd, gd, x2);
+            } else if (cpuext.xtheadcondmov) {
+                OR(x5, gd, x3);
+                TH_MVNEZ(gd, x5, x2);
+            } else {
+                BEQZ_MARK3(x2);
                 OR(gd, gd, x3);
             }
             MARK3;
-            SLLIxw(x3, x3, 1);
-            MARK2;
-            SLLIxw(x4, x4, 1);
+            SLLI(x3, x3, 1);
             BNEZ_MARK(x4);
-            if (gb1)
-                MV(gb1, gd);
+            MARK2;
+            if (gb1) MV(gb1, gd);
             break;
 
         case 0xF7:
