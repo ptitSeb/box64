@@ -393,47 +393,39 @@ uintptr_t dynarec64_AVX_F2_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             PUTGY_vector(v0, VECTOR_SEW32);
             break;
         }
-        case 0xE6:
+        case 0xE6: {
             INST_NAME("VCVTPD2DQ Gx, Ex");
             nextop = F8;
             GETEY_vector(q0, 0, VECTOR_SEW64);
             GETGY_empty_vector(v0);
-            d0 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-            q2 = vpu_get_scratch(dyn);
-            simd_set_width(dyn, ninst, x1, VECTOR_SEW64, 16 << vex.l);
-            VMV_V_V(d0, q0);
             if (BOX64ENV(dynarec_fastround)) {
-                simd_set_width(dyn, ninst, x1, VECTOR_SEW32, 16);
-                VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
-                rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL1, (vex.l ? 16 : 8));
-                VFNCVT_X_F_W(q2, d0, VECTOR_UNMASKED);
-                VMV_V_V(v0, q2);
+                if ((q0 & 1) || v0 == q0 + 1) {
+                    int aligned = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+                    VMV1R_V(aligned, q0);
+                    q0 = aligned;
+                }
+                simd_set_width(dyn, ninst, x1, VECTOR_SEW32, 8 << vex.l);
+                VFNCVT_X_F_W(v0, q0, VECTOR_UNMASKED);
             } else {
+                int rounded = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
                 FSFLAGSI(0);
-                VFCVT_X_F_V(d0, d0, VECTOR_UNMASKED);
-                q3 = vpu_get_scratch(dyn);
-                MOV64x(x5, (int64_t)INT32_MIN);
-                VMSLT_VX(q3, d0, x5, VECTOR_UNMASKED);
-                MOV64x(x5, (int64_t)INT32_MAX);
-                VMSGT_VX(VMASK, d0, x5, VECTOR_UNMASKED);
-                VMOR_MM(q3, q3, VMASK);
-                simd_set_width(dyn, ninst, x1, VECTOR_SEW32, 16);
-                VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
-                rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL1, (vex.l ? 16 : 8));
-                VNSRL_WI(q2, d0, 0, VECTOR_UNMASKED);
-                v2 = vpu_get_scratch(dyn);
-                MOV32w(x5, 0x80000000);
-                VMV_V_X(v2, x5);
-                VMAND_MM(VMASK, q3, q3);
-                VMERGE_VVM(q2, q2, v2);
-                VMV_V_V(v0, q2);
-                VCPOP_M(x4, VMASK, VECTOR_UNMASKED);
-                BEQZ_MARK(x4);
+                VFCVT_X_F_V(rounded, q0, VECTOR_UNMASKED);
+                MOV64x(x4, (int64_t)INT32_MIN);
+                VSUB_VX(v0, rounded, x4, VECTOR_UNMASKED);
+                SRLI(x5, x4, 32);
+                VMSGTU_VX(VMASK, v0, x5, VECTOR_UNMASKED);
+                simd_set_width(dyn, ninst, x1, VECTOR_SEW32, 8 << vex.l);
+                VNSRL_WI(v0, rounded, 0, VECTOR_UNMASKED);
+                VMERGE_VXM(v0, v0, x4);
+                VFIRST_M(x4, VMASK, VECTOR_UNMASKED);
+                BLT_MARK(x4, xZR);
                 emit_mxcsr_raise_invalid(x5);
+                if (BOX64ENV(sse_flushto0)) CSRRSI(xZR, 1 << FR_NV, 0x001);
                 MARK;
             }
-            simd_store_reg(dyn, ninst, x1, v0, gd, 16, VECTOR_SEW32);
+            simd_commit(dyn, ninst, gd, vex.l ? SIMD_XMM : SIMD_LO64, (vex.l ? 0 : SIMD_HI64) | SIMD_HI128);
             break;
+        }
         default:
             DEFAULT_VECTOR;
     }
