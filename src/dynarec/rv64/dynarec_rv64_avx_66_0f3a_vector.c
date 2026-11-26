@@ -433,6 +433,30 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
         case 0x0A:
             INST_NAME("VROUNDSS Gx, Vx, Ex, Ib");
             nextop = F8;
+            if (cpuext.zfa) {
+                gd = ((nextop >> 3) & 7) + (rex.r << 3);
+                d0 = fpu_get_scratch(dyn);
+                if (MODREG) {
+                    q0 = simd_get(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 4, VECTOR_SEW32, 0);
+                    VFMV_F_S(d0, q0);
+                } else {
+                    SMREAD();
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 1);
+                    FLW(d0, ed, fixedaddress);
+                }
+                u8 = F8;
+                d1 = fpu_get_scratch(dyn);
+                FROUNDS(d1, d0, (u8 & 4) ? RD_DYN : round_round[u8 & 3], !(u8 & 8));
+                FEQS(x4, d0, d0);
+                BNEZ_MARK(x4);
+                FMVXW(x4, d0);
+                BSETI(x4, x4, 22, x5);
+                FMVWX(d1, x4);
+                MARK;
+                v0 = simd_seed_scalar(dyn, ninst, x1, gd, vex.v, VECTOR_SEW32);
+                VFMV_S_F(v0, d1);
+                break;
+            }
             q0 = vpu_get_scratch(dyn);
             simd_load_reg(dyn, ninst, x1, q0, vex.v, 16, VECTOR_SEW32);
             d0 = fpu_get_scratch(dyn);
@@ -493,6 +517,30 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
         case 0x0B:
             INST_NAME("VROUNDSD Gx, Vx, Ex, Ib");
             nextop = F8;
+            if (cpuext.zfa) {
+                gd = ((nextop >> 3) & 7) + (rex.r << 3);
+                d0 = fpu_get_scratch(dyn);
+                if (MODREG) {
+                    q0 = simd_get(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 8, VECTOR_SEW64, 0);
+                    VFMV_F_S(d0, q0);
+                } else {
+                    SMREAD();
+                    addr = geted(dyn, addr, ninst, nextop, &ed, x2, x3, &fixedaddress, rex, NULL, 0, 1);
+                    FLD(d0, ed, fixedaddress);
+                }
+                u8 = F8;
+                d1 = fpu_get_scratch(dyn);
+                FROUNDD(d1, d0, (u8 & 4) ? RD_DYN : round_round[u8 & 3], !(u8 & 8));
+                FEQD(x4, d0, d0);
+                BNEZ_MARK(x4);
+                FMVXD(x4, d0);
+                BSETI(x4, x4, 51, x5);
+                FMVDX(d1, x4);
+                MARK;
+                v0 = simd_seed_scalar(dyn, ninst, x1, gd, vex.v, VECTOR_SEW64);
+                VFMV_S_F(v0, d1);
+                break;
+            }
             q0 = vpu_get_scratch(dyn);
             simd_load_reg(dyn, ninst, x1, q0, vex.v, 16, VECTOR_SEW64);
             d0 = fpu_get_scratch(dyn);

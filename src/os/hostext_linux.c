@@ -133,6 +133,13 @@ void rv64Detect(void)
     cpuext.zicond = Check(my_block);
 
     block = (uint32_t*)my_block;
+    FMVWX(0, xZR);
+    FROUNDS(0, 0, RD_RNE, 0);
+    ADDI(A0, xZR, 42);
+    BR(xRA);
+    cpuext.zfa = Check(my_block);
+
+    block = (uint32_t*)my_block;
     CSRRS(xZR, xZR, 0xc22 /* vlenb */);
     ADDI(A0, xZR, 42);
     BR(xRA);
@@ -321,6 +328,7 @@ int DetectHostCpuFeatures(void)
                 if (!strcasecmp(p, "zbb")) cpuext.zbb = 0;
                 if (!strcasecmp(p, "zbc")) cpuext.zbc = 0;
                 if (!strcasecmp(p, "zbs")) cpuext.zbs = 0;
+                if (!strcasecmp(p, "zfa")) cpuext.zfa = 0;
                 if (!strcasecmp(p, "vector")) {
                     cpuext.vector = 0;
                     cpuext.xtheadvector = 0;
