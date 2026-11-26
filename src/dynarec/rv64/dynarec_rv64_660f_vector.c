@@ -2166,16 +2166,28 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 VLE_V(v0, ed, VECTOR_SEW64, VECTOR_UNMASKED, VECTOR_NFIELD1);
             }
             break;
-        case 0x70:
+        case 0x70: {
             INST_NAME("PSHUFD Gx, Ex, Ib");
             nextop = F8;
-            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64);
-            GETEX_vector(q1, 0, 1, VECTOR_SEW64);
+            if (!cpuext.xtheadvector && MODREG) {
+                ed = (nextop & 7) + (rex.b << 3);
+                if (PK(0) == 0xe4) {
+                    ++addr;
+                    gd = ((nextop >> 3) & 7) + (rex.r << 3);
+                    simd_copy(dyn, ninst, x1, gd, ed, 16, 0);
+                    break;
+                }
+                q1 = simd_access(dyn, ninst, x1, ed, SIMD_XMM, 0);
+            } else {
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEW64);
+                GETEX_vector(q1, 0, 1, VECTOR_SEW64);
+            }
             GETGX_empty_vector(q0);
-            v0 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL1);
-            tmp64u0 = F8;
+            uint8_t control = F8;
             if (cpuext.xtheadvector) { // lack of vrgatherei16.vv
+                v0 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL1);
                 v1 = vpu_get_scratch(dyn);
+                tmp64u0 = control;
                 if (tmp64u0 == 0) {
                     VXOR_VV(v0, v0, v0, VECTOR_UNMASKED);
                 } else {
@@ -2203,19 +2215,32 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                 } else {
                     VRGATHER_VV_SAFE(q0, q1, v0, VECTOR_UNMASKED);
                 }
+            } else if (control == 0xe4) {
+                VMV_V_V(q0, q1);
+            } else if (cpuext.zvbb && control == 0xb1) {
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEW64);
+                VROR_VI(q0, q1, 32, VECTOR_UNMASKED);
             } else {
-                tmp64u0 = ((tmp64u0 >> 6) << 48) | (((tmp64u0 >> 4) & 3) << 32) | (((tmp64u0 >> 2) & 3) << 16) | (tmp64u0 & 3);
-                VECTOR_SPLAT_IMM_S(v0, tmp64u0, x4, x3);
-                SET_ELEMENT_WIDTH(x1, VECTOR_SEW32);
-                if (q0 == q1) {
-                    v1 = vpu_get_scratch(dyn);
-                    VRGATHEREI16_VV(v1, q1, v0, VECTOR_UNMASKED);
-                    VMV_V_V(q0, v1);
+                int result = q0 == q1 ? vpu_get_scratch(dyn) : q0;
+                int first_element = control & 3;
+                if (control == 0x55 * first_element) {
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW32);
+                    VRGATHER_VI(result, q1, first_element, VECTOR_UNMASKED);
                 } else {
-                    VRGATHEREI16_VV(q0, q1, v0, VECTOR_UNMASKED);
+                    int indices = vpu_get_scratch(dyn);
+                    uint64_t packed_indices = first_element | ((uint64_t)((control >> 2) & 3) << 16) | ((uint64_t)((control >> 4) & 3) << 32) | ((uint64_t)(control >> 6) << 48);
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW64);
+                    MOV64xs(x4, packed_indices, x3);
+                    VMV_S_X(indices, x4);
+                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW32);
+                    VRGATHEREI16_VV(result, q1, indices, VECTOR_UNMASKED);
+                }
+                if (result != q0) {
+                    VMV_V_V(q0, result);
                 }
             }
             break;
+        }
         case 0x71:
             nextop = F8;
             switch ((nextop >> 3) & 7) {
