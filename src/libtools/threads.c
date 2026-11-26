@@ -310,7 +310,7 @@ void thread_set_et(emuthread_t* et)
 	#ifdef BAD_PKILL
 	if(et && !et->self)
 		et->self = (uintptr_t)pthread_self();
-	add_thread((void*)(et?et->self:pthread_self()), et);
+	add_thread((void*)(et?et->self:(uintptr_t)pthread_self()), et);
 	#endif
 	pthread_setspecific(thread_key, et);
 }
