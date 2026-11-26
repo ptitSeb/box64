@@ -946,20 +946,19 @@ uintptr_t dynarec64_AVX_66_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
                 SMWRITE2();
             }
             break;
-        case 0xD0:
+        case 0xD0: {
             if (!BOX64ENV(dynarec_fastnan)) return 0;
             INST_NAME("VADDSUBPD Gx, Vx, Ex");
             nextop = F8;
             GETGY_empty_VYEY_vector(v0, q0, q1, VECTOR_SEW64);
-            q2 = vpu_get_scratch(dyn);
-            VID_V(q2, VECTOR_UNMASKED);
-            VAND_VI(q2, q2, 1, VECTOR_UNMASKED);
-            VMSEQ_VX(VMASK, q2, xZR, VECTOR_UNMASKED);
-            VFSUB_VV(v0, q0, q1, VECTOR_MASKED);
-            VXOR_VI(VMASK, VMASK, 0x1f, VECTOR_UNMASKED);
-            VFADD_VV(v0, q0, q1, VECTOR_MASKED);
+            VECTOR_LOAD_VMASK(vex.l ? 0x05 : 0x01, x4);
+            int addend = vpu_get_scratch(dyn);
+            VMV_V_V(addend, q1);
+            VFSGNJN_VV(addend, q1, q1, VECTOR_MASKED);
+            VFADD_VV(v0, q0, addend, VECTOR_UNMASKED);
             PUTGY_vector(v0, VECTOR_SEW64);
             break;
+        }
         case 0xD1:
             INST_NAME("VPSRLW Gx, Vx, Ex");
             nextop = F8;
