@@ -42,26 +42,34 @@ uintptr_t dynarec64_AVX_66_0F38_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
     MAYUSE(q2);
 
     switch (opcode) {
-        case 0x00:
+        case 0x00: {
             INST_NAME("VPSHUFB Gx, Vx, Ex");
             nextop = F8;
             GETGY_empty_VYEY_vector(v0, q0, q1, VECTOR_SEW8);
-            v1 = vpu_get_scratch(dyn);
-            v2 = vpu_get_scratch(dyn);
-            q2 = vpu_get_scratch(dyn);
             SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW8);
-            MOV32w(x4, 16);
-            MOV32w(x5, 0x8f);
-            VMV_V_V(v1, q1);
-            VAND_VX(v1, v1, x5, VECTOR_UNMASKED);
-            VOR_VX(v1, v1, x4, VECTOR_UNMASKED);
-            VMV_V_V(v2, q1);
-            VAND_VX(v2, v2, x5, VECTOR_UNMASKED);
-            VSLIDEDOWN_VI(q2, v1, 16, VECTOR_UNMASKED);
-            VSLIDEUP_VI_SAFE(v2, q2, 16, VECTOR_UNMASKED);
-            VRGATHER_VV_SAFE(v0, q0, v2, VECTOR_UNMASKED);
+            // At e8,m1, VLMAX equals cpuext.vlen in bytes.
+            // When VLMAX <= 0x80, retaining control bit 7 gives VRGATHER an out-of-range index that returns zero.
+            const int zeroing_bit = 0x80;
+            const int zero_by_index = cpuext.vlen <= zeroing_bit;
+            int lookup_offsets = vpu_get_scratch(dyn);
+            if (zero_by_index) {
+                ADDI(x4, xZR, zeroing_bit | 0x0f);
+                VAND_VX(lookup_offsets, q1, x4, VECTOR_UNMASKED);
+            } else {
+                VAND_VI(lookup_offsets, q1, 15, VECTOR_UNMASKED);
+                VMSLT_VX(VMASK, q1, xZR, VECTOR_UNMASKED);
+            }
+            if (vex.l) {
+                int half_offsets = vpu_get_scratch(dyn);
+                VID_V(half_offsets, VECTOR_UNMASKED);
+                VAND_VI(half_offsets, half_offsets, -16, VECTOR_UNMASKED);
+                VOR_VV(lookup_offsets, lookup_offsets, half_offsets, VECTOR_UNMASKED);
+            }
+            VRGATHER_VV_SAFE(v0, q0, lookup_offsets, VECTOR_UNMASKED);
+            if (!zero_by_index) VMERGE_VIM(v0, v0, 0);
             PUTGY_vector(v0, VECTOR_SEW8);
             break;
+        }
 
 #define GO(SEW, OP)                                                        \
     do {                                                                   \
