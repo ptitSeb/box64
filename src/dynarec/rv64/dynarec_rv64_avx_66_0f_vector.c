@@ -348,12 +348,7 @@ uintptr_t dynarec64_AVX_66_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             nextop = F8;
             GETEY_vector(q0, 0, VECTOR_SEW64);
             GETGY_empty_vector(v0);
-            if ((q0 & 1) || v0 == q0 + 1) {
-                d0 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-                VMV1R_V(d0, q0);
-                q0 = d0;
-            }
-            simd_set_width(dyn, ninst, x1, VECTOR_SEW32, 8 << vex.l);
+            rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMULF2, 8 << vex.l);
             VFNCVT_F_F_W(v0, q0, VECTOR_UNMASKED);
             simd_commit(dyn, ninst, gd, vex.l ? SIMD_XMM : SIMD_LO64, (vex.l ? 0 : SIMD_HI64) | SIMD_HI128);
             break;
@@ -1504,22 +1499,17 @@ uintptr_t dynarec64_AVX_66_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             GETEY_vector(q0, 0, VECTOR_SEW64);
             GETGY_empty_vector(v0);
             if (BOX64ENV(dynarec_fastround)) {
-                if ((q0 & 1) || v0 == q0 + 1) {
-                    int aligned = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-                    VMV1R_V(aligned, q0);
-                    q0 = aligned;
-                }
-                simd_set_width(dyn, ninst, x1, VECTOR_SEW32, 8 << vex.l);
+                rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMULF2, 8 << vex.l);
                 VFNCVT_RTZ_X_F_W(v0, q0, VECTOR_UNMASKED);
             } else {
-                int rounded = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+                int rounded = vpu_get_scratch(dyn);
                 FSFLAGSI(0);
                 VFCVT_RTZ_X_F_V(rounded, q0, VECTOR_UNMASKED);
                 MOV64x(x4, (int64_t)INT32_MIN);
                 VSUB_VX(v0, rounded, x4, VECTOR_UNMASKED);
                 SRLI(x5, x4, 32);
                 VMSGTU_VX(VMASK, v0, x5, VECTOR_UNMASKED);
-                simd_set_width(dyn, ninst, x1, VECTOR_SEW32, 8 << vex.l);
+                rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMULF2, 8 << vex.l);
                 VNSRL_WI(v0, rounded, 0, VECTOR_UNMASKED);
                 VMERGE_VXM(v0, v0, x4);
                 VFIRST_M(x4, VMASK, VECTOR_UNMASKED);

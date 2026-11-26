@@ -1873,12 +1873,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             GETEX_vector(v1, 0, 0, VECTOR_SEW64);
             GETGX_empty_vector(v0);
             if (!cpuext.xtheadvector) {
-                if ((v1 & 1) || v0 == v1 + 1) {
-                    d1 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-                    VMV1R_V(d1, v1);
-                    v1 = d1;
-                }
-                simd_set_width(dyn, ninst, x1, VECTOR_SEW32, 8);
+                rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMULF2, 8);
                 VFNCVT_F_F_W(v0, v1, VECTOR_UNMASKED);
                 simd_commit(dyn, ninst, gd, SIMD_LO64, SIMD_HI64);
                 break;
@@ -2879,18 +2874,45 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             GETEX_vector(q1, 0, 0, VECTOR_SEW16);
             VMULH_VV(q0, q0, q1, VECTOR_UNMASKED);
             break;
-        case 0xE6:
+        case 0xE6: {
             INST_NAME("CVTTPD2DQ Gx, Ex");
             nextop = F8;
-            SET_ELEMENT_WIDTH(x1, VECTOR_SEW32);
-            GETEX_vector(v1, 0, 0, VECTOR_SEW32);
+            int self_alias = MODREG && ((nextop >> 3) & 7) == (nextop & 7) && rex.r == rex.b;
+            int use_fractional = !cpuext.xtheadvector && !(self_alias && BOX64ENV(dynarec_fastround));
+            int source_sew = use_fractional ? VECTOR_SEW64 : VECTOR_SEW32;
+            SET_ELEMENT_WIDTH(x1, source_sew);
+            GETEX_vector(v1, 0, 0, source_sew);
             GETGX_empty_vector(v0);
+            if (use_fractional) {
+                if (BOX64ENV(dynarec_fastround)) {
+                    rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMULF2, 8);
+                    VFNCVT_RTZ_X_F_W(v0, v1, VECTOR_UNMASKED);
+                } else {
+                    int rounded = vpu_get_scratch(dyn);
+                    FSFLAGSI(0);
+                    VFCVT_RTZ_X_F_V(rounded, v1, VECTOR_UNMASKED);
+                    MOV64x(x4, (int64_t)INT32_MIN);
+                    VSUB_VX(v0, rounded, x4, VECTOR_UNMASKED);
+                    SRLI(x5, x4, 32);
+                    VMSGTU_VX(VMASK, v0, x5, VECTOR_UNMASKED);
+                    rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMULF2, 8);
+                    VNSRL_WI(v0, rounded, 0, VECTOR_UNMASKED);
+                    VMERGE_VXM(v0, v0, x4);
+                    VFIRST_M(x4, VMASK, VECTOR_UNMASKED);
+                    BLT_MARK(x4, xZR);
+                    emit_mxcsr_raise_invalid(x5);
+                    if (BOX64ENV(sse_flushto0)) CSRRSI(xZR, 1 << FR_NV, 0x001);
+                    MARK;
+                }
+                simd_commit(dyn, ninst, gd, SIMD_LO64, SIMD_HI64);
+                break;
+            }
             d0 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
             VMV_V_V(d0, v1);
             if (!BOX64ENV(dynarec_fastround)) FSFLAGSI(0);
             if (cpuext.xtheadvector) {
                 rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL1, 8);
-                ADDI(x4, xZR, 1); // RTZ
+                ADDI(x4, xZR, RD_RTZ);
                 FSRM(x4, x4);
                 VFNCVT_X_F_W(v0, d0, VECTOR_UNMASKED);
                 FSRM(xZR, x4);
@@ -2919,6 +2941,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             }
             rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL1, 16);
             break;
+        }
         case 0xE7:
             INST_NAME("MOVNTDQ Ex, Gx");
             nextop = F8;
