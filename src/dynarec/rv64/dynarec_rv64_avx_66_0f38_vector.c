@@ -148,39 +148,32 @@ uintptr_t dynarec64_AVX_66_0F38_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             VSADD_VV(v0, q3, q4, VECTOR_UNMASKED);
             PUTGY_vector(v0, VECTOR_SEW16);
             break;
-        case 0x08:
-            INST_NAME("VPSIGNB Gx, Vx, Ex");
+        case 0x08 ... 0x0A: {
+            int sew = opcode - 0x08;
+            if (sew == VECTOR_SEW8) INST_NAME("VPSIGNB Gx, Vx, Ex");
+            else if (sew == VECTOR_SEW16) INST_NAME("VPSIGNW Gx, Vx, Ex");
+            else INST_NAME("VPSIGND Gx, Vx, Ex");
             nextop = F8;
-            GETGY_empty_VYEY_vector_safe(v0, q0, q1, VECTOR_SEW8);
-            VMV_V_V(v0, q0);
-            VMSLT_VX(VMASK, q1, xZR, VECTOR_UNMASKED);
-            VRSUB_VX(v0, q0, xZR, VECTOR_MASKED);
-            VMSEQ_VX(VMASK, q1, xZR, VECTOR_UNMASKED);
-            VXOR_VV(v0, v0, v0, VECTOR_MASKED);
-            PUTGY_vector(v0, VECTOR_SEW8);
+            GETGY_empty_VYEY_vector(v0, q0, q1, sew);
+            if (q0 == q1) {
+                int negated = vpu_get_scratch(dyn);
+                VRSUB_VX(negated, q0, xZR, VECTOR_UNMASKED);
+                VMAX_VV(v0, q0, negated, VECTOR_UNMASKED);
+            } else if (v0 == q1) {
+                int factor = vpu_get_scratch(dyn);
+                VMSGT_VI(VMASK, q1, 0, VECTOR_UNMASKED);
+                VSRA_VI(factor, q1, (8 << sew) - 1, VECTOR_UNMASKED);
+                VMERGE_VIM(factor, factor, 1);
+                VMUL_VV(v0, q0, factor, VECTOR_UNMASKED);
+            } else {
+                VMSEQ_VX(VMASK, q1, xZR, VECTOR_UNMASKED);
+                VMERGE_VIM(v0, q0, 0);
+                VMSLT_VX(VMASK, q1, xZR, VECTOR_UNMASKED);
+                VRSUB_VX(v0, v0, xZR, VECTOR_MASKED);
+            }
+            PUTGY_vector(v0, sew);
             break;
-        case 0x09:
-            INST_NAME("VPSIGNW Gx, Vx, Ex");
-            nextop = F8;
-            GETGY_empty_VYEY_vector_safe(v0, q0, q1, VECTOR_SEW16);
-            VMV_V_V(v0, q0);
-            VMSLT_VX(VMASK, q1, xZR, VECTOR_UNMASKED);
-            VRSUB_VX(v0, q0, xZR, VECTOR_MASKED);
-            VMSEQ_VX(VMASK, q1, xZR, VECTOR_UNMASKED);
-            VXOR_VV(v0, v0, v0, VECTOR_MASKED);
-            PUTGY_vector(v0, VECTOR_SEW16);
-            break;
-        case 0x0A:
-            INST_NAME("VPSIGND Gx, Vx, Ex");
-            nextop = F8;
-            GETGY_empty_VYEY_vector_safe(v0, q0, q1, VECTOR_SEW32);
-            VMV_V_V(v0, q0);
-            VMSLT_VX(VMASK, q1, xZR, VECTOR_UNMASKED);
-            VRSUB_VX(v0, q0, xZR, VECTOR_MASKED);
-            VMSEQ_VX(VMASK, q1, xZR, VECTOR_UNMASKED);
-            VXOR_VV(v0, v0, v0, VECTOR_MASKED);
-            PUTGY_vector(v0, VECTOR_SEW32);
-            break;
+        }
         case 0x0B: {
             INST_NAME("VPMULHRSW Gx, Vx, Ex");
             nextop = F8;
