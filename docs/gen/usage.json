@@ -238,6 +238,25 @@
     ]
   },
   {
+    "name": "BOX64_DYNAREC_ALIGNMENT",
+    "description": "Rebuild a Dynablock when one of its memory accesses faults on a misaligned address. The Linux build does not support it yet.",
+    "category": "Fragile or Legacy",
+    "wine": true,
+    "configurator": false,
+    "options": [
+      {
+        "key": "0",
+        "description": "Do not rebuild, patch the faulting instruction in dynablock with a plain one. Faster, but the patched dynablock may lose its memory ordering.",
+        "default": false
+      },
+      {
+        "key": "1",
+        "description": "Rebuild the dynablock once an alignment is caught. Slower, but more accurate and stable.",
+        "default": true
+      }
+    ]
+  },
+  {
     "name": "BOX64_DYNAREC_BIGBLOCK",
     "description": "Enable building bigger DynaRec code blocks for better performance.",
     "category": "Performance",

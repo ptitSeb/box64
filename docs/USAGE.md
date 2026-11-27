@@ -800,6 +800,13 @@ Add an environment variable.
 
 ## Fragile or Legacy
 
+### BOX64_DYNAREC_ALIGNMENT
+
+Rebuild a Dynablock when one of its memory accesses faults on a misaligned address. The Linux build does not support it yet. Available in WowBox64.
+
+ * 0: Do not rebuild, patch the faulting instruction in dynablock with a plain one. Faster, but the patched dynablock may lose its memory ordering.
+ * 1: Rebuild the dynablock once an alignment is caught. Slower, but more accurate and stable. [Default]
+
 ### BOX64_DYNAREC_WAIT
 
 Wait or not for the building of a DynaRec code block to be ready. Available in WowBox64.

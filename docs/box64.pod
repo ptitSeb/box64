@@ -150,6 +150,14 @@ Generate aligned atomics only (only available on Arm64 for now). Available in Wo
  * 1 : Generate aligned atomics only, which is faster and smaller code size, but will cause SIGBUS for LOCK prefixed opcodes operating on unaligned data addresses. 
 
 
+=item B<BOX64_DYNAREC_ALIGNMENT> =I<0|1>
+
+Rebuild a Dynablock when one of its memory accesses faults on a misaligned address. The Linux build does not support it yet. Available in WowBox64.
+
+ * 0 : Do not rebuild, patch the faulting instruction in dynablock with a plain one. Faster, but the patched dynablock may lose its memory ordering. 
+ * 1 : Rebuild the dynablock once an alignment is caught. Slower, but more accurate and stable. [Default]
+
+
 =item B<BOX64_DYNAREC_BIGBLOCK> =I<0|1|2|3>
 
 Enable building bigger DynaRec code blocks for better performance. Available in WowBox64.

@@ -11,6 +11,7 @@
 #include "wine/compiler.h"
 #ifdef DYNAREC
 #include "custommem.h"
+#include "debug.h"
 #include "dynablock.h"
 #include "dynarec/dynablock_private.h"
 #include "emu/x64run_private.h"
@@ -149,6 +150,7 @@ static void handle_dirty_callret(ARM64_NT_CONTEXT* arm_context, x64emu_t* emu, d
 
 /* An LRCPC access (LDAPUR, STLUR and the SIMD forms) crossing a 16 byte boundary faults: patch it to the plain
  * LDUR/STUR, which then runs again in the JIT, and mark the block for a rebuild without LRCPC for it.
+ * BOX64_DYNAREC_ALIGNMENT=0 keeps the patched block: games hit thousands of such accesses in their first seconds.
  * Returns if the fault is not one of those. */
 static void handle_misaligned_lrcpc(ARM64_NT_CONTEXT* arm_context, dynablock_t* db, box64ec_thr_t* state)
 {
@@ -172,7 +174,7 @@ static void handle_misaligned_lrcpc(ARM64_NT_CONTEXT* arm_context, dynablock_t* 
     if (addr & ((1 << size) - 1)) {
         if (form == 0x19000000 || form == 0x1D000800) {
             add_lrcpc_address(x64pc);
-            if (arch_lrcpc(db, x64pc))
+            if (BOX64ENV(dynarec_alignment) && arch_lrcpc(db, x64pc))
                 mark_db_lrcpc(db, x64pc);
             *(volatile uint32_t*)code = simd ? (opcode & 0xC0FFF3FF) | 0x3C000000 : (opcode & 0xC0FFFFFF) | 0x38000000;
             ClearCache(code, sizeof(*code));
