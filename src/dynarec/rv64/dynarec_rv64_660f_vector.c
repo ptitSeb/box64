@@ -2421,6 +2421,21 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     break;
                 case 3:
                     INST_NAME("PSRLDQ Ex, Ib");
+                    if (!cpuext.xtheadvector && cpuext.vlen && MODREG && PK(0) && PK(0) < 16) {
+                        ed = (nextop & 7) + (rex.b << 3);
+                        u8 = F8;
+                        q0 = simd_access(dyn, ninst, x1, ed, SIMD_XMM, 1);
+                        if (!(u8 & (u8 - 1))) {
+                            int element_sew = __builtin_ctz(u8);
+                            SET_ELEMENT_WIDTH(x1, element_sew);
+                            VSLIDE1DOWN_VX(q0, q0, xZR, VECTOR_UNMASKED);
+                        } else {
+                            int xmm_lmul = (VECTOR_LMUL1 - __builtin_ctz(cpuext.vlen / 16u)) & 7;
+                            rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW8, xmm_lmul, 16);
+                            VSLIDEDOWN_VI(q0, q0, u8, VECTOR_UNMASKED);
+                        }
+                        break;
+                    }
                     SET_ELEMENT_WIDTH(x1, VECTOR_SEW8);
                     GETEX_vector(q0, 1, 1, VECTOR_SEW8);
                     u8 = F8;
