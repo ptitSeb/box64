@@ -1153,12 +1153,25 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             break;
         case 0x63:
             INST_NAME("VPCMPISTRI Gx, Ex, Ib");
-            MARKREGs(xRAX);
-            MARKREGs(xRDX);
             nextop = F8;
             if (vex.l) {
                 DEFAULT_VECTOR;
             }
+            if (!(rex.is32bits && rex.is67)) {
+                u8 = geted_ib(dyn, addr, ninst, nextop);
+                if ((u8 & 0x7c) == 0x18) {
+                    SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
+                    int sew = (u8 & 1) ? VECTOR_SEW16 : VECTOR_SEW8;
+                    GETGY_vector(q0, sew);
+                    GETEY_vector(q1, 1, sew);
+                    ++addr;
+                    UP32_WRITE32(xRCX);
+                    simd_pcmpistri_negative_equal_each(dyn, ninst, q0, q1, 16 >> sew);
+                    break;
+                }
+            }
+            MARKREGs(xRAX);
+            MARKREGs(xRDX);
             SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
             gd = ((nextop & 0x38) >> 3) + (rex.r << 3);
             simd_forget_fp_reg(dyn, ninst, x6, gd);

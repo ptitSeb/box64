@@ -475,6 +475,48 @@ void simd_compare(dynarec_rv64_t* dyn, int ninst, int dst, int left, int right, 
     VMERGE_VIM(dst, dst, 0x1f);
 }
 
+void simd_pcmpistri_negative_equal_each(dynarec_rv64_t* dyn, int ninst, int left, int right, unsigned lanes)
+{
+    CLEAR_FLAGS();
+    SET_DFNONE();
+    int left_zero = vpu_get_scratch(dyn);
+    int right_zero = vpu_get_scratch(dyn);
+    int compared_lanes = vpu_get_scratch(dyn);
+    VMSEQ_VI(left_zero, left, 0, VECTOR_UNMASKED);
+    VMSEQ_VI(right_zero, right, 0, VECTOR_UNMASKED);
+    IFX (X_SF) {
+        VFIRST_M(x4, left_zero, VECTOR_UNMASKED);
+        SLTI(x4, x4, 0);
+        XORI(x4, x4, 1);
+        SLLI(x4, x4, F_SF);
+        OR(xFlags, xFlags, x4);
+    }
+    IFX (X_ZF) {
+        VFIRST_M(x4, right_zero, VECTOR_UNMASKED);
+        SLTI(x4, x4, 0);
+        XORI(x4, x4, 1);
+        SLLI(x4, x4, F_ZF);
+        OR(xFlags, xFlags, x4);
+    }
+    VMOR_MM(VMASK, left_zero, right_zero);
+    VMSIF_M(compared_lanes, VMASK, VECTOR_UNMASKED);
+    VMSNE_VV(VMASK, left, right, VECTOR_UNMASKED);
+    VMAND_MM(VMASK, VMASK, compared_lanes);
+    VFIRST_M(xRCX, VMASK, VECTOR_UNMASKED);
+    IFX (X_CF) {
+        SLTI(x4, xRCX, 0);
+        XORI(x4, x4, 1);
+        OR(xFlags, xFlags, x4);
+    }
+    IFX (X_OF) {
+        SEQZ(x4, xRCX);
+        SLLI(x4, x4, F_OF2);
+        OR(xFlags, xFlags, x4);
+    }
+    BGE(xRCX, xZR, 8);
+    ADDI(xRCX, xZR, lanes);
+}
+
 void simd_commit(dynarec_rv64_t* dyn, int ninst, int a, unsigned written, unsigned zero)
 {
     simd_record_write(dyn, ninst, a, written | zero);
