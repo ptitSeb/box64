@@ -517,6 +517,82 @@ void simd_pcmpistri_negative_equal_each(dynarec_rv64_t* dyn, int ninst, int left
     ADDI(xRCX, xZR, lanes);
 }
 
+void simd_pcmpistrm_equal_each(dynarec_rv64_t* dyn, int ninst, int dst, int left, int right, unsigned control)
+{
+    CLEAR_FLAGS();
+    SET_DFNONE();
+    int left_zero = vpu_get_scratch(dyn);
+    int right_zero = vpu_get_scratch(dyn);
+    int left_valid = vpu_get_scratch(dyn);
+    int right_valid = vpu_get_scratch(dyn);
+    int equal_valid = vpu_get_scratch(dyn);
+    int both_invalid = vpu_get_scratch(dyn);
+    VMSEQ_VI(left_zero, left, 0, VECTOR_UNMASKED);
+    VMSEQ_VI(right_zero, right, 0, VECTOR_UNMASKED);
+    IFX (X_SF) {
+        VFIRST_M(x4, left_zero, VECTOR_UNMASKED);
+        ADDI(x4, x4, 1);
+        SNEZ(x4, x4);
+        SLLI(x4, x4, F_SF);
+        OR(xFlags, xFlags, x4);
+    }
+    IFX (X_ZF) {
+        VFIRST_M(x4, right_zero, VECTOR_UNMASKED);
+        ADDI(x4, x4, 1);
+        SNEZ(x4, x4);
+        SLLI(x4, x4, F_ZF);
+        OR(xFlags, xFlags, x4);
+    }
+    VMSBF_M(left_valid, left_zero, VECTOR_UNMASKED);
+    VMSBF_M(right_valid, right_zero, VECTOR_UNMASKED);
+    VMAND_MM(equal_valid, left_valid, right_valid);
+    VMSEQ_VV(both_invalid, left, right, VECTOR_UNMASKED);
+    VMAND_MM(equal_valid, equal_valid, both_invalid);
+    VMNOR_MM(both_invalid, left_valid, right_valid);
+    if ((control & 0x30) == 0x10) {
+        VMNOR_MM(VMASK, equal_valid, both_invalid);
+    } else {
+        VMOR_MM(VMASK, equal_valid, both_invalid);
+        if ((control & 0x30) == 0x30) VMXOR_MM(VMASK, VMASK, right_valid);
+    }
+    if (control & 0x40) {
+        IFX (X_CF | X_OF) {
+            VFIRST_M(x4, VMASK, VECTOR_UNMASKED);
+            IFX (X_CF) {
+                ADDI(x5, x4, 1);
+                SNEZ(x5, x5);
+                OR(xFlags, xFlags, x5);
+            }
+            IFX (X_OF) {
+                SEQZ(x5, x4);
+                SLLI(x5, x5, F_OF2);
+                OR(xFlags, xFlags, x5);
+            }
+        }
+        VMV_V_I(dst, 0);
+        VMERGE_VIM(dst, dst, -1);
+    } else {
+        simd_set_width(dyn, ninst, x1, VECTOR_SEW64, 16);
+        VMV_X_S(x4, VMASK);
+        if (control & 1) {
+            ANDI(x4, x4, 0xff);
+        } else {
+            ZEXTH(x4, x4);
+        }
+        IFX (X_CF) {
+            SNEZ(x5, x4);
+            OR(xFlags, xFlags, x5);
+        }
+        IFX (X_OF) {
+            ANDI(x5, x4, 1);
+            SLLI(x5, x5, F_OF2);
+            OR(xFlags, xFlags, x5);
+        }
+        VMV_V_I(dst, 0);
+        VMV_S_X(dst, x4);
+    }
+}
+
 void simd_commit(dynarec_rv64_t* dyn, int ninst, int a, unsigned written, unsigned zero)
 {
     simd_record_write(dyn, ninst, a, written | zero);

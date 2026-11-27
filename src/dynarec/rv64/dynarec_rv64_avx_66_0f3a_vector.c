@@ -1109,6 +1109,20 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             if (vex.l) {
                 DEFAULT_VECTOR;
             }
+            if (!(rex.is32bits && rex.is67)) {
+                u8 = geted_ib(dyn, addr, ninst, nextop);
+                if ((u8 & 0x0c) == 0x08) {
+                    SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
+                    int sew = (u8 & 1) ? VECTOR_SEW16 : VECTOR_SEW8;
+                    GETGY_vector(q0, sew);
+                    GETEY_vector(q1, 1, sew);
+                    ++addr;
+                    v0 = simd_get_reg_empty(dyn, ninst, x1, 0);
+                    simd_pcmpistrm_equal_each(dyn, ninst, v0, q0, q1, u8);
+                    simd_commit(dyn, ninst, 0, SIMD_XMM, SIMD_HI128);
+                    break;
+                }
+            }
             SETFLAGS(X_ALL, SF_SET, NAT_FLAGS_NOFUSION);
             gd = ((nextop & 0x38) >> 3) + (rex.r << 3);
             simd_forget_fp_reg(dyn, ninst, x6, gd);
