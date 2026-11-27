@@ -3185,11 +3185,8 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW8);
             GETGX_vector(q0, 0, VECTOR_SEW8);
             GETEX_vector(q1, 0, 0, VECTOR_SEW8);
-            q2 = vpu_get_scratch(dyn);
             VMSLT_VX(VMASK, q1, xZR, VECTOR_UNMASKED);
-            VLE8_V(q2, xRDI, VECTOR_UNMASKED, VECTOR_NFIELD1);
-            VMERGE_VVM(q2, q2, q0);
-            VSE8_V(q2, xRDI, VECTOR_UNMASKED, VECTOR_NFIELD1);
+            VSE8_V(q0, xRDI, VECTOR_MASKED, VECTOR_NFIELD1);
             SMWRITE2();
             break;
         default:
