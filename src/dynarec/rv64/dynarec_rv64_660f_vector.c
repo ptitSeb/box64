@@ -2468,15 +2468,22 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                         PUTEX_vector(q0, VECTOR_SEW64);
                     }
                     break;
-                case 7:
+                case 7: {
                     INST_NAME("PSLLDQ Ex, Ib");
-                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW8);
-                    GETEX_vector(q0, 1, 1, VECTOR_SEW8);
+                    unsigned shift = MODREG ? PK(0) : 0;
+                    int use_slide1 = !cpuext.xtheadvector && shift && shift < 16 && !(shift & (shift - 1));
+                    int element_sew = use_slide1 ? __builtin_ctz(shift) : VECTOR_SEW8;
+                    SET_ELEMENT_WIDTH(x1, element_sew);
+                    GETEX_vector(q0, 1, 1, element_sew);
                     u8 = F8;
                     if (!u8) break;
                     if (u8 > 15) {
                         VXOR_VV(q0, q0, q0, VECTOR_UNMASKED);
                         PUTEX_vector(q0, VECTOR_SEW8);
+                    } else if (use_slide1) {
+                        int shifted = vpu_get_scratch(dyn);
+                        VSLIDE1UP_VX(shifted, q0, xZR, VECTOR_UNMASKED);
+                        VMV_V_V(q0, shifted);
                     } else {
                         d0 = vpu_get_scratch(dyn);
                         VXOR_VV(d0, d0, d0, VECTOR_UNMASKED);
@@ -2488,6 +2495,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                         }
                     }
                     break;
+                }
                 default: DEFAULT_VECTOR;
             }
             break;
