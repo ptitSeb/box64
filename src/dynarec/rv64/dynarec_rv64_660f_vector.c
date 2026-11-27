@@ -360,61 +360,73 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     VRGATHER_VV_SAFE(v1, q0, v0, VECTOR_UNMASKED); // registers cannot be overlapped!!
                     VMV_V_V(q0, v1);
                     break;
-                case 0x01:
-                    INST_NAME("PHADDW Gx, Ex");
+                case 0x01 ... 0x03:
+                case 0x05 ... 0x07: {
+                    int subtract = nextop >= 0x05;
+                    int saturate = (nextop & 3) == 3;
+                    int sew = (nextop & 3) == 2 ? VECTOR_SEW32 : VECTOR_SEW16;
+                    if (subtract) {
+                        if (saturate) INST_NAME("PHSUBSW Gx, Ex");
+                        else if (sew == VECTOR_SEW16) INST_NAME("PHSUBW Gx, Ex");
+                        else INST_NAME("PHSUBD Gx, Ex");
+                    } else {
+                        if (saturate) INST_NAME("PHADDSW Gx, Ex");
+                        else if (sew == VECTOR_SEW16) INST_NAME("PHADDW Gx, Ex");
+                        else INST_NAME("PHADDD Gx, Ex");
+                    }
                     nextop = F8;
-                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW16);
-                    GETGX_vector(q0, 1, VECTOR_SEW16);
-                    GETEX_vector(q1, 0, 0, VECTOR_SEW16);
-                    v0 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-                    d1 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-                    d0 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-                    VMV_V_V(v0, q0);
-                    if (q1 & 1) VMV_V_V(d1, q1);
-                    rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL2, 32);
-                    VSLIDEUP_VI_SAFE(v0, (q1 & 1) ? d1 : q1, 8, VECTOR_UNMASKED);
-                    rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 16);
-                    VNSRL_WI(d0, v0, 0, VECTOR_UNMASKED);
-                    VNSRL_WI(d1, v0, 16, VECTOR_UNMASKED);
-                    VADD_VV(q0, d1, d0, VECTOR_UNMASKED);
+                    SET_ELEMENT_WIDTH(x1, sew);
+                    GETGX_vector(q0, 1, sew);
+                    GETEX_vector(q1, 0, 0, sew);
+                    int duplicate = q0 == q1 && !cpuext.xtheadvector;
+                    int joined = q0;
+                    if (duplicate) {
+                        rvv_set_vl_for_width(dyn, ninst, x1, sew, VECTOR_LMULF2, 8);
+                    } else {
+                        joined = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+                        if (cpuext.xtheadvector) {
+                            VMV_V_V(joined, q0);
+                            if (q1 & 1) {
+                                int aligned = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
+                                VMV_V_V(aligned, q1);
+                                q1 = aligned;
+                            }
+                            rvv_set_vl_for_width(dyn, ninst, x1, sew, VECTOR_LMUL2, 32);
+                            VSLIDEUP_VI(joined, q1, 16 >> sew, VECTOR_UNMASKED);
+                        } else {
+                            VMV1R_V(joined, q0);
+                            if (cpuext.vlen == 16) {
+                                VMV1R_V(joined + 1, q1);
+                            } else {
+                                simd_set_width(dyn, ninst, x1, VECTOR_SEW64, 32);
+                                VSLIDEUP_VI(joined, q1, 2, VECTOR_UNMASKED);
+                            }
+                        }
+                        SET_ELEMENT_WIDTH(x1, sew);
+                    }
+                    int first = vpu_get_scratch(dyn);
+                    int second = vpu_get_scratch(dyn);
+                    VNSRL_WI(first, joined, 0, VECTOR_UNMASKED);
+                    if (sew == VECTOR_SEW16) {
+                        VNSRL_WI(second, joined, 16, VECTOR_UNMASKED);
+                    } else {
+                        ADDI(x4, xZR, 32);
+                        VNSRL_WX(second, joined, x4, VECTOR_UNMASKED);
+                    }
+                    int result = duplicate ? first : q0;
+                    if (subtract) {
+                        if (saturate) VSSUB_VV(result, first, second, VECTOR_UNMASKED);
+                        else VSUB_VV(result, first, second, VECTOR_UNMASKED);
+                    } else {
+                        if (saturate) VSADD_VV(result, first, second, VECTOR_UNMASKED);
+                        else VADD_VV(result, first, second, VECTOR_UNMASKED);
+                    }
+                    if (duplicate) {
+                        SET_ELEMENT_WIDTH(x1, VECTOR_SEW64);
+                        VRGATHER_VI(q0, first, 0, VECTOR_UNMASKED);
+                    }
                     break;
-                case 0x02:
-                    INST_NAME("PHADDD Gx, Ex");
-                    nextop = F8;
-                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW32);
-                    GETGX_vector(q0, 1, VECTOR_SEW32);
-                    GETEX_vector(q1, 0, 0, VECTOR_SEW32);
-                    v0 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-                    d1 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-                    d0 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-                    VMV_V_V(v0, q0);
-                    if (q1 & 1) VMV_V_V(d1, q1);
-                    rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL2, 32);
-                    VSLIDEUP_VI_SAFE(v0, (q1 & 1) ? d1 : q1, 4, VECTOR_UNMASKED);
-                    rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL1, 16);
-                    ADDI(x4, xZR, 32);
-                    VNSRL_WX(d0, v0, xZR, VECTOR_UNMASKED);
-                    VNSRL_WX(d1, v0, x4, VECTOR_UNMASKED);
-                    VADD_VV(q0, d1, d0, VECTOR_UNMASKED);
-                    break;
-                case 0x03:
-                    INST_NAME("PHADDSW Gx, Ex");
-                    nextop = F8;
-                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW16);
-                    GETGX_vector(q0, 1, VECTOR_SEW16);
-                    GETEX_vector(q1, 0, 0, VECTOR_SEW16);
-                    v0 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-                    d1 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-                    d0 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-                    VMV_V_V(v0, q0);
-                    if (q1 & 1) VMV_V_V(d1, q1);
-                    rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL2, 32);
-                    VSLIDEUP_VI_SAFE(v0, (q1 & 1) ? d1 : q1, 8, VECTOR_UNMASKED);
-                    rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 16);
-                    VNSRL_WI(d0, v0, 0, VECTOR_UNMASKED);
-                    VNSRL_WI(d1, v0, 16, VECTOR_UNMASKED);
-                    VSADD_VV(q0, d1, d0, VECTOR_UNMASKED);
-                    break;
+                }
                 case 0x04:
                     INST_NAME("PMADDUBSW Gx, Ex");
                     nextop = F8;
@@ -429,61 +441,6 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     VNSRL_WI(d0, v0, 0, VECTOR_UNMASKED);
                     VNSRL_WI(d1, v0, 16, VECTOR_UNMASKED);
                     VSADD_VV(q0, d1, d0, VECTOR_UNMASKED);
-                    break;
-                case 0x05:
-                    INST_NAME("PHSUBW Gx, Ex");
-                    nextop = F8;
-                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW16);
-                    GETGX_vector(q0, 1, VECTOR_SEW16);
-                    GETEX_vector(q1, 0, 0, VECTOR_SEW16);
-                    v0 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-                    d1 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-                    d0 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-                    VMV_V_V(v0, q0);
-                    if (q1 & 1) VMV_V_V(d1, q1);
-                    rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL2, 32);
-                    VSLIDEUP_VI_SAFE(v0, (q1 & 1) ? d1 : q1, 8, VECTOR_UNMASKED);
-                    rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 16);
-                    VNSRL_WI(d0, v0, 0, VECTOR_UNMASKED);
-                    VNSRL_WI(d1, v0, 16, VECTOR_UNMASKED);
-                    VSUB_VV(q0, d0, d1, VECTOR_UNMASKED);
-                    break;
-                case 0x06:
-                    INST_NAME("PHSUBD Gx, Ex");
-                    nextop = F8;
-                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW32);
-                    GETGX_vector(q0, 1, VECTOR_SEW32);
-                    GETEX_vector(q1, 0, 0, VECTOR_SEW32);
-                    v0 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-                    d1 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-                    d0 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-                    VMV_V_V(v0, q0);
-                    if (q1 & 1) VMV_V_V(d1, q1);
-                    rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL2, 32);
-                    VSLIDEUP_VI_SAFE(v0, (q1 & 1) ? d1 : q1, 4, VECTOR_UNMASKED);
-                    rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW32, VECTOR_LMUL1, 16);
-                    VNSRL_WI(d0, v0, 0, VECTOR_UNMASKED);
-                    ADDI(x4, xZR, 32);
-                    VNSRL_WX(d1, v0, x4, VECTOR_UNMASKED);
-                    VSUB_VV(q0, d0, d1, VECTOR_UNMASKED);
-                    break;
-                case 0x07:
-                    INST_NAME("PHSUBSW Gx, Ex");
-                    nextop = F8;
-                    SET_ELEMENT_WIDTH(x1, VECTOR_SEW16);
-                    GETGX_vector(q0, 1, VECTOR_SEW16);
-                    GETEX_vector(q1, 0, 0, VECTOR_SEW16);
-                    v0 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-                    d1 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-                    d0 = vpu_get_scratch_lmul(dyn, VECTOR_LMUL2);
-                    VMV_V_V(v0, q0);
-                    if (q1 & 1) VMV_V_V(d1, q1);
-                    rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL2, 32);
-                    VSLIDEUP_VI_SAFE(v0, (q1 & 1) ? d1 : q1, 8, VECTOR_UNMASKED);
-                    rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW16, VECTOR_LMUL1, 16);
-                    VNSRL_WI(d0, v0, 0, VECTOR_UNMASKED);
-                    VNSRL_WI(d1, v0, 16, VECTOR_UNMASKED);
-                    VSSUB_VV(q0, d0, d1, VECTOR_UNMASKED);
                     break;
                 case 0x08 ... 0x0A:
                     if (nextop == 0x08) {
