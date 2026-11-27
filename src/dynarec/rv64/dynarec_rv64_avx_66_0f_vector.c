@@ -770,6 +770,23 @@ uintptr_t dynarec64_AVX_66_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
                     INST_NAME(shift_left ? "VPSLLDQ Gx, Ex, Ib" : "VPSRLDQ Gx, Ex, Ib");
                     unsigned immediate = MODREG ? PK(0) : 0;
                     int element_sew = immediate && immediate < 16 ? __builtin_ctz(immediate) : VECTOR_SEW8;
+                    if (!vex.l && !shift_left && immediate && immediate < 16) {
+                        u8 = F8;
+                        gd = vex.v;
+                        q1 = simd_access(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), SIMD_XMM, 0);
+                        v0 = simd_get_reg_empty(dyn, ninst, x1, gd);
+                        int slide = u8 >> element_sew;
+                        if (slide == 1) {
+                            SET_AVX_VECTOR_WIDTH(x1, element_sew);
+                            VSLIDE1DOWN_VX(v0, q1, xZR, VECTOR_UNMASKED);
+                        } else {
+                            int xmm_lmul = (VECTOR_LMUL1 - __builtin_ctz(cpuext.vlen / 16u)) & 7;
+                            rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW8, xmm_lmul, 16);
+                            VSLIDEDOWN_VI(v0, q1, u8, VECTOR_UNMASKED);
+                        }
+                        simd_commit(dyn, ninst, gd, SIMD_XMM, SIMD_HI128);
+                        break;
+                    }
                     GETEY_vector(q1, 1, element_sew);
                     gd = vex.v;
                     v0 = simd_get_reg_empty(dyn, ninst, x1, gd);
