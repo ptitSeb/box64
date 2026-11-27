@@ -187,32 +187,28 @@ uintptr_t dynarec64_AVX_66_0F38_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             break;
         }
         case 0x0C:
-            INST_NAME("VPERMILPS Gx, Vx, Ex");
+        case 0x0D: {
+            int doubles = opcode == 0x0D;
+            int sew = doubles ? VECTOR_SEW64 : VECTOR_SEW32;
+            INST_NAME(doubles ? "VPERMILPD Gx, Vx, Ex" : "VPERMILPS Gx, Vx, Ex");
             nextop = F8;
-            GETGY_empty_VYEY_vector(v0, q0, q1, VECTOR_SEW32);
-            q2 = vpu_get_scratch(dyn);
-            q3 = vpu_get_scratch(dyn);
-            VID_V(q2, VECTOR_UNMASKED);
-            VAND_VI(q2, q2, 4, VECTOR_UNMASKED);
-            VAND_VI(q3, q1, 3, VECTOR_UNMASKED);
-            VADD_VV(q3, q3, q2, VECTOR_UNMASKED);
-            VRGATHER_VV_SAFE(v0, q0, q3, VECTOR_UNMASKED);
-            PUTGY_vector(v0, VECTOR_SEW32);
+            GETGY_empty_VYEY_vector(v0, q0, q1, sew);
+            int indices = vpu_get_scratch(dyn);
+            if (doubles) {
+                VSRL_VI(indices, q1, 1, VECTOR_UNMASKED);
+                VAND_VI(indices, indices, 1, VECTOR_UNMASKED);
+            } else {
+                VAND_VI(indices, q1, 3, VECTOR_UNMASKED);
+            }
+            if (vex.l) {
+                VECTOR_LOAD_VMASK(doubles ? 0x0c : 0xf0, x4);
+                VOR_VI(indices, indices, doubles ? 2 : 4, VECTOR_MASKED);
+            }
+            int permuted = v0 == q0 ? vpu_get_scratch(dyn) : v0;
+            VRGATHER_VV(permuted, q0, indices, VECTOR_UNMASKED);
+            PUTGY_vector(permuted, sew);
             break;
-        case 0x0D:
-            INST_NAME("VPERMILPD Gx, Vx, Ex");
-            nextop = F8;
-            GETGY_empty_VYEY_vector(v0, q0, q1, VECTOR_SEW64);
-            q2 = vpu_get_scratch(dyn);
-            q3 = vpu_get_scratch(dyn);
-            VID_V(q2, VECTOR_UNMASKED);
-            VAND_VI(q2, q2, 2, VECTOR_UNMASKED);
-            VSRL_VI(q3, q1, 1, VECTOR_UNMASKED);
-            VAND_VI(q3, q3, 1, VECTOR_UNMASKED);
-            VADD_VV(q3, q3, q2, VECTOR_UNMASKED);
-            VRGATHER_VV_SAFE(v0, q0, q3, VECTOR_UNMASKED);
-            PUTGY_vector(v0, VECTOR_SEW64);
-            break;
+        }
         case 0x0E:
         case 0x0F:
             if (opcode == 0x0E) {
