@@ -806,7 +806,7 @@ int my_sigactionhandler_oldcode_32(x64emu_t* emu, int32_t sig, int simple, sigin
             memcpy(&((ucontext_t*)ucntx)->uc_sigmask, &sigcontext->uc_sigmask, sigmask_sz);
         else {
             if(sizeof(sigset_t)==sizeof(i386_sigset_t))
-                sigprocmask(SIG_SETMASK, (sigset_t*)&sigcontext->uc_mcontext, NULL);
+                sigprocmask(SIG_SETMASK, (sigset_t*)&sigcontext->uc_sigmask, NULL);
             else {
                 sigset_t tmp = {0};
                 memcpy(&tmp, &sigcontext->uc_sigmask, sigmask_sz);
