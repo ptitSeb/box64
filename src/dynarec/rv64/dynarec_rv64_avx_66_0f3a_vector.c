@@ -49,7 +49,7 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
 
     switch (opcode) {
         case 0x00:
-        case 0x01:
+        case 0x01: {
             if (opcode)
                 INST_NAME("VPERMPD Gx, Ex, Imm8");
             else
@@ -58,23 +58,24 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             GETEY_vector(q0, 1, VECTOR_SEW64);
             GETGY_empty_vector(v0);
             u8 = F8;
-            q1 = vpu_get_scratch(dyn);
-            q2 = vpu_get_scratch_lmul(dyn, vex.l ? VECTOR_LMUL1 : VECTOR_LMUL2);
-            {
-                uint64_t iota = (u8 & 3) | (((u8 >> 2) & 3) << 16);
-                iota |= ((uint64_t)((u8 >> 4) & 3)) << 32;
-                iota |= ((uint64_t)((u8 >> 6) & 3)) << 48;
-                rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW64, VECTOR_LMUL1, 16 << vex.l);
-                VECTOR_SPLAT_IMM_S(q2, iota, x4, x3);
+            if (u8 == 0xE4) {
+                PUTGY_vector(q0, VECTOR_SEW64);
+                break;
             }
-            if (v0 == q0 || v0 == q2) {
-                VRGATHEREI16_VV(q1, q0, q2, VECTOR_UNMASKED);
-                VMV_V_V(v0, q1);
+            int permuted = v0 == q0 ? vpu_get_scratch(dyn) : v0;
+            unsigned first = u8 & 3;
+            if (u8 == first * 0x55) {
+                VRGATHER_VI(permuted, q0, first, VECTOR_UNMASKED);
             } else {
-                VRGATHEREI16_VV(v0, q0, q2, VECTOR_UNMASKED);
+                int indices = vpu_get_scratch(dyn);
+                uint64_t packed_indices = first | ((uint64_t)((u8 >> 2) & 3) << 16)
+                    | ((uint64_t)((u8 >> 4) & 3) << 32) | ((uint64_t)(u8 >> 6) << 48);
+                VECTOR_SPLAT_IMM_S(indices, packed_indices, x4, x3);
+                VRGATHEREI16_VV(permuted, q0, indices, VECTOR_UNMASKED);
             }
-            PUTGY_vector(v0, VECTOR_SEW64);
+            PUTGY_vector(permuted, VECTOR_SEW64);
             break;
+        }
         case 0x02:
             INST_NAME("VPBLENDD Gx, Vx, Ex, Imm8");
             nextop = F8;
@@ -108,20 +109,35 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             VRGATHEREI16_VV(v0, q0, q1, VECTOR_UNMASKED);
             PUTGY_vector(v0, VECTOR_SEW32);
             break;
-        case 0x05:
+        case 0x05: {
             INST_NAME("VPERMILPD Gx, Ex, Ib");
             nextop = F8;
             GETEY_vector(q0, 1, VECTOR_SEW64);
             GETGY_empty_vector(v0);
             u8 = F8;
-            VEC_SRC_KEEP(q0, v0);
-            q1 = vpu_get_scratch(dyn);
-            MOV64x(x4, (uint64_t)(u8 & 1) | ((uint64_t)((u8 >> 1) & 1) << 16) | ((uint64_t)(((u8 >> 2) & 1) + 2) << 32) | ((uint64_t)(((u8 >> 3) & 1) + 2) << 48));
-            MOV64xs(x4, (uint64_t)(u8 & 1) | ((uint64_t)((u8 >> 1) & 1) << 16) | ((uint64_t)(((u8 >> 2) & 1) + 2) << 32) | ((uint64_t)(((u8 >> 3) & 1) + 2) << 48), x3);
-            VMV_S_X(q1, x4);
-            VRGATHEREI16_VV(v0, q0, q1, VECTOR_UNMASKED);
-            PUTGY_vector(v0, VECTOR_SEW64);
+            unsigned control = u8 & (vex.l ? 15 : 3);
+            if (control == (vex.l ? 10 : 2)) {
+                PUTGY_vector(q0, VECTOR_SEW64);
+                break;
+            }
+            int permuted = v0 == q0 ? vpu_get_scratch(dyn) : v0;
+            if (!vex.l && (control == 0 || control == 3)) {
+                VRGATHER_VI(permuted, q0, control & 1, VECTOR_UNMASKED);
+            } else {
+                int indices = vpu_get_scratch(dyn);
+                if (!vex.l) {
+                    VMV_V_I(indices, 1);
+                    VRGATHEREI16_VV(permuted, q0, indices, VECTOR_UNMASKED);
+                } else {
+                    uint64_t packed_indices = (control & 1) | ((uint64_t)((control >> 1) & 1) << 16)
+                        | ((uint64_t)(2 | ((control >> 2) & 1)) << 32) | ((uint64_t)(2 | (control >> 3)) << 48);
+                    VECTOR_SPLAT_IMM_S(indices, packed_indices, x4, x3);
+                    VRGATHEREI16_VV(permuted, q0, indices, VECTOR_UNMASKED);
+                }
+            }
+            PUTGY_vector(permuted, VECTOR_SEW64);
             break;
+        }
         case 0x06:
         case 0x46: {
             if (!vex.l) return 0;
