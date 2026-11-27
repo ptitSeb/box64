@@ -462,10 +462,16 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                         GETGX_vector(q0, 1, VECTOR_SEW32);
                         GETEX_vector(q1, 0, 0, VECTOR_SEW32);
                     }
-                    VMSLT_VX(VMASK, q1, xZR, VECTOR_UNMASKED);
-                    VRSUB_VX(q0, q0, xZR, VECTOR_MASKED);
-                    VMSEQ_VX(VMASK, q1, xZR, VECTOR_UNMASKED);
-                    VXOR_VV(q0, q0, q0, VECTOR_MASKED);
+                    if (q0 == q1) {
+                        int negated = vpu_get_scratch(dyn);
+                        VRSUB_VX(negated, q0, xZR, VECTOR_UNMASKED);
+                        VMAX_VV(q0, q0, negated, VECTOR_UNMASKED);
+                    } else {
+                        VMSLT_VX(VMASK, q1, xZR, VECTOR_UNMASKED);
+                        VRSUB_VX(q0, q0, xZR, VECTOR_MASKED);
+                        VMSEQ_VX(VMASK, q1, xZR, VECTOR_UNMASKED);
+                        VXOR_VV(q0, q0, q0, VECTOR_MASKED);
+                    }
                     break;
                 case 0x0B: {
                     INST_NAME("PMULHRSW Gx, Ex");
