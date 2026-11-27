@@ -931,48 +931,24 @@ uintptr_t dynarec64_AVX_66_0F3A_vector(dynarec_rv64_t* dyn, uintptr_t addr, uint
             PUTGY_vector(v0, VECTOR_SEW64);
             break;
         case 0x4A:
-            INST_NAME("VBLENDVPS Gx, Vx, Ex, Vx2");
-            nextop = F8;
-            q0 = vpu_get_scratch(dyn);
-            simd_load_reg(dyn, ninst, x1, q0, vex.v, 16 << vex.l, VECTOR_SEW32);
-            GETEY_vector(q1, 1, VECTOR_SEW32);
-            u8 = F8;
-            q2 = vpu_get_scratch(dyn);
-            simd_load_reg(dyn, ninst, x1, q2, (u8 >> 4) & 0xf, 16 << vex.l, VECTOR_SEW32);
-            GETGY_empty_vector(v0);
-            VMSLT_VX(VMASK, q2, xZR, VECTOR_UNMASKED);
-            VMERGE_VVM(v0, q0, q1);
-            PUTGY_vector(v0, VECTOR_SEW32);
-            break;
-        case 0x4C:
-            if (rex.w) return 0;
-            INST_NAME("VPBLENDVB Gx, Vx, Ex, Vx2");
-            nextop = F8;
-            q0 = vpu_get_scratch(dyn);
-            simd_load_reg(dyn, ninst, x1, q0, vex.v, 16 << vex.l, VECTOR_SEW8);
-            GETEY_vector(q1, 1, VECTOR_SEW8);
-            u8 = F8;
-            q2 = vpu_get_scratch(dyn);
-            simd_load_reg(dyn, ninst, x1, q2, (u8 >> 4) & 0xf, 16 << vex.l, VECTOR_SEW8);
-            GETGY_empty_vector(v0);
-            VMSLT_VX(VMASK, q2, xZR, VECTOR_UNMASKED);
-            VMERGE_VVM(v0, q0, q1);
-            PUTGY_vector(v0, VECTOR_SEW8);
-            break;
         case 0x4B:
-            INST_NAME("VBLENDVPD Gx, Vx, Ex, Vx2");
+        case 0x4C: {
+            if (opcode == 0x4C && rex.w) return 0;
+            int sew = opcode == 0x4A ? VECTOR_SEW32 : opcode == 0x4B ? VECTOR_SEW64 : VECTOR_SEW8;
+            if (opcode == 0x4A) INST_NAME("VBLENDVPS Gx, Vx, Ex, Vx2");
+            else if (opcode == 0x4B) INST_NAME("VBLENDVPD Gx, Vx, Ex, Vx2");
+            else INST_NAME("VPBLENDVB Gx, Vx, Ex, Vx2");
             nextop = F8;
-            q0 = vpu_get_scratch(dyn);
-            simd_load_reg(dyn, ninst, x1, q0, vex.v, 16 << vex.l, VECTOR_SEW64);
-            GETEY_vector(q1, 1, VECTOR_SEW64);
+            GETVY_vector(q0, sew);
+            GETEY_vector(q1, 1, sew);
             u8 = F8;
-            q2 = vpu_get_scratch(dyn);
-            simd_load_reg(dyn, ninst, x1, q2, (u8 >> 4) & 0xf, 16 << vex.l, VECTOR_SEW64);
+            int signs = simd_get(dyn, ninst, x1, u8 >> 4, 16 << vex.l, sew, 0);
             GETGY_empty_vector(v0);
-            VMSLT_VX(VMASK, q2, xZR, VECTOR_UNMASKED);
+            VMSLT_VX(VMASK, signs, xZR, VECTOR_UNMASKED);
             VMERGE_VVM(v0, q0, q1);
-            PUTGY_vector(v0, VECTOR_SEW64);
+            PUTGY_vector(v0, sew);
             break;
+        }
         case 0x0D:
             INST_NAME("VBLENDPD Gx, Vx, Ex, Ib");
             nextop = F8;
