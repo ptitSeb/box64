@@ -10,9 +10,16 @@
 #include "emu/x64emu_private.h"
 #include "wine/compiler.h"
 
+_Static_assert(offsetof(x64emu_t, callret_stack) == BOX64EC_EMU_CALLRET_STACK_OFFSET, "callret_stack");
 _Static_assert(offsetof(x64emu_t, callret_sp) == BOX64EC_EMU_CALLRET_SP_OFFSET, "callret_sp");
 _Static_assert(offsetof(x64emu_t, callret_sp_top) == BOX64EC_EMU_CALLRET_SP_TOP_OFFSET, "callret_sp_top");
 _Static_assert(offsetof(x64emu_t, jit_frame) == BOX64EC_EMU_JIT_FRAME_OFFSET, "jit_frame");
+_Static_assert(offsetof(x64emu_t, eflags) == BOX64EC_EMU_EFLAGS_OFFSET, "eflags");
+_Static_assert(offsetof(x64emu_t, df) == BOX64EC_EMU_DF_OFFSET, "df");
+_Static_assert(sizeof(deferred_flags_t) == 4 && d_none == 0, "the callback entry clears df with a 32-bit zero");
+_Static_assert(offsetof(x64emu_t, sw) == BOX64EC_EMU_SW_OFFSET && offsetof(x64emu_t, top) == BOX64EC_EMU_TOP_OFFSET &&
+               offsetof(x64emu_t, cw) == BOX64EC_EMU_CW_OFFSET, "x87 words");
+_Static_assert(offsetof(x64emu_t, quit) == BOX64EC_EMU_QUIT_OFFSET && sizeof(((x64emu_t*)0)->quit) == 4, "quit");
 
 #define BOX64EC_CALLRET_STACK_SIZE (2u * 1024u * 1024u)
 /* The allocation granularity: on 16K or 64K host pages a 4K guard would share a host page with the stack */

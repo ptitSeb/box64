@@ -20,12 +20,12 @@ Usage
 
 There are many environment variables to control Box64's behaviour, which will be listed below by category.
 
-There are 2 types of Box64 builds: the Wine WOW64 build (WowBox64) and the regular Linux build. Note that only some of the environment variables are available in WowBox64.
+There are 3 types of Box64 builds: the regular Linux build and two Wine builds, WowBox64 for 32-bit x86 programs (WOW64) and Box64EC for x86_64 programs (ARM64EC). Note that only some of the environment variables are available in the Wine builds.
 
 ### Configuration files
 
 In addition to environment variables, if you're using the regular Linux build, Box64 also looks for 2 places for rcfile by default: the system-wide `/etc/box64.box64rc` and user-specific `~/.box64rc`.
-While in WowBox64, the configuration file is checked at `%USERPROFILE%/.box64rc` only.
+While in WowBox64 or Box64EC, the configuration file is checked at `%USERPROFILE%/.box64rc` only.
 Settings priority follows this order (from highest to lowest): `~/.box64rc` > `/etc/box64.box64rc` > environment variables.
 
 Example configuration:
@@ -65,7 +65,8 @@ Shared options can also be defined in a special `[*]` section. Those settings ap
 ----
 
 """,
-        "wine": "Available in WowBox64.",
+        "wine": "Available in WowBox64 and Box64EC.",
+        "box64ec": "Available in Box64EC.",
         "default": "[Default]",
         "top_cat": "Performance",
         "categories": {},
@@ -124,6 +125,7 @@ BOX64_DYNAREC_CALLRET=1
 
 """,
         "wine": "在 WowBox64 中可用。",
+        "box64ec": "在 Box64EC 中可用。",
         "default": "[默认值]",
         "top_cat": "性能",
         "categories": {
@@ -161,7 +163,7 @@ def write_md(data, lang, t_data=None):
                     desc = t_entry.get('description', entry['description'])
                 else:
                     desc = entry['description']
-                wine_note = f" {L['wine']}" if entry['wine'] else ""
+                wine_note = f" {L['box64ec' if entry.get('box64ec_only') else 'wine']}" if entry['wine'] else ""
                 md_file.write(f"### {entry['name']}\n\n{desc}{wine_note}\n\n")
                 for option in entry['options']:
                     if t_data:
@@ -244,7 +246,7 @@ More specific sections override only the options they define themselves.
     )
 
     for entry in data:
-        pod_file.write(f"\n=item B<{entry['name']}> =I<{ '|'.join(option['key'] for option in entry['options']) }>\n\n{entry['description']}{' Available in WowBox64.' if entry['wine'] else ''}\n\n")
+        pod_file.write(f"\n=item B<{entry['name']}> =I<{ '|'.join(option['key'] for option in entry['options']) }>\n\n{entry['description']}{' ' + LANG['en']['box64ec' if entry.get('box64ec_only') else 'wine'] if entry['wine'] else ''}\n\n")
         for option in entry['options']:
             pod_file.write(f" * {option['key']} : {option['description']} {'[Default]' if option['default'] else ''}\n")
         pod_file.write("\n")

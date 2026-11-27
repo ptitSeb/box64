@@ -49,6 +49,7 @@ extern char* ftrace_name;
     BOOLEAN(BOX64_DLSYM_ERROR, dlsym_error, 0, 0, 0)                             \
     BOOLEAN(BOX64_DUMP, dump, 0, 1, 0)                                           \
     BOOLEAN(BOX64_DYNAREC_ALIGNED_ATOMICS, dynarec_aligned_atomics, 0, 1, 1)     \
+    BOOLEAN(BOX64_DYNAREC_ALIGNMENT, dynarec_alignment, 1, 1, 0)                 \
     INTEGER(BOX64_DYNAREC_BIGBLOCK, dynarec_bigblock, 2, 0, 3, 1, 2)             \
     BOOLEAN(BOX64_DYNAREC_BLEEDING_EDGE, dynarec_bleeding_edge, 1, 0, 0)         \
     BOOLEAN(BOX64_DYNAREC_DF, dynarec_df, 1, 1, 1)                               \
@@ -75,7 +76,7 @@ extern char* ftrace_name;
     BOOLEAN(BOX64_DYNAREC_TEST_NODUP, dynarec_test_nodup, 0, 1, 0)               \
     BOOLEAN(BOX64_DYNAREC_TEST_NODUMP, dynarec_test_nodump, 1, 1, 0)             \
     BOOLEAN(BOX64_DYNAREC_TRACE, dynarec_trace, 0, 0, 0)                         \
-    BOOLEAN(BOX64_DYNAREC_VOLATILE_METADATA, dynarec_volatile_metadata, 1, 0, 1) \
+    BOOLEAN(BOX64_DYNAREC_VOLATILE_METADATA, dynarec_volatile_metadata, 1, 1, 1) \
     BOOLEAN(BOX64_DYNAREC_WAIT, dynarec_wait, 1, 1, 0)                           \
     INTEGER(BOX64_DYNAREC_WEAKBARRIER, dynarec_weakbarrier, 1, 0, 2, 1, 2)       \
     INTEGER(BOX64_DYNAREC_X87DOUBLE, dynarec_x87double, 0, 0, 2, 1, 2)           \
@@ -141,7 +142,7 @@ extern char* ftrace_name;
     BOOLEAN(BOX64_TRACE_XMM, trace_xmm, 0, 0, 0)                                 \
     STRING(BOX64_TRACE, trace, 0, 0)                                             \
     BOOLEAN(BOX64_UNITY, unity, 0, 0, 0)                                         \
-    BOOLEAN(BOX64_UNITYPLAYER, unityplayer, 1, 0, 0)                             \
+    BOOLEAN(BOX64_UNITYPLAYER, unityplayer, 1, 1, 0)                             \
     BOOLEAN(BOX64_WRAP_EGL, wrap_egl, 0, 0, 0)                                   \
     BOOLEAN(BOX64_X11GLX, x11glx, 1, 0, 0)                                       \
     BOOLEAN(BOX64_X11SYNC, x11sync, 0, 0, 0)                                     \

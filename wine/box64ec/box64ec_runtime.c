@@ -98,6 +98,8 @@ void Box64EC_FatalEnterJit(unsigned reason)
 }
 
 #ifdef DYNAREC
+int Box64EC_FastCallback;   // native to x64 callbacks enter the JIT from module.S, see enter_jit_frame
+
 // the Dynarec does not inline native calls yet
 typedef void (*wrapper_t)(x64emu_t* emu, uintptr_t fnc);
 int isSimpleWrapper(wrapper_t fun) { return 0; }
@@ -195,6 +197,25 @@ void Box64EC_EnterX64(uint64_t rip)
         emu->quit = 0;
     finish_enter(thr);
 }
+
+#ifdef DYNAREC
+/* The callback did not return the usual way, enter_jit_frame handed it over after
+ * arm64_epilog: finish as Box64EC_EnterX64 does after its run_emu */
+void Box64EC_FastCallbackLeave(void)
+{
+    CHPE_V2_CPU_AREA_INFO* area = Box64EC_GetCpuArea();
+    x64emu_t* emu = (x64emu_t*)area->EmulatorData[EC_DATA_EMU];
+    box64ec_thr_t* thr = Box64EC_GetThreadState();
+    int nested = (thr && thr->enter_depth > 1) || emu->jit_frame;   /* enter_depth is already counted */
+
+    if (!emu->quit)
+        run_emu(emu);
+    emu_to_context(emu, area->ContextAmd64);
+    if (nested)
+        emu->quit = 0;
+    finish_enter(thr);
+}
+#endif
 
 void Box64EC_BeginSimulation(void)
 {

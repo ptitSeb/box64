@@ -24,6 +24,15 @@
     .extern Box64EC_NoteEnterBoundary
     .extern Box64EC_ClearInSimulationIfOutermost
     .extern Box64EC_EcCodeBitmapLimit
+#ifdef DYNAREC
+    .extern Box64EC_FastCallback
+    .extern Box64EC_FastCallbackLeave
+    .extern Box64EC_ApplyLiveMxcsr
+    .extern Box64EC_CaptureLiveMxcsr
+    .extern process_pending_cross_process_work
+    .extern getJumpAddress64
+    .extern arm64_prolog_callback
+#endif
 
 
     /* ARM64EC_NT_CONTEXT field offsets (Wine winnt.h) */
@@ -45,6 +54,8 @@
     .equ CTX_X21,    0xe8   /* R14 */
     .equ CTX_X22,    0xf0   /* R15 */
     .equ CTX_PC,     0xf8   /* Rip */
+    .equ CTX_CONTROLWORD, 0x100
+    .equ CTX_STATUSWORD,  0x102
 
 /* ------------------------------------------------------------------ */
 /* Shared enter path. x9 = RIP. SP = guest stack (LR already pushed).  */
@@ -235,6 +246,208 @@ enter_jit_frame:
     stp     x5,  xzr, [sp, #0x50]        /* entry was already on emu stack */
     stp     x9,  x30, [sp, #0x60]        /* RIP, entry LR */
     mov     x19, x16                     /* keep ContextAmd64* */
+#ifdef DYNAREC
+    /* ExitToX64 callback straight into the JIT, x5 to x7 hold the entry values.
+     * Cases that need Box64EC_EnterX64 go to .Lenter_slow before anything changes. */
+    adrp    x0, Box64EC_FastCallback
+    ldr     w0, [x0, :lo12:Box64EC_FastCallback]
+    cbz     w0, .Lenter_slow
+    cmp     w6, #1
+    b.ne    .Lenter_slow
+    cbnz    w5, .Lenter_slow
+    ldr     x0, [x18, #0x1788]           /* ChpeV2CpuAreaInfo */
+    ldr     x1, [x0, #0x30]              /* EmulatorData[EC_DATA_EMU] */
+    ldr     x2, [x0, #0x38]              /* EmulatorData[EC_DATA_THR] */
+    cbz     x1, .Lenter_slow
+    cbz     x2, .Lenter_slow
+    ldr     x3, [sp, #0x60]              /* RIP: getJumpAddress64 takes 48 bits */
+    lsr     x3, x3, #48
+    cbnz    x3, .Lenter_slow
+    ldr     x3, [x19, #CTX_SP]
+    cbz     x3, .Lenter_slow
+    ldp     x8, x9, [x0, #0x8]           /* EmulatorStackBase, Limit */
+    cbz     x8, 1f
+    cbz     x9, 1f
+    cmp     x3, x8
+    b.hi    1f
+    cmp     x3, x9
+    b.hs    .Lenter_slow                 /* guest RSP is on the emulator stack */
+1:
+    ldr     x3, [x0, #0x20]              /* SuspendDoorbell */
+    cbz     x3, 2f
+    ldr     w3, [x3]
+    cbnz    w3, .Lenter_slow             /* suspend pending */
+2:
+    ldr     x3, [x1, #BOX64EC_EMU_EFLAGS_OFFSET]
+    cbz     x3, .Lenter_slow             /* emu never loaded from a context */
+    tbnz    x3, #8, .Lenter_slow         /* TF */
+    ldr     x3, [x1, #BOX64EC_EMU_CALLRET_STACK_OFFSET]
+    ldr     x4, [x1, #BOX64EC_EMU_CALLRET_SP_OFFSET]
+    sub     x4, x4, x3
+    cmp     x4, #32
+    b.lo    .Lenter_slow                 /* no room for both the sentinel and the pair */
+
+    mov     x21, x1                      /* emu and thr survive the calls below */
+    mov     x22, x2
+    cbnz    w7, 3f                       /* cold entry: note the entry frame */
+    ldr     x3, [x19, #CTX_SP]
+    ldr     x4, [sp, #0x68]              /* entry LR */
+    stp     x3, x4, [x22, #BOX64EC_THR_ENTRY_SP_OFFSET]
+3:
+    ldr     w3, [x22, #BOX64EC_THR_ENTER_DEPTH_OFFSET]
+    add     w4, w3, #1
+    str     w4, [x22, #BOX64EC_THR_ENTER_DEPTH_OFFSET]
+    ldr     x4, [x21, #BOX64EC_EMU_JIT_FRAME_OFFSET]
+    orr     x3, x3, x4
+    cbnz    x3, 4f                       /* only the outermost entry clears pending */
+    str     xzr, [x22, #BOX64EC_THR_PENDING_EXIT_OFFSET]
+    str     xzr, [x22, #BOX64EC_THR_PENDING_NATIVE_SP_OFFSET]
+    str     wzr, [x22, #BOX64EC_THR_PENDING_CALLBACK_DEPTH_OFFSET]
+    str     xzr, [x22, #BOX64EC_THR_PENDING_CALLBACK_SEQ_OFFSET]
+4:
+    /* XMM0-5 whole and XMM8-15 low halves, still live: the calls below clobber them */
+    add     x17, x21, #BOX64EC_EMU_XMM_OFFSET
+    stp     q0, q1, [x17, #0x00]
+    stp     q2, q3, [x17, #0x20]
+    stp     q4, q5, [x17, #0x40]
+    str     d8,  [x17, #0x80]
+    str     d9,  [x17, #0x90]
+    str     d10, [x17, #0xa0]
+    str     d11, [x17, #0xb0]
+    str     d12, [x17, #0xc0]
+    str     d13, [x17, #0xd0]
+    str     d14, [x17, #0xe0]
+    str     d15, [x17, #0xf0]
+
+    /* cross-process code changes queued, as in arm64_ec_fast_resume */
+    ldr     x0, [x18, #0x60]             /* PEB */
+    ldr     x0, [x0, #BOX64EC_PEB_CHPEV2_INFO_OFFSET]
+    cbz     x0, 5f
+    ldr     x0, [x0, #BOX64EC_CHPEV2_WORK_LIST_OFFSET]
+    cbz     x0, 5f
+    ldr     w0, [x0, #BOX64EC_WORK_LIST_FIRST_OFFSET]
+    cbz     w0, 5f
+    bl      process_pending_cross_process_work
+5:
+    /* ContextAmd64 keeps RAX..R15 in AMD64 order like emu->regs */
+    ldp     x0, x1, [x19, #CTX_X8 + 0x00]
+    ldp     x2, x3, [x19, #CTX_X8 + 0x10]
+    ldp     x4, x5, [x19, #CTX_X8 + 0x20]
+    ldp     x6, x7, [x19, #CTX_X8 + 0x30]
+    stp     x0, x1, [x21, #0x00]
+    stp     x2, x3, [x21, #0x10]
+    stp     x4, x5, [x21, #0x20]
+    stp     x6, x7, [x21, #0x30]
+    ldp     x0, x1, [x19, #CTX_X8 + 0x40]
+    ldp     x2, x3, [x19, #CTX_X8 + 0x50]
+    ldp     x4, x5, [x19, #CTX_X8 + 0x60]
+    ldp     x6, x7, [x19, #CTX_X8 + 0x70]
+    stp     x0, x1, [x21, #0x40]
+    stp     x2, x3, [x21, #0x50]
+    stp     x4, x5, [x21, #0x60]
+    stp     x6, x7, [x21, #0x70]
+    ldr     x6, [sp, #0x60]              /* RIP */
+    str     x6, [x21, (8 * 17)]
+    str     wzr, [x21, #BOX64EC_EMU_DF_OFFSET]   /* flags are dead across a call */
+    str     wzr, [x21, #BOX64EC_EMU_QUIT_OFFSET]
+
+    /* FPCR and FPSR unchanged: the known MXCSR still holds, as in arm64_ec_fast_resume */
+    mrs     x1, fpcr
+    mrs     x2, fpsr
+    ldr     w3, [x21, #BOX64EC_EMU_LIVE_FPCR_OFFSET]
+    ldr     w4, [x21, #BOX64EC_EMU_LIVE_FPSR_OFFSET]
+    cmp     w1, w3
+    ccmp    w2, w4, #0, eq
+    b.ne    6f
+    ldr     w1, [x21, #BOX64EC_EMU_LIVE_MXCSR_OFFSET]
+    str     w1, [x21, #BOX64EC_EMU_MXCSR_OFFSET]
+    b       7f
+6:
+    mov     x0, x21
+    bl      Box64EC_CaptureLiveMxcsr
+7:
+    ldr     x0, [sp, #0x60]              /* RIP */
+    bl      getJumpAddress64             /* its jump table entry */
+    mov     x1, x0
+    mov     x0, x21
+    bl      arm64_prolog_callback        /* the epilog returns here, x19 to x22 are back */
+
+    /* Usual return: RIP is the caller's LR, through the CALLRET pair (no exit pending)
+     * or LinkNext's native exit to that same caller (quit, no callback native SP) */
+    ldr     x1, [sp, #0x68]              /* entry LR */
+    ldr     x2, [x21, (8 * 17)]          /* RIP */
+    cmp     x1, x2
+    b.ne    .Lenter_fast_leave
+    ldr     w2, [x21, #BOX64EC_EMU_QUIT_OFFSET]
+    ldr     x3, [x22, #BOX64EC_THR_PENDING_EXIT_OFFSET]
+    cbz     w2, 1f
+    cmp     x3, x1
+    b.ne    .Lenter_fast_leave
+    ldr     x4, [x22, #BOX64EC_THR_PENDING_NATIVE_SP_OFFSET]
+    cbnz    x4, .Lenter_fast_leave
+    b       2f
+1:
+    cbnz    x3, .Lenter_fast_leave
+2:
+    str     xzr, [x22, #BOX64EC_THR_PENDING_EXIT_OFFSET]
+    ldr     w1, [x21, #BOX64EC_EMU_MXCSR_OFFSET]
+    ldr     w2, [x21, #BOX64EC_EMU_LIVE_MXCSR_OFFSET]
+    cmp     w1, w2
+    b.eq    3f
+    mov     x0, x21
+    bl      Box64EC_ApplyLiveMxcsr
+3:
+    /* a later slow entry imports x87 from the context: the control and status words are
+     * what survives a call. An entry from the emulator stack also reads RSP and RBP. */
+    ldrh    w1, [x21, #BOX64EC_EMU_CW_OFFSET]
+    strh    w1, [x19, #CTX_CONTROLWORD]
+    ldrh    w1, [x21, #BOX64EC_EMU_SW_OFFSET]
+    ldr     w2, [x21, #BOX64EC_EMU_TOP_OFFSET]
+    bfi     w1, w2, #11, #3              /* TOP, as x87_status_word */
+    strh    w1, [x19, #CTX_STATUSWORD]
+    ldp     x1, x2, [x21, (8 * 4)]       /* RSP, RBP */
+    stp     x1, x2, [x19, #CTX_SP]
+    str     wzr, [x21, #BOX64EC_EMU_QUIT_OFFSET]   /* an outer activation must keep running */
+    ldr     w1, [x22, #BOX64EC_THR_ENTER_DEPTH_OFFSET]
+    cmp     w1, #0
+    b.le    4f
+    sub     w1, w1, #1
+    str     w1, [x22, #BOX64EC_THR_ENTER_DEPTH_OFFSET]
+4:
+    /* back to the native caller: its registers come straight from emu */
+    add     x17, x21, #BOX64EC_EMU_XMM_OFFSET
+    ldp     q0,  q1,  [x17, #0x00]
+    ldp     q2,  q3,  [x17, #0x20]
+    ldp     q4,  q5,  [x17, #0x40]
+    ldp     q6,  q7,  [x17, #0x60]
+    ldp     q8,  q9,  [x17, #0x80]
+    ldp     q10, q11, [x17, #0xa0]
+    ldp     q12, q13, [x17, #0xc0]
+    ldp     q14, q15, [x17, #0xe0]
+    mov     x16, x21
+    ldr     x15, [sp, #0x68]             /* the caller's LR is the target */
+    ldr     x8,  [x16, (8 *  0)]         /* RAX */
+    ldr     x0,  [x16, (8 *  1)]         /* RCX */
+    ldr     x1,  [x16, (8 *  2)]         /* RDX */
+    ldr     x27, [x16, (8 *  3)]         /* RBX */
+    ldr     x17, [x16, (8 *  4)]         /* RSP */
+    ldr     x6,  [x16, (8 *  5)]         /* RBP */
+    ldr     x25, [x16, (8 *  6)]         /* RSI */
+    ldr     x26, [x16, (8 *  7)]         /* RDI */
+    ldr     x2,  [x16, (8 *  8)]         /* R8  */
+    ldr     x3,  [x16, (8 *  9)]         /* R9  */
+    ldr     x4,  [x16, (8 * 10)]         /* R10 */
+    ldr     x5,  [x16, (8 * 11)]         /* R11 */
+    ldr     x19, [x16, (8 * 12)]         /* R12 */
+    ldr     x20, [x16, (8 * 13)]         /* R13 */
+    ldr     x21, [x16, (8 * 14)]         /* R14 */
+    ldr     x22, [x16, (8 * 15)]         /* R15 */
+    b       .Lenter_switch
+.Lenter_fast_leave:
+    bl      Box64EC_FastCallbackLeave
+    b       .Lenter_after_x64
+.Lenter_slow:
+#endif
     /* Entry frame = guest Sp + LR (for SEH trampoline); skip if nested. */
     cbnz    w7, 6f
     ldr     x0, [x19, #CTX_SP]
@@ -254,6 +467,7 @@ enter_jit_frame:
 
     ldr     x0,  [sp, #0x60]             /* RIP */
     bl      Box64EC_EnterX64
+.Lenter_after_x64:
     add     x0, sp, #0x70
     bl      Box64EC_TakePendingNativeExit
     mov     x15, x0                      /* pending native target (or 0) */
@@ -309,6 +523,7 @@ enter_jit_frame:
     ldr     x17, [x16, #CTX_SP]
     cmp     x12, #0
     csel    x17, x12, x17, ne            /* native callback SP or guest SP */
+.Lenter_switch:
     mov     x29, x6
     mov     x9,  x15
     mov     x30, x15                     /* unwind destination after stack switch */

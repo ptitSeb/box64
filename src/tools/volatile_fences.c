@@ -122,6 +122,15 @@ int VolatileFenceAddRange(volatile_range_t kind, uintptr_t start, uintptr_t end)
     return ret;
 }
 
+void VolatileFenceRemoveMetadataRange(uintptr_t start, uintptr_t end)
+{
+    fences_lock_acquire();
+    rbtree_t* tree = __atomic_load_n(&metadata_ranges, __ATOMIC_RELAXED);
+    if (tree)
+        rb_unset(tree, start, end);
+    fences_lock_release();
+}
+
 void VolatileFenceAddMetadataPoint(uintptr_t ip)
 {
     points_add(&metadata_points, ip);
