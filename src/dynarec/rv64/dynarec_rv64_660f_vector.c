@@ -1737,6 +1737,22 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     VCLMUL_VV(q0, q2, q3, VECTOR_UNMASKED);
                     VSLIDEUP_VI(q0, q4, 1, VECTOR_UNMASKED);
                     break;
+                case 0x62: {
+                    if (cpuext.xtheadvector || (rex.is32bits && rex.is67)) return 0;
+                    nextop = F8;
+                    u8 = geted_ib(dyn, addr, ninst, nextop);
+                    if ((u8 & 0x0c) != 0x08) return 0;
+                    INST_NAME("PCMPISTRM Gx, Ex, Ib");
+                    SETFLAGS(X_ALL, SF_SET_NODF, NAT_FLAGS_NOFUSION);
+                    int sew = (u8 & 1) ? VECTOR_SEW16 : VECTOR_SEW8;
+                    SET_ELEMENT_WIDTH(x1, sew);
+                    GETGX_vector(q0, 0, sew);
+                    GETEX_vector(q1, 0, 1, sew);
+                    ++addr;
+                    v0 = simd_get_reg_empty(dyn, ninst, x1, 0);
+                    simd_pcmpistrm_equal_each(dyn, ninst, v0, q0, q1, u8);
+                    break;
+                }
                 case 0x63: {
                     if (cpuext.xtheadvector || (rex.is32bits && rex.is67)) return 0;
                     nextop = F8;
@@ -1753,7 +1769,7 @@ uintptr_t dynarec64_660F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
                     simd_pcmpistri_negative_equal_each(dyn, ninst, q0, q1, 16 >> sew);
                     break;
                 }
-                case 0x60 ... 0x62:
+                case 0x60 ... 0x61:
                 case 0xDF: return 0;
                 default: DEFAULT_VECTOR;
             }
