@@ -138,30 +138,34 @@ uintptr_t dynarec64_AVX_F3_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintpt
             simd_store_reg(dyn, ninst, x1, v0, gd, 16, VECTOR_SEW64);
             break;
         case 0x12:
-            INST_NAME("VMOVSLDUP Gx, Ex");
+        case 0x16: {
+            int duplicate_high = opcode == 0x16;
+            INST_NAME(duplicate_high ? "VMOVSHDUP Gx, Ex" : "VMOVSLDUP Gx, Ex");
             nextop = F8;
             GETEY_vector(v1, 0, VECTOR_SEW32);
             GETGY_empty_vector(v0);
-            v2 = vpu_get_scratch(dyn);
-            SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW32);
-            VID_V(v2, VECTOR_UNMASKED);
-            VAND_VI(v2, v2, 0x1e, VECTOR_UNMASKED);
-            VRGATHER_VV_SAFE(v0, v1, v2, VECTOR_UNMASKED);
+            if (MODREG) {
+                if (v0 != v1) VMV1R_V(v0, v1);
+                VECTOR_LOAD_VMASK(duplicate_high ? 0x55 : 0xaa, x4);
+                if (duplicate_high) {
+                    VSLIDEDOWN_VI(v0, v1, 1, VECTOR_MASKED);
+                } else {
+                    VEC_SRC_KEEP(v1, v0);
+                    VSLIDEUP_VI(v0, v1, 1, VECTOR_MASKED);
+                }
+            } else {
+                int indices = vpu_get_scratch(dyn);
+                VID_V(indices, VECTOR_UNMASKED);
+                if (duplicate_high) {
+                    VOR_VI(indices, indices, 1, VECTOR_UNMASKED);
+                } else {
+                    VAND_VI(indices, indices, -2, VECTOR_UNMASKED);
+                }
+                VRGATHER_VV(v0, v1, indices, VECTOR_UNMASKED);
+            }
             PUTGY_vector(v0, VECTOR_SEW32);
             break;
-        case 0x16:
-            INST_NAME("VMOVSHDUP Gx, Ex");
-            nextop = F8;
-            GETEY_vector(v1, 0, VECTOR_SEW32);
-            GETGY_empty_vector(v0);
-            v2 = vpu_get_scratch(dyn);
-            SET_AVX_VECTOR_WIDTH(x1, VECTOR_SEW32);
-            VID_V(v2, VECTOR_UNMASKED);
-            VOR_VI(v2, v2, 1, VECTOR_UNMASKED);
-            VAND_VI(v2, v2, 0x1f, VECTOR_UNMASKED);
-            VRGATHER_VV_SAFE(v0, v1, v2, VECTOR_UNMASKED);
-            PUTGY_vector(v0, VECTOR_SEW32);
-            break;
+        }
         case 0x6F:
             INST_NAME("VMOVDQU Gx, Ex");
             nextop = F8;
