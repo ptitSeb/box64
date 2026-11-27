@@ -80,43 +80,38 @@ uintptr_t dynarec64_F30F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t i
             }
             break;
         case 0x12:
-            INST_NAME("MOVSLDUP Gx, Ex");
+        case 0x16: {
+            int duplicate_high = opcode == 0x16;
+            INST_NAME(duplicate_high ? "MOVSHDUP Gx, Ex" : "MOVSLDUP Gx, Ex");
             nextop = F8;
-            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64);
-            if (MODREG) {
-                q1 = simd_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0, VECTOR_SEW64);
+            if (cpuext.xtheadvector || !MODREG) {
+                SET_ELEMENT_WIDTH(x1, VECTOR_SEW64);
+                GETEX_vector(q1, 0, 0, VECTOR_SEW64);
+                GETGX_empty_vector(q0);
+                ADDI(x4, xZR, 32);
+                v0 = vpu_get_scratch(dyn);
+                if (duplicate_high) {
+                    VSRL_VX(q0, q1, x4, VECTOR_UNMASKED);
+                    VSLL_VX(v0, q0, x4, VECTOR_UNMASKED);
+                } else {
+                    VSLL_VX(q0, q1, x4, VECTOR_UNMASKED);
+                    VSRL_VX(v0, q0, x4, VECTOR_UNMASKED);
+                }
+                VOR_VV(q0, q0, v0, VECTOR_UNMASKED);
             } else {
-                SMREAD();
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 0);
-                q1 = vpu_get_scratch(dyn);
-                VLE64_V(q1, ed, VECTOR_UNMASKED, VECTOR_NFIELD1);
+                GETEX_vector(q1, 0, 0, VECTOR_SEW32);
+                GETGX_empty_vector(q0);
+                if (q0 != q1) VMV_V_V(q0, q1);
+                VECTOR_LOAD_VMASK(duplicate_high ? 0x5 : 0xa, x4);
+                if (duplicate_high) {
+                    VSLIDEDOWN_VI(q0, q1, 1, VECTOR_MASKED);
+                } else {
+                    VEC_SRC_KEEP(q1, q0);
+                    VSLIDEUP_VI(q0, q1, 1, VECTOR_MASKED);
+                }
             }
-            GETGX_empty_vector(q0);
-            ADDI(x4, xZR, 32);
-            v0 = vpu_get_scratch(dyn);
-            VSLL_VX(q0, q1, x4, VECTOR_UNMASKED);
-            VSRL_VX(v0, q0, x4, VECTOR_UNMASKED);
-            VOR_VV(q0, q0, v0, VECTOR_UNMASKED);
             break;
-        case 0x16:
-            INST_NAME("MOVSHDUP Gx, Ex");
-            nextop = F8;
-            SET_ELEMENT_WIDTH(x1, VECTOR_SEW64);
-            if (MODREG) {
-                q1 = simd_get_reg(dyn, ninst, x1, (nextop & 7) + (rex.b << 3), 0, VECTOR_SEW64);
-            } else {
-                SMREAD();
-                addr = geted(dyn, addr, ninst, nextop, &ed, x1, x2, &fixedaddress, rex, NULL, 0, 0);
-                q1 = vpu_get_scratch(dyn);
-                VLE64_V(q1, ed, VECTOR_UNMASKED, VECTOR_NFIELD1);
-            }
-            GETGX_empty_vector(q0);
-            ADDI(x4, xZR, 32);
-            v0 = vpu_get_scratch(dyn);
-            VSRL_VX(q0, q1, x4, VECTOR_UNMASKED);
-            VSLL_VX(v0, q0, x4, VECTOR_UNMASKED);
-            VOR_VV(q0, q0, v0, VECTOR_UNMASKED);
-            break;
+        }
         case 0x1E:
             return 0;
         case 0x2A:
