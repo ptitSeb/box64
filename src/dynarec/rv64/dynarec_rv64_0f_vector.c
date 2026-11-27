@@ -1750,11 +1750,8 @@ uintptr_t dynarec64_0F_vector(dynarec_rv64_t* dyn, uintptr_t addr, uintptr_t ip,
             GETEM_vector(q1, 0);
             SET_ELEMENT_WIDTH(x1, VECTOR_SEW8);
             rvv_set_vl_for_width(dyn, ninst, x1, VECTOR_SEW8, VECTOR_LMUL1, 8);
-            q2 = vpu_get_scratch(dyn);
             VMSLT_VX(VMASK, q1, xZR, VECTOR_UNMASKED);
-            VLE8_V(q2, xRDI, VECTOR_UNMASKED, VECTOR_NFIELD1);
-            VMERGE_VVM(q2, q2, q0);
-            VSE8_V(q2, xRDI, VECTOR_UNMASKED, VECTOR_NFIELD1);
+            VSE8_V(q0, xRDI, VECTOR_MASKED, VECTOR_NFIELD1);
             SMWRITE2();
             break;
         case 0x19:
