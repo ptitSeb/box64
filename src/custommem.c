@@ -160,6 +160,9 @@ typedef struct blockmark_s {
     uint8_t __attribute__((aligned(16))) mark[];
 } blockmark_t;
 
+// sub-block sizes must stay multiples of 16 too, or the next blockmark_t gets misaligned
+#define ALIGN_BLOCK(s) (((s)+15)&~(size_t)15)
+
 #define NEXT_BLOCK(b) (blockmark_t*)((uintptr_t)(b) + (b)->next.offs)
 #define PREV_BLOCK(b) (blockmark_t*)(((uintptr_t)(b) - (b)->prev.offs))
 #define LAST_BLOCK(b, s) (blockmark_t*)(((uintptr_t)(b)+(s))-sizeof(blockmark_t))
@@ -273,6 +276,7 @@ static void* allocBlock(void* block, blockmark_t* sub, size_t size, void** pstar
     blockmark_t *s = (blockmark_t*)sub;
     blockmark_t *n = NEXT_BLOCK(s);
 
+    size = ALIGN_BLOCK(size);
     size+=sizeof(blockmark_t); // count current blockmark
     s->next.fill = 1;
     // check if a new mark is worth it
@@ -336,6 +340,7 @@ static int expandBlock(void* block, blockmark_t* sub, size_t newsize, void** pst
     blockmark_t *s = sub;
     blockmark_t *n = NEXT_BLOCK(s);
     int re_first = (pstart && (n==*pstart))?1:0;
+    newsize = ALIGN_BLOCK(newsize);
     // big enough, nothing to do...
     if(SIZE_BLOCK(s->next)>=newsize)
         return 1;
@@ -497,7 +502,7 @@ static size_t roundSize(size_t size)
 {
     if(!size)
         return size;
-    size = (size+7)&~7LL;   // 8 bytes align in size
+    size = ALIGN_BLOCK(size);   // 16 bytes align in size
 
     if(size<THRESHOLD)
         size = THRESHOLD;
@@ -1223,10 +1228,10 @@ void internal_print_block(int i)
 
 void* internal_customMemAligned(size_t align, size_t size, int is32bits)
 {
+    if(align<16) align = 16;
     size_t align_mask = align-1;
     size_t init_size = (size+align_mask)&~align_mask;
     size = roundSize(size);
-    if(align<8) align = 8;
     if(size<=64 && align<=64)
         return map64_customMalloc(size, is32bits);
     if(size<=128 && align<=128)

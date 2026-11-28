@@ -264,15 +264,19 @@ uintptr_t RunAVX_0F(x64emu_t *emu, vex_t vex, uintptr_t addr, int *step)
             for (int i = 0; i < 4; ++i)
                 if (isnan(EX->f[i]))
                     GX->ud[i] = EX->ud[i] | 0x00400000;
+                else if (EX->f[i] < 0)
+                    GX->ud[i] = 0xffc00000; // -NAN: a float store lets clang -fno-math-errno fold this into sqrtf
                 else
-                    GX->f[i] = (EX->f[i] < 0) ? (-NAN) : sqrtf(EX->f[i]);
+                    GX->f[i] = sqrtf(EX->f[i]);
             if(vex.l) {
                 GETEY;
                 for (int i = 0; i < 4; ++i)
                     if (isnan(EY->f[i]))
                         GY->ud[i] = EY->ud[i] | 0x00400000;
+                    else if (EY->f[i] < 0)
+                        GY->ud[i] = 0xffc00000; // -NAN
                     else
-                        GY->f[i] = (EY->f[i] < 0) ? (-NAN) : sqrtf(EY->f[i]);
+                        GY->f[i] = sqrtf(EY->f[i]);
             } else
                 GY->u128 = 0;
             fesetround(oldround);

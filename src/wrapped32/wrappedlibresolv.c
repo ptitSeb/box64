@@ -22,6 +22,7 @@
 
 static const char* libresolvName = "libresolv.so.2";
 #define LIBNAME libresolv
+#define ALTNAME "libc.so"
 
 #include "generated/wrappedlibresolvtypes32.h"
 

@@ -42,7 +42,7 @@ typedef struct {
 
 #define CREATE_VALIST_FROM_VAARG(STACK, SCRATCH, N) \
   va_list sysv_varargs;                             \
-  sysv_varargs->gp_offset=(6-(((N)<6)?(N):6))*8;    \
+  sysv_varargs->gp_offset=(((N)<6)?(N):6)*8;        \
   sysv_varargs->fp_offset=(6*8);                    \
   sysv_varargs->reg_save_area=(SCRATCH);            \
   sysv_varargs->overflow_arg_area=(STACK);          \

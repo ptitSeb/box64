@@ -1297,7 +1297,7 @@ GOM(malloc_usable_size, LFEp)
 GOW(mallopt, iFii)
 //DATAB(mallwatch, 
 GO(mblen, iFpL)
-GO(__mbrlen, LFpLp)
+GO2(__mbrlen, LFpLp, mbrlen)
 GO(mbrlen, LFpLp)
 GO(mbrtoc16, LFppLp)
 GOW(mbrtoc32, LFppLp)

@@ -22,6 +22,7 @@
 
 const char* libtinfo6Name = "libtinfo.so.6";
 #define LIBNAME libtinfo6
+#define ALTNAME "libncursesw.so.6"
 
 #include "generated/wrappedlibtinfo6types.h"
 

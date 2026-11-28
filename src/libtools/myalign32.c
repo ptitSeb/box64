@@ -111,6 +111,10 @@ void myStackAlign32(const char* fmt, uint32_t* st, uint64_t* mystack)
                 #ifdef HAVE_LD80BITS
                 memcpy(mystack, st, 10);
                 st+=3; mystack+=2;
+                #elif __SIZEOF_LONG_DOUBLE__ == 8
+                LD2D((void*)st, &d);
+                memcpy(mystack, &d, 8);
+                st+=3; mystack++;
                 #else
                 LD2D((void*)st, &d);
                 ld = d;
@@ -782,6 +786,10 @@ void myStackAlignW32(const char* fmt, uint32_t* st, uint64_t* mystack)
                 #ifdef HAVE_LD80BITS
                 memcpy(mystack, st, 10);
                 st+=3; mystack+=2;
+                #elif __SIZEOF_LONG_DOUBLE__ == 8
+                LD2D((void*)st, &d);
+                memcpy(mystack, &d, 8);
+                st+=3; mystack++;
                 #else
                 LD2D((void*)st, &d);
                 if(((uintptr_t)mystack)&0xf)    // align the long double
